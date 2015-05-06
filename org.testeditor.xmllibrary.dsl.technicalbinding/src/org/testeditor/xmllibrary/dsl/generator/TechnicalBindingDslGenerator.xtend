@@ -1,7 +1,6 @@
 package org.testeditor.xmllibrary.dsl.generator
 
 import java.util.List
-import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.IFileSystemAccess
 import org.eclipse.xtext.generator.IGenerator
@@ -15,11 +14,12 @@ class TechnicalBindingDslGenerator implements IGenerator {
 		val container = resource.contents.head as TechnicalBindingTypes
 		val sourceFilename = resource.URI.trimFragment.trimFileExtension.lastSegment
 		val filename = '''«sourceFilename».xml'''.toString
-		fsa.generateFile(filename, compile(container, URI.createURI(filename)))
+		fsa.generateFile(filename, compile(container))
 	}
 	
-	def String compile(TechnicalBindingTypes container, URI uri) {
+	def String compile(TechnicalBindingTypes container) {
 		preprocessModel(container)
+		
 		val result = '''
 			<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 			<TechnicalBindingTypes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.1">
@@ -30,6 +30,7 @@ class TechnicalBindingDslGenerator implements IGenerator {
 				«ENDFOR»
 			</TechnicalBindingTypes>
 		'''
+		
 		return result
 	}
 	
