@@ -7,7 +7,7 @@ TechnicalBindingTypes returns TechnicalBindingTypes:
 	(types+=TechnicalBindingType)+;
 
 TechnicalBindingType returns TechnicalBindingType:
-	'technicalBindingType' id=ID 'label' name=STRING '{'
+	id=ID 'label' name=STRING '{'
 		actionParts+=(Variable)? 
 		(actionParts+=Text (actionParts+=Argument | actionParts+=ActionName)?)*
 	'}'
