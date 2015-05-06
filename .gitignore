@@ -17,3 +17,6 @@ hs_err_pid*
 
 #TempFiles
 *.*~
+
+# Xtext
+plugin.xml_gen
