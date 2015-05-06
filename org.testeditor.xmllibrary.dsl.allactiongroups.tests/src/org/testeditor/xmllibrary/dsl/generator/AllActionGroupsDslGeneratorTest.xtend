@@ -5,8 +5,6 @@ import org.junit.Assert
 import org.junit.Test
 import org.testeditor.xmllibrary.dsl.tests.AbstractTechnicalBindingTest
 import org.testeditor.xmllibrary.model.ModelFactory
-import static org.testeditor.xmllibrary.model.ActionType.*
-import org.testeditor.xmllibrary.model.ActionName
 
 class AllActionGroupsDslGeneratorTest extends AbstractTechnicalBindingTest {
 
