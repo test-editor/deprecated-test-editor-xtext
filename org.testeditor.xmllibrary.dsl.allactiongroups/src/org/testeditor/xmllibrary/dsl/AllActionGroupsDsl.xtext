@@ -21,11 +21,11 @@ Action returns Action:
 
 ActionName returns ActionName:
 	'locator' locator=ID 'label' name=STRING 
-	//(argument=Argument)?
+	(argument=Argument)?
 ;
 
-//Argument returns Argument:
-//	actionPart=[ActionPart] '['
-//		(values+=STRING)*   
-//	']'
-//;
+Argument returns Argument:
+	actionPart=[ActionPart] '['
+		(values+=STRING)*   
+	']'
+;
