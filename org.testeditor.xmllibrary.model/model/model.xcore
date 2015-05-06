@@ -13,7 +13,7 @@ class ActionGroup {
 
 class Action {
 	refers TechnicalBindingType[1] technicalBindingType
-	contains ActionName[0..*] actionNames
+	contains ActionName[1] actionName
 	int sort	
 }
 
