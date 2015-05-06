@@ -15,7 +15,8 @@ Require-Bundle: org.testeditor.xmllibrary.dsl.technicalbinding;visibility:=reexp
  org.eclipse.xtext.xbase.lib,
  org.eclipse.xtext.common.types.ui,
  org.eclipse.xtext.ui.codetemplates.ui,
- org.eclipse.compare
+ org.eclipse.compare,
+ org.antlr.runtime
 Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.testeditor.xmllibrary.dsl.ui.quickfix,
