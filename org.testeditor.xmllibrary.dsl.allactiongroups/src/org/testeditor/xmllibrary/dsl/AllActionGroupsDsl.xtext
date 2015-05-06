@@ -8,7 +8,7 @@ ActionGroups returns ActionGroups:
 ;
 
 ActionGroup returns ActionGroup:
-	'actionGroup' name=STRING '{'
+	name=STRING '{'
 		(actions+=Action)*
 	'}'
 ;
