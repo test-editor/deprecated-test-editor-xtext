@@ -3,10 +3,10 @@ package org.testeditor.xmllibrary.dsl.generator
 import javax.inject.Inject
 import org.junit.Assert
 import org.junit.Test
-import org.testeditor.xmllibrary.dsl.tests.AbstractTechnicalBindingTest
+import org.testeditor.xmllibrary.dsl.tests.AbstractActionGroupsTest
 import org.testeditor.xmllibrary.model.ModelFactory
 
-class AllActionGroupsDslGeneratorTest extends AbstractTechnicalBindingTest {
+class ActionGroupsGeneratorTest extends AbstractActionGroupsTest {
 
 	static val model = ModelFactory.eINSTANCE
 
