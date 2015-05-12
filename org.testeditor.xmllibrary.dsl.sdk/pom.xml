@@ -10,7 +10,7 @@
 		<relativePath>../releng/org.testeditor.xmllibrary.releng.parent</relativePath>
 	</parent>
 
-	<artifactId>org.testeditor.xmllibrary.dsl.allactiongroups.sdk</artifactId>
+	<artifactId>org.testeditor.xmllibrary.dsl.sdk</artifactId>
 	<packaging>eclipse-feature</packaging>
 
 </project>

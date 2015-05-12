@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.testeditor.xmllibrary.dsl.sdk"
+      label="XMLLibrary SDK Feature "
+      version="1.0.0.qualifier">
+
+   <plugin
+         id="org.testeditor.xmllibrary.dsl.allactiongroups"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.testeditor.xmllibrary.dsl.allactiongroups.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.testeditor.xmllibrary.model"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.testeditor.xmllibrary.dsl.importer"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.testeditor.xmllibrary.dsl.technicalbinding"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.testeditor.xmllibrary.dsl.technicalbinding.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

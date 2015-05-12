@@ -19,17 +19,20 @@
 
 		<!-- dsl -->
 		<module>org.testeditor.xmllibrary.dsl.allactiongroups</module>
-		<module>org.testeditor.xmllibrary.dsl.allactiongroups.sdk</module>
 		<module>org.testeditor.xmllibrary.dsl.allactiongroups.tests</module>
 		<module>org.testeditor.xmllibrary.dsl.allactiongroups.ui</module>
 		<module>org.testeditor.xmllibrary.dsl.technicalbinding</module>
-		<module>org.testeditor.xmllibrary.dsl.technicalbinding.sdk</module>
 		<module>org.testeditor.xmllibrary.dsl.technicalbinding.tests</module>
 		<module>org.testeditor.xmllibrary.dsl.technicalbinding.ui</module>
+		<module>org.testeditor.xmllibrary.dsl.sdk</module>
 
 		<!-- dsl importer -->
 		<module>org.testeditor.xmllibrary.dsl.importer</module>
 		<module>org.testeditor.xmllibrary.dsl.importer.tests</module>
+		
+		<!-- rcp -->
+		<module>org.testeditor.xmllibrary.rcp.platform.feature</module>
+		<module>org.testeditor.xmllibrary.rcp.product</module>
 	</modules>
 
 </project>

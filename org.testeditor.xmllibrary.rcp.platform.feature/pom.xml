@@ -10,7 +10,7 @@
 		<relativePath>../releng/org.testeditor.xmllibrary.releng.parent</relativePath>
 	</parent>
 
-	<artifactId>org.testeditor.xmllibrary.dsl.technicalbinding.sdk</artifactId>
+	<artifactId>org.testeditor.xmllibrary.rcp.platform.feature</artifactId>
 	<packaging>eclipse-feature</packaging>
 
 </project>
