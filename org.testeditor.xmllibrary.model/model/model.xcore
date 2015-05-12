@@ -1,3 +1,4 @@
+@GenModel(modelDirectory="org.testeditor.xmllibrary.model/src-gen", complianceLevel="7.0")
 package org.testeditor.xmllibrary.model
 
 class ActionGroups {

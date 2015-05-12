@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.testeditor</groupId>
+	<!-- conflict with old artifact that is named org.testeditor.xmllibrary -->
+	<artifactId>org.testeditor.xmllibrary.all</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<modules>
+		<!-- releng -->
+		<module>releng/org.testeditor.xmllibrary.releng.parent</module>
+		<module>releng/org.testeditor.xmllibrary.releng.parent.dsl</module>
+
+		<!-- model -->
+		<module>org.testeditor.xmllibrary.model</module>
+
+		<!-- dsl -->
+		<module>org.testeditor.xmllibrary.dsl.allactiongroups</module>
+		<module>org.testeditor.xmllibrary.dsl.allactiongroups.sdk</module>
+		<module>org.testeditor.xmllibrary.dsl.allactiongroups.tests</module>
+		<module>org.testeditor.xmllibrary.dsl.allactiongroups.ui</module>
+		<module>org.testeditor.xmllibrary.dsl.technicalbinding</module>
+		<module>org.testeditor.xmllibrary.dsl.technicalbinding.sdk</module>
+		<module>org.testeditor.xmllibrary.dsl.technicalbinding.tests</module>
+		<module>org.testeditor.xmllibrary.dsl.technicalbinding.ui</module>
+
+		<!-- dsl importer -->
+		<module>org.testeditor.xmllibrary.dsl.importer</module>
+		<module>org.testeditor.xmllibrary.dsl.importer.tests</module>
+	</modules>
+
+</project>

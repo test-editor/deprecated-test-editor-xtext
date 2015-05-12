@@ -4,16 +4,34 @@ import org.eclipse.emf.mwe.utils.*
 import org.eclipse.xtext.generator.*
 import org.eclipse.xtext.ui.generator.*
 
-var grammarURI = "classpath:/org/testeditor/xmllibrary/dsl/TechnicalBindingDsl.xtext"
 var fileExtensions = "tbdsl"
 var projectName = "org.testeditor.xmllibrary.dsl.technicalbinding"
 var runtimeProject = "../${projectName}"
 var generateXtendStub = true
+var grammarURI = "platform:/resource/${projectName}/src/org/testeditor/xmllibrary/dsl/TechnicalBindingDsl.xtext"
+
 
 Workflow {
+
 	bean = StandaloneSetup {
 		scanClassPath  = true
+		resourceSet = org.eclipse.xtext.resource.XtextResourceSet : theResourceSet {}
+
+		// add mappings from platform:/resource to classpath:/
+		uriMap = {
+			from = "platform:/resource/org.eclipse.xtext.xbase/"
+			to = "classpath:/"
+		}
+		uriMap = {
+			from = "platform:/resource/org.eclipse.xtext.common.types/"
+			to = "classpath:/"
+		}
+
+		// register current projects and its siblings for platform URI map, as they are not on the classpath.
 		platformUri = "${runtimeProject}/.."
+		
+		registerGeneratedEPackage = "org.eclipse.emf.ecore.xcore.XcorePackage"
+		registerGeneratedEPackage = "org.testeditor.xmllibrary.model.ModelPackage"
 	}
 
 	component = DirectoryCleaner {
@@ -31,6 +49,8 @@ Workflow {
 		projectNameRt = projectName
 		projectNameUi = "${projectName}.ui"
 		language = auto-inject {
+			// make sure we use the resourceSet created during standalone setup.
+			forcedResourceSet = theResourceSet
 			loadedResource = "platform:/resource/org.testeditor.xmllibrary.model/model/model.xcore"
 			uri = grammarURI
 
