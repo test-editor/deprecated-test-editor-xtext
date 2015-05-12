@@ -25,6 +25,12 @@
 						<filesets combine.children="append">
 							<fileset>
 								<directory>p2-local</directory>
+								<includes>
+									<include>**</include>
+								</includes>
+								<excludes>
+									<exclude>.gitignore</exclude>
+								</excludes>
 							</fileset>
 						</filesets>
 					</configuration>
