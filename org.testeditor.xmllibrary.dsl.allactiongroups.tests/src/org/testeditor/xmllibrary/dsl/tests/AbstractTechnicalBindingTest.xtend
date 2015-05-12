@@ -7,5 +7,5 @@ import org.testeditor.xmllibrary.dsl.AllActionGroupsDslInjectorProvider
 
 @InjectWith(AllActionGroupsDslInjectorProvider)
 @RunWith(XtextRunner)
-class AbstractTechnicalBindingTest {
+abstract class AbstractTechnicalBindingTest {
 }
