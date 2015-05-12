@@ -8,7 +8,7 @@ bin/
 target/
 
 # Package Files #
-*.jar
+# *.jar - don't ingore as target platform shall be checked-in
 *.war
 *.ear
 

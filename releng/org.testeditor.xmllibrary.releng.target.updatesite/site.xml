@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/org.testeditor.xmllibrary.releng.target.thirdparty_1.0.0.qualifier.jar" id="org.testeditor.xmllibrary.releng.target.thirdparty" version="1.0.0.qualifier"/>
+   <feature url="features/org.eclipse.xtext.sdk_2.8.2.v201504100559.jar" id="org.eclipse.xtext.sdk" version="2.8.2.v201504100559"/>
+   <feature url="features/org.eclipse.emf.ecore.xcore.sdk_1.2.2.v20150202-0452.jar" id="org.eclipse.emf.ecore.xcore.sdk" version="1.2.2.v20150202-0452"/>
+</site>
