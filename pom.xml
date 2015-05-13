@@ -29,6 +29,7 @@
 		<!-- dsl importer -->
 		<module>org.testeditor.xmllibrary.dsl.importer</module>
 		<module>org.testeditor.xmllibrary.dsl.importer.tests</module>
+		<module>org.testeditor.xmllibrary.dsl.importer.ui</module>
 		
 		<!-- rcp -->
 		<module>org.testeditor.xmllibrary.rcp.platform.feature</module>
