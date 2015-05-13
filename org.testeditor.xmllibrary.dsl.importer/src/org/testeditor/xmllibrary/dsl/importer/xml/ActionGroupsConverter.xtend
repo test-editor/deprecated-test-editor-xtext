@@ -41,7 +41,7 @@ class ActionGroupsConverter {
 			val binding = bindings.find(action.technicalBindingType)
 			technicalBindingType = binding
 			if (action.actionName !== null) {
-				actionName = factory.createActionName => [
+				actionNames += factory.createActionName => [
 					locator = action.actionName.locator
 					name = action.actionName.value
 					if (action.argument !== null) {

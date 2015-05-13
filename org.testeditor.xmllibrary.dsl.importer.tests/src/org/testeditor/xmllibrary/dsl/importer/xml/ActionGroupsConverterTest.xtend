@@ -53,15 +53,19 @@ class ActionGroupsConverterTest extends AbstractImporterTest {
 	}
 	
 	def void assertActionName(Action action, String locator, String name) {
-		assertNotNull(action.actionName)
-		assertEquals(locator, action.actionName.locator)
-		assertEquals(name, action.actionName.name)
+		assertNotNull(action.actionNames)
+		assertTrue(action.actionNames.size == 1)
+		val actionName = action.actionNames.head
+		assertEquals(locator, actionName.locator)
+		assertEquals(name, actionName.name)
 	}
 	
 	def void assertArgument(Action action, String id, List<String> values) {
-		assertNotNull(action.actionName)
-		assertNotNull(action.actionName.argument)
-		val argument = action.actionName.argument
+		assertNotNull(action.actionNames)
+		assertTrue(action.actionNames.size == 1)
+		val actionName = action.actionNames.head
+		assertNotNull(actionName.argument)
+		val argument = actionName.argument
 		assertNotNull(argument.actionPart)
 		assertEquals(id, argument.actionPart.id)
 		val expectedValues = values.join("\n")
