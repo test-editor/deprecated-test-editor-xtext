@@ -30,7 +30,7 @@ class TechnicalBindingConverterTest extends AbstractImporterTest {
 
 			// Check action parts
 			assertEquals(5, actionParts.size)
-			actionParts.forEach [ part, i | assertEquals(i + 1, part.position)]
+			actionParts.forEach [ part, i | assertEquals(0, part.position)]
 			actionParts.get(0).assertText("wähle aus der Combobox")
 			actionParts.get(1).assertActionName
 			actionParts.get(2).assertText("den Wert")

@@ -29,7 +29,7 @@ class TechnicalBindingConverter {
 			if (binding.sort !== null) {
 				sort = binding.sort
 			}
-			actionParts += binding.actionPart.map[convert]
+			actionParts += binding.actionPart.sortBy[position].map[convert]
 		]
 	}
 	
@@ -37,8 +37,8 @@ class TechnicalBindingConverter {
 		return factory.createActionPart => [
 			id = actionPart.id
 			value = actionPart.value
-			position = actionPart.position
 			type = ActionType.get(actionPart.type.value)
+			// don't set position
 		]		
 	}
 	
