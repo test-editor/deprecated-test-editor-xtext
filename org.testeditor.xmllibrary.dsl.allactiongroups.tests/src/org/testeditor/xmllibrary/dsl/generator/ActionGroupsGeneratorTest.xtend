@@ -14,7 +14,7 @@ class ActionGroupsGeneratorTest extends AbstractActionGroupsTest {
 	AllActionGroupsDslGenerator generator
 
 	@Test
-	def void simpleTest() {
+	def void actionGroupWithOneAction() {
 
 		// Given
 		val input = model.createActionGroups => [
@@ -25,7 +25,7 @@ class ActionGroupsGeneratorTest extends AbstractActionGroupsTest {
 						id = "Pruefe_Text_Nicht_In_Element"
 						name = "Ist Text am Element nicht vorhanden"
 					]
-					actionName = model.createActionName => [
+					actionNames += model.createActionName => [
 						locator = "name_id"
 						name = "Name"
 					]
@@ -52,5 +52,52 @@ class ActionGroupsGeneratorTest extends AbstractActionGroupsTest {
 
 		Assert.assertEquals(expected, result)
 	}
+	
+	@Test
+	def void actionGroupWithTwoActionsForSameTechnicalBinding() {
+
+		// Given
+		val input = model.createActionGroups => [
+			actionGroups += model.createActionGroup => [
+				name = "Allgemein Browser"
+				actions += model.createAction => [
+					technicalBindingType = model.createTechnicalBindingType => [
+						id = "Pruefe_Text_Nicht_In_Element"
+						name = "Ist Text am Element nicht vorhanden"
+					]
+					actionNames += model.createActionName => [
+						locator = "name_id"
+						name = "Name"
+					]
+					actionNames += model.createActionName => [
+						locator = "name_id_2"
+						name = "Name_2"
+					]					
+				]
+			]
+		]
+
+		// When
+		val result = generator.compile(input, null)
+
+		// Then
+		println(result)
+
+		val expected = '''
+			<?xml version="1.0" encoding="UTF-8"?>
+			<ActionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.1">
+				<ActionGroup name="Allgemein Browser">
+					<action technicalBindingType="Pruefe_Text_Nicht_In_Element">
+						<actionName locator="name_id">Name</actionName>
+					</action>
+					<action technicalBindingType="Pruefe_Text_Nicht_In_Element">
+						<actionName locator="name_id_2">Name_2</actionName>
+					</action>
+				</ActionGroup>
+			</ActionGroups>
+		'''
+
+		Assert.assertEquals(expected, result)
+	}	
 
 }

@@ -43,9 +43,11 @@ class AllActionGroupsDslGenerator implements IGenerator {
 
 	protected def String compile(List<Action> actions) '''
 		«FOR action : actions»
-			<action technicalBindingType="«action.technicalBindingType.id»">
-				<actionName locator="«action.actionName.locator»">«action.actionName.name»</actionName>
-			</action>
+			«FOR actionName : action.actionNames»
+				<action technicalBindingType="«action.technicalBindingType.id»">
+					<actionName locator="«actionName.locator»">«actionName.name»</actionName>
+				</action>
+			«ENDFOR»
 		«ENDFOR»
 	'''
 

@@ -24,9 +24,9 @@ class TechnicalBindingDslGenerator implements IGenerator {
 			<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 			<TechnicalBindingTypes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.1">
 				«FOR type : container.types»
-				    <TechnicalBindingType id="«type.id»" name="«type.name»">
-				    	«type.actionParts.compile»
-				    </TechnicalBindingType>
+					<TechnicalBindingType id="«type.id»" name="«type.name»">
+						«type.actionParts.compile»
+					</TechnicalBindingType>
 				«ENDFOR»
 			</TechnicalBindingTypes>
 		'''
@@ -35,11 +35,26 @@ class TechnicalBindingDslGenerator implements IGenerator {
 	}
 	
 	protected def String compile(List<ActionPart> actionParts) '''
-		«FOR actionpart : actionParts»
-			<actionPart position="«actionpart.position»" type="«actionpart.type»"«IF actionpart.type == ActionType.TEXT» value="«actionpart.value»"«ENDIF»/>
+		«FOR part : actionParts»
+			<actionPart position="«part.position»" type="«part.type»"«part.handleTextValue»«part.handleArgumentId»/>
 		«ENDFOR»
 	'''
 	
+	def String handleTextValue(ActionPart actionPart) {
+		if(actionPart.type == ActionType.TEXT) {
+			return ''' value="«actionPart.value»"'''
+		}
+		
+		return ""
+	}	
+	
+	def String handleArgumentId(ActionPart actionPart) {
+		if(actionPart.type == ActionType.ARGUMENT && !actionPart.id.nullOrEmpty) {
+			return ''' id="«actionPart.id»"'''
+		}
+		
+		return ""
+	}
 
 	def void preprocessModel(TechnicalBindingTypes container) {
 		for (binding : container.types) {
