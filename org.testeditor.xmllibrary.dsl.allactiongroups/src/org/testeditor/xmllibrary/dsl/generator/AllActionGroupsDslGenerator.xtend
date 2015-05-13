@@ -54,12 +54,12 @@ class AllActionGroupsDslGenerator implements IGenerator {
 	'''
 	
 	protected def String handleArgumentList(ActionName actionName) '''
-		«IF actionName.argument != null»
-		<argument id="«actionName.argument?.actionPart?.id»">
-		«FOR value : actionName.argument.values»	
-			«"	"»<value>«value»</value>
-		«ENDFOR»
-		</argument>
+		«IF actionName.argument !== null»
+			<argument id="«actionName.argument?.actionPart?.id»">
+			«FOR value : actionName.argument.values»	
+				«"	"»<value>«value»</value>
+			«ENDFOR»
+			</argument>
 		«ENDIF»
 	'''	
 

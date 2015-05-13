@@ -5,7 +5,6 @@ import org.junit.Assert
 import org.junit.Test
 import org.testeditor.xmllibrary.dsl.tests.AbstractActionGroupsTest
 import org.testeditor.xmllibrary.model.ModelFactory
-import org.testeditor.xmllibrary.model.Argument
 
 import static org.testeditor.xmllibrary.model.ActionType.*
 
