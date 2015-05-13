@@ -10,6 +10,7 @@ import org.eclipse.xtext.generator.IFileSystemAccess
 import org.eclipse.xtext.generator.IGenerator
 import org.testeditor.xmllibrary.model.Action
 import org.testeditor.xmllibrary.model.ActionGroups
+import org.testeditor.xmllibrary.model.ActionName
 
 /**
  * Generates code from your model files on save.
@@ -46,9 +47,20 @@ class AllActionGroupsDslGenerator implements IGenerator {
 			«FOR actionName : action.actionNames»
 				<action technicalBindingType="«action.technicalBindingType.id»">
 					<actionName locator="«actionName.locator»">«actionName.name»</actionName>
+					«actionName.handleArgumentList»
 				</action>
 			«ENDFOR»
 		«ENDFOR»
 	'''
+	
+	protected def String handleArgumentList(ActionName actionName) '''
+		«IF actionName.argument != null»
+		<argument id="«actionName.argument?.actionPart?.id»">
+		«FOR value : actionName.argument.values»	
+			«"	"»<value>«value»</value>
+		«ENDFOR»
+		</argument>
+		«ENDIF»
+	'''	
 
 }

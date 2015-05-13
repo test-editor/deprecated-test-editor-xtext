@@ -17,7 +17,9 @@ class TechnicalBindingNameProvider extends SimpleNameProvider {
 			return obj.id.toQualifiedName
 		}
 		if (obj instanceof ActionPart) {
-			return obj.id.toQualifiedName
+			if (!obj.id.nullOrEmpty) {
+				return obj.id.toQualifiedName
+			}
 		}
 		return super.getFullyQualifiedName(obj)
 	}

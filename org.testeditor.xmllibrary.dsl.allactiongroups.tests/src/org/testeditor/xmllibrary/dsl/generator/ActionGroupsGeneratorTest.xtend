@@ -5,6 +5,9 @@ import org.junit.Assert
 import org.junit.Test
 import org.testeditor.xmllibrary.dsl.tests.AbstractActionGroupsTest
 import org.testeditor.xmllibrary.model.ModelFactory
+import org.testeditor.xmllibrary.model.Argument
+
+import static org.testeditor.xmllibrary.model.ActionType.*
 
 class ActionGroupsGeneratorTest extends AbstractActionGroupsTest {
 
@@ -52,7 +55,7 @@ class ActionGroupsGeneratorTest extends AbstractActionGroupsTest {
 
 		Assert.assertEquals(expected, result)
 	}
-	
+
 	@Test
 	def void actionGroupWithTwoActionsForSameTechnicalBinding() {
 
@@ -72,7 +75,7 @@ class ActionGroupsGeneratorTest extends AbstractActionGroupsTest {
 					actionNames += model.createActionName => [
 						locator = "name_id_2"
 						name = "Name_2"
-					]					
+					]
 				]
 			]
 		]
@@ -98,6 +101,150 @@ class ActionGroupsGeneratorTest extends AbstractActionGroupsTest {
 		'''
 
 		Assert.assertEquals(expected, result)
-	}	
+	}
+
+	@Test
+	def void actionGroupWithActionAndArgumentList() {
+
+		// Given
+		val input = model.createActionGroups => [
+			actionGroups += model.createActionGroup => [
+				name = "Allgemein Browser"
+				actions += model.createAction => [
+					technicalBindingType = model.createTechnicalBindingType => [
+						id = "Auswahl_Wert"
+						name = "Wert auswählen"
+						actionParts += model.createActionPart => [
+							value = "wähle aus der Combobox"
+						]
+						actionParts += model.createActionPart => [
+							type = ACTION_NAME
+						]
+						actionParts += model.createActionPart => [
+							value = "den Wert"
+						]
+						actionParts += model.createActionPart => [
+							type = ARGUMENT
+							id = "argument1"
+						]
+						actionParts += model.createActionPart => [
+							value = "aus"
+						]
+					]
+					actionNames += model.createActionName => [
+						locator = "land"
+						name = "Land"
+						argument = model.createArgument => [
+							actionPart = model.createActionPart => [
+								type = ARGUMENT
+								id = "argument1"
+							]
+							values += #["Deutschland", "Italien", "USA"]
+						]
+					]
+				]
+			]
+		]
+
+		// When
+		val result = generator.compile(input, null)
+
+		// Then
+		println(result)
+
+		val expected = '''
+			<?xml version="1.0" encoding="UTF-8"?>
+			<ActionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.1">
+				<ActionGroup name="Allgemein Browser">
+					<action technicalBindingType="Auswahl_Wert">
+						<actionName locator="land">Land</actionName>
+						<argument id="argument1">
+							<value>Deutschland</value>
+							<value>Italien</value>
+							<value>USA</value>
+						</argument>
+					</action>
+				</ActionGroup>
+			</ActionGroups>
+		'''
+
+		Assert.assertEquals(expected, result)
+	}
+	
+	@Test
+	def void actionGroupWithActionAndArgumentListAndAction() {
+
+		// Given
+		val input = model.createActionGroups => [
+			actionGroups += model.createActionGroup => [
+				name = "Allgemein Browser"
+				actions += model.createAction => [
+					technicalBindingType = model.createTechnicalBindingType => [
+						id = "Auswahl_Wert"
+						name = "Wert auswählen"
+						actionParts += model.createActionPart => [
+							value = "wähle aus der Combobox"
+						]
+						actionParts += model.createActionPart => [
+							type = ACTION_NAME
+						]
+						actionParts += model.createActionPart => [
+							value = "den Wert"
+						]
+						actionParts += model.createActionPart => [
+							type = ARGUMENT
+							id = "argument1"
+						]
+						actionParts += model.createActionPart => [
+							value = "aus"
+						]
+					]
+					actionNames += model.createActionName => [
+						locator = "land"
+						name = "Land"
+						argument = model.createArgument => [
+							actionPart = model.createActionPart => [
+								type = ARGUMENT
+								id = "argument1"
+							]
+							values += #["Deutschland", "Italien", "USA"]
+						]
+					]
+					actionNames += model.createActionName => [
+						locator = "name"
+						name = "Name"
+					]					
+				]
+			]
+		]
+
+		// When
+		val result = generator.compile(input, null)
+
+		// Then
+		println(result)
+
+		val expected = '''
+			<?xml version="1.0" encoding="UTF-8"?>
+			<ActionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.1">
+				<ActionGroup name="Allgemein Browser">
+					<action technicalBindingType="Auswahl_Wert">
+						<actionName locator="land">Land</actionName>
+						<argument id="argument1">
+							<value>Deutschland</value>
+							<value>Italien</value>
+							<value>USA</value>
+						</argument>
+					</action>
+					<action technicalBindingType="Auswahl_Wert">
+						<actionName locator="name">Name</actionName>
+					</action>
+				</ActionGroup>
+			</ActionGroups>
+		'''
+
+		Assert.assertEquals(expected, result)
+	}
+	
 
 }
