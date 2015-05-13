@@ -13,18 +13,16 @@ import static org.junit.Assert.*
  */
 class ActionGroupsConverterTest extends AbstractImporterTest {
 
-	@Inject TechnicalBindingConverter bindingConverter
 	@Inject ActionGroupsConverter converter
 	@Inject SampleData sampleData
 	
 	@Test
 	def void testConvert() {
 		// Given
-		val bindings = bindingConverter.convert(sampleData.bindings)
 		val actionGroups = sampleData.actionGroups
 
 		// When
-		val result = converter.convert(actionGroups, bindings)
+		val result = converter.convert(actionGroups)
 
 		// Then
 		result.actionGroups.findFirst[name == "Lokale Anmeldung"] => [
