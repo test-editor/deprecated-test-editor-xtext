@@ -18,9 +18,9 @@ class ImportWizard extends Wizard implements IImportWizard {
 	}
 
 	override void init(IWorkbench workbench, IStructuredSelection selection) {
-		windowTitle = "File Import Wizard"
+		windowTitle = "XMLLibrary Import Wizard"
 		needsProgressMonitor = true
-		mainPage = new ImportWizardPage("Import XML File", selection)
+		mainPage = new ImportWizardPage("Import AllActionGroups / TechnicalBindings File", selection)
 	}
 
 	override void addPages() {
