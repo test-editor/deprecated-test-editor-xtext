@@ -11,6 +11,7 @@ import org.testeditor.xmllibrary.model.Action
 import org.testeditor.xmllibrary.model.ActionGroup
 import org.testeditor.xmllibrary.model.ActionGroups
 import org.testeditor.xmllibrary.model.ActionName
+import org.testeditor.xmllibrary.model.Argument
 
 /**
  * Generates code from your model files on save.
@@ -41,27 +42,36 @@ class AllActionGroupsDslGenerator implements IGenerator {
 
 	protected def String compile(ActionGroup actionGroup) '''
 		<ActionGroup name="«actionGroup.name»">
-			«actionGroup.actions.map[compile].join("\n")»
+			«actionGroup.actions.map[compile].join»
 		</ActionGroup>
 	'''
 
-	protected def String compile(Action action) '''
-		«FOR actionName : action.actionNames»
-			<action technicalBindingType="«action.technicalBindingType.id»">
-				<actionName locator="«actionName.locator»">«actionName.name»</actionName>
-				«actionName.handleArgumentList»
-			</action>
-		«ENDFOR»
+	protected def String compile(Action action) {
+		if (action.actionNames.empty) {
+			return action.createActionWithoutName
+		} else {
+			return action.actionNames.map[actionName | action.createAction(actionName)].join	
+		}
+	}
+	
+	protected def String createActionWithoutName(Action action) '''
+		<action technicalBindingType="«action.technicalBindingType.id»" />
+	'''
+	protected def String createAction(Action action, ActionName actionName) '''
+		<action technicalBindingType="«action.technicalBindingType.id»">
+			<actionName locator="«actionName.locator»">«actionName.name»</actionName>
+			«IF actionName.argument !== null»«actionName.argument.compile»«ENDIF»
+		</action>
 	'''
 
-	protected def String handleArgumentList(ActionName actionName) '''
-		«IF actionName.argument !== null»
-			<argument id="«actionName.argument?.actionPart?.id»">
-			«FOR value : actionName.argument.values»	
-				«"	"»<value>«value»</value>
-			«ENDFOR»
-			</argument>
-		«ENDIF»
+	protected def String compile(Argument argument) '''
+		<argument id="«argument.actionPart?.id»">
+			«argument.values.map[compileValue].join("\n")»
+		</argument>
 	'''
+	
+	protected def String compileValue(String value) {
+		return '''<value>«value»</value>'''		
+	}
 
 }
