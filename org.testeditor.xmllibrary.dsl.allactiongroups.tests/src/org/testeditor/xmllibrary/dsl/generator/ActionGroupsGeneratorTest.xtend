@@ -44,11 +44,13 @@ class ActionGroupsGeneratorTest extends AbstractActionGroupsTest {
 		val expected = '''
 			<?xml version="1.0" encoding="UTF-8"?>
 			<ActionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.1">
+			
 				<ActionGroup name="Allgemein Browser">
 					<action technicalBindingType="Pruefe_Text_Nicht_In_Element">
 						<actionName locator="name_id">Name</actionName>
 					</action>
 				</ActionGroup>
+			
 			</ActionGroups>
 		'''
 
@@ -88,6 +90,7 @@ class ActionGroupsGeneratorTest extends AbstractActionGroupsTest {
 		val expected = '''
 			<?xml version="1.0" encoding="UTF-8"?>
 			<ActionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.1">
+			
 				<ActionGroup name="Allgemein Browser">
 					<action technicalBindingType="Pruefe_Text_Nicht_In_Element">
 						<actionName locator="name_id">Name</actionName>
@@ -96,6 +99,7 @@ class ActionGroupsGeneratorTest extends AbstractActionGroupsTest {
 						<actionName locator="name_id_2">Name_2</actionName>
 					</action>
 				</ActionGroup>
+			
 			</ActionGroups>
 		'''
 
@@ -154,6 +158,7 @@ class ActionGroupsGeneratorTest extends AbstractActionGroupsTest {
 		val expected = '''
 			<?xml version="1.0" encoding="UTF-8"?>
 			<ActionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.1">
+			
 				<ActionGroup name="Allgemein Browser">
 					<action technicalBindingType="Auswahl_Wert">
 						<actionName locator="land">Land</actionName>
@@ -164,6 +169,7 @@ class ActionGroupsGeneratorTest extends AbstractActionGroupsTest {
 						</argument>
 					</action>
 				</ActionGroup>
+			
 			</ActionGroups>
 		'''
 
@@ -226,6 +232,7 @@ class ActionGroupsGeneratorTest extends AbstractActionGroupsTest {
 		val expected = '''
 			<?xml version="1.0" encoding="UTF-8"?>
 			<ActionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.1">
+			
 				<ActionGroup name="Allgemein Browser">
 					<action technicalBindingType="Auswahl_Wert">
 						<actionName locator="land">Land</actionName>
@@ -239,6 +246,7 @@ class ActionGroupsGeneratorTest extends AbstractActionGroupsTest {
 						<actionName locator="name">Name</actionName>
 					</action>
 				</ActionGroup>
+			
 			</ActionGroups>
 		'''
 

@@ -3,12 +3,12 @@
  */
 package org.testeditor.xmllibrary.dsl.generator
 
-import java.util.List
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.IFileSystemAccess
 import org.eclipse.xtext.generator.IGenerator
 import org.testeditor.xmllibrary.model.Action
+import org.testeditor.xmllibrary.model.ActionGroup
 import org.testeditor.xmllibrary.model.ActionGroups
 import org.testeditor.xmllibrary.model.ActionName
 
@@ -27,32 +27,33 @@ class AllActionGroupsDslGenerator implements IGenerator {
 	}
 
 	def String compile(ActionGroups container, URI uri) {
-
 		val result = '''
 			<?xml version="1.0" encoding="UTF-8"?>
 			<ActionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.1">
-				«FOR actionGroup : container.actionGroups»
-					<ActionGroup name="«actionGroup.name»">
-						«actionGroup.actions.compile»
-					</ActionGroup>
-				«ENDFOR»
+			
+				«container.actionGroups.map[compile].join("\n\n")»
+			
 			</ActionGroups>
 		'''
 
 		return result
 	}
 
-	protected def String compile(List<Action> actions) '''
-		«FOR action : actions»
-			«FOR actionName : action.actionNames»
-				<action technicalBindingType="«action.technicalBindingType.id»">
-					<actionName locator="«actionName.locator»">«actionName.name»</actionName>
-					«actionName.handleArgumentList»
-				</action>
-			«ENDFOR»
+	protected def String compile(ActionGroup actionGroup) '''
+		<ActionGroup name="«actionGroup.name»">
+			«actionGroup.actions.map[compile].join("\n")»
+		</ActionGroup>
+	'''
+
+	protected def String compile(Action action) '''
+		«FOR actionName : action.actionNames»
+			<action technicalBindingType="«action.technicalBindingType.id»">
+				<actionName locator="«actionName.locator»">«actionName.name»</actionName>
+				«actionName.handleArgumentList»
+			</action>
 		«ENDFOR»
 	'''
-	
+
 	protected def String handleArgumentList(ActionName actionName) '''
 		«IF actionName.argument !== null»
 			<argument id="«actionName.argument?.actionPart?.id»">
@@ -61,6 +62,6 @@ class AllActionGroupsDslGenerator implements IGenerator {
 			«ENDFOR»
 			</argument>
 		«ENDIF»
-	'''	
+	'''
 
 }
