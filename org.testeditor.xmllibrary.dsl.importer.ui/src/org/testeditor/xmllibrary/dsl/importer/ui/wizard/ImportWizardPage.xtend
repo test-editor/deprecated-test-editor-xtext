@@ -94,11 +94,20 @@ class ImportWizardPage extends WizardNewFileCreationPage {
 	}
 
 	override protected InputStream getInitialContents() {
-		val file = new File(editor.stringValue)
-		val unmarshaller = jaxbHelper.createUnmarshaller
-		val object = unmarshaller.unmarshal(file)
-		val string = converter.convert(object)
-		return new StringInputStream(string)
+		try {
+			val file = new File(editor.stringValue)
+			val unmarshaller = jaxbHelper.createUnmarshaller
+			val object = unmarshaller.unmarshal(file)
+			val string = converter.convert(object)
+			return new StringInputStream(string)
+		} catch (Exception e) {
+			shell.openError("Error", '''
+			Caught exception:
+			«e.toString»
+			''')
+			e.printStackTrace
+			return null
+		}
 	}
 	
 	override protected String getNewFileLabel() {
