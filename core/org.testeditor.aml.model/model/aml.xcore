@@ -1,5 +1,135 @@
-@GenModel(modelDirectory="org.testeditor.aml.model/src-gen", complianceLevel="7.0")
+@GenModel(
+	modelDirectory="org.testeditor.aml.model/src-gen", 
+	complianceLevel="7.0"
+)
 package org.testeditor.aml.model
 
-class Model {
+/* <p>
+ * AML stands for <pre>Application (Under Test) Mapping Language</pre> and
+ * a set of instances of this class define how the test-editor can interact with
+ * a given application. This information can be split between different models
+ * in order to be reusable and contains information such as which components are
+ * available for interaction and what interactions are possible with elements of
+ * that component.
+ * </p> 
+ */
+class AmlModel {
+	String[1] ^package
+	contains org.eclipse.xtext.xtype.XImportSection importSection // TODO import
+	contains Component[0..*] components
+	contains ComponentType[0..*] componentTypes
+	contains ComponentElementType[0..*] componentElementTypes
+	contains InteractionType[0..*] interactionTypes
+}
+
+/* <p>
+ * Abstract super-class for all elements of this model. 
+ * </p>
+ */
+abstract class ModelElement {
+	/* The identifying name (id) of the element. */
+	String[1] name
+	/* The label of the element. */
+	String label
+}
+
+/* <p>
+ * A component represents an abstract unit in the application
+ * under test. This could be, for example, a web service, a ui dialog 
+ * and so on.<br/><br/>
+ * 
+ * It has a {@link ComponentType type} and groups together various 
+ * {@link ComponentElement elements} that support some kind of interaction.<br/><br/>
+ * 
+ * Components can also have multiple parents from which they inherit. Note that when
+ * inheriting from multiple components they may not include elements that have the
+ * same name.
+ * </p>
+ */
+class Component extends ModelElement {
+	boolean ^abstract = "false"
+	refers ComponentType[1] ^type
+	refers Component[0..*] parents
+	contains ComponentElement[0..*] elements
+}
+
+/* <p>
+ * A component element is a concrete element within a component 
+ * that supports some kind of interaction. The possible interactions
+ * are defined by its {@link ComponentElementType type}.
+ * <br/>
+ * As an example, the element could be the "OK" button (ComponentElement)
+ * of type "button" (ComponentElementType) within an ui dialog (Component).
+ * </p>
+ */
+class ComponentElement extends ModelElement {
+	refers ComponentElementType[1] ^type
+	String locator
+	// TODO support overriding of elements
+}
+
+/* <p> 
+ * Instances of this class define types of components,
+ * for example "web service", "dialog", "editor".
+ * </p>
+ */
+class ComponentType extends ModelElement {
+}
+
+/* <p>
+ * Instances of this class define types of component elements,
+ * for example "button" or "text-field".
+ * </p>
+ */
+class ComponentElementType extends ModelElement {
+	refers InteractionType[0..*] interactionTypes
+}
+
+/* <p>
+ * Instances of this class define a type of interaction with a component element,
+ * such as "read value" or "write value" (e.g. on a text field).<br/><br/>
+ * 
+ * They are independent of the concrete type of the component element since
+ * an interaction like "read value" could be performed on a text field
+ * as well as a label.
+ * </p>
+ */
+class InteractionType extends ModelElement {
+	/* 
+	 * The template for the interaction, 
+	 * e.g. <pre>Pick a value ${value} from drop-down ${element}.</pre>
+	 */
+	contains Template template
+	// TODO attribute method as feature call, e.g. method = SomeFixture.someMethod(element, value)
+}
+
+// TODO work in progress
+class Template {
+	contains TemplateContent[0..*] contents
+}
+
+abstract class TemplateContent {}
+
+class TemplateString extends TemplateContent {
+	String value
+}
+
+class TemplateVariable extends TemplateContent {
+	String name
+}
+
+class InteractionValueSpace {
+	refers TemplateVariable templateVariable
+	refers ValueSpace valueSpace
+}
+
+abstract class ValueSpace {
+}
+
+class RegExValueSpace extends ValueSpace {
+	String[1] pattern
+}
+
+class StringLiterals extends ValueSpace {
+	String[1..*] values
 }
