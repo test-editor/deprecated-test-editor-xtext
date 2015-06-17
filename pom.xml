@@ -9,9 +9,10 @@
 	<packaging>pom</packaging>
 
 	<modules>
-		<!-- releng -->
 		<module>releng/org.testeditor.autmaplib.releng.parent</module>
 		<module>releng/org.testeditor.autmaplib.releng.parent.dsl</module>
+		
+		<module>core/org.testeditor.aml.model</module>
 	</modules>
 
 </project>

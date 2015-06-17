@@ -11,21 +11,23 @@
 	<properties>
 		<!-- Version definitions below -->
 		<java.version>1.7</java.version>
-		<xtext.version>2.8.2</xtext.version>
+		<xtext.version>2.8.3</xtext.version>
 		<xtend.version>${xtext.version}</xtend.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<tycho-version>0.23.0</tycho-version>
 		<maven-clean-plugin.version>2.5</maven-clean-plugin.version>
 		<maven-resources-plugin.version>2.7</maven-resources-plugin.version>
 		<maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
 
+
 		<!-- Settings for xtext-maven-plugin -->
-		<xtext.encoding>${project-build-sourceEncoding}</xtext.encoding>
+		<xtext.encoding>${project.build.sourceEncoding}</xtext.encoding>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 
 		<!-- point to te.target -->
-		<xtext-target>file:///${basedir}/../releng/org.testeditor.autmaplib.releng.target/p2-local</xtext-target>
+		<xtext-target>file:///${basedir}/../../releng/org.testeditor.autmaplib.releng.target/p2-local</xtext-target>
 	</properties>
 
 	<repositories>
@@ -106,6 +108,31 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
 				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<environments>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86_64</arch>
+						</environment>
+					</environments>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>

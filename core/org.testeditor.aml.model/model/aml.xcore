@@ -1,0 +1,5 @@
+@GenModel(modelDirectory="org.testeditor.aml.model/src-gen", complianceLevel="7.0")
+package org.testeditor.aml.model
+
+class Model {
+}

@@ -9,9 +9,9 @@
    <extension point="org.eclipse.emf.ecore.generated_package">
       <!-- @generated model -->
       <package
-            uri="org.testeditor.xmllibrary.model"
-            class="org.testeditor.xmllibrary.model.ModelPackage"
-            genModel="model/model.xcore"/>
+            uri="org.testeditor.aml.model"
+            class="org.testeditor.aml.model.ModelPackage"
+            genModel="model/aml.xcore"/>
    </extension>
 
 </plugin>
