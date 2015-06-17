@@ -5,7 +5,5 @@ jdk:
 cache:
   directories:
   - $HOME/.m2
-script:
-  - clean install -f "releng/org.testeditor.autmaplib.releng.target/pom.xml"
-  - clean install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
-  - test -B
+before_install:
+  - mvn clean install -f "releng/org.testeditor.autmaplib.releng.target/pom.xml" -B -V
