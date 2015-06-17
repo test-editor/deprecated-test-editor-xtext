@@ -9,7 +9,6 @@
    <feature url="features/org.eclipse.emf.mwe2.runtime.sdk_2.7.1.v201503051048.jar" id="org.eclipse.emf.mwe2.runtime.sdk" version="2.7.1.v201503051048"/>
    <feature url="features/org.eclipse.xtend.sdk_2.8.2.v201504100559.jar" id="org.eclipse.xtend.sdk" version="2.8.2.v201504100559"/>
    <feature url="features/org.eclipse.xtext.sdk_2.8.2.v201504100559.jar" id="org.eclipse.xtext.sdk" version="2.8.2.v201504100559"/>
-   <feature url="features/org.testeditor.xmllibrary.releng.target.thirdparty_1.0.0.qualifier.jar" id="org.testeditor.xmllibrary.releng.target.thirdparty" version="1.0.0.qualifier"/>
    <feature url="features/org.eclipse.ecf.core.feature_1.1.0.v20141221-2352.jar" id="org.eclipse.ecf.core.feature" version="1.1.0.v20141221-2352">
       <category name="eclipse-platform"/>
    </feature>
@@ -24,5 +23,6 @@
       <category name="eclipse-platform"/>
    </feature>
    <feature url="features/org.eclipse.equinox.p2.rcp.feature_1.2.0.v20140523-0116.jar" id="org.eclipse.equinox.p2.rcp.feature" version="1.2.0.v20140523-0116"/>
+   <feature url="features/org.testeditor.autmaplib.releng.target.thirdparty_1.0.0.qualifier.jar" id="org.testeditor.autmaplib.releng.target.thirdparty" version="1.0.0.qualifier"/>
    <category-def name="eclipse-platform" label="eclipse-platform"/>
 </site>

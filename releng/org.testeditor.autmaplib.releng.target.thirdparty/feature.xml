@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.testeditor.xmllibrary.releng.target.thirdparty"
+      id="org.testeditor.autmaplib.releng.target.thirdparty"
       version="1.0.0.qualifier">
 
    <description url="http://www.example.com/description">
