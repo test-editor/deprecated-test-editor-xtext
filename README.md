@@ -6,4 +6,4 @@ test-editor-xtext
 
 An Xtext based editor to define the mapping between the test-editor and the application under test (AUT).
 
-This project is called "autmaplib" for Application Under Test Mapping Library.
+This sub-project is called "aml" for Application (Under Test) Mapping Language.

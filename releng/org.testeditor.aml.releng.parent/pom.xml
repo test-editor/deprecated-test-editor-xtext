@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.testeditor</groupId>
-	<artifactId>org.testeditor.autmaplib.releng.parent</artifactId>
+	<artifactId>org.testeditor.aml.releng.parent</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
@@ -27,7 +27,7 @@
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 
 		<!-- point to te.target -->
-		<xtext-target>file:///${basedir}/../../releng/org.testeditor.autmaplib.releng.target/p2-local</xtext-target>
+		<xtext-target>file:///${basedir}/../../releng/org.testeditor.aml.releng.target/p2-local</xtext-target>
 	</properties>
 
 	<repositories>

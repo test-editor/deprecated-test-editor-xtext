@@ -4,14 +4,14 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.testeditor</groupId>
-	<artifactId>org.testeditor.autmaplib.releng.target</artifactId>
+	<artifactId>org.testeditor.aml.releng.target</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>../org.testeditor.autmaplib.releng.target.parent</module>
-		<module>../org.testeditor.autmaplib.releng.target.thirdparty</module>
-		<module>../org.testeditor.autmaplib.releng.target.updatesite</module>
+		<module>../org.testeditor.aml.releng.target.parent</module>
+		<module>../org.testeditor.aml.releng.target.thirdparty</module>
+		<module>../org.testeditor.aml.releng.target.updatesite</module>
 	</modules>
 
 	<build>
@@ -55,7 +55,7 @@
 							<overwrite>true</overwrite>
 							<resources>
 								<resource>
-									<directory>../org.testeditor.autmaplib.releng.target.updatesite/target/site</directory>
+									<directory>../org.testeditor.aml.releng.target.updatesite/target/site</directory>
 								</resource>
 							</resources>
 						</configuration>

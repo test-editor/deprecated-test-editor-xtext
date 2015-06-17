@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.testeditor.autmaplib.releng.target</name>
+	<name>org.testeditor.aml.releng.parent.dsl</name>
 	<comment></comment>
 	<projects>
 	</projects>

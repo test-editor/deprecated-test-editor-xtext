@@ -23,6 +23,6 @@
       <category name="eclipse-platform"/>
    </feature>
    <feature url="features/org.eclipse.equinox.p2.rcp.feature_1.2.0.v20140523-0116.jar" id="org.eclipse.equinox.p2.rcp.feature" version="1.2.0.v20140523-0116"/>
-   <feature url="features/org.testeditor.autmaplib.releng.target.thirdparty_1.0.0.qualifier.jar" id="org.testeditor.autmaplib.releng.target.thirdparty" version="1.0.0.qualifier"/>
+   <feature url="features/org.testeditor.aml.releng.target.thirdparty_1.0.0.qualifier.jar" id="org.testeditor.aml.releng.target.thirdparty" version="1.0.0.qualifier"/>
    <category-def name="eclipse-platform" label="eclipse-platform"/>
 </site>
