@@ -12,6 +12,9 @@
 		<module>releng/org.testeditor.aml.releng.parent</module>
 		<module>releng/org.testeditor.aml.releng.parent.dsl</module>
 		
+		<module>core/org.testeditor.aml.dsl</module>
+		<module>core/org.testeditor.aml.dsl.tests</module>
+		<module>core/org.testeditor.aml.dsl.ui</module>
 		<module>core/org.testeditor.aml.model</module>
 	</modules>
 

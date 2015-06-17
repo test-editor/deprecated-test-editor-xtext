@@ -15,7 +15,7 @@ package org.testeditor.aml.model
  */
 class AmlModel {
 	String[1] ^package
-	contains org.eclipse.xtext.xtype.XImportSection importSection // TODO import
+	// contains XImportSection importSection // TODO import
 	contains Component[0..*] components
 	contains ComponentType[0..*] componentTypes
 	contains ComponentElementType[0..*] componentElementTypes
