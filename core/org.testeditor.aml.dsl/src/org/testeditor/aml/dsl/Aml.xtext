@@ -6,6 +6,52 @@ import "http://www.eclipse.org/xtext/xbase/Xtype" as xtype
 
 AmlModel returns AmlModel:
 	'package' package=QualifiedName
-//	('importSection' importSection=XImportSection)?
+//	('importSection' importSection=XImportSection)? // TODO support imports
+	(
+		components+=Component |
+		componentTypes+=ComponentType |
+		componentElementTypes+=ComponentElementType |
+		interactionTypes+=InteractionType
+	)*
 ;
 
+Component returns Component: 
+	(abstract?='abstract')? 'component' name=ID 
+	'is' type=[ComponentType] 
+	('includes' parents+=[Component] (',' parents+=[Component])*)?
+	('{'
+		('label' '=' label=STRING)?
+		elements+=ComponentElement*
+		// TODO support override
+	'}')?
+;
+
+ComponentType returns ComponentType: 
+	'component' 'type' name=ID ('{'
+		('label' '=' label=STRING)?
+	'}')?
+;
+
+ComponentElement returns ComponentElement:
+	'element' name=ID 'is' type=[ComponentElementType] ('{'
+		('label' '=' label=STRING)?
+		('locator' '=' locator=STRING)?
+	'}')?
+;
+
+ComponentElementType returns ComponentElementType:
+	'element' 'type' name=ID ('{'
+		('label' '=' label=STRING)?
+		('interactions' '=' interactionTypes+=[InteractionType] (',' interactionTypes+=[InteractionType])*)?
+	'}')?
+;
+
+InteractionType returns InteractionType:
+	'interaction' 'type' name=ID ('{'
+		('label' '=' label=STRING)?
+		('template' '=' template=STRING)? // TODO use proper data type
+		// TODO support fixture-method reference
+	'}')?
+;
+
+// TODO support value-spaces
