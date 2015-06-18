@@ -1,25 +1,52 @@
 package org.testeditor.aml.dsl.tests
 
+import com.google.inject.Guice
 import com.google.inject.Injector
+import com.google.inject.Module
+import java.util.ArrayList
+import java.util.List
 import javax.inject.Inject
 import org.eclipse.xtext.junit4.AbstractXtextTests
-import org.eclipse.xtext.junit4.InjectWith
 import org.eclipse.xtext.junit4.XtextRunner
 import org.eclipse.xtext.junit4.validation.ValidationTestHelper
+import org.eclipse.xtext.util.Modules2
 import org.junit.runner.RunWith
-import org.testeditor.aml.dsl.AmlInjectorProvider
+import org.testeditor.aml.dsl.AmlRuntimeModule
+import org.testeditor.aml.dsl.AmlStandaloneSetup
 
-@InjectWith(AmlInjectorProvider)
 @RunWith(XtextRunner)
 abstract class AbstractTest extends AbstractXtextTests {
 	
 	@Inject protected extension AssertionHelper
 	@Inject protected extension ValidationTestHelper
-	@Inject Injector injector
 	
 	override setUp() throws Exception {
 		super.setUp()
-		setInjector(this.injector)
+		
+		// Setup dependency injection
+		val injector = createInjector
+		setInjector(injector)
+		injector.injectMembers(this)
+	}
+	
+	protected def Injector createInjector() {
+		val modules = new ArrayList<Module>
+		modules += new AmlRuntimeModule
+		modules.collectModules
+		
+		val mixinModule = Modules2.mixin(modules)
+		val setup = new AmlStandaloneSetup {
+			override createInjector() {
+				return Guice.createInjector(mixinModule)
+			}
+		}
+		return setup.createInjectorAndDoEMFRegistration
+	}
+	
+	/**
+	 * Subclasses may add modules here, they will be mixed-in.
+	 */	
+	protected def void collectModules(List<Module> modules) {
 	}
 	
 }
