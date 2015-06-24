@@ -7,6 +7,10 @@ import "http://www.eclipse.org/xtext/xbase/Xtype" as xtype
 AmlModel returns AmlModel:
 	'package' package=QualifiedName
 //	('importSection' importSection=XImportSection)? // TODO support imports
+
+	('generate' 'allActionGroups' fileNameAllActionGroups=STRING)?
+	('generate' 'technicalBindings' fileNameTechnicalBindings=STRING)?
+	
 	(
 		components+=Component |
 		componentTypes+=ComponentType |

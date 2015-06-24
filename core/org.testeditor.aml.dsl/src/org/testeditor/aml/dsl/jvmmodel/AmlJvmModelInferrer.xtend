@@ -5,12 +5,7 @@ import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.testeditor.aml.model.AmlModel
 
-/**
- * <p>Infers a JVM model from the source model.</p> 
- *
- * <p>The JVM model should contain all elements that would appear in the Java code 
- * which is generated from the source model. Other models link against the JVM model rather than the source model.</p>     
- */
+// TODO this is not used, yet - instead we generate the old XML files for now
 class AmlJvmModelInferrer extends AbstractModelInferrer {
 
     /**
