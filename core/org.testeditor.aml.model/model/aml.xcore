@@ -101,8 +101,22 @@ class InteractionType extends ModelElement {
 	 * The template for the interaction, 
 	 * e.g. <pre>Pick a value ${value} from drop-down ${element}.</pre>
 	 */
-	String template // TODO String or something strongly typed?
+	contains Template template 
 	// TODO attribute method as feature call, e.g. method = SomeFixture.someMethod(element, value)
+}
+
+class Template {
+	contains TemplateContent[0..*] contents
+}
+
+abstract class TemplateContent {}
+
+class TemplateConstant extends TemplateContent {
+	String value
+}
+
+class TemplateVariable extends TemplateContent {
+	String name
 }
 
 class InteractionValueSpace {

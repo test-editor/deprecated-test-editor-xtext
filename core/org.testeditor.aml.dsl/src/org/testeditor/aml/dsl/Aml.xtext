@@ -53,9 +53,30 @@ ComponentElementType returns ComponentElementType:
 InteractionType returns InteractionType:
 	'interaction' 'type' name=ID ('{'
 		('label' '=' label=STRING)?
-		('template' '=' template=STRING)? // TODO use proper data type
+		('template' '=' template=Template)? // TODO use proper data type
 		// TODO support fixture-method reference
 	'}')?
+;
+
+Template hidden():
+	{Template}
+	'|' contents+=TemplateConstant (contents+=TemplateVariable contents+=TemplateConstant?)* '|'
+;
+
+TemplateConstant: 
+	value=TemplateValue
+;
+
+TemplateValue hidden():
+	(WS | ID | INT)+
+;
+
+TemplateVariable: 
+	name=TEMPLATE_VARIABLE_DEF
+;
+
+terminal TEMPLATE_VARIABLE_DEF:
+	'${' ID '}'
 ;
 
 // TODO support value-spaces

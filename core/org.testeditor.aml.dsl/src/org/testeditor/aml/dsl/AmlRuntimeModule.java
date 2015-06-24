@@ -1,6 +1,8 @@
 package org.testeditor.aml.dsl;
 
+import org.eclipse.xtext.conversion.IValueConverterService;
 import org.eclipse.xtext.generator.IGenerator;
+import org.testeditor.aml.dsl.conversion.AmlValueConverterService;
 import org.testeditor.aml.dsl.generator.OldXmlGenerator;
 
 /**
@@ -15,6 +17,11 @@ public class AmlRuntimeModule extends org.testeditor.aml.dsl.AbstractAmlRuntimeM
 	@Override
 	public Class<? extends IGenerator> bindIGenerator() {
 		return OldXmlGenerator.class;
+	}
+	
+	@Override
+	public Class<? extends IValueConverterService> bindIValueConverterService() {
+		return AmlValueConverterService.class;
 	}
 	
 }
