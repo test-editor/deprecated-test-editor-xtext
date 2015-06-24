@@ -16,6 +16,7 @@
 		<module>core/org.testeditor.aml.dsl.tests</module>
 		<module>core/org.testeditor.aml.dsl.ui</module>
 		<module>core/org.testeditor.aml.model</module>
+		<module>core/org.testeditor.aml.sdk</module>
 	</modules>
 
 </project>
