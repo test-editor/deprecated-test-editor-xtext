@@ -98,23 +98,50 @@ class ComponentElementType extends ModelElement {
  */
 class InteractionType extends ModelElement {
 	/* 
-	 * The template for the interaction, 
-	 * e.g. <pre>Pick a value ${value} from drop-down ${element}.</pre>
+	 * The {@link Template} for the interaction, 
+	 * e.g. <pre>"Pick a value" ${value} "from drop-down" ${element}</pre>
 	 */
 	contains Template template 
 	// TODO attribute method as feature call, e.g. method = SomeFixture.someMethod(element, value)
 }
 
+/* <p>
+ * A template is a combination of fixed Strings and variable declarations.
+ * <br/><br/>
+ * Example:
+ * <pre>"Pick a value" ${value} "from drop-down" ${element}</pre>
+ * Will be represented as the object graph:
+ * <pre>
+ * Template
+ *    TemplateText      value = "Pick a value"
+ *    TemplateVariable  name  = "value"
+ *    TemplateText      value = "from drop-down"
+ *    TemplateVariable  name  = "element"
+ * </pre> 
+ * </p>
+ */
 class Template {
 	contains TemplateContent[0..*] contents
 }
 
+/* <p>
+ * Abstract superclass for contents of a {@link Template}.
+ * </p>
+ */
 abstract class TemplateContent {}
 
-class TemplateConstant extends TemplateContent {
+/* <p>
+ * Represents a fixed text within a {@link Template}.
+ * </p>
+ */
+class TemplateText extends TemplateContent {
 	String value
 }
 
+/* <p>
+ * Represents a variable within a {@link Template}.
+ * </p>
+ */
 class TemplateVariable extends TemplateContent {
 	String name
 }

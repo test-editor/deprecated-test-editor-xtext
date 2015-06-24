@@ -59,10 +59,10 @@ InteractionType returns InteractionType:
 ;
 
 Template:
-	contents+=TemplateConstant (contents+=TemplateVariable contents+=TemplateConstant?)* 
+	contents+=TemplateText (contents+=TemplateVariable contents+=TemplateText?)* 
 ;
 
-TemplateConstant: 
+TemplateText: 
 	value=STRING
 ;
 
