@@ -3,6 +3,8 @@
  */
 package org.testeditor.aml.dsl.ui.quickfix
 
+import org.eclipse.xtext.ui.editor.quickfix.DefaultQuickfixProvider
+
 //import org.eclipse.xtext.ui.editor.quickfix.Fix
 //import org.eclipse.xtext.ui.editor.quickfix.IssueResolutionAcceptor
 //import org.eclipse.xtext.validation.Issue
@@ -12,7 +14,7 @@ package org.testeditor.aml.dsl.ui.quickfix
  *
  * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#quick-fixes
  */
-class AmlQuickfixProvider extends org.eclipse.xtext.xbase.ui.quickfix.XbaseQuickfixProvider {
+class AmlQuickfixProvider extends DefaultQuickfixProvider {
 
 //	@Fix(MyDslValidator::INVALID_NAME)
 //	def capitalizeName(Issue issue, IssueResolutionAcceptor acceptor) {

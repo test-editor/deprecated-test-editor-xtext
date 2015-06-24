@@ -3,6 +3,8 @@
  */
 package org.testeditor.aml.dsl.ui.labeling
 
+import org.eclipse.xtext.ui.label.DefaultDescriptionLabelProvider
+
 //import org.eclipse.xtext.resource.IEObjectDescription
 
 /**
@@ -10,7 +12,7 @@ package org.testeditor.aml.dsl.ui.labeling
  * 
  * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#label-provider
  */
-class AmlDescriptionLabelProvider extends org.eclipse.xtext.xbase.ui.labeling.XbaseDescriptionLabelProvider {
+class AmlDescriptionLabelProvider extends DefaultDescriptionLabelProvider {
 
 	// Labels and icons can be computed like this:
 	
