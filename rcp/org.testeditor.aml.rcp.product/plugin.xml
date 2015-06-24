@@ -2,15 +2,22 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         id="XMLLibraryProduct"
          point="org.eclipse.core.runtime.products">
       <product
             application="org.eclipse.ui.ide.workbench"
-            name="XMLLibraryProduct">
+            name="AMLProduct">
          <property
                name="appName"
-               value="XMLLibraryProduct">
+               value="aml">
          </property>
+      </product>
+   </extension>
+   <extension
+         id="aml"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="org.eclipse.ui.ide.workbench"
+            name="AML Product">
       </product>
    </extension>
 

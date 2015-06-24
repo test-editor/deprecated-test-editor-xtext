@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="XMLLibraryProduct" uid="XMLLibraryDSL" id="org.testeditor.xmllibrary.rcp.product.XMLLibraryProduct" application="org.eclipse.ui.ide.workbench" useFeatures="true" includeLaunchers="true">
+<product name="AML Product" uid="aml" id="org.testeditor.aml.rcp.product.aml" application="org.eclipse.ui.ide.workbench" version="1.0.0.qualifier" useFeatures="true" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>
@@ -13,13 +13,23 @@
 
    <windowImages/>
 
+   <launcher>
+      <solaris/>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
    <plugins>
    </plugins>
 
    <features>
-      <feature id="org.testeditor.xmllibrary.rcp.platform.feature" version="1.0.0.qualifier"/>
-      <feature id="org.testeditor.xmllibrary.dsl.sdk" version="1.0.0.qualifier"/>
-      <feature id="org.eclipse.rcp" version="4.4.2.v20150204-1700"/>
+      <feature id="org.testeditor.aml.sdk"/>
+      <feature id="org.testeditor.aml.rcp.platform.feature"/>
+      <feature id="org.eclipse.rcp"/>
    </features>
 
    <configurations>
