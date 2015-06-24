@@ -5,6 +5,7 @@ import org.eclipse.xtext.validation.Check
 import org.testeditor.aml.model.Component
 import org.testeditor.aml.model.ModelUtil
 
+import static org.testeditor.aml.dsl.Messages.*
 import static org.testeditor.aml.model.ModelPackage.Literals.*
 
 class AmlValidator extends AbstractAmlValidator {
@@ -14,7 +15,7 @@ class AmlValidator extends AbstractAmlValidator {
 
 	@Inject
 	private extension ModelUtil
-
+	
 	/**
 	 * Checks that a {@link Component} does not have a cycle in its parents hierarchy.
 	 */
@@ -22,7 +23,7 @@ class AmlValidator extends AbstractAmlValidator {
 	def void checkComponentHasNoCycle(Component component) {
 		if (component.hasParentsCycle) {
 			error(
-				"Component has a cycle in its includes hierarchy.",
+				Validation_Component_Cycle,
 				COMPONENT__PARENTS,
 				COMPONENT__PARENTS__CYCLE
 			)
@@ -36,7 +37,7 @@ class AmlValidator extends AbstractAmlValidator {
 	def void checkComponentHasType(Component component) {
 		if (!component.hasParentsCycle && component.types.empty) {
 			error(
-				"Component has no type.",
+				Validation_Component_Type_Missing,
 				COMPONENT__TYPE,
 				COMPONENT__TYPE__MISSING
 			)
