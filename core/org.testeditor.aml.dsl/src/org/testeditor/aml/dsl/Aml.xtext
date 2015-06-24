@@ -58,17 +58,12 @@ InteractionType returns InteractionType:
 	'}')?
 ;
 
-Template hidden():
-	{Template}
-	'|' contents+=TemplateConstant (contents+=TemplateVariable contents+=TemplateConstant?)* '|'
+Template:
+	contents+=TemplateConstant (contents+=TemplateVariable contents+=TemplateConstant?)* 
 ;
 
 TemplateConstant: 
-	value=TemplateValue
-;
-
-TemplateValue hidden():
-	(WS | ID | INT)+
+	value=STRING
 ;
 
 TemplateVariable: 
