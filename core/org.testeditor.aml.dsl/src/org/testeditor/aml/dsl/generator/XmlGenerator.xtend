@@ -6,7 +6,12 @@ import org.eclipse.xtext.generator.IFileSystemAccess
 import org.eclipse.xtext.generator.IGenerator
 import org.testeditor.aml.model.AmlModel
 
-class OldXmlGenerator implements IGenerator {
+/**
+ * Generates the XML for the "all action groups" and "technical bindings" depending
+ * on whether {@link AmlModel#getFileNameAllActionGroups()} and
+ * {@link AmlModel#getFileNameTechnicalBindings()} are set.
+ */
+class XmlGenerator implements IGenerator {
 
 	@Inject extension AllActionGroupsGenerator
 	@Inject extension TechnicalBindingsGenerator
