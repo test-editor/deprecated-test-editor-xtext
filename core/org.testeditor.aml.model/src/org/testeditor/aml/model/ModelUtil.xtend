@@ -22,7 +22,9 @@ class ModelUtil {
 	}
 	
 	private def void collectTypes(Component component, Set<ComponentType> result) {
-		result += component.type
+		if (component.type !== null) {
+			result += component.type
+		}
 		component.parents.forEach[collectTypes(result)]
 	}
 	

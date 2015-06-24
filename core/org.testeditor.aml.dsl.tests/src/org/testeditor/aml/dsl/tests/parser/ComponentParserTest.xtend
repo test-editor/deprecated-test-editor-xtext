@@ -116,6 +116,23 @@ class ComponentParserTest extends AbstractParserTest {
 		]
 	}
 	
+	@Test
+	def void parseWithInheritedType() {
+		// Given
+		val componentName = "MyDialog"
+		val input = '''
+			component «componentName» includes AbstractDialog
+			abstract component AbstractDialog is «typeName»
+		'''.addType
+		
+		// When
+		val component = input.parse(Component)
+		component => [
+			assertNoErrors
+			name.assertEquals(componentName)
+		]
+	}
+	
 	protected def addType(CharSequence input) '''
 		«input»
 		component type «typeName»

@@ -48,7 +48,7 @@ abstract class ModelElement {
  */
 class Component extends ModelElement {
 	boolean ^abstract = "false"
-	refers ComponentType[1] ^type
+	refers ComponentType ^type
 	refers Component[0..*] parents
 	contains ComponentElement[0..*] elements
 }
