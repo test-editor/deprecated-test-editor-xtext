@@ -1,6 +1,7 @@
 package org.testeditor.aml.dsl.tests.parser.validation
 
 import org.junit.Test
+import org.testeditor.aml.dsl.validation.AmlValidator
 import org.testeditor.aml.model.Component
 
 import static org.testeditor.aml.dsl.Messages.*
