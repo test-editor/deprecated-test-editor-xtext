@@ -43,3 +43,4 @@ tmp/
 *.swp
 *~.nib
 local.properties
+Eclipse.app
