@@ -28,6 +28,7 @@
 
    <features>
       <feature id="org.testeditor.aml.sdk"/>
+      <feature id="org.testeditor.aml.legacy.feature"/>
       <feature id="org.testeditor.aml.rcp.platform.feature"/>
       <feature id="org.eclipse.rcp"/>
    </features>

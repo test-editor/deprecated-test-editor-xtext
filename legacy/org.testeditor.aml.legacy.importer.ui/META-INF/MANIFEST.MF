@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: org.testeditor.aml.dsl.legacy
+Bundle-SymbolicName: org.testeditor.aml.legacy.importer.ui;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.testeditor.aml.legacy.importer.ui.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.xtend.lib,
+ org.eclipse.xtend.lib.macro,
+ com.google.guava,
+ org.eclipse.xtext.xbase.lib,
+ org.testeditor.aml.dsl,
+ org.testeditor.aml.dsl.ui,
+ org.testeditor.aml.model,
+ org.eclipse.xtext.ui
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Bundle-Vendor: My Company
+

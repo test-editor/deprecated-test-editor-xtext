@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.testeditor.aml.legacy.feature"
+      label="AML Legacy Feature"
+      version="1.0.0.qualifier">
+
+   <plugin
+         id="org.testeditor.aml.legacy.importer.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.testeditor.aml.legacy.model"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+</feature>

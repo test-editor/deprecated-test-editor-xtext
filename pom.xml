@@ -17,6 +17,10 @@
 		<module>core/org.testeditor.aml.dsl.ui</module>
 		<module>core/org.testeditor.aml.model</module>
 		<module>core/org.testeditor.aml.sdk</module>
+
+		<module>legacy/org.testeditor.aml.legacy.model</module>
+		<module>legacy/org.testeditor.aml.legacy.importer.ui</module>
+		<module>legacy/org.testeditor.aml.legacy.feature</module>
 	</modules>
 
 </project>
