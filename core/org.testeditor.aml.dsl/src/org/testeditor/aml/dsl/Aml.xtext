@@ -15,7 +15,8 @@ AmlModel returns AmlModel:
 		components+=Component |
 		componentTypes+=ComponentType |
 		componentElementTypes+=ComponentElementType |
-		interactionTypes+=InteractionType
+		interactionTypes+=InteractionType |
+		valueSpaces+=ValueSpace
 	)*
 ;
 
@@ -40,6 +41,7 @@ ComponentElement returns ComponentElement:
 	'element' name=ID 'is' type=[ComponentElementType] ('{'
 		('label' '=' label=STRING)?
 		('locator' '=' locator=STRING)?
+		(valueSpaceAssignments+=ValueSpaceAssignment)*
 	'}')?
 ;
 
@@ -58,6 +60,16 @@ InteractionType returns InteractionType:
 	'}')?
 ;
 
+ValueSpace returns ValueSpace:
+	StringLiterals
+;
+
+StringLiterals returns StringLiterals: // TODO rename to StringLiteralsValueSpace ?
+	'value-space' name=ID '{'
+		values+=STRING (',' values+=STRING)*
+	'}'
+;
+
 Template:
 	contents+=TemplateText (contents+=TemplateVariable contents+=TemplateText?)* 
 ;
@@ -73,5 +85,10 @@ TemplateVariable:
 terminal TEMPLATE_VARIABLE_DEF:
 	'${' ID '}'
 ;
+
+ValueSpaceAssignment: 
+	variable=[TemplateVariable|QualifiedName] '=' valueSpace=[ValueSpace]
+;
+
 
 // TODO support value-spaces

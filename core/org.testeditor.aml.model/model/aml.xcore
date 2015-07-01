@@ -22,6 +22,7 @@ class AmlModel {
 	contains ComponentType[0..*] componentTypes
 	contains ComponentElementType[0..*] componentElementTypes
 	contains InteractionType[0..*] interactionTypes
+	contains ValueSpace[0..*] valueSpaces
 }
 
 /* <p>
@@ -67,6 +68,7 @@ class Component extends ModelElement {
 class ComponentElement extends ModelElement {
 	refers ComponentElementType[1] ^type
 	String locator
+	contains ValueSpaceAssignment[0..*] valueSpaceAssignments
 	// TODO support overriding of elements
 }
 
@@ -152,7 +154,7 @@ class InteractionValueSpace {
 	refers ValueSpace valueSpace
 }
 
-abstract class ValueSpace {
+abstract class ValueSpace extends ModelElement {
 }
 
 class RegExValueSpace extends ValueSpace {
@@ -161,4 +163,14 @@ class RegExValueSpace extends ValueSpace {
 
 class StringLiterals extends ValueSpace {
 	String[1..*] values
+}
+
+class ValueSpaceAssignment {
+	refers TemplateVariable variable
+	refers ValueSpace valueSpace
+}
+
+class EmbeddedValueSpaceDefinition {
+	refers TemplateVariable variable
+	contains ValueSpace valueSpace
 }
