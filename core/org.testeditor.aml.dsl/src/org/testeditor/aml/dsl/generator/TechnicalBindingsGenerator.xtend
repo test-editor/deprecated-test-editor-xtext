@@ -39,7 +39,7 @@ class TechnicalBindingsGenerator {
 		if (variable.name == "element") {
 			return '''<actionPart position="«position»" type="ACTION_NAME" />'''
 		} else {
-			return '''<actionPart position="«position»" type="ARGUMENT" id="«variable.name»" />'''
+			return '''<actionPart position="«position»" type="ARGUMENT"«IF !variable.name.nullOrEmpty» id="«variable.name»"«ENDIF» />'''
 		}
 	}
 

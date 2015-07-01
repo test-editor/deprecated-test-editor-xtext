@@ -10,5 +10,6 @@ public class Messages extends NLS {
 	
 	public static String Validation_Component_Type_Missing;
 	public static String Validation_Component_Cycle;
+	public static String Validation_TemplateVariable_MissingName;
 
 }

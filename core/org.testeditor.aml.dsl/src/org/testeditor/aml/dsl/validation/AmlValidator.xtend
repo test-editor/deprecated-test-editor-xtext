@@ -7,11 +7,13 @@ import org.testeditor.aml.model.ModelUtil
 
 import static org.testeditor.aml.dsl.Messages.*
 import static org.testeditor.aml.model.ModelPackage.Literals.*
+import org.testeditor.aml.model.TemplateVariable
 
 class AmlValidator extends AbstractAmlValidator {
 
 	public static val COMPONENT__PARENTS__CYCLE = "component.parents.cycle"
 	public static val COMPONENT__TYPE__MISSING = 'component.type.missing'
+	public static val TEMPLATE_VARIABLE__NAME__MISSING = 'templateVariable.name.missing'
 
 	@Inject
 	private extension ModelUtil
@@ -43,5 +45,18 @@ class AmlValidator extends AbstractAmlValidator {
 			)
 		}
 	}
-
+	
+	/**
+	 * Checks if a template variable has a name, if not => warning
+	 */
+	@Check
+	def void checkTemplateVariableHasName(TemplateVariable variable) {
+		if (variable.name.nullOrEmpty) {
+			warning(
+				Validation_TemplateVariable_MissingName,
+				TEMPLATE_VARIABLE__NAME,
+				TEMPLATE_VARIABLE__NAME__MISSING
+			)
+		}
+	}
 }

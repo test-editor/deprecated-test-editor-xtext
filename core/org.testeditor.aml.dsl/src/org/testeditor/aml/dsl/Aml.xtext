@@ -87,7 +87,7 @@ TemplateVariable:
  * this would otherwise be matched as the keyword 'element'.
  */
 terminal TEMPLATE_VARIABLE_DEF:
-	'${' ID '}'
+	'${' ID? '}'
 ;
 
 ValueSpaceAssignment: 
