@@ -25,7 +25,7 @@ class TechnicalBindingConverter {
 	def InteractionType convert(TechnicalBindingType technicalBinding) {
 		val result = factory.createInteractionType
 		result => [
-			name = technicalBinding.id
+			name = technicalBinding.id.escapeId
 			label = technicalBinding.name
 			template = factory.createTemplate
 			template.contents += technicalBinding.actionPart.map[convert]
@@ -42,9 +42,16 @@ class TechnicalBindingConverter {
 				name = ACTION_NAME_VARIABLE_NAME
 			]
 			case ARGUMENT: factory.createTemplateVariable => [
-				name = actionPart.id ?: ""
+				name = actionPart.id.escapeId
 			]
 		}
+	}
+	
+	protected def escapeId(String id) {
+		if (id.nullOrEmpty) {
+			return ""
+		}
+		return id.replaceAll("ö", "oe").replaceAll("ä", "ae").replaceAll("ü", "ue")
 	}
 	
 }
