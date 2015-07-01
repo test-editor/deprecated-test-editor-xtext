@@ -82,13 +82,14 @@ TemplateVariable:
 	name=TEMPLATE_VARIABLE_DEF
 ;
 
+/* 
+ * Using a separate terminal is required since we'd like to write ${element} and
+ * this would otherwise be matched as the keyword 'element'.
+ */
 terminal TEMPLATE_VARIABLE_DEF:
 	'${' ID '}'
 ;
 
 ValueSpaceAssignment: 
-	variable=[TemplateVariable|QualifiedName] '=' valueSpace=[ValueSpace]
+	variable=[TemplateVariable|QualifiedName] 'restrict' 'to' valueSpace=[ValueSpace]
 ;
-
-
-// TODO support value-spaces
