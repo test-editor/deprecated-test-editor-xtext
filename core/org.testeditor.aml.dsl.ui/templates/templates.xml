@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<templates>
+<template id="Component.newWithIncludes" autoinsert="true" context="org.testeditor.aml.dsl.Aml.Component" deleted="false" description="Create a new component with an include" enabled="true" name="component with includes">component ${name} includes ${parent:CrossReference('Component.parents')} {&#13;
+	${cursor}&#13;
+}</template>
+<template id="Component.newWithType" autoinsert="true" context="org.testeditor.aml.dsl.Aml.Component" deleted="false" description="Create a new component with a type" enabled="true" name="component with type">component ${name} is ${type:CrossReference('Component.type')} {&#13;
+	${cursor}&#13;
+}</template>
+<template id="ComponentElement.new" autoinsert="true" context="org.testeditor.aml.dsl.Aml.ComponentElement" deleted="false" description="Create a new element" enabled="true" name="element">element ${name} is ${type} {&#13;
+	label = "${label}"&#13;
+	locator ="${locator}"&#13;
+	${cursor}&#13;
+}</template>
+<template id="InteractionType.new" autoinsert="true" context="org.testeditor.aml.dsl.Aml.InteractionType" deleted="false" description="Create a new interaction type" enabled="true" name="interaction type">interaction type ${name} {&#13;
+	label = "${label}"&#13;
+	template = "${cursor}"&#13;
+}</template>
+<template id="ValueSpace.new" autoinsert="true" context="org.testeditor.aml.dsl.Aml.ValueSpace" deleted="false" description="Create a new value space" enabled="true" name="value-space">value-space ${name} {&#13;
+	"${cursor}"&#13;
+}</template>
+</templates>
