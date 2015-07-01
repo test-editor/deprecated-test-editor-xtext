@@ -7,3 +7,6 @@ test-editor-xtext
 An Xtext based editor to define the mapping between the test-editor and the application under test (AUT).
 
 This sub-project is called "aml" for Application (Under Test) Mapping Language.
+
+
+A simple Eclipse IDE with the AML included can be downloaded here: https://ci.testeditor.org/job/Test-Editor-AML-Product/
