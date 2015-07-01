@@ -13,4 +13,8 @@ class TemplateVariableDefValueConverter extends AbstractLexerBasedConverter<Stri
 		throw new ValueConverterException('''Could not convert: «string»''', node, null)
 	}
 	
+	override protected toEscapedString(String value) {
+		return '''${«value»}'''
+	}
+	
 }

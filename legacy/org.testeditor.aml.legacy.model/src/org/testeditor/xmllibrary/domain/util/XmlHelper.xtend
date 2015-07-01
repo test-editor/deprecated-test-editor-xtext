@@ -14,7 +14,7 @@ import org.testeditor.xmllibrary.domain.binding.TechnicalBindingTypes
  * and {@link TechnicalBindingTypes}.
  */
 @Singleton
-class JAXBHelper {
+class XmlHelper {
 
 	val context = JAXBContext.newInstance(ActionGroups, TechnicalBindingTypes)
 	

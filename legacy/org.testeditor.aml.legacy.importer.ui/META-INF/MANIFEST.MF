@@ -10,10 +10,11 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.xtend.lib.macro,
  com.google.guava,
  org.eclipse.xtext.xbase.lib,
+ org.eclipse.xtext.ui,
  org.testeditor.aml.dsl,
  org.testeditor.aml.dsl.ui,
  org.testeditor.aml.model,
- org.eclipse.xtext.ui
+ org.testeditor.aml.legacy.model
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: My Company

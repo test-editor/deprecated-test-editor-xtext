@@ -4,8 +4,8 @@
    <extension
          point="org.eclipse.ui.handlers">
       <handler
-            class="org.testeditor.aml.dsl.legacy.importer.PasteXmlHandler"
-            commandId="org.testeditor.aml.dsl.legacy.import.pasteXml">
+            class="org.testeditor.aml.legacy.importer.ui.AmlImporterExecutableExtensionFactory:org.testeditor.aml.legacy.importer.ui.PasteXmlHandler"
+            commandId="org.testeditor.aml.legacy.import.pasteXml">
       </handler>
    </extension>
    <extension
@@ -14,7 +14,7 @@
             allPopups="false"
             locationURI="popup:#TextEditorContext?after=paste">
          <command
-               commandId="org.testeditor.aml.dsl.legacy.import.pasteXml"
+               commandId="org.testeditor.aml.legacy.import.pasteXml"
                style="push">
             <visibleWhen checkEnabled="false">
             	<reference definitionId="org.testeditor.aml.dsl.Aml.Editor.opened" />
@@ -24,7 +24,7 @@
       <menuContribution
                locationURI="menu:edit?after=paste">
             <command
-                  commandId="org.testeditor.aml.dsl.legacy.import.pasteXml"
+                  commandId="org.testeditor.aml.legacy.import.pasteXml"
                   style="push"
                   tooltip="Paste Legacy XML">
                <visibleWhen
@@ -39,7 +39,7 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            id="org.testeditor.aml.dsl.legacy.import.pasteXml"
+            id="org.testeditor.aml.legacy.import.pasteXml"
             name="Paste Legacy XML">
       </command>
    </extension>
