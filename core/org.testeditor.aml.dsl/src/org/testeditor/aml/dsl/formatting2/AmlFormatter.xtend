@@ -15,8 +15,6 @@ class AmlFormatter extends XbaseFormatter {
 	
 	// TODO work in progress
 	
-	// @Inject extension AmlGrammarAccess
-	
 	def dispatch void format(AmlModel model, extension IFormattableDocument document) {
 		model.eContents.forEach[
 			prepend[setNewLines(2, 2, 3)] // at least one empty line between elements
@@ -30,10 +28,8 @@ class AmlFormatter extends XbaseFormatter {
 		component.regionForKeyword("abstract").append[oneSpace]
 		component.regionForKeyword("includes").append[oneSpace].prepend[oneSpace]
 		component.elements.forEach[
-			// TODO new lines
 			formatBrackets(document)
 		]
-//		component.regi
 	}
 	
 	protected def void formatBrackets(EObject element, extension IFormattableDocument document) {
@@ -46,6 +42,7 @@ class AmlFormatter extends XbaseFormatter {
 		element.regionForKeyword("type").prepend[oneSpace].append[oneSpace]
 		element.regionForKeyword("is").prepend[oneSpace].append[oneSpace]
 		element.regionForKeyword("=").prepend[oneSpace].append[oneSpace]
+		element.regionsForKeywords("label", "template").forEach[prepend[newLine]]
 	}
 	
 }
