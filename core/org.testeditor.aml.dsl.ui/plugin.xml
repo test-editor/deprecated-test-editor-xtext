@@ -373,6 +373,12 @@
             name="Aml Project"
             project="true">
       </wizard>
+      <wizard
+            name="Aml File"
+            category="org.eclipse.xtext.projectwiz"
+            class="org.testeditor.aml.dsl.ui.AmlExecutableExtensionFactory:org.testeditor.aml.dsl.ui.wizard.AmlNewFileWizard"
+            id="org.testeditor.aml.dsl.ui.wizard.AmlNewFileWizard">
+      </wizard>
    </extension>
    	<!-- Rename Refactoring -->
 	<extension point="org.eclipse.ui.handlers">
