@@ -1,0 +1,115 @@
+package demo.swing
+
+generate technicalBindings "demo/swing/TechnicalBindingTypeCollection.xml"
+
+component type Dialog
+
+element type Text {
+	interactions = Wert_eingeben, Wert_loeschen, Text_pruefen, Text_ungueltig_pruefen
+}
+
+element type Dropdown {
+	interactions = Wert_auswaehlen, Wert_pruefen, Wert_ungueltig_pruefen
+}
+
+element type RadioButton {
+	interactions = RadioButton_aktivieren, RadioButton_deaktivieren
+}
+
+element type Checkbox {
+	interactions = Checkbox_aktivieren, Checkbox_deaktivieren
+}
+
+element type Button {
+	interactions = Button_Druecken
+}
+
+element type Table {
+	interactions = Tabellenzeile_auswaehlen, Tabelleneintrag_pruefen, Tabellenzeile_doppelklicken
+}
+
+interaction type Starte_Anwendung {
+	label = "Anwendung starten"
+	template = "starte Anwendung" ${application}
+}
+
+interaction type Beende_Anwendung {
+	label = "Anwendung beenden"
+	template = "beende Anwendung"
+}
+
+interaction type Wert_eingeben {
+	label = "Wert eingeben"
+	template = "gebe in das Feld" ${element} "den Wert" ${wert} "ein"
+}
+
+interaction type Wert_loeschen {
+	label = "Wert löschen"
+	template = "lösche aus dem Feld" ${element} "den Wert" ${wert}
+}
+
+interaction type Button_Druecken {
+	label = "Button klicken"
+	template = "klicke auf" ${element}
+}
+
+interaction type Wert_auswaehlen {
+	label = "Wert auswählen"
+	template = "wähle in Feld" ${element} "den Wert" ${wert} "aus"
+}
+
+interaction type RadioButton_aktivieren {
+	label = "RadioButton aktivieren"
+	template = "aktiviere Radio-Button" ${element}
+}
+
+interaction type RadioButton_deaktivieren {
+	label = "RadioButton deaktivieren"
+	template = "deaktiviere Radio-Button" ${element}
+}
+
+interaction type Checkbox_aktivieren {
+	label = "Checkbox aktivieren"
+	template = "aktiviere Checkbox" ${element}
+}
+
+interaction type Checkbox_deaktivieren {
+	label = "Checkbox deaktivieren"
+	template = "deaktiviere Checkbox" ${element}
+}
+
+interaction type Text_ungueltig_pruefen {
+	label = "Text ungültig prüfen"
+	template = "prüfe ob im Feld" ${element} "der Text" ${text} "nicht eingetragen ist"
+}
+
+interaction type Text_pruefen {
+	label = "Text prüfen"
+	template = "prüfe ob im Feld" ${element} "der Text" ${text} "eingetragen ist"
+}
+
+interaction type Wert_ungueltig_pruefen {
+	label = "Wert ungültig prüfen"
+	template = "prüfe ob im Feld" ${element} "der Wert" ${wert} "nicht ausgewählt ist"
+}
+
+interaction type Wert_pruefen {
+	label = "Wert prüfen"
+	template = "prüfe ob im Feld" ${element} "der Wert" ${wert} "ausgewählt ist"
+}
+
+interaction type Tabellenzeile_auswaehlen {
+	label = "Tabellenzeile auswählen"
+	template = "in der Tabelle" ${element} "wähle die Zeile" ${zeile} "aus"
+}
+
+interaction type Tabellenzeile_doppelklicken {
+	label = "Tabellenzeile doppelklicke"
+	template = "in der Tabelle" ${element} "doppelklicke die Zeile" ${zeile}
+}
+
+interaction type Tabelleneintrag_pruefen {
+	label = "Tabelleneintrag prüfen"
+	template = "prüfe ob in der Tabelle" ${element} "in der letzten Zeile in Spalte" ${argument1} "der Wert" ${wert} "eingetragen ist"
+}
+

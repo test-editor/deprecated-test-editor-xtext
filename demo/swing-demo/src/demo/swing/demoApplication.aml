@@ -1,0 +1,48 @@
+package demo.swing
+
+// TODO we should use the AML's package as default generation target
+generate allActionGroups "demo/swing/AllActionGroups.xml"
+
+component Neuanlage is Dialog {
+	
+	element Name is Text {
+		locator = "NameText"
+	}
+	
+	element Vorname is Text {
+		locator = "VornameText"
+	}
+	
+	element Geburtstag is Dropdown {
+		Wert_auswaehlen.wert restrict to Tag
+	}
+	
+	element Geburtsmonat is Dropdown {
+		Wert_auswaehlen.wert restrict to Monat
+	}
+	
+	element Geburtsjahr is Dropdown {
+		label = "Geburtsjahr"
+		locator = "GeburtsJahr"
+		Wert_auswaehlen.wert restrict to Jahr
+	}
+	
+	element GeschlechtMaennlich is Checkbox {
+		locator = "GeschlechtMaennlich"
+	}
+	
+	element GeschlechtWeiblich is Checkbox {
+		locator = "GeschlechtWeiblich"
+	}
+	
+	element GeschlechtVerbergen is Checkbox {
+		locator = "GeschlechtVerbergen"
+	}
+	
+}
+
+value-space Tag = 1 .. 31
+
+value-space Monat = 1 .. 12
+
+value-space Jahr = 1980 .. 1988
