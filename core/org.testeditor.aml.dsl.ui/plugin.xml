@@ -363,6 +363,17 @@
             </attribute>
         </markerResolutionGenerator>
     </extension>
+
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <wizard
+            category="org.eclipse.xtext.projectwiz"
+            class="org.testeditor.aml.dsl.ui.AmlExecutableExtensionFactory:org.testeditor.aml.dsl.ui.wizard.AmlNewProjectWizard"
+            id="org.testeditor.aml.dsl.ui.wizard.AmlNewProjectWizard"
+            name="Aml Project"
+            project="true">
+      </wizard>
+   </extension>
    	<!-- Rename Refactoring -->
 	<extension point="org.eclipse.ui.handlers">
 		<handler 
