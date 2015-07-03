@@ -5,6 +5,8 @@ import org.eclipse.xtext.formatting2.IFormattableDocument
 import org.eclipse.xtext.xbase.formatting2.XbaseFormatter
 import org.testeditor.aml.model.AmlModel
 import org.testeditor.aml.model.Component
+import org.testeditor.aml.model.IntegerRange
+import org.testeditor.aml.model.StringLiterals
 
 // import static org.testeditor.aml.model.ModelPackage.Literals.*
 
@@ -32,16 +34,26 @@ class AmlFormatter extends XbaseFormatter {
 		]
 	}
 	
-	protected def void formatBrackets(EObject element, extension IFormattableDocument document) {
+	def dispatch void format(StringLiterals element, extension IFormattableDocument document) {
+		element.regionsForKeywords(",").forEach[prepend[noSpace].append[oneSpace]]
+		element.regionForKeyword("#[").surround[oneSpace]		
+		element.regionForKeyword("]").prepend[oneSpace]
+	}
+	
+	def dispatch void format(IntegerRange element, extension IFormattableDocument document) {
+		element.regionForKeyword("..").surround[oneSpace]
+	}
+	
+	private def void formatBrackets(EObject element, extension IFormattableDocument document) {
 		element.regionForKeyword("{").prepend[oneSpace].append[newLine; increaseIndentation]
 		element.regionForKeyword("}").prepend[newLine; decreaseIndentation]
 	}
 	
-	protected def void formatKeywords(EObject element, extension IFormattableDocument document) {
-		element.regionsForKeywords("component", "interaction", "element").forEach[append[oneSpace]]
-		element.regionForKeyword("type").prepend[oneSpace].append[oneSpace]
-		element.regionForKeyword("is").prepend[oneSpace].append[oneSpace]
-		element.regionForKeyword("=").prepend[oneSpace].append[oneSpace]
+	private def void formatKeywords(EObject element, extension IFormattableDocument document) {
+		element.regionsForKeywords("component", "interaction", "element", "value-space").forEach[append[oneSpace]]
+		element.regionForKeyword("type").surround[oneSpace]
+		element.regionForKeyword("is").surround[oneSpace]
+		element.regionForKeyword("=").surround[oneSpace]
 		element.regionsForKeywords("label", "template").forEach[prepend[newLine]]
 	}
 	

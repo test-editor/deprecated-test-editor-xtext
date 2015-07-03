@@ -61,14 +61,20 @@ InteractionType returns InteractionType:
 ;
 
 ValueSpace returns ValueSpace:
-	StringLiterals
+	'value-space' (StringLiterals | IntegerRange)
 ;
 
-StringLiterals returns StringLiterals: // TODO rename to StringLiteralsValueSpace ?
-	'value-space' name=ID '{'
+StringLiterals returns StringLiterals:
+	name=ID '=' '#['
 		values+=STRING (',' values+=STRING)*
-	'}'
+	']'
 ;
+
+IntegerRange returns IntegerRange:
+	name=ID '=' from=INT '..' to=INT
+;
+
+// TODO support RegEx value space
 
 Template:
 	contents+=TemplateText (contents+=TemplateVariable contents+=TemplateText?)* 

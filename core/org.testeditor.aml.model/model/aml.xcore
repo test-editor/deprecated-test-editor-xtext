@@ -157,12 +157,13 @@ class InteractionValueSpace {
 abstract class ValueSpace extends ModelElement {
 }
 
-class RegExValueSpace extends ValueSpace {
-	String[1] pattern
-}
-
 class StringLiterals extends ValueSpace {
 	String[1..*] values
+}
+
+class IntegerRange extends ValueSpace {
+	int from
+	int to
 }
 
 class ValueSpaceAssignment {

@@ -3,7 +3,10 @@ package org.testeditor.aml.dsl.generator
 import org.testeditor.aml.model.AmlModel
 import org.testeditor.aml.model.Component
 import org.testeditor.aml.model.ComponentElement
+import org.testeditor.aml.model.IntegerRange
 import org.testeditor.aml.model.InteractionType
+import org.testeditor.aml.model.StringLiterals
+import org.testeditor.aml.model.ValueSpaceAssignment
 
 class AllActionGroupsGenerator extends AbstractGenerator {
 	
@@ -35,8 +38,28 @@ class AllActionGroupsGenerator extends AbstractGenerator {
 			«IF !element.locator.nullOrEmpty»
 				<actionName locator="«element.locator»">«element.name»</actionName>
 			«ENDIF»
-«««			TODO handle arguments
+			«FOR valueSpaceAssignment : element.valueSpaceAssignments»
+				«valueSpaceAssignment.generateArgument»
+			«ENDFOR»
 		</action>
+	'''
+	
+	protected def generateArgument(ValueSpaceAssignment assignment) '''
+		<argument id="«assignment.variable.name»">
+			«assignment.valueSpace.generateValues»
+		</argument>
+	'''
+	
+	protected def dispatch generateValues(StringLiterals stringLiterals) '''
+		«FOR value : stringLiterals.values»
+			<value>«value»</value>
+		«ENDFOR»
+	'''
+	
+	protected def dispatch generateValues(IntegerRange integerRange) '''
+		«FOR value : (integerRange.from .. integerRange.to)»
+			<value>«value»</value>
+		«ENDFOR»
 	'''
 	
 }

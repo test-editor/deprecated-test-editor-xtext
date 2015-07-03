@@ -69,6 +69,14 @@ class AmlProposalProvider extends AbstractAmlProposalProvider {
 			}
 		}
 	}
+	
+	override completeStringLiterals_Values(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeStringLiterals_Values(model, assignment, context, acceptor)
+		val node = context.currentNode
+		if (node.grammarElement.isRuleCallTo(grammarAccess.STRINGRule)) {
+			acceptor.accept(new CompletionProposal(''', ""''', node.offset + node.length, 0, 3))
+		}
+	}
 
 	private def boolean isRuleCallTo(EObject grammarElement, AbstractRule rule) {
 		if (grammarElement instanceof RuleCall) {

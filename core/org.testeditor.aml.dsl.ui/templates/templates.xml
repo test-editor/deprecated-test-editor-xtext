@@ -15,7 +15,6 @@
 	label = "${label}"&#13;
 	template = "${cursor}"&#13;
 }</template>
-<template id="ValueSpace.new" autoinsert="true" context="org.testeditor.aml.dsl.Aml.ValueSpace" deleted="false" description="Create a new value space" enabled="true" name="value-space">value-space ${name} {&#13;
-	"${cursor}"&#13;
-}</template>
+<template id="ValueSpace.Strings" autoinsert="true" context="org.testeditor.aml.dsl.Aml.ValueSpace" deleted="false" description="Create a new value space with an Integer range" enabled="true" name="value-space (Integer)">value-space ${name} = ${from} .. ${to}</template>
+<template id="ValueSpace.IntRange" autoinsert="true" context="org.testeditor.aml.dsl.Aml.ValueSpace" deleted="false" description="Create a new value space with a list of Strings" enabled="true" name="value-space (Strings)">value-space ${name} = #[ "${cursor}" ]</template>
 </templates>
