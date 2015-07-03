@@ -2,6 +2,8 @@ package org.testeditor.aml.dsl.tests.parser
 
 import org.junit.Test
 import org.testeditor.aml.model.InteractionType
+import org.testeditor.aml.model.TemplateText
+import org.testeditor.aml.model.TemplateVariable
 
 /**
  * Parsing tests for {@link InteractionType}.
@@ -46,12 +48,12 @@ class InteractionTypeParserTest extends AbstractParserTest {
 	}
 	
 	@Test
-	def void parseWithTemplate() {
+	def void parseWithStringOnlyTemplate() {
 		// Given
-		val template = "Put ${value} in ${element}."
+		val templateText = "test"
 		val input = '''
 			interaction type MyInteractionType {
-				template = "«template»"
+				template = "«templateText»"
 			}
 		'''
 		
@@ -61,7 +63,33 @@ class InteractionTypeParserTest extends AbstractParserTest {
 		// Then
 		interactionType => [
 			assertNoErrors
-			template.assertEquals(template)
+			val head = template.contents.head.assertInstanceOf(TemplateText)
+			head.value.assertEquals(templateText)
+		]
+	}
+	
+	@Test
+	def void parseWithComplexTemplate() {
+		// Given
+		val input = '''
+			interaction type MyInteractionType {
+				template = "Put" ${value} "into field" ${element} "."
+			}
+		'''
+		
+		// When
+		val interactionType = input.parse(InteractionType)
+		
+		// Then
+		interactionType => [
+			assertNoErrors
+			template.contents => [
+				get(0).assertInstanceOf(TemplateText).value.assertEquals("Put")
+				get(1).assertInstanceOf(TemplateVariable).name.assertEquals("value")
+				get(2).assertInstanceOf(TemplateText).value.assertEquals("into field")
+				get(3).assertInstanceOf(TemplateVariable).name.assertEquals("element")
+				get(4).assertInstanceOf(TemplateText).value.assertEquals(".")
+			]
 		]
 	}
 	
