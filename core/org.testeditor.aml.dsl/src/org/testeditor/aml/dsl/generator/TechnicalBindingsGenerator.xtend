@@ -3,24 +3,30 @@ package org.testeditor.aml.dsl.generator
 import org.testeditor.aml.model.AmlModel
 import org.testeditor.aml.model.InteractionType
 import org.testeditor.aml.model.Template
-import org.testeditor.aml.model.TemplateContent
 import org.testeditor.aml.model.TemplateText
 import org.testeditor.aml.model.TemplateVariable
 
+/**
+ * Generates the legacy XML for TechnicalBindingTypes
+ */
 class TechnicalBindingsGenerator {
 
-	def CharSequence generateTechnicalBindings(AmlModel model) '''
-		<?xml version="1.0" encoding="UTF-8"?>
-		<TechnicalBindingTypes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://testeditor.org/xsd_schema/v_1_1/TechnicalBindingTypeCollection.xsd" schemaVersion="1.1">
+	public static val XML_HEADER = '''<?xml version="1.0" encoding="UTF-8"?>'''
+	public static val OPEN_TAG = '''<TechnicalBindingTypes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://testeditor.org/xsd_schema/v_1_1/TechnicalBindingTypeCollection.xsd" schemaVersion="1.1">'''
+	public static val CLOSE_TAG = '''</TechnicalBindingTypes>'''
+
+	def String generateTechnicalBindings(AmlModel model) '''
+		«XML_HEADER»
+		«OPEN_TAG»
 			«FOR interactionType : model.interactionTypes»
 				«interactionType.generateTechnicalBinding»
 			«ENDFOR»
-		</TechnicalBindingTypes>
+		«CLOSE_TAG»
 	'''
 
 	protected def generateTechnicalBinding(InteractionType it) '''
 		<TechnicalBindingType id="«name»" name="«label»">
-			«template.generateActionParts»
+			«template?.generateActionParts»
 		</TechnicalBindingType>
 	'''
 
@@ -40,14 +46,6 @@ class TechnicalBindingsGenerator {
 			return '''<actionPart position="«position»" type="ACTION_NAME" />'''
 		} else {
 			return '''<actionPart position="«position»" type="ARGUMENT"«IF !variable.name.nullOrEmpty» id="«variable.name»"«ENDIF» />'''
-		}
-	}
-
-	protected def String getActionPartType(TemplateContent content) {
-		switch content {
-			TemplateText: "TEXT"
-			TemplateVariable case content.name == "element": "ACTION_NAME"
-			TemplateVariable: "ARGUMENT"
 		}
 	}
 

@@ -2,15 +2,11 @@ package org.testeditor.aml.dsl.generator
 
 import javax.inject.Inject
 import org.junit.Test
-import org.testeditor.aml.dsl.tests.AbstractTest
-import org.testeditor.aml.model.ModelFactory
 
 /** 
  * Tests for {@link XmlGenerator} 
  */
-class XmlGeneratorTest extends AbstractTest {
-	
-	static val factory = ModelFactory.eINSTANCE
+class XmlGeneratorTest extends AbstractGeneratorTest {
 	
 	@Inject XmlGenerator generator
 	
