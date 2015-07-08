@@ -2,6 +2,10 @@ package demo.swing
 
 generate technicalBindings "TechnicalBindingTypeCollection.xml"
 
+component type Application {
+	interactions = Starte_Anwendung, Beende_Anwendung
+}
+
 component type Dialog
 
 element type Text {

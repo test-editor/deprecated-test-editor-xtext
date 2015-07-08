@@ -40,7 +40,7 @@ class AmlValidator extends AbstractAmlValidator {
 		if (!component.hasParentsCycle && component.types.empty) {
 			error(
 				Validation_Component_Type_Missing,
-				COMPONENT__TYPE,
+				ELEMENT_WITH_INTERACTIONS__TYPE,
 				COMPONENT__TYPE__MISSING
 			)
 		}

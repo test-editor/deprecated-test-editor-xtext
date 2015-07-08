@@ -26,7 +26,8 @@ Component returns Component:
 	('includes' parents+=[Component] (',' parents+=[Component])*)?
 	('{'
 		('label' '=' label=STRING)?
-		elements+=ComponentElement*
+		(valueSpaceAssignments+=ValueSpaceAssignment)*
+		(elements+=ComponentElement)*
 		// TODO support override
 	'}')?
 ;
@@ -34,6 +35,7 @@ Component returns Component:
 ComponentType returns ComponentType: 
 	'component' 'type' name=ID ('{'
 		('label' '=' label=STRING)?
+		('interactions' '=' interactionTypes+=[InteractionType] (',' interactionTypes+=[InteractionType])*)?
 	'}')?
 ;
 

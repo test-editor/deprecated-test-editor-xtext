@@ -3,9 +3,11 @@ package org.testeditor.aml.dsl.generator
 import org.testeditor.aml.model.AmlModel
 import org.testeditor.aml.model.Component
 import org.testeditor.aml.model.ComponentElement
+import org.testeditor.aml.model.ElementWithInteractions
 import org.testeditor.aml.model.IntegerRange
 import org.testeditor.aml.model.InteractionType
 import org.testeditor.aml.model.StringLiterals
+import org.testeditor.aml.model.TemplateVariable
 import org.testeditor.aml.model.ValueSpaceAssignment
 
 class AllActionGroupsGenerator extends AbstractGenerator {
@@ -21,28 +23,52 @@ class AllActionGroupsGenerator extends AbstractGenerator {
 	
 	protected def generateActionGroup(Component component) '''
 		<ActionGroup name="«component.labelOrName»" id="«component.name»">
+			«component.generateActions»
 			«FOR element : component.elements»
 				«element.generateActions»
 			«ENDFOR»
 		</ActionGroup>
 	'''
 	
-	protected def generateActions(ComponentElement element) '''
+	protected def generateActions(ElementWithInteractions<?> element) '''
 		«FOR interaction : element.type.interactionTypes»
 			«element.generateAction(interaction)»
 		«ENDFOR»
 	'''
+
+	protected def generateAction(ElementWithInteractions<?> element, InteractionType interaction) {
+		val locator = element.locator
+		val arguments = element.getArguments(interaction)
+		if (locator.nullOrEmpty && arguments.nullOrEmpty) {
+			return '''<action technicalBindingType="«interaction.name»" />'''
+		} else {
+			return '''
+				<action technicalBindingType="«interaction.name»">
+					«locator»
+					«arguments»
+				</action>
+			'''
+		}
+	}
 	
-	protected def generateAction(ComponentElement element, InteractionType interaction) '''
-		<action technicalBindingType="«interaction.name»">
-			«IF !element.locator.nullOrEmpty»
-				<actionName locator="«element.locator»">«element.name»</actionName>
-			«ENDIF»
-			«FOR valueSpaceAssignment : element.valueSpaceAssignments»
-				«valueSpaceAssignment.generateArgument»
+	protected def getLocator(ElementWithInteractions<?> element) {
+		if (element instanceof ComponentElement) {
+			if (!element.locator.nullOrEmpty) {
+				return '''<actionName locator="«element.locator»">«element.name»</actionName>'''
+			}
+		}		
+		return ""
+	}
+	
+	protected def getArguments(ElementWithInteractions<?> element, InteractionType interaction) {
+		val variablesInScope = interaction.template.contents.filter(TemplateVariable).toList
+		val assignments = element.valueSpaceAssignments.filter[variablesInScope.contains(variable)]
+		return '''
+			«FOR assignment : assignments»
+				«assignment.generateArgument»
 			«ENDFOR»
-		</action>
-	'''
+		'''
+	}
 	
 	protected def generateArgument(ValueSpaceAssignment assignment) '''
 		<argument id="«assignment.variable.name»">

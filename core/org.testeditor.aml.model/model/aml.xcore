@@ -49,9 +49,8 @@ abstract class ModelElement {
  * same name.
  * </p>
  */
-class Component extends ModelElement {
+class Component extends ElementWithInteractions<ComponentType> {
 	boolean ^abstract = "false"
-	refers ComponentType ^type
 	refers Component[0..*] parents
 	contains ComponentElement[0..*] elements
 }
@@ -65,11 +64,18 @@ class Component extends ModelElement {
  * of type "button" (ComponentElementType) within an ui dialog (Component).
  * </p>
  */
-class ComponentElement extends ModelElement {
-	refers ComponentElementType[1] ^type
+class ComponentElement extends ElementWithInteractions<ComponentElementType> {
 	String locator
-	contains ValueSpaceAssignment[0..*] valueSpaceAssignments
 	// TODO support overriding of elements
+}
+
+abstract class ElementTypeWithInteractions extends ModelElement {
+	refers InteractionType[0..*] interactionTypes
+}
+
+abstract class ElementWithInteractions<Type extends ElementTypeWithInteractions> extends ModelElement {
+	refers Type ^type
+	contains ValueSpaceAssignment[0..*] valueSpaceAssignments
 }
 
 /* <p> 
@@ -77,7 +83,7 @@ class ComponentElement extends ModelElement {
  * for example "web service", "dialog", "editor".
  * </p>
  */
-class ComponentType extends ModelElement {
+class ComponentType extends ElementTypeWithInteractions {
 }
 
 /* <p>
@@ -85,8 +91,7 @@ class ComponentType extends ModelElement {
  * for example "button" or "text-field".
  * </p>
  */
-class ComponentElementType extends ModelElement {
-	refers InteractionType[0..*] interactionTypes
+class ComponentElementType extends ElementTypeWithInteractions {
 }
 
 /* <p>
