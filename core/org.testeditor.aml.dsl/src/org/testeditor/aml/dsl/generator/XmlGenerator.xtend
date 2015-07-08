@@ -19,11 +19,17 @@ class XmlGenerator implements IGenerator {
 	override doGenerate(Resource input, IFileSystemAccess fsa) {
 		val model = input.contents.head as AmlModel
 		if (!model.fileNameAllActionGroups.nullOrEmpty) {
-			fsa.generateFile(model.fileNameAllActionGroups, model.generateAllActionGroups)
+			val fileName = model.packageFolder +  model.fileNameAllActionGroups
+			fsa.generateFile(fileName, model.generateAllActionGroups)
 		}
 		if (!model.fileNameTechnicalBindings.nullOrEmpty) {
-			fsa.generateFile(model.fileNameTechnicalBindings, model.generateTechnicalBindings)
+			val fileName = model.packageFolder + model.fileNameTechnicalBindings
+			fsa.generateFile(fileName, model.generateTechnicalBindings)
 		}
+	}
+	
+	protected def String getPackageFolder(AmlModel model) {
+		return model.package.replaceAll("\\.", "/") + "/"
 	}
 
 }

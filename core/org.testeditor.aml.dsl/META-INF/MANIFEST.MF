@@ -19,10 +19,11 @@ Require-Bundle: org.eclipse.xtext;visibility:=reexport,
 Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.testeditor.aml.dsl,
- org.testeditor.aml.dsl.services,
- org.testeditor.aml.dsl.serializer,
+ org.testeditor.aml.dsl.formatting2,
+ org.testeditor.aml.dsl.generator,
+ org.testeditor.aml.dsl.jvmmodel,
  org.testeditor.aml.dsl.parser.antlr,
  org.testeditor.aml.dsl.parser.antlr.internal,
- org.testeditor.aml.dsl.validation,
- org.testeditor.aml.dsl.formatting2,
- org.testeditor.aml.dsl.jvmmodel
+ org.testeditor.aml.dsl.serializer,
+ org.testeditor.aml.dsl.services,
+ org.testeditor.aml.dsl.validation

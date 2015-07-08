@@ -1,7 +1,7 @@
 package demo.swing
 
 // TODO we should use the AML's package as default generation target
-generate allActionGroups "demo/swing/AllActionGroups.xml"
+generate allActionGroups "AllActionGroups.xml"
 
 component Neuanlage is Dialog {
 	

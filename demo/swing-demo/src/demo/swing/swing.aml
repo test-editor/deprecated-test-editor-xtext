@@ -1,6 +1,6 @@
 package demo.swing
 
-generate technicalBindings "demo/swing/TechnicalBindingTypeCollection.xml"
+generate technicalBindings "TechnicalBindingTypeCollection.xml"
 
 component type Dialog
 
