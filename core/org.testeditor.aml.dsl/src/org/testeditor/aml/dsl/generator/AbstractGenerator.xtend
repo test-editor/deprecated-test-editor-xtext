@@ -4,7 +4,10 @@ import org.testeditor.aml.model.ModelElement
 
 class AbstractGenerator {
 	
-	// TODO should we do this in the generator or should the application be responsible for that?
+	/**
+	 * If the label is not set we'd like to use the name as label
+	 * in the generation step.
+	 */
 	protected def String labelOrName(ModelElement element) {
 		if (!element.label.nullOrEmpty) {
 			return element.label

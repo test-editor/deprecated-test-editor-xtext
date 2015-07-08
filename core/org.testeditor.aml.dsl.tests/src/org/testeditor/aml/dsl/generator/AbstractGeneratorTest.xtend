@@ -2,6 +2,7 @@ package org.testeditor.aml.dsl.generator
 
 import org.testeditor.aml.dsl.tests.AbstractTest
 import org.testeditor.aml.model.ModelFactory
+import org.testeditor.aml.model.ComponentElementType
 
 abstract class AbstractGeneratorTest extends AbstractTest {
 
@@ -9,6 +10,35 @@ abstract class AbstractGeneratorTest extends AbstractTest {
 
 	def createAmlModel() {
 		return factory.createAmlModel
+	}
+
+	def createComponentType(String name) {
+		return factory.createComponentType => [
+			it.name = name
+		]
+	}
+
+	def createComponent(String name) {
+		return factory.createComponent => [
+			it.name = name
+		]
+	}
+	
+	def createElementType(String name) {
+		return factory.createComponentElementType => [
+			it.name = name
+		]
+	}
+	
+	def createElement(String name, ComponentElementType type) {
+		return factory.createComponentElement => [
+			it.name = name
+			it.type = type
+		]
+	}
+	
+	def createInteractionType(String name) {
+		createInteractionType(name, null)
 	}
 	
 	def createInteractionType(String name, String label) {

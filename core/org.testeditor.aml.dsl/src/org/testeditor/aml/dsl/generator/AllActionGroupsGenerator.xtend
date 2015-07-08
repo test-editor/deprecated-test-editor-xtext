@@ -12,17 +12,21 @@ import org.testeditor.aml.model.ValueSpaceAssignment
 
 class AllActionGroupsGenerator extends AbstractGenerator {
 	
-	def CharSequence generateAllActionGroups(AmlModel model) '''
-		<?xml version="1.0" encoding="UTF-8"?>
-		<ActionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://testeditor.org/xsd_schema/v_1_1/AllActionGroups.xsd" schemaVersion="1.1">
+	public static val XML_HEADER = '''<?xml version="1.0" encoding="UTF-8"?>'''
+	public static val OPEN_TAG = '''<ActionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://testeditor.org/xsd_schema/v_1_1/AllActionGroups.xsd" schemaVersion="1.1">'''
+	public static val CLOSE_TAG = '''</ActionGroups>'''
+	
+	def String generateAllActionGroups(AmlModel model) '''
+		«XML_HEADER»
+		«OPEN_TAG»
 			«FOR component : model.components»
 				«component.generateActionGroup»
 			«ENDFOR»
-		</ActionGroups>
+		«CLOSE_TAG»
 	'''
 	
 	protected def generateActionGroup(Component component) '''
-		<ActionGroup name="«component.labelOrName»" id="«component.name»">
+		<ActionGroup id="«component.name»" name="«component.labelOrName»">
 			«component.generateActions»
 			«FOR element : component.elements»
 				«element.generateActions»
@@ -31,36 +35,39 @@ class AllActionGroupsGenerator extends AbstractGenerator {
 	'''
 	
 	protected def generateActions(ElementWithInteractions<?> element) '''
-		«FOR interaction : element.type.interactionTypes»
-			«element.generateAction(interaction)»
-		«ENDFOR»
+		«IF element.type !== null»
+			«FOR interaction : element.type.interactionTypes»
+				«element.generateAction(interaction)»
+			«ENDFOR»
+		«ENDIF»
 	'''
 
 	protected def generateAction(ElementWithInteractions<?> element, InteractionType interaction) {
-		val locator = element.locator
+		val actionName = element.actionName
 		val arguments = element.getArguments(interaction)
-		if (locator.nullOrEmpty && arguments.nullOrEmpty) {
+		if (actionName.nullOrEmpty && arguments.nullOrEmpty) {
 			return '''<action technicalBindingType="«interaction.name»" />'''
 		} else {
 			return '''
 				<action technicalBindingType="«interaction.name»">
-					«locator»
+					«actionName»
 					«arguments»
 				</action>
 			'''
 		}
 	}
 	
-	protected def getLocator(ElementWithInteractions<?> element) {
+	protected def getActionName(ElementWithInteractions<?> element) {
 		if (element instanceof ComponentElement) {
-			if (!element.locator.nullOrEmpty) {
-				return '''<actionName locator="«element.locator»">«element.name»</actionName>'''
-			}
-		}		
+			return '''<actionName locator="«element.locator»">«element.name»</actionName>'''
+		} // else: no actioName if the element is a component	
 		return ""
 	}
 	
 	protected def getArguments(ElementWithInteractions<?> element, InteractionType interaction) {
+		if (interaction.template === null) {
+			return "" // if there is no template, we don't have arguments to consider
+		}
 		val variablesInScope = interaction.template.contents.filter(TemplateVariable).toList
 		val assignments = element.valueSpaceAssignments.filter[variablesInScope.contains(variable)]
 		return '''
