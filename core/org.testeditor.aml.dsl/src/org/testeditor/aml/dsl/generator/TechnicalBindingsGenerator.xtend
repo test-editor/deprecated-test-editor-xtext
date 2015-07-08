@@ -9,7 +9,7 @@ import org.testeditor.aml.model.TemplateVariable
 /**
  * Generates the legacy XML for TechnicalBindingTypes
  */
-class TechnicalBindingsGenerator {
+class TechnicalBindingsGenerator extends AbstractGenerator {
 
 	public static val XML_HEADER = '''<?xml version="1.0" encoding="UTF-8"?>'''
 	public static val OPEN_TAG = '''<TechnicalBindingTypes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://testeditor.org/xsd_schema/v_1_1/TechnicalBindingTypeCollection.xsd" schemaVersion="1.1">'''
@@ -25,7 +25,7 @@ class TechnicalBindingsGenerator {
 	'''
 
 	protected def generateTechnicalBinding(InteractionType it) '''
-		<TechnicalBindingType id="«name»" name="«label»">
+		<TechnicalBindingType id="«name»" name="«labelOrName»">
 			«template?.generateActionParts»
 		</TechnicalBindingType>
 	'''

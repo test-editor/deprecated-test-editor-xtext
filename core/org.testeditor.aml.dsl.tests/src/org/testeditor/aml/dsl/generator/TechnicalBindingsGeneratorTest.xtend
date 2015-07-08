@@ -66,7 +66,7 @@ class TechnicalBindingsGeneratorTest extends AbstractGeneratorTest {
 	def void testSimpleInteractions() {
 		// Given
 		val model = createAmlModel => [
-			interactionTypes += createInteractionType("get", "Get")
+			interactionTypes += createInteractionType("get", "") // set no label to verify the name is taken
 			interactionTypes += createInteractionType("set", "Set")
 		]
 
@@ -75,7 +75,7 @@ class TechnicalBindingsGeneratorTest extends AbstractGeneratorTest {
 
 		// Then
 		val contents = '''
-			<TechnicalBindingType id="get" name="Get">
+			<TechnicalBindingType id="get" name="get">
 			</TechnicalBindingType>
 			<TechnicalBindingType id="set" name="Set">
 			</TechnicalBindingType>
@@ -87,7 +87,7 @@ class TechnicalBindingsGeneratorTest extends AbstractGeneratorTest {
 	/**
 	 * Generate the expected XML with the passed contents
 	 */
-	protected def String generateXml(String contents) '''
+	private def String generateXml(CharSequence contents) '''
 		«TechnicalBindingsGenerator.XML_HEADER»
 		«TechnicalBindingsGenerator.OPEN_TAG»
 			«contents»
