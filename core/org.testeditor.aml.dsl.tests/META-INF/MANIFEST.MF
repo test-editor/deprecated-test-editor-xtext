@@ -4,14 +4,15 @@ Bundle-Name: org.testeditor.aml.dsl.tests
 Bundle-Vendor: My Company
 Bundle-Version: 1.0.0.qualifier
 Bundle-SymbolicName: org.testeditor.aml.dsl.tests; singleton:=true
-Bundle-ActivationPolicy: lazy
-Require-Bundle: org.testeditor.aml.dsl,
- org.testeditor.aml.dsl.ui,
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Fragment-Host: org.testeditor.aml.dsl
+Require-Bundle: org.testeditor.aml.dsl.ui,
  org.eclipse.core.runtime,
  org.eclipse.xtext.junit4,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.ui.workbench;resolution:=optional,
- org.objectweb.asm;bundle-version="[5.0.1,6.0.0)";resolution:=optional
+ org.objectweb.asm;bundle-version="[5.0.1,6.0.0)";resolution:=optional,
+ org.testeditor.aml.dsl
 Import-Package: org.apache.log4j,
  org.junit;version="4.5.0",
  org.junit.runner;version="4.5.0",
@@ -20,5 +21,4 @@ Import-Package: org.apache.log4j,
  org.junit.runners;version="4.5.0",
  org.junit.runners.model;version="4.5.0",
  org.hamcrest.core
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.testeditor.aml.dsl
