@@ -7,10 +7,12 @@ import org.eclipse.xtext.AbstractRule
 import org.eclipse.xtext.Assignment
 import org.eclipse.xtext.CrossReference
 import org.eclipse.xtext.RuleCall
+import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
 import org.eclipse.xtext.ui.resource.ProjectByResourceProvider
 import org.testeditor.aml.dsl.services.AmlGrammarAccess
+import org.testeditor.aml.model.ElementTypeWithInteractions
 import org.testeditor.aml.model.ElementWithInteractions
 
 class AmlProposalProvider extends AbstractAmlProposalProvider {
@@ -20,6 +22,9 @@ class AmlProposalProvider extends AbstractAmlProposalProvider {
 
 	@Inject
 	AmlGrammarAccess grammarAccess
+
+	@Inject
+	extension IQualifiedNameProvider
 
 	/**
 	 * Provides the project's name as default proposal, "com.example" as fall-back.
@@ -71,7 +76,7 @@ class AmlProposalProvider extends AbstractAmlProposalProvider {
 			}
 		}
 	}
-	
+
 	override completeStringLiterals_Values(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		super.completeStringLiterals_Values(model, assignment, context, acceptor)
 		val node = context.currentNode
@@ -86,18 +91,47 @@ class AmlProposalProvider extends AbstractAmlProposalProvider {
 		}
 		return false
 	}
-	
+
 	/**
 	 * Do not include value-space assignments that are already there in the proposal.
 	 */
-	override completeValueSpaceAssignment_Variable(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		lookupCrossReference(assignment.terminal as CrossReference, context, acceptor)[ objectDescription |
-			if (model instanceof ElementWithInteractions<?>) {
-				val eObject = objectDescription.getEObjectOrProxy
-				return !model.valueSpaceAssignments.exists[variable === eObject]
-			}
-			return true
-		]
+	override completeValueSpaceAssignment_Variable(EObject model, Assignment assignment, ContentAssistContext context,
+		ICompletionProposalAcceptor acceptor) {
+		if (model instanceof ElementWithInteractions<?>) {
+			val existingElements = model.valueSpaceAssignments.map[variable.fullyQualifiedName].toSet
+			lookupCrossReference(assignment.terminal as CrossReference, context, acceptor) [
+				return !existingElements.contains(qualifiedName)
+			]
+		}
+	}
+
+	/**
+	 * @see completeElementTypeWithInteractions_InteractionTypes
+	 */
+	override completeComponentElementType_InteractionTypes(EObject model, Assignment assignment, ContentAssistContext context,
+		ICompletionProposalAcceptor acceptor) {
+		completeElementTypeWithInteractions_InteractionTypes(model, assignment, context, acceptor)
+	}
+
+	/**
+	 * @see completeElementTypeWithInteractions_InteractionTypes
+	 */
+	override completeComponentType_InteractionTypes(EObject model, Assignment assignment, ContentAssistContext context,
+		ICompletionProposalAcceptor acceptor) {
+		completeElementTypeWithInteractions_InteractionTypes(model, assignment, context, acceptor)
+	}
+
+	/**
+	 * Do not include interactions that are already there in the proposal.
+	 */
+	private def completeElementTypeWithInteractions_InteractionTypes(EObject model, Assignment assignment, ContentAssistContext context,
+		ICompletionProposalAcceptor acceptor) {
+		if (model instanceof ElementTypeWithInteractions) {
+			val existingElements = model.interactionTypes.map[fullyQualifiedName].toSet
+			lookupCrossReference(assignment.terminal as CrossReference, context, acceptor) [
+				return !existingElements.contains(qualifiedName)
+			]
+		}
 	}
 
 }
