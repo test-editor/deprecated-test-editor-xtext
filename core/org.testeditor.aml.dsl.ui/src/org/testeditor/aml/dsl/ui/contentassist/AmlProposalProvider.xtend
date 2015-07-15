@@ -3,13 +3,15 @@ package org.testeditor.aml.dsl.ui.contentassist
 import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.jface.text.contentassist.CompletionProposal
+import org.eclipse.xtext.AbstractRule
 import org.eclipse.xtext.Assignment
+import org.eclipse.xtext.CrossReference
 import org.eclipse.xtext.RuleCall
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
 import org.eclipse.xtext.ui.resource.ProjectByResourceProvider
 import org.testeditor.aml.dsl.services.AmlGrammarAccess
-import org.eclipse.xtext.AbstractRule
+import org.testeditor.aml.model.ElementWithInteractions
 
 class AmlProposalProvider extends AbstractAmlProposalProvider {
 
@@ -83,6 +85,19 @@ class AmlProposalProvider extends AbstractAmlProposalProvider {
 			return grammarElement.rule == rule
 		}
 		return false
+	}
+	
+	/**
+	 * Do not include value-space assignments that are already there in the proposal.
+	 */
+	override completeValueSpaceAssignment_Variable(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		lookupCrossReference(assignment.terminal as CrossReference, context, acceptor)[ objectDescription |
+			if (model instanceof ElementWithInteractions<?>) {
+				val eObject = objectDescription.getEObjectOrProxy
+				return !model.valueSpaceAssignments.exists[variable === eObject]
+			}
+			return true
+		]
 	}
 
 }
