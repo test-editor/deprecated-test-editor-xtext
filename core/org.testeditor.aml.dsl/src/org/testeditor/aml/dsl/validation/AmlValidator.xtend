@@ -4,16 +4,18 @@ import javax.inject.Inject
 import org.eclipse.xtext.validation.Check
 import org.testeditor.aml.model.Component
 import org.testeditor.aml.model.ModelUtil
+import org.testeditor.aml.model.TemplateVariable
+import org.testeditor.aml.model.ValueSpaceAssignment
 
 import static org.testeditor.aml.dsl.Messages.*
 import static org.testeditor.aml.model.ModelPackage.Literals.*
-import org.testeditor.aml.model.TemplateVariable
 
 class AmlValidator extends AbstractAmlValidator {
 
 	public static val COMPONENT__PARENTS__CYCLE = "component.parents.cycle"
 	public static val COMPONENT__TYPE__MISSING = 'component.type.missing'
 	public static val TEMPLATE_VARIABLE__NAME__MISSING = 'templateVariable.name.missing'
+	public static val VALUE_SPACE_ASSIGNMENT__VARIABLE__NON_UNIQUE = 'valueSpaceAssignment.variable.nonUnique'
 
 	@Inject
 	private extension ModelUtil
@@ -59,4 +61,23 @@ class AmlValidator extends AbstractAmlValidator {
 			)
 		}
 	}
+	
+	/**
+	 * Checks that value spaces are not assigned twice within an element.
+	 */
+	@Check
+	def void checkValueSpaceAssignmentUnique(ValueSpaceAssignment assignment) {
+		val element = assignment.element
+		val duplicate = element.valueSpaceAssignments.findFirst[
+			it !== assignment && variable === assignment.variable
+		]
+		if (duplicate !== null) {
+			error(
+				Validation_ValueSpaceAssignment_NonUnique,
+				VALUE_SPACE_ASSIGNMENT__VARIABLE,
+				VALUE_SPACE_ASSIGNMENT__VARIABLE__NON_UNIQUE
+			)
+		}
+	}
+	
 }

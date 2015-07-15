@@ -75,7 +75,7 @@ abstract class ElementTypeWithInteractions extends ModelElement {
 
 abstract class ElementWithInteractions<Type extends ElementTypeWithInteractions> extends ModelElement {
 	refers Type ^type
-	contains ValueSpaceAssignment[0..*] valueSpaceAssignments
+	contains ValueSpaceAssignment[0..*] valueSpaceAssignments opposite element
 }
 
 /* <p> 
@@ -172,6 +172,7 @@ class IntegerRange extends ValueSpace {
 }
 
 class ValueSpaceAssignment {
+	container ElementWithInteractions<?> element opposite valueSpaceAssignments
 	refers TemplateVariable variable
 	refers ValueSpace valueSpace
 }
