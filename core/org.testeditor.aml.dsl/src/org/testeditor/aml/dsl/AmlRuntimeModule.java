@@ -3,9 +3,11 @@ package org.testeditor.aml.dsl;
 import org.eclipse.xtext.conversion.IValueConverterService;
 import org.eclipse.xtext.generator.IGenerator;
 import org.eclipse.xtext.naming.IQualifiedNameProvider;
+import org.eclipse.xtext.scoping.IScopeProvider;
 import org.testeditor.aml.dsl.conversion.AmlValueConverterService;
 import org.testeditor.aml.dsl.generator.XmlGenerator;
 import org.testeditor.aml.dsl.naming.AmlQualifiedNameProvider;
+import org.testeditor.aml.dsl.scoping.AmlScopeProvider;
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
@@ -29,6 +31,11 @@ public class AmlRuntimeModule extends org.testeditor.aml.dsl.AbstractAmlRuntimeM
 	@Override
 	public Class<? extends IQualifiedNameProvider> bindIQualifiedNameProvider() {
 		return AmlQualifiedNameProvider.class;
+	}
+	
+	@Override
+	public Class<? extends IScopeProvider> bindIScopeProvider() {
+		return AmlScopeProvider.class;
 	}
 	
 }

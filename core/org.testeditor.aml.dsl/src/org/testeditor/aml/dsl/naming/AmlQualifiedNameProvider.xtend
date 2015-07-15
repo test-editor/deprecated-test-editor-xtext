@@ -14,12 +14,12 @@ class AmlQualifiedNameProvider extends SimpleNameProvider {
 
 	override getFullyQualifiedName(EObject obj) {
 		if (obj instanceof TemplateVariable) {
-			return getfullyQualifiedNameFor(obj)
+			return getFullyQualifiedNameFor(obj)
 		}
 		return super.getFullyQualifiedName(obj)
 	}
 
-	protected def getfullyQualifiedNameFor(TemplateVariable variable) {
+	protected def getFullyQualifiedNameFor(TemplateVariable variable) {
 		if (variable.name == "element") {
 			return null // shall not be referenced from the outside world
 		}
