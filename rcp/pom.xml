@@ -11,6 +11,7 @@
 	<modules>
 		<module>org.testeditor.aml.rcp.platform.feature</module>
 		<module>org.testeditor.aml.rcp.product</module>
+		<module>org.testeditor.aml.rcp.updatesite</module>
 	</modules>
 
 </project>

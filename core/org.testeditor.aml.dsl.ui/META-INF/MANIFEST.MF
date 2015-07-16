@@ -29,6 +29,10 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.testeditor.aml.dsl.ui,
  org.testeditor.aml.dsl.ui.contentassist,
  org.testeditor.aml.dsl.ui.contentassist.antlr,
+ org.testeditor.aml.dsl.ui.highlighting,
  org.testeditor.aml.dsl.ui.internal,
- org.testeditor.aml.dsl.ui.quickfix
+ org.testeditor.aml.dsl.ui.labeling,
+ org.testeditor.aml.dsl.ui.outline,
+ org.testeditor.aml.dsl.ui.quickfix,
+ org.testeditor.aml.dsl.ui.wizard
 Bundle-Activator: org.testeditor.aml.dsl.ui.internal.AmlActivator

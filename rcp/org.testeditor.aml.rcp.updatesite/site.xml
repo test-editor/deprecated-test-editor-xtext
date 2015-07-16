@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/org.testeditor.aml.legacy.feature_1.0.0.qualifier.jar" id="org.testeditor.aml.legacy.feature" version="1.0.0.qualifier">
+      <category name="aml"/>
+   </feature>
+   <feature url="features/org.testeditor.aml.sdk_1.0.0.qualifier.jar" id="org.testeditor.aml.sdk" version="1.0.0.qualifier">
+      <category name="aml"/>
+   </feature>
+   <feature url="features/org.testeditor.aml.rcp.platform.feature_1.0.0.qualifier.jar" id="org.testeditor.aml.rcp.platform.feature" version="1.0.0.qualifier">
+      <category name="platform"/>
+   </feature>
+   <category-def name="aml" label="AML"/>
+   <category-def name="platform" label="Platform"/>
+</site>
