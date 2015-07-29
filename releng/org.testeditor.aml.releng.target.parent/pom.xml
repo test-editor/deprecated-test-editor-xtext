@@ -9,7 +9,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<tycho-version>0.23.0</tycho-version>
+		<tycho-version>0.23.1</tycho-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	
@@ -28,10 +28,21 @@
 		<repository>
 			<id>xtext</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.8.2/</url>
+			<url>http://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.8.3/</url>
 		</repository>
 		<repository>
-			<id>mwe2</id>
+			<id>emf</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/modeling/emf/emf/updates/2.11/</url>
+		</repository>
+		<repository>
+			<id>mwe2-2.8</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/modeling/emft/mwe/updates/releases/2.8.0/</url>
+		</repository>
+		<repository>
+			<!-- Required for org.eclipse.emf.mwe.sdk.feature.group [1.3.5.v201503051048] -->
+			<id>mwe2-2.7</id>
 			<layout>p2</layout>
 			<url>http://download.eclipse.org/modeling/emft/mwe/updates/releases/2.7.1/</url>
 		</repository>
