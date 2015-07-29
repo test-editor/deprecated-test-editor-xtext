@@ -11,30 +11,12 @@ var generateXtendStub = true
 var grammarURI = "platform:/resource/${projectName}/src/org/testeditor/aml/dsl/Aml.xtext"
 
 Workflow {
+	
 	bean = StandaloneSetup {
 		scanClassPath  = true
-		resourceSet = org.eclipse.xtext.resource.XtextResourceSet : theResourceSet {}
-
-		// add mappings from platform:/resource to classpath:/
-		uriMap = {
-			from = "platform:/resource/org.eclipse.xtext.xbase/"
-			to = "classpath:/"
-		}
-		uriMap = {
-			from = "platform:/resource/org.eclipse.xtext.common.types/"
-			to = "classpath:/"
-		}
-
-		// register current projects and its siblings for platform URI map, as they are not on the classpath.
 		platformUri = "${runtimeProject}/.."
-		
-		registerGeneratedEPackage = "org.eclipse.xtext.xbase.XbasePackage"
-    	registerGenModelFile = "platform:/resource/org.eclipse.xtext.xbase/model/Xbase.genmodel"
-    	
-		registerGeneratedEPackage = "org.eclipse.emf.ecore.xcore.XcorePackage"
-		registerGeneratedEPackage = "org.testeditor.aml.model.ModelPackage"
 	}
-
+	
 	component = DirectoryCleaner {
 		directory = "${runtimeProject}/src-gen"
 		exclude = ".gitignore"
@@ -52,8 +34,8 @@ Workflow {
 		projectNameRt = projectName
 		projectNameUi = "${projectName}.ui"
 		language = auto-inject {
-			forcedResourceSet = theResourceSet
 			loadedResource = "platform:/resource/org.testeditor.aml.model/model/aml.xcore"
+			loadedResource = "platform:/resource/org.eclipse.xtext.xbase/model/Xbase.genmodel"
 			uri = grammarURI
 
 			// Java API to access grammar elements (required by several other fragments)
@@ -94,8 +76,8 @@ Workflow {
 			// fragment = exporting.QualifiedNamesFragment auto-inject {}
 
 			// scoping and exporting API
-			fragment = scoping.ImportURIScopingFragment auto-inject {}
-			fragment = exporting.SimpleNamesFragment auto-inject {}
+//			fragment = scoping.ImportURIScopingFragment auto-inject {}
+//			fragment = exporting.SimpleNamesFragment auto-inject {}
 			fragment = builder.BuilderIntegrationFragment auto-inject {}		
 
 			// generator API

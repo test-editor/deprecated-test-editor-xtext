@@ -4,6 +4,8 @@
 )
 package org.testeditor.aml.model
 
+import org.eclipse.xtext.xtype.XImportSection
+
 /* <p>
  * AML stands for <pre>Application (Under Test) Mapping Language</pre> and
  * a set of instances of this class define how the test-editor can interact with
@@ -17,7 +19,7 @@ class AmlModel {
 	String[1] ^package
 	String fileNameAllActionGroups
 	String fileNameTechnicalBindings
-	// contains XImportSection importSection // TODO import
+	contains XImportSection importSection
 	contains Component[0..*] components
 	contains ComponentType[0..*] componentTypes
 	contains ComponentElementType[0..*] componentElementTypes
