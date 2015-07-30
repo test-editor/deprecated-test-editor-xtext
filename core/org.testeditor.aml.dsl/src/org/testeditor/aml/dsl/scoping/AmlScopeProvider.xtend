@@ -19,8 +19,10 @@ import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.scoping.IScope
 import org.eclipse.xtext.scoping.Scopes
 import org.eclipse.xtext.xbase.scoping.batch.XbaseBatchScopeProvider
+import org.testeditor.aml.model.ElementTypeWithInteractions
 import org.testeditor.aml.model.ElementWithInteractions
 import org.testeditor.aml.model.ModelUtil
+import org.testeditor.aml.model.TemplateVariable
 
 // TODO this is a temporary scoping as long as we don't properly use Xbase
 class AmlScopeProvider extends XbaseBatchScopeProvider {
@@ -35,13 +37,24 @@ class AmlScopeProvider extends XbaseBatchScopeProvider {
 		super.getScope(context, reference)
 	}
 	
+	/**
+	 * Provides the proper scope for template variables.
+	 */
 	def IScope getInteractionsScope(ElementWithInteractions<?> element) {
 		if (element.type === null) {
 			return IScope.NULLSCOPE
 		}
-		val templates = element.type.interactionTypes.map[template].filterNull
-		val variables = templates.map[referenceableVariables].flatten
+		val variables = element.type.templateVariablesInScope
 		return Scopes.scopeFor(variables, nameProvider, IScope.NULLSCOPE)
+	}
+	
+	/**
+	 * @return the {@link TemplateVariable variables} that can be referenced from the passed type
+	 */
+	protected def Iterable<TemplateVariable> getTemplateVariablesInScope(ElementTypeWithInteractions type) {
+		val templates = type.interactionTypes.map[template].filterNull
+		val variables = templates.map[referenceableVariables].flatten
+		return variables
 	}
 	
 }
