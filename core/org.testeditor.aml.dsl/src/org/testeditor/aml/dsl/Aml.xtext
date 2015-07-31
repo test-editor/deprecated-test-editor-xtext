@@ -34,8 +34,8 @@ AmlModel returns AmlModel:
 
 Component returns Component: 
 	(abstract?='abstract')? 'component' name=ID 
-	('is' type=[ComponentType])? 
-	('includes' parents+=[Component] (',' parents+=[Component])*)?
+	('is' type=[ComponentType|QualifiedName])? 
+	('includes' parents+=[Component|QualifiedName] (',' parents+=[Component|QualifiedName])*)?
 	('{'
 		('label' '=' label=STRING)?
 		(valueSpaceAssignments+=ValueSpaceAssignment)*
@@ -47,12 +47,12 @@ Component returns Component:
 ComponentType returns ComponentType: 
 	'component' 'type' name=ID ('{'
 		('label' '=' label=STRING)?
-		('interactions' '=' interactionTypes+=[InteractionType] (',' interactionTypes+=[InteractionType])*)?
+		('interactions' '=' interactionTypes+=[InteractionType|QualifiedName] (',' interactionTypes+=[InteractionType|QualifiedName])*)?
 	'}')?
 ;
 
 ComponentElement returns ComponentElement:
-	'element' name=ID 'is' type=[ComponentElementType] ('{'
+	'element' name=ID 'is' type=[ComponentElementType|QualifiedName] ('{'
 		('label' '=' label=STRING)?
 		('locator' '=' locator=STRING)?
 		(valueSpaceAssignments+=ValueSpaceAssignment)*
@@ -62,7 +62,7 @@ ComponentElement returns ComponentElement:
 ComponentElementType returns ComponentElementType:
 	'element' 'type' name=ID ('{'
 		('label' '=' label=STRING)?
-		('interactions' '=' interactionTypes+=[InteractionType] (',' interactionTypes+=[InteractionType])*)?
+		('interactions' '=' interactionTypes+=[InteractionType|QualifiedName] (',' interactionTypes+=[InteractionType|QualifiedName])*)?
 	'}')?
 ;
 
@@ -120,5 +120,5 @@ terminal TEMPLATE_VARIABLE_DEF:
 ;
 
 ValueSpaceAssignment: 
-	variable=[TemplateVariable|QualifiedName] 'restrict' 'to' valueSpace=[ValueSpace]
+	variable=[TemplateVariable|QualifiedName] 'restrict' 'to' valueSpace=[ValueSpace|QualifiedName]
 ;
