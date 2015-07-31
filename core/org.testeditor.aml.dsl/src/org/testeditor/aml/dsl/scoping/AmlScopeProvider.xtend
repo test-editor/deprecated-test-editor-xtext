@@ -21,18 +21,27 @@ import org.eclipse.xtext.scoping.Scopes
 import org.eclipse.xtext.xbase.scoping.batch.XbaseBatchScopeProvider
 import org.testeditor.aml.model.ElementTypeWithInteractions
 import org.testeditor.aml.model.ElementWithInteractions
+import org.testeditor.aml.model.MethodReference
 import org.testeditor.aml.model.ModelUtil
 import org.testeditor.aml.model.TemplateVariable
 
-// TODO this is a temporary scoping as long as we don't properly use Xbase
+import static org.testeditor.aml.model.ModelPackage.Literals.*
+
 class AmlScopeProvider extends XbaseBatchScopeProvider {
 	
 	@Inject extension ModelUtil
 	@Inject IQualifiedNameProvider nameProvider
 	
+	@Inject MethodReferenceScopes methodReferenceScopes
+	
 	override getScope(EObject context, EReference reference) {
 		if (context instanceof ElementWithInteractions<?>) {
 			return context.interactionsScope
+		}
+		if (context instanceof MethodReference) {
+			if (reference == METHOD_REFERENCE__OPERATION) {
+				return methodReferenceScopes.getMethodReferenceScope(context, reference)
+			} // else: TODO provide scope only for imported element
 		}
 		super.getScope(context, reference)
 	}

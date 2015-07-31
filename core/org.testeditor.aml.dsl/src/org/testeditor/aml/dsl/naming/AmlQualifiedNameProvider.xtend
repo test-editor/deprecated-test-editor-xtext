@@ -15,11 +15,11 @@ package org.testeditor.aml.dsl.naming
 import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.naming.IQualifiedNameConverter
-import org.eclipse.xtext.naming.SimpleNameProvider
+import org.eclipse.xtext.xbase.scoping.XbaseQualifiedNameProvider
 import org.testeditor.aml.model.InteractionType
 import org.testeditor.aml.model.TemplateVariable
 
-class AmlQualifiedNameProvider extends SimpleNameProvider {
+class AmlQualifiedNameProvider extends XbaseQualifiedNameProvider {
 
 	@Inject
 	extension IQualifiedNameConverter

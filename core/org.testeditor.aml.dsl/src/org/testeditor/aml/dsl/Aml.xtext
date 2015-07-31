@@ -14,8 +14,7 @@ grammar org.testeditor.aml.dsl.Aml with org.eclipse.xtext.xbase.Xbase
 
 import "org.testeditor.aml.model"
 import "http://www.eclipse.org/emf/2002/Ecore" as ecore
-
-import "http://www.eclipse.org/xtext/xbase/Xtype" as xtype
+import "http://www.eclipse.org/xtext/common/JavaVMTypes" as types
 
 AmlModel returns AmlModel:
 	'package' package=QualifiedName
@@ -70,9 +69,18 @@ ComponentElementType returns ComponentElementType:
 InteractionType returns InteractionType:
 	'interaction' 'type' name=ID ('{'
 		('label' '=' label=STRING)?
-		('template' '=' template=Template)? // TODO use proper data type
-		// TODO support fixture-method reference
+		('template' '=' template=Template)?
+		('method' '=' defaultMethod=MethodReference)?
 	'}')?
+;
+
+MethodReference: 
+	typeReference=SimpleTypeReference '.'
+	operation=[types::JvmOperation|QualifiedName]
+;
+
+SimpleTypeReference returns types::JvmParameterizedTypeReference:
+  type=[types::JvmType|ValidID]
 ;
 
 ValueSpace returns ValueSpace:
