@@ -6,6 +6,18 @@
 //
 
 
+/*******************************************************************************
+ * Copyright (c) 2012 - 2015 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
 package org.testeditor.xmllibrary.domain.binding;
 
 import java.math.BigDecimal;
@@ -21,9 +33,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for anonymous complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType>
  *   &lt;complexContent>
@@ -36,8 +48,8 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -53,25 +65,25 @@ public class TechnicalBindingTypes {
 
     /**
      * Gets the value of the technicalBindingType property.
-     * 
+     *
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the technicalBindingType property.
-     * 
+     *
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getTechnicalBindingType().add(newItem);
      * </pre>
-     * 
-     * 
+     *
+     *
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link TechnicalBindingType }
-     * 
-     * 
+     *
+     *
      */
     public List<TechnicalBindingType> getTechnicalBindingType() {
         if (technicalBindingType == null) {
@@ -82,11 +94,11 @@ public class TechnicalBindingTypes {
 
     /**
      * Gets the value of the schemaVersion property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link BigDecimal }
-     *     
+     *
      */
     public BigDecimal getSchemaVersion() {
         if (schemaVersion == null) {
@@ -98,11 +110,11 @@ public class TechnicalBindingTypes {
 
     /**
      * Sets the value of the schemaVersion property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link BigDecimal }
-     *     
+     *
      */
     public void setSchemaVersion(BigDecimal value) {
         this.schemaVersion = value;

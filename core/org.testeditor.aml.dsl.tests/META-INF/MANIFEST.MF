@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.testeditor.aml.dsl.tests
-Bundle-Vendor: My Company
+Bundle-Vendor: Signal Iduna Corporation
 Bundle-Version: 1.0.0.qualifier
 Bundle-SymbolicName: org.testeditor.aml.dsl.tests; singleton:=true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
