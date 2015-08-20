@@ -73,11 +73,11 @@ class AllActionGroupsGeneratorTest extends AbstractGeneratorTest {
 
 		// Then
 		val expected = '''
-			<ActionGroup id="MyApplication" name="MyApplication">
+			<ActionGroup name="MyApplication">
 				<action technicalBindingType="start-application" />
 				<action technicalBindingType="stop-application" />
 			</ActionGroup>
-			<ActionGroup id="MyDialog" name="MyDialog">
+			<ActionGroup name="MyDialog">
 				<action technicalBindingType="set">
 					<actionName locator="">street</actionName>
 				</action>
@@ -207,9 +207,9 @@ class AllActionGroupsGeneratorTest extends AbstractGeneratorTest {
 
 		// Then
 		val expected = generateXml('''
-			<ActionGroup id="A" name="A">
+			<ActionGroup name="A">
 			</ActionGroup>
-			<ActionGroup id="B" name="B Component">
+			<ActionGroup name="B Component">
 			</ActionGroup>
 		''')
 		result.assertEquals(expected)

@@ -38,7 +38,7 @@ class AllActionGroupsGenerator extends AbstractGenerator {
 	'''
 	
 	protected def generateActionGroup(Component component) '''
-		<ActionGroup id="«component.name»" name="«component.labelOrName»">
+		<ActionGroup name="«component.labelOrName»">
 			«component.generateActions»
 			«FOR element : component.elements»
 				«element.generateActions»
