@@ -57,6 +57,7 @@ class AllActionGroupsGeneratorTest extends AbstractGeneratorTest {
 				elements += createElement("street", textType)
 				elements += createElement("city", textType) => [
 					locator = "locator::city"
+					label = "Stadt"
 					valueSpaceAssignments += factory.createValueSpaceAssignment => [
 						variable = setValueTemplateVariable
 						valueSpace = factory.createIntegerRange => [
@@ -85,7 +86,7 @@ class AllActionGroupsGeneratorTest extends AbstractGeneratorTest {
 					<actionName locator="">street</actionName>
 				</action>
 				<action technicalBindingType="set">
-					<actionName locator="locator::city">city</actionName>
+					<actionName locator="locator::city">Stadt</actionName>
 					<argument id="value">
 						<value>2</value>
 						<value>3</value>
@@ -95,7 +96,7 @@ class AllActionGroupsGeneratorTest extends AbstractGeneratorTest {
 					</argument>
 				</action>
 				<action technicalBindingType="get">
-					<actionName locator="locator::city">city</actionName>
+					<actionName locator="locator::city">Stadt</actionName>
 				</action>
 			</ActionGroup>
 		'''.generateXml

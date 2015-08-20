@@ -71,7 +71,7 @@ class AllActionGroupsGenerator extends AbstractGenerator {
 	
 	protected def getActionName(ElementWithInteractions<?> element) {
 		if (element instanceof ComponentElement) {
-			return '''<actionName locator="«element.locator»">«element.name»</actionName>'''
+			return '''<actionName locator="«element.locator»">«element.labelOrName»</actionName>'''
 		} // else: no actioName if the element is a component	
 		return ""
 	}
