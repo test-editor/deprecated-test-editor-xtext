@@ -35,8 +35,8 @@ class AmlScopeProvider extends XbaseBatchScopeProvider {
 	@Inject MethodReferenceScopes methodReferenceScopes
 	
 	override getScope(EObject context, EReference reference) {
-		if (context instanceof ElementWithInteractions<?>) {
-			return context.interactionsScope
+		if (context instanceof ElementWithInteractions<?> && reference == VALUE_SPACE_ASSIGNMENT) {
+			return (context as ElementWithInteractions<?>).interactionsScope
 		}
 		if (context instanceof MethodReference) {
 			if (reference == METHOD_REFERENCE__OPERATION) {
