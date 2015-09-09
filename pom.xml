@@ -21,6 +21,9 @@
 		<module>legacy/org.testeditor.aml.legacy.model</module>
 		<module>legacy/org.testeditor.aml.legacy.importer.ui</module>
 		<module>legacy/org.testeditor.aml.legacy.feature</module>
+		
+		<module>wsdl/org.testeditor.aml.wsdl.importer.ui</module>
+		<module>wsdl/org.testeditor.aml.wsdl.feature</module>
 	</modules>
 
 </project>
