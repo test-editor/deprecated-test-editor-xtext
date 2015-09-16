@@ -14,8 +14,7 @@ grammar org.testeditor.aml.dsl.Aml with org.eclipse.xtext.xbase.Xbase
 
 import "org.testeditor.aml.model"
 import "http://www.eclipse.org/emf/2002/Ecore" as ecore
-
-import "http://www.eclipse.org/xtext/xbase/Xtype" as xtype
+import "http://www.eclipse.org/xtext/common/JavaVMTypes" as types
 
 AmlModel returns AmlModel:
 	'package' package=QualifiedName
@@ -35,8 +34,8 @@ AmlModel returns AmlModel:
 
 Component returns Component: 
 	(abstract?='abstract')? 'component' name=ID 
-	('is' type=[ComponentType])? 
-	('includes' parents+=[Component] (',' parents+=[Component])*)?
+	('is' type=[ComponentType|QualifiedName])? 
+	('includes' parents+=[Component|QualifiedName] (',' parents+=[Component|QualifiedName])*)?
 	('{'
 		('label' '=' label=STRING)?
 		(valueSpaceAssignments+=ValueSpaceAssignment)*
@@ -48,12 +47,12 @@ Component returns Component:
 ComponentType returns ComponentType: 
 	'component' 'type' name=ID ('{'
 		('label' '=' label=STRING)?
-		('interactions' '=' interactionTypes+=[InteractionType] (',' interactionTypes+=[InteractionType])*)?
+		('interactions' '=' interactionTypes+=[InteractionType|QualifiedName] (',' interactionTypes+=[InteractionType|QualifiedName])*)?
 	'}')?
 ;
 
 ComponentElement returns ComponentElement:
-	'element' name=ID 'is' type=[ComponentElementType] ('{'
+	'element' name=ID 'is' type=[ComponentElementType|QualifiedName] ('{'
 		('label' '=' label=STRING)?
 		('locator' '=' locator=STRING)?
 		(valueSpaceAssignments+=ValueSpaceAssignment)*
@@ -63,16 +62,25 @@ ComponentElement returns ComponentElement:
 ComponentElementType returns ComponentElementType:
 	'element' 'type' name=ID ('{'
 		('label' '=' label=STRING)?
-		('interactions' '=' interactionTypes+=[InteractionType] (',' interactionTypes+=[InteractionType])*)?
+		('interactions' '=' interactionTypes+=[InteractionType|QualifiedName] (',' interactionTypes+=[InteractionType|QualifiedName])*)?
 	'}')?
 ;
 
 InteractionType returns InteractionType:
 	'interaction' 'type' name=ID ('{'
 		('label' '=' label=STRING)?
-		('template' '=' template=Template)? // TODO use proper data type
-		// TODO support fixture-method reference
+		('template' '=' template=Template)?
+		('method' '=' defaultMethod=MethodReference)?
 	'}')?
+;
+
+MethodReference: 
+	typeReference=SimpleTypeReference '.'
+	operation=[types::JvmOperation|QualifiedName]
+;
+
+SimpleTypeReference returns types::JvmParameterizedTypeReference:
+  type=[types::JvmType|ValidID]
 ;
 
 ValueSpace returns ValueSpace:
@@ -112,5 +120,5 @@ terminal TEMPLATE_VARIABLE_DEF:
 ;
 
 ValueSpaceAssignment: 
-	variable=[TemplateVariable|QualifiedName] 'restrict' 'to' valueSpace=[ValueSpace]
+	variable=[TemplateVariable|QualifiedName] 'restrict' 'to' valueSpace=[ValueSpace|QualifiedName]
 ;

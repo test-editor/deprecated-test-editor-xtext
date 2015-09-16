@@ -4,7 +4,9 @@
 )
 package org.testeditor.aml.model
 
+import org.eclipse.xtext.common.types.JvmParameterizedTypeReference
 import org.eclipse.xtext.xtype.XImportSection
+import org.eclipse.xtext.common.types.JvmOperation
 
 /* <p>
  * AML stands for <pre>Application (Under Test) Mapping Language</pre> and
@@ -111,7 +113,12 @@ class InteractionType extends ModelElement {
 	 * e.g. <pre>"Pick a value" ${value} "from drop-down" ${element}</pre>
 	 */
 	contains Template template 
-	// TODO attribute method as feature call, e.g. method = SomeFixture.someMethod(element, value)
+	contains MethodReference defaultMethod
+}
+
+class MethodReference {
+	contains JvmParameterizedTypeReference typeReference
+	refers JvmOperation operation
 }
 
 /* <p>

@@ -48,6 +48,7 @@ Workflow {
 		language = auto-inject {
 			loadedResource = "platform:/resource/org.testeditor.aml.model/model/aml.xcore"
 			loadedResource = "platform:/resource/org.eclipse.xtext.xbase/model/Xbase.genmodel"
+			loadedResource = "platform:/resource/org.eclipse.xtext.common.types/model/JavaVMTypes.genmodel"
 			uri = grammarURI
 
 			// Java API to access grammar elements (required by several other fragments)
