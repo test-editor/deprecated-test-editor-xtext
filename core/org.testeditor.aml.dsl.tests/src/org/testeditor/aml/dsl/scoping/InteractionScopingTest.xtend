@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -13,9 +13,11 @@
 package org.testeditor.aml.dsl.scoping
 
 import javax.inject.Inject
+import org.eclipse.xtext.diagnostics.Severity
 import org.junit.Test
 import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
 import org.testeditor.aml.model.ModelUtil
+import org.testeditor.fixture.core.interaction.FixtureMethod
 
 /**
  * Tests scoping for interactions / template variables.
@@ -62,12 +64,73 @@ class InteractionScopingTest extends AbstractParserTest {
 		val dialog = model1.componentTypes.assertSingleElement
 		val myDialog = model2.components.assertSingleElement
 		myDialog.type.assertSame(dialog)
-		
+
 		val template = model1.interactionTypes.assertSingleElement.template
 		val sizeVariable = template.referenceableVariables.assertSingleElement
 		myDialog.valueSpaceAssignments.assertSingleElement => [
 			variable.assertSame(sizeVariable)
 		]
 	}
-	
+
+	/**
+	 * Test that a reference to a fixture method (annotated with @FixtureMethod)
+	 * can be resolved properly.
+	 */
+	@Test
+	def void testInteractionMethodReference() {
+		// Given
+		val file = '''
+			package «TestFixture.package.name»
+			
+			interaction type Resize {
+				template = "Resize" ${element} "to size" ${size}
+				method = TestFixture.someFixtureMethod
+			}
+		'''
+
+		// When
+		val model = parser.parse(file)
+
+		// Then
+		model.assertNoErrors
+		val interaction = model.interactionTypes.assertSingleElement
+		interaction.defaultMethod.typeReference.qualifiedName.assertEquals(TestFixture.name)
+	}
+
+	/**
+	 * Test that a reference to a non-fixture method (not annotated with @FixtureMethod)
+	 * cannot be resolved as it is not in scope. 
+	 */
+	@Test
+	def void testInteractionInvalidMethodReference() {
+		// Given
+		val file = '''
+			package «TestFixture.package.name»
+			
+			interaction type Resize {
+				template = "Resize" ${element} "to size" ${size}
+				method = TestFixture.someUnrelatedMethod
+			}
+		'''
+
+		// When
+		val model = parser.parse(file)
+
+		// Then
+		val issue = model.validate.assertSingleElement
+		issue => [
+			severity.assertEquals(Severity.ERROR)
+			message.assertEquals("Couldn't resolve reference to JvmOperation 'someUnrelatedMethod'.")
+		]
+	}
+
+}
+
+package class TestFixture {
+
+	@FixtureMethod
+	def void someFixtureMethod() {}
+
+	def void someUnrelatedMethod() {}
+
 }
