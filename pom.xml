@@ -12,18 +12,16 @@
 		<module>releng/org.testeditor.aml.releng.parent</module>
 		<module>releng/org.testeditor.aml.releng.parent.dsl</module>
 		
+		<module>aml/org.testeditor.aml.model</module>
 		<module>aml/org.testeditor.aml.dsl</module>
 		<module>aml/org.testeditor.aml.dsl.tests</module>
 		<module>aml/org.testeditor.aml.dsl.ui</module>
-		<module>aml/org.testeditor.aml.model</module>
 		<module>aml/org.testeditor.aml.sdk</module>
 		
+		<module>tcl/org.testeditor.tcl.model</module>
 		<module>tcl/org.testeditor.tcl.dsl</module>
 		<module>tcl/org.testeditor.tcl.dsl.tests</module>
 		<module>tcl/org.testeditor.tcl.dsl.ui</module>
-		<!-- 
-		<module>tcl/org.testeditor.tcl.model</module>
-		 -->
 		<module>tcl/org.testeditor.tcl.sdk</module>
 
 		<module>legacy/org.testeditor.aml.legacy.model</module>

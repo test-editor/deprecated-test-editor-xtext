@@ -1,0 +1,20 @@
+@Ecore(nsURI="http://www.testeditor.org/tcl")
+@GenModel(
+	modelDirectory="org.testeditor.tcl.model/src-gen", 
+	complianceLevel="7.0"
+)
+
+package org.testeditor.tcl
+
+import org.eclipse.xtext.xtype.XImportSection
+import org.testeditor.aml.model.Component
+
+class TclModel {
+	String ^package
+	contains XImportSection importSection
+	contains ComponentReference[0..*] elements
+}
+
+class ComponentReference {
+	refers Component component
+}

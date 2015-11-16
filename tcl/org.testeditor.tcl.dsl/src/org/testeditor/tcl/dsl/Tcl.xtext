@@ -12,7 +12,7 @@
  *******************************************************************************/
 grammar org.testeditor.tcl.dsl.Tcl with org.eclipse.xtext.xbase.Xbase
 
-generate tcl "http://www.testeditor.org/tcl/dsl/Tcl"
+import "http://www.testeditor.org/tcl"
 import "org.testeditor.aml.model" as aml
 
 TclModel:
