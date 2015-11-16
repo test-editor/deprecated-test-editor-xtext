@@ -117,17 +117,11 @@ class AmlProposalProvider extends AbstractAmlProposalProvider {
 		}
 	}
 
-	/**
-	 * @see completeElementTypeWithInteractions_InteractionTypes
-	 */
 	override completeComponentElementType_InteractionTypes(EObject model, Assignment assignment, ContentAssistContext context,
 		ICompletionProposalAcceptor acceptor) {
 		completeElementTypeWithInteractions_InteractionTypes(model, assignment, context, acceptor)
 	}
 
-	/**
-	 * @see completeElementTypeWithInteractions_InteractionTypes
-	 */
 	override completeComponentType_InteractionTypes(EObject model, Assignment assignment, ContentAssistContext context,
 		ICompletionProposalAcceptor acceptor) {
 		completeElementTypeWithInteractions_InteractionTypes(model, assignment, context, acceptor)
