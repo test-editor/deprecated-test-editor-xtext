@@ -1,0 +1,22 @@
+package org.testeditor.demo.swing
+
+import org.testeditor.fixture.swing.*
+
+component GreetingApplication is Application {
+	
+	element Input is Text {
+		label = "Eingabefeld"
+		locator = "text.input"
+	}
+	
+	element Output is Text {
+		label = "Ausgabefeld"
+		locator = "text.output"
+	}
+	
+	element GreetButton is Button {
+		label = "Button"
+		locator = "button.greet"
+	}
+	
+}
