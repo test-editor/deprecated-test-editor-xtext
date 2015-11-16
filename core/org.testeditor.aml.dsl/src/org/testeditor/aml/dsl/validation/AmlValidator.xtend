@@ -21,6 +21,7 @@ import org.testeditor.aml.model.ValueSpaceAssignment
 
 import static org.testeditor.aml.dsl.Messages.*
 import static org.testeditor.aml.model.ModelPackage.Literals.*
+import org.eclipse.xtext.xtype.XImportSection
 
 class AmlValidator extends AbstractAmlValidator {
 
@@ -90,6 +91,10 @@ class AmlValidator extends AbstractAmlValidator {
 				VALUE_SPACE_ASSIGNMENT__VARIABLE__NON_UNIQUE
 			)
 		}
+	}
+	
+	override checkImports(XImportSection importSection) {
+		// ignore for now
 	}
 	
 }
