@@ -1,4 +1,4 @@
-# Initial version created by https://www.gitignore.io 
+# Initial version created by https://www.gitignore.io
 # Added Xtext specific section
 # Modified Eclipse settings
 
@@ -16,6 +16,7 @@ plugin.xml_gen
 *.jar
 *.war
 *.ear
+!.antlr-generator-3.2.0-patch.jar
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
