@@ -24,7 +24,7 @@ TclModel:
 
 SpecificationStep:
 	{SpecificationStep}
-	'*' contents+=StepContent* '.' 
+	'*' contents+=StepContent* '.'?
 	contexts+=TestStepContext*
 ;
 
@@ -35,7 +35,7 @@ TestStepContext:
 
 TestStep:
 	{TestStep}
-	'-' contents+=StepContent* 
+	'-' contents+=StepContent* '.'?
 ;
 
 	

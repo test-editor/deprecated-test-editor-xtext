@@ -12,8 +12,13 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.tests.parser
 
+import java.util.List
 import org.junit.Test
+import org.testeditor.tcl.StepContent
 import org.testeditor.tcl.StepContentVariable
+import org.testeditor.tcl.TclPackage
+
+import static extension org.eclipse.xtext.nodemodel.util.NodeModelUtils.*
 
 class TclModelParserTest extends AbstractParserTest {
 	
@@ -46,7 +51,7 @@ class TclModelParserTest extends AbstractParserTest {
 		
 		// then
 		model.steps.assertSingleElement => [
-			contents.map[value].join(' ').assertEquals('Start the famous greetings application')
+			contents.restoreString.assertEquals('Start the famous greetings application')
 		]
 	}
 	
@@ -64,11 +69,52 @@ class TclModelParserTest extends AbstractParserTest {
 		
 		// then
 		model.steps.assertSingleElement => [
-			contents.map[value].join(' ').assertEquals('send greetings Hello World to the world')
+			contents.restoreString.assertEquals('send greetings "Hello World" to the world')
 			contents.get(2).assertInstanceOf(StepContentVariable) => [
 				value.assertEquals('Hello World')
 			]
 		]		
-	} 
+	}
+	
+	@Test
+	def void parseTestContextWithSteps() {
+		// given
+		val input = '''
+			package com.example
+			
+			* Start the famous greetings application
+				Mask: GreetingsApplication
+				- starte Anwendung "org.testeditor.swing.exammple.Greetings"
+				- stoppe Anwendung.
+		'''
+		
+		// when
+		val model = parse(input)
+		
+		// then
+		model.steps.assertSingleElement => [
+			contexts.assertSingleElement => [
+				val componentNode = findNodesForFeature(TclPackage.Literals.TEST_STEP_CONTEXT__COMPONENT).assertSingleElement
+				componentNode.text.assertEquals('GreetingsApplication')
+				steps.assertSize(2)
+				steps.get(0) => [
+					contents.restoreString.assertEquals('starte Anwendung "org.testeditor.swing.exammple.Greetings"')	
+				]
+				steps.get(1) => [
+					contents.restoreString.assertEquals('stoppe Anwendung')
+				]
+			]
+		]
+	}
+	
+	protected def String restoreString(List<StepContent> contents) {
+		return contents.map[
+			if (it instanceof StepContentVariable) {
+				return '''"«value»"'''
+			} else {
+				return value
+			}
+		].join(' ')
+	}
 	
 }
