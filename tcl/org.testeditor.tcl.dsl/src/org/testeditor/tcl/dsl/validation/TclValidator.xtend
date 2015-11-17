@@ -27,7 +27,8 @@ class TclValidator extends AbstractTclValidator {
 
 	@Check
 	def checkMaskPresent(TestStepContext tsContext) {
-		if (tsContext.component == null) {
+			println(">>>>>>>>>> Hey " + tsContext.component.eIsProxy)
+		if (tsContext.component.eIsProxy) {
 			warning("mask is not defined in aml", TclPackage.Literals.TEST_STEP_CONTEXT__COMPONENT);
 		}
 	}
