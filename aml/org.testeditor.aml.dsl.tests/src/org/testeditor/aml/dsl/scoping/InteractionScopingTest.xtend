@@ -17,7 +17,7 @@ import org.eclipse.xtext.diagnostics.Severity
 import org.junit.Test
 import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
 import org.testeditor.aml.model.ModelUtil
-import org.testeditor.fixture.core.interaction.FixtureMethod
+import org.testeditor.fixture.dummy.DummyFixture
 
 /**
  * Tests scoping for interactions / template variables.
@@ -80,11 +80,11 @@ class InteractionScopingTest extends AbstractParserTest {
 	def void testInteractionMethodReference() {
 		// Given
 		val file = '''
-			package «TestFixture.package.name»
+			package «DummyFixture.package.name»
 			
 			interaction type Resize {
 				template = "Resize" ${element} "to size" ${size}
-				method = TestFixture.someFixtureMethod
+				method = «DummyFixture.simpleName».someFixtureMethod
 			}
 		'''
 
@@ -94,7 +94,7 @@ class InteractionScopingTest extends AbstractParserTest {
 		// Then
 		model.assertNoErrors
 		val interaction = model.interactionTypes.assertSingleElement
-		interaction.defaultMethod.typeReference.qualifiedName.assertEquals(TestFixture.name)
+		interaction.defaultMethod.typeReference.qualifiedName.assertEquals(DummyFixture.name)
 	}
 
 	/**
@@ -105,11 +105,11 @@ class InteractionScopingTest extends AbstractParserTest {
 	def void testInteractionInvalidMethodReference() {
 		// Given
 		val file = '''
-			package «TestFixture.package.name»
+			package «DummyFixture.package.name»
 			
 			interaction type Resize {
 				template = "Resize" ${element} "to size" ${size}
-				method = TestFixture.someUnrelatedMethod
+				method = «DummyFixture.simpleName».someUnrelatedMethod
 			}
 		'''
 
@@ -123,14 +123,5 @@ class InteractionScopingTest extends AbstractParserTest {
 			message.assertEquals("Couldn't resolve reference to JvmOperation 'someUnrelatedMethod'.")
 		]
 	}
-
-}
-
-package class TestFixture {
-
-	@FixtureMethod
-	def void someFixtureMethod() {}
-
-	def void someUnrelatedMethod() {}
 
 }

@@ -7,7 +7,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.testeditor.aml.dsl.tests
+package org.testeditor.dsl.common.testing
 
 import java.math.BigDecimal
 import javax.inject.Singleton

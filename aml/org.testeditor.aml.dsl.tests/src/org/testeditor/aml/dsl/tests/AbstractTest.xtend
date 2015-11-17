@@ -25,6 +25,7 @@ import org.eclipse.xtext.util.Modules2
 import org.junit.runner.RunWith
 import org.testeditor.aml.dsl.AmlRuntimeModule
 import org.testeditor.aml.dsl.AmlStandaloneSetup
+import org.testeditor.dsl.common.testing.AssertionHelper
 
 @RunWith(XtextRunner)
 abstract class AbstractTest extends AbstractXtextTests {

@@ -23,6 +23,7 @@ import org.eclipse.xtext.junit4.XtextRunner
 import org.eclipse.xtext.junit4.validation.ValidationTestHelper
 import org.eclipse.xtext.util.Modules2
 import org.junit.runner.RunWith
+import org.testeditor.dsl.common.testing.AssertionHelper
 import org.testeditor.tcl.dsl.TclRuntimeModule
 import org.testeditor.tcl.dsl.TclStandaloneSetup
 
