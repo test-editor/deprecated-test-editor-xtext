@@ -10,25 +10,21 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.demo.swing
+package com.example
 
-import org.testeditor.fixture.swing.*
+import org.testeditor.demo.swing.*
 
-component GreetingApplication is Application {
-	
-	element Input is Text {
-		label = "Eingabefeld"
-		locator = "text.input"
-	}
-	
-	element Output is Text {
-		label = "Ausgabefeld"
-		locator = "text.output"
-	}
-	
-	element GreetButton is Button {
-		label = "Button"
-		locator = "button.greet"
-	}
-	
-}
+// This is a comment
+* Start the famous greetings application.
+ 
+    Mask: GreetingApplication
+    - starte Anwendung "org.testeditor.swing.exammple.Greetings"
+ 
+* send greetings "Hello World" to the world.
+ 
+    Mask: GreetingApplication
+    - gebe in "Eingabefeld" den Wert "Hello World" ein
+    - klicke auf Greetings
+ 
+	Mask: GreetingApplication
+	- mach was "schlaues"

@@ -10,25 +10,20 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.demo.swing
+package org.testeditor.demo.swing;
 
-import org.testeditor.fixture.swing.*
+import org.junit.Test;
+import org.testeditor.fixture.swing.SwingFixture;
 
-component GreetingApplication is Application {
-	
-	element Input is Text {
-		label = "Eingabefeld"
-		locator = "text.input"
-	}
-	
-	element Output is Text {
-		label = "Ausgabefeld"
-		locator = "text.output"
-	}
-	
-	element GreetButton is Button {
-		label = "Button"
-		locator = "button.greet"
-	}
-	
+public class HandWrittenTest {
+
+    private SwingFixture fixture = new SwingFixture();
+    
+    @Test
+    public void demo() {
+        fixture.startApplication(GreetingApplication.class.getName());
+        fixture.stopApplication();
+    }
+    
+    
 }
