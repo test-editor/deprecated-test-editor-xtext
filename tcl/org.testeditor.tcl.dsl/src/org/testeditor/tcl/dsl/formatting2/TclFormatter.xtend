@@ -12,16 +12,13 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.formatting2;
 
-import com.google.inject.Inject
 import org.eclipse.xtext.formatting2.IFormattableDocument
 import org.eclipse.xtext.xbase.formatting2.XbaseFormatter
-import org.testeditor.tcl.ComponentReference
 import org.testeditor.tcl.TclModel
-import org.testeditor.tcl.dsl.services.TclGrammarAccess
 
 class TclFormatter extends XbaseFormatter {
 	
-	@Inject extension TclGrammarAccess
+//	@Inject extension TclGrammarAccess
 
 	def dispatch void format(TclModel tclmodel, extension IFormattableDocument document) {
 		
