@@ -24,26 +24,15 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	@Inject extension JvmTypesBuilder
 
    	def dispatch void infer(TclModel element, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
-   		val fileName = element.eResource.URI.lastSegment.removeFileExtension
+   		val fileName = element.eResource.URI.lastSegment.removeFileExtension.toFirstUpper
    		
    		acceptor.accept(element.toClass('''«element.package».«fileName»''')) [
-   			members += element.toMethod('performTest', typeRef(Void.TYPE))[
-   				
+   			members += element.toMethod('execute', typeRef(Void.TYPE))[
+   				body = '''
+   					// TODO implement me
+   				'''
    			]
    		]
-   		
-   		// Here you explain how your model is mapped to Java elements, by writing the actual translation code.
-   		
-   		// An implementation for the initial hello world example could look like this:
-//   		acceptor.accept(element.toClass("my.company.greeting.MyGreetings")) [
-//   			for (greeting : element.greetings) {
-//   				members += greeting.toMethod("hello" + greeting.name, typeRef(String)) [
-//   					body = '''
-//							return "Hello «greeting.name»";
-//   					'''
-//   				]
-//   			}
-//   		]
    	}
    	
    	@VisibleForTesting
