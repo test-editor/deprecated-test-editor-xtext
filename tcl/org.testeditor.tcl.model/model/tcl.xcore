@@ -12,9 +12,29 @@ import org.testeditor.aml.model.Component
 class TclModel {
 	String ^package
 	contains XImportSection importSection
-	contains ComponentReference[0..*] elements
+	contains SpecificationStep[0..*] steps
 }
 
-class ComponentReference {
+class SpecificationStep {
+	contains StepContent[0..*] contents
+	contains TestStepContext[0..*] contexts
+}
+
+class TestStepContext {
 	refers Component component
+	contains TestStep[0..*] steps
+}
+
+class TestStep {
+	contains StepContent[0..*] contents
+}
+
+abstract class StepContent {
+	String value
+}
+
+class StepContentText extends StepContent {
+}
+
+class StepContentVariable extends StepContent {
 }

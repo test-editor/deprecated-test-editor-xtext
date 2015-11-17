@@ -45,3 +45,4 @@ tmp/
 *~.nib
 local.properties
 Eclipse.app
+.recommenders

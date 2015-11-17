@@ -4,26 +4,26 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.tcl.dsl.formatting2;
+package org.testeditor.tcl.dsl.tests.parser
 
-import com.google.inject.Inject
-import org.eclipse.xtext.formatting2.IFormattableDocument
-import org.eclipse.xtext.xbase.formatting2.XbaseFormatter
-import org.testeditor.tcl.ComponentReference
+import javax.inject.Inject
+import org.eclipse.xtext.junit4.util.ParseHelper
 import org.testeditor.tcl.TclModel
-import org.testeditor.tcl.dsl.services.TclGrammarAccess
+import org.testeditor.tcl.dsl.tests.AbstractTest
 
-class TclFormatter extends XbaseFormatter {
-	
-	@Inject extension TclGrammarAccess
+abstract class AbstractParserTest extends AbstractTest {
 
-	def dispatch void format(TclModel tclmodel, extension IFormattableDocument document) {
-		
+	@Inject
+	protected ParseHelper<TclModel> parser
+
+	protected def TclModel parse(CharSequence input) {
+		return parser.parse(input)
 	}
+
 }

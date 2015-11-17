@@ -18,11 +18,35 @@ import "org.testeditor.aml.model" as aml
 TclModel:
 	'package' package=QualifiedName
 	(importSection=XImportSection)?
-	
-	elements+=ComponentReference
+
+	steps+=SpecificationStep*
 ;
 
-ComponentReference:
-	('Mask' | 'Component') ':' component=[aml::Component]
+SpecificationStep:
+	{SpecificationStep}
+	'*' contents+=StepContent* '.' 
+	contexts+=TestStepContext*
 ;
+
+TestStepContext:
+	('Mask' | 'Component') ':' component=[aml::Component]
+	steps+=TestStep*
+;
+
+TestStep:
+	{TestStep}
+	'-' contents+=StepContent* 
+;
+
 	
+StepContent: 
+	StepContentText | StepContentVariable
+;
+
+StepContentText: 
+	value=ID
+;
+
+StepContentVariable:
+	value=STRING 
+;

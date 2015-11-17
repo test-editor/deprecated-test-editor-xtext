@@ -12,6 +12,11 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl;
 
+import org.eclipse.emf.ecore.EPackage;
+import org.testeditor.tcl.TclPackage;
+
+import com.google.inject.Injector;
+
 /**
  * Initialization support for running Xtext languages 
  * without equinox extension registry
@@ -20,6 +25,12 @@ public class TclStandaloneSetup extends TclStandaloneSetupGenerated{
 
 	public static void doSetup() {
 		new TclStandaloneSetup().createInjectorAndDoEMFRegistration();
+	}
+	
+	@Override
+	public Injector createInjectorAndDoEMFRegistration() {
+	    EPackage.Registry.INSTANCE.put(TclPackage.eINSTANCE.getNsURI(), TclPackage.eINSTANCE);
+	    return super.createInjectorAndDoEMFRegistration();
 	}
 }
 
