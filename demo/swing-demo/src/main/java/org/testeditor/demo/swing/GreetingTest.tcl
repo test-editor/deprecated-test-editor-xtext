@@ -27,4 +27,4 @@ import org.testeditor.demo.swing.*
     - klicke auf Greetings
  
 	Mask: GreetingApplication
-	- mach was "schlaues"
+	- mach was "schlaues" 
