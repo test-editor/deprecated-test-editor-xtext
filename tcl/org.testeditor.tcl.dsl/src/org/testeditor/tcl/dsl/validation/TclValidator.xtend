@@ -19,7 +19,7 @@ import org.testeditor.tcl.TclPackage
 
 class TclValidator extends AbstractTclValidator {
 
-	public static val INVALID_NAME = 'invalidName'
+	public static val UNKNOWN_NAME = 'unknownName'
 
 	override checkImports(XImportSection importSection) {
 		// ignore for now
@@ -27,9 +27,8 @@ class TclValidator extends AbstractTclValidator {
 
 	@Check
 	def checkMaskPresent(TestStepContext tsContext) {
-			println(">>>>>>>>>> Hey " + tsContext.component.eIsProxy)
 		if (tsContext.component.eIsProxy) {
-			warning("mask is not defined in aml", TclPackage.Literals.TEST_STEP_CONTEXT__COMPONENT);
+			warning("mask is not defined in aml", TclPackage.Literals.TEST_STEP_CONTEXT__COMPONENT,UNKNOWN_NAME);
 		}
 	}
 

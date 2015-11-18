@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -12,24 +12,31 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.ui.quickfix
 
-//import org.eclipse.xtext.ui.editor.quickfix.Fix
-//import org.eclipse.xtext.ui.editor.quickfix.IssueResolutionAcceptor
-//import org.eclipse.xtext.validation.Issue
+import org.eclipse.xtext.ui.editor.quickfix.Fix
+import org.testeditor.tcl.dsl.validation.TclValidator
+
+import org.eclipse.xtext.ui.editor.quickfix.IssueResolutionAcceptor
+import org.eclipse.xtext.validation.Issue
+import org.eclipse.xtext.ui.editor.model.edit.ISemanticModification
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.xtext.ui.editor.model.edit.IModificationContext
+import org.testeditor.tcl.TestStepContext
 
 /**
  * Custom quickfixes.
- *
+ * 
  * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#quick-fixes
  */
 class TclQuickfixProvider extends org.eclipse.xtext.xbase.ui.quickfix.XbaseQuickfixProvider {
 
-//	@Fix(MyDslValidator::INVALID_NAME)
-//	def capitalizeName(Issue issue, IssueResolutionAcceptor acceptor) {
-//		acceptor.accept(issue, 'Capitalize name', 'Capitalize the name.', 'upcase.png') [
-//			context |
-//			val xtextDocument = context.xtextDocument
-//			val firstLetter = xtextDocument.get(issue.offset, 1)
-//			xtextDocument.replace(issue.offset, 1, firstLetter.toUpperCase)
-//		]
-//	}
+	@Fix(TclValidator::UNKNOWN_NAME)
+	def createAMLMask(Issue issue, IssueResolutionAcceptor acceptor) {
+		acceptor.accept(issue, "Create AML Mask", "Creates a new AML Mask", 'upcase.png') [ element, context |
+			if (element instanceof TestStepContext) {
+				println(element.component)
+			}
+		]
+	}
+	
 }
+
