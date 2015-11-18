@@ -11,6 +11,15 @@ public class DummyFixture {
     public void someFixtureMethod() {
     }
     
+    @FixtureMethod
+    public String getValue() {
+        return "";
+    }
+    
+    @FixtureMethod
+    public void setValue(String value) {
+    }
+    
     public void someUnrelatedMethod() {
     }
     

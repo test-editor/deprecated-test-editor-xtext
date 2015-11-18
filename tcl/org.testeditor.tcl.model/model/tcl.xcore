@@ -8,6 +8,7 @@ package org.testeditor.tcl
 
 import org.eclipse.xtext.xtype.XImportSection
 import org.testeditor.aml.model.Component
+import org.testeditor.tcl.util.TclModelUtil
 
 class TclModel {
 	String ^package
@@ -15,16 +16,7 @@ class TclModel {
 	contains SpecificationStep[0..*] steps
 	
 	derived String name get {
-		val lastSegment = eResource?.URI?.lastSegment
-		if (lastSegment !== null) {
-			val separator = lastSegment.lastIndexOf('.')
-			if (separator >= 0) {
-				return lastSegment.substring(0, separator).toFirstUpper
-			} else {
-				return lastSegment.toFirstUpper
-			}
-		}
-		return null
+		return TclModelUtil.getName(this)
 	}
 }
 

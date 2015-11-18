@@ -12,9 +12,7 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.tests.parser
 
-import java.util.List
 import org.junit.Test
-import org.testeditor.tcl.StepContent
 import org.testeditor.tcl.StepContentVariable
 import org.testeditor.tcl.TclPackage
 
@@ -105,16 +103,6 @@ class TclModelParserTest extends AbstractParserTest {
 				]
 			]
 		]
-	}
-	
-	protected def String restoreString(List<StepContent> contents) {
-		return contents.map[
-			if (it instanceof StepContentVariable) {
-				return '''"«value»"'''
-			} else {
-				return value
-			}
-		].join(' ')
 	}
 	
 }

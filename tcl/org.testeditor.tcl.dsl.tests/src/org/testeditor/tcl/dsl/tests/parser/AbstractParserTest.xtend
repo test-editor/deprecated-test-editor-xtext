@@ -16,11 +16,12 @@ import javax.inject.Inject
 import org.eclipse.xtext.junit4.util.ParseHelper
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.dsl.tests.AbstractTest
+import org.testeditor.tcl.util.TclModelUtil
 
 abstract class AbstractParserTest extends AbstractTest {
 
-	@Inject
-	protected ParseHelper<TclModel> parser
+	@Inject protected ParseHelper<TclModel> parser
+	@Inject protected extension TclModelUtil modelUtil
 
 	protected def TclModel parse(CharSequence input) {
 		return parser.parse(input)

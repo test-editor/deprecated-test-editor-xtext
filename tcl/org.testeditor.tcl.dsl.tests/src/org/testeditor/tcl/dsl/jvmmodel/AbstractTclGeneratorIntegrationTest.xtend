@@ -6,6 +6,7 @@ import org.eclipse.xtext.generator.IFileSystemAccess
 import org.eclipse.xtext.generator.IGenerator
 import org.eclipse.xtext.generator.InMemoryFileSystemAccess
 import org.eclipse.xtext.junit4.util.ParseHelper
+import org.eclipse.xtext.junit4.validation.ValidationTestHelper
 import org.eclipse.xtext.resource.XtextResourceSet
 import org.junit.Before
 import org.testeditor.aml.dsl.AmlStandaloneSetup
@@ -25,6 +26,9 @@ abstract class AbstractTclGeneratorIntegrationTest extends AbstractTest {
 
 	@Inject
 	protected ParseHelper<TclModel> tclParseHelper
+	
+	@Inject
+	protected ValidationTestHelper validationHelper
 
 	@Inject
 	protected IGenerator generator
