@@ -32,6 +32,7 @@ import org.eclipse.xtext.xbase.ui.quickfix.XbaseQuickfixProvider
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.dsl.validation.TclValidator
 import org.testeditor.aml.model.AmlModel
+import org.eclipse.xtext.nodemodel.ICompositeNode
 
 /**
  * Custom quickfixes.
@@ -45,42 +46,63 @@ class TclQuickfixProvider extends XbaseQuickfixProvider {
 		acceptor.accept(issue, "Create AML Mask", "Creates a new AML Mask", 'upcase.png') [ element, context |
 			if (element instanceof TestStepContext) {
 				if (element.component.eIsProxy) {
-					val sub = NodeModelUtils.findActualNodeFor(element).text.split(':')
-					val maskName = sub.get(1).trim
-					println(maskName)
-					val dialog = new ElementTreeSelectionDialog(Display.getDefault().getActiveShell(),
-						new WorkbenchLabelProvider(), new BaseWorkbenchContentProvider())
-					dialog.input = ResourcesPlugin.getWorkspace().getRoot()
-					dialog.allowMultiple = true
-					dialog.title = "Select AML file"
-					dialog.addFilter(new ViewerFilter() {
-
-						override select(Viewer viewer, Object parentElement, Object element) {
-							if (element instanceof IFile) {
-								return element.toString().endsWith("aml")
-							} else
-								return true
-						}
-
-					})
-					if (dialog.open == Window.OK) {
-						var amlFile = dialog.firstResult as IFile
+					val maskName = getMaskName(element)
+					var amlFile = getTargetFile(context.xtextDocument.getAdapter(IFile))
+					if (amlFile != null) {
 						var fei = new FileEditorInput(amlFile)
 						var id = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(amlFile.getName()).id
 						var editor = PlatformUI.workbench.activeWorkbenchWindow.activePage.
 							openEditor(fei, id) as XtextEditor
-
-						println(editor.document)
-						var lastNode = editor.document.readOnly() [ ressource |
-							var amlModel = ressource.contents.head as AmlModel
-							return NodeModelUtils.findActualNodeFor(amlModel.components.last)
+						var amlModel = editor.document.readOnly() [ ressource |
+							return ressource.contents.head as AmlModel
 						]
-						editor.document.replace(lastNode.offset + lastNode.length, 0, "\ncomponent " + maskName + " is <TYPE> {\n}")
+						var ICompositeNode lastNode = null
+						if (amlModel.components.empty) {
+							lastNode = NodeModelUtils.findActualNodeFor(amlModel)
+						} else {
+							lastNode = NodeModelUtils.findActualNodeFor(amlModel.components.last)
+						}
+						editor.document.replace(lastNode.offset + lastNode.length, 0, getComponentDSLFragment(maskName))
 					}
 				}
 			}
 		]
 	}
+
+	def getTargetFile(IFile currentSelection) {
+		val dialog = new ElementTreeSelectionDialog(Display.getDefault().getActiveShell(), new WorkbenchLabelProvider(),
+			new BaseWorkbenchContentProvider())
+		dialog.input = ResourcesPlugin.getWorkspace().getRoot()
+		dialog.allowMultiple = true
+		dialog.title = "Select AML file"
+		dialog.initialSelection = currentSelection.parent
+		dialog.addFilter(new ViewerFilter() {
+
+			override select(Viewer viewer, Object parentElement, Object element) {
+				if (element instanceof IFile) {
+					return element.toString().endsWith("aml")
+				} else
+					return true
+			}
+
+		})
+		if (dialog.open == Window.OK) {
+			return dialog.firstResult as IFile
+		}
+		return null
+	}
+
+	def getMaskName(TestStepContext testStepContext) {
+		val sub = NodeModelUtils.findActualNodeFor(testStepContext).text.split(':')
+		return sub.get(1).trim
+	}
+
+	def String getComponentDSLFragment(String maskName) '''
+		
+		component «maskName» is <TYPE> {
+		
+		}
+	'''
 
 }
 
