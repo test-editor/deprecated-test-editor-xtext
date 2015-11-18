@@ -49,10 +49,7 @@ class TclQuickfixProvider extends XbaseQuickfixProvider {
 					val maskName = getMaskName(element)
 					var amlFile = getTargetFile(context.xtextDocument.getAdapter(IFile))
 					if (amlFile != null) {
-						var fei = new FileEditorInput(amlFile)
-						var id = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(amlFile.getName()).id
-						var editor = PlatformUI.workbench.activeWorkbenchWindow.activePage.
-							openEditor(fei, id) as XtextEditor
+						var editor = openEditorFor(amlFile)
 						var amlModel = editor.document.readOnly() [ ressource |
 							return ressource.contents.head as AmlModel
 						]
@@ -67,6 +64,13 @@ class TclQuickfixProvider extends XbaseQuickfixProvider {
 				}
 			}
 		]
+	}
+
+	def openEditorFor(IFile file) {
+		var fei = new FileEditorInput(file)
+		var id = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(file.getName()).id
+		var editor = PlatformUI.workbench.activeWorkbenchWindow.activePage.openEditor(fei, id) as XtextEditor
+		return editor
 	}
 
 	def getTargetFile(IFile currentSelection) {
