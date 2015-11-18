@@ -120,7 +120,7 @@ Workflow {
 			}
 			
 			// generates junit test support classes into Generator#pathTestProject
-			fragment = junit.Junit4Fragment auto-inject {}
+			// fragment = junit.Junit4Fragment auto-inject {}
 
 			// project wizard (optional) 
 			fragment = projectWizard.SimpleProjectWizardFragment auto-inject {
