@@ -27,10 +27,11 @@ class SpecificationStep {
 
 class TestStepContext {
 	refers Component component
-	contains TestStep[0..*] steps
+	contains TestStep[0..*] steps opposite context
 }
 
 class TestStep {
+	container TestStepContext context opposite steps
 	contains StepContent[0..*] contents
 }
 

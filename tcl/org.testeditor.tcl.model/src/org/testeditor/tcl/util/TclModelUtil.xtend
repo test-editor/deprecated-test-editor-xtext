@@ -1,7 +1,9 @@
 package org.testeditor.tcl.util
 
 import java.util.List
+import java.util.Map
 import javax.inject.Singleton
+import org.testeditor.aml.model.ComponentElement
 import org.testeditor.aml.model.InteractionType
 import org.testeditor.aml.model.TemplateText
 import org.testeditor.aml.model.TemplateVariable
@@ -51,14 +53,14 @@ class TclModelUtil {
 	}
 
 	protected def boolean matches(InteractionType interaction, TestStep step) {
-		val normalizedTemplate = interaction.template.contents.map[
+		val normalizedTemplate = interaction.template.contents.map [
 			switch (it) {
-				TemplateVariable case name == 'element' : '<>' 
+				TemplateVariable case name == 'element': '<>'
 				TemplateVariable: '""'
 				TemplateText: value
 			}
 		].join(' ')
-		val normalizedStepContent = step.contents.map[
+		val normalizedStepContent = step.contents.map [
 			switch (it) {
 				StepContentElement: '<>'
 				StepContentVariable: '""'
@@ -66,6 +68,31 @@ class TclModelUtil {
 			}
 		].join(' ')
 		return normalizedTemplate == normalizedStepContent
+	}
+
+	// TODO we need a common super class for StepContentElement and StepContentVariable
+	def Map<TemplateVariable, StepContent> getVariableToValueMapping(TestStep step, InteractionType interaction) {
+		val map = newHashMap
+		val templateVariables = interaction.template.contents.filter(TemplateVariable).toList
+		val stepContentVariables = step.contents.filter [
+			it instanceof StepContentElement || it instanceof StepContentVariable
+		].toList
+		if (templateVariables.size !== stepContentVariables.size) {
+			throw new IllegalArgumentException('''Variables for '«step.contents.restoreString»' did not match the parameters of interaction '«interaction.name»'.''')
+		}
+		for (var i = 0; i < templateVariables.size; i++) {
+			map.put(templateVariables.get(i), stepContentVariables.get(i))
+		}
+		return map
+	}
+	
+	def ComponentElement getComponentElement(StepContentElement contentElement) {
+		val container = contentElement.eContainer 
+		if (container instanceof TestStep) {
+			val component = container.context.component
+			return component.elements.findFirst[name == contentElement.value]
+		}
+		return null 
 	}
 
 }

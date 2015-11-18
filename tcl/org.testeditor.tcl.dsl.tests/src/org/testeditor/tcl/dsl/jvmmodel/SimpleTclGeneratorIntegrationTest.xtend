@@ -21,7 +21,7 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			 
 			interaction type start {
 				template = "Starte Anwendung" ${path}
-				method = «DummyFixture.simpleName».startApplication
+				method = «DummyFixture.simpleName».startApplication(path)
 			}
 			interaction type stop {
 				template = "Stoppe Anwendung"
@@ -30,12 +30,12 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			 
 			interaction type getValue {
 				template = "Lese Wert von" ${element}
-				method = «DummyFixture.simpleName».getValue
+				method = «DummyFixture.simpleName».getValue(element)
 			}
 			 
 			interaction type setValue {
 				template = "Setze Wert von" ${element} "auf" ${value} "."
-				method = «DummyFixture.simpleName».setValue
+				method = «DummyFixture.simpleName».setValue(element, value)
 			}
 			component GreetingApplication is Application
 		'''

@@ -18,7 +18,7 @@ import org.testeditor.demo.swing.*
 * Start the famous greetings application.
  
     Mask: GreetingApplication
-    - starte Anwendung "org.testeditor.swing.exammple.Greetings"
+    - Starte Anwendung "org.testeditor.swing.exammple.Greetings"
  
 * send greetings "Hello World" to the world.
  
@@ -27,4 +27,4 @@ import org.testeditor.demo.swing.*
     - klicke auf Greetings
  
 	Mask: GreetingApplication
-	- mach was "schlaues" 
+	- mach was "schlaues"

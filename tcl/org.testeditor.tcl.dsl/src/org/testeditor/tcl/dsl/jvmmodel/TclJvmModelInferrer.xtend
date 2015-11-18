@@ -18,12 +18,15 @@ import org.eclipse.xtext.common.types.JvmType
 import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
-import org.testeditor.tcl.TclModel
-import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.aml.model.InteractionType
 import org.testeditor.tcl.SpecificationStep
-import org.testeditor.tcl.TestStepContext
-import static java.lang.System.lineSeparator
+import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestStep
+import org.testeditor.tcl.TestStepContext
+import org.testeditor.tcl.util.TclModelUtil
+
+import static java.lang.System.lineSeparator
+import org.testeditor.tcl.StepContentElement
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -46,16 +49,16 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			]
 		]
 	}
-	
+
 	private def generateMethodBody(TclModel model) {
 		return model.steps.map[generate].join(lineSeparator)
 	}
-	
+
 	private def generate(SpecificationStep step) '''
 		/* «step.contents.restoreString» */
 		«step.contexts.map[generate].join(lineSeparator)»
 	'''
-	
+
 	private def generate(TestStepContext context) '''
 		// Component: «context.component.name»
 		«FOR step : context.steps»
@@ -79,20 +82,44 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	private def String getFixtureFieldName(JvmType fixtureType) {
 		return fixtureType.simpleName.toFirstLower
 	}
-	
+
 	private def CharSequence toFeatureCall(TestStep step, TestStepContext context) {
 		val interaction = step.getInteraction(context)
 		if (interaction !== null) {
 			val fixtureField = interaction.defaultMethod?.typeReference?.type?.fixtureFieldName
-			val method = interaction.defaultMethod?.operation
-			if (fixtureField !== null && method !== null) {
-				return '''«fixtureField».«method.simpleName»'''	
+			val operation = interaction.defaultMethod?.operation
+			if (fixtureField !== null && operation !== null) {
+				return '''«fixtureField».«operation.simpleName»(«getParameterList(step, interaction)»);'''
 			} else {
 				return '''// TODO interaction type '«interaction.name»' does not have a proper method reference'''
 			}
 		} else {
 			return '''// TODO could not resolve '«context.component.name»' - «step.contents.restoreString»'''
 		}
+	}
+
+	private def String getParameterList(TestStep step, InteractionType interaction) {
+		val mapping = getVariableToValueMapping(step, interaction)
+		val values = interaction.defaultMethod.parameters.map [ templateVariable |
+			val stepContent = mapping.get(templateVariable)
+			if (stepContent instanceof StepContentElement) {
+				val element = stepContent.componentElement
+				return element.locator
+			} else {
+				return stepContent.value
+			}
+		]
+		val typedValues = newArrayList
+		val operationParameters = interaction.defaultMethod.operation.parameters
+		values.forEach [ value, i |
+			val jvmParameter = operationParameters.get(i)
+			if (jvmParameter.parameterType.qualifiedName == String.name) {
+				typedValues += '''"«value»"'''
+			} else {
+				typedValues += value
+			}
+		]
+		return typedValues.join(', ')
 	}
 
 }

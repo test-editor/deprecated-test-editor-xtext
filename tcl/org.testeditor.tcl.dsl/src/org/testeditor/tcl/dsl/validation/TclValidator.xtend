@@ -12,14 +12,27 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.validation
 
-import org.eclipse.xtext.xtype.XImportSection
 import org.eclipse.xtext.validation.Check
-import org.testeditor.tcl.TestStepContext
+import org.eclipse.xtext.xtype.XImportSection
+import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclPackage
+import org.testeditor.tcl.TestStepContext
+import javax.inject.Inject
+import org.testeditor.tcl.util.TclModelUtil
 
 class TclValidator extends AbstractTclValidator {
 
 	public static val UNKNOWN_NAME = 'unknownName'
+	
+	@Inject extension TclModelUtil
+
+	@Check
+	def void referencesComponentElement(StepContentElement contentElement) {
+		val component = contentElement.componentElement
+		if (component === null) {
+			error('No ComponentElement found.', contentElement, null)
+		}
+	}
 
 	override checkImports(XImportSection importSection) {
 		// ignore for now
@@ -31,5 +44,5 @@ class TclValidator extends AbstractTclValidator {
 			warning("mask is not defined in aml", TclPackage.Literals.TEST_STEP_CONTEXT__COMPONENT,UNKNOWN_NAME);
 		}
 	}
-
+	
 }

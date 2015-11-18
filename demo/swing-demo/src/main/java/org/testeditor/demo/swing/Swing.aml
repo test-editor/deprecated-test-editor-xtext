@@ -19,7 +19,7 @@ component type Application {
 
 interaction type start {
 	label = "Starte Anwendung"
-	template = "Starte Anwendung " ${path}
+	template = "Starte Anwendung" ${path}
 	method = SwingFixture.startApplication(path)
 }
 
@@ -31,11 +31,11 @@ interaction type stop {
 
 interaction type wait {
 	label = "Warte"
-	template = "Warte " ${miliSeconds} "ms."
+	template = "Warte" ${miliSeconds} "ms"
 }
 
 interaction type checkEnabled {
-	template = "Prüfe ob " ${element} " aktiviert ist."
+	template = "Prüfe ob" ${element} "aktiviert ist"
 }
 
 /**
@@ -48,7 +48,7 @@ element type Button {
 
 interaction type clickButton {
 	label = "Button klicken"
-	template = "Klicke auf " ${element}
+	template = "Klicke auf" ${element}
 	method = SwingFixture.clickButton(element)
 }
 
@@ -61,11 +61,11 @@ element type Text {
 }
 
 interaction type insertIntoTextField {
-	template = "Gebe " ${text} "in das Feld" ${element} "ein."
+	template = "Gebe" ${text} "in das Feld" ${element} "ein"
 	method = SwingFixture.insertIntoTextField(element, text)
 }
 
 interaction type getTextFromTextField {
-	template = "Lese den Text von " ${element} "."
+	template = "Lese den Text von" ${element}
 	method = SwingFixture.getTextFromTextField(element)
 }
