@@ -2,10 +2,11 @@ package org.testeditor.tcl.util
 
 import java.util.List
 import javax.inject.Singleton
+import org.testeditor.aml.model.InteractionType
 import org.testeditor.tcl.StepContent
+import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.StepContentVariable
 import org.testeditor.tcl.TclModel
-import org.testeditor.aml.model.InteractionType
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepContext
 
@@ -27,10 +28,10 @@ class TclModelUtil {
 
 	def String restoreString(List<StepContent> contents) {
 		return contents.map[
-			if (it instanceof StepContentVariable) {
-				return '''"«value»"'''
-			} else {
-				return value
+			switch (it) {
+				StepContentVariable: '''"«value»"'''
+				StepContentElement: '''<«value»>'''
+				default: value
 			}
 		].join(' ')
 	}

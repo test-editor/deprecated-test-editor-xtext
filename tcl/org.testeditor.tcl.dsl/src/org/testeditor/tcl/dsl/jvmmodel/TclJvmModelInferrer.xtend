@@ -72,7 +72,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	private def Set<JvmType> getFixtureTypes(TclModel model) {
 		val components = model.steps.map[contexts].flatten.map[component]
 		// TODO the part from here should go somewhere in Aml ModelUtil
-		val interactionTypes = components.map[type.interactionTypes].flatten.toSet
+		val interactionTypes = components.map[type?.interactionTypes].filterNull.flatten.toSet
 		val fixtureTypes = interactionTypes.map[defaultMethod?.typeReference?.type].filterNull.toSet
 		return fixtureTypes
 	}

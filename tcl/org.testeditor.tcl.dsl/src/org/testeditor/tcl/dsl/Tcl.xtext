@@ -38,13 +38,16 @@ TestStep:
 	'-' contents+=StepContent* '.'?
 ;
 
-	
 StepContent: 
-	StepContentText | StepContentVariable
+	StepContentText | StepContentElement | StepContentVariable
 ;
 
 StepContentText: 
 	value=ID
+;
+
+StepContentElement: 
+	'<' value=ID '>'
 ;
 
 StepContentVariable:

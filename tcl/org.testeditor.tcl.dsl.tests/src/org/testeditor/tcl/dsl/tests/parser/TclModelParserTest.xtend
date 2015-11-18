@@ -83,7 +83,7 @@ class TclModelParserTest extends AbstractParserTest {
 			* Start the famous greetings application
 				Mask: GreetingsApplication
 				- starte Anwendung "org.testeditor.swing.exammple.Greetings"
-				- stoppe Anwendung.
+				- gebe in <Eingabefeld> den Wert "Hello World" ein.
 		'''
 		
 		// when
@@ -99,7 +99,7 @@ class TclModelParserTest extends AbstractParserTest {
 					contents.restoreString.assertEquals('starte Anwendung "org.testeditor.swing.exammple.Greetings"')	
 				]
 				steps.get(1) => [
-					contents.restoreString.assertEquals('stoppe Anwendung')
+					contents.restoreString.assertEquals('gebe in <Eingabefeld> den Wert "Hello World" ein')
 				]
 			]
 		]

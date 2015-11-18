@@ -38,8 +38,6 @@ abstract class StepContent {
 	String value
 }
 
-class StepContentText extends StepContent {
-}
-
-class StepContentVariable extends StepContent {
-}
+class StepContentText extends StepContent {}
+class StepContentElement extends StepContent {}
+class StepContentVariable extends StepContent {}
