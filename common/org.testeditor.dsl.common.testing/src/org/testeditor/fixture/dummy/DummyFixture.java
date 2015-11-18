@@ -10,17 +10,25 @@ public class DummyFixture {
     @FixtureMethod
     public void someFixtureMethod() {
     }
-    
+
     @FixtureMethod
     public String getValue() {
         return "";
     }
-    
+
     @FixtureMethod
     public void setValue(String value) {
     }
-    
+
+    @FixtureMethod
+    public void startApplication(String name) {
+    }
+
+    @FixtureMethod
+    public void stopApplication() {
+    }
+
     public void someUnrelatedMethod() {
     }
-    
+
 }

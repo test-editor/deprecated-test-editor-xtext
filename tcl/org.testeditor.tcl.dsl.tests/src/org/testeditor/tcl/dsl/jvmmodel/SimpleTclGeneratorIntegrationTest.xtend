@@ -16,13 +16,23 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			import «DummyFixture.name»
 			
 			component type Application {
-				interactions = getValue, setValue
+				interactions = start, stop
 			}
-			
+			 
+			interaction type start {
+				template = "Starte Anwendung" ${path}
+				method = «DummyFixture.simpleName».startApplication
+			}
+			interaction type stop {
+				template = "Stoppe Anwendung"
+				method = «DummyFixture.simpleName».stopApplication
+			}
+			 
 			interaction type getValue {
 				template = "Lese Wert von" ${element}
 				method = «DummyFixture.simpleName».getValue
 			}
+			 
 			interaction type setValue {
 				template = "Setze Wert von" ${element} "auf" ${value} "."
 				method = «DummyFixture.simpleName».setValue
@@ -34,8 +44,8 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			
 			* Start the famous greetings application
 				Mask: GreetingApplication
-				- starte Anwendung "org.testeditor.swing.exammple.Greetings"
-				- stoppe Anwendung.
+				- Starte Anwendung "org.testeditor.swing.exammple.Greetings"
+				- Stoppe Anwendung
 			
 			* Do something different
 		'''

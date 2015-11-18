@@ -48,21 +48,20 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 	
 	private def generateMethodBody(TclModel model) {
-		return model.steps.map[generate].join(lineSeparator + lineSeparator)
+		return model.steps.map[generate].join(lineSeparator)
 	}
 	
 	private def generate(SpecificationStep step) '''
-		/* 
-		 * «step.contents.restoreString»
-		 */
+		/* «step.contents.restoreString» */
 		«step.contexts.map[generate].join(lineSeparator)»
 	'''
 	
 	private def generate(TestStepContext context) '''
-		// Mask: «context.component.name»
+		// Component: «context.component.name»
 		«FOR step : context.steps»
 			// - «step.contents.restoreString»
 			«step.toFeatureCall(context)»
+			«lineSeparator»
 		«ENDFOR»
 	'''
 
@@ -81,14 +80,18 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		return fixtureType.simpleName.toFirstLower
 	}
 	
-	private def toFeatureCall(TestStep step, TestStepContext context) {
+	private def CharSequence toFeatureCall(TestStep step, TestStepContext context) {
 		val interaction = step.getInteraction(context)
 		if (interaction !== null) {
-			// TODO implement
+			val fixtureField = interaction.defaultMethod?.typeReference?.type?.fixtureFieldName
+			val method = interaction.defaultMethod?.operation
+			if (fixtureField !== null && method !== null) {
+				return '''«fixtureField».«method.simpleName»'''	
+			} else {
+				return '''// TODO interaction type '«interaction.name»' does not have a proper method reference'''
+			}
 		} else {
-			return '''
-				// TODO could not resolve «context.component.name» - «step.contents.restoreString»
-			'''
+			return '''// TODO could not resolve '«context.component.name»' - «step.contents.restoreString»'''
 		}
 	}
 
