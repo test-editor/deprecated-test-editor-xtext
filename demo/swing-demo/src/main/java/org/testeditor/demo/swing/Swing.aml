@@ -32,6 +32,7 @@ interaction type stop {
 interaction type wait {
 	label = "Warte"
 	template = "Warte" ${miliSeconds} "ms"
+	method = SwingFixture.waitMilliSeconds(miliSeconds)
 }
 
 interaction type checkEnabled {
