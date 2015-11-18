@@ -25,6 +25,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
    	def dispatch void infer(TclModel element, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
    		acceptor.accept(element.toClass('''«element.package».«element.name»''')) [
    			members += element.toMethod('execute', typeRef(Void.TYPE))[
+   				annotations += annotationRef('org.junit.Test')
    				body = '''
    					// TODO implement me
    				'''
