@@ -20,7 +20,7 @@ component type Application {
 interaction type start {
 	label = "Starte Anwendung"
 	template = "Starte Anwendung " ${path}
-	method = SwingFixture.startApplication
+	method = SwingFixture.startApplication(path)
 }
 
 interaction type stop {
@@ -49,7 +49,7 @@ element type Button {
 interaction type clickButton {
 	label = "Button klicken"
 	template = "Klicke auf " ${element}
-	method = SwingFixture.clickButton
+	method = SwingFixture.clickButton(element)
 }
 
 /**
@@ -62,10 +62,10 @@ element type Text {
 
 interaction type insertIntoTextField {
 	template = "Gebe " ${text} "in das Feld" ${element} "ein."
-	method = SwingFixture.insertIntoTextField
+	method = SwingFixture.insertIntoTextField(element, text)
 }
 
 interaction type getTextFromTextField {
 	template = "Lese den Text von " ${element} "."
-	method = SwingFixture.getTextFromTextField
+	method = SwingFixture.getTextFromTextField(element)
 }

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -17,7 +17,6 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.naming.IQualifiedNameConverter
 import org.eclipse.xtext.xbase.scoping.XbaseQualifiedNameProvider
 import org.testeditor.aml.model.AmlModel
-import org.testeditor.aml.model.TemplateVariable
 
 class AmlQualifiedNameProvider extends XbaseQualifiedNameProvider {
 
@@ -28,19 +27,10 @@ class AmlQualifiedNameProvider extends XbaseQualifiedNameProvider {
 		val result = switch (obj) {
 			AmlModel:
 				obj.package.toQualifiedName
-			TemplateVariable case obj.name == "element":
-				null // "element" shall not be referenced from the outside world
 			default:
 				super.getFullyQualifiedName(obj)
 		}
 		return result
-	}
-
-	protected def getFullyQualifiedNameFor(TemplateVariable variable) {
-		if (variable.name == "element") {
-			return null // shall not be referenced from the outside world
-		}
-		return super.getFullyQualifiedName(variable)
 	}
 
 }

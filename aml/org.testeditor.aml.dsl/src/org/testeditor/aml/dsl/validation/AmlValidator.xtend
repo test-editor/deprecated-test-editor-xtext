@@ -22,6 +22,7 @@ import org.testeditor.aml.model.ValueSpaceAssignment
 import static org.testeditor.aml.dsl.Messages.*
 import static org.testeditor.aml.model.ModelPackage.Literals.*
 import org.eclipse.xtext.xtype.XImportSection
+import org.testeditor.aml.model.MethodReference
 
 class AmlValidator extends AbstractAmlValidator {
 
@@ -90,6 +91,23 @@ class AmlValidator extends AbstractAmlValidator {
 				VALUE_SPACE_ASSIGNMENT__VARIABLE,
 				VALUE_SPACE_ASSIGNMENT__VARIABLE__NON_UNIQUE
 			)
+		}
+	}
+	
+	/**
+	 * Checks that the correct amount of parameters is referenced.
+	 */
+	@Check
+	def void checkMethodReferenceParameters(MethodReference reference) {
+		val operation = reference.operation
+		if (operation !== null) {
+			if (operation.parameters.size != reference.parameters.size) {
+				error(
+					Validation_MethodReference_InvalidParameterList,
+					reference,
+					METHOD_REFERENCE__OPERATION
+				)
+			}
 		}
 	}
 	

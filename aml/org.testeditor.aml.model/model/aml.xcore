@@ -112,13 +112,14 @@ class InteractionType extends ModelElement {
 	 * The {@link Template} for the interaction, 
 	 * e.g. <pre>"Pick a value" ${value} "from drop-down" ${element}</pre>
 	 */
-	contains Template template 
+	contains Template template opposite interactionType 
 	contains MethodReference defaultMethod
 }
 
 class MethodReference {
 	contains JvmParameterizedTypeReference typeReference
 	refers JvmOperation operation
+	refers TemplateVariable[0..*] parameters
 }
 
 /* <p>
@@ -137,14 +138,17 @@ class MethodReference {
  * </p>
  */
 class Template {
-	contains TemplateContent[0..*] contents
+	container InteractionType interactionType opposite template
+	contains TemplateContent[0..*] contents opposite template
 }
 
 /* <p>
  * Abstract superclass for contents of a {@link Template}.
  * </p>
  */
-abstract class TemplateContent {}
+abstract class TemplateContent {
+	container Template template opposite contents
+}
 
 /* <p>
  * Represents a fixed text within a {@link Template}.

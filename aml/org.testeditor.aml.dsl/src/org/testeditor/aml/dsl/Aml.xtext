@@ -77,6 +77,9 @@ InteractionType returns InteractionType:
 MethodReference: 
 	typeReference=SimpleTypeReference '.'
 	operation=[types::JvmOperation|QualifiedName]
+	( '('
+		(parameters+=[TemplateVariable|TemplateVariableId] (',' parameters+=[TemplateVariable|TemplateVariableId])?)?
+	')' )?
 ;
 
 SimpleTypeReference returns types::JvmParameterizedTypeReference:
@@ -109,6 +112,11 @@ TemplateText:
 
 TemplateVariable: 
 	name=TEMPLATE_VARIABLE_DEF
+;
+
+// TODO clean this up with TEMPLATE_VARIABLE_DEF
+TemplateVariableId:
+	'element' | ID
 ;
 
 /* 

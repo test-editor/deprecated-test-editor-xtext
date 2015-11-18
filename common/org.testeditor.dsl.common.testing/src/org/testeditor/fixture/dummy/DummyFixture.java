@@ -11,13 +11,7 @@ public class DummyFixture {
     public void someFixtureMethod() {
     }
 
-    @FixtureMethod
-    public String getValue() {
-        return "";
-    }
-
-    @FixtureMethod
-    public void setValue(String value) {
+    public void someUnrelatedMethod() {
     }
 
     @FixtureMethod
@@ -28,7 +22,13 @@ public class DummyFixture {
     public void stopApplication() {
     }
 
-    public void someUnrelatedMethod() {
+    @FixtureMethod
+    public String getValue(String locator) {
+        return "";
+    }
+
+    @FixtureMethod
+    public void setValue(String locator, String value) {
     }
 
 }
