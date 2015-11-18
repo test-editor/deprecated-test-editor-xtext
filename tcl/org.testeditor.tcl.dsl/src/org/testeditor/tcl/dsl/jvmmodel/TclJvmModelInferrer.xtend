@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
-import com.google.common.annotations.VisibleForTesting
 import com.google.inject.Inject
 import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
@@ -24,25 +23,13 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	@Inject extension JvmTypesBuilder
 
    	def dispatch void infer(TclModel element, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
-   		val fileName = element.eResource.URI.lastSegment.removeFileExtension.toFirstUpper
-   		
-   		acceptor.accept(element.toClass('''«element.package».«fileName»''')) [
+   		acceptor.accept(element.toClass('''«element.package».«element.name»''')) [
    			members += element.toMethod('execute', typeRef(Void.TYPE))[
    				body = '''
    					// TODO implement me
    				'''
    			]
    		]
-   	}
-   	
-   	@VisibleForTesting
-   	protected def String removeFileExtension(String fileName) {
-   		val separator = fileName.lastIndexOf('.')
-   		if (separator >= 0) {
-			return fileName.substring(0, separator)   			
-   		} else {
-   			return fileName
-   		}
    	}
    	
 }

@@ -13,6 +13,19 @@ class TclModel {
 	String ^package
 	contains XImportSection importSection
 	contains SpecificationStep[0..*] steps
+	
+	derived String name get {
+		val lastSegment = eResource?.URI?.lastSegment
+		if (lastSegment !== null) {
+			val separator = lastSegment.lastIndexOf('.')
+			if (separator >= 0) {
+				return lastSegment.substring(0, separator).toFirstUpper
+			} else {
+				return lastSegment.toFirstUpper
+			}
+		}
+		return null
+	}
 }
 
 class SpecificationStep {
