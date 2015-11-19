@@ -22,14 +22,17 @@ import org.eclipse.xtext.xtype.XImportSection
 import org.testeditor.aml.model.Component
 import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContent
+import org.testeditor.tsl.TslModel
 
 class TclModel {
 	String ^package
+	refers TslModel specification
 	contains XImportSection importSection
-	contains SpecificationStepImpl[0..*] steps
+	contains SpecificationStepImplementation[0..*] steps opposite model
 }
 
-class SpecificationStepImpl extends SpecificationStep {
+class SpecificationStepImplementation extends SpecificationStep {
+	container TclModel model opposite steps
 	contains TestStepContext[0..*] contexts
 }
 

@@ -20,11 +20,12 @@ TclModel:
 	'package' package=QualifiedName
 	(importSection=XImportSection)?
 
-	steps+=SpecificationStepImpl*
+	('implements' specification=[tsl::TslModel|ID])?
+	steps+=SpecificationStepImplementation*
 ;
 
-SpecificationStepImpl:
-	{SpecificationStepImpl}
+SpecificationStepImplementation: 
+	{SpecificationStepImplementation}
 	'*' contents+=StepContent* '.'?
 	contexts+=TestStepContext*
 ;

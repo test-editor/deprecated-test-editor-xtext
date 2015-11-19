@@ -15,6 +15,7 @@ package org.testeditor.tsl.util
 import java.util.List
 import javax.inject.Singleton
 import org.eclipse.emf.ecore.EObject
+import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentVariable
 
@@ -41,6 +42,10 @@ class TslModelUtil {
 				default: value
 			}
 		].join(' ')
+	}
+	
+	def boolean matches(SpecificationStep first, SpecificationStep second) {
+		return first.contents.restoreString == second.contents.restoreString
 	}
 	
 }

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -19,8 +19,10 @@ import org.testeditor.aml.model.ComponentElement
 import org.testeditor.aml.model.InteractionType
 import org.testeditor.aml.model.TemplateText
 import org.testeditor.aml.model.TemplateVariable
+import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TestStep
+import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentVariable
@@ -84,14 +86,22 @@ class TclModelUtil extends TslModelUtil {
 		}
 		return map
 	}
-	
+
 	def ComponentElement getComponentElement(StepContentElement contentElement) {
-		val container = contentElement.eContainer 
+		val container = contentElement.eContainer
 		if (container instanceof TestStep) {
 			val component = container.context.component
 			return component.elements.findFirst[name == contentElement.value]
 		}
-		return null 
+		return null
+	}
+
+	def SpecificationStep getSpecification(SpecificationStepImplementation stepImplementation) {
+		val tslModel = stepImplementation.model.specification
+		if (tslModel !== null) {
+			return tslModel.steps.findFirst[matches(stepImplementation)]
+		}
+		return null
 	}
 
 }

@@ -12,9 +12,17 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl;
 
+import org.eclipse.xtext.naming.IQualifiedNameProvider;
+import org.testeditor.tcl.dsl.naming.TclQualifiedNameProvider;
+
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
  */
 public class TclRuntimeModule extends org.testeditor.tcl.dsl.AbstractTclRuntimeModule {
 
+    @Override
+    public Class<? extends IQualifiedNameProvider> bindIQualifiedNameProvider() {
+        return TclQualifiedNameProvider.class;
+    }
+    
 }

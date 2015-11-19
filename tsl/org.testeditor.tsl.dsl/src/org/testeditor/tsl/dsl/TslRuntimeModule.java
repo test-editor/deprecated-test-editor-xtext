@@ -12,6 +12,14 @@
  *******************************************************************************/
 package org.testeditor.tsl.dsl;
 
+import org.eclipse.xtext.naming.IQualifiedNameProvider;
+import org.testeditor.tsl.dsl.naming.TslQualifiedNameProvider;
+
 public class TslRuntimeModule extends org.testeditor.tsl.dsl.AbstractTslRuntimeModule {
 
+    @Override
+    public Class<? extends IQualifiedNameProvider> bindIQualifiedNameProvider() {
+        return TslQualifiedNameProvider.class;
+    }
+    
 }
