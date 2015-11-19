@@ -10,6 +10,6 @@ package org.testeditor.tsl.dsl.scoping
  * on how and when to use it.
  *
  */
-class TestSpecDslScopeProvider extends org.eclipse.xtext.scoping.impl.AbstractDeclarativeScopeProvider {
+class TslScopeProvider extends org.eclipse.xtext.scoping.impl.AbstractDeclarativeScopeProvider {
 
 }

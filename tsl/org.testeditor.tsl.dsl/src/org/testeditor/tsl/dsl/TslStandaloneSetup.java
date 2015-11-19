@@ -7,10 +7,10 @@ package org.testeditor.tsl.dsl;
  * Initialization support for running Xtext languages 
  * without equinox extension registry
  */
-public class TestSpecDslStandaloneSetup extends TestSpecDslStandaloneSetupGenerated{
+public class TslStandaloneSetup extends TslStandaloneSetupGenerated{
 
 	public static void doSetup() {
-		new TestSpecDslStandaloneSetup().createInjectorAndDoEMFRegistration();
+		new TslStandaloneSetup().createInjectorAndDoEMFRegistration();
 	}
 }
 

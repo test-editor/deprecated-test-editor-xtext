@@ -8,8 +8,8 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 /**
  * Use this class to register components to be used within the IDE.
  */
-public class TestSpecDslUiModule extends org.testeditor.tsl.dsl.ui.AbstractTestSpecDslUiModule {
-	public TestSpecDslUiModule(AbstractUIPlugin plugin) {
+public class TslUiModule extends org.testeditor.tsl.dsl.ui.AbstractTslUiModule {
+	public TslUiModule(AbstractUIPlugin plugin) {
 		super(plugin);
 	}
 }

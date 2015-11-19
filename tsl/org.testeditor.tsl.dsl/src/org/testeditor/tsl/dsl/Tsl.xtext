@@ -1,0 +1,9 @@
+grammar org.testeditor.tsl.dsl.Tsl with org.eclipse.xtext.common.Terminals
+
+generate tsl "http://www.testeditor.org/tsl/dsl/Tsl"
+
+TslModel:
+	greetings+=Greeting*;
+	
+Greeting:
+	'Hello' name=ID '!';

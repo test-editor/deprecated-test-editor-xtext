@@ -12,7 +12,7 @@ import org.eclipse.xtext.generator.IFileSystemAccess
  * 
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#code-generation
  */
-class TestSpecDslGenerator implements IGenerator {
+class TslGenerator implements IGenerator {
 	
 	override void doGenerate(Resource resource, IFileSystemAccess fsa) {
 //		fsa.generateFile('greetings.txt', 'People to greet: ' + 

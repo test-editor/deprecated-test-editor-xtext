@@ -10,7 +10,7 @@ import com.google.inject.Inject
  * 
  * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#label-provider
  */
-class TestSpecDslLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelProvider {
+class TslLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelProvider {
 
 	@Inject
 	new(org.eclipse.emf.edit.ui.provider.AdapterFactoryLabelProvider delegate) {

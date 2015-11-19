@@ -6,6 +6,6 @@ package org.testeditor.tsl.dsl;
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
  */
-public class TestSpecDslRuntimeModule extends org.testeditor.tsl.dsl.AbstractTestSpecDslRuntimeModule {
+public class TslRuntimeModule extends org.testeditor.tsl.dsl.AbstractTslRuntimeModule {
 
 }

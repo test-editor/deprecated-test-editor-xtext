@@ -22,4 +22,4 @@ Export-Package: org.testeditor.tsl.dsl.ui.quickfix,
  org.testeditor.tsl.dsl.ui.contentassist,
  org.testeditor.tsl.dsl.ui.internal,
  org.testeditor.tsl.dsl.ui.contentassist.antlr
-Bundle-Activator: org.testeditor.tsl.dsl.ui.internal.TestSpecDslActivator
+Bundle-Activator: org.testeditor.tsl.dsl.ui.internal.TslActivator

@@ -6,19 +6,11 @@ package org.testeditor.tsl.dsl.formatting
 import org.eclipse.xtext.formatting.impl.AbstractDeclarativeFormatter
 import org.eclipse.xtext.formatting.impl.FormattingConfig
 // import com.google.inject.Inject;
-// import org.testeditor.tsl.dsl.services.TestSpecDslGrammarAccess
+// import org.testeditor.tsl.dsl.services.TslGrammarAccess
 
-/**
- * This class contains custom formatting declarations.
- * 
- * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#formatting
- * on how and when to use it.
- * 
- * Also see {@link org.eclipse.xtext.xtext.XtextFormattingTokenSerializer} as an example
- */
-class TestSpecDslFormatter extends AbstractDeclarativeFormatter {
+class TslFormatter extends AbstractDeclarativeFormatter {
 
-//	@Inject extension TestSpecDslGrammarAccess
+//	@Inject extension TslGrammarAccess
 	
 	override protected void configureFormatting(FormattingConfig c) {
 // It's usually a good idea to activate the following three statements.

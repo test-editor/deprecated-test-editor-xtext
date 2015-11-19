@@ -10,7 +10,7 @@ package org.testeditor.tsl.dsl.validation
  *
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
-class TestSpecDslValidator extends AbstractTestSpecDslValidator {
+class TslValidator extends AbstractTslValidator {
 
 //  public static val INVALID_NAME = 'invalidName'
 //

@@ -18,9 +18,9 @@ Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.testeditor.tsl.dsl,
  org.testeditor.tsl.dsl.services,
- org.testeditor.tsl.dsl.testSpecDsl,
- org.testeditor.tsl.dsl.testSpecDsl.impl,
- org.testeditor.tsl.dsl.testSpecDsl.util,
+ org.testeditor.tsl.dsl.tsl,
+ org.testeditor.tsl.dsl.tsl.impl,
+ org.testeditor.tsl.dsl.tsl.util,
  org.testeditor.tsl.dsl.serializer,
  org.testeditor.tsl.dsl.parser.antlr,
  org.testeditor.tsl.dsl.parser.antlr.internal,

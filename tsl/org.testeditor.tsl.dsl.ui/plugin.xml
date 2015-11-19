@@ -6,48 +6,48 @@
     <extension
             point="org.eclipse.ui.editors">
         <editor
-            class="org.testeditor.tsl.dsl.ui.TestSpecDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.XtextEditor"
+            class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.XtextEditor"
             contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
             default="true"
-            extensions="tsl"
-            id="org.testeditor.tsl.dsl.TestSpecDsl"
-            name="TestSpecDsl Editor">
+            extensions="mydsl"
+            id="org.testeditor.tsl.dsl.Tsl"
+            name="Tsl Editor">
         </editor>
     </extension>
     <extension
         point="org.eclipse.ui.handlers">
         <handler
-            class="org.testeditor.tsl.dsl.ui.TestSpecDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.hyperlinking.OpenDeclarationHandler"
+            class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.hyperlinking.OpenDeclarationHandler"
             commandId="org.eclipse.xtext.ui.editor.hyperlinking.OpenDeclaration">
             <activeWhen>
                 <reference
-                    definitionId="org.testeditor.tsl.dsl.TestSpecDsl.Editor.opened">
+                    definitionId="org.testeditor.tsl.dsl.Tsl.Editor.opened">
                 </reference>
             </activeWhen>
         </handler>
         <handler
-            class="org.testeditor.tsl.dsl.ui.TestSpecDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.handler.ValidateActionHandler"
-            commandId="org.testeditor.tsl.dsl.TestSpecDsl.validate">
+            class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.handler.ValidateActionHandler"
+            commandId="org.testeditor.tsl.dsl.Tsl.validate">
          <activeWhen>
             <reference
-                    definitionId="org.testeditor.tsl.dsl.TestSpecDsl.Editor.opened">
+                    definitionId="org.testeditor.tsl.dsl.Tsl.Editor.opened">
             </reference>
          </activeWhen>
       	</handler>
       	<!-- copy qualified name -->
         <handler
-            class="org.testeditor.tsl.dsl.ui.TestSpecDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.copyqualifiedname.EditorCopyQualifiedNameHandler"
+            class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.copyqualifiedname.EditorCopyQualifiedNameHandler"
             commandId="org.eclipse.xtext.ui.editor.copyqualifiedname.EditorCopyQualifiedName">
             <activeWhen>
-				<reference definitionId="org.testeditor.tsl.dsl.TestSpecDsl.Editor.opened" />
+				<reference definitionId="org.testeditor.tsl.dsl.Tsl.Editor.opened" />
             </activeWhen>
         </handler>
         <handler
-            class="org.testeditor.tsl.dsl.ui.TestSpecDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.copyqualifiedname.OutlineCopyQualifiedNameHandler"
+            class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.copyqualifiedname.OutlineCopyQualifiedNameHandler"
             commandId="org.eclipse.xtext.ui.editor.copyqualifiedname.OutlineCopyQualifiedName">
             <activeWhen>
             	<and>
-            		<reference definitionId="org.testeditor.tsl.dsl.TestSpecDsl.XtextEditor.opened" />
+            		<reference definitionId="org.testeditor.tsl.dsl.Tsl.XtextEditor.opened" />
 	                <iterate>
 						<adapt type="org.eclipse.xtext.ui.editor.outline.IOutlineNode" />
 					</iterate>
@@ -56,22 +56,22 @@
         </handler>
     </extension>
     <extension point="org.eclipse.core.expressions.definitions">
-        <definition id="org.testeditor.tsl.dsl.TestSpecDsl.Editor.opened">
+        <definition id="org.testeditor.tsl.dsl.Tsl.Editor.opened">
             <and>
                 <reference definitionId="isActiveEditorAnInstanceOfXtextEditor"/>
                 <with variable="activeEditor">
                     <test property="org.eclipse.xtext.ui.editor.XtextEditor.languageName" 
-                        value="org.testeditor.tsl.dsl.TestSpecDsl" 
+                        value="org.testeditor.tsl.dsl.Tsl" 
                         forcePluginActivation="true"/>
                 </with>        
             </and>
         </definition>
-        <definition id="org.testeditor.tsl.dsl.TestSpecDsl.XtextEditor.opened">
+        <definition id="org.testeditor.tsl.dsl.Tsl.XtextEditor.opened">
             <and>
                 <reference definitionId="isXtextEditorActive"/>
                 <with variable="activeEditor">
                     <test property="org.eclipse.xtext.ui.editor.XtextEditor.languageName" 
-                        value="org.testeditor.tsl.dsl.TestSpecDsl" 
+                        value="org.testeditor.tsl.dsl.Tsl" 
                         forcePluginActivation="true"/>
                 </with>        
             </and>
@@ -80,33 +80,33 @@
     <extension
             point="org.eclipse.ui.preferencePages">
         <page
-            class="org.testeditor.tsl.dsl.ui.TestSpecDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.preferences.LanguageRootPreferencePage"
-            id="org.testeditor.tsl.dsl.TestSpecDsl"
-            name="TestSpecDsl">
-            <keywordReference id="org.testeditor.tsl.dsl.ui.keyword_TestSpecDsl"/>
+            class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.preferences.LanguageRootPreferencePage"
+            id="org.testeditor.tsl.dsl.Tsl"
+            name="Tsl">
+            <keywordReference id="org.testeditor.tsl.dsl.ui.keyword_Tsl"/>
         </page>
         <page
-            category="org.testeditor.tsl.dsl.TestSpecDsl"
-            class="org.testeditor.tsl.dsl.ui.TestSpecDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.syntaxcoloring.SyntaxColoringPreferencePage"
-            id="org.testeditor.tsl.dsl.TestSpecDsl.coloring"
+            category="org.testeditor.tsl.dsl.Tsl"
+            class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.syntaxcoloring.SyntaxColoringPreferencePage"
+            id="org.testeditor.tsl.dsl.Tsl.coloring"
             name="Syntax Coloring">
-            <keywordReference id="org.testeditor.tsl.dsl.ui.keyword_TestSpecDsl"/>
+            <keywordReference id="org.testeditor.tsl.dsl.ui.keyword_Tsl"/>
         </page>
         <page
-            category="org.testeditor.tsl.dsl.TestSpecDsl"
-            class="org.testeditor.tsl.dsl.ui.TestSpecDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.templates.XtextTemplatePreferencePage"
-            id="org.testeditor.tsl.dsl.TestSpecDsl.templates"
+            category="org.testeditor.tsl.dsl.Tsl"
+            class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.templates.XtextTemplatePreferencePage"
+            id="org.testeditor.tsl.dsl.Tsl.templates"
             name="Templates">
-            <keywordReference id="org.testeditor.tsl.dsl.ui.keyword_TestSpecDsl"/>
+            <keywordReference id="org.testeditor.tsl.dsl.ui.keyword_Tsl"/>
         </page>
     </extension>
     <extension
             point="org.eclipse.ui.propertyPages">
         <page
-            class="org.testeditor.tsl.dsl.ui.TestSpecDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.preferences.LanguageRootPreferencePage"
-            id="org.testeditor.tsl.dsl.TestSpecDsl"
-            name="TestSpecDsl">
-            <keywordReference id="org.testeditor.tsl.dsl.ui.keyword_TestSpecDsl"/>
+            class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.preferences.LanguageRootPreferencePage"
+            id="org.testeditor.tsl.dsl.Tsl"
+            name="Tsl">
+            <keywordReference id="org.testeditor.tsl.dsl.ui.keyword_Tsl"/>
             <enabledWhen>
 	            <adapt type="org.eclipse.core.resources.IProject"/>
 			</enabledWhen>
@@ -116,14 +116,14 @@
     <extension
         point="org.eclipse.ui.keywords">
         <keyword
-            id="org.testeditor.tsl.dsl.ui.keyword_TestSpecDsl"
-            label="TestSpecDsl"/>
+            id="org.testeditor.tsl.dsl.ui.keyword_Tsl"
+            label="Tsl"/>
     </extension>
     <extension
          point="org.eclipse.ui.commands">
       <command
             description="Trigger expensive validation"
-            id="org.testeditor.tsl.dsl.TestSpecDsl.validate"
+            id="org.testeditor.tsl.dsl.Tsl.validate"
             name="Validate">
       </command>
       <!-- copy qualified name -->
@@ -144,12 +144,12 @@
         <menuContribution
             locationURI="popup:#TextEditorContext?after=group.edit">
              <command
-                 commandId="org.testeditor.tsl.dsl.TestSpecDsl.validate"
+                 commandId="org.testeditor.tsl.dsl.Tsl.validate"
                  style="push"
                  tooltip="Trigger expensive validation">
             <visibleWhen checkEnabled="false">
                 <reference
-                    definitionId="org.testeditor.tsl.dsl.TestSpecDsl.Editor.opened">
+                    definitionId="org.testeditor.tsl.dsl.Tsl.Editor.opened">
                 </reference>
             </visibleWhen>
          </command>  
@@ -159,7 +159,7 @@
          	<command commandId="org.eclipse.xtext.ui.editor.copyqualifiedname.EditorCopyQualifiedName" 
          		style="push" tooltip="Copy Qualified Name">
             	<visibleWhen checkEnabled="false">
-                	<reference definitionId="org.testeditor.tsl.dsl.TestSpecDsl.Editor.opened" />
+                	<reference definitionId="org.testeditor.tsl.dsl.Tsl.Editor.opened" />
             	</visibleWhen>
          	</command>  
          </menuContribution>
@@ -167,7 +167,7 @@
          	<command commandId="org.eclipse.xtext.ui.editor.copyqualifiedname.EditorCopyQualifiedName"
             	style="push" tooltip="Copy Qualified Name">
             	<visibleWhen checkEnabled="false">
-                	<reference definitionId="org.testeditor.tsl.dsl.TestSpecDsl.Editor.opened" />
+                	<reference definitionId="org.testeditor.tsl.dsl.Tsl.Editor.opened" />
             	</visibleWhen>
          	</command>  
          </menuContribution>
@@ -176,7 +176,7 @@
 				style="push" tooltip="Copy Qualified Name">
          		<visibleWhen checkEnabled="false">
 	            	<and>
-	            		<reference definitionId="org.testeditor.tsl.dsl.TestSpecDsl.XtextEditor.opened" />
+	            		<reference definitionId="org.testeditor.tsl.dsl.Tsl.XtextEditor.opened" />
 						<iterate>
 							<adapt type="org.eclipse.xtext.ui.editor.outline.IOutlineNode" />
 						</iterate>
@@ -189,7 +189,7 @@
 		<menuContribution locationURI="popup:#TextEditorContext?endof=group.find">
 			<command commandId="org.eclipse.xtext.ui.editor.FindReferences">
 				<visibleWhen checkEnabled="false">
-                	<reference definitionId="org.testeditor.tsl.dsl.TestSpecDsl.Editor.opened">
+                	<reference definitionId="org.testeditor.tsl.dsl.Tsl.Editor.opened">
                 	</reference>
             	</visibleWhen>
 			</command>
@@ -197,11 +197,11 @@
 	</extension>
 	<extension point="org.eclipse.ui.handlers">
 	    <handler
-            class="org.testeditor.tsl.dsl.ui.TestSpecDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.findrefs.FindReferencesHandler"
+            class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.findrefs.FindReferencesHandler"
             commandId="org.eclipse.xtext.ui.editor.FindReferences">
             <activeWhen>
                 <reference
-                    definitionId="org.testeditor.tsl.dsl.TestSpecDsl.Editor.opened">
+                    definitionId="org.testeditor.tsl.dsl.Tsl.Editor.opened">
                 </reference>
             </activeWhen>
         </handler>
@@ -212,36 +212,36 @@
 	<extension
 		point="org.eclipse.emf.ecore.extension_parser">
 		<parser
-			class="org.testeditor.tsl.dsl.ui.TestSpecDslExecutableExtensionFactory:org.eclipse.xtext.resource.IResourceFactory"
-			type="tsl">
+			class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.resource.IResourceFactory"
+			type="mydsl">
 		</parser>
 	</extension>
 	<extension point="org.eclipse.xtext.extension_resourceServiceProvider">
         <resourceServiceProvider
-            class="org.testeditor.tsl.dsl.ui.TestSpecDslExecutableExtensionFactory:org.eclipse.xtext.ui.resource.IResourceUIServiceProvider"
-            uriExtension="tsl">
+            class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.resource.IResourceUIServiceProvider"
+            uriExtension="mydsl">
         </resourceServiceProvider>
     </extension>
 
 
-	<!-- marker definitions for org.testeditor.tsl.dsl.TestSpecDsl -->
+	<!-- marker definitions for org.testeditor.tsl.dsl.Tsl -->
 	<extension
-	        id="testspecdsl.check.fast"
-	        name="TestSpecDsl Problem"
+	        id="tsl.check.fast"
+	        name="Tsl Problem"
 	        point="org.eclipse.core.resources.markers">
 	    <super type="org.eclipse.xtext.ui.check.fast"/>
 	    <persistent value="true"/>
 	</extension>
 	<extension
-	        id="testspecdsl.check.normal"
-	        name="TestSpecDsl Problem"
+	        id="tsl.check.normal"
+	        name="Tsl Problem"
 	        point="org.eclipse.core.resources.markers">
 	    <super type="org.eclipse.xtext.ui.check.normal"/>
 	    <persistent value="true"/>
 	</extension>
 	<extension
-	        id="testspecdsl.check.expensive"
-	        name="TestSpecDsl Problem"
+	        id="tsl.check.expensive"
+	        name="Tsl Problem"
 	        point="org.eclipse.core.resources.markers">
 	    <super type="org.eclipse.xtext.ui.check.expensive"/>
 	    <persistent value="true"/>
@@ -250,29 +250,29 @@
    <extension
          point="org.eclipse.xtext.builder.participant">
       <participant
-            class="org.testeditor.tsl.dsl.ui.TestSpecDslExecutableExtensionFactory:org.eclipse.xtext.builder.IXtextBuilderParticipant"
-            fileExtensions="tsl"
+            class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.builder.IXtextBuilderParticipant"
+            fileExtensions="mydsl"
             >
       </participant>
    </extension>
    <extension
             point="org.eclipse.ui.preferencePages">
         <page
-            category="org.testeditor.tsl.dsl.TestSpecDsl"
-            class="org.testeditor.tsl.dsl.ui.TestSpecDslExecutableExtensionFactory:org.eclipse.xtext.builder.preferences.BuilderPreferencePage"
-            id="org.testeditor.tsl.dsl.TestSpecDsl.compiler.preferencePage"
+            category="org.testeditor.tsl.dsl.Tsl"
+            class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.builder.preferences.BuilderPreferencePage"
+            id="org.testeditor.tsl.dsl.Tsl.compiler.preferencePage"
             name="Compiler">
-            <keywordReference id="org.testeditor.tsl.dsl.ui.keyword_TestSpecDsl"/>
+            <keywordReference id="org.testeditor.tsl.dsl.ui.keyword_Tsl"/>
         </page>
     </extension>
     <extension
             point="org.eclipse.ui.propertyPages">
         <page
-            category="org.testeditor.tsl.dsl.TestSpecDsl"
-            class="org.testeditor.tsl.dsl.ui.TestSpecDslExecutableExtensionFactory:org.eclipse.xtext.builder.preferences.BuilderPreferencePage"
-            id="org.testeditor.tsl.dsl.TestSpecDsl.compiler.propertyPage"
+            category="org.testeditor.tsl.dsl.Tsl"
+            class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.builder.preferences.BuilderPreferencePage"
+            id="org.testeditor.tsl.dsl.Tsl.compiler.propertyPage"
             name="Compiler">
-            <keywordReference id="org.testeditor.tsl.dsl.ui.keyword_TestSpecDsl"/>
+            <keywordReference id="org.testeditor.tsl.dsl.ui.keyword_Tsl"/>
             <enabledWhen>
 	            <adapt type="org.eclipse.core.resources.IProject"/>
 			</enabledWhen>
@@ -283,20 +283,20 @@
 		<menuContribution locationURI="popup:#TextEditorContext?after=xtext.ui.openDeclaration">
 			<command
 				commandId="org.eclipse.xtext.ui.OpenGeneratedFileCommand"
-				id="org.testeditor.tsl.dsl.TestSpecDsl.OpenGeneratedCode"
+				id="org.testeditor.tsl.dsl.Tsl.OpenGeneratedCode"
 				style="push">
 					<visibleWhen checkEnabled="false">
-						<reference definitionId="org.testeditor.tsl.dsl.TestSpecDsl.Editor.opened" />
+						<reference definitionId="org.testeditor.tsl.dsl.Tsl.Editor.opened" />
 					</visibleWhen>
 			</command>
 		</menuContribution>
 	</extension>
 	<extension point="org.eclipse.ui.handlers">
 		<handler
-			class="org.testeditor.tsl.dsl.ui.TestSpecDslExecutableExtensionFactory:org.eclipse.xtext.ui.generator.trace.OpenGeneratedFileHandler"
+			class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.generator.trace.OpenGeneratedFileHandler"
 			commandId="org.eclipse.xtext.ui.OpenGeneratedFileCommand">
 				<activeWhen>
-					<reference definitionId="org.testeditor.tsl.dsl.TestSpecDsl.Editor.opened" />
+					<reference definitionId="org.testeditor.tsl.dsl.Tsl.Editor.opened" />
 				</activeWhen>
 		</handler>
 	</extension>
@@ -305,11 +305,11 @@
 	<extension
 		point="org.eclipse.ui.handlers">
 		<handler 
-			class="org.testeditor.tsl.dsl.ui.TestSpecDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.outline.quickoutline.ShowQuickOutlineActionHandler"
+			class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.outline.quickoutline.ShowQuickOutlineActionHandler"
 			commandId="org.eclipse.xtext.ui.editor.outline.QuickOutline">
 			<activeWhen>
 				<reference
-					definitionId="org.testeditor.tsl.dsl.TestSpecDsl.Editor.opened">
+					definitionId="org.testeditor.tsl.dsl.Tsl.Editor.opened">
 				</reference>
 			</activeWhen>
 		</handler>
@@ -329,33 +329,33 @@
 				style="push"
 				tooltip="Open Quick Outline">
 				<visibleWhen checkEnabled="false">
-					<reference definitionId="org.testeditor.tsl.dsl.TestSpecDsl.Editor.opened"/>
+					<reference definitionId="org.testeditor.tsl.dsl.Tsl.Editor.opened"/>
 				</visibleWhen>
 			</command>
 		</menuContribution>
 	</extension>
-    <!-- quickfix marker resolution generator for org.testeditor.tsl.dsl.TestSpecDsl -->
+    <!-- quickfix marker resolution generator for org.testeditor.tsl.dsl.Tsl -->
     <extension
             point="org.eclipse.ui.ide.markerResolution">
         <markerResolutionGenerator
-            class="org.testeditor.tsl.dsl.ui.TestSpecDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.quickfix.MarkerResolutionGenerator"
-            markerType="org.testeditor.tsl.dsl.ui.testspecdsl.check.fast">
+            class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.quickfix.MarkerResolutionGenerator"
+            markerType="org.testeditor.tsl.dsl.ui.tsl.check.fast">
             <attribute
                 name="FIXABLE_KEY"
                 value="true">
             </attribute>
         </markerResolutionGenerator>
         <markerResolutionGenerator
-            class="org.testeditor.tsl.dsl.ui.TestSpecDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.quickfix.MarkerResolutionGenerator"
-            markerType="org.testeditor.tsl.dsl.ui.testspecdsl.check.normal">
+            class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.quickfix.MarkerResolutionGenerator"
+            markerType="org.testeditor.tsl.dsl.ui.tsl.check.normal">
             <attribute
                 name="FIXABLE_KEY"
                 value="true">
             </attribute>
         </markerResolutionGenerator>
         <markerResolutionGenerator
-            class="org.testeditor.tsl.dsl.ui.TestSpecDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.quickfix.MarkerResolutionGenerator"
-            markerType="org.testeditor.tsl.dsl.ui.testspecdsl.check.expensive">
+            class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.quickfix.MarkerResolutionGenerator"
+            markerType="org.testeditor.tsl.dsl.ui.tsl.check.expensive">
             <attribute
                 name="FIXABLE_KEY"
                 value="true">
@@ -365,11 +365,11 @@
    	<!-- Rename Refactoring -->
 	<extension point="org.eclipse.ui.handlers">
 		<handler 
-			class="org.testeditor.tsl.dsl.ui.TestSpecDslExecutableExtensionFactory:org.eclipse.xtext.ui.refactoring.ui.DefaultRenameElementHandler"
+			class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.refactoring.ui.DefaultRenameElementHandler"
 			commandId="org.eclipse.xtext.ui.refactoring.RenameElement">
 			<activeWhen>
 				<reference
-					definitionId="org.testeditor.tsl.dsl.TestSpecDsl.Editor.opened">
+					definitionId="org.testeditor.tsl.dsl.Tsl.Editor.opened">
 				</reference>
 			</activeWhen>
 		</handler>
@@ -381,7 +381,7 @@
                style="push">
             <visibleWhen checkEnabled="false">
                <reference
-                     definitionId="org.testeditor.tsl.dsl.TestSpecDsl.Editor.opened">
+                     definitionId="org.testeditor.tsl.dsl.Tsl.Editor.opened">
                </reference>
             </visibleWhen>
          </command>
@@ -389,35 +389,35 @@
    </extension>
    <extension point="org.eclipse.ui.preferencePages">
 	    <page
-	        category="org.testeditor.tsl.dsl.TestSpecDsl"
-	        class="org.testeditor.tsl.dsl.ui.TestSpecDslExecutableExtensionFactory:org.eclipse.xtext.ui.refactoring.ui.RefactoringPreferencePage"
-	        id="org.testeditor.tsl.dsl.TestSpecDsl.refactoring"
+	        category="org.testeditor.tsl.dsl.Tsl"
+	        class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.refactoring.ui.RefactoringPreferencePage"
+	        id="org.testeditor.tsl.dsl.Tsl.refactoring"
 	        name="Refactoring">
-	        <keywordReference id="org.testeditor.tsl.dsl.ui.keyword_TestSpecDsl"/>
+	        <keywordReference id="org.testeditor.tsl.dsl.ui.keyword_Tsl"/>
 	    </page>
 	</extension>
 
   <extension point="org.eclipse.compare.contentViewers">
-    <viewer id="org.testeditor.tsl.dsl.TestSpecDsl.compare.contentViewers"
-            class="org.testeditor.tsl.dsl.ui.TestSpecDslExecutableExtensionFactory:org.eclipse.xtext.ui.compare.InjectableViewerCreator"
-            extensions="tsl">
+    <viewer id="org.testeditor.tsl.dsl.Tsl.compare.contentViewers"
+            class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.compare.InjectableViewerCreator"
+            extensions="mydsl">
     </viewer>
   </extension>
   <extension point="org.eclipse.compare.contentMergeViewers">
-    <viewer id="org.testeditor.tsl.dsl.TestSpecDsl.compare.contentMergeViewers"
-            class="org.testeditor.tsl.dsl.ui.TestSpecDslExecutableExtensionFactory:org.eclipse.xtext.ui.compare.InjectableViewerCreator"
-            extensions="tsl" label="TestSpecDsl Compare">
+    <viewer id="org.testeditor.tsl.dsl.Tsl.compare.contentMergeViewers"
+            class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.compare.InjectableViewerCreator"
+            extensions="mydsl" label="Tsl Compare">
      </viewer>
   </extension>
   <extension point="org.eclipse.ui.editors.documentProviders">
-    <provider id="org.testeditor.tsl.dsl.TestSpecDsl.editors.documentProviders"
-            class="org.testeditor.tsl.dsl.ui.TestSpecDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.model.XtextDocumentProvider"
-            extensions="tsl">
+    <provider id="org.testeditor.tsl.dsl.Tsl.editors.documentProviders"
+            class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.model.XtextDocumentProvider"
+            extensions="mydsl">
     </provider>
   </extension>
   <extension point="org.eclipse.team.core.fileTypes">
     <fileTypes
-            extension="tsl"
+            extension="mydsl"
             type="text">
     </fileTypes>
   </extension>

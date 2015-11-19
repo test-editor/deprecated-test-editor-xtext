@@ -3,11 +3,11 @@
  */
 package org.testeditor.tsl.dsl.ui.contentassist
 
-import org.testeditor.tsl.dsl.ui.contentassist.AbstractTestSpecDslProposalProvider
+import org.testeditor.tsl.dsl.ui.contentassist.AbstractTslProposalProvider
 
 /**
  * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#content-assist
  * on how to customize the content assistant.
  */
-class TestSpecDslProposalProvider extends AbstractTestSpecDslProposalProvider {
+class TslProposalProvider extends AbstractTslProposalProvider {
 }

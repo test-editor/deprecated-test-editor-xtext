@@ -5,9 +5,9 @@
 
   <extension point="org.eclipse.emf.ecore.generated_package">
     <package 
-       uri = "http://www.testeditor.org/tsl/dsl/TestSpecDsl" 
-       class = "org.testeditor.tsl.dsl.testSpecDsl.TestSpecDslPackage"
-       genModel = "model/generated/TestSpecDsl.genmodel" /> 
+       uri = "http://www.testeditor.org/tsl/dsl/Tsl" 
+       class = "org.testeditor.tsl.dsl.tsl.TslPackage"
+       genModel = "model/generated/Tsl.genmodel" /> 
 	
   </extension>
 
