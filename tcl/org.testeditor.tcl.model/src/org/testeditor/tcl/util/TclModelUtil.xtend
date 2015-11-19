@@ -19,30 +19,17 @@ import org.testeditor.aml.model.ComponentElement
 import org.testeditor.aml.model.InteractionType
 import org.testeditor.aml.model.TemplateText
 import org.testeditor.aml.model.TemplateVariable
-import org.testeditor.tcl.StepContent
 import org.testeditor.tcl.StepContentElement
-import org.testeditor.tcl.StepContentText
-import org.testeditor.tcl.StepContentVariable
-import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestStep
+import org.testeditor.tsl.StepContent
+import org.testeditor.tsl.StepContentText
+import org.testeditor.tsl.StepContentVariable
+import org.testeditor.tsl.util.TslModelUtil
 
 @Singleton
-class TclModelUtil {
+class TclModelUtil extends TslModelUtil {
 
-	def String getName(TclModel model) {
-		val lastSegment = model.eResource?.URI?.lastSegment
-		if (lastSegment !== null) {
-			val separator = lastSegment.lastIndexOf('.')
-			if (separator >= 0) {
-				return lastSegment.substring(0, separator).toFirstUpper
-			} else {
-				return lastSegment.toFirstUpper
-			}
-		}
-		return null
-	}
-
-	def String restoreString(List<StepContent> contents) {
+	override String restoreString(List<StepContent> contents) {
 		return contents.map [
 			switch (it) {
 				StepContentVariable: '''"«value»"'''

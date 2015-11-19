@@ -13,17 +13,18 @@
 grammar org.testeditor.tcl.dsl.Tcl with org.eclipse.xtext.xbase.Xbase
 
 import "http://www.testeditor.org/tcl"
+import "http://www.testeditor.org/tsl" as tsl
 import "org.testeditor.aml.model" as aml
 
 TclModel:
 	'package' package=QualifiedName
 	(importSection=XImportSection)?
 
-	steps+=SpecificationStep*
+	steps+=SpecificationStepImpl*
 ;
 
-SpecificationStep:
-	{SpecificationStep}
+SpecificationStepImpl:
+	{SpecificationStepImpl}
 	'*' contents+=StepContent* '.'?
 	contexts+=TestStepContext*
 ;
@@ -38,18 +39,18 @@ TestStep:
 	'-' contents+=StepContent* '.'?
 ;
 
-StepContent: 
+StepContent returns tsl::StepContent: 
 	StepContentText | StepContentElement | StepContentVariable
 ;
 
-StepContentText: 
+StepContentText returns tsl::StepContentText: 
 	value=ID
+;
+
+StepContentVariable returns tsl::StepContentText:
+	value=STRING 
 ;
 
 StepContentElement: 
 	'<' value=ID '>'
-;
-
-StepContentVariable:
-	value=STRING 
 ;

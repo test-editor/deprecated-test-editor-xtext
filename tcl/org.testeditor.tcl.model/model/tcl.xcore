@@ -20,15 +20,16 @@ package org.testeditor.tcl
 
 import org.eclipse.xtext.xtype.XImportSection
 import org.testeditor.aml.model.Component
+import org.testeditor.tsl.SpecificationStep
+import org.testeditor.tsl.StepContent
 
 class TclModel {
 	String ^package
 	contains XImportSection importSection
-	contains SpecificationStep[0..*] steps
+	contains SpecificationStepImpl[0..*] steps
 }
 
-class SpecificationStep {
-	contains StepContent[0..*] contents
+class SpecificationStepImpl extends SpecificationStep {
 	contains TestStepContext[0..*] contexts
 }
 
@@ -42,10 +43,4 @@ class TestStep {
 	contains StepContent[0..*] contents
 }
 
-abstract class StepContent {
-	String value
-}
-
-class StepContentText extends StepContent {}
 class StepContentElement extends StepContent {}
-class StepContentVariable extends StepContent {}

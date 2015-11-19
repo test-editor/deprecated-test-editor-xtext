@@ -47,6 +47,7 @@ Workflow {
 		projectNameUi = "${projectName}.ui"
 		language = auto-inject {
 			loadedResource = "platform:/resource/org.testeditor.aml.model/model/aml.xcore"
+			loadedResource = "platform:/resource/org.testeditor.tsl.model/model/tsl.xcore"
 			loadedResource = "platform:/resource/org.testeditor.tcl.model/model/tcl.xcore"
 			loadedResource = "platform:/resource/org.eclipse.xtext.xbase/model/Xbase.genmodel"
 			loadedResource = "platform:/resource/org.eclipse.xtext.common.types/model/JavaVMTypes.genmodel"

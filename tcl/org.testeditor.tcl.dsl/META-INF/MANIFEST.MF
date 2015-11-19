@@ -18,6 +18,7 @@ Require-Bundle: org.eclipse.xtext;visibility:=reexport,
  org.eclipse.emf.ecore,
  org.eclipse.emf.common,
  org.testeditor.aml.model;visibility:=reexport,
+ org.testeditor.tsl.model;visibility:=reexport,
  org.testeditor.tcl.model;visibility:=reexport
 Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

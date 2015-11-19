@@ -10,7 +10,7 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package rg.testeditor.tcl.dsl.ui.quickfix
+package org.testeditor.tcl.dsl.ui.quickfix
 
 import org.testeditor.tcl.dsl.tests.AbstractTest
 import org.junit.Test
@@ -22,9 +22,7 @@ class TclQuickfixProviderTest extends AbstractTest{
 	def void testGetComponentDSLFragment() {
 		val qProv = new TclQuickfixProvider()
 		
-		
 		val result = '''
-		 
 			component Foo is <TYPE> {
 			
 			}

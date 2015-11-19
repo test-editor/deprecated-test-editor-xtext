@@ -7,10 +7,10 @@ import org.eclipse.xtext.resource.XtextResource
 import org.eclipse.xtext.ui.editor.hyperlinking.IHyperlinkAcceptor
 import org.eclipse.xtext.xbase.ui.navigation.XbaseHyperLinkHelper
 import org.testeditor.aml.model.ComponentElement
-import org.testeditor.tcl.StepContent
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.tsl.StepContent
 
 class TclHyperLinkHelper extends XbaseHyperLinkHelper {
 

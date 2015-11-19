@@ -13,8 +13,8 @@
 package org.testeditor.tcl.dsl.tests.parser
 
 import org.junit.Test
-import org.testeditor.tcl.StepContentVariable
 import org.testeditor.tcl.TclPackage
+import org.testeditor.tsl.StepContentVariable
 
 import static extension org.eclipse.xtext.nodemodel.util.NodeModelUtils.*
 

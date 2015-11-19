@@ -19,14 +19,14 @@ import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
 import org.testeditor.aml.model.InteractionType
-import org.testeditor.tcl.SpecificationStep
+import org.testeditor.tcl.SpecificationStepImpl
+import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.util.TclModelUtil
 
 import static java.lang.System.lineSeparator
-import org.testeditor.tcl.StepContentElement
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -54,7 +54,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		return model.steps.map[generate].join(lineSeparator)
 	}
 
-	private def generate(SpecificationStep step) '''
+	private def generate(SpecificationStepImpl step) '''
 		/* «step.contents.restoreString» */
 		«step.contexts.map[generate].join(lineSeparator)»
 	'''
