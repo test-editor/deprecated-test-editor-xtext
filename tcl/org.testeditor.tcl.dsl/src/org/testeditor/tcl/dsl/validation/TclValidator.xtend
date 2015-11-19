@@ -19,11 +19,16 @@ import org.testeditor.tcl.TclPackage
 import org.testeditor.tcl.TestStepContext
 import javax.inject.Inject
 import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.tcl.TestCase
+import org.testeditor.tsl.SpecificationStep
+import org.testeditor.tcl.SpecificationStepImplementation
+import java.util.List
 
 class TclValidator extends AbstractTclValidator {
 
 	public static val UNKNOWN_NAME = 'unknownName'
-	
+	public static val NO_VALID_IMPLEMENTATION = 'noValidImplementation'
+
 	@Inject extension TclModelUtil
 
 	@Check
@@ -41,8 +46,23 @@ class TclValidator extends AbstractTclValidator {
 	@Check
 	def checkMaskPresent(TestStepContext tsContext) {
 		if (tsContext.component.eIsProxy) {
-			warning("mask is not defined in aml", TclPackage.Literals.TEST_STEP_CONTEXT__COMPONENT,UNKNOWN_NAME);
+			warning("mask is not defined in aml", TclPackage.Literals.TEST_STEP_CONTEXT__COMPONENT, UNKNOWN_NAME);
 		}
 	}
-	
+
+	@Check
+	def checkSpec(TestCase testCase) {
+		if (testCase.specification != null) {
+			if (!testCase.specification.steps.matches(testCase.steps))
+				error("Testcase doesn't implent the Specification", TclPackage.Literals.TEST_CASE__SPECIFICATION,
+					NO_VALID_IMPLEMENTATION)
+		}
+	}
+
+	def boolean matches(List<SpecificationStep> specSteps, List<SpecificationStepImplementation> specImplSteps) {
+		if (specSteps.size != specImplSteps.size) {
+			return false
+		}
+		return specImplSteps.map[contents.restoreString].containsAll(specSteps.map[contents.restoreString])
+	}
 }
