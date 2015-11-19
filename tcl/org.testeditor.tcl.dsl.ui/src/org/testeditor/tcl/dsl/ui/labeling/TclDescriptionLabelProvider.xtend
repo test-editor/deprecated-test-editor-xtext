@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.ui.labeling
 
+import org.eclipse.xtext.xbase.ui.labeling.XbaseDescriptionLabelProvider
+
 //import org.eclipse.xtext.resource.IEObjectDescription
 
 /**
@@ -19,7 +21,7 @@ package org.testeditor.tcl.dsl.ui.labeling
  * 
  * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#label-provider
  */
-class TclDescriptionLabelProvider extends org.eclipse.xtext.xbase.ui.labeling.XbaseDescriptionLabelProvider {
+class TclDescriptionLabelProvider extends XbaseDescriptionLabelProvider {
 
 	// Labels and icons can be computed like this:
 	
