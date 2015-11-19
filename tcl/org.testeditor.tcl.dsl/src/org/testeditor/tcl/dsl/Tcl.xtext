@@ -24,7 +24,7 @@ TclModel:
 
 TestCase: 
 	'#' name=ID
-	('implements' specification=[tsl::TestSpecification|ID])?
+	('implements' specification=[tsl::TestSpecification|QualifiedName])?
 	steps+=SpecificationStepImplementation*
 ;
 

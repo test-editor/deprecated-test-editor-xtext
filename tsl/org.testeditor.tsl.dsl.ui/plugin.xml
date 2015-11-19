@@ -213,13 +213,13 @@
 		point="org.eclipse.emf.ecore.extension_parser">
 		<parser
 			class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.resource.IResourceFactory"
-			type="mydsl">
+			type="tsl">
 		</parser>
 	</extension>
 	<extension point="org.eclipse.xtext.extension_resourceServiceProvider">
         <resourceServiceProvider
             class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.resource.IResourceUIServiceProvider"
-            uriExtension="mydsl">
+            uriExtension="tsl">
         </resourceServiceProvider>
     </extension>
 
@@ -251,7 +251,7 @@
          point="org.eclipse.xtext.builder.participant">
       <participant
             class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.builder.IXtextBuilderParticipant"
-            fileExtensions="mydsl"
+            fileExtensions="tsl"
             >
       </participant>
    </extension>
@@ -400,24 +400,24 @@
   <extension point="org.eclipse.compare.contentViewers">
     <viewer id="org.testeditor.tsl.dsl.Tsl.compare.contentViewers"
             class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.compare.InjectableViewerCreator"
-            extensions="mydsl">
+            extensions="tsl">
     </viewer>
   </extension>
   <extension point="org.eclipse.compare.contentMergeViewers">
     <viewer id="org.testeditor.tsl.dsl.Tsl.compare.contentMergeViewers"
             class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.compare.InjectableViewerCreator"
-            extensions="mydsl" label="Tsl Compare">
+            extensions="tsl" label="Tsl Compare">
      </viewer>
   </extension>
   <extension point="org.eclipse.ui.editors.documentProviders">
     <provider id="org.testeditor.tsl.dsl.Tsl.editors.documentProviders"
             class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.model.XtextDocumentProvider"
-            extensions="mydsl">
+            extensions="tsl">
     </provider>
   </extension>
   <extension point="org.eclipse.team.core.fileTypes">
     <fileTypes
-            extension="mydsl"
+            extension="tsl"
             type="text">
     </fileTypes>
   </extension>
