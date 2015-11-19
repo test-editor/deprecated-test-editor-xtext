@@ -1,16 +1,25 @@
 package org.testeditor.tcl.dsl.ui.navigation
 
+import java.util.List
 import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.EStructuralFeature
+import org.eclipse.jface.text.Region
+import org.eclipse.xtext.nodemodel.INode
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.eclipse.xtext.resource.XtextResource
 import org.eclipse.xtext.ui.editor.hyperlinking.IHyperlinkAcceptor
 import org.eclipse.xtext.xbase.ui.navigation.XbaseHyperLinkHelper
 import org.testeditor.aml.model.ComponentElement
+import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContent
+
+import static org.testeditor.tcl.TclPackage.Literals.*
+import static org.testeditor.tsl.TslPackage.Literals.*
 
 class TclHyperLinkHelper extends XbaseHyperLinkHelper {
 
@@ -23,12 +32,22 @@ class TclHyperLinkHelper extends XbaseHyperLinkHelper {
 	}
 
 	/**
+	 * Create a hyperlink from a {@link SpecificationStepImplementation} to the {@link SpecificationStep}.
+	 */
+	protected def dispatch void createHyperlinks(SpecificationStepImplementation stepImpl, IHyperlinkAcceptor acceptor) {
+		val specificationStep = stepImpl.specificationStep
+		if (specificationStep !== null) {
+			stepImpl.createHyperlinkTo(SPECIFICATION_STEP__CONTENTS, specificationStep, acceptor)
+		}
+	}
+
+	/**
 	 * Create a hyperlink from a {@link TestStep} to its interaction's template. 
 	 */
 	protected def dispatch void createHyperlinks(TestStep testStep, IHyperlinkAcceptor acceptor) {
 		val interaction = testStep.interaction
 		if (interaction !== null) {
-			testStep.createHyperlinkTo(interaction.template, acceptor)
+			testStep.createHyperlinkTo(TEST_STEP__CONTENTS, interaction.template, acceptor)
 		}
 	}
 
@@ -40,7 +59,7 @@ class TclHyperLinkHelper extends XbaseHyperLinkHelper {
 	protected def dispatch void createHyperlinks(StepContentElement element, IHyperlinkAcceptor acceptor) {
 		val componentElement = element.componentElement
 		if (componentElement !== null) {
-			element.createHyperlinkTo(componentElement, acceptor)
+			element.createHyperlinkTo(STEP_CONTENT__VALUE, componentElement, acceptor)
 		} else {
 			element.eContainer.createHyperlinks(acceptor)
 		}
@@ -58,10 +77,19 @@ class TclHyperLinkHelper extends XbaseHyperLinkHelper {
 		// do nothing
 	}
 
-	private def void createHyperlinkTo(EObject source, EObject target, IHyperlinkAcceptor acceptor) {
-		val node = NodeModelUtils.findActualNodeFor(source)
-		val resource = source.eResource as XtextResource
-		createHyperlinksTo(resource, node, target, acceptor)
+	private def void createHyperlinkTo(EObject source, EStructuralFeature sourceFeature, EObject target, IHyperlinkAcceptor acceptor) {
+		val nodes = NodeModelUtils.findNodesForFeature(source, sourceFeature)
+		if (!nodes.empty) {
+			val resource = source.eResource as XtextResource
+			createHyperlinksTo(resource, nodes.region, target, acceptor)
+		}
+	}
+
+	private def Region getRegion(List<INode> nodes) {
+		val first = nodes.head
+		val last = nodes.last
+		val length = last.offset - first.offset + last.length
+		new Region(first.offset, length)
 	}
 
 }
