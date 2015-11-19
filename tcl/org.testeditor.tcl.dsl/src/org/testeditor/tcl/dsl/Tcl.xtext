@@ -47,7 +47,7 @@ StepContentText returns tsl::StepContentText:
 	value=ID
 ;
 
-StepContentVariable returns tsl::StepContentText:
+StepContentVariable returns tsl::StepContentVariable:
 	value=STRING 
 ;
 
