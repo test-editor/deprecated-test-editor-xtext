@@ -14,6 +14,10 @@ package org.testeditor.tcl.dsl.ui;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.xtext.ui.editor.hyperlinking.IHyperlinkHelper;
+import org.eclipse.xtext.ui.editor.syntaxcoloring.IHighlightingConfiguration;
+import org.eclipse.xtext.ui.editor.syntaxcoloring.ISemanticHighlightingCalculator;
+import org.testeditor.tcl.dsl.ui.highlighting.TclHighlightingConfiguration;
+import org.testeditor.tcl.dsl.ui.highlighting.TclSemanticHighlightingCalculator;
 import org.testeditor.tcl.dsl.ui.navigation.TclHyperLinkHelper;
 
 public class TclUiModule extends org.testeditor.tcl.dsl.ui.AbstractTclUiModule {
@@ -22,6 +26,16 @@ public class TclUiModule extends org.testeditor.tcl.dsl.ui.AbstractTclUiModule {
         super(plugin);
     }
     
+    @Override
+    public Class<? extends IHighlightingConfiguration> bindIHighlightingConfiguration() {
+        return TclHighlightingConfiguration.class;
+    }
+
+    @Override
+    public Class<? extends ISemanticHighlightingCalculator> bindISemanticHighlightingCalculator() {
+        return TclSemanticHighlightingCalculator.class;
+    }
+   
     @Override
     public Class<? extends IHyperlinkHelper> bindIHyperlinkHelper() {
         return TclHyperLinkHelper.class;
