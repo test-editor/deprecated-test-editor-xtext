@@ -13,6 +13,9 @@
 package org.testeditor.tcl.dsl.ui.labeling
 
 import com.google.inject.Inject
+import org.testeditor.tcl.TestStepContext
+import org.testeditor.tcl.SpecificationStep
+import org.testeditor.tcl.TestStep
 
 /**
  * Provides labels for EObjects.
@@ -28,11 +31,15 @@ class TclLabelProvider extends org.eclipse.xtext.xbase.ui.labeling.XbaseLabelPro
 
 	// Labels and icons can be computed like this:
 	
-//	def text(Greeting ele) {
-//		'A greeting to ' + ele.name
-//	}
-//
-//	def image(Greeting ele) {
-//		'Greeting.gif'
-//	}
+	def text(TestStepContext tsc) {
+		return "Mask: " + tsc.component.label
+	}
+	
+	def text(SpecificationStep specStep){
+		return specStep.contents.map[it.value].join(" ")
+	}
+	
+	def text(TestStep testStep) {
+		return testStep.contents.map[it.value].join(" ")		
+	}
 }
