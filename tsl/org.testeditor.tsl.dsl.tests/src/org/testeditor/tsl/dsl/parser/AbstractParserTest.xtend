@@ -12,5 +12,11 @@ abstract class AbstractParserTest extends AbstractTest {
 	protected def TslModel parse(CharSequence input) {
 		return parser.parse(input)
 	}
+	
+	protected def TslModel parse(CharSequence input, (TslModel)=>void assertionBlock) {
+		val model = input.parse
+		assertionBlock.apply(model)
+		return model
+	}
 
 }
