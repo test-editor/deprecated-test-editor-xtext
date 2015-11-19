@@ -1,0 +1,11 @@
+@Ecore(nsURI="http://www.testeditor.org/tsl")
+@GenModel(
+	modelDirectory="org.testeditor.tsl.model/src-gen", 
+	complianceLevel="7.0"
+)
+
+package org.testeditor.tsl
+
+class TslModel {
+	String ^package
+}
