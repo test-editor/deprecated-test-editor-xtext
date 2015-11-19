@@ -9,7 +9,7 @@
             class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.XtextEditor"
             contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
             default="true"
-            extensions="mydsl"
+            extensions="tsl"
             id="org.testeditor.tsl.dsl.Tsl"
             name="Tsl Editor">
         </editor>
