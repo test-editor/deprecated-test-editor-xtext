@@ -10,8 +10,16 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.tsl.dsl;
+package org.testeditor.tsl.dsl.formatting2;
 
-public class TslRuntimeModule extends org.testeditor.tsl.dsl.AbstractTslRuntimeModule {
+import org.eclipse.xtext.formatting2.AbstractFormatter2
+import org.eclipse.xtext.formatting2.IFormattableDocument
+import org.testeditor.tsl.TslModel
+
+class TslFormatter extends AbstractFormatter2 {
+	
+
+	def dispatch void format(TslModel tslmodel, extension IFormattableDocument document) {
+	}
 
 }

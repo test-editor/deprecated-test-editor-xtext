@@ -10,8 +10,8 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.tsl.dsl;
+package org.testeditor.tsl.dsl.ui.wizard;
 
-public class TslRuntimeModule extends org.testeditor.tsl.dsl.AbstractTslRuntimeModule {
-
+public class TslProjectInfo extends org.eclipse.xtext.ui.wizard.DefaultProjectInfo {
+	
 }

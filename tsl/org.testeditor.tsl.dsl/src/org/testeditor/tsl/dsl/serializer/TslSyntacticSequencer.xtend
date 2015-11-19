@@ -10,8 +10,8 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.tsl.dsl;
+package org.testeditor.tsl.dsl.serializer;
 
-public class TslRuntimeModule extends org.testeditor.tsl.dsl.AbstractTslRuntimeModule {
 
+class TslSyntacticSequencer extends AbstractTslSyntacticSequencer {
 }
