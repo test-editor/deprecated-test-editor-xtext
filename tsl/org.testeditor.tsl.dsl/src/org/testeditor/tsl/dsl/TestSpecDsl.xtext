@@ -12,7 +12,7 @@ Comment:
 	value=COMMENT_T;
 
 terminal COMMENT_T:
-	!'*'-> '\r'? '\n' 
+	!'*' !('\n'|'\r')* ('\r'? '\n')? 
 ;
 
 SpecificationStep:
