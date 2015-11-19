@@ -18,7 +18,7 @@ import org.testeditor.tcl.TestStepContext
 @Singleton
 class TclModelUtil {
 
-	static def String getName(TclModel model) {
+	def String getName(TclModel model) {
 		val lastSegment = model.eResource?.URI?.lastSegment
 		if (lastSegment !== null) {
 			val separator = lastSegment.lastIndexOf('.')

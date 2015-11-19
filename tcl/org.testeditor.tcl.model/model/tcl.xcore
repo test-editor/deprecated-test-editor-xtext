@@ -8,16 +8,11 @@ package org.testeditor.tcl
 
 import org.eclipse.xtext.xtype.XImportSection
 import org.testeditor.aml.model.Component
-import org.testeditor.tcl.util.TclModelUtil
 
 class TclModel {
 	String ^package
 	contains XImportSection importSection
 	contains SpecificationStep[0..*] steps
-	
-	derived String name get {
-		return TclModelUtil.getName(this)
-	}
 }
 
 class SpecificationStep {

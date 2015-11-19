@@ -6,32 +6,24 @@ import org.eclipse.xtext.generator.IFileSystemAccess
 import org.eclipse.xtext.generator.IGenerator
 import org.eclipse.xtext.generator.InMemoryFileSystemAccess
 import org.eclipse.xtext.junit4.util.ParseHelper
-import org.eclipse.xtext.junit4.validation.ValidationTestHelper
 import org.eclipse.xtext.resource.XtextResourceSet
 import org.junit.Before
 import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.aml.model.AmlModel
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.dsl.tests.AbstractTest
+import org.testeditor.tcl.util.TclModelUtil
 
 abstract class AbstractTclGeneratorIntegrationTest extends AbstractTest {
 
-	@Inject
-	protected Provider<XtextResourceSet> resourceSetProvider
-
-	@Inject
-	protected XtextResourceSet resourceSet
-
-	protected ParseHelper<AmlModel> amlParseHelper
-
-	@Inject
-	protected ParseHelper<TclModel> tclParseHelper
+	@Inject protected Provider<XtextResourceSet> resourceSetProvider
+	@Inject protected XtextResourceSet resourceSet
 	
-	@Inject
-	protected ValidationTestHelper validationHelper
+	protected ParseHelper<AmlModel> amlParseHelper
+	@Inject protected ParseHelper<TclModel> tclParseHelper
+	@Inject protected IGenerator generator
 
-	@Inject
-	protected IGenerator generator
+	@Inject extension TclModelUtil
 
 	protected InMemoryFileSystemAccess fsa
 
