@@ -1,0 +1,30 @@
+grammar org.testeditor.tsl.dsl.TestSpecDsl with org.eclipse.xtext.common.Terminals
+
+generate testSpecDsl "http://www.testeditor.org/tsl/dsl/TestSpecDsl"
+
+TclModel:
+	content+=content*;
+
+content:
+	SpecificationStep | Comment;
+
+Comment:
+	value=COMMENT_T;
+
+terminal COMMENT_T:
+	!'*'-> '\r'? '\n' 
+;
+
+SpecificationStep:
+	{SpecificationStep}
+	'*' contents+=StepContent* '.'?;
+
+StepContent:
+	StepContentText | StepContentVariable;
+
+StepContentText:
+	value=ID;
+
+StepContentVariable:
+	value=STRING;
+	
