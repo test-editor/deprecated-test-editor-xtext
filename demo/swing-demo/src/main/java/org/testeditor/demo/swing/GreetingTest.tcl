@@ -12,11 +12,8 @@
  *******************************************************************************/
 package org.testeditor.demo.swing
 
-import org.testeditor.demo.swing.*
-
-# GreetingTest implements GreetingSpec 
-
-// This is a comment
+# GreetingTest implements GreetingSpec
+ 
 * Start the famous greetings application.
  
     Mask: GreetingApplication
