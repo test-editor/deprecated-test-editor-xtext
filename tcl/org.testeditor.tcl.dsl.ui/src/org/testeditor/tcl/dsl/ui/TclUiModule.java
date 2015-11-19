@@ -13,12 +13,18 @@
 package org.testeditor.tcl.dsl.ui;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.xtext.ui.editor.hyperlinking.IHyperlinkHelper;
+import org.testeditor.tcl.dsl.ui.navigation.TclHyperLinkHelper;
 
-/**
- * Use this class to register components to be used within the IDE.
- */
 public class TclUiModule extends org.testeditor.tcl.dsl.ui.AbstractTclUiModule {
-	public TclUiModule(AbstractUIPlugin plugin) {
-		super(plugin);
-	}
+    
+    public TclUiModule(AbstractUIPlugin plugin) {
+        super(plugin);
+    }
+    
+    @Override
+    public Class<? extends IHyperlinkHelper> bindIHyperlinkHelper() {
+        return TclHyperLinkHelper.class;
+    }
+
 }

@@ -13,7 +13,6 @@ import org.testeditor.tcl.StepContentText
 import org.testeditor.tcl.StepContentVariable
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestStep
-import org.testeditor.tcl.TestStepContext
 
 @Singleton
 class TclModelUtil {
@@ -42,8 +41,9 @@ class TclModelUtil {
 		].join(' ')
 	}
 
-	def InteractionType getInteraction(TestStep step, TestStepContext context) {
-		val component = context.component
+	def InteractionType getInteraction(TestStep step) {
+		// TODO this should be solved by using an adapter (so that we don't need to recalculate it over and over again)
+		val component = step.context.component
 		if (component !== null) {
 			val allElementInteractions = component.elements.map[type.interactionTypes].flatten.filterNull
 			val interactionTypes = component.type.interactionTypes + allElementInteractions

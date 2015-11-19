@@ -84,7 +84,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	private def CharSequence toFeatureCall(TestStep step, TestStepContext context) {
-		val interaction = step.getInteraction(context)
+		val interaction = step.interaction
 		if (interaction !== null) {
 			val fixtureField = interaction.defaultMethod?.typeReference?.type?.fixtureFieldName
 			val operation = interaction.defaultMethod?.operation
