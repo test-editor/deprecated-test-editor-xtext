@@ -96,8 +96,8 @@ class TclModelUtil extends TslModelUtil {
 		return null
 	}
 
-	def SpecificationStep getSpecification(SpecificationStepImplementation stepImplementation) {
-		val tslModel = stepImplementation.model.specification
+	def SpecificationStep getSpecificationStep(SpecificationStepImplementation stepImplementation) {
+		val tslModel = stepImplementation.test.specification
 		if (tslModel !== null) {
 			return tslModel.steps.findFirst[matches(stepImplementation)]
 		}

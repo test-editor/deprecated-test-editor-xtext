@@ -42,6 +42,7 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 		val tcl = '''
 			package com.example
 			
+			# SimpleTest
 			* Start the famous greetings application
 				Mask: GreetingApplication
 				- Starte Anwendung "org.testeditor.swing.exammple.Greetings"

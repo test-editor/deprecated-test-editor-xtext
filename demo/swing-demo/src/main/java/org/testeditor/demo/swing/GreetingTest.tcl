@@ -10,9 +10,11 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package com.example
+package org.testeditor.demo.swing
 
 import org.testeditor.demo.swing.*
+
+# GreetingTest implements GreetingSpec 
 
 // This is a comment
 * Start the famous greetings application.

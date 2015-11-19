@@ -12,7 +12,6 @@ import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.aml.model.AmlModel
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.dsl.tests.AbstractTest
-import org.testeditor.tcl.util.TclModelUtil
 
 abstract class AbstractTclGeneratorIntegrationTest extends AbstractTest {
 
@@ -22,8 +21,6 @@ abstract class AbstractTclGeneratorIntegrationTest extends AbstractTest {
 	protected ParseHelper<AmlModel> amlParseHelper
 	@Inject protected ParseHelper<TclModel> tclParseHelper
 	@Inject protected IGenerator generator
-
-	@Inject extension TclModelUtil
 
 	protected InMemoryFileSystemAccess fsa
 
@@ -37,7 +34,7 @@ abstract class AbstractTclGeneratorIntegrationTest extends AbstractTest {
 
 	protected def String generate(TclModel model) {
 		generator.doGenerate(model.eResource, fsa)
-		val file = fsa.getJavaFile(model.package, model.name)
+		val file = fsa.getJavaFile(model.package, model.test.name)
 		return file.toString
 	}
 

@@ -28,7 +28,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 		
 		// when
-		val model = parse(input)
+		val model = parser.parse(input)
 		
 		// then
 		model.package.assertEquals('com.example')
@@ -40,15 +40,17 @@ class TclModelParserTest extends AbstractParserTest {
 		val input = '''
 			package com.example
 			
+			# MyTest
 			* Start the famous
 			greetings application.
 		'''
 		
 		// when
-		val model = parse(input)
+		val test = parse(input)
 		
 		// then
-		model.steps.assertSingleElement => [
+		test.name.assertEquals('MyTest')
+		test.steps.assertSingleElement => [
 			contents.restoreString.assertEquals('Start the famous greetings application')
 		]
 	}
@@ -59,14 +61,15 @@ class TclModelParserTest extends AbstractParserTest {
 		val input = '''
 			package com.example
 			
+			# Test
 			* send greetings "Hello World" to the world.
 		'''
 		
 		// when
-		val model = parse(input)
+		val test = parse(input)
 		
 		// then
-		model.steps.assertSingleElement => [
+		test.steps.assertSingleElement => [
 			contents.restoreString.assertEquals('send greetings "Hello World" to the world')
 			contents.get(2).assertInstanceOf(StepContentVariable) => [
 				value.assertEquals('Hello World')
@@ -80,6 +83,7 @@ class TclModelParserTest extends AbstractParserTest {
 		val input = '''
 			package com.example
 			
+			# Test
 			* Start the famous greetings application
 				Mask: GreetingsApplication
 				- starte Anwendung "org.testeditor.swing.exammple.Greetings"
@@ -87,10 +91,10 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 		
 		// when
-		val model = parse(input)
+		val test = parse(input)
 		
 		// then
-		model.steps.assertSingleElement => [
+		test.steps.assertSingleElement => [
 			contexts.assertSingleElement => [
 				val componentNode = findNodesForFeature(TclPackage.Literals.TEST_STEP_CONTEXT__COMPONENT).assertSingleElement
 				componentNode.text.assertEquals('GreetingsApplication')

@@ -22,7 +22,7 @@ import org.testeditor.tsl.StepContentVariable
 @Singleton
 class TslModelUtil {
 
-	def String getName(EObject model) {
+	def String getExpectedName(EObject model) {
 		val lastSegment = model.eResource?.URI?.lastSegment
 		if (lastSegment !== null) {
 			val separator = lastSegment.lastIndexOf('.')

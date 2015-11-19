@@ -22,6 +22,7 @@ import org.testeditor.aml.model.InteractionType
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclModel
+import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.util.TclModelUtil
@@ -33,25 +34,26 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	@Inject extension JvmTypesBuilder
 	@Inject extension TclModelUtil
 
-	def dispatch void infer(TclModel element, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
-		acceptor.accept(element.toClass('''«element.package».«element.name»''')) [
-			documentation = '''Generated from «element.eResource.URI»'''
+	def dispatch void infer(TclModel model, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
+		val test = model.test
+		acceptor.accept(test.toClass('''«model.package».«test.name»''')) [
+			documentation = '''Generated from «model.eResource.URI»'''
 			// Create variables for used fixture types
-			for (fixtureType : element.fixtureTypes) {
-				members += toField(element, fixtureType.fixtureFieldName, typeRef(fixtureType)) [
+			for (fixtureType : test.fixtureTypes) {
+				members += toField(test, fixtureType.fixtureFieldName, typeRef(fixtureType)) [
 					initializer = '''new «fixtureType»()'''
 				]
 			}
 			// Create test method
-			members += element.toMethod('execute', typeRef(Void.TYPE)) [
+			members += test.toMethod('execute', typeRef(Void.TYPE)) [
 				annotations += annotationRef('org.junit.Test')
-				body = '''«element.generateMethodBody»'''
+				body = '''«test.generateMethodBody»'''
 			]
 		]
 	}
 
-	private def generateMethodBody(TclModel model) {
-		return model.steps.map[generate].join(lineSeparator)
+	private def generateMethodBody(TestCase test) {
+		return test.steps.map[generate].join(lineSeparator)
 	}
 
 	private def generate(SpecificationStepImplementation step) '''
@@ -71,8 +73,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	/**
 	 * @return all {@link JvmType} of all fixtures that are referenced.
 	 */
-	private def Set<JvmType> getFixtureTypes(TclModel model) {
-		val components = model.steps.map[contexts].flatten.map[component]
+	private def Set<JvmType> getFixtureTypes(TestCase test) {
+		val components = test.steps.map[contexts].flatten.map[component]
 		// TODO the part from here should go somewhere in Aml ModelUtil
 		val interactionTypes = components.map[type?.interactionTypes].filterNull.flatten.toSet
 		val fixtureTypes = interactionTypes.map[defaultMethod?.typeReference?.type].filterNull.toSet

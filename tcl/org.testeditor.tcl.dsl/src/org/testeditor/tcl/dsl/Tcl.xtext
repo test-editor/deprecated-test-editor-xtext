@@ -19,10 +19,15 @@ import "org.testeditor.aml.model" as aml
 TclModel:
 	'package' package=QualifiedName
 	(importSection=XImportSection)?
+	test=TestCase
+;
 
-	('implements' specification=[tsl::TslModel|ID])?
+TestCase: 
+	'#' name=ID
+	('implements' specification=[tsl::TestSpecification|ID])?
 	steps+=SpecificationStepImplementation*
 ;
+
 
 SpecificationStepImplementation: 
 	{SpecificationStepImplementation}

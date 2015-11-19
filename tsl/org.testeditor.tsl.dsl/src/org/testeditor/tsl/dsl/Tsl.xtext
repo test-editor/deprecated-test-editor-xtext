@@ -16,10 +16,11 @@ import "http://www.testeditor.org/tsl"
 
 TslModel:
 	'package' package=QualifiedName
-	steps+=SpecificationStep*;
+	specification=TestSpecification?;
 
-QualifiedName:
-	ID (=> '.' ID)*;
+TestSpecification: 
+	'#' name=ID
+	steps+=SpecificationStep*;
 
 SpecificationStep:
 	{SpecificationStep}
@@ -33,3 +34,6 @@ StepContentText:
 
 StepContentVariable:
 	value=STRING;
+
+QualifiedName:
+	ID (=> '.' ID)*;

@@ -31,6 +31,7 @@ class ReferenceTslModelIntegrationTest extends AbstractParserTest {
 		val tsl = '''
 			package «packageName»
 			
+			# DummySpec
 			* First step
 		'''
 		val tslModel = tslParser.parse(tsl, 'DummySpec.tsl'.createFileURI, resourceSet)
@@ -45,6 +46,7 @@ class ReferenceTslModelIntegrationTest extends AbstractParserTest {
 		val tcl = '''
 			package com.example
 			
+			# DummySpecTest
 			implements DummySpec
 		'''
 
@@ -53,7 +55,7 @@ class ReferenceTslModelIntegrationTest extends AbstractParserTest {
 
 		// then
 		tclModel.assertNoErrors
-		tclModel.specification.assertSame(tslModel)
+		tclModel.test.specification.assertSame(tslModel.specification)
 	}
 
 	@Test
@@ -65,6 +67,7 @@ class ReferenceTslModelIntegrationTest extends AbstractParserTest {
 			
 			import some.other.*
 			
+			# DummySpecTest
 			implements DummySpec
 		'''
 
@@ -73,30 +76,30 @@ class ReferenceTslModelIntegrationTest extends AbstractParserTest {
 
 		// then
 		tclModel.assertNoErrors
-		tclModel.specification.assertSame(tslModel)
+		tclModel.test.specification.assertSame(tslModel.specification)
 	}
 
 	@Test
 	def void referenceSpecificationStep() {
 		// given
 		val tslModel = parseTslModel('com.example')
-		val firstStep = tslModel.steps.assertSingleElement
+		val firstStep = tslModel.specification.steps.assertSingleElement
 		val tcl = '''
 			package com.example
 			
-			implements DummySpec
-			
+			# DummySpecTest implements DummySpec
+
 			* First step
 		'''
 		val tclModel = parser.parse(tcl, resourceSet)
 		tclModel.assertNoErrors
-		val firstStepImpl = tclModel.steps.assertSingleElement
+		val firstStepImpl = tclModel.test.steps.assertSingleElement
 
 		// when
-		val specification = firstStepImpl.specification
+		val specificationStep = firstStepImpl.specificationStep
 
 		// then
-		specification.assertSame(firstStep)
+		specificationStep.assertSame(firstStep)
 	}
 
 }

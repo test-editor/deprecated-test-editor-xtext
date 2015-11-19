@@ -20,6 +20,11 @@ package org.testeditor.tsl
 
 class TslModel {
 	String ^package
+	contains TestSpecification specification
+}
+
+class TestSpecification {
+	String name
 	contains SpecificationStep[0..*] steps
 }
 
