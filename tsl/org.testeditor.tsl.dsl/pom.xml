@@ -10,7 +10,7 @@
 		<relativePath>../../releng/org.testeditor.aml.releng.parent.dsl</relativePath>
 	</parent>
 
-	<artifactId>org.testeditor.tcl.dsl</artifactId>
+	<artifactId>org.testeditor.tsl.dsl</artifactId>
 	<packaging>eclipse-plugin</packaging>
 	
 	<properties>
