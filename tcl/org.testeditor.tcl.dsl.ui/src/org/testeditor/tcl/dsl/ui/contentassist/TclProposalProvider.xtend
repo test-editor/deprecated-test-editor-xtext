@@ -12,17 +12,46 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.ui.contentassist
 
+import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.RuleCall
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
+import org.testeditor.aml.model.ModelUtil
+import org.testeditor.tcl.TestStep
+import org.testeditor.tcl.util.TclModelUtil
 
 class TclProposalProvider extends AbstractTclProposalProvider {
 
+	@Inject extension ModelUtil
+	@Inject extension TclModelUtil
+
 	override complete_TestStepContext(EObject model, RuleCall ruleCall, ContentAssistContext context,
 		ICompletionProposalAcceptor acceptor) {
-		acceptor.accept(createCompletionProposal('Mask: ', context))
-		acceptor.accept(createCompletionProposal('Component: ', context))
+		// TODO this should be done using an auto-editing feature
+		acceptor.accept(createCompletionProposal('Mask: ', 'Mask:', getImage(model), context))
+		acceptor.accept(createCompletionProposal('Component: ', 'Component:', getImage(model), context))
 	}
-	
+
+	override complete_StepContentElement(EObject model, RuleCall ruleCall, ContentAssistContext context,
+		ICompletionProposalAcceptor acceptor) {
+		super.complete_StepContentElement(model, ruleCall, context, acceptor)
+		if (model instanceof TestStep) {
+			val interaction = model.interaction
+			val componentElements = model.context.component.elements
+			val possibleElements = componentElements.filter [
+				val interactionTypes = componentElementInteractionTypes
+				return interactionTypes.contains(interaction)
+			]
+			// need to consider whether the completion should contain the '>' as well
+			val currentNode = context.currentNode
+			val includeClosingBracket = !currentNode.text.contains('>') && !currentNode.nextSibling.text.contains('>')
+			possibleElements.forEach [
+				val displayString = '''«name»«IF !label.nullOrEmpty» - "«label»"«ENDIF» (type: «type.name»)'''
+				val proposal = '''<«name»«IF includeClosingBracket»>«ENDIF»'''
+				acceptor.accept(createCompletionProposal(proposal, displayString, image, context))
+			]
+		}
+	}
+
 }

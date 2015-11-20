@@ -59,7 +59,14 @@ class ModelUtil {
 	 * @return all interaction types of the component's elements.
 	 */
 	def Set<InteractionType> getComponentElementsInteractionTypes(Component component) {
-		return component.elements.map[type.interactionTypes].flatten.toSet
+		return component.elements.map[componentElementInteractionTypes].flatten.toSet
+	}
+
+	/**
+	 * @return all interaction types of a {@link ComponentElement}.
+	 */
+	def Set<InteractionType> getComponentElementInteractionTypes(ComponentElement element) {
+		return element.type.interactionTypes.toSet
 	}
 
 	/**
