@@ -58,14 +58,14 @@ class TclModelUtil extends TslModelUtil {
 			switch (it) {
 				TemplateVariable case name == 'element': '<>'
 				TemplateVariable: '""'
-				TemplateText: value
+				TemplateText: value.trim
 			}
 		].join(' ')
 		val normalizedStepContent = step.contents.map [
 			switch (it) {
 				StepContentElement: '<>'
 				StepContentVariable: '""'
-				StepContentText: value
+				StepContentText: value.trim
 			}
 		].join(' ')
 		return normalizedTemplate == normalizedStepContent
