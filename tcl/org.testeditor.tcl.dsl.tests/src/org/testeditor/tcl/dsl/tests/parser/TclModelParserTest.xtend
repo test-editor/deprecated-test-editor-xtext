@@ -15,10 +15,10 @@ package org.testeditor.tcl.dsl.tests.parser
 import org.junit.Test
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclPackage
+import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tsl.StepContentVariable
 
 import static extension org.eclipse.xtext.nodemodel.util.NodeModelUtils.*
-import org.testeditor.tcl.StepContentVariableAssignment
 
 class TclModelParserTest extends AbstractParserTest {
 	
@@ -144,9 +144,8 @@ class TclModelParserTest extends AbstractParserTest {
 			package com.example
 			
 			# Test
-			* Start the famous greetings application
-				Mask: GreetingsApplication
-				- starte Anwendung "org.testeditor.swing.exammple.Greetings"
+			* Start
+				Mask: Demo
 				- hello = Lese den Text von <Input>
 		'''
 		
@@ -156,16 +155,10 @@ class TclModelParserTest extends AbstractParserTest {
 		// then
 		test.steps.assertSingleElement => [
 			contexts.assertSingleElement => [
-				val componentNode = findNodesForFeature(TclPackage.Literals.TEST_STEP_CONTEXT__COMPONENT).assertSingleElement
-				componentNode.text.assertEquals('GreetingsApplication')
-				steps.assertSize(2)
-				steps.get(0) => [
-					contents.restoreString.assertEquals('starte Anwendung "org.testeditor.swing.exammple.Greetings"')	
+				steps.assertSingleElement.assertInstanceOf(TestStepWithAssignment) => [
+					variableName.assertEquals('hello')
+					contents.restoreString.assertEquals('Lese den Text von <Input>')
 				]
-				steps.get(1).contents.forEach[println(it)]
-				val variableAssignments = steps.get(1).contents.filter[it instanceof StepContentVariableAssignment].toList
-				variableAssignments.assertNotEmpty
-				variableAssignments.head.value.assertEquals('hello')
 			]
 		]
 	}

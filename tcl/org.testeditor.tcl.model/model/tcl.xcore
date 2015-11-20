@@ -52,6 +52,8 @@ class TestStep {
 	contains StepContent[0..*] contents
 }
 
-class StepContentElement extends StepContent {}
+class TestStepWithAssignment extends TestStep {
+	String variableName
+}
 
-class StepContentVariableAssignment extends StepContent {}
+class StepContentElement extends StepContent {}

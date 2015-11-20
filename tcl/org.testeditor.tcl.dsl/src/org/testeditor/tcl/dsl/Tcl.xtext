@@ -37,7 +37,7 @@ SpecificationStepImplementation:
 
 TestStepContext:
 	('Mask' | 'Component') ':' component=[aml::Component]
-	steps+=TestStep*
+	steps+=(TestStep | TestStepWithAssignment)*
 ;
 
 TestStep:
@@ -45,12 +45,12 @@ TestStep:
 	'-' contents+=StepContent* '.'?
 ;
 
-StepContent returns tsl::StepContent: 
-	StepContentText | StepContentElement | StepContentVariable | StepContentVariableAssignment
+TestStepWithAssignment: 
+	'-' variableName=ID '=' contents+=StepContent* '.'?
 ;
 
-StepContentVariableAssignment returns StepContentVariableAssignment:
-	value=ID '='
+StepContent returns tsl::StepContent: 
+	StepContentText | StepContentElement | StepContentVariable
 ;
 
 StepContentText returns tsl::StepContentText: 
