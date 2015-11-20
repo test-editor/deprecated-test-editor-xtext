@@ -33,6 +33,11 @@ import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.dsl.validation.TclValidator
 import org.testeditor.aml.model.AmlModel
 import org.eclipse.xtext.nodemodel.ICompositeNode
+import org.testeditor.tcl.TestCase
+import org.testeditor.tsl.SpecificationStep
+import java.util.List
+import org.testeditor.tcl.util.TclModelUtil
+import javax.inject.Inject
 
 /**
  * Custom quickfixes.
@@ -40,6 +45,44 @@ import org.eclipse.xtext.nodemodel.ICompositeNode
  * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#quick-fixes
  */
 class TclQuickfixProvider extends XbaseQuickfixProvider {
+
+	@Inject extension TclModelUtil
+
+	@Fix(TclValidator.NO_VALID_IMPLEMENTATION)
+	def addMissingTestSpecificationSteps(Issue issue, IssueResolutionAcceptor acceptor) {
+		acceptor.accept(issue, "Create missing test steps", "Creates missing test steps from the specification.",
+			'upcase.png') [ element, context |
+			if (element instanceof TestCase) {
+				val steps = getMissingTestSteps(element)
+				var ICompositeNode lastNode = null
+				if(element.steps.empty) {
+					lastNode = NodeModelUtils.findActualNodeFor(element)
+				}else{
+					lastNode = NodeModelUtils.findActualNodeFor(element.steps.last)
+				}
+				val doc = context.xtextDocument
+				val updateNode = lastNode
+				steps.forEach[
+					doc.replace(updateNode.offset + updateNode.length, 0, getStepDSLFragment(it))
+				]
+			}
+		]
+	}
+	
+	def String getStepDSLFragment(SpecificationStep step) {'''
+	
+	
+	
+	* «step.contents.restoreString»
+	
+	'''
+	}
+
+	def List<SpecificationStep> getMissingTestSteps(TestCase testCase) {
+		val specSteps = testCase.specification.steps
+		val steps = testCase.steps
+		return specSteps.filter[!steps.map[it.contents.restoreString].contains(it.contents.restoreString)].toList
+	}
 
 	@Fix(TclValidator.UNKNOWN_NAME)
 	def createAMLMask(Issue issue, IssueResolutionAcceptor acceptor) {
