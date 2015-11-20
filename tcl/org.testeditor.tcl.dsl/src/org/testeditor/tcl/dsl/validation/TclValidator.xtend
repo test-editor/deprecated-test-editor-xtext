@@ -60,7 +60,7 @@ class TclValidator extends AbstractTclValidator {
 	}
 
 	def boolean matches(List<SpecificationStep> specSteps, List<SpecificationStepImplementation> specImplSteps) {
-		if (specSteps.size != specImplSteps.size) {
+		if (specSteps.size > specImplSteps.size) {
 			return false
 		}
 		return specImplSteps.map[contents.restoreString].containsAll(specSteps.map[contents.restoreString])
