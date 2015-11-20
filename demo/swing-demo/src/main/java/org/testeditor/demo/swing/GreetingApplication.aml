@@ -23,7 +23,7 @@ component GreetingApplication is Application {
 
 interaction type serviceMethod {
 	label = "Service methode rufen"
-	template = "Rufe Service " ${name}
+	template = "Rufe Service" ${name}
 	method = ServiceFixture.callService(name)
 }
 
