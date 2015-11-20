@@ -53,30 +53,28 @@ class TclQuickfixProvider extends XbaseQuickfixProvider {
 		acceptor.accept(issue, "Create missing test steps", "Creates missing test steps from the specification.",
 			'upcase.png') [ element, context |
 			if (element instanceof TestCase) {
-				val steps = getMissingTestSteps(element)
 				var ICompositeNode lastNode = null
-				if(element.steps.empty) {
+				if (element.steps.empty) {
 					lastNode = NodeModelUtils.findActualNodeFor(element)
-				}else{
+				} else {
 					lastNode = NodeModelUtils.findActualNodeFor(element.steps.last)
 				}
 				val doc = context.xtextDocument
 				val updateNode = lastNode
-				steps.forEach[
-					doc.replace(updateNode.offset + updateNode.length, 0, getStepDSLFragment(it))
-				]
+				val steps = getMissingTestSteps(element)
+				doc.replace(updateNode.offset + updateNode.length, 0, getStepsDSLFragment(steps))
 			}
 		]
 	}
-	
-	def String getStepDSLFragment(SpecificationStep step) {'''
-	
-	
-	
-	* «step.contents.restoreString»
-	
+
+	def String getStepsDSLFragment(List<SpecificationStep> steps) '''
+		«FOR step : steps»
+		
+		
+		* «step.contents.restoreString»
+		
+		«ENDFOR»
 	'''
-	}
 
 	def List<SpecificationStep> getMissingTestSteps(TestCase testCase) {
 		val specSteps = testCase.specification.steps
