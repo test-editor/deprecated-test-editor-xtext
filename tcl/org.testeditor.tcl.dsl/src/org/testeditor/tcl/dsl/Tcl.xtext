@@ -46,7 +46,11 @@ TestStep:
 ;
 
 StepContent returns tsl::StepContent: 
-	StepContentText | StepContentElement | StepContentVariable
+	StepContentText | StepContentElement | StepContentVariable | StepContentVariableAssignment
+;
+
+StepContentVariableAssignment returns StepContentVariableAssignment:
+	value=ID '='
 ;
 
 StepContentText returns tsl::StepContentText: 

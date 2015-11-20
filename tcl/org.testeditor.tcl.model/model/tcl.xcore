@@ -53,3 +53,5 @@ class TestStep {
 }
 
 class StepContentElement extends StepContent {}
+
+class StepContentVariableAssignment extends StepContent {}
