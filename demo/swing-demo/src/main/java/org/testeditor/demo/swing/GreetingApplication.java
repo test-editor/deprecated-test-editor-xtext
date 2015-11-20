@@ -64,5 +64,9 @@ public class GreetingApplication extends JFrame {
     public static void main(String[] args) {
         new GreetingApplication();
     }
+    
+    public String sayHello() {
+    	return "Hello Service";
+    }
 
 }
