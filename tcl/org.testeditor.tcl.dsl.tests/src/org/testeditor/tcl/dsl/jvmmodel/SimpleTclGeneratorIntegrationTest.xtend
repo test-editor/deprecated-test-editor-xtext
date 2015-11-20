@@ -1,9 +1,11 @@
 package org.testeditor.tcl.dsl.jvmmodel
 
+import org.junit.Ignore
 import org.junit.Test
 
 import static extension org.eclipse.emf.common.util.URI.createFileURI
 
+@Ignore
 class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 
 	@Test
