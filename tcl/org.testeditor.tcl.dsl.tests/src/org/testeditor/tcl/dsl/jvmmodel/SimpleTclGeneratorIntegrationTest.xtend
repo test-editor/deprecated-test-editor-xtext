@@ -37,7 +37,22 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 				template = "Setze Wert von" ${element} "auf" ${value} "."
 				method = «DummyFixture.simpleName».setValue(element, value)
 			}
-			component GreetingApplication is Application
+
+			interaction type getList {
+				template = "Lese Liste von" ${element}
+				method = «DummyFixture.simpleName».getList(element)
+			}
+			
+			element type Label{
+				interactions = getList
+			}
+						
+			component GreetingApplication is Application {
+				element bar is Label {
+					label = "Label"
+					locator = "label.greet"
+				}
+			}
 		'''
 		val tcl = '''
 			package com.example
@@ -46,6 +61,7 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			* Start the famous greetings application
 				Mask: GreetingApplication
 				- Starte Anwendung "org.testeditor.swing.exammple.Greetings"
+				- foo = Lese Liste von <bar>
 				- Stoppe Anwendung
 			
 			* Do something different

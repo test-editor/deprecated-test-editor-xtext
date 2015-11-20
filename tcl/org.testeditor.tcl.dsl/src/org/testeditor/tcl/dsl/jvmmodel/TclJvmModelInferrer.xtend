@@ -29,6 +29,8 @@ import org.testeditor.tcl.util.TclModelUtil
 
 import static java.lang.System.lineSeparator
 import org.eclipse.xtext.naming.IQualifiedNameProvider
+import org.testeditor.tcl.TestStepWithAssignment
+import org.eclipse.xtext.common.types.JvmOperation
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -97,12 +99,18 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			val fixtureField = interaction.defaultMethod?.typeReference?.type?.fixtureFieldName
 			val operation = interaction.defaultMethod?.operation
 			if (fixtureField !== null && operation !== null) {
-				return '''«fixtureField».«operation.simpleName»(«getParameterList(step, interaction)»);'''
+				return '''«step.maybeCreateAssignment(operation)»«fixtureField».«operation.simpleName»(«getParameterList(step, interaction)»);'''
 			} else {
 				return '''// TODO interaction type '«interaction.name»' does not have a proper method reference'''
 			}
 		} else {
 			return '''// TODO could not resolve '«context.component.name»' - «step.contents.restoreString»'''
+		}
+	}
+	
+	def maybeCreateAssignment(TestStep step, JvmOperation operation) {
+		if (step instanceof TestStepWithAssignment) {
+			return '''«operation.returnType.identifier» «step.variableName» = '''
 		}
 	}
 
