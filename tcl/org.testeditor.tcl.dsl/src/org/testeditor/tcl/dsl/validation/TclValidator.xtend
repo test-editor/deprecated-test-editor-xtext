@@ -52,10 +52,12 @@ class TclValidator extends AbstractTclValidator {
 
 	@Check
 	def checkSpec(TestCase testCase) {
-		if (testCase.specification != null) {
-			if (!testCase.specification.steps.matches(testCase.steps))
-				error("Testcase doesn't implent the Specification", TclPackage.Literals.TEST_CASE__SPECIFICATION,
-					NO_VALID_IMPLEMENTATION)
+		val specification = testCase.specification
+		if (specification != null) {
+			if (!specification.steps.matches(testCase.steps)) {
+				val message = '''Test case does not implement its specification '«specification.name»'.'''
+				error(message, TclPackage.Literals.TEST_CASE__SPECIFICATION, NO_VALID_IMPLEMENTATION)
+			}
 		}
 	}
 

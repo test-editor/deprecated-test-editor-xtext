@@ -54,7 +54,6 @@ class ReferenceTslModelIntegrationTest extends AbstractParserTest {
 		val tclModel = parser.parse(tcl, resourceSet)
 
 		// then
-		tclModel.assertNoErrors
 		tclModel.test.specification.assertSame(tslModel.specification)
 	}
 
@@ -75,7 +74,6 @@ class ReferenceTslModelIntegrationTest extends AbstractParserTest {
 		val tclModel = parser.parse(tcl, resourceSet)
 
 		// then
-		tclModel.assertNoErrors
 		tclModel.test.specification.assertSame(tslModel.specification)
 	}
 
