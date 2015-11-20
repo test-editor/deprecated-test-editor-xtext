@@ -12,22 +12,17 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.ui.contentassist
 
-import org.testeditor.tcl.dsl.ui.contentassist.AbstractTclProposalProvider
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.RuleCall
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
 
-/**
- * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#content-assist
- * on how to customize the content assistant.
- */
 class TclProposalProvider extends AbstractTclProposalProvider {
 
 	override complete_TestStepContext(EObject model, RuleCall ruleCall, ContentAssistContext context,
 		ICompletionProposalAcceptor acceptor) {
-		acceptor.accept(createCompletionProposal("Mask".concat(":"), context))
-		acceptor.accept(createCompletionProposal("Component".concat(":"), context))
+		acceptor.accept(createCompletionProposal('Mask: ', context))
+		acceptor.accept(createCompletionProposal('Component: ', context))
 	}
-
+	
 }
