@@ -1,6 +1,6 @@
 package org.testeditor.demo.swing
 
-# GreetingTest implements GreetingSpec
+# GreetingTestSWINGUI implements GreetingSpec
  
 * Start the famous greetings application.
  

@@ -1,6 +1,6 @@
 package org.testeditor.demo.swing
 
-#GreetingTestServiceLayer implements GreetingSpec
+#GreetingTestService implements GreetingSpec
 
 * Start the famous greetings application
 Mask: GreetingApplication
