@@ -13,6 +13,7 @@ package org.testeditor.demo.swing
     - Gebe "Hello World" in das Feld <Input> ein 
     - Klicke auf <GreetButton>
     - Warte "2000" ms   
+    - foo = Lese den Text von <Input>
  
 * Stop the famous greeting application.
 
