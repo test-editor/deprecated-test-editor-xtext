@@ -28,16 +28,21 @@ import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.util.TclModelUtil
 
 import static java.lang.System.lineSeparator
+import org.eclipse.xtext.naming.IQualifiedNameProvider
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	@Inject extension JvmTypesBuilder
 	@Inject extension TclModelUtil
+	@Inject IQualifiedNameProvider nameProvider
 
 	def dispatch void infer(TclModel model, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
-		val test = model.test
-		acceptor.accept(test.toClass('''«model.package».«test.name»''')) [
-			documentation = '''Generated from «model.eResource.URI»'''
+		model.test?.infer(acceptor, isPreIndexingPhase)
+	}
+
+	def dispatch void infer(TestCase test, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
+		acceptor.accept(test.toClass(nameProvider.getFullyQualifiedName(test))) [
+			documentation = '''Generated from «test.eResource.URI»'''
 			// Create variables for used fixture types
 			for (fixtureType : test.fixtureTypes) {
 				members += toField(test, fixtureType.fixtureFieldName, typeRef(fixtureType)) [
@@ -50,6 +55,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				body = '''«test.generateMethodBody»'''
 			]
 		]
+
 	}
 
 	private def generateMethodBody(TestCase test) {
