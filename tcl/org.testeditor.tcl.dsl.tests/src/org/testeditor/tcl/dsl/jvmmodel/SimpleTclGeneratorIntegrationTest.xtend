@@ -1,7 +1,6 @@
 package org.testeditor.tcl.dsl.jvmmodel
 
 import org.junit.Test
-import org.testeditor.fixture.dummy.DummyFixture
 
 import static extension org.eclipse.emf.common.util.URI.createFileURI
 

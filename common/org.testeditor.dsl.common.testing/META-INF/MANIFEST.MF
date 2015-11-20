@@ -19,5 +19,4 @@ Import-Package: org.apache.log4j,
  org.junit.runners.model;version="4.5.0",
  org.hamcrest.core
 Export-Package: org.testeditor.dsl.common.testing,
- org.testeditor.fixture.core.interaction,
- org.testeditor.fixture.dummy
+ org.testeditor.fixture.core.interaction

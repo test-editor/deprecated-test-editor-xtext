@@ -17,7 +17,6 @@ import org.eclipse.xtext.diagnostics.Severity
 import org.junit.Test
 import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
 import org.testeditor.aml.model.ModelUtil
-import org.testeditor.fixture.dummy.DummyFixture
 import org.testeditor.aml.model.TemplateVariable
 
 /**
@@ -90,7 +89,7 @@ class InteractionScopingTest extends AbstractParserTest {
 		val interaction = model.interactionTypes.assertSingleElement
 		interaction.defaultMethod.typeReference.qualifiedName.assertEquals(DummyFixture.name)
 	}
-	
+
 	/**
 	 * Test that a reference to a non-fixture method (not annotated with @FixtureMethod)
 	 * cannot be resolved as it is not in scope. 
@@ -110,27 +109,27 @@ class InteractionScopingTest extends AbstractParserTest {
 			message.assertEquals("Couldn't resolve reference to JvmOperation 'someUnrelatedMethod'.")
 		]
 	}
-	
+
 	@Test
 	def void canParseInteractionMethodReferenceWithParentheses() {
 		// Given
 		val file = resizeInteraction('someFixtureMethod()')
-		
+
 		// When
 		val model = parser.parse(file)
-		
+
 		// Then
 		model.assertNoErrors
 	}
-	
+
 	@Test
 	def void hasErrorWhenReferencedMethodDoesNotHaveParameter() {
 		// Given
 		val file = resizeInteraction('someFixtureMethod(size)')
-		
+
 		// When
 		val model = parser.parse(file)
-		
+
 		// Then
 		val issue = model.validate.assertSingleElement
 		issue => [
@@ -138,7 +137,7 @@ class InteractionScopingTest extends AbstractParserTest {
 			message.assertEquals("Invalid parameter count.")
 		]
 	}
-	
+
 	@Test
 	def void canParseInteractionWithParameterReference() {
 		// Given
@@ -150,10 +149,10 @@ class InteractionScopingTest extends AbstractParserTest {
 				method = DummyFixture.startApplication(path)
 			}
 		'''
-		
+
 		// When
 		val model = parser.parse(file)
-		
+
 		// Then
 		model.assertNoErrors
 		val interaction = model.interactionTypes.assertSingleElement
@@ -162,7 +161,7 @@ class InteractionScopingTest extends AbstractParserTest {
 			parameters.head.assertSame(pathVariable)
 		]
 	}
-	
+
 	@Test
 	def void canParseWithElementParameterReference() {
 		// Given
@@ -174,10 +173,10 @@ class InteractionScopingTest extends AbstractParserTest {
 				method = DummyFixture.setValue(element, value)
 			}
 		'''
-		
+
 		// When
 		val model = parser.parse(file)
-		
+
 		// Then
 		model.assertNoErrors
 		val interaction = model.interactionTypes.assertSingleElement
@@ -188,7 +187,7 @@ class InteractionScopingTest extends AbstractParserTest {
 			parameters.last.assertSame(variables.findFirst[name == 'value'])
 		]
 	}
-	
+
 	private def resizeInteraction(String operationRef) '''
 		package «DummyFixture.package.name»
 			
