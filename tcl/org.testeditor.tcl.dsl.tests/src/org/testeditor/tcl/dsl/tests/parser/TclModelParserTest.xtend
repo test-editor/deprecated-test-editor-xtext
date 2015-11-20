@@ -13,6 +13,7 @@
 package org.testeditor.tcl.dsl.tests.parser
 
 import org.junit.Test
+import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclPackage
 import org.testeditor.tsl.StepContentVariable
 
@@ -105,6 +106,32 @@ class TclModelParserTest extends AbstractParserTest {
 				steps.get(1) => [
 					contents.restoreString.assertEquals('gebe in <Eingabefeld> den Wert "Hello World" ein')
 				]
+			]
+		]
+	}
+	
+	@Test
+	def void parseEmptyComponentElementReference() {
+		// given
+		val input = '''
+			package com.example
+			
+			# Test
+			* Dummy step
+				Mask: Demo
+				- <> < 	> <
+				>
+		'''
+		
+		// when
+		val test = parse(input)
+		
+		// then
+		test.steps.assertSingleElement.contexts.assertSingleElement => [
+			val emptyReferences = steps.assertSingleElement.contents.assertSize(3)
+			emptyReferences.forEach[
+				assertInstanceOf(StepContentElement)
+				value.assertNull
 			]
 		]
 	}

@@ -57,6 +57,7 @@ StepContentVariable returns tsl::StepContentVariable:
 	value=STRING 
 ;
 
-StepContentElement: 
-	'<' value=ID '>'
+StepContentElement hidden():
+	('<' value=ID '>') |
+	{StepContentElement} ('<>' | '<' WS+ '>')
 ;
