@@ -62,7 +62,7 @@ class TclTemplateProposalProvider extends DefaultTemplateProposalProvider {
 		val proposalDescription = interactionType.template.restoreString(false)
 		val proposalTemplate = '- ' + interactionType.template.restoreString(true)
 		val templateId = nameProvider.getFullyQualifiedName(interactionType).toString
-		return new Template('Testschritt', proposalDescription, templateId, proposalTemplate, false)
+		return new Template(proposalDescription, 'test step', templateId, proposalTemplate, false)
 	}
 
 	private def String restoreString(org.testeditor.aml.model.Template template, boolean asTemplate) {
