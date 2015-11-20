@@ -28,6 +28,7 @@ class TclValidator extends AbstractTclValidator {
 
 	public static val UNKNOWN_NAME = 'unknownName'
 	public static val NO_VALID_IMPLEMENTATION = 'noValidImplementation'
+	public static val INVALID_NAME = 'invalidName'
 
 	@Inject extension TclModelUtil
 
@@ -56,7 +57,7 @@ class TclValidator extends AbstractTclValidator {
 		if (specification != null) {
 			if (!specification.steps.matches(testCase.steps)) {
 				val message = '''Test case does not implement its specification '«specification.name»'.'''
-				error(message, TclPackage.Literals.TEST_CASE__SPECIFICATION, NO_VALID_IMPLEMENTATION)
+				warning(message, TclPackage.Literals.TEST_CASE__SPECIFICATION, NO_VALID_IMPLEMENTATION)
 			}
 		}
 	}
@@ -67,4 +68,13 @@ class TclValidator extends AbstractTclValidator {
 		}
 		return specImplSteps.map[contents.restoreString].containsAll(specSteps.map[contents.restoreString])
 	}
+
+	@Check
+	def checkTestName(TestCase testCase) {
+		if (!getExpectedName(testCase).equals(testCase.name)) {
+			val message = '''Test case name does not match '«testCase.eResource.URI.lastSegment»'.'''
+			error(message, TclPackage.Literals.TEST_CASE__NAME, INVALID_NAME);
+		}
+	}
+
 }
