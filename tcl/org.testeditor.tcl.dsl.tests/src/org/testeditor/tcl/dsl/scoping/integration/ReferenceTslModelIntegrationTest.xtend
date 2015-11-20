@@ -90,7 +90,6 @@ class ReferenceTslModelIntegrationTest extends AbstractParserTest {
 			* First step
 		'''
 		val tclModel = parser.parse(tcl, resourceSet)
-		tclModel.assertNoErrors
 		val firstStepImpl = tclModel.test.steps.assertSingleElement
 
 		// when
