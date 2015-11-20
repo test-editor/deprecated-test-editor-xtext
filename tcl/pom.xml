@@ -4,19 +4,16 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.testeditor</groupId>
-	<artifactId>org.testeditor.xtext.build</artifactId>
+	<artifactId>org.testeditor.tcl.build</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>releng/org.testeditor.aml.releng.parent</module>
-		<module>releng/org.testeditor.aml.releng.parent.dsl</module>
-
-		<module>common</module>
-		<module>aml</module>
-		<module>tsl</module>
-		<module>tcl</module>
-		<module>legacy</module>
+		<module>org.testeditor.tcl.model</module>
+		<module>org.testeditor.tcl.dsl</module>
+		<module>org.testeditor.tcl.dsl.tests</module>
+		<module>org.testeditor.tcl.dsl.ui</module>
+		<module>org.testeditor.tcl.sdk</module>
 	</modules>
 
 </project>
