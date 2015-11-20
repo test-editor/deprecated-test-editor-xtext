@@ -5,6 +5,7 @@ Bundle-Vendor: My Company
 Bundle-Version: 1.0.0.qualifier
 Bundle-SymbolicName: org.testeditor.tsl.dsl.ui; singleton:=true
 Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.testeditor.tsl.dsl;visibility:=reexport,
  org.eclipse.xtext.ui,
  org.eclipse.ui.editors;bundle-version="3.5.0",
@@ -21,7 +22,6 @@ Require-Bundle: org.testeditor.tsl.dsl;visibility:=reexport,
  org.eclipse.xtend,
  org.eclipse.xpand
 Import-Package: org.apache.log4j
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.testeditor.tsl.dsl.ui.quickfix,
  org.testeditor.tsl.dsl.ui.contentassist,
  org.testeditor.tsl.dsl.ui.internal,
