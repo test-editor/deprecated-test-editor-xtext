@@ -18,6 +18,7 @@ import org.junit.Test
 import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
 import org.testeditor.aml.model.ModelUtil
 import org.testeditor.aml.model.TemplateVariable
+import org.junit.Ignore
 
 /**
  * Tests scoping for interactions / template variables.
@@ -106,7 +107,7 @@ class InteractionScopingTest extends AbstractParserTest {
 		val issue = model.validate.assertSingleElement
 		issue => [
 			severity.assertEquals(Severity.ERROR)
-			message.assertEquals("Couldn't resolve reference to JvmOperation 'someUnrelatedMethod'.")
+			message.assertEquals("someUnrelatedMethod cannot be resolved to an operation.")
 		]
 	}
 

@@ -10,15 +10,15 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
+@Ecore(nsURI="http://www.testeditor.org/aml")
 @GenModel(
+	
 	modelDirectory="org.testeditor.aml.model/src-gen", 
-	complianceLevel="7.0"
+	complianceLevel="7.0",
+	updateClasspath="true"
+	
 )
 package org.testeditor.aml.model
-
-import org.eclipse.xtext.common.types.JvmParameterizedTypeReference
-import org.eclipse.xtext.xtype.XImportSection
-import org.eclipse.xtext.common.types.JvmOperation
 
 /* <p>
  * AML stands for <pre>Application (Under Test) Mapping Language</pre> and
@@ -29,6 +29,12 @@ import org.eclipse.xtext.common.types.JvmOperation
  * that component.
  * </p> 
  */
+
+
+import org.eclipse.xtext.xtype.XImportSection
+import org.eclipse.xtext.common.types.JvmParameterizedTypeReference
+import org.eclipse.xtext.common.types.JvmOperation
+
 class AmlModel {
 	String[1] ^package
 	String fileNameAllActionGroups

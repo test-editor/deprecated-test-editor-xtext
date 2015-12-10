@@ -24,9 +24,17 @@ var grammarURI = "platform:/resource/${projectName}/src/org/testeditor/aml/dsl/A
 
 Workflow {
 	
+
 	bean = StandaloneSetup {
 		scanClassPath  = true
 		platformUri = "${runtimeProject}/.."
+		
+		// use an XtextResourceset throughout the process, which is able to resolve classpath:/ URIs.
+		resourceSet = org.eclipse.xtext.resource.XtextResourceSet : theResourceSet {}
+
+        registerGenModelFile = "platform:/resource/org.eclipse.xtext.xbase/model/Xbase.genmodel"        
+        registerGenModelFile = "platform:/resource/org.eclipse.xtext.common.types/model/JavaVMTypes.genmodel"
+        registerGeneratedEPackage = "org.eclipse.xtext.xbase.XbasePackage"        
 	}
 	
 	component = DirectoryCleaner {
@@ -40,15 +48,16 @@ Workflow {
 	}
 
 	component = Generator {
+	
 		pathRtProject = runtimeProject
 		pathUiProject = "${runtimeProject}.ui"
 		pathTestProject = "${runtimeProject}.tests"
 		projectNameRt = projectName
 		projectNameUi = "${projectName}.ui"
-		language = auto-inject {
+		language = auto-inject {					
+			forcedResourceSet = theResourceSet
 			loadedResource = "platform:/resource/org.testeditor.aml.model/model/aml.xcore"
-			loadedResource = "platform:/resource/org.eclipse.xtext.xbase/model/Xbase.genmodel"
-			loadedResource = "platform:/resource/org.eclipse.xtext.common.types/model/JavaVMTypes.genmodel"
+			
 			uri = grammarURI
 
 			// Java API to access grammar elements (required by several other fragments)

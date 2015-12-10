@@ -34,39 +34,40 @@ class AmlFormatter extends XbaseFormatter {
 			prepend[setNewLines(2, 2, 3)] // at least one empty line between elements
 			formatBrackets(document)
 			formatKeywords(document)
-			format(document)
+			format
 		]
 	}
 	
 	def dispatch void format(Component component, extension IFormattableDocument document) {
-		component.regionForKeyword("abstract").append[oneSpace]
-		component.regionForKeyword("includes").append[oneSpace].prepend[oneSpace]
+		component.regionFor.keyword("abstract").append[oneSpace]
+		component.regionFor.keyword("includes").append[oneSpace].prepend[oneSpace]
 		component.elements.forEach[
 			formatBrackets(document)
 		]
 	}
 	
 	def dispatch void format(StringLiterals element, extension IFormattableDocument document) {
-		element.regionsForKeywords(",").forEach[prepend[noSpace].append[oneSpace]]
-		element.regionForKeyword("#[").surround[oneSpace]		
-		element.regionForKeyword("]").prepend[oneSpace]
+		element.regionFor.keywords(",").forEach[prepend[noSpace].append[oneSpace]]
+		element.regionFor.keyword("#[").surround[oneSpace]		
+		element.regionFor.keyword("]").prepend[oneSpace]
 	}
 	
 	def dispatch void format(IntegerRange element, extension IFormattableDocument document) {
-		element.regionForKeyword("..").surround[oneSpace]
+		element.regionFor.keyword("..").surround[oneSpace]
 	}
 	
 	private def void formatBrackets(EObject element, extension IFormattableDocument document) {
-		element.regionForKeyword("{").prepend[oneSpace].append[newLine; increaseIndentation]
-		element.regionForKeyword("}").prepend[newLine; decreaseIndentation]
+		element.regionFor.keyword("{").prepend[oneSpace].append[newLine]
+		element.interior[indent] 
+		element.regionFor.keyword("}").prepend[newLine]
 	}
 	
 	private def void formatKeywords(EObject element, extension IFormattableDocument document) {
-		element.regionsForKeywords("component", "interaction", "element", "value-space").forEach[append[oneSpace]]
-		element.regionForKeyword("type").surround[oneSpace]
-		element.regionForKeyword("is").surround[oneSpace]
-		element.regionForKeyword("=").surround[oneSpace]
-		element.regionsForKeywords("label", "template").forEach[prepend[newLine]]
+		element.regionFor.keywords("component", "interaction", "element", "value-space").forEach[append[oneSpace]]
+		element.regionFor.keyword("type").surround[oneSpace]
+		element.regionFor.keyword("is").surround[oneSpace]
+		element.regionFor.keyword("=").surround[oneSpace]
+		element.regionFor.keywords("label", "template").forEach[prepend[newLine]]
 	}
 	
 }

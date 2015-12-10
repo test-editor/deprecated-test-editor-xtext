@@ -13,6 +13,7 @@
 package org.testeditor.aml.dsl.tests.formatter
 
 import org.junit.Test
+import org.junit.Ignore
 
 class InteractionTypeFormatterTest extends AbstractFormatterTest {
 
