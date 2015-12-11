@@ -65,7 +65,7 @@
 					<artifactId>maven-resources-plugin</artifactId>
 					<version>${maven-resources-plugin.version}</version>
 					<configuration>
-						<encoding>${project-build-sourceEncoding}</encoding>
+						<encoding>${project.build.sourceEncoding}</encoding>
 					</configuration>
 				</plugin>
 				<plugin>
