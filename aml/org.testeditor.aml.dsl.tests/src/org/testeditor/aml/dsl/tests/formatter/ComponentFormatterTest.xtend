@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.tests.formatter
 
-import org.junit.Ignore
 import org.junit.Test
 import org.testeditor.aml.model.Component
 
@@ -21,7 +20,7 @@ import org.testeditor.aml.model.Component
  */
 class ComponentFormatterTest extends AbstractFormatterTest {
 	
-	@Test @Ignore
+	@Test
 	def void formatInheritance() {
 		assertFormatted[
 			expectation = '''
@@ -29,13 +28,14 @@ class ComponentFormatterTest extends AbstractFormatterTest {
 				
 				abstract component DefaultDialog is Dialog
 				
-				component type Tree
+				component type Dialog
+				
 				component type Composite
 			'''
 			toBeFormatted = '''
 				component MyWizard   is Dialog	includes 	DefaultDialog
 				  abstract	component  DefaultDialog is Dialog
-				component type Dialog
+				component type Dialog component type Composite
 			'''
 		]
 	}

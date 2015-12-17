@@ -50,8 +50,8 @@ class SimpleImportScopingTest extends AbstractParserTest {
 		model1.assertNoErrors
 		val issue = model2.eResource.validate.assertSingleElement
 		issue.message => [
-			contains("Couldn't resolve").assertTrue
-			contains("'Dialog'").assertTrue
+			contains("cannot be resolved").assertTrue
+			contains("Dialog").assertTrue
 		]
 	}
 

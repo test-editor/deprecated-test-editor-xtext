@@ -106,7 +106,7 @@ class InteractionScopingTest extends AbstractParserTest {
 		val issue = model.validate.assertSingleElement
 		issue => [
 			severity.assertEquals(Severity.ERROR)
-			message.assertEquals("Couldn't resolve reference to JvmOperation 'someUnrelatedMethod'.")
+			message.assertEquals("someUnrelatedMethod cannot be resolved to an operation.")
 		]
 	}
 

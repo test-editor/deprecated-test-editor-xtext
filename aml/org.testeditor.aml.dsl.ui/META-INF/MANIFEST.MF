@@ -25,7 +25,7 @@ Require-Bundle: org.testeditor.aml.dsl;visibility:=reexport,
  org.eclipse.jdt.core,
  org.eclipse.jdt.ui
 Import-Package: org.apache.log4j
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.testeditor.aml.dsl.ui,
  org.testeditor.aml.dsl.ui.contentassist,
  org.testeditor.aml.dsl.ui.contentassist.antlr,
@@ -34,5 +34,6 @@ Export-Package: org.testeditor.aml.dsl.ui,
  org.testeditor.aml.dsl.ui.labeling,
  org.testeditor.aml.dsl.ui.outline,
  org.testeditor.aml.dsl.ui.quickfix,
- org.testeditor.aml.dsl.ui.wizard
+ org.testeditor.aml.dsl.ui.wizard,
+ org.testeditor.aml.dsl.ui.contentassist.antlr.internal
 Bundle-Activator: org.testeditor.aml.dsl.ui.internal.AmlActivator
