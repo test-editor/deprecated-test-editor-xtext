@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.tests.formatter
 
-import org.junit.Ignore
 import org.junit.Test
 import org.testeditor.aml.model.Component
 

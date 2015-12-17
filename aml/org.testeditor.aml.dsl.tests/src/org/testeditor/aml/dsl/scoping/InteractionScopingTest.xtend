@@ -18,7 +18,6 @@ import org.junit.Test
 import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
 import org.testeditor.aml.model.ModelUtil
 import org.testeditor.aml.model.TemplateVariable
-import org.junit.Ignore
 
 /**
  * Tests scoping for interactions / template variables.

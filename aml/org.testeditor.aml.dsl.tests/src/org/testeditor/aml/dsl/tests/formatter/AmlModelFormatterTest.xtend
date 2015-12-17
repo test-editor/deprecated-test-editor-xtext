@@ -15,7 +15,6 @@ package org.testeditor.aml.dsl.tests.formatter
 import org.junit.Test
 import org.testeditor.aml.model.AmlModel
 import org.testeditor.aml.model.ModelElement
-import org.junit.Ignore
 
 /**
  * General formatting tests for {@link AmlModel}, not specific
