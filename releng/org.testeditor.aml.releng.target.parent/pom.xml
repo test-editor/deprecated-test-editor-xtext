@@ -9,16 +9,16 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<tycho-version>0.23.1</tycho-version>
+		<tycho-version>0.24.0</tycho-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	
 	<repositories>
 		<!-- Use specific p2-repositories instead of composite ones to speed up the build -->
 		<repository>
-			<id>luna</id>
+			<id>mars</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/releases/luna/201502271000/</url>
+			<url>http://download.eclipse.org/releases/mars/</url>
 		</repository>
 		<repository>
 			<id>orbit</id>
@@ -28,7 +28,7 @@
 		<repository>
 			<id>xtext</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.8.3/</url>
+			<url>http://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.9.0/</url>
 		</repository>
 		<repository>
 			<id>emf</id>
@@ -36,15 +36,15 @@
 			<url>http://download.eclipse.org/modeling/emf/emf/updates/2.11/</url>
 		</repository>
 		<repository>
-			<id>mwe2-2.8</id>
-			<layout>p2</layout>
-			<url>http://download.eclipse.org/modeling/emft/mwe/updates/releases/2.8.0/</url>
+		   <id>xpand</id>
+		   <layout>p2</layout>
+		   <url>http://download.eclipse.org/modeling/m2t/xpand/updates/releases/R201406030414/</url>
 		</repository>
 		<repository>
-			<!-- Required for org.eclipse.emf.mwe.sdk.feature.group [1.3.5.v201503051048] -->
-			<id>mwe2-2.7</id>
+			<!-- Required for org.eclipse.emf.mwe.sdk.feature.group [org.eclipse.emf.mwe.ui_1.3.11.v201508030321.jar] -->
+			<id>mwe2-2.8.1</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/modeling/emft/mwe/updates/releases/2.7.1/</url>
+			<url>http://download.eclipse.org/modeling/emft/mwe/updates/releases/2.8.1/</url>
 		</repository>
 	</repositories>
 

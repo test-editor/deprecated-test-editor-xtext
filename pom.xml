@@ -4,26 +4,24 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.testeditor</groupId>
-	<artifactId>org.testeditor.aml</artifactId>
+	<artifactId>org.testeditor.xtext.build</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<modules>
 		<module>releng/org.testeditor.aml.releng.parent</module>
 		<module>releng/org.testeditor.aml.releng.parent.dsl</module>
-		
-		<module>core/org.testeditor.aml.dsl</module>
-		<module>core/org.testeditor.aml.dsl.tests</module>
-		<module>core/org.testeditor.aml.dsl.ui</module>
-		<module>core/org.testeditor.aml.model</module>
-		<module>core/org.testeditor.aml.sdk</module>
 
-		<module>legacy/org.testeditor.aml.legacy.model</module>
-		<module>legacy/org.testeditor.aml.legacy.importer.ui</module>
-		<module>legacy/org.testeditor.aml.legacy.feature</module>
-		
+		<module>common</module>
+		<module>aml</module>
+		<module>tsl</module>
+		<module>tcl</module>
+		<module>legacy</module>
+
+		<!-- TODO should we keep this? we should definitely move it to aml
 		<module>wsdl/org.testeditor.aml.wsdl.importer.ui</module>
 		<module>wsdl/org.testeditor.aml.wsdl.feature</module>
+		-->
 	</modules>
 
 </project>

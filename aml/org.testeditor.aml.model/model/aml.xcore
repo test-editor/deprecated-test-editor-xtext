@@ -1,0 +1,214 @@
+/*******************************************************************************
+ * Copyright (c) 2012 - 2015 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
+@Ecore(nsURI="http://www.testeditor.org/aml")
+@GenModel(
+	
+	modelDirectory="org.testeditor.aml.model/src-gen", 
+	complianceLevel="7.0",
+	updateClasspath="true"
+	
+)
+package org.testeditor.aml.model
+
+/* <p>
+ * AML stands for <pre>Application (Under Test) Mapping Language</pre> and
+ * a set of instances of this class define how the test-editor can interact with
+ * a given application. This information can be split between different models
+ * in order to be reusable and contains information such as which components are
+ * available for interaction and what interactions are possible with elements of
+ * that component.
+ * </p> 
+ */
+
+
+import org.eclipse.xtext.xtype.XImportSection
+import org.eclipse.xtext.common.types.JvmParameterizedTypeReference
+import org.eclipse.xtext.common.types.JvmOperation
+
+class AmlModel {
+	String[1] ^package
+	String fileNameAllActionGroups
+	String fileNameTechnicalBindings
+	contains XImportSection importSection
+	contains Component[0..*] components
+	contains ComponentType[0..*] componentTypes
+	contains ComponentElementType[0..*] componentElementTypes
+	contains InteractionType[0..*] interactionTypes
+	contains ValueSpace[0..*] valueSpaces
+}
+
+/* <p>
+ * Abstract super-class for all elements of this model. 
+ * </p>
+ */
+abstract class ModelElement {
+	/* The identifying name (id) of the element. */
+	String[1] name
+	/* The label of the element. */
+	String label
+}
+
+/* <p>
+ * A component represents an abstract unit in the application
+ * under test. This could be, for example, a web service, a ui dialog 
+ * and so on.<br/><br/>
+ * 
+ * It has a {@link ComponentType type} and groups together various 
+ * {@link ComponentElement elements} that support some kind of interaction.<br/><br/>
+ * 
+ * Components can also have multiple parents from which they inherit. Note that when
+ * inheriting from multiple components they may not include elements that have the
+ * same name.
+ * </p>
+ */
+class Component extends ElementWithInteractions<ComponentType> {
+	boolean ^abstract = "false"
+	refers Component[0..*] parents
+	contains ComponentElement[0..*] elements
+}
+
+/* <p>
+ * A component element is a concrete element within a component 
+ * that supports some kind of interaction. The possible interactions
+ * are defined by its {@link ComponentElementType type}.
+ * <br/>
+ * As an example, the element could be the "OK" button (ComponentElement)
+ * of type "button" (ComponentElementType) within an ui dialog (Component).
+ * </p>
+ */
+class ComponentElement extends ElementWithInteractions<ComponentElementType> {
+	String locator
+	// TODO support overriding of elements
+}
+
+abstract class ElementTypeWithInteractions extends ModelElement {
+	refers InteractionType[0..*] interactionTypes
+}
+
+abstract class ElementWithInteractions<Type extends ElementTypeWithInteractions> extends ModelElement {
+	refers Type ^type
+	contains ValueSpaceAssignment[0..*] valueSpaceAssignments opposite element
+}
+
+/* <p> 
+ * Instances of this class define types of components,
+ * for example "web service", "dialog", "editor".
+ * </p>
+ */
+class ComponentType extends ElementTypeWithInteractions {
+}
+
+/* <p>
+ * Instances of this class define types of component elements,
+ * for example "button" or "text-field".
+ * </p>
+ */
+class ComponentElementType extends ElementTypeWithInteractions {
+}
+
+/* <p>
+ * Instances of this class define a type of interaction with a component element,
+ * such as "read value" or "write value" (e.g. on a text field).<br/><br/>
+ * 
+ * They are independent of the concrete type of the component element since
+ * an interaction like "read value" could be performed on a text field
+ * as well as a label.
+ * </p>
+ */
+class InteractionType extends ModelElement {
+	/* 
+	 * The {@link Template} for the interaction, 
+	 * e.g. <pre>"Pick a value" ${value} "from drop-down" ${element}</pre>
+	 */
+	contains Template template opposite interactionType 
+	contains MethodReference defaultMethod
+}
+
+class MethodReference {
+	contains JvmParameterizedTypeReference typeReference
+	refers JvmOperation operation
+	refers TemplateVariable[0..*] parameters
+}
+
+/* <p>
+ * A template is a combination of fixed Strings and variable declarations.
+ * <br/><br/>
+ * Example:
+ * <pre>"Pick a value" ${value} "from drop-down" ${element}</pre>
+ * Will be represented as the object graph:
+ * <pre>
+ * Template
+ *    TemplateText      value = "Pick a value"
+ *    TemplateVariable  name  = "value"
+ *    TemplateText      value = "from drop-down"
+ *    TemplateVariable  name  = "element"
+ * </pre> 
+ * </p>
+ */
+class Template {
+	container InteractionType interactionType opposite template
+	contains TemplateContent[0..*] contents opposite template
+}
+
+/* <p>
+ * Abstract superclass for contents of a {@link Template}.
+ * </p>
+ */
+abstract class TemplateContent {
+	container Template template opposite contents
+}
+
+/* <p>
+ * Represents a fixed text within a {@link Template}.
+ * </p>
+ */
+class TemplateText extends TemplateContent {
+	String value
+}
+
+/* <p>
+ * Represents a variable within a {@link Template}.
+ * </p>
+ */
+class TemplateVariable extends TemplateContent {
+	String name
+}
+
+class InteractionValueSpace {
+	refers InteractionType interactionType 
+	String templateVariable
+	refers ValueSpace valueSpace
+}
+
+abstract class ValueSpace extends ModelElement {
+}
+
+class StringLiterals extends ValueSpace {
+	String[1..*] values
+}
+
+class IntegerRange extends ValueSpace {
+	int from
+	int to
+}
+
+class ValueSpaceAssignment {
+	container ElementWithInteractions<?> element opposite valueSpaceAssignments
+	refers TemplateVariable variable
+	refers ValueSpace valueSpace
+}
+
+class EmbeddedValueSpaceDefinition {
+	refers TemplateVariable variable
+	contains ValueSpace valueSpace
+}

@@ -1,0 +1,14 @@
+«IMPORT org::testeditor::tsl::dsl::ui::wizard»
+
+«DEFINE main FOR TslProjectInfo»
+«EXPAND model FOR this»
+«ENDDEFINE»
+
+«DEFINE model FOR TslProjectInfo»
+«FILE "src/model/Model.tsl"-»
+/*
+ * This is an example model
+ */
+Hello Xtext!
+«ENDFILE»
+«ENDDEFINE»

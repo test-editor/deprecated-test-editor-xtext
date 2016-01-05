@@ -1,0 +1,156 @@
+/*******************************************************************************
+ * Copyright (c) 2012 - 2015 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
+module org.testeditor.tcl.dsl.GenerateTcl
+
+import org.eclipse.emf.mwe.utils.*
+import org.eclipse.xtext.generator.*
+import org.eclipse.xtext.ui.generator.*
+
+var fileExtensions = "tcl"
+var projectName = "org.testeditor.tcl.dsl"
+var runtimeProject = "../${projectName}"
+var generateXtendStub = true
+var grammarURI = "platform:/resource/${projectName}/src/org/testeditor/tcl/dsl/Tcl.xtext"
+
+Workflow {
+	
+	bean = StandaloneSetup {
+		scanClassPath  = true
+		resourceSet = org.eclipse.xtext.resource.XtextResourceSet : theResourceSet { }
+		
+		platformUri = "${runtimeProject}/.."
+        registerGenModelFile = "platform:/resource/org.eclipse.xtext.common.types/model/JavaVMTypes.genmodel"
+        registerGenModelFile = "platform:/resource/org.eclipse.xtext.xbase/model/Xbase.genmodel" 
+       	registerGeneratedEPackage = "org.eclipse.xtext.xbase.XbasePackage"
+	}
+	
+	component = DirectoryCleaner {
+		directory = "${runtimeProject}/src-gen"
+		exclude = ".gitignore"
+	}
+
+	component = DirectoryCleaner {
+		directory = "${runtimeProject}.ui/src-gen"
+		exclude = ".gitignore"
+	}
+
+	component = Generator {
+		pathRtProject = runtimeProject
+		pathUiProject = "${runtimeProject}.ui"
+		pathTestProject = "${runtimeProject}.tests"
+		projectNameRt = projectName
+		projectNameUi = "${projectName}.ui"
+		language = auto-inject {
+			forcedResourceSet = theResourceSet
+			loadedResource = "platform:/resource/org.testeditor.aml.model/model/aml.xcore"			
+			loadedResource = "platform:/resource/org.testeditor.tsl.model/model/tsl.xcore"
+			loadedResource = "platform:/resource/org.testeditor.tcl.model/model/tcl.xcore"
+
+			uri = grammarURI
+
+			// Java API to access grammar elements (required by several other fragments)
+			fragment = grammarAccess.GrammarAccessFragment auto-inject {}
+
+			// generates Java API for the generated EPackages
+			// fragment = ecore.EMFGeneratorFragment auto-inject {}
+
+			// the Ecore2Xtext specific terminal converter
+			fragment = ecore2xtext.Ecore2XtextValueConverterServiceFragment auto-inject {}
+
+			// serializer 2.0
+			fragment = serializer.SerializerFragment auto-inject {
+				//generateStub = false
+			}
+
+			// the old serialization component
+			// fragment = parseTreeConstructor.ParseTreeConstructorFragment auto-inject {}
+
+			// a custom ResourceFactory for use with EMF 
+			fragment = resourceFactory.ResourceFactoryFragment auto-inject {}
+
+			// the Antlr parser
+			fragment = parser.antlr.XtextAntlrGeneratorFragment auto-inject {
+				options = {
+					classSplitting = true
+				}
+			}
+
+			// Xtend-based API for validation 
+			fragment = validation.ValidatorFragment auto-inject {
+			// composedCheck = "org.eclipse.xtext.validation.ImportUriValidator"
+			}
+
+			// old scoping and exporting API 
+			// fragment = scoping.ImportNamespacesScopingFragment auto-inject {}
+			// fragment = exporting.QualifiedNamesFragment auto-inject {}
+
+			// scoping and exporting API
+//			fragment = scoping.ImportURIScopingFragment auto-inject {}
+//			fragment = exporting.SimpleNamesFragment auto-inject {}
+			fragment = builder.BuilderIntegrationFragment auto-inject {}		
+
+			// generator API
+			fragment = generator.GeneratorFragment auto-inject {}
+
+			// formatter API 
+			fragment = formatting2.Formatter2Fragment auto-inject {}
+
+			// labeling API 
+			fragment = labeling.LabelProviderFragment auto-inject {}
+
+			// outline API 
+            fragment = outline.OutlineTreeProviderFragment auto-inject {}
+            fragment = outline.QuickOutlineFragment auto-inject {}
+
+			// quickfix API
+			fragment = quickfix.QuickfixProviderFragment auto-inject {}
+
+			//content assist API 
+			fragment = contentAssist.ContentAssistFragment auto-inject {}
+
+			// antlr parser generator tailored for content assist 
+			fragment = parser.antlr.XtextAntlrUiGeneratorFragment auto-inject {
+				options = {
+					classSplitting = true
+				}
+			}
+			
+			// generates junit test support classes into Generator#pathTestProject
+			// fragment = junit.Junit4Fragment auto-inject {}
+
+			// project wizard (optional) 
+			fragment = projectWizard.SimpleProjectWizardFragment auto-inject {
+				generatorProjectName = "${projectName}.generator" 
+			}
+
+			// rename refactoring
+			fragment = refactoring.RefactorElementNameFragment auto-inject {}
+
+			// provides the necessary bindings for java types integration
+			fragment = types.TypesGeneratorFragment auto-inject {}
+			
+			// generates the required bindings only if the grammar inherits from Xbase
+			fragment = xbase.XbaseGeneratorFragment auto-inject {}
+			
+			// generates the required bindings only if the grammar inherits from Xtype
+			fragment = xbase.XtypeGeneratorFragment auto-inject {}
+
+			// provides a preference page for template proposals
+			fragment = templates.CodetemplatesGeneratorFragment auto-inject {}
+
+			// provides a compare view
+            fragment = compare.CompareFragment auto-inject {}
+		}
+	}
+	
+}

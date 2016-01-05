@@ -1,0 +1,39 @@
+/*******************************************************************************
+ * Copyright (c) 2012 - 2015 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
+grammar org.testeditor.tsl.dsl.Tsl with org.eclipse.xtext.common.Terminals
+
+import "http://www.testeditor.org/tsl"
+
+TslModel:
+	'package' package=QualifiedName
+	specification=TestSpecification?;
+
+TestSpecification: 
+	'#' name=ID
+	steps+=SpecificationStep*;
+
+SpecificationStep:
+	{SpecificationStep}
+	'*' contents+=StepContent* '.'?;
+
+StepContent:
+	StepContentText | StepContentVariable;
+
+StepContentText:
+	value=ID;
+
+StepContentVariable:
+	value=STRING;
+
+QualifiedName:
+	ID (=> '.' ID)*;

@@ -1,0 +1,58 @@
+/*******************************************************************************
+ * Copyright (c) 2012 - 2015 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
+@Ecore(nsURI="http://www.testeditor.org/tcl")
+@GenModel(
+	modelDirectory="org.testeditor.tcl.model/src-gen", 
+	complianceLevel="7.0"
+)
+package org.testeditor.tcl
+
+import org.eclipse.xtext.xtype.XImportSection
+import org.testeditor.aml.model.Component
+import org.testeditor.tsl.SpecificationStep
+import org.testeditor.tsl.StepContent
+import org.testeditor.tsl.TestSpecification
+
+class TclModel {
+	String ^package
+	contains XImportSection importSection
+	contains TestCase test opposite model
+}
+
+class TestCase {
+	String name
+	container TclModel model opposite test
+	refers TestSpecification specification
+	contains SpecificationStepImplementation[0..*] steps opposite test
+}
+
+class SpecificationStepImplementation extends SpecificationStep {
+	container TestCase test opposite steps
+	contains TestStepContext[0..*] contexts
+}
+
+class TestStepContext {
+	refers Component component
+	contains TestStep[0..*] steps opposite context
+}
+
+class TestStep {
+	container TestStepContext context opposite steps
+	contains StepContent[0..*] contents
+}
+
+class TestStepWithAssignment extends TestStep {
+	String variableName
+}
+
+class StepContentElement extends StepContent {}
