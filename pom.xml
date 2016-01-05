@@ -17,6 +17,11 @@
 		<module>tsl</module>
 		<module>tcl</module>
 		<module>legacy</module>
+
+		<!-- TODO should we keep this? we should definitely move it to aml
+		<module>wsdl/org.testeditor.aml.wsdl.importer.ui</module>
+		<module>wsdl/org.testeditor.aml.wsdl.feature</module>
+		-->
 	</modules>
 
 </project>
