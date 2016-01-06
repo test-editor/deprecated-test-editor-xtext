@@ -1,67 +1,20 @@
 package org.testeditor.tsl.dsl.parser
 
-import org.eclipse.xtext.junit4.XtextRunner
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.testeditor.tsl.util.TslModelUtil
 import com.google.inject.Inject
-import org.testeditor.tsl.TextLine
 import org.testeditor.tsl.BoldText
 import org.testeditor.tsl.BoldCursiveText
 import org.testeditor.tsl.CursiveText
 
-@RunWith(XtextRunner)
 class MarkupParserTest extends AbstractParserTest {
 
 	@Inject extension TslModelUtil
 
 	@Test
-	def void missingPackage(){
+	def void specWithStepsAndHeadlineMarkups() {
 		// given
 		val tsl = '''
-			// package packageA
-		'''
-		
-		// expect nothing parsed
-		tsl.parse[
-			assertNull	
-		]
-	}
-	
-	@Test
-	def void packageAlone(){
-		// given
-		val tsl= '''
-			package packageA
-		'''
-
-		// expect		
-		tsl.parse[
-			package.assertEquals( "packageA" )
-		]
-	}
-
-	@Test
-	def void packageWithComments(){
-		// given
-		val tsl='''
-			// comment
-			/* comment
-			     */package/* ohoh */packageA// tata
-			     /*
-			*/
-		'''
-		
-		// expect
-		tsl.parse[
-			package.assertEquals( "packageA" )
-		]
-	}
-	
-	@Test
-	def void specWithStepsAndHeadlineMarkups(){
-		// given
-		val tsl='''
 			package packageB
 			# TestSpecName
 			
@@ -75,30 +28,30 @@ class MarkupParserTest extends AbstractParserTest {
 			
 			* step1_1 "value"     /*test */ step1_2 step1_3
 				// inter line 
-			  * step2_1.
-			 *    step3_1  step3_2 
+				 * step2_1.
+				*    step3_1  step3_2 
 		'''
-		
+
 		// expect 
-		tsl.parse[
+		tsl.parse [
 			specification.steps.assertSize(3) => [
-					get(0).contents.restoreString.assertEquals('step1_1 "value" step1_2 step1_3')
-					get(1).contents.restoreString.assertEquals('step2_1')
-					get(2).contents.restoreString.assertEquals('step3_1 step3_2')
-				]			
+				get(0).contents.restoreString.assertEquals('step1_1 "value" step1_2 step1_3')
+				get(1).contents.restoreString.assertEquals('step2_1')
+				get(2).contents.restoreString.assertEquals('step3_1 step3_2')
+			]
 			specification.descriptions.assertSize(3) => [
 				get(0) => [
-					textline.elements.map[ text ].join(" ").assertEquals("some markup")
-					doubleUnderlined.assertTrue				
+					textline.elements.map[text].join(" ").assertEquals("some markup")
+					doubleUnderlined.assertTrue
 					underlined.assertFalse
 				]
 				get(1) => [
-					textline.elements.map[ text ].join(" ").assertEquals("single underlined")
+					textline.elements.map[text].join(" ").assertEquals("single underlined")
 					doubleUnderlined.assertFalse
 					underlined.assertTrue
 				]
 				get(2) => [
-					textline.elements.map[ text ].join(" ").assertEquals("other not underlined")
+					textline.elements.map[text].join(" ").assertEquals("other not underlined")
 					doubleUnderlined.assertFalse
 					underlined.assertFalse
 				]
@@ -106,7 +59,7 @@ class MarkupParserTest extends AbstractParserTest {
 		]
 	}
 
-	@Test 
+	@Test
 	def void boldAndCursiveMarkup() {
 		// given
 		val tsl = '''
@@ -124,23 +77,21 @@ class MarkupParserTest extends AbstractParserTest {
 			  */
 			* ok.  
 		'''
-		
+
 		// expect
-		tsl.parse[
+		tsl.parse [
 			specification.steps.assertSize(1)
 			specification.descriptions.assertSize(4) => [ // four markup lines
 				get(0).textline.elements.assertSize(8) => [ // eight elements in first markup line
-					(get(6).me as BoldText).text.head.assertEquals('bold')					
-				]					
-				get(2).textline.elements.assertSize(9) => [
-					(get(2).me as BoldText).text.join(" ").assertEquals('important stuff')
-					(get(3).me as CursiveText).text.head.assertEquals('cursive')
-					(get(4).me as BoldCursiveText).text.head.assertEquals('matter')
+					get(6).me.assertInstanceOf(BoldText).text.head.assertEquals('bold')
+				]
+				get(2).textline.elements.assertSize(9) => [ // nine elements in third markup line
+					get(2).me.assertInstanceOf(BoldText).text.join(" ").assertEquals('important stuff')
+					get(3).me.assertInstanceOf(CursiveText).text.head.assertEquals('cursive')
+					get(4).me.assertInstanceOf(BoldCursiveText).text.head.assertEquals('matter')
 				]
 			]
 		]
 	}
 
-
 }
-

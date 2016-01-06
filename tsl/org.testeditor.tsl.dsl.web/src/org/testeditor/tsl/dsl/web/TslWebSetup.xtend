@@ -11,8 +11,6 @@ import java.util.concurrent.ExecutorService
 import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 import org.testeditor.tsl.dsl.TslRuntimeModule
 import org.testeditor.tsl.dsl.TslStandaloneSetup
-import org.eclipse.emf.ecore.EPackage
-import org.testeditor.tsl.TslPackage
 
 /**
  * Initialization support for running Xtext languages in web applications.
@@ -25,11 +23,6 @@ class TslWebSetup extends TslStandaloneSetup {
 	override Injector createInjector() {
 		val runtimeModule = new TslRuntimeModule()
 		val webModule = new TslWebModule(executorServiceProvider)
-		
-		if( !EPackage.Registry.INSTANCE.containsKey("http://www.testeditor.org/tsl")){
-			EPackage.Registry.INSTANCE.put("http://www.testeditor.org/tsl", TslPackage.eINSTANCE)
-		}
-		
 		return Guice.createInjector(Modules.override(runtimeModule).with(webModule))
 	}
 	

@@ -3,6 +3,8 @@
  */
 package org.testeditor.tsl.dsl
 
+import org.testeditor.tsl.TslPackage
+import org.eclipse.emf.ecore.EPackage
 
 /**
  * Initialization support for running Xtext languages without Equinox extension registry.
@@ -12,4 +14,12 @@ class TslStandaloneSetup extends TslStandaloneSetupGenerated {
 	def static void doSetup() {
 		new TslStandaloneSetup().createInjectorAndDoEMFRegistration()
 	}
+
+	override createInjectorAndDoEMFRegistration() {
+		if (!EPackage.Registry.INSTANCE.containsKey(TslPackage.eNS_URI)) {
+			EPackage.Registry.INSTANCE.put(TslPackage.eNS_URI, TslPackage.eINSTANCE)
+		}
+		super.createInjectorAndDoEMFRegistration()
+	}
+
 }
