@@ -1,18 +1,58 @@
 package org.testeditor.tsl.dsl.parser
 
-import org.junit.Test
-import org.testeditor.tsl.util.TslModelUtil
 import com.google.inject.Inject
-import org.testeditor.tsl.BoldText
+import org.junit.Test
 import org.testeditor.tsl.BoldCursiveText
+import org.testeditor.tsl.BoldText
 import org.testeditor.tsl.CursiveText
+import org.testeditor.tsl.util.TslModelUtil
 
 class MarkupParserTest extends AbstractParserTest {
 
 	@Inject extension TslModelUtil
 
 	@Test
-	def void specWithStepsAndHeadlineMarkups() {
+	def void headlineMarkups() {
+		// given
+		val tsl = '''
+			package packageB
+			# TestSpecName
+			
+			some markup
+			===========
+			
+			single underlined
+			-----------------
+			
+			other not underlined
+			
+			* test step.
+		'''
+
+		// expect 
+		tsl.parse [
+			specification.descriptions.assertSize(3) => [
+				get(0) => [
+					textline.elements.map[text].join(" ").assertEquals("some markup")
+					doubleUnderlined.assertTrue
+					underlined.assertFalse
+				]
+				get(1) => [
+					textline.elements.map[text].join(" ").assertEquals("single underlined")
+					doubleUnderlined.assertFalse
+					underlined.assertTrue
+				]
+				get(2) => [
+					textline.elements.map[text].join(" ").assertEquals("other not underlined")
+					doubleUnderlined.assertFalse
+					underlined.assertFalse
+				]
+			]
+		]
+	}
+
+	@Test
+	def void specWithMultipleCommentedSteps() {
 		// given
 		val tsl = '''
 			package packageB
@@ -39,28 +79,11 @@ class MarkupParserTest extends AbstractParserTest {
 				get(1).contents.restoreString.assertEquals('step2_1')
 				get(2).contents.restoreString.assertEquals('step3_1 step3_2')
 			]
-			specification.descriptions.assertSize(3) => [
-				get(0) => [
-					textline.elements.map[text].join(" ").assertEquals("some markup")
-					doubleUnderlined.assertTrue
-					underlined.assertFalse
-				]
-				get(1) => [
-					textline.elements.map[text].join(" ").assertEquals("single underlined")
-					doubleUnderlined.assertFalse
-					underlined.assertTrue
-				]
-				get(2) => [
-					textline.elements.map[text].join(" ").assertEquals("other not underlined")
-					doubleUnderlined.assertFalse
-					underlined.assertFalse
-				]
-			]
 		]
 	}
 
 	@Test
-	def void boldAndCursiveMarkup() {
+	def void markupWithPlusses() {
 		// given
 		val tsl = '''
 			package test

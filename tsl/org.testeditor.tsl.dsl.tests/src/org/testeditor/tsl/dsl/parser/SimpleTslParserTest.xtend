@@ -81,19 +81,6 @@ class SimpleTslParserTest extends AbstractParserTest {
 	}
 
 	@Test
-	def void packageAlone() {
-		// given
-		val tsl = '''
-			package packageA
-		'''
-
-		// expect		
-		tsl.parse [
-			package.assertEquals("packageA")
-		]
-	}
-
-	@Test
 	def void packageWithComments() {
 		// given
 		val tsl = '''
