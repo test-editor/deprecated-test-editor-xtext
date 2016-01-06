@@ -26,6 +26,8 @@ import org.junit.runner.RunWith
 import org.testeditor.dsl.common.testing.AssertionHelper
 import org.testeditor.tsl.dsl.TslRuntimeModule
 import org.testeditor.tsl.dsl.TslStandaloneSetup
+import org.eclipse.emf.ecore.EPackage
+import org.testeditor.tsl.TslPackage
 
 @RunWith(XtextRunner)
 abstract class AbstractTest extends AbstractXtextTests {
@@ -40,6 +42,12 @@ abstract class AbstractTest extends AbstractXtextTests {
 		val injector = createInjector
 		setInjector(injector)
 		injector.injectMembers(this)
+		
+		if( !EPackage.Registry.INSTANCE.containsKey("http://www.testeditor.org/tsl")){
+			EPackage.Registry.INSTANCE.put("http://www.testeditor.org/tsl", TslPackage.eINSTANCE)
+		}
+		
+		
 	}
 	
 	protected def Injector createInjector() {
