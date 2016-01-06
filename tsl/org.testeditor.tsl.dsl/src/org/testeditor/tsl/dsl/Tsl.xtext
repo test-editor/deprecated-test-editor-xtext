@@ -9,22 +9,25 @@
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
  * itemis AG
- *******************************************************************************/
-grammar org.testeditor.tsl.dsl.Tsl with org.eclipse.xtext.common.Terminals
-
+ *******************************************************************************/ 
+grammar org.testeditor.tsl.dsl.Tsl // with org.eclipse.xtext.common.Terminals
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 import "http://www.testeditor.org/tsl"
 
 TslModel:
-	'package' package=QualifiedName
-	specification=TestSpecification?;
+	WhiteArea*
+	'package' WS* package=QualifiedName  
+	(WhiteArea* specification=TestSpecification)?
+	(WS|NL)*; // trailing whitespaces newlines on root rule allowed
 
 TestSpecification: 
-	'#' name=ID
-	steps+=SpecificationStep*;
-
+	'#' WS+ name=ID
+	(ILWS* NL WhiteArea* descriptions+=MarkupLine (ILWS* NL WhiteArea* descriptions+=MarkupLine)*)?
+	(ILWS* NL WhiteArea* steps+=SpecificationStep)*; 
+	
 SpecificationStep:
 	{SpecificationStep}
-	'*' contents+=StepContent* '.'?;
+	NM_TIMES (ILWS* contents+=StepContent)+ (ILWS* '.')?; 
 
 StepContent:
 	StepContentText | StepContentVariable;
@@ -37,3 +40,127 @@ StepContentVariable:
 
 QualifiedName:
 	ID (=> '.' ID)*;
+	
+MarkupLine:
+        {MarkupLine} textline=TextLine ( ILWS* SL_COMMENT_WOLF )?  ( NL WS* ( underlined?=UNDERLINE_MARKUP |  doubleUnderlined?=DOUBLE_UNDERLINE_MARKUP ) =>NL )?
+  ;
+
+MarkupElement returns MarkupContent:
+	BoldCursiveText | CursiveText | BoldText | Header1 | Header2 | Header3 | Header1_ | Header2_ | Header3_
+;
+
+Header1 returns MarkupContent:
+	{Header1} H1 text+=TextWithoutMarkup (WS* text+=TextWithoutMarkup)* H1
+;
+
+Header2 returns MarkupContent:
+	{Header2} H2 text+=TextWithoutMarkup (WS* text+=TextWithoutMarkup)* H2
+;
+
+Header3 returns MarkupContent:
+	{Header3} H3 text+=TextWithoutMarkup (WS* text+=TextWithoutMarkup)* H3
+;
+
+Header1_ returns MarkupContent:
+	{Header1} H1_ text+=TextWithoutMarkup (WS* text+=TextWithoutMarkup)* H1_
+;
+
+Header2_ returns MarkupContent:
+	{Header2} H2_ text+=TextWithoutMarkup (WS* text+=TextWithoutMarkup)* H2_
+;
+
+Header3_ returns MarkupContent:
+	{Header3} H3_ text+=TextWithoutMarkup (WS* text+=TextWithoutMarkup)* H3_
+;
+
+TextLine:
+	{TextLine} 
+	elements+=TextLineElement ( ILWS* elements+=TextLineElementOrTimesOp )*
+	//(( text+=Text | markup+=MarkupElement ) ( ILWS* ( (text+=Text|NM_TIMES)  | markup+=MarkupElement ) )*)	   
+  ;
+  
+TextLineElement:
+	text=Text | me=MarkupElement	
+;   
+
+TextLineElementOrTimesOp returns TextLineElement:
+	(text=Text|times?=NM_TIMES) | me=MarkupElement
+;
+  
+  
+NM_OPERATOR:  NM_PLUS | NM_EQUALS | NM_MINUS;   
+  
+NM_PLUS: PLUS WS;  // in order to differentiate from + as bold markup, require trailing spaces
+NM_MINUS: MINUS WS;
+NM_EQUALS: EQUALS WS;
+NM_TIMES: TIMES WS;
+
+BoldCursiveText returns MarkupContent:
+      {BoldCursiveText} BOLD_CURSIVE_MARKUP text+=TextWithoutMarkup (WS* text+=TextWithoutMarkup)* BOLD_CURSIVE_MARKUP
+  ;
+
+CursiveText returns MarkupContent:
+      {CursiveText} CURSIVE_MARKUP text+=TextWithoutMarkup (WS* text+=TextWithoutMarkup)* CURSIVE_MARKUP
+  ;
+
+BoldText returns MarkupContent:
+      {BoldText} BOLD_MARKUP text+=TextWithoutMarkup (WS* text+=TextWithoutMarkup)* BOLD_MARKUP
+  ;
+  
+Text returns ecore::EString: 
+	(OTHER_NON_MARKUP_CHAR|ID|INT|STRING|'.'|NM_OPERATOR)
+	
+  ;
+  
+TextWithoutMarkup returns ecore::EString:
+	(OTHER_NON_MARKUP_CHAR|ID|INT|STRING|'.')
+;  
+
+
+H3: '===';
+H2: '==';
+H1: EQUALS;
+H3_: '---';
+H2_: '--';
+H1_: MINUS;
+
+UNDERLINE_MARKUP: (H3_ | H2_ | H1_ )+;
+DOUBLE_UNDERLINE_MARKUP: ( H3 | H2 | H1 )+;
+
+BOLD_CURSIVE_MARKUP: '+++';
+CURSIVE_MARKUP: '++';
+BOLD_MARKUP: PLUS;
+
+PLUS: '+';
+MINUS: '-';
+EQUALS: '=';
+TIMES: '*';
+
+
+// inline whitespace
+ILWS: ML_COMMENT | WS ;
+
+WhiteArea: ( WS | SL_COMMENT_WOLF | ML_COMMENT | NL );
+
+terminal ID:
+    '^'? ('a'..'z' | 'A'..'Z' | '_') ('a'..'z' | 'A'..'Z' | '_' | '0'..'9')*;
+
+terminal INT:
+    ('0'..'9')+;
+
+terminal STRING:
+    '"' ('\\' . /* 'b'|'t'|'n'|'f'|'r'|'u'|'"'|"'"|'\\' */ | !('\\' | '"'))* '"' |
+    "'" ('\\' . /* 'b'|'t'|'n'|'f'|'r'|'u'|'"'|"'"|'\\' */ | !('\\' | "'"))* "'";
+
+terminal ML_COMMENT  : 
+  "/*" -> "*/";
+  
+// single line comment without line feed (wolf)  
+terminal SL_COMMENT_WOLF : 
+  '//' !('\n'|'\r')*;
+  
+terminal WS: (' ' | '\t');
+
+terminal NL: '\r'? '\n';
+
+terminal OTHER_NON_MARKUP_CHAR: !(' '|'\t'|'\r'|'\n');

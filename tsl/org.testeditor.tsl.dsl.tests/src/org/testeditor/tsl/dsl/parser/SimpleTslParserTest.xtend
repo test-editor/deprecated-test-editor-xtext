@@ -26,7 +26,7 @@ class SimpleTslParserTest extends AbstractParserTest {
 		val tsl = '''
 			package com.example
 		'''
-		
+
 		// expect
 		tsl.parse [
 			package.assertEquals('com.example')
@@ -42,7 +42,7 @@ class SimpleTslParserTest extends AbstractParserTest {
 			
 			# Test
 		'''
-		
+
 		// expect
 		tsl.parse [
 			specification.name.assertEquals('Test')
@@ -58,12 +58,42 @@ class SimpleTslParserTest extends AbstractParserTest {
 			# Test
 			* Send greetings "Hello World" to the world.
 		'''
-		
+
 		// expect
 		tsl.parse [
 			specification.steps.assertSingleElement => [
 				contents.restoreString.assertEquals('Send greetings "Hello World" to the world')
 			]
+		]
+	}
+
+	@Test
+	def void missingPackage() {
+		// given
+		val tsl = '''
+			// package packageA
+		'''
+
+		// expect nothing parsed
+		tsl.parse [
+			assertNull
+		]
+	}
+
+	@Test
+	def void packageWithComments() {
+		// given
+		val tsl = '''
+			// comment
+			/* comment
+			     */package/* ohoh */packageA// tata
+			     /*
+			*/
+		'''
+
+		// expect
+		tsl.parse [
+			package.assertEquals("packageA")
 		]
 	}
 

@@ -12,7 +12,9 @@
 		<module>org.testeditor.tsl.model</module>
 		<module>org.testeditor.tsl.dsl</module>
 		<module>org.testeditor.tsl.dsl.tests</module>
+		<module>org.testeditor.tsl.dsl.ide</module>
 		<module>org.testeditor.tsl.dsl.ui</module>
+		<module>org.testeditor.tsl.dsl.web</module>
 		<module>org.testeditor.tsl.sdk</module>
 	</modules>
 
