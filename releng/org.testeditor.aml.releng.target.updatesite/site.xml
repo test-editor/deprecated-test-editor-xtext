@@ -44,8 +44,5 @@
    <feature url="features/org.eclipse.jgit_4.0.3.201509231615-r.jar" id="org.eclipse.jgit" version="4.0.3.201509231615-r"/>
    <feature url="features/org.eclipse.egit_4.0.3.201509231615-r.jar" id="org.eclipse.egit" version="4.0.3.201509231615-r"/>
 
-   <feature url="features/org.testeditor.aml.rcp.platform.feature_1.0.0-SNAPSHOT.jar" id="org.testeditor.aml.rcp.platform.feature" version="1.0.0"/>
-   <feature url="features/org.testeditor.tcl.rcp.platform.feature_1.0.0-SNAPSHOT.jar" id="org.testeditor.tcl.rcp.platform.feature" version="1.0.0"/>
-   
    <category-def name="eclipse-platform" label="eclipse-platform"/>
 </site>
