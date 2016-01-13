@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/org.testeditor.tcl.sdk_1.0.0.qualifier.jar" id="org.testeditor.tcl.sdk" version="1.0.0.qualifier">
+      <category name="tcl"/>
+   </feature>
+   <feature url="features/org.testeditor.tcl.rcp.platform.feature_1.0.0.qualifier.jar" id="org.testeditor.tcl.rcp.platform.feature" version="1.0.0.qualifier">
+      <category name="platform"/>
+   </feature>
+   <category-def name="tcl" label="TCL"/>
+   <category-def name="platform" label="Platform"/>
+</site>
