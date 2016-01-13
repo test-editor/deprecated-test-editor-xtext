@@ -16,7 +16,7 @@ import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.naming.IQualifiedNameConverter
 import org.eclipse.xtext.xbase.scoping.XbaseQualifiedNameProvider
-import org.testeditor.aml.model.AmlModel
+import org.testeditor.aml.AmlModel
 
 class AmlQualifiedNameProvider extends XbaseQualifiedNameProvider {
 

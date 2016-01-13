@@ -13,12 +13,12 @@
 package org.testeditor.aml.dsl.generator
 
 import org.testeditor.aml.dsl.tests.AbstractTest
-import org.testeditor.aml.model.ModelFactory
-import org.testeditor.aml.model.ComponentElementType
+import org.testeditor.aml.AmlFactory
+import org.testeditor.aml.ComponentElementType
 
 abstract class AbstractGeneratorTest extends AbstractTest {
 
-	protected static val factory = ModelFactory.eINSTANCE
+	protected static val factory = AmlFactory.eINSTANCE
 
 	def createAmlModel() {
 		return factory.createAmlModel

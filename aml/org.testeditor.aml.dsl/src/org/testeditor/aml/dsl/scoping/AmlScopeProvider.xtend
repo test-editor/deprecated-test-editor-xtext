@@ -19,15 +19,15 @@ import org.eclipse.xtext.naming.IQualifiedNameConverter
 import org.eclipse.xtext.scoping.IScope
 import org.eclipse.xtext.scoping.Scopes
 import org.eclipse.xtext.xbase.scoping.batch.XbaseBatchScopeProvider
-import org.testeditor.aml.model.ElementTypeWithInteractions
-import org.testeditor.aml.model.ElementWithInteractions
-import org.testeditor.aml.model.InteractionType
-import org.testeditor.aml.model.MethodReference
-import org.testeditor.aml.model.ModelUtil
-import org.testeditor.aml.model.TemplateVariable
-import org.testeditor.aml.model.ValueSpaceAssignment
+import org.testeditor.aml.ElementTypeWithInteractions
+import org.testeditor.aml.ElementWithInteractions
+import org.testeditor.aml.InteractionType
+import org.testeditor.aml.MethodReference
+import org.testeditor.aml.ModelUtil
+import org.testeditor.aml.TemplateVariable
+import org.testeditor.aml.ValueSpaceAssignment
 
-import static org.testeditor.aml.model.ModelPackage.Literals.*
+import static org.testeditor.aml.AmlPackage.Literals.*
 
 class AmlScopeProvider extends XbaseBatchScopeProvider {
 	

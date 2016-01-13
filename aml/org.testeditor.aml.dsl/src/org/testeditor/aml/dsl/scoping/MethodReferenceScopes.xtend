@@ -8,9 +8,9 @@ import org.eclipse.xtext.common.types.JvmVisibility
 import org.eclipse.xtext.naming.IQualifiedNameConverter
 import org.eclipse.xtext.scoping.IScope
 import org.eclipse.xtext.scoping.Scopes
-import org.testeditor.aml.model.MethodReference
+import org.testeditor.aml.MethodReference
 
-import static org.testeditor.aml.model.ModelPackage.Literals.*
+import static org.testeditor.aml.AmlPackage.Literals.*
 
 /**
  * Provides scoping for {@link MethodReference}.

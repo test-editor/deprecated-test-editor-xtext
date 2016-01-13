@@ -12,11 +12,11 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.generator
 
-import org.testeditor.aml.model.AmlModel
-import org.testeditor.aml.model.InteractionType
-import org.testeditor.aml.model.Template
-import org.testeditor.aml.model.TemplateText
-import org.testeditor.aml.model.TemplateVariable
+import org.testeditor.aml.AmlModel
+import org.testeditor.aml.InteractionType
+import org.testeditor.aml.Template
+import org.testeditor.aml.TemplateText
+import org.testeditor.aml.TemplateVariable
 
 /**
  * Generates the legacy XML for TechnicalBindingTypes

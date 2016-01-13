@@ -13,9 +13,9 @@
 package org.testeditor.aml.dsl.tests.parser
 
 import org.junit.Test
-import org.testeditor.aml.model.InteractionType
-import org.testeditor.aml.model.TemplateText
-import org.testeditor.aml.model.TemplateVariable
+import org.testeditor.aml.InteractionType
+import org.testeditor.aml.TemplateText
+import org.testeditor.aml.TemplateVariable
 
 /**
  * Parsing tests for {@link InteractionType}.

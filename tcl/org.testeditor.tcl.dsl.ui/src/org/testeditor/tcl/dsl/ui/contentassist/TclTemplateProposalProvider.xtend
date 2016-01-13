@@ -10,12 +10,12 @@ import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
 import org.eclipse.xtext.ui.editor.contentassist.ITemplateAcceptor
 import org.eclipse.xtext.ui.editor.templates.ContextTypeIdHelper
 import org.eclipse.xtext.ui.editor.templates.DefaultTemplateProposalProvider
-import org.testeditor.aml.model.Component
-import org.testeditor.aml.model.ModelUtil
-import org.testeditor.aml.model.TemplateText
-import org.testeditor.aml.model.TemplateVariable
+import org.testeditor.aml.Component
+import org.testeditor.aml.ModelUtil
+import org.testeditor.aml.TemplateText
+import org.testeditor.aml.TemplateVariable
 import org.testeditor.tcl.TestStep
-import org.testeditor.aml.model.InteractionType
+import org.testeditor.aml.InteractionType
 
 class TclTemplateProposalProvider extends DefaultTemplateProposalProvider {
 
@@ -65,7 +65,7 @@ class TclTemplateProposalProvider extends DefaultTemplateProposalProvider {
 		return new Template(proposalDescription, 'test step', templateId, proposalTemplate, false)
 	}
 
-	private def String restoreString(org.testeditor.aml.model.Template template, boolean asTemplate) {
+	private def String restoreString(org.testeditor.aml.Template template, boolean asTemplate) {
 		return template.contents.map [
 			switch (it) {
 				TemplateVariable case name == ModelUtil.TEMPLATE_VARIABLE_ELEMENT:

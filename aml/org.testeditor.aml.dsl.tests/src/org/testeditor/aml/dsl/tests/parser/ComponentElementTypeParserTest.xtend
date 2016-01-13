@@ -13,7 +13,7 @@
 package org.testeditor.aml.dsl.tests.parser
 
 import org.junit.Test
-import org.testeditor.aml.model.ComponentElementType
+import org.testeditor.aml.ComponentElementType
 
 /**
  * Parsing tests for {@link ComponentElementType}.

@@ -14,15 +14,15 @@ package org.testeditor.aml.dsl.validation
 
 import javax.inject.Inject
 import org.eclipse.xtext.validation.Check
-import org.testeditor.aml.model.Component
-import org.testeditor.aml.model.ModelUtil
-import org.testeditor.aml.model.TemplateVariable
-import org.testeditor.aml.model.ValueSpaceAssignment
+import org.testeditor.aml.Component
+import org.testeditor.aml.ModelUtil
+import org.testeditor.aml.TemplateVariable
+import org.testeditor.aml.ValueSpaceAssignment
 
 import static org.testeditor.aml.dsl.Messages.*
-import static org.testeditor.aml.model.ModelPackage.Literals.*
+import static org.testeditor.aml.AmlPackage.Literals.*
 import org.eclipse.xtext.xtype.XImportSection
-import org.testeditor.aml.model.MethodReference
+import org.testeditor.aml.MethodReference
 
 class AmlValidator extends AbstractAmlValidator {
 

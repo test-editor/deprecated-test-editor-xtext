@@ -13,7 +13,7 @@
 package org.testeditor.aml.dsl.tests.formatter
 
 import org.junit.Test
-import org.testeditor.aml.model.Component
+import org.testeditor.aml.Component
 
 /**
  * Formatting tests specific to {@link Component}.

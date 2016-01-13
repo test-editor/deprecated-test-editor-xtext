@@ -10,10 +10,16 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.aml.model
+package org.testeditor.aml
 
 import java.util.HashSet
 import java.util.Set
+import org.testeditor.aml.Component
+import org.testeditor.aml.ComponentElement
+import org.testeditor.aml.ComponentType
+import org.testeditor.aml.InteractionType
+import org.testeditor.aml.Template
+import org.testeditor.aml.TemplateVariable
 
 class ModelUtil {
 

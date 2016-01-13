@@ -18,7 +18,7 @@
 	updateClasspath="true"
 	
 )
-package org.testeditor.aml.model
+package org.testeditor.aml
 
 /* <p>
  * AML stands for <pre>Application (Under Test) Mapping Language</pre> and

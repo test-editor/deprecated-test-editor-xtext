@@ -6,7 +6,7 @@ import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.xtext.resource.XtextResource
 import org.eclipse.xtext.ui.editor.hyperlinking.IHyperlinkAcceptor
 import org.eclipse.xtext.xbase.ui.navigation.XbaseHyperLinkHelper
-import org.testeditor.aml.model.ComponentElement
+import org.testeditor.aml.ComponentElement
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TestStep

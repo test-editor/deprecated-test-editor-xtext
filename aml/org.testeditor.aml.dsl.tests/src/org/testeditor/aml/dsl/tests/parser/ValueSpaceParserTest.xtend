@@ -13,8 +13,8 @@
 package org.testeditor.aml.dsl.tests.parser
 
 import org.junit.Test
-import org.testeditor.aml.model.IntegerRange
-import org.testeditor.aml.model.StringLiterals
+import org.testeditor.aml.IntegerRange
+import org.testeditor.aml.StringLiterals
 
 class ValueSpaceParserTest extends AbstractParserTest {
 	

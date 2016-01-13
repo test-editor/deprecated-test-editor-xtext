@@ -15,7 +15,7 @@ package org.testeditor.aml.dsl.jvmmodel
 import org.eclipse.xtext.common.types.JvmDeclaredType
 import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
-import org.testeditor.aml.model.AmlModel
+import org.testeditor.aml.AmlModel
 
 // TODO this is not used, yet - instead we generate the old XML files for now
 class AmlJvmModelInferrer extends AbstractModelInferrer {

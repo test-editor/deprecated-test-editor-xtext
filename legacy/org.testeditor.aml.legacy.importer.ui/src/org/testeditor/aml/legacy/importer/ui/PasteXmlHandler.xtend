@@ -23,7 +23,7 @@ import org.eclipse.xtext.ui.editor.model.IXtextDocument
 import org.eclipse.xtext.ui.editor.utils.EditorUtils
 import org.eclipse.xtext.ui.util.ClipboardUtil
 import org.testeditor.aml.legacy.importer.XmlToAmlConverter
-import org.testeditor.aml.model.AmlModel
+import org.testeditor.aml.AmlModel
 
 import static java.lang.System.lineSeparator
 import static org.eclipse.xtext.nodemodel.util.NodeModelUtils.*

@@ -14,7 +14,7 @@ package org.testeditor.aml.legacy.importer
 
 import java.util.List
 import javax.inject.Inject
-import org.testeditor.aml.model.ModelElement
+import org.testeditor.aml.ModelElement
 import org.testeditor.xmllibrary.domain.util.XmlHelper
 
 class XmlToAmlConverter {

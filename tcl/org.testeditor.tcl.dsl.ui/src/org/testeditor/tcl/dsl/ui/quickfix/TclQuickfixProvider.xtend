@@ -31,7 +31,7 @@ import org.eclipse.xtext.validation.Issue
 import org.eclipse.xtext.xbase.ui.quickfix.XbaseQuickfixProvider
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.dsl.validation.TclValidator
-import org.testeditor.aml.model.AmlModel
+import org.testeditor.aml.AmlModel
 import org.eclipse.xtext.nodemodel.ICompositeNode
 import org.testeditor.tcl.TestCase
 import org.testeditor.tsl.SpecificationStep

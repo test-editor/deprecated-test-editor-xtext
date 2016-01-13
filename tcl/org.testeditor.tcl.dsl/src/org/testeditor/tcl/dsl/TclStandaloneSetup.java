@@ -30,8 +30,8 @@ public class TclStandaloneSetup extends TclStandaloneSetupGenerated{
 	
 	@Override
 	public Injector createInjectorAndDoEMFRegistration() {
-	    EPackage.Registry.INSTANCE.put(TslPackage.eINSTANCE.getNsURI(), TslPackage.eINSTANCE);
-	    EPackage.Registry.INSTANCE.put(TclPackage.eINSTANCE.getNsURI(), TclPackage.eINSTANCE);
+	    // EPackage.Registry.INSTANCE.put(TslPackage.eNS_URI, TslPackage.eINSTANCE);
+	    EPackage.Registry.INSTANCE.put(TclPackage.eNS_URI, TclPackage.eINSTANCE);
 	    return super.createInjectorAndDoEMFRegistration();
 	}
 }
