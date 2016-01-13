@@ -30,13 +30,15 @@ public class Application implements IApplication {
 	 * @see IApplication#stop()
 	 */
 	override stop() {
-		if (!PlatformUI.isWorkbenchRunning)
+		if (!PlatformUI.isWorkbenchRunning) {
 			return
+		}
 		val workbench = PlatformUI.workbench
 		val display = workbench.display
-		display.syncExec[
-			if (!display.isDisposed) 
-				workbench.close 
+		display.syncExec [
+			if (!display.isDisposed) {
+				workbench.close
+			}
 		]
 	}
 }

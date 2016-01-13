@@ -67,10 +67,10 @@
          point="org.eclipse.core.runtime.products">
       <product
             application="org.testeditor.tcl.rcp.product"
-            name="TCL Testeditor">
+            name="TestEditor">
          <property
                name="appName"
-               value="TCL Testeditor">
+               value="TestEditor">
          </property>
       </product>
    </extension>

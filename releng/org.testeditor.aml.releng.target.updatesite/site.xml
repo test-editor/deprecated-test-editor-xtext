@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/org.testeditor.aml.releng.target.thirdparty_1.0.0-SNAPSHOT.jar" id="org.testeditor.aml.releng.target.thirdparty" version="1.0.0"/>
+   <feature url="features/org.testeditor.aml.releng.target.thirdparty_1.0.0.qualifier.jar" id="org.testeditor.aml.releng.target.thirdparty" version="1.0.0"/>
    <feature url="features/org.eclipse.emf.sdk_2.11.1.v20150806-0404.jar" id="org.eclipse.emf.sdk" version="2.11.1.v20150806-0404"/>
    <feature url="features/org.eclipse.emf.ecore.xcore.sdk_1.3.1.v20150806-0546.jar" id="org.eclipse.emf.ecore.xcore.sdk" version="1.3.1.v20150806-0546"/>
    <feature url="features/org.eclipse.emf.mwe2.language.sdk_2.8.1.v201508030411.jar" id="org.eclipse.emf.mwe2.language.sdk" version="2.8.1.v201508030411"/>
    <feature url="features/org.eclipse.emf.mwe2.runtime.sdk_2.8.1.v201508030321.jar" id="org.eclipse.emf.mwe2.runtime.sdk" version="2.8.1.v201508030321"/>
    <feature url="features/org.eclipse.xtend.sdk_2.9.0.v201512010527.jar" id="org.eclipse.xtend.sdk" version="2.9.0.v201512010527"/>
    <feature url="features/org.eclipse.xtext.sdk_2.9.0.v201512010527.jar" id="org.eclipse.xtext.sdk" version="2.9.0.v201512010527"/>
-   <feature url="features/org.eclipse.equinox.p2.rcp.feautre_1.2.101.v20150826-1318.jar" id="org.eclipse.equinox.p2.rcp.feature" version="1.2.101.v20150826-1318">
+   <feature url="features/org.eclipse.equinox.p2.rcp.feature_1.2.101.v20150826-1318.jar" id="org.eclipse.equinox.p2.rcp.feature" version="1.2.101.v20150826-1318">
       <category name="eclipse-platform"/>
    </feature>
    <feature url="features/org.eclipse.emf.mwe.sdk_1.3.11.v201508030321.jar" id="org.eclipse.emf.mwe.sdk" version="1.3.11.v201508030321"/>

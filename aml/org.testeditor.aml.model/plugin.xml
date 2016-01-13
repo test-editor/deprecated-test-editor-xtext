@@ -7,14 +7,6 @@
 <plugin>
 
    <extension point="org.eclipse.emf.ecore.generated_package">
-      <!-- @generated model -->
-      <package
-            uri="org.testeditor.aml.model"
-            class="org.testeditor.aml.ModelPackage"
-            genModel="model/aml.xcore"/>
-   </extension>
-
-   <extension point="org.eclipse.emf.ecore.generated_package">
       <!-- @generated aml -->
       <package
             uri="http://www.testeditor.org/aml"

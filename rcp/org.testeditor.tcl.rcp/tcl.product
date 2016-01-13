@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="TCL Testeditor" uid="org.testeditor.tcl.rcp" id="org.testeditor.tcl.rcp.product.tcl" application="org.testeditor.tcl.rcp.product" version="1.0.0" useFeatures="true" includeLaunchers="true">
+<product name="TestEditor" uid="org.testeditor.tcl.rcp" id="org.testeditor.tcl.rcp.product.tcl" application="org.testeditor.tcl.rcp.product" version="1.0.0.qualifier" useFeatures="true" includeLaunchers="true">
+
 
    <configIni use="default">
    </configIni>
@@ -15,12 +16,14 @@
 
    <windowImages/>
 
+
    <launcher>
       <solaris/>
       <win useIco="false">
          <bmp/>
       </win>
    </launcher>
+
 
    <vm>
       <windows include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</windows>
@@ -42,7 +45,11 @@
       <plugin id="org.apache.commons.cli"/>
       <plugin id="org.apache.commons.jxpath"/>
       <plugin id="org.apache.commons.lang"/>
+      <plugin id="org.apache.commons.lang3"/>
       <plugin id="org.apache.commons.logging"/>
+      <plugin id="org.apache.felix.gogo.command"/>
+      <plugin id="org.apache.felix.gogo.runtime"/>
+      <plugin id="org.apache.felix.gogo.shell"/>
       <plugin id="org.apache.log4j"/>
       <plugin id="org.apache.lucene.analysis"/>
       <plugin id="org.apache.lucene.core"/>
@@ -54,6 +61,7 @@
       <plugin id="org.eclipse.core.commands"/>
       <plugin id="org.eclipse.core.contenttype"/>
       <plugin id="org.eclipse.core.databinding"/>
+      <plugin id="org.eclipse.core.databinding.beans"/>
       <plugin id="org.eclipse.core.databinding.observable"/>
       <plugin id="org.eclipse.core.databinding.property"/>
       <plugin id="org.eclipse.core.expressions"/>
@@ -92,6 +100,10 @@
       <plugin id="org.eclipse.e4.ui.workbench.renderers.swt"/>
       <plugin id="org.eclipse.e4.ui.workbench.swt"/>
       <plugin id="org.eclipse.e4.ui.workbench3"/>
+      <plugin id="org.eclipse.ecf"/>
+      <plugin id="org.eclipse.ecf.filetransfer"/>
+      <plugin id="org.eclipse.ecf.identity"/>
+      <plugin id="org.eclipse.emf"/>
       <plugin id="org.eclipse.emf.codegen"/>
       <plugin id="org.eclipse.emf.codegen.ecore"/>
       <plugin id="org.eclipse.emf.codegen.ecore.xtext"/>
@@ -115,17 +127,24 @@
       <plugin id="org.eclipse.equinox.app"/>
       <plugin id="org.eclipse.equinox.bidi"/>
       <plugin id="org.eclipse.equinox.common"/>
+      <plugin id="org.eclipse.equinox.concurrent"/>
+      <plugin id="org.eclipse.equinox.console"/>
       <plugin id="org.eclipse.equinox.ds"/>
       <plugin id="org.eclipse.equinox.event"/>
       <plugin id="org.eclipse.equinox.frameworkadmin"/>
       <plugin id="org.eclipse.equinox.frameworkadmin.equinox"/>
       <plugin id="org.eclipse.equinox.http.jetty"/>
       <plugin id="org.eclipse.equinox.http.servlet"/>
+      <plugin id="org.eclipse.equinox.launcher"/>
+      <plugin id="org.eclipse.equinox.launcher.win32.win32.x86_64" fragment="true"/>
       <plugin id="org.eclipse.equinox.p2.artifact.repository"/>
+      <plugin id="org.eclipse.equinox.p2.console"/>
       <plugin id="org.eclipse.equinox.p2.core"/>
       <plugin id="org.eclipse.equinox.p2.director"/>
       <plugin id="org.eclipse.equinox.p2.director.app"/>
+      <plugin id="org.eclipse.equinox.p2.directorywatcher"/>
       <plugin id="org.eclipse.equinox.p2.engine"/>
+      <plugin id="org.eclipse.equinox.p2.extensionlocation"/>
       <plugin id="org.eclipse.equinox.p2.garbagecollector"/>
       <plugin id="org.eclipse.equinox.p2.jarprocessor"/>
       <plugin id="org.eclipse.equinox.p2.metadata"/>
@@ -133,6 +152,7 @@
       <plugin id="org.eclipse.equinox.p2.operations"/>
       <plugin id="org.eclipse.equinox.p2.publisher"/>
       <plugin id="org.eclipse.equinox.p2.publisher.eclipse"/>
+      <plugin id="org.eclipse.equinox.p2.reconciler.dropins"/>
       <plugin id="org.eclipse.equinox.p2.repository"/>
       <plugin id="org.eclipse.equinox.p2.repository.tools"/>
       <plugin id="org.eclipse.equinox.p2.touchpoint.eclipse"/>
@@ -158,6 +178,7 @@
       <plugin id="org.eclipse.jdt.junit"/>
       <plugin id="org.eclipse.jdt.junit.core"/>
       <plugin id="org.eclipse.jdt.junit.runtime"/>
+      <plugin id="org.eclipse.jdt.junit4.runtime"/>
       <plugin id="org.eclipse.jdt.launching"/>
       <plugin id="org.eclipse.jdt.ui"/>
       <plugin id="org.eclipse.jetty.http"/>
@@ -176,8 +197,10 @@
       <plugin id="org.eclipse.osgi.services"/>
       <plugin id="org.eclipse.pde.build"/>
       <plugin id="org.eclipse.pde.core"/>
+      <plugin id="org.eclipse.pde.junit.runtime"/>
       <plugin id="org.eclipse.pde.launching"/>
       <plugin id="org.eclipse.pde.ui"/>
+      <plugin id="org.eclipse.rcp"/>
       <plugin id="org.eclipse.search"/>
       <plugin id="org.eclipse.swt"/>
       <plugin id="org.eclipse.swt.win32.win32.x86_64" fragment="true"/>
@@ -204,6 +227,7 @@
       <plugin id="org.eclipse.ui.workbench.texteditor"/>
       <plugin id="org.eclipse.update.configurator"/>
       <plugin id="org.eclipse.xpand"/>
+      <plugin id="org.eclipse.xsd"/>
       <plugin id="org.eclipse.xtend"/>
       <plugin id="org.eclipse.xtend.lib"/>
       <plugin id="org.eclipse.xtend.lib.macro"/>
@@ -217,6 +241,7 @@
       <plugin id="org.eclipse.xtext.ecore"/>
       <plugin id="org.eclipse.xtext.generator"/>
       <plugin id="org.eclipse.xtext.ide"/>
+      <plugin id="org.eclipse.xtext.idea.generator"/>
       <plugin id="org.eclipse.xtext.junit4"/>
       <plugin id="org.eclipse.xtext.logging" fragment="true"/>
       <plugin id="org.eclipse.xtext.smap"/>
@@ -236,17 +261,12 @@
       <plugin id="org.objectweb.asm"/>
       <plugin id="org.sat4j.core"/>
       <plugin id="org.sat4j.pb"/>
+      <plugin id="org.slf4j.api"/>
+      <plugin id="org.slf4j.impl.log4j12" fragment="true"/>
       <plugin id="org.testeditor.aml.dsl"/>
-      <plugin id="org.testeditor.aml.dsl.tests" fragment="true"/>
       <plugin id="org.testeditor.aml.dsl.ui"/>
-      <plugin id="org.testeditor.aml.legacy.importer.ui"/>
-      <plugin id="org.testeditor.aml.legacy.model"/>
       <plugin id="org.testeditor.aml.model"/>
-      <plugin id="org.testeditor.aml.rcp.product"/>
-      <plugin id="org.testeditor.aml.wsdl.importer.ui"/>
-      <plugin id="org.testeditor.dsl.common.testing"/>
       <plugin id="org.testeditor.tcl.dsl"/>
-      <plugin id="org.testeditor.tcl.dsl.tests" fragment="true"/>
       <plugin id="org.testeditor.tcl.dsl.ui"/>
       <plugin id="org.testeditor.tcl.model"/>
       <plugin id="org.testeditor.tcl.rcp.product"/>
@@ -262,16 +282,20 @@
    </plugins>
 
    <features>
-      <feature id="org.testeditor.aml.sdk"/>
-      <feature id="org.testeditor.tcl.rcp.platform.feature"/>
-      <feature id="org.testeditor.tcl.sdk"/>
-      <feature id="org.testeditor.tsl.sdk"/>
+      <feature id="org.testeditor.aml.legacy.feature" version="1.0.0.qualifier"/>
+      <feature id="org.testeditor.aml.sdk" version="1.0.0.qualifier"/>
+      <feature id="org.testeditor.tcl.rcp.feature" version="1.0.0.qualifier"/>
+      <feature id="org.testeditor.tcl.rcp.platform.feature" version="1.0.0.qualifier"/>
+      <feature id="org.testeditor.tcl.sdk" version="1.0.0.qualifier"/>
+      <feature id="org.testeditor.tsl.sdk" version="1.0.0.qualifier"/>
    </features>
 
    <configurations>
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="1" />
+      <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
       <plugin id="org.eclipse.osgi" autoStart="true" startLevel="-1" />
       <plugin id="org.eclipse.update.configurator" autoStart="true" startLevel="3" />

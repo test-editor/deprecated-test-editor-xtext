@@ -14,6 +14,8 @@
 		<module>org.testeditor.aml.rcp.updatesite</module>
 		<module>org.testeditor.tcl.rcp.platform.feature</module>
 		<module>org.testeditor.tcl.rcp.product</module>
+		<module>org.testeditor.tcl.rcp.feature</module>
+		<module>org.testeditor.tcl.rcp</module>
 		<module>org.testeditor.tcl.rcp.updatesite</module>
 	</modules>
 

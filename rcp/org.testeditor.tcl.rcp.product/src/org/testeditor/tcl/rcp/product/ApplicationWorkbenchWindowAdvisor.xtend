@@ -22,30 +22,29 @@ class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 
 	override preWindowOpen() {
 		windowConfigurer => [
-			initialSize=new Point(800, 600)
-			showCoolBar=false
-			showStatusLine=false
-			title="TCL" // $NON-NLS-1$
+			initialSize = new Point(800, 600)
+			showCoolBar = false
+			showStatusLine = false
+			title = "TestEditor" // $NON-NLS-1$
 		]
 	}
 
 	override postWindowOpen() {
 		removeUnwantedWizards
 	}
-	
+
 	def removeUnwantedWizards() {
 		val wizardRegistry = PlatformUI.workbench.newWizardRegistry
 		val categories = PlatformUI.workbench.newWizardRegistry.rootCategory.categories
-		categories.allWizards
-			.filter[!(category.id.matches("org.eclipse.ui.Basic") || id.matches("org.testeditor.*"))]
-			.forEach [
-				val wizardElement=Platform.adapterManager.getAdapter(it, WorkbenchWizardElement)
-				(wizardRegistry as IExtensionChangeHandler).removeExtension(wizardElement.configurationElement.declaringExtension,
-					#[wizardElement])
-		]
+		categories.allWizards.filter[!(category.id.matches("org.eclipse.ui.Basic") || id.matches("org.testeditor.*"))].
+			forEach [
+				val wizardElement = Platform.adapterManager.getAdapter(it, WorkbenchWizardElement)
+				(wizardRegistry as IExtensionChangeHandler).removeExtension(
+					wizardElement.configurationElement.declaringExtension, #[wizardElement])
+			]
 	}
 
 	def IWizardDescriptor[] getAllWizards(IWizardCategory[] wizardCategories) {
-		wizardCategories.map[ wizards + categories.allWizards ].flatten
+		wizardCategories.map[wizards + categories.allWizards].flatten
 	}
 }
