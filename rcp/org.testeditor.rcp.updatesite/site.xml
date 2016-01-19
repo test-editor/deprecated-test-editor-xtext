@@ -3,7 +3,7 @@
    <feature url="features/org.testeditor.tcl.sdk_1.0.0.qualifier.jar" id="org.testeditor.tcl.sdk" version="1.0.0.qualifier">
       <category name="Testeditor"/>
    </feature>
-   <feature url="features/org.testeditor.rcp.platform.feature_1.0.0.qualifier.jar" id="org.testeditor.tcl.rcp.platform.feature" version="1.0.0.qualifier">
+   <feature url="features/org.testeditor.rcp.platform.feature_1.0.0.qualifier.jar" id="org.testeditor.rcp.platform.feature" version="1.0.0.qualifier">
       <category name="platform"/>
    </feature>
    <feature url="features/org.testeditor.aml.sdk_1.0.0.qualifier.jar" id="org.testeditor.aml.sdk" version="1.0.0.qualifier">
