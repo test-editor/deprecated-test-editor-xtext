@@ -18,7 +18,8 @@ Require-Bundle: org.eclipse.xtext,
  org.eclipse.osgi
 Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: org.testeditor.aml.dsl.formatting2,
+Export-Package: org.testeditor.aml.dsl,
+ org.testeditor.aml.dsl.formatting2,
  org.testeditor.aml.dsl.generator,
  org.testeditor.aml.dsl.jvmmodel,
  org.testeditor.aml.dsl.parser.antlr,
