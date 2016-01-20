@@ -12,15 +12,15 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.generator
 
-import org.testeditor.aml.model.AmlModel
-import org.testeditor.aml.model.Component
-import org.testeditor.aml.model.ComponentElement
-import org.testeditor.aml.model.ElementWithInteractions
-import org.testeditor.aml.model.IntegerRange
-import org.testeditor.aml.model.InteractionType
-import org.testeditor.aml.model.StringLiterals
-import org.testeditor.aml.model.TemplateVariable
-import org.testeditor.aml.model.ValueSpaceAssignment
+import org.testeditor.aml.AmlModel
+import org.testeditor.aml.Component
+import org.testeditor.aml.ComponentElement
+import org.testeditor.aml.ElementWithInteractions
+import org.testeditor.aml.IntegerRange
+import org.testeditor.aml.InteractionType
+import org.testeditor.aml.StringLiterals
+import org.testeditor.aml.TemplateVariable
+import org.testeditor.aml.ValueSpaceAssignment
 
 class AllActionGroupsGenerator extends AbstractGenerator {
 	

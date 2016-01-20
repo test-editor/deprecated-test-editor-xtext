@@ -17,7 +17,7 @@ import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.scoping.IScope
 import org.eclipse.xtext.scoping.impl.ScopeBasedSelectable
 import org.eclipse.xtext.xbase.scoping.XImportSectionNamespaceScopeProvider
-import org.testeditor.aml.model.AmlModel
+import org.testeditor.aml.AmlModel
 
 /**
  * Since we don't generate JvmTypes yet we need to tweak the scoping a little bit

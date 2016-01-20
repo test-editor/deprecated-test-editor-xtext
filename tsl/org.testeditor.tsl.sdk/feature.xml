@@ -17,4 +17,18 @@
          version="0.0.0"
          unpack="false"/>
 
+   <plugin
+         id="org.testeditor.tsl.dsl.ide"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.testeditor.tsl.model"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>

@@ -15,8 +15,8 @@ package org.testeditor.aml.dsl.tests.parser
 import javax.inject.Inject
 import org.eclipse.xtext.junit4.util.ParseHelper
 import org.testeditor.aml.dsl.tests.AbstractTest
-import org.testeditor.aml.model.AmlModel
-import org.testeditor.aml.model.ModelElement
+import org.testeditor.aml.AmlModel
+import org.testeditor.aml.ModelElement
 
 abstract class AbstractParserTest extends AbstractTest {
 	

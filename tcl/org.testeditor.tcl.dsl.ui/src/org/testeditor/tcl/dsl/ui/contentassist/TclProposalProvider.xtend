@@ -17,7 +17,7 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.RuleCall
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
-import org.testeditor.aml.model.ModelUtil
+import org.testeditor.aml.ModelUtil
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.util.TclModelUtil
 

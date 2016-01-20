@@ -16,7 +16,7 @@ import javax.inject.Inject
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.IFileSystemAccess
 import org.eclipse.xtext.generator.IGenerator
-import org.testeditor.aml.model.AmlModel
+import org.testeditor.aml.AmlModel
 
 /**
  * Generates the XML for the "all action groups" and "technical bindings" depending

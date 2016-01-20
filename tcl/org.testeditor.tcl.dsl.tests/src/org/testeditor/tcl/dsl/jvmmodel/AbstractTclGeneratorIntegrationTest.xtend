@@ -9,7 +9,7 @@ import org.eclipse.xtext.junit4.util.ParseHelper
 import org.eclipse.xtext.resource.XtextResourceSet
 import org.junit.Before
 import org.testeditor.aml.dsl.AmlStandaloneSetup
-import org.testeditor.aml.model.AmlModel
+import org.testeditor.aml.AmlModel
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.dsl.tests.AbstractTest
 

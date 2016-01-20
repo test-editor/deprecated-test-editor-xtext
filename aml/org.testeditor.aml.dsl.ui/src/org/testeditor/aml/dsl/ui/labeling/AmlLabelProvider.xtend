@@ -15,7 +15,7 @@ package org.testeditor.aml.dsl.ui.labeling
 import com.google.inject.Inject
 import org.eclipse.emf.edit.ui.provider.AdapterFactoryLabelProvider
 import org.eclipse.xtext.ui.label.DefaultEObjectLabelProvider
-import org.testeditor.aml.model.Template
+import org.testeditor.aml.Template
 
 /**
  * Provides labels for EObjects.

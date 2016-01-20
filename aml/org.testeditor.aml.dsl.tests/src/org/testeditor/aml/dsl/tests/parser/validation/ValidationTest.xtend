@@ -14,11 +14,11 @@ package org.testeditor.aml.dsl.tests.parser.validation
 
 import org.junit.Test
 import org.testeditor.aml.dsl.validation.AmlValidator
-import org.testeditor.aml.model.Component
+import org.testeditor.aml.Component
 
 import static org.testeditor.aml.dsl.Messages.*
 import static org.testeditor.aml.dsl.validation.AmlValidator.*
-import static org.testeditor.aml.model.ModelPackage.Literals.*
+import static org.testeditor.aml.AmlPackage.Literals.*
 
 /**
  * Tests for {@link AmlValidator}.

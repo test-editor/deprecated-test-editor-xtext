@@ -16,8 +16,8 @@ import javax.inject.Inject
 import org.eclipse.xtext.diagnostics.Severity
 import org.junit.Test
 import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
-import org.testeditor.aml.model.ModelUtil
-import org.testeditor.aml.model.TemplateVariable
+import org.testeditor.aml.ModelUtil
+import org.testeditor.aml.TemplateVariable
 
 /**
  * Tests scoping for interactions / template variables.

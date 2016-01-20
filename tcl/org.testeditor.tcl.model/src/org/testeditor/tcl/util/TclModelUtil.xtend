@@ -15,10 +15,10 @@ package org.testeditor.tcl.util
 import java.util.List
 import java.util.Map
 import javax.inject.Singleton
-import org.testeditor.aml.model.ComponentElement
-import org.testeditor.aml.model.InteractionType
-import org.testeditor.aml.model.TemplateText
-import org.testeditor.aml.model.TemplateVariable
+import org.testeditor.aml.ComponentElement
+import org.testeditor.aml.InteractionType
+import org.testeditor.aml.TemplateText
+import org.testeditor.aml.TemplateVariable
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TestStep

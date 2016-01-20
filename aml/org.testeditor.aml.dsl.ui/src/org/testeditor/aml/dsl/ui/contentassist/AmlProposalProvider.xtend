@@ -24,8 +24,8 @@ import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
 import org.eclipse.xtext.ui.resource.ProjectByResourceProvider
 import org.testeditor.aml.dsl.services.AmlGrammarAccess
-import org.testeditor.aml.model.ElementTypeWithInteractions
-import org.testeditor.aml.model.ElementWithInteractions
+import org.testeditor.aml.ElementTypeWithInteractions
+import org.testeditor.aml.ElementWithInteractions
 
 class AmlProposalProvider extends AbstractAmlProposalProvider {
 

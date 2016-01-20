@@ -18,7 +18,7 @@ import org.eclipse.xtext.common.types.JvmType
 import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
-import org.testeditor.aml.model.InteractionType
+import org.testeditor.aml.InteractionType
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclModel

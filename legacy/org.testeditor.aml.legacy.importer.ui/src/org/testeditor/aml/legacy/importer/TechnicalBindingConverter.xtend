@@ -14,9 +14,9 @@ package org.testeditor.aml.legacy.importer
 
 import java.util.List
 import javax.inject.Singleton
-import org.testeditor.aml.model.InteractionType
-import org.testeditor.aml.model.ModelFactory
-import org.testeditor.aml.model.TemplateContent
+import org.testeditor.aml.InteractionType
+import org.testeditor.aml.AmlFactory
+import org.testeditor.aml.TemplateContent
 import org.testeditor.xmllibrary.domain.binding.ActionPart
 import org.testeditor.xmllibrary.domain.binding.TechnicalBindingType
 import org.testeditor.xmllibrary.domain.binding.TechnicalBindingTypes
@@ -27,7 +27,7 @@ import org.testeditor.xmllibrary.domain.binding.TechnicalBindingTypes
 @Singleton
 class TechnicalBindingConverter {
 	
-	static val factory = ModelFactory.eINSTANCE
+	static val factory = AmlFactory.eINSTANCE
 	static val ACTION_NAME_VARIABLE_NAME = "element" // TODO inject with named annotation
 	
 	def List<InteractionType> convert(TechnicalBindingTypes technicalBindings) {

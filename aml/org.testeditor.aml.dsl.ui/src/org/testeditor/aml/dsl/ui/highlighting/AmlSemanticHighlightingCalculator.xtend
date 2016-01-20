@@ -15,10 +15,10 @@ package org.testeditor.aml.dsl.ui.highlighting
 import org.eclipse.xtext.resource.XtextResource
 import org.eclipse.xtext.ui.editor.syntaxcoloring.DefaultSemanticHighlightingCalculator
 import org.eclipse.xtext.ui.editor.syntaxcoloring.IHighlightedPositionAcceptor
-import org.testeditor.aml.model.AmlModel
-import org.testeditor.aml.model.Template
-import org.testeditor.aml.model.TemplateText
-import org.testeditor.aml.model.TemplateVariable
+import org.testeditor.aml.AmlModel
+import org.testeditor.aml.Template
+import org.testeditor.aml.TemplateText
+import org.testeditor.aml.TemplateVariable
 
 import static org.testeditor.aml.dsl.ui.highlighting.AmlHighlightingConfiguration.*
 

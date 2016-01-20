@@ -15,12 +15,12 @@ package org.testeditor.aml.dsl.formatting2;
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.formatting2.IFormattableDocument
 import org.eclipse.xtext.xbase.formatting2.XbaseFormatter
-import org.testeditor.aml.model.AmlModel
-import org.testeditor.aml.model.Component
-import org.testeditor.aml.model.IntegerRange
-import org.testeditor.aml.model.StringLiterals
+import org.testeditor.aml.AmlModel
+import org.testeditor.aml.Component
+import org.testeditor.aml.IntegerRange
+import org.testeditor.aml.StringLiterals
 
-// import static org.testeditor.aml.model.ModelPackage.Literals.*
+// import static org.testeditor.aml.ModelPackage.Literals.*
 
 /**
  * Defines the formatting (pretty-print) for AML.

@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.generator
 
-import org.testeditor.aml.model.ModelElement
+import org.testeditor.aml.ModelElement
 
 class AbstractGenerator {
 	
