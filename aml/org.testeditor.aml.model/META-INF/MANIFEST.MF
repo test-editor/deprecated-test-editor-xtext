@@ -10,9 +10,9 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.testeditor.aml,
  org.testeditor.aml.impl,
  org.testeditor.aml.util
-Require-Bundle: org.eclipse.core.runtime,
+Require-Bundle: org.eclipse.emf.ecore.xcore,
+ org.eclipse.core.runtime,
  org.eclipse.emf.ecore,
- org.eclipse.emf.ecore.xmi,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.emf.ecore.xcore.lib,
  org.eclipse.xtext.xbase,
