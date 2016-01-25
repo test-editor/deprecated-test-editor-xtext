@@ -25,9 +25,10 @@ class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 			initialSize = new Point(800, 600)
 			showCoolBar = false
 			showStatusLine = false
-			title = "TestEditor" // $NON-NLS-1$
+			title = "Testeditor" // $NON-NLS-1$
 		]
 	}
+
 
 	override postWindowOpen() {
 		removeUnwantedWizards

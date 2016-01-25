@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-
    <extension
-         id="org.testeditor.rcp.product"
+         id="org.testeditor.rcp.application"
          name="Testeditor RCP"
          point="org.eclipse.core.runtime.applications">
       <application>
@@ -11,6 +10,18 @@
                class="org.testeditor.rcp.product.Application">
          </run>
       </application>
+   </extension>
+   <extension
+         id="testeditor_rcp"
+         point="org.eclipse.core.runtime.products">
+      <product
+            name="Testeditor"
+            application="org.testeditor.rcp.application">
+         <property
+               name="appName"
+               value="Testeditor RCP">
+         </property>
+      </product>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">
@@ -61,17 +72,5 @@
    		  <contentExtension pattern="org.testeditor.product.commonFilter"/>
    		</includes>
    	</viewerContentBinding>
-   </extension>
-   <extension
-         id="rcp"
-         point="org.eclipse.core.runtime.products">
-      <product
-            application="org.testeditor.rcp.product"
-            name="TestEditor">
-         <property
-               name="appName"
-               value="TestEditor">
-         </property>
-      </product>
    </extension>
 </plugin>
