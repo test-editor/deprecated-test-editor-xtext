@@ -15,8 +15,8 @@ package org.testeditor.tcl.dsl.ui
 import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 import org.testeditor.tcl.dsl.ui.contentassist.TclTemplateProposalProvider
 import org.testeditor.tcl.dsl.ui.highlighting.TclHighlightingConfiguration
-import org.testeditor.tcl.dsl.ui.highlighting.TclSemanticHighlightingCalculator
 import org.testeditor.tcl.dsl.ui.navigation.TclHyperLinkHelper
+import org.testeditor.tcl.dsl.ide.highlighting.TclSemanticHighlightingCalculator
 
 /**
  * Use this class to register components to be used within the Eclipse IDE.
@@ -28,7 +28,7 @@ class TclUiModule extends AbstractTclUiModule {
 		return TclHighlightingConfiguration
 	}
 
-	override bindISemanticHighlightingCalculator() {
+	override bindIdeSemanticHighlightingCalculator() {
 		return TclSemanticHighlightingCalculator
 	}
 

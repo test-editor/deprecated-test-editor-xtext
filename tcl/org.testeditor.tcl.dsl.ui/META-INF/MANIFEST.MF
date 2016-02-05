@@ -6,7 +6,8 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-SymbolicName: org.testeditor.tcl.dsl.ui; singleton:=true
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: org.testeditor.tcl.dsl;visibility:=reexport,
+Require-Bundle: org.testeditor.dsl.common,
+ org.testeditor.tcl.dsl;visibility:=reexport,
  org.testeditor.tcl.dsl.ide,
  org.eclipse.xtext.ui,
  org.eclipse.ui.editors;bundle-version="3.5.0",
