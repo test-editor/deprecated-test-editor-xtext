@@ -1,7 +1,5 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: org.testeditor.tcl.dsl
-Bundle-Vendor: My Company
 Bundle-Version: 1.0.0.qualifier
 Bundle-SymbolicName: org.testeditor.tcl.dsl; singleton:=true
 Bundle-ActivationPolicy: lazy
@@ -18,14 +16,17 @@ Require-Bundle: org.eclipse.xtext;visibility:=reexport,
  org.eclipse.emf.common,
  org.testeditor.aml.model;visibility:=reexport,
  org.testeditor.tsl.model;visibility:=reexport,
- org.testeditor.tcl.model;visibility:=reexport
+ org.testeditor.tcl.model;visibility:=reexport,
+ org.eclipse.xtend.lib
 Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.testeditor.tcl.dsl,
  org.testeditor.tcl.dsl.formatting2,
  org.testeditor.tcl.dsl.jvmmodel,
+ org.testeditor.tcl.dsl.naming,
  org.testeditor.tcl.dsl.parser.antlr,
  org.testeditor.tcl.dsl.parser.antlr.internal,
+ org.testeditor.tcl.dsl.scoping,
  org.testeditor.tcl.dsl.serializer,
  org.testeditor.tcl.dsl.services,
  org.testeditor.tcl.dsl.validation

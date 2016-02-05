@@ -12,7 +12,9 @@
 		<module>org.testeditor.aml.model</module>
 		<module>org.testeditor.aml.dsl</module>
 		<module>org.testeditor.aml.dsl.tests</module>
+		<module>org.testeditor.aml.dsl.ide</module>
 		<module>org.testeditor.aml.dsl.ui</module>
+		<module>org.testeditor.aml.dsl.ui.tests</module>
 		<module>org.testeditor.aml.sdk</module>
 	</modules>
 

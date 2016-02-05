@@ -21,4 +21,5 @@ Import-Package: org.apache.log4j,
  org.junit.runners;version="4.5.0",
  org.junit.runners.model;version="4.5.0",
  org.hamcrest.core
-Export-Package: org.testeditor.aml.dsl
+Export-Package: org.testeditor.aml.dsl,
+ org.testeditor.aml.dsl.tests
