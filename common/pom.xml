@@ -9,6 +9,7 @@
 	<packaging>pom</packaging>
 
 	<modules>
+		<module>org.testeditor.dsl.common</module>
 		<module>org.testeditor.dsl.common.testing</module>
 	</modules>
 
