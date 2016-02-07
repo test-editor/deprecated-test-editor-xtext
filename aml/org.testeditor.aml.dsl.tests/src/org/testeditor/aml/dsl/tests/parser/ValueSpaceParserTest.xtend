@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -15,16 +15,17 @@ package org.testeditor.aml.dsl.tests.parser
 import org.junit.Test
 import org.testeditor.aml.IntegerRange
 import org.testeditor.aml.StringLiterals
+import org.testeditor.aml.RegExValueSpace
 
 class ValueSpaceParserTest extends AbstractParserTest {
-	
+
 	@Test
 	def void parseStringLiterals() {
 		// Given
 		val stringLiterals = '''
 			value-space Colors = #[ "Red", "Green", "Blue" ]
 		'''
-		
+
 		// When + Then
 		stringLiterals.parse(StringLiterals) => [
 			assertNoErrors
@@ -34,14 +35,14 @@ class ValueSpaceParserTest extends AbstractParserTest {
 			values.get(2).assertEquals("Blue")
 		]
 	}
-	
+
 	@Test
 	def void parseIntegerRange() {
 		// Given
 		val input = '''
 			value-space DayInMonth = 1 .. 31
 		'''
-		
+
 		// When + Then
 		input.parse(IntegerRange) => [
 			assertNoErrors
@@ -49,5 +50,18 @@ class ValueSpaceParserTest extends AbstractParserTest {
 			to.assertEquals(31)
 		]
 	}
-	
+
+	@Test
+	def void parseRegEx() {
+		// Given
+		val input = '''
+			value-space RegEx = ".*"
+		'''
+
+		// When + Then
+		input.parse(RegExValueSpace) => [
+			expression.assertEquals('.*')
+		]
+	}
+
 }

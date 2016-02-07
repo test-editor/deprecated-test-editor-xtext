@@ -12,17 +12,21 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.validation
 
+import java.util.regex.Pattern
 import javax.inject.Inject
 import org.eclipse.xtext.validation.Check
+import org.eclipse.xtext.xtype.XImportSection
 import org.testeditor.aml.Component
+import org.testeditor.aml.MethodReference
 import org.testeditor.aml.ModelUtil
+import org.testeditor.aml.RegExValueSpace
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.ValueSpaceAssignment
 
-import static org.testeditor.aml.dsl.Messages.*
 import static org.testeditor.aml.AmlPackage.Literals.*
-import org.eclipse.xtext.xtype.XImportSection
-import org.testeditor.aml.MethodReference
+import static org.testeditor.aml.dsl.Messages.*
+import java.util.regex.PatternSyntaxException
+import java.text.MessageFormat
 
 class AmlValidator extends AbstractAmlValidator {
 
@@ -30,6 +34,7 @@ class AmlValidator extends AbstractAmlValidator {
 	public static val COMPONENT__TYPE__MISSING = 'component.type.missing'
 	public static val TEMPLATE_VARIABLE__NAME__MISSING = 'templateVariable.name.missing'
 	public static val VALUE_SPACE_ASSIGNMENT__VARIABLE__NON_UNIQUE = 'valueSpaceAssignment.variable.nonUnique'
+	public static val REG_EX_VALUE_SPACE__EXPRESSION__INVALID = "RegExValueSpace.expression.invalid"
 
 	@Inject
 	private extension ModelUtil
@@ -108,6 +113,23 @@ class AmlValidator extends AbstractAmlValidator {
 					METHOD_REFERENCE__OPERATION
 				)
 			}
+		}
+	}
+	
+	/** 
+	 * Checks that the specified expression is a valid regular expression. 
+	 */
+	@Check
+	def void checkRegExValueSpace(RegExValueSpace valueSpace) {
+		try {
+			Pattern.compile(valueSpace.expression)
+		} catch (PatternSyntaxException e) {
+			val message = MessageFormat.format(Validation_RegExValueSpace_InvalidRegEx, e)
+			error(
+				message,
+				REG_EX_VALUE_SPACE__EXPRESSION,
+				REG_EX_VALUE_SPACE__EXPRESSION__INVALID
+			)
 		}
 	}
 	
