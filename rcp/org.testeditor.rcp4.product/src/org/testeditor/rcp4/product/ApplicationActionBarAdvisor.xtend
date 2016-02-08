@@ -5,6 +5,7 @@ import org.eclipse.ui.IWorkbenchWindow
 import org.eclipse.ui.application.ActionBarAdvisor
 import org.eclipse.ui.application.IActionBarConfigurer
 
+/** dummy class */
 class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	new(IActionBarConfigurer configurer) {
 		super(configurer)

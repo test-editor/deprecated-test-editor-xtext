@@ -7,6 +7,11 @@ import org.eclipse.jdt.ui.PreferenceConstants
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard
 import org.eclipse.xtext.ui.XtextProjectHelper
 
+/** wizard to create a new test project 
+ *  - add java nature
+ *  - add xtext nature
+ *  - add junit to the classpath 
+ */
 class NewWizard extends BasicNewProjectResourceWizard {
 
 	def addNature(IProject newProject, String nature) {

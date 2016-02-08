@@ -45,7 +45,7 @@ class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		 * http://help.eclipse.org/ganymede/topic/org.eclipse.platform.doc.isv/guide/cnf_rcp.htm
 		 * 
 		 */
-		IDE.registerAdapters()
+		IDE.registerAdapters
 		val ICONS_PATH = "icons/full/"
 		val ideBundle = Platform.getBundle(IDEWorkbenchPlugin.IDE_WORKBENCH)
 		configurer => [
