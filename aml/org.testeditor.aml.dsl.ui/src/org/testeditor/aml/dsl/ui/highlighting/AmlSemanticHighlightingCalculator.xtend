@@ -12,9 +12,10 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.ui.highlighting
 
+import org.eclipse.xtext.ide.editor.syntaxcoloring.DefaultSemanticHighlightingCalculator
+import org.eclipse.xtext.ide.editor.syntaxcoloring.IHighlightedPositionAcceptor
 import org.eclipse.xtext.resource.XtextResource
-import org.eclipse.xtext.ui.editor.syntaxcoloring.DefaultSemanticHighlightingCalculator
-import org.eclipse.xtext.ui.editor.syntaxcoloring.IHighlightedPositionAcceptor
+import org.eclipse.xtext.util.CancelIndicator
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateText
@@ -29,14 +30,18 @@ import static extension org.eclipse.xtext.nodemodel.util.NodeModelUtils.*
  */
 class AmlSemanticHighlightingCalculator extends DefaultSemanticHighlightingCalculator {
 
-	override protected doProvideHighlightingFor(XtextResource resource, IHighlightedPositionAcceptor acceptor) {
-		super.doProvideHighlightingFor(resource, acceptor)
+	override protected doProvideHighlightingFor(XtextResource resource, IHighlightedPositionAcceptor acceptor, CancelIndicator cancelIndicator) {
+		super.doProvideHighlightingFor(resource, acceptor, cancelIndicator)
+		
 		val root = resource.parseResult?.rootASTElement
 
 		// Use AST for semantic highlighting 
 		if (root instanceof AmlModel) {
 			// Provide highlighting for all available templates.
 			for (interactionType : root.interactionTypes) {
+				if (cancelIndicator.canceled) {
+					return
+				}
 				interactionType.template?.provideHighlightingFor(acceptor)
 			}
 		}

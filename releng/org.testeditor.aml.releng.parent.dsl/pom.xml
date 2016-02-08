@@ -57,6 +57,7 @@
 					<version>1.4.0</version>
 					<executions>
 						<execution>
+							<id>mwe2Launcher</id>
 							<phase>generate-sources</phase>
 							<goals>
 								<goal>java</goal>
@@ -64,18 +65,14 @@
 						</execution>
 					</executions>
 					<configuration>
-						<includeProjectDependencies>false</includeProjectDependencies>
-						<includePluginDependencies>true</includePluginDependencies>
 						<mainClass>org.eclipse.emf.mwe2.launch.runtime.Mwe2Launcher</mainClass>
 						<arguments>
 							<argument>${mwe2-workflow}</argument>
-							<argument>
-								-p
-							</argument>
-							<argument>
-								runtimeProject=/${project.basedir}
-							</argument>
+							<argument>-p</argument>
+							<argument>rootPath=/${project.basedir}/..</argument>
 						</arguments>
+						<includePluginDependencies>true</includePluginDependencies>
+						<cleanupDaemonThreads>false</cleanupDaemonThreads><!-- see https://bugs.eclipse.org/bugs/show_bug.cgi?id=475098#c3 -->
 					</configuration>
 					<dependencies>
 						<dependency>
@@ -94,10 +91,10 @@
 							<version>${xtext.version}</version>
 						</dependency>
 						<dependency>
-						    <groupId>org.eclipse.equinox</groupId>
-						    <artifactId>org.eclipse.equinox.common</artifactId>
-						    <version>3.6.0</version>
-						</dependency>					
+							<groupId>org.eclipse.equinox</groupId>
+							<artifactId>org.eclipse.equinox.common</artifactId>
+							<version>3.6.0</version>
+						</dependency>
 						<dependency>
 							<groupId>org.osgi</groupId>
 							<artifactId>org.osgi.core</artifactId>
