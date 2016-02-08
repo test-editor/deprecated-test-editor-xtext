@@ -3,10 +3,12 @@ package org.testeditor.tcl.dsl.ui.navigation
 import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
+import org.eclipse.jface.text.Region
 import org.eclipse.xtext.resource.XtextResource
 import org.eclipse.xtext.ui.editor.hyperlinking.IHyperlinkAcceptor
 import org.eclipse.xtext.xbase.ui.navigation.XbaseHyperLinkHelper
 import org.testeditor.aml.ComponentElement
+import org.testeditor.dsl.common.ide.util.NodeRegionUtil
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TestStep
@@ -15,11 +17,11 @@ import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContent
 
 import static org.testeditor.tcl.TclPackage.Literals.*
-import static org.testeditor.tcl.dsl.ui.util.NodeRegionUtil.*
 import static org.testeditor.tsl.TslPackage.Literals.*
 
 class TclHyperLinkHelper extends XbaseHyperLinkHelper {
 
+	@Inject extension NodeRegionUtil
 	@Inject extension TclModelUtil
 
 	override createHyperlinksByOffset(XtextResource resource, int offset, IHyperlinkAcceptor acceptor) {
@@ -75,9 +77,10 @@ class TclHyperLinkHelper extends XbaseHyperLinkHelper {
 	}
 
 	private def void createHyperlinkTo(EObject source, EStructuralFeature sourceFeature, EObject target, IHyperlinkAcceptor acceptor) {
-		val region = findNodesRegionForFeature(source, sourceFeature)
-		if (region !== null) {
+		val textRegion = findNodesRegionForFeature(source, sourceFeature)
+		if (textRegion !== null) {
 			val resource = source.eResource as XtextResource
+			val region = new Region(textRegion.offset, textRegion.length)
 			createHyperlinksTo(resource, region, target, acceptor)
 		}
 	}

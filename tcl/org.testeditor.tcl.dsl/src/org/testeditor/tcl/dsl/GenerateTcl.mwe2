@@ -12,6 +12,53 @@
  *******************************************************************************/
 module org.testeditor.tcl.dsl.GenerateTcl
 
+import org.eclipse.xtext.xtext.generator.*
+import org.eclipse.xtext.xtext.generator.model.project.*
+import org.eclipse.xtext.generator.adapter.FragmentAdapter
+import org.eclipse.xtext.ui.generator.projectWizard.SimpleProjectWizardFragment
+
+var projectName = "org.testeditor.tcl.dsl"
+var rootPath = ".."
+var fileHeader =
+"/*******************************************************************************\n* Copyright (c) 2012 - \${year} Signal Iduna Corporation and others.\n* All rights reserved. This program and the accompanying materials\n* are made available under the terms of the Eclipse Public License v1.0\n* which accompanies this distribution, and is available at\n* http://www.eclipse.org/legal/epl-v10.html\n* \n* Contributors:\n* Signal Iduna Corporation - initial API and implementation\n* akquinet AG\n* itemis AG\n*******************************************************************************/"
+
+Workflow {
+	component = XtextGenerator {
+		configuration = {
+			project = StandardProjectConfig {
+				baseName = projectName
+				rootPath = rootPath
+				eclipsePlugin = {
+					enabled = true
+				}
+				createEclipseMetaData = true
+			}
+			code = {
+				encoding = "UTF-8"
+				fileHeader = fileHeader
+			}
+		}
+		language = StandardLanguage {
+			name = "org.testeditor.tcl.dsl.Tcl"
+			fileExtensions = "tcl"
+			referencedResource = "platform:/resource/org.testeditor.tsl.model/model/tsl.xcore"
+			referencedResource = "platform:/resource/org.testeditor.tcl.model/model/tcl.xcore"
+			referencedResource = "platform:/resource/org.testeditor.aml.model/model/aml.xcore"
+			formatter = {
+				generateStub = true
+			}
+			serializer = {
+				generateStub = false
+			}
+			fragment = FragmentAdapter {
+				fragment = SimpleProjectWizardFragment {
+					generatorProjectName = "${projectName}.generator"
+				}
+			}
+		}
+	}
+}
+/* 
 import org.eclipse.emf.mwe.utils.*
 import org.eclipse.xtext.generator.*
 import org.eclipse.xtext.ui.generator.*
@@ -154,3 +201,5 @@ Workflow {
 	}
 	
 }
+
+ * */

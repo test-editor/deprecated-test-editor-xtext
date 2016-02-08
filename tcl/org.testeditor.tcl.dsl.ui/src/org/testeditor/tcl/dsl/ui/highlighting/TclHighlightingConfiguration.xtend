@@ -7,10 +7,9 @@ import org.eclipse.xtext.ui.editor.syntaxcoloring.DefaultHighlightingConfigurati
 import org.eclipse.xtext.ui.editor.syntaxcoloring.IHighlightingConfigurationAcceptor
 import org.eclipse.xtext.ui.editor.utils.TextStyle
 
-class TclHighlightingConfiguration extends DefaultHighlightingConfiguration {
+import static org.testeditor.tcl.dsl.ide.highlighting.TclSemanticHighlightingCalculator.*
 
-	public static val TEST_CASE_NAME = "tcl.testname"
-	public static val COMPONENT_ELEMENT_REFERENCE = "tcl.componentElementReference"
+class TclHighlightingConfiguration extends DefaultHighlightingConfiguration {
 
 	override configure(IHighlightingConfigurationAcceptor acceptor) {
 		super.configure(acceptor)
