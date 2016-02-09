@@ -10,11 +10,13 @@ import org.eclipse.e4.core.services.events.IEventBroker
 import org.eclipse.e4.ui.di.Focus
 import org.eclipse.e4.ui.model.application.ui.basic.MPart
 import org.eclipse.e4.ui.workbench.modeling.EPartService
+import org.eclipse.emf.edit.provider.ComposedAdapterFactory
+import org.eclipse.emf.edit.ui.provider.AdapterFactoryContentProvider
+import org.eclipse.emf.edit.ui.provider.AdapterFactoryLabelProvider
 import org.eclipse.jface.resource.ImageDescriptor
 import org.eclipse.jface.text.IDocument
 import org.eclipse.jface.text.ITextOperationTarget
 import org.eclipse.jface.text.ITextViewer
-import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider
 import org.eclipse.jface.viewers.TreeViewer
 import org.eclipse.swt.SWT
 import org.eclipse.swt.dnd.DND
@@ -29,7 +31,6 @@ import org.eclipse.ui.texteditor.ITextEditor
 import org.osgi.framework.FrameworkUtil
 
 import static org.testeditor.rcp4.views.XtendSWTLib.*
-import org.eclipse.xtext.resource.IResourceDescriptions
 
 class MaskStepSelector {
 
@@ -38,7 +39,10 @@ class MaskStepSelector {
 
 	@Inject
 	var EPartService partService
-	
+
+	@Inject
+	XtextAmlInjectorProvider xtextInjectorProvider
+
 	@Inject
 	new() {
 		System.out.println("created")
@@ -46,14 +50,21 @@ class MaskStepSelector {
 
 	var TreeViewer viewer
 
+	def createContent(TreeViewer treeViewer) {
+		val composedAdapterFactory = new ComposedAdapterFactory(ComposedAdapterFactory.Descriptor.Registry.INSTANCE);
+
+		val labelProvider = new AdapterFactoryLabelProvider(composedAdapterFactory);
+		val contentProvider = new AdapterFactoryContentProvider(composedAdapterFactory);
+
+		treeViewer.setLabelProvider(labelProvider);
+		treeViewer.setContentProvider(contentProvider);
+	}
+
 	@PostConstruct
 	def void postConstruct(Composite parent) {
 		viewer = newTreeViewer(parent, SWT.V_SCROLL) [
-			contentProvider = new MaskStepSelectorTreeContentProvider
-			labelProvider = new DelegatingStyledCellLabelProvider(
-				new MaskStepSelectorTreeLabelProvider(createImageDescriptor))
-			input = File.listRoots
-			new MaskStepSelectorInput
+			createContent
+			input = xtextInjectorProvider.injector.getInstance(MaskStepSelectorInput).packages.head // File.listRoots
 			addDragSupport((DND.DROP_COPY.bitwiseOr(DND.DROP_MOVE)), #[TextTransfer.getInstance()],
 				new DragSourceListener() {
 
@@ -77,22 +88,10 @@ class MaskStepSelector {
 
 				})
 		]
-//		parent => [
-//			layout = new GridLayout(2, false)
-//			newLabel(SWT.NONE)[text = "label"]
-//			newButton(SWT.PUSH) [
-//				text = "insert \"hello world\""
-//				addListener(SWT::Selection) [
-//					System.out.println("pushed")
-//					broker.send("TOPIC", "DATA")
-//					passToTCLEditor("hello world")
-//				]
-//			]
-//		]
 	}
 
 	def ImageDescriptor createImageDescriptor() {
-		val bundle = FrameworkUtil.getBundle(MaskStepSelectorTreeLabelProvider);
+		val bundle = FrameworkUtil.getBundle(MaskStepSelector);
 		val url = FileLocator.find(bundle, new Path("icons/folder.png"), null);
 		return ImageDescriptor.createFromURL(url);
 	}
@@ -128,49 +127,6 @@ class MaskStepSelector {
 		partService.findPart("org.eclipse.e4.ui.compatibility.editor")
 	}
 
-//	def void addDropSupport() {
-//		val MPart part = compatibilityEditor
-//		if (dslEditorActive(part)) {
-//			val activeEditor = activeDSLEditor(part)
-//			val textEditor = activeEditor.getAdapter(ITextEditor)
-//
-//			val textWidget = (textEditor.getAdapter(ITextOperationTarget) as ITextViewer).textWidget
-//			val dndService = (activeEditor.getSite().getService(IDragAndDropService)) as IDragAndDropService
-//
-//			dndService.removeMergedDropTarget(textWidget)
-//			val dt = new DropTarget(textWidget, DND.DROP_MOVE.bitwiseOr(DND.DROP_COPY))
-//			dt.transfer = #[TextTransfer.instance]
-//			// dt.data = "MDT"
-//			dt.addDropListener(new DropTargetListener() {
-//
-//				override dragEnter(DropTargetEvent event) {
-//					System.out.println("enter dt")
-//				}
-//
-//				override dragLeave(DropTargetEvent event) {
-//					System.out.println("leave dt")
-//				}
-//
-//				override dragOperationChanged(DropTargetEvent event) {
-//					System.out.println("changed dt")
-//				}
-//
-//				override dragOver(DropTargetEvent event) {
-//					System.out.println("drag over dt")
-//				}
-//
-//				override drop(DropTargetEvent event) {
-//					System.out.println("drop dt")
-//					textEditor.insertTextAtCaret(event.data.toString)
-//				}
-//
-//				override dropAccept(DropTargetEvent event) {
-//					System.out.println("dropAccept dt")
-//				}
-//
-//			})
-//		}
-//	}
 	def void passToTCLEditor(String data) {
 		val MPart part = compatibilityEditor
 
