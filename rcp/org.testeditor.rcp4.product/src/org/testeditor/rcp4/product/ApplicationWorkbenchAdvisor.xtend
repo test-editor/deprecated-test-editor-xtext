@@ -24,17 +24,17 @@ class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 	override getInitialWindowPerspectiveId() {
 		return PERSPECTIVE_ID
 	}
-	
-	override getDefaultPageInput()  {
+
+	override getDefaultPageInput() {
 		// makes sure the project explorer is refreshed on startup
 		// otherwise the project explorer view is empty on startup and is filled only if right clicking into its view
 		ResourcesPlugin.workspace.root
 	}
-	
+
 	override initialize(IWorkbenchConfigurer configurer) {
 		super.initialize(configurer)
 
-		configurer.saveAndRestore=true
+		configurer.saveAndRestore = true
 		PlatformUI.preferenceStore.setValue(IWorkbenchPreferenceConstants.SHOW_TRADITIONAL_STYLE_TABS, false)
 
 		// here is the work around code to make the ProjectExplorer work in a non workbench perspective
@@ -48,28 +48,29 @@ class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		IDE.registerAdapters
 		val ICONS_PATH = "icons/full/"
 		val ideBundle = Platform.getBundle(IDEWorkbenchPlugin.IDE_WORKBENCH)
-		configurer => [
-			declareWorkbenchImage(ideBundle,
-				IDE.SharedImages.IMG_OBJ_PROJECT, '''«ICONS_PATH»obj16/prj_obj.gif''')
-			declareWorkbenchImage(ideBundle,
-				IDE.SharedImages.IMG_OBJ_PROJECT_CLOSED, '''«ICONS_PATH»obj16/cprj_obj.gif''')
-			declareWorkbenchImage(ideBundle,
-				IDEInternalWorkbenchImages.IMG_ETOOL_PROBLEMS_VIEW, '''«ICONS_PATH»eview16/problems_view.gif''')
-			declareWorkbenchImage(ideBundle,
-				IDEInternalWorkbenchImages.IMG_ETOOL_PROBLEMS_VIEW_ERROR, '''«ICONS_PATH»eview16/problems_view_error.gif''')
-			declareWorkbenchImage(ideBundle, IDEInternalWorkbenchImages.
-				IMG_ETOOL_PROBLEMS_VIEW_WARNING, '''«ICONS_PATH»eview16/problems_view_warning.gif''')
-			declareWorkbenchImage(ideBundle,
-				IDEInternalWorkbenchImages.IMG_OBJS_ERROR_PATH, '''«ICONS_PATH»obj16/error_tsk.gif''')
-			declareWorkbenchImage(ideBundle,
-				IDEInternalWorkbenchImages.IMG_OBJS_WARNING_PATH, '''«ICONS_PATH»obj16/warn_tsk.gif''')			
-		]
-	}
+		configurer =>
+			[
+				declareWorkbenchImage(ideBundle, IDE.SharedImages.IMG_OBJ_PROJECT, '''«ICONS_PATH»obj16/prj_obj.gif''')
+				declareWorkbenchImage(ideBundle,
+					IDE.SharedImages.IMG_OBJ_PROJECT_CLOSED, '''«ICONS_PATH»obj16/cprj_obj.gif''')
+				declareWorkbenchImage(ideBundle,
+					IDEInternalWorkbenchImages.IMG_ETOOL_PROBLEMS_VIEW, '''«ICONS_PATH»eview16/problems_view.gif''')
+				declareWorkbenchImage(ideBundle,
+					IDEInternalWorkbenchImages.
+						IMG_ETOOL_PROBLEMS_VIEW_ERROR, '''«ICONS_PATH»eview16/problems_view_error.gif''')
+					declareWorkbenchImage(ideBundle, IDEInternalWorkbenchImages.
+						IMG_ETOOL_PROBLEMS_VIEW_WARNING, '''«ICONS_PATH»eview16/problems_view_warning.gif''')
+					declareWorkbenchImage(ideBundle,
+						IDEInternalWorkbenchImages.IMG_OBJS_ERROR_PATH, '''«ICONS_PATH»obj16/error_tsk.gif''')
+					declareWorkbenchImage(ideBundle,
+						IDEInternalWorkbenchImages.IMG_OBJS_WARNING_PATH, '''«ICONS_PATH»obj16/warn_tsk.gif''')
+				]
+		}
 
-	def declareWorkbenchImage(IWorkbenchConfigurer configurer, Bundle ideBundle, String symbolicName, String path) {
-		val url = ideBundle.getEntry(path)
-		val desc = ImageDescriptor.createFromURL(url)
-		configurer.declareImage(symbolicName, desc, true)
+		def declareWorkbenchImage(IWorkbenchConfigurer configurer, Bundle ideBundle, String symbolicName, String path) {
+			val url = ideBundle.getEntry(path)
+			val desc = ImageDescriptor.createFromURL(url)
+			configurer.declareImage(symbolicName, desc, true)
+		}
 	}
-}
 	

@@ -50,7 +50,7 @@ class MaskStepSelector {
 
 	var TreeViewer viewer
 
-	def createContent(TreeViewer treeViewer) {
+	def void setDefaultProviders(TreeViewer treeViewer) {
 		val composedAdapterFactory = new ComposedAdapterFactory(ComposedAdapterFactory.Descriptor.Registry.INSTANCE);
 
 		val labelProvider = new AdapterFactoryLabelProvider(composedAdapterFactory);
@@ -63,7 +63,7 @@ class MaskStepSelector {
 	@PostConstruct
 	def void postConstruct(Composite parent) {
 		viewer = newTreeViewer(parent, SWT.V_SCROLL) [
-			createContent
+			setDefaultProviders
 			input = xtextInjectorProvider.injector.getInstance(MaskStepSelectorInput).packages.head // File.listRoots
 			addDragSupport((DND.DROP_COPY.bitwiseOr(DND.DROP_MOVE)), #[TextTransfer.getInstance()],
 				new DragSourceListener() {
@@ -97,11 +97,11 @@ class MaskStepSelector {
 	}
 
 	@Focus
-	def setFocus() {
+	def void setFocus() {
 		viewer.getControl().setFocus();
 	}
 
-	def dslEditorActive(MPart part) {
+	def boolean dslEditorActive(MPart part) {
 		(part != null && part.parent.children.exists [
 			(it as MPart).object != null && tags.exists[equals("org.testeditor.tcl.dsl.Tcl")]
 		])
@@ -116,14 +116,14 @@ class MaskStepSelector {
 		return null
 	}
 
-	def insertTextAtCaret(ITextEditor textEditor, String data) {
+	def void insertTextAtCaret(ITextEditor textEditor, String data) {
 		val IDocumentProvider dp = textEditor.documentProvider
 		val IDocument doc = dp.getDocument(textEditor.editorInput)
 		val cpos = (textEditor.getAdapter(ITextOperationTarget) as ITextViewer).textWidget.caretOffset
 		doc.replace(cpos, 0, data);
 	}
 
-	def compatibilityEditor() {
+	def MPart compatibilityEditor() {
 		partService.findPart("org.eclipse.e4.ui.compatibility.editor")
 	}
 

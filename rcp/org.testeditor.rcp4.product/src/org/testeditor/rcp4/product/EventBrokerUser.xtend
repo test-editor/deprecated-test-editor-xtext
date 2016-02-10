@@ -2,32 +2,33 @@ package org.testeditor.rcp4.product
 
 import javax.annotation.PostConstruct
 import javax.inject.Inject
+import org.apache.log4j.Logger
 import org.eclipse.e4.core.di.annotations.Optional
 import org.eclipse.e4.core.di.extensions.EventTopic
 import org.eclipse.e4.core.services.events.IEventBroker
 
-
 /** example usage of the event broker in e4 */
-class EventBrokerUser{
-	
-	new(){
+class EventBrokerUser {
+
+	private static final Logger logger = Logger.getLogger(EventBrokerUser);
+
+	new() {
 		System.out.println("EventBrokerUser is created")
 	}
 
 	@Inject
 	var IEventBroker broker
 
-	@PostConstruct	
-	def send(){
+	@PostConstruct
+	def void send() {
 		System.out.println("EventBrokerUser posted...")
 		broker.post("hello", "data")
-	}	
-
+	}
 
 	@Inject
 	@Optional
-	def subscription(@EventTopic("hello") String data) {
-		System.out.println('''EventBrokerUser received '«data»' on channel hello''')
+	def void subscription(@EventTopic("hello") String data) {
+		logger.info('''EventBrokerUser received '«data»' on channel hello''')
 	}
-	
+
 }

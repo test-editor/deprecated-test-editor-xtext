@@ -29,16 +29,15 @@ class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 			title = "Testeditor" // $NON-NLS-1$
 			// configuring the drop listener is necessary, since this is done during ide startup but not during rcp startup
 			// if not configured, drag and drop of text within and to editors is not functional !
-			configureEditorAreaDropListener(new EditorAreaDropAdapter(PlatformUI.workbench.activeWorkbenchWindow)) 
+			configureEditorAreaDropListener(new EditorAreaDropAdapter(PlatformUI.workbench.activeWorkbenchWindow))
 		]
 	}
-
 
 	override postWindowOpen() {
 		removeUnwantedWizards
 	}
 
-	def removeUnwantedWizards() {
+	def void removeUnwantedWizards() {
 		val wizardRegistry = PlatformUI.workbench.newWizardRegistry
 		val categories = PlatformUI.workbench.newWizardRegistry.rootCategory.categories
 		categories.allWizards.filter[!(category.id.matches("org.eclipse.ui.Basic") || id.matches("org.testeditor.*"))].

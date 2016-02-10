@@ -14,7 +14,7 @@ import org.eclipse.xtext.ui.XtextProjectHelper
  */
 class NewWizard extends BasicNewProjectResourceWizard {
 
-	def addNature(IProject newProject, String nature) {
+	def void addNature(IProject newProject, String nature) {
 		if (!newProject.hasNature(nature)) {
 			val description = newProject.getDescription
 			description.setNatureIds(description.getNatureIds + #[nature])
