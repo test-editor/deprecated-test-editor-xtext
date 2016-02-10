@@ -43,6 +43,18 @@
    <!-- get {e|j}git -->
    <feature url="features/org.eclipse.jgit_4.0.3.201509231615-r.jar" id="org.eclipse.jgit" version="4.0.3.201509231615-r"/>
    <feature url="features/org.eclipse.egit_4.0.3.201509231615-r.jar" id="org.eclipse.egit" version="4.0.3.201509231615-r"/>
+   
+   <!-- e4 components -->
+   <feature url="features/org.eclipse.e4.rcp_1.4.0.v20150903-1804.jar" id="org.eclipse.e4.rcp" version="1.4.0.v20150903-1804">
+      <category name="eclipse-platform"/>
+   </feature>
+   <feature url="features/org.eclipse.emf.ecore_2.11.1.v20150805-0538.jar" id="org.eclipse.emf.ecore" version="2.11.1.v20150805-0538">
+      <category name="eclipse-platform"/>
+   </feature>
+   <feature url="features/org.eclipse.emf.common_2.11.1.v20150805-0538.jar" id="org.eclipse.emf.common" version="2.11.0.v20150805-0538">
+      <category name="eclipse-platform"/>
+   </feature>
+   
 
    <category-def name="eclipse-platform" label="eclipse-platform"/>
 </site>

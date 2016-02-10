@@ -1,5 +1,6 @@
 package org.testeditor.rcp.product
 
+import org.eclipse.core.resources.ResourcesPlugin
 import org.eclipse.core.runtime.Platform
 import org.eclipse.jface.resource.ImageDescriptor
 import org.eclipse.ui.IWorkbenchPreferenceConstants
@@ -11,7 +12,6 @@ import org.eclipse.ui.ide.IDE
 import org.eclipse.ui.internal.ide.IDEInternalWorkbenchImages
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin
 import org.osgi.framework.Bundle
-import org.eclipse.core.resources.ResourcesPlugin
 
 class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 	static final String PERSPECTIVE_ID = "org.testeditor.rcp.product.perspective"

@@ -10,11 +10,11 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.tcl.dsl.ui.quickfix
+package org.testeditor.tcl.dsl.ui.tests.quickfix
 
-import org.testeditor.tcl.dsl.tests.AbstractTest
 import org.junit.Test
 import org.testeditor.tcl.dsl.ui.quickfix.TclQuickfixProvider
+import org.testeditor.tcl.dsl.tests.AbstractTest
 
 class TclQuickfixProviderTest extends AbstractTest{
 	

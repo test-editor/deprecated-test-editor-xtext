@@ -22,3 +22,5 @@ Import-Package: org.apache.log4j,
  org.hamcrest.core
 Export-Package: org.testeditor.dsl.common.testing,
  org.testeditor.fixture.core.interaction
+Bundle-Vendor: Signal Iduna Corporation
+Bundle-Name: org.testeditor.dsl.common.testing

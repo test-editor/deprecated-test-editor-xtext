@@ -6,9 +6,11 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-SymbolicName: org.testeditor.aml.dsl; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtext,
- org.eclipse.equinox.common;bundle-version="3.7.0",
+ org.eclipse.equinox.common,
  org.eclipse.emf.ecore.xcore,
  org.testeditor.aml.model,
+ org.eclipse.osgi,
+ org.eclipse.xtext,
  org.eclipse.xtext.util,
  org.eclipse.xtext.xbase.lib,
  org.antlr.runtime,
@@ -29,3 +31,5 @@ Export-Package: org.testeditor.aml.dsl,
  org.testeditor.aml.dsl.services,
  org.testeditor.aml.dsl.validation,
  org.testeditor.aml.dsl.scoping
+Import-Package: org.apache.log4j
+

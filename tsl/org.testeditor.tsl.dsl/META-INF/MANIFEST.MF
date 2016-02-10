@@ -27,3 +27,5 @@ Export-Package: org.testeditor.tsl.dsl,
  org.testeditor.tsl.dsl.serializer,
  org.testeditor.tsl.dsl.services,
  org.testeditor.tsl.dsl.validation
+Bundle-Name: org.testeditor.tsl.dsl
+Bundle-Vendor: Signal Iduna Corporation
