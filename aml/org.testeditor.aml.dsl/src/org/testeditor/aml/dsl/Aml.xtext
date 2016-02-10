@@ -88,7 +88,7 @@ SimpleTypeReference returns types::JvmParameterizedTypeReference:
 ;
 
 ValueSpace returns ValueSpace:
-	'value-space' (StringLiterals | IntegerRange)
+	'value-space' (StringLiterals | IntegerRange | RegExValueSpace)
 ;
 
 StringLiterals returns StringLiterals:
@@ -101,7 +101,9 @@ IntegerRange returns IntegerRange:
 	name=ID '=' from=INT '..' to=INT
 ;
 
-// TODO support RegEx value space
+RegExValueSpace:
+	name=ID '=' expression=STRING
+;
 
 Template:
 	contents+=TemplateText (contents+=TemplateVariable contents+=TemplateText?)* 
