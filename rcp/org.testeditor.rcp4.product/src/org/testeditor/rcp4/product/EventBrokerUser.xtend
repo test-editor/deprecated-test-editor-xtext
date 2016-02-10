@@ -13,7 +13,7 @@ class EventBrokerUser {
 	private static final Logger logger = Logger.getLogger(EventBrokerUser);
 
 	new() {
-		System.out.println("EventBrokerUser is created")
+		logger.info("EventBrokerUser is created")
 	}
 
 	@Inject
@@ -21,7 +21,7 @@ class EventBrokerUser {
 
 	@PostConstruct
 	def void send() {
-		System.out.println("EventBrokerUser posted...")
+		logger.info("EventBrokerUser posted...")
 		broker.post("hello", "data")
 	}
 
