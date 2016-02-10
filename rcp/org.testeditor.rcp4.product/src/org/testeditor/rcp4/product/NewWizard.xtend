@@ -29,8 +29,7 @@ class NewWizard extends BasicNewProjectResourceWizard {
 		folder.create(false, true, null)
 
 		newProject.addNature(JavaCore.NATURE_ID)
-		JavaCore.create(newProject) =>
-			[
+		JavaCore.create(newProject) => [
 				val rawPath = PreferenceConstants.defaultJRELibrary +
 					#[JavaCore.newSourceEntry(folder.fullPath),
 						JavaCore.newContainerEntry(JUnitCore.JUNIT4_CONTAINER_PATH)]

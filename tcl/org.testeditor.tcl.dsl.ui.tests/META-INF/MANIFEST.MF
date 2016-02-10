@@ -11,6 +11,7 @@ Require-Bundle: com.google.guava,
  org.eclipse.xtend.lib.macro,
  org.junit,
  org.eclipse.xtext.junit4,
- org.testeditor.dsl.common.testing
+ org.testeditor.dsl.common.testing,
+ org.testeditor.tcl.dsl.tests
 Bundle-Vendor: Signal Iduna Corporation
 
