@@ -10,7 +10,6 @@
 		<relativePath>../../releng/org.testeditor.aml.releng.parent</relativePath>
 	</parent>
 
-	<groupId>org.testeditor</groupId>
 	<artifactId>org.testeditor.rcp4.uatests</artifactId>
 	<packaging>eclipse-test-plugin</packaging>
 
@@ -30,23 +29,6 @@
 	<build>
 		<pluginManagement>
 			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-resources-plugin</artifactId>
-					<version>${maven-resources-plugin.version}</version>
-					<configuration>
-						<encoding>${project.build.sourceEncoding}</encoding>
-					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<version>${maven-compiler-plugin.version}</version>
-					<configuration>
-						<source>${java.version}</source>
-						<target>${java.version}</target>
-					</configuration>
-				</plugin>
 				<plugin>
 					<groupId>org.eclipse.xtext</groupId>
 					<artifactId>xtext-maven-plugin</artifactId>
