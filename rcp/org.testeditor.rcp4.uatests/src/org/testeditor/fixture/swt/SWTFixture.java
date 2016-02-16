@@ -17,7 +17,8 @@ import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.widget
 import java.lang.reflect.Method;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Widget;
@@ -27,7 +28,7 @@ import org.testeditor.fixture.core.interaction.FixtureMethod;
 
 public class SWTFixture {
 
-	Logger logger = Logger.getLogger(SWTFixture.class);
+	Logger logger = LogManager.getLogger(SWTFixture.class);
 	SWTWorkbenchBot bot = new SWTWorkbenchBot();
 
 	/**
@@ -39,61 +40,64 @@ public class SWTFixture {
 	 */
 	@FixtureMethod
 	public void reportWidgets() {
-		logger.trace("analyzeWidgets start");
-		logger.trace("---------------------------------------------");
+		logger.info("analyzeWidgets start");
+		logger.info("---------------------------------------------");
 
-		Display.getDefault().syncExec(new Runnable() {
+		getDisplay().syncExec(new Runnable() {
 			@Override
 			public void run() {
 
-				try {
-					List<? extends Widget> widgets = bot.widgets(widgetOfType(Widget.class));
+				List<? extends Widget> widgets = bot.widgets(widgetOfType(Widget.class));
 
-					StringBuilder sb = new StringBuilder();
+				StringBuilder sb = new StringBuilder();
 
-					for (Widget widget : widgets) {
+				for (Widget widget : widgets) {
 
-						if (widget instanceof Table) {
-							sb.append("\n >>> Table gefunden mit " + ((Table) widget).getItems().length + " Zeilen !");
-						}
-
-						sb.append("widgetId: " + widget.getData("org.eclipse.swtbot.widget.key"));
-						sb.append(" widgetClass: " + widget.getClass().getSimpleName());
-						try {
-							Method[] methods = widget.getClass().getMethods();
-							boolean foundGetText = false;
-							for (Method method : methods) {
-								if (method.getName().equals("getText")) {
-									foundGetText = true;
-								}
-							}
-							if (foundGetText) {
-
-								Method method = widget.getClass().getMethod("getText", new Class[] {});
-								sb.append("\n >>> text value: " + method.invoke(widget, new Object[] {}));
-							}
-						} catch (Exception e) {
-							logger.error(">>>>>>> no text", e);
-						}
-						sb.append(" widget: " + widget).append("\n");
+					if (widget instanceof Table) {
+						sb.append("\n >>> Table gefunden mit " + ((Table) widget).getItems().length + " Zeilen !");
 					}
 
-					logger.trace(sb.toString());
+					sb.append("widgetId: " + widget.getData("org.eclipse.swtbot.widget.key"));
+					sb.append(" widgetClass: " + widget.getClass().getSimpleName());
+					try {
+						Method[] methods = widget.getClass().getMethods();
+						boolean foundGetText = false;
+						for (Method method : methods) {
+							if (method.getName().equals("getText")) {
+								foundGetText = true;
+							}
+						}
+						if (foundGetText) {
 
-				} catch (Exception e) {
-					logger.error("ERROR " + e.getMessage());
+							Method method = widget.getClass().getMethod("getText", new Class[] {});
+							sb.append("\n >>> text value: " + method.invoke(widget, new Object[] {}));
+						}
+					} catch (Exception e) {
+						logger.error("No text", e);
+					}
+					sb.append(" widget: " + widget).append("\n");
 				}
+
+				logger.info(sb.toString());
 
 			}
 		});
-		logger.trace("analyzeWidgets end");
-		logger.trace("---------------------------------------------");
+		logger.info("analyzeWidgets end");
+		logger.info("---------------------------------------------");
 
+	}
+
+	/**
+	 * 
+	 * @return a SWT Display object.
+	 */
+	protected Display getDisplay() {
+		return Display.getDefault();
 	}
 
 	@FixtureMethod
 	public void wait(String seconds) throws NumberFormatException, InterruptedException {
-		logger.trace("wait for: " + seconds);
+		logger.info("wait for:  {}", seconds);
 		Thread.sleep(Long.parseLong(seconds) * 1000);
 	}
 
@@ -106,7 +110,7 @@ public class SWTFixture {
 	 */
 	@FixtureMethod
 	public boolean isViewVisible(String viewName) {
-		logger.trace("search for view with name: " + viewName);
+		logger.trace("search for view with name: {}", viewName);
 		SWTBotView view = bot.viewByPartName(viewName);
 		return view.isActive();
 	}
