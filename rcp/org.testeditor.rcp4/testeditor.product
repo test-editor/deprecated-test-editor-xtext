@@ -16,8 +16,11 @@
    <windowImages/>
 
    <launcher>
+      <linux icon="/org.testeditor.rcp4/icons/_TE_Icon_all.xpm"/>
+      <macosx icon="/org.testeditor.rcp4/icons/TE_Icon_all_mac.icns"/>
       <solaris/>
-      <win useIco="false">
+      <win useIco="true">
+         <ico path="/org.testeditor.rcp4/icons/_TE_Icon_all.ico"/>
          <bmp/>
       </win>
    </launcher>

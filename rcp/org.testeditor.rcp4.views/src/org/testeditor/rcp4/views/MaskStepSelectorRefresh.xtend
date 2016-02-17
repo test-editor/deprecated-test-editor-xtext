@@ -9,17 +9,19 @@
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
  * itemis AG
- *******************************************************************************/
-package org.testeditor.rcp4.views
+ *******************************************************************************/package org.testeditor.rcp4.views
 
-import com.google.inject.Injector
-import org.eclipse.e4.core.di.annotations.Creatable
-import org.testeditor.aml.dsl.ui.internal.DslActivator
+import javax.inject.Inject
+import org.eclipse.e4.core.di.annotations.Execute
+import org.eclipse.e4.core.services.events.IEventBroker
 
-/** provide an injector that is able to inject xtext and thus google guice dependent classes */
-@Creatable
-class XtextAmlInjectorProvider {
-	def Injector getInjector() {
-		DslActivator.instance.getInjector(DslActivator.ORG_TESTEDITOR_AML_DSL_AML)
+/** e4 command implementation for refreshing the tree view (e.g. aml files/model changed) */
+class MaskStepSelectorRefresh {
+	@Inject
+	var IEventBroker broker
+
+	@Execute
+	def void execute() {
+		broker.post(MaskStepSelector.SELECTOR_TOPIC_REFRESH, null)
 	}
 }

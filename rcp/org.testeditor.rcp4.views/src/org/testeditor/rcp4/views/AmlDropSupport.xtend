@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -12,14 +12,25 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views
 
-import com.google.inject.Injector
+import org.eclipse.emf.ecore.EObject
+import org.testeditor.aml.InteractionType
 import org.eclipse.e4.core.di.annotations.Creatable
-import org.testeditor.aml.dsl.ui.internal.DslActivator
+import org.testeditor.aml.Component
 
-/** provide an injector that is able to inject xtext and thus google guice dependent classes */
+/** provide info as to what elements are actually droppable into an tcl editor */
 @Creatable
-class XtextAmlInjectorProvider {
-	def Injector getInjector() {
-		DslActivator.instance.getInjector(DslActivator.ORG_TESTEDITOR_AML_DSL_AML)
+class AmlDropSupport {
+	
+	// default is false
+	def dispatch boolean dropSupported(EObject element){
+		false
+	}
+	
+	def dispatch boolean dropSupported(InteractionType element){
+		true
+	}
+	
+	def dispatch boolean dropSupported(Component element){
+		true
 	}
 }
