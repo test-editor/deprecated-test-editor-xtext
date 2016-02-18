@@ -14,12 +14,6 @@ package org.testeditor.aml
 
 import java.util.HashSet
 import java.util.Set
-import org.testeditor.aml.Component
-import org.testeditor.aml.ComponentElement
-import org.testeditor.aml.ComponentType
-import org.testeditor.aml.InteractionType
-import org.testeditor.aml.Template
-import org.testeditor.aml.TemplateVariable
 
 class ModelUtil {
 
@@ -59,6 +53,20 @@ class ModelUtil {
 	 */
 	def Set<InteractionType> getComponentInteractionTypes(Component component) {
 		return component.types.map[interactionTypes].flatten.toSet
+	}
+
+	/**
+	 * @return all interaction types of the {@link Component} including the interactions through component inclusion.
+	 */
+	def Set<InteractionType> getAllComponentInteractionTypes(Component component) {
+		return getTypes(component).map[interactionTypes].flatten.toSet
+	}
+
+	/**
+	 * @return all component elements of the {@link Component} including the elements through component inclusion.
+	 */
+	def Set<ComponentElement> getAllComponentElements(Component component) {
+		return (component.elements + component.parents.map[getAllComponentElements].flatten).toSet
 	}
 
 	/**
