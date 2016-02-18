@@ -18,10 +18,13 @@ import org.junit.Test
 import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.TemplateVariable
+import org.testeditor.dsl.common.testing.DummyFixture
+import org.junit.Ignore
 
 /**
  * Tests scoping for interactions / template variables.
  */
+ @Ignore
 class InteractionScopingTest extends AbstractParserTest {
 
 	@Inject extension ModelUtil

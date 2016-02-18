@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.generator
 
+import com.google.common.annotations.VisibleForTesting
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.InteractionType
 import org.testeditor.aml.Template
@@ -36,7 +37,8 @@ class TechnicalBindingsGenerator extends AbstractGenerator {
 		«CLOSE_TAG»
 	'''
 
-	protected def generateTechnicalBinding(InteractionType it) '''
+	@VisibleForTesting
+	def generateTechnicalBinding(InteractionType it) '''
 		<TechnicalBindingType id="«name»" name="«labelOrName»">
 			«template?.generateActionParts»
 		</TechnicalBindingType>

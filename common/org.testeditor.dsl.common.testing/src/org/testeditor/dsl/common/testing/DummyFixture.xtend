@@ -1,8 +1,8 @@
-package org.testeditor.aml.dsl.scoping
+package org.testeditor.dsl.common.testing
 
 import org.testeditor.fixture.core.interaction.FixtureMethod
 
-package class DummyFixture {
+public class DummyFixture {
 
     @FixtureMethod
     def void someFixtureMethod() {
