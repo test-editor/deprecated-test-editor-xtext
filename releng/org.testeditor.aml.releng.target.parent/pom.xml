@@ -51,6 +51,11 @@
 			<layout>p2</layout>
 			<url>http://download.eclipse.org/modeling/emft/mwe/updates/releases/2.8.1/</url>
 		</repository>
+		<repository>
+		   <id>swtbot</id>
+		   <layout>p2</layout>
+		   <url>http://download.eclipse.org/technology/swtbot/releases/latest/</url>
+		</repository>
 	</repositories>
 
 	<build>

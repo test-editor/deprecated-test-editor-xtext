@@ -17,6 +17,7 @@
 		<module>tsl</module>
 		<module>tcl</module>
 		<module>legacy</module>
+		<module>rcp</module>
 
 		<!-- TODO should we keep this? we should definitely move it to aml
 		<module>wsdl/org.testeditor.aml.wsdl.importer.ui</module>

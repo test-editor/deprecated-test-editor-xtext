@@ -1,0 +1,19 @@
+package org.testeditor.rcp4
+
+import org.testeditor.fixture.swt.*
+
+interaction type reportWidgets {
+	template = "Protkolliere vorhandene UI Elemente"
+	method = SWTFixture.reportWidgets
+}
+
+interaction type warte {
+	label = "Warte"
+	template = "Warte" ${seconds} "Sekunden"
+	method = SWTFixture.wait(seconds)
+}
+
+component type General {
+	interactions = reportWidgets, warte
+}
+
