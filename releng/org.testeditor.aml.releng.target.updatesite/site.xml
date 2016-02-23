@@ -29,17 +29,21 @@
    <feature url="features/org.eclipse.platform_4.5.1.v20150904-0015.jar" id="org.eclipse.platform" version="4.5.1.v20150904-0015">
       <category name="eclipse-platform"/>
    </feature>
+   <!-- in order to create native executable products, the following needs to be in  the target platform -->
    <feature url="features/org.eclipse.equinox.executable_3.6.200.v20150602-1417.jar" id="org.eclipse.equinox.executable" version="3.6.200.v20150602-1417">
       <category name="eclipse-platform"/>
    </feature>
+   <!-- in order to create rcp projects with ide support using this target platform, the following rcp specific jars must be added -->
    <feature url="features/org.eclipse.rcp.source_4.5.1.v20150904-0015.jar" id="org.eclipse.rcp.source" version="4.5.1.v20150904-0015">
       <category name="eclipse-platform"/>
    </feature>
    <feature url="features/org.eclipse.rcp_4.5.1.v20150904-0015.jar" id="org.eclipse.rcp" version="4.5.1.v20150904-0015">
       <category name="eclipse-platform"/>
    </feature>
+   <!-- get {e|j}git -->
    <feature url="features/org.eclipse.jgit_4.0.3.201509231615-r.jar" id="org.eclipse.jgit" version="4.0.3.201509231615-r"/>
    <feature url="features/org.eclipse.egit_4.0.3.201509231615-r.jar" id="org.eclipse.egit" version="4.0.3.201509231615-r"/>
+   <!-- e4 components -->
    <feature url="features/org.eclipse.e4.rcp_1.4.0.v20150903-1804.jar" id="org.eclipse.e4.rcp" version="1.4.0.v20150903-1804">
       <category name="eclipse-platform"/>
    </feature>
@@ -49,6 +53,7 @@
    <feature url="features/org.eclipse.emf.common_2.11.1.v20150805-0538.jar" id="org.eclipse.emf.common" version="2.11.0.v20150805-0538">
       <category name="eclipse-platform"/>
    </feature>
+   <!-- swtbot additions -->
    <feature url="features/org.eclipse.swtbot_2.3.0.201506081302.jar" id="org.eclipse.swtbot" version="2.3.0.201506081302">
       <category name="eclipse-platform"/>
    </feature>
