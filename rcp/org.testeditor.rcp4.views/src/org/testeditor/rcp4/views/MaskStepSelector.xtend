@@ -120,12 +120,12 @@ class MaskStepSelector {
 			return
 		}
 		populated = true
-		val msi = xtextInjectorProvider.injector.getInstance(MaskStepSelectorInput)
+		val amlModelsProvider = xtextInjectorProvider.injector.getInstance(AmlModelsProvider)
 		val mcp = xtextInjectorProvider.injector.getInstance(MaskStepSelectorTreeContentProvider)
 		viewer => [
 			labelProvider = mssLabelProvider
 			contentProvider = mcp
-			input = msi.amlModels
+			input = amlModelsProvider.amlModels
 			expandAll
 		]
 	}

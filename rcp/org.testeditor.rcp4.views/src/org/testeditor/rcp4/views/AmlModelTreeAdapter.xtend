@@ -15,7 +15,6 @@ package org.testeditor.rcp4.views
 import java.util.Collections
 import java.util.List
 import javax.inject.Inject
-import org.eclipse.e4.core.di.annotations.Creatable
 import org.eclipse.emf.ecore.EObject
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.Component
@@ -26,16 +25,22 @@ import org.testeditor.aml.ModelUtil
 public class AmlModelTreeAdapter {
 
 	@Inject
-	var ModelUtil modelUtil
+	ModelUtil modelUtil
+
+	@Inject
+	AmlModelsProvider amlModelsProvider
 
 	def dispatch List<EObject> children(AmlModel node) {
 		node.components.map[it as EObject]
 	}
 
 	def dispatch List<EObject> children(Component node) {
-		(modelUtil.getAllComponentElements(node).map[ it as EObject ] 
-			+ modelUtil.getAllComponentInteractionTypes(node)
-		).toList
+		// get all components of the same namespace
+		val models = amlModelsProvider.getModelsForNamespaceOf(node.eContainer as AmlModel);
+		val componentsOfNamespace = (models.map[components].flatten + #[node]).toSet // node itself is added just in case the models cannot be retrieved
+		return componentsOfNamespace.map [
+			(modelUtil.getAllComponentElements(it).map[it as EObject] + modelUtil.getAllComponentInteractionTypes(it))
+		].flatten.toList
 	}
 
 	def dispatch List<EObject> children(ComponentElement node) {

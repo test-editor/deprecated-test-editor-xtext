@@ -53,7 +53,11 @@
    <feature url="features/org.eclipse.emf.common_2.11.1.v20150805-0538.jar" id="org.eclipse.emf.common" version="2.11.0.v20150805-0538">
       <category name="eclipse-platform"/>
    </feature>
-   <!-- swtbot additions -->
+   <!-- hamcrest mockito etc -->
+   <!-- feature url="features/org.eclipse.sdk.tests_4.5.1.v20150904-0516.jar" id="org.eclipse.sdk.tests" version="4.5.1.v20150904-0516">
+      <category name="eclipse-platform"/>      
+   </feature --> 
+  <!-- swtbot additions -->
    <feature url="features/org.eclipse.swtbot_2.3.0.201506081302.jar" id="org.eclipse.swtbot" version="2.3.0.201506081302">
       <category name="eclipse-platform"/>
    </feature>

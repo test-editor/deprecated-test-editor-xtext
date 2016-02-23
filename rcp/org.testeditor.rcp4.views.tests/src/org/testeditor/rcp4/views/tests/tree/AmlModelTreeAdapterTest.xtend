@@ -1,15 +1,21 @@
 package org.testeditor.rcp4.views.tests.tree
 
 import javax.inject.Inject
+import org.junit.Before
 import org.junit.Test
+import org.mockito.MockitoAnnotations
 import org.testeditor.rcp4.views.AmlModelTreeAdapter
-
-import static org.hamcrest.CoreMatchers.*
 
 class AmlModelTreeAdapterTest extends AbstractParserTest {
 
 	@Inject
-	var AmlModelTreeAdapter amlModelTreeAdapter
+	AmlModelTreeAdapter amlModelTreeAdapter
+
+	@Before
+	override void setUp() {
+		super.setUp
+		MockitoAnnotations.initMocks(this);
+	}
 
 	@Test
 	def void amlModelHasComponentsInTree() {
@@ -26,8 +32,8 @@ class AmlModelTreeAdapterTest extends AbstractParserTest {
 		val children = amlModelTreeAdapter.children(model).toSet
 
 		// then
-		assertThat(children, is(model.components.toSet))
-		assertThat(children.size, is(2))
+		assertEquals(children, model.components.toSet)
+		assertSize(children, 2)
 	}
 
 	@Test
@@ -55,8 +61,8 @@ class AmlModelTreeAdapterTest extends AbstractParserTest {
 		val children = amlModelTreeAdapter.children(app.elements.findFirst[name == "MyButton"]).toSet
 
 		// then
-		assertThat(children, is(model.interactionTypes.toSet))
-		assertThat(children.size, is(2))
+		assertEquals(children, model.interactionTypes.toSet)
+		assertSize(children, 2)
 	}
 
 	@Test
@@ -103,8 +109,9 @@ class AmlModelTreeAdapterTest extends AbstractParserTest {
 		// then
 		val expectedInteractions = model.interactionTypes.filter[#["open", "close", "kill"].contains(name)]
 		val expectedElements = model.components.map[elements].flatten
-		assertThat(children, is((expectedInteractions + expectedElements).toSet))
-		assertThat(children.size, is(5))
+
+		assertSize(children, 5)
+		assertEquals((expectedInteractions + expectedElements).toSet, children)
 	}
 
 }

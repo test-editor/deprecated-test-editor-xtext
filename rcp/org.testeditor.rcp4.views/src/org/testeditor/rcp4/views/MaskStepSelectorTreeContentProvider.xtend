@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -13,7 +13,6 @@
 package org.testeditor.rcp4.views
 
 import javax.inject.Inject
-import org.eclipse.e4.core.di.annotations.Creatable
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.jface.viewers.ITreeContentProvider
 import org.eclipse.jface.viewers.Viewer
@@ -23,14 +22,26 @@ import org.testeditor.aml.AmlModel
 class MaskStepSelectorTreeContentProvider implements ITreeContentProvider {
 
 	@Inject
-	var AmlModelTreeAdapter amlModelTreeAdapter;
+	var AmlModelTreeAdapter amlModelTreeAdapter
+
+	@Inject
+	var AmlModelLabelProvider amlModelLabelProvider
 
 	override getChildren(Object parentElement) {
 		(amlModelTreeAdapter.children(parentElement as EObject)).toArray
 	}
 
 	override getElements(Object inputElement) {
-		(inputElement as Iterable<AmlModel>).clone // may not return the input itself (see BUG in overridden method)
+		val clonedList = (inputElement as Iterable<AmlModel>).clone // may not return the input itself (see BUG in overridden method)
+		// merge duplicate name spaces
+		val knownNamespace = clonedList.map[amlModelLabelProvider.getText(it)].toSet
+		return clonedList.map [
+			if (knownNamespace.contains(amlModelLabelProvider.getText(it))) {
+				return null
+			} else {
+				return it
+			}
+		].filterNull
 	}
 
 	override getParent(Object element) {

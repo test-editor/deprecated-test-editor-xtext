@@ -31,5 +31,3 @@ Export-Package: org.testeditor.aml.dsl,
  org.testeditor.aml.dsl.services,
  org.testeditor.aml.dsl.validation,
  org.testeditor.aml.dsl.scoping
-Import-Package: org.apache.log4j
-
