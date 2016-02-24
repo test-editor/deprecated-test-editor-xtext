@@ -62,7 +62,6 @@ class MaskStepSelector {
 	@Inject
 	new() {
 		populated = false
-		logger.level = Level.INFO
 	}
 
 	@PostConstruct

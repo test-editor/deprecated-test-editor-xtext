@@ -26,7 +26,6 @@ class EventBrokerUser {
 	private static final Logger logger = Logger.getLogger(EventBrokerUser);
 
 	new() {
-		logger.level = Level.INFO
 		logger.info("EventBrokerUser is created")
 	}
 
