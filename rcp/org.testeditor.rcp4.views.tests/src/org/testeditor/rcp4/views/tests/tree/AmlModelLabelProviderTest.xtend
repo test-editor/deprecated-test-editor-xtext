@@ -1,14 +1,12 @@
 package org.testeditor.rcp4.views.tests.tree
 
 import javax.inject.Inject
+import org.eclipse.xtext.xbase.lib.Procedures.Procedure1
 import org.junit.Test
 import org.testeditor.aml.AmlFactory
-import org.testeditor.rcp4.views.AmlModelLabelProvider
-
-import static org.hamcrest.CoreMatchers.is
 import org.testeditor.aml.TemplateText
-import org.eclipse.xtext.xbase.lib.Procedures.Procedure1
 import org.testeditor.aml.TemplateVariable
+import org.testeditor.rcp4.views.AmlModelLabelProvider
 
 class AmlModelLabelProviderTest extends AbstractParserTest {
 
@@ -30,7 +28,7 @@ class AmlModelLabelProviderTest extends AbstractParserTest {
 		val result = amlModelLabelProvider.getText(amlModel)
 
 		// then
-		assertThat(result, is("test"))
+		assertEquals(result, "test")
 	}
 
 	@Test
@@ -43,7 +41,7 @@ class AmlModelLabelProviderTest extends AbstractParserTest {
 		val result = amlModelLabelProvider.getText(component)
 
 		// then
-		assertThat(result, is("test"))
+		assertEquals(result, "test")
 	}
 
 	@Test
@@ -56,7 +54,7 @@ class AmlModelLabelProviderTest extends AbstractParserTest {
 		val result = amlModelLabelProvider.getText(componentElement)
 
 		// then
-		assertThat(result, is("test"))
+		assertEquals(result, "test")
 	}
 
 	@Test
@@ -75,7 +73,7 @@ class AmlModelLabelProviderTest extends AbstractParserTest {
 		val result = amlModelLabelProvider.getText(interactionType)
 
 		// then
-		assertThat(result, is("Insert Text \"text\" into <element>"))
+		assertEquals(result, "Insert Text \"text\" into <element>")
 	}
 
 	private def TemplateText newTemplateText(Procedure1<TemplateText> init) {

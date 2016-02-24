@@ -7,7 +7,7 @@
          point="org.eclipse.core.runtime.applications">
       <application>
          <run
-               class="org.testeditor.rcp4.product.Application">
+               class="org.testeditor.rcp4.Application">
          </run>
       </application>
    </extension>
@@ -21,21 +21,21 @@
                name="appName"
                value="TestEditor">
          </property>
-		 <property name="applicationXMI" value="org.testeditor.rcp4.product/Application.e4xmi"> </property>         
+		 <property name="applicationXMI" value="org.testeditor.rcp4/Application.e4xmi"> </property>         
       </product>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
             name="RCP Perspective"
-            class="org.testeditor.rcp4.product.Perspective"
-            id="org.testeditor.rcp4.product.perspective">
+            class="org.testeditor.rcp4.Perspective"
+            id="org.testeditor.rcp4.perspective">
       </perspective>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
-            targetID="org.testeditor.rcp4.product.perspective">
+            targetID="org.testeditor.rcp4.perspective">
          <view
                closeable="false"
                id="org.eclipse.ui.navigator.ProjectExplorer"
@@ -50,8 +50,8 @@
    <extension
          point="org.eclipse.ui.newWizards">
       <wizard
-            class="org.testeditor.rcp4.product.NewWizard"
-            id="org.testeditor.rcp4.product.wizard"
+            class="org.testeditor.rcp4.NewWizard"
+            id="org.testeditor.rcp4.wizard"
             name="Testeditor Project"
             project="true">
       </wizard>
@@ -60,7 +60,7 @@
          point="org.eclipse.ui.navigator.navigatorContent">
          <commonFilter
                activeByDefault="true"
-               class="org.testeditor.rcp4.product.NavFilter"
+               class="org.testeditor.rcp4.NavFilter"
                description="filter all files not of interest for the test writer"
                id="org.testeditor.product.commonFilter"
                name="filter technical files"
@@ -73,5 +73,29 @@
    		  <contentExtension pattern="org.testeditor.product.commonFilter"/>
    		</includes>
    	</viewerContentBinding>
+   </extension>
+   <extension
+         id="application"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="org.testeditor.rcp4.application"
+            name="TestEditor">
+         <property
+               name="appName"
+               value="TestEditor">
+         </property>
+      </product>
+   </extension>
+   <extension
+         id="testeditor"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="org.testeditor.rcp4.application"
+            name="TestEditor">
+         <property
+               name="appName"
+               value="TestEditor">
+         </property>
+      </product>
    </extension>
 </plugin>

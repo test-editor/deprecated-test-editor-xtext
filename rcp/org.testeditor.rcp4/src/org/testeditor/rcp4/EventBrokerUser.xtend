@@ -10,7 +10,7 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.rcp4.product
+package org.testeditor.rcp4
 
 import javax.annotation.PostConstruct
 import javax.inject.Inject

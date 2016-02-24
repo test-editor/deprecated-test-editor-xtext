@@ -1,4 +1,4 @@
-package org.testeditor.rcp4.product
+package org.testeditor.rcp4
 
 import org.eclipse.jface.action.IMenuManager
 import org.eclipse.ui.IWorkbenchWindow

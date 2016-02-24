@@ -1,4 +1,4 @@
-package org.testeditor.rcp4.product
+package org.testeditor.rcp4
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.jdt.core.JavaCore

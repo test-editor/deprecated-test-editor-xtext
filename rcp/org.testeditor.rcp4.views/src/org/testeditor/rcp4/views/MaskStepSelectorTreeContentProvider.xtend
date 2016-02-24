@@ -17,6 +17,8 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.jface.viewers.ITreeContentProvider
 import org.eclipse.jface.viewers.Viewer
 import org.testeditor.aml.AmlModel
+import java.util.HashSet
+import java.util.HashMap
 
 /** e4 tree content provider for the tree view of aml models */
 class MaskStepSelectorTreeContentProvider implements ITreeContentProvider {
@@ -33,15 +35,9 @@ class MaskStepSelectorTreeContentProvider implements ITreeContentProvider {
 
 	override getElements(Object inputElement) {
 		val clonedList = (inputElement as Iterable<AmlModel>).clone // may not return the input itself (see BUG in overridden method)
-		// merge duplicate name spaces
-		val knownNamespace = clonedList.map[amlModelLabelProvider.getText(it)].toSet
-		return clonedList.map [
-			if (knownNamespace.contains(amlModelLabelProvider.getText(it))) {
-				return null
-			} else {
-				return it
-			}
-		].filterNull
+		val mapped = new HashMap
+		clonedList.forEach[ mapped.put(amlModelLabelProvider.getText(it),it) ]
+		return  mapped.values.toList
 	}
 
 	override getParent(Object element) {

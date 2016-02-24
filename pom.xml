@@ -17,8 +17,7 @@
 		<module>tsl</module>
 		<module>tcl</module>
 		<module>legacy</module>
-		<!-- don't build rcp in the same step -->
-		<!-- module>rcp</module -->
+		<module>rcp</module>
 
 		<!-- TODO should we keep this? we should definitely move it to aml
 		<module>wsdl/org.testeditor.aml.wsdl.importer.ui</module>

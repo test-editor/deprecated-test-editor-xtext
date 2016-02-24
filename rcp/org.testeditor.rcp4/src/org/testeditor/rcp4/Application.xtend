@@ -1,4 +1,4 @@
-package org.testeditor.rcp4.product;
+package org.testeditor.rcp4;
 
 import org.eclipse.equinox.app.IApplication
 import org.eclipse.equinox.app.IApplicationContext

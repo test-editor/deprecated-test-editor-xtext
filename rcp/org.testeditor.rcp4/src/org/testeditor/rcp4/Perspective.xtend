@@ -1,4 +1,4 @@
-package org.testeditor.rcp4.product
+package org.testeditor.rcp4
 
 import org.eclipse.ui.IPageLayout
 import org.eclipse.ui.IPerspectiveFactory

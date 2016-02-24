@@ -31,16 +31,13 @@ public class AmlModelTreeAdapter {
 	AmlModelsProvider amlModelsProvider
 
 	def dispatch List<EObject> children(AmlModel node) {
-		node.components.map[it as EObject]
+		val models = (amlModelsProvider.getModelsForNamespaceOf(node) + #[node]).toSet;
+		models.map[components].flatten.map[it as EObject].toList
 	}
 
 	def dispatch List<EObject> children(Component node) {
 		// get all components of the same namespace
-		val models = amlModelsProvider.getModelsForNamespaceOf(node.eContainer as AmlModel);
-		val componentsOfNamespace = (models.map[components].flatten + #[node]).toSet // node itself is added just in case the models cannot be retrieved
-		return componentsOfNamespace.map [
-			(modelUtil.getAllComponentElements(it).map[it as EObject] + modelUtil.getAllComponentInteractionTypes(it))
-		].flatten.toList
+		(modelUtil.getAllComponentElements(node).map[it as EObject] + modelUtil.getAllComponentInteractionTypes(node)).toList
 	}
 
 	def dispatch List<EObject> children(ComponentElement node) {

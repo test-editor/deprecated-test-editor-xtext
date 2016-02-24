@@ -14,7 +14,8 @@ Require-Bundle: com.google.guava,
  org.eclipse.ui.editors,
  org.eclipse.xtext.xbase.ui,
  org.eclipse.jface,
- org.eclipse.e4.core.di
+ org.eclipse.e4.core.di,
+ org.eclipse.emf.ecore
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.google.inject,
  javax.inject;version="1.0.0",

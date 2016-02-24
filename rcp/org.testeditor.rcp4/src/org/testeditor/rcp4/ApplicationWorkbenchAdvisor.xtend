@@ -1,4 +1,4 @@
-package org.testeditor.rcp4.product
+package org.testeditor.rcp4
 
 import org.eclipse.core.resources.ResourcesPlugin
 import org.eclipse.core.runtime.Platform
@@ -14,7 +14,7 @@ import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin
 import org.osgi.framework.Bundle
 
 class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
-	static final String PERSPECTIVE_ID = "org.testeditor.rcp4.product.perspective"
+	static final String PERSPECTIVE_ID = "org.testeditor.rcp4.perspective"
 
 	// $NON-NLS-1$
 	override createWorkbenchWindowAdvisor(IWorkbenchWindowConfigurer configurer) {

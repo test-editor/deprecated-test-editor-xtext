@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<application:Application xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:advanced="http://www.eclipse.org/ui/2010/UIModel/application/ui/advanced" xmlns:application="http://www.eclipse.org/ui/2010/UIModel/application" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_VnmacNSzEeGBn6dQ9VPexA" elementId="test.rcp4.application" bindingContexts="_VnmacdSzEeGBn6dQ9VPexA">
-  <children xsi:type="basic:TrimmedWindow" xmi:id="_Vnmah9SzEeGBn6dQ9VPexA" elementId="main.window" label="Testeditor" iconURI="platform:/plugin/org.testeditor.rcp4.product/icons/test_editor.png" width="800" height="600">
+<application:Application xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:advanced="http://www.eclipse.org/ui/2010/UIModel/application/ui/advanced" xmlns:application="http://www.eclipse.org/ui/2010/UIModel/application" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_VnmacNSzEeGBn6dQ9VPexA" elementId="application" bindingContexts="_VnmacdSzEeGBn6dQ9VPexA">
+  <children xsi:type="basic:TrimmedWindow" xmi:id="_Vnmah9SzEeGBn6dQ9VPexA" elementId="main.window" label="Testeditor" iconURI="platform:/plugin/org.testeditor.rcp4/icons/test_editor.png" width="800" height="600">
     <children xsi:type="advanced:PerspectiveStack" xmi:id="_Vnmaj9SzEeGBn6dQ9VPexA" selectedElement="_VnmakNSzEeGBn6dQ9VPexA">
-      <children xsi:type="advanced:Perspective" xmi:id="_VnmakNSzEeGBn6dQ9VPexA" elementId="org.testeditor.rcp4.product.perspective" selectedElement="_VnnBgNSzEeGBn6dQ9VPexA" label="My Perspective" iconURI="platform:/plugin/org.testeditor.rcp4.product/icons/test_editor.png">
+      <children xsi:type="advanced:Perspective" xmi:id="_VnmakNSzEeGBn6dQ9VPexA" elementId="org.testeditor.rcp4.perspective" selectedElement="_VnnBgNSzEeGBn6dQ9VPexA" label="My Perspective" iconURI="platform:/plugin/org.testeditor.rcp4/icons/test_editor.png">
         <tags>Perspective</tags>
         <tags>categoryTag:General</tags>
         <children xsi:type="basic:PartSashContainer" xmi:id="_VnnBgNSzEeGBn6dQ9VPexA" horizontal="true">
@@ -51,7 +51,7 @@
       </menus>
       <toolbar xmi:id="_4UXAUdSmEeG-a6zBTyJ-wg" elementId="org.eclipse.ui.navigator.ProjectExplorer"/>
     </sharedElements>
-    <sharedElements xsi:type="basic:Part" xmi:id="_jAkYAL9gEeW1V6rf5BdVUw" elementId="org.testeditor.rcp4.product.part.mye3part" contributionURI="bundleclass://org.testeditor.rcp4.product/org.testeditor.rcp4.product.EventBrokerUser" label="MyE3Part"/>
+    <sharedElements xsi:type="basic:Part" xmi:id="_jAkYAL9gEeW1V6rf5BdVUw" elementId="org.testeditor.rcp4.product.part.mye3part" contributionURI="bundleclass://org.testeditor.rcp4/org.testeditor.rcp4.EventBrokerUser" label="MyE3Part"/>
     <trimBars xmi:id="_VOV6ANTAEeGTY-uOtVc6Mg" elementId="org.eclipse.ui.main.toolbar"/>
     <trimBars xmi:id="_VP1HwNTAEeGTY-uOtVc6Mg" elementId="org.eclipse.ui.trim.status" side="Bottom">
       <children xsi:type="menu:ToolControl" xmi:id="_VP1u0NTAEeGTY-uOtVc6Mg" elementId="org.eclipse.ui.StatusLine" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.StandardTrim">
