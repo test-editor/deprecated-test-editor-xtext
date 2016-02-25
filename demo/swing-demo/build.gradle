@@ -1,0 +1,17 @@
+plugins {
+    id 'org.testeditor.gradle-plugin' version '0.1'
+    id 'maven'
+}
+
+group = 'org.testeditor.demo'
+version = '1.0.0-SNAPSHOT'
+
+repositories {
+    mavenLocal()
+    jcenter()
+    maven { url "http://dl.bintray.com/test-editor/Fixtures" }
+}
+
+dependencies {
+    testCompile 'org.testeditor.fixture:swing-fixture:3.0.0-PROTO'
+}
