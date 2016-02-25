@@ -28,4 +28,5 @@ Import-Package: com.google.inject,
  org.junit.runners;version="4.5.0",
  org.junit.runners.model;version="4.5.0",
  org.testeditor.aml
-Export-Package: org.testeditor.aml.dsl.tests
+Export-Package: org.testeditor.aml.dsl.tests,
+ org.testeditor.aml.dsl.tests.parser

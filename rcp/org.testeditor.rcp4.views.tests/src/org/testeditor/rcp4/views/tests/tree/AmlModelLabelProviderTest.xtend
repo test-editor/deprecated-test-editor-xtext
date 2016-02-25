@@ -8,7 +8,7 @@ import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.rcp4.views.AmlModelLabelProvider
 
-class AmlModelLabelProviderTest extends AbstractParserTest {
+class AmlModelLabelProviderTest extends org.testeditor.aml.dsl.tests.parser.AbstractParserTest {
 
 	@Inject
 	AmlModelLabelProvider amlModelLabelProvider

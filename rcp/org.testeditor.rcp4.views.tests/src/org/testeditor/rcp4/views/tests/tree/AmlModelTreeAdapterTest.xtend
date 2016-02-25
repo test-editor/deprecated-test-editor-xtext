@@ -6,7 +6,7 @@ import org.junit.Test
 import org.mockito.MockitoAnnotations
 import org.testeditor.rcp4.views.AmlModelTreeAdapter
 
-class AmlModelTreeAdapterTest extends AbstractParserTest {
+class AmlModelTreeAdapterTest extends org.testeditor.aml.dsl.tests.parser.AbstractParserTest {
 
 	@Inject
 	AmlModelTreeAdapter amlModelTreeAdapter
