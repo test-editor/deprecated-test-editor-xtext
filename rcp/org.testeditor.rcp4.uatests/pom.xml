@@ -166,7 +166,7 @@
 				<configuration>
 					<useUIHarness>true</useUIHarness>
 					<useUIThread>false</useUIThread>
-					<product>org.testeditor.rcp4.product.testeditor_rcp</product>
+					<product>org.testeditor.rcp4.testeditor_rcp</product>
 					<application>org.testeditor.rcp4.application</application>
 
 				</configuration>

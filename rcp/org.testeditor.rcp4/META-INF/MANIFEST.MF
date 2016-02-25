@@ -1,0 +1,36 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Product
+Bundle-SymbolicName: org.testeditor.rcp4;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui,
+ org.eclipse.ui.navigator,
+ org.eclipse.ui.navigator.resources,
+ com.google.guava,
+ org.eclipse.xtext.xbase.lib,
+ org.eclipse.xtend.lib,
+ org.eclipse.xtend.lib.macro,
+ org.eclipse.e4.ui.workbench.addons.swt
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Import-Package: org.apache.log4j,
+ org.eclipse.core.resources,
+ org.eclipse.e4.core.di,
+ org.eclipse.e4.core.di.annotations,
+ org.eclipse.e4.core.di.extensions,
+ org.eclipse.e4.core.di.internal.extensions,
+ org.eclipse.e4.core.di.suppliers,
+ org.eclipse.e4.core.services.events,
+ org.eclipse.jdt.core,
+ org.eclipse.jdt.internal.core,
+ org.eclipse.jdt.internal.ui.packageview,
+ org.eclipse.jdt.junit,
+ org.eclipse.jdt.ui,
+ org.eclipse.ui.ide,
+ org.eclipse.ui.internal.ide,
+ org.eclipse.ui.wizards.newresource,
+ org.eclipse.xtext.ui,
+ org.osgi.service.event
+Bundle-Vendor: Signal Iduna Corporation
+

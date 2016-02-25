@@ -13,6 +13,10 @@ import org.eclipse.swt.widgets.Text
 import org.eclipse.swt.widgets.Tree
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure1
 
+/** xtend library for creating swt elements with initialization code.
+ * 
+ *  allows for tree like ui construction.
+ */
 public class XtendSWTLib {
 
 	def static Shell newShell(Display disp, Procedure1<Shell> init) {

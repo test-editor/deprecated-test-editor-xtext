@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.generator
 
+import com.google.common.annotations.VisibleForTesting
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
@@ -23,11 +24,11 @@ import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.ValueSpaceAssignment
 
 class AllActionGroupsGenerator extends AbstractGenerator {
-	
+
 	public static val XML_HEADER = '''<?xml version="1.0" encoding="UTF-8"?>'''
 	public static val OPEN_TAG = '''<ActionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://testeditor.org/xsd_schema/v_1_1/AllActionGroups.xsd" schemaVersion="1.1">'''
 	public static val CLOSE_TAG = '''</ActionGroups>'''
-	
+
 	def String generateAllActionGroups(AmlModel model) '''
 		«XML_HEADER»
 		«OPEN_TAG»
@@ -36,7 +37,7 @@ class AllActionGroupsGenerator extends AbstractGenerator {
 			«ENDFOR»
 		«CLOSE_TAG»
 	'''
-	
+
 	protected def generateActionGroup(Component component) '''
 		<ActionGroup name="«component.labelOrName»">
 			«component.generateActions»
@@ -45,7 +46,7 @@ class AllActionGroupsGenerator extends AbstractGenerator {
 			«ENDFOR»
 		</ActionGroup>
 	'''
-	
+
 	protected def generateActions(ElementWithInteractions<?> element) '''
 		«IF element.type !== null»
 			«FOR interaction : element.type.interactionTypes»
@@ -68,14 +69,14 @@ class AllActionGroupsGenerator extends AbstractGenerator {
 			'''
 		}
 	}
-	
+
 	protected def getActionName(ElementWithInteractions<?> element) {
 		if (element instanceof ComponentElement) {
 			return '''<actionName locator="«element.locator»">«element.labelOrName»</actionName>'''
 		} // else: no actioName if the element is a component	
 		return ""
 	}
-	
+
 	protected def getArguments(ElementWithInteractions<?> element, InteractionType interaction) {
 		if (interaction.template === null) {
 			return "" // if there is no template, we don't have arguments to consider
@@ -88,23 +89,25 @@ class AllActionGroupsGenerator extends AbstractGenerator {
 			«ENDFOR»
 		'''
 	}
-	
+
 	protected def generateArgument(ValueSpaceAssignment assignment) '''
 		<argument id="«assignment.variable.name»">
 			«assignment.valueSpace.generateValues»
 		</argument>
 	'''
-	
-	protected def dispatch generateValues(StringLiterals stringLiterals) '''
+
+	@VisibleForTesting
+	def dispatch generateValues(StringLiterals stringLiterals) '''
 		«FOR value : stringLiterals.values»
 			<value>«value»</value>
 		«ENDFOR»
 	'''
-	
-	protected def dispatch generateValues(IntegerRange integerRange) '''
+
+	@VisibleForTesting
+	def dispatch generateValues(IntegerRange integerRange) '''
 		«FOR value : (integerRange.from .. integerRange.to)»
 			<value>«value»</value>
 		«ENDFOR»
 	'''
-	
+
 }

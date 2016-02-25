@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.generator
 
+import com.google.common.annotations.VisibleForTesting
 import javax.inject.Inject
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.IFileSystemAccess
@@ -31,7 +32,7 @@ class XmlGenerator implements IGenerator {
 	override doGenerate(Resource input, IFileSystemAccess fsa) {
 		val model = input.contents.head as AmlModel
 		if (!model.fileNameAllActionGroups.nullOrEmpty) {
-			val fileName = model.packageFolder +  model.fileNameAllActionGroups
+			val fileName = model.packageFolder + model.fileNameAllActionGroups
 			fsa.generateFile(fileName, model.generateAllActionGroups)
 		}
 		if (!model.fileNameTechnicalBindings.nullOrEmpty) {
@@ -39,8 +40,9 @@ class XmlGenerator implements IGenerator {
 			fsa.generateFile(fileName, model.generateTechnicalBindings)
 		}
 	}
-	
-	protected def String getPackageFolder(AmlModel model) {
+
+	@VisibleForTesting
+	def String getPackageFolder(AmlModel model) {
 		return model.package.replaceAll("\\.", "/") + "/"
 	}
 

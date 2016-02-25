@@ -20,6 +20,7 @@ import org.testeditor.aml.dsl.validation.AmlValidator
 import static org.testeditor.aml.AmlPackage.Literals.*
 import static org.testeditor.aml.dsl.Messages.*
 import static org.testeditor.aml.dsl.validation.AmlValidator.*
+import org.junit.Ignore
 
 /**
  * Tests for {@link AmlValidator}.
@@ -40,6 +41,7 @@ class ValidationTest extends AbstractValidationTest {
 		component.assertError(COMPONENT, COMPONENT__TYPE__MISSING, Validation_Component_Type_Missing)
 	}
 
+	@Ignore
 	@Test
 	def void regExValueSpace() {
 		// Given

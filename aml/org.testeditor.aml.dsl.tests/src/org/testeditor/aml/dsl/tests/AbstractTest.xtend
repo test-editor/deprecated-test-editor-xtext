@@ -23,6 +23,7 @@ import org.eclipse.xtext.junit4.XtextRunner
 import org.eclipse.xtext.junit4.validation.ValidationTestHelper
 import org.eclipse.xtext.util.Modules2
 import org.junit.runner.RunWith
+import org.mockito.MockitoAnnotations
 import org.testeditor.aml.dsl.AmlRuntimeModule
 import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.dsl.common.testing.AssertionHelper
@@ -36,6 +37,8 @@ abstract class AbstractTest extends AbstractXtextTests {
 	override setUp() throws Exception {
 		super.setUp()
 		
+		MockitoAnnotations.initMocks(this)
+
 		// Setup dependency injection
 		val injector = createInjector
 		setInjector(injector)

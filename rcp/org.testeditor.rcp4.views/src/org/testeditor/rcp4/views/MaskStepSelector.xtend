@@ -1,22 +1,26 @@
+/*******************************************************************************
+ * Copyright (c) 2012 - 2016 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
 package org.testeditor.rcp4.views
 
-import java.io.File
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
 import javax.inject.Inject
-import org.eclipse.core.runtime.FileLocator
-import org.eclipse.core.runtime.Path
-import org.eclipse.e4.core.services.events.IEventBroker
+import org.apache.log4j.Logger
+import org.eclipse.e4.core.di.annotations.Optional
+import org.eclipse.e4.core.di.extensions.EventTopic
 import org.eclipse.e4.ui.di.Focus
-import org.eclipse.e4.ui.model.application.ui.basic.MPart
-import org.eclipse.e4.ui.workbench.modeling.EPartService
-import org.eclipse.emf.edit.provider.ComposedAdapterFactory
-import org.eclipse.emf.edit.ui.provider.AdapterFactoryContentProvider
-import org.eclipse.emf.edit.ui.provider.AdapterFactoryLabelProvider
-import org.eclipse.jface.resource.ImageDescriptor
-import org.eclipse.jface.text.IDocument
-import org.eclipse.jface.text.ITextOperationTarget
-import org.eclipse.jface.text.ITextViewer
+import org.eclipse.e4.ui.workbench.UIEvents
+import org.eclipse.emf.ecore.EObject
 import org.eclipse.jface.viewers.TreeViewer
 import org.eclipse.swt.SWT
 import org.eclipse.swt.dnd.DND
@@ -24,122 +28,96 @@ import org.eclipse.swt.dnd.DragSourceEvent
 import org.eclipse.swt.dnd.DragSourceListener
 import org.eclipse.swt.dnd.TextTransfer
 import org.eclipse.swt.widgets.Composite
-import org.eclipse.ui.IEditorPart
-import org.eclipse.ui.internal.e4.compatibility.CompatibilityEditor
-import org.eclipse.ui.texteditor.IDocumentProvider
-import org.eclipse.ui.texteditor.ITextEditor
-import org.osgi.framework.FrameworkUtil
+import org.eclipse.swt.widgets.Display
 
 import static org.testeditor.rcp4.views.XtendSWTLib.*
 
+/** 
+ * part that display a tree view with drag and drop elements of the aml model which can be inserted into
+ * a tcl document
+ */
 class MaskStepSelector {
 
-	@Inject
-	var IEventBroker broker
+	public static val String SELECTOR_TOPIC_REFRESH = "MaskStepSelector_Refresh"
 
-	@Inject
-	var EPartService partService
+	static Logger logger = Logger.getLogger(MaskStepSelector);
 
-	@Inject
-	XtextAmlInjectorProvider xtextInjectorProvider
+	@Inject AmlInjectorProvider amlInjectorProvider
+	@Inject MaskStepSelectorLabelProvider labelProvider
+	@Inject MaskStepSelectorDropTextProvider dropTextProvider
+	@Inject AmlDropSupport amlDropSupport
 
-	@Inject
-	new() {
-		System.out.println("created")
-	}
-
-	var TreeViewer viewer
-
-	def void setDefaultProviders(TreeViewer treeViewer) {
-		val composedAdapterFactory = new ComposedAdapterFactory(ComposedAdapterFactory.Descriptor.Registry.INSTANCE);
-
-		val labelProvider = new AdapterFactoryLabelProvider(composedAdapterFactory);
-		val contentProvider = new AdapterFactoryContentProvider(composedAdapterFactory);
-
-		treeViewer.setLabelProvider(labelProvider);
-		treeViewer.setContentProvider(contentProvider);
-	}
+	/** set as soon as the view is populated */
+	boolean populated = false
+	TreeViewer viewer
 
 	@PostConstruct
 	def void postConstruct(Composite parent) {
 		viewer = newTreeViewer(parent, SWT.V_SCROLL) [
-			setDefaultProviders
-			input = xtextInjectorProvider.injector.getInstance(MaskStepSelectorInput).packages.head // File.listRoots
-			addDragSupport((DND.DROP_COPY.bitwiseOr(DND.DROP_MOVE)), #[TextTransfer.getInstance()],
-				new DragSourceListener() {
+			addDragSupport((DND.DROP_COPY.bitwiseOr(DND.DROP_MOVE)), #[TextTransfer.instance],
+				new DragSourceListener {
 
 					override dragFinished(DragSourceEvent event) {
-						System.out.println("drag stop");
+						logger.trace("drag stop")
 					}
 
 					override dragSetData(DragSourceEvent event) {
-						val selection = viewer.getStructuredSelection();
-						val firstElement = selection.getFirstElement() as File;
-
-						if (TextTransfer.getInstance().isSupportedType(event.dataType)) {
-							event.data = firstElement.path
+						if (TextTransfer.instance.isSupportedType(event.dataType) &&
+							amlDropSupport.dropSupported(viewer.structuredSelection.firstElement as EObject)) {
+							event.data = dropTextProvider.getText(viewer.structuredSelection)
+						} else {
+							event.data = ""
 						}
 					}
 
 					override dragStart(DragSourceEvent event) {
-						System.out.println("drag start");
-					// addDropSupport
+						logger.trace("drag start")
 					}
 
 				})
 		]
 	}
 
-	def ImageDescriptor createImageDescriptor() {
-		val bundle = FrameworkUtil.getBundle(MaskStepSelector);
-		val url = FileLocator.find(bundle, new Path("icons/folder.png"), null);
-		return ImageDescriptor.createFromURL(url);
+	@Inject
+	@Optional
+	def void startupComplete(@EventTopic(UIEvents.UILifeCycle.APP_STARTUP_COMPLETE) Object data) {
+		// startup complete ensures the index to be populated
+		Display.getDefault.syncExec[populateViewIfEmpty] // is only run, if view is created on startup
 	}
 
 	@Focus
 	def void setFocus() {
-		viewer.getControl().setFocus();
+		populateViewIfEmpty
+		viewer.control.setFocus
 	}
 
-	def boolean dslEditorActive(MPart part) {
-		(part != null && part.parent.children.exists [
-			(it as MPart).object != null && tags.exists[equals("org.testeditor.tcl.dsl.Tcl")]
-		])
+	@Inject
+	@Optional
+	def void refreshView(@EventTopic(SELECTOR_TOPIC_REFRESH) Object data) {
+		populated = false
+		logger.debug("Refreshing view.")
+		Display.getDefault.syncExec[populateViewIfEmpty]
 	}
 
-	def IEditorPart activeDSLEditor(MPart part) {
-		if (dslEditorActive(part)) {
-			val ce = (part.parent.children.filter[(it as MPart).object != null].head as MPart).object // make sure to grab the editor that is currently open
-			val editor = (ce as CompatibilityEditor).editor
-			return editor
+	// make sure that the index is populated before calling this method
+	// and that it is run in the swt thread!
+	private def populateViewIfEmpty() {
+		if (populated) {
+			return
 		}
-		return null
-	}
+		val amlInjector = amlInjectorProvider.get
 
-	def void insertTextAtCaret(ITextEditor textEditor, String data) {
-		val IDocumentProvider dp = textEditor.documentProvider
-		val IDocument doc = dp.getDocument(textEditor.editorInput)
-		val cpos = (textEditor.getAdapter(ITextOperationTarget) as ITextViewer).textWidget.caretOffset
-		doc.replace(cpos, 0, data);
-	}
+		populated = true
+		viewer.labelProvider = labelProvider
+		viewer.contentProvider = amlInjector.getInstance(MaskStepSelectorTreeContentProvider)
 
-	def MPart compatibilityEditor() {
-		partService.findPart("org.eclipse.e4.ui.compatibility.editor")
-	}
-
-	def void passToTCLEditor(String data) {
-		val MPart part = compatibilityEditor
-
-		if (dslEditorActive(part)) {
-			activeDSLEditor(part).getAdapter(ITextEditor).insertTextAtCaret(data)
-			// TODO pass focus to editor (again)
-			activeDSLEditor(part).setFocus
-		}
+		val amlModelsProvider = amlInjector.getInstance(AmlModelsProvider)
+		viewer.input = amlModelsProvider.amlModels
+		viewer.expandAll
 	}
 
 	@PreDestroy
 	def void preDestroy() {
-		System.out.println("destroyed")
 	}
 
 }
