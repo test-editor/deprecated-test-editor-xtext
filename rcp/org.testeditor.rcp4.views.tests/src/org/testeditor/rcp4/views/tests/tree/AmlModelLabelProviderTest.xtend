@@ -1,14 +1,13 @@
 package org.testeditor.rcp4.views.tests.tree
 
 import javax.inject.Inject
-import org.eclipse.xtext.xbase.lib.Procedures.Procedure1
 import org.junit.Test
 import org.testeditor.aml.AmlFactory
-import org.testeditor.aml.TemplateText
-import org.testeditor.aml.TemplateVariable
+import org.testeditor.aml.TemplateContent
+import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
 import org.testeditor.rcp4.views.AmlModelLabelProvider
 
-class AmlModelLabelProviderTest extends org.testeditor.aml.dsl.tests.parser.AbstractParserTest {
+class AmlModelLabelProviderTest extends AbstractParserTest {
 
 	@Inject
 	AmlModelLabelProvider amlModelLabelProvider
@@ -21,8 +20,7 @@ class AmlModelLabelProviderTest extends org.testeditor.aml.dsl.tests.parser.Abst
 	@Test
 	def void labelForModelIsPackage() {
 		// given
-		val amlModel = factory.createAmlModel
-		amlModel.^package = "test"
+		val amlModel = factory.createAmlModel => [^package = "test"]
 
 		// when
 		val result = amlModelLabelProvider.getText(amlModel)
@@ -34,8 +32,7 @@ class AmlModelLabelProviderTest extends org.testeditor.aml.dsl.tests.parser.Abst
 	@Test
 	def void labelForComponentIsName() {
 		// given
-		val component = factory.createComponent
-		component.name = "test"
+		val component = factory.createComponent => [name = "test"]
 
 		// when
 		val result = amlModelLabelProvider.getText(component)
@@ -47,8 +44,7 @@ class AmlModelLabelProviderTest extends org.testeditor.aml.dsl.tests.parser.Abst
 	@Test
 	def void labelForComponentElementIsName() {
 		// given
-		val componentElement = factory.createComponentElement
-		componentElement.name = "test"
+		val componentElement = factory.createComponentElement => [name = "test"]
 
 		// when
 		val result = amlModelLabelProvider.getText(componentElement)
@@ -60,32 +56,22 @@ class AmlModelLabelProviderTest extends org.testeditor.aml.dsl.tests.parser.Abst
 	@Test
 	def void labelForInteractionTypesIsTheTemplateString() {
 		// given
-		val interactionType = factory.createInteractionType
-		interactionType.template = factory.createTemplate
-		interactionType.template.contents += #[
-			newTemplateText[value = "Insert Text"],
-			newTemplateVariable[name = "text"],
-			newTemplateText[value = "into"],
-			newTemplateVariable[name = "element"]
+		val interactionType = factory.createInteractionType => [
+			template = factory.createTemplate => [
+				contents += #[
+					factory.createTemplateText => [value = "Insert Text"],
+					factory.createTemplateVariable => [name = "text"],
+					factory.createTemplateText => [value = "into"],
+					factory.createTemplateVariable => [name = "element"]
+				].map[it as TemplateContent]
+			]
 		]
 
 		// when
 		val result = amlModelLabelProvider.getText(interactionType)
 
 		// then
-		assertEquals(result, "Insert Text \"text\" into <element>")
-	}
-
-	private def TemplateText newTemplateText(Procedure1<TemplateText> init) {
-		val result = factory.createTemplateText
-		init.apply(result)
-		return result
-	}
-
-	private def TemplateVariable newTemplateVariable(Procedure1<TemplateVariable> init) {
-		val result = factory.createTemplateVariable
-		init.apply(result)
-		return result
+		assertEquals(result, 'Insert Text "text" into <element>')
 	}
 
 }
