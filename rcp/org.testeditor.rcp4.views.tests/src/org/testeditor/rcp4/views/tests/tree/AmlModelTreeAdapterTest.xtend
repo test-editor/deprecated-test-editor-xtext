@@ -37,7 +37,7 @@ class AmlModelTreeAdapterTest extends org.testeditor.aml.dsl.tests.parser.Abstra
 	}
 
 	@Test
-	def void componentElementHasInteractionsInTree() {
+	def void componentElementHasInteractionsOfTypeInTree() {
 		// given
 		val input = '''
 			package pa
@@ -55,10 +55,13 @@ class AmlModelTreeAdapterTest extends org.testeditor.aml.dsl.tests.parser.Abstra
 			interaction type release { }
 		'''
 		val model = parser.parse(input)
+		val app = model.components.findFirst[name == "MyApp"]
+		assertNotNull(app)
+		val button = app.elements.findFirst[name == "MyButton"]
+		assertNotNull(button)
 
 		// when
-		val app = model.components.findFirst[name == "MyApp"]
-		val children = amlModelTreeAdapter.children(app.elements.findFirst[name == "MyButton"]).toSet
+		val children = amlModelTreeAdapter.children(button).toSet
 
 		// then
 		assertEquals(children, model.interactionTypes.toSet)
@@ -66,7 +69,7 @@ class AmlModelTreeAdapterTest extends org.testeditor.aml.dsl.tests.parser.Abstra
 	}
 
 	@Test
-	def void componentHasOwnAndInheritedInheritedInteractionsInTree() {
+	def void componentHasOwnAndInheritedInteractionsInTree() {
 		// given
 		val input = '''
 			package pa
@@ -102,9 +105,11 @@ class AmlModelTreeAdapterTest extends org.testeditor.aml.dsl.tests.parser.Abstra
 			interaction type release { }
 		'''
 		val model = parser.parse(input)
+		val app = model.components.findFirst[name == "MyApp"]
+		assertNotNull(app)
 
 		// when
-		val children = amlModelTreeAdapter.children(model.components.findFirst[it.name == "MyApp"]).toSet
+		val children = amlModelTreeAdapter.children(app).toSet
 
 		// then
 		val expectedInteractions = model.interactionTypes.filter[#["open", "close", "kill"].contains(name)]
