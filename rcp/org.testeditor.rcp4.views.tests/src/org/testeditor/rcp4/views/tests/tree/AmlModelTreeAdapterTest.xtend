@@ -1,20 +1,23 @@
 package org.testeditor.rcp4.views.tests.tree
 
 import javax.inject.Inject
-import org.junit.Before
 import org.junit.Test
-import org.mockito.MockitoAnnotations
-import org.testeditor.rcp4.views.AmlModelTreeAdapter
+import org.testeditor.aml.AmlModel
+import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
+import org.testeditor.rcp4.views.MaskStepSelectorTreeContentProvider
 
-class AmlModelTreeAdapterTest extends org.testeditor.aml.dsl.tests.parser.AbstractParserTest {
+class AmlModelTreeAdapterTest extends AbstractParserTest {
 
 	@Inject
-	AmlModelTreeAdapter amlModelTreeAdapter
+	MaskStepSelectorTreeContentProvider amlModelTreeAdapter
 
-	@Before
-	override void setUp() {
-		super.setUp
-		MockitoAnnotations.initMocks(this);
+	/**
+	 * Set the input for the content provider and then call getChildren
+	 * with the passed parent element.
+	 */
+	private def getChildren(Object parentElement, AmlModel... models) {
+		amlModelTreeAdapter.inputChanged(null, null, models.toList)
+		return amlModelTreeAdapter.getChildren(parentElement).toSet
 	}
 
 	@Test
@@ -29,7 +32,7 @@ class AmlModelTreeAdapterTest extends org.testeditor.aml.dsl.tests.parser.Abstra
 		val model = parser.parse(input)
 
 		// when
-		val children = amlModelTreeAdapter.children(model).toSet
+		val children = model.package.getChildren(model)
 
 		// then
 		assertEquals(children, model.components.toSet)
@@ -55,13 +58,11 @@ class AmlModelTreeAdapterTest extends org.testeditor.aml.dsl.tests.parser.Abstra
 			interaction type release { }
 		'''
 		val model = parser.parse(input)
-		val app = model.components.findFirst[name == "MyApp"]
-		assertNotNull(app)
-		val button = app.elements.findFirst[name == "MyButton"]
-		assertNotNull(button)
+		val app = model.components.findFirst[name == "MyApp"].assertNotNull
+		val button = app.elements.findFirst[name == "MyButton"].assertNotNull
 
 		// when
-		val children = amlModelTreeAdapter.children(button).toSet
+		val children = button.getChildren(model)
 
 		// then
 		assertEquals(children, model.interactionTypes.toSet)
@@ -105,11 +106,10 @@ class AmlModelTreeAdapterTest extends org.testeditor.aml.dsl.tests.parser.Abstra
 			interaction type release { }
 		'''
 		val model = parser.parse(input)
-		val app = model.components.findFirst[name == "MyApp"]
-		assertNotNull(app)
+		val myApp = model.components.findFirst[name == "MyApp"].assertNotNull
 
 		// when
-		val children = amlModelTreeAdapter.children(app).toSet
+		val children = myApp.getChildren(model)
 
 		// then
 		val expectedInteractions = model.interactionTypes.filter[#["open", "close", "kill"].contains(name)]

@@ -15,7 +15,6 @@ package org.testeditor.rcp4.views
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
 import javax.inject.Inject
-import org.apache.log4j.Level
 import org.apache.log4j.Logger
 import org.eclipse.e4.core.di.annotations.Optional
 import org.eclipse.e4.core.di.extensions.EventTopic
@@ -33,8 +32,9 @@ import org.eclipse.swt.widgets.Display
 
 import static org.testeditor.rcp4.views.XtendSWTLib.*
 
-/** part that display a tree view with drag and drop elements of the aml model which can be inserted into
- *  a tcl document
+/** 
+ * part that display a tree view with drag and drop elements of the aml model which can be inserted into
+ * a tcl document
  */
 class MaskStepSelector {
 
@@ -42,27 +42,14 @@ class MaskStepSelector {
 
 	static Logger logger = Logger.getLogger(MaskStepSelector);
 
-	@Inject
-	XtextAmlInjectorProvider xtextInjectorProvider
-
-	@Inject
-	MaskStepSelectorLabelProvider mssLabelProvider
-
-	@Inject
-	MaskStepSelectorDropTextProvider mssDropTextProvider
-
-	@Inject
-	AmlDropSupport amlDropSupport
+	@Inject AmlInjectorProvider amlInjectorProvider
+	@Inject MaskStepSelectorLabelProvider labelProvider
+	@Inject MaskStepSelectorDropTextProvider dropTextProvider
+	@Inject AmlDropSupport amlDropSupport
 
 	/** set as soon as the view is populated */
-	var boolean populated
-
-	var TreeViewer viewer
-
-	@Inject
-	new() {
-		populated = false
-	}
+	boolean populated = false
+	TreeViewer viewer
 
 	@PostConstruct
 	def void postConstruct(Composite parent) {
@@ -71,20 +58,20 @@ class MaskStepSelector {
 				new DragSourceListener {
 
 					override dragFinished(DragSourceEvent event) {
-						logger.trace("drag stop");
+						logger.trace("drag stop")
 					}
 
 					override dragSetData(DragSourceEvent event) {
 						if (TextTransfer.instance.isSupportedType(event.dataType) &&
 							amlDropSupport.dropSupported(viewer.structuredSelection.firstElement as EObject)) {
-							event.data = mssDropTextProvider.getText(viewer.structuredSelection)
+							event.data = dropTextProvider.getText(viewer.structuredSelection)
 						} else {
 							event.data = ""
 						}
 					}
 
 					override dragStart(DragSourceEvent event) {
-						logger.trace("drag start");
+						logger.trace("drag start")
 					}
 
 				})
@@ -95,7 +82,7 @@ class MaskStepSelector {
 	@Optional
 	def void startupComplete(@EventTopic(UIEvents.UILifeCycle.APP_STARTUP_COMPLETE) Object data) {
 		// startup complete ensures the index to be populated
-		Display.^default.syncExec[populateViewIfEmpty] // is only run, if view is created on startup
+		Display.getDefault.syncExec[populateViewIfEmpty] // is only run, if view is created on startup
 	}
 
 	@Focus
@@ -107,9 +94,9 @@ class MaskStepSelector {
 	@Inject
 	@Optional
 	def void refreshView(@EventTopic(SELECTOR_TOPIC_REFRESH) Object data) {
-		populated = false;
-		Display.^default.syncExec[populateViewIfEmpty]
-		logger.info("refresh")
+		populated = false
+		logger.debug("Refreshing view.")
+		Display.getDefault.syncExec[populateViewIfEmpty]
 	}
 
 	// make sure that the index is populated before calling this method
@@ -118,15 +105,15 @@ class MaskStepSelector {
 		if (populated) {
 			return
 		}
+		val amlInjector = amlInjectorProvider.get
+
 		populated = true
-		val amlModelsProvider = xtextInjectorProvider.injector.getInstance(AmlModelsProvider)
-		val mcp = xtextInjectorProvider.injector.getInstance(MaskStepSelectorTreeContentProvider)
-		viewer => [
-			labelProvider = mssLabelProvider
-			contentProvider = mcp
-			input = amlModelsProvider.amlModels
-			expandAll
-		]
+		viewer.labelProvider = labelProvider
+		viewer.contentProvider = amlInjector.getInstance(MaskStepSelectorTreeContentProvider)
+
+		val amlModelsProvider = amlInjector.getInstance(AmlModelsProvider)
+		viewer.input = amlModelsProvider.amlModels
+		viewer.expandAll
 	}
 
 	@PreDestroy

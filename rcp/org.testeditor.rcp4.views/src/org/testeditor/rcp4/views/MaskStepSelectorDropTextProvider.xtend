@@ -14,7 +14,6 @@ package org.testeditor.rcp4.views
 
 import javax.inject.Inject
 import org.eclipse.e4.core.di.annotations.Creatable
-import org.eclipse.emf.ecore.EObject
 import org.eclipse.jface.viewers.ITreeSelection
 
 /** provide the text that should be dropped into the tcl document, given the tree selection */
@@ -22,7 +21,7 @@ import org.eclipse.jface.viewers.ITreeSelection
 class MaskStepSelectorDropTextProvider {
 
 	@Inject
-	var MaskStepSelectorLabelProvider mssLabelProvider
+	var MaskStepSelectorLabelProvider labelProvider
 
 	@Inject
 	var AmlModelTreeDropTextProvider amlDropTextProvider
@@ -32,12 +31,12 @@ class MaskStepSelectorDropTextProvider {
 	 *  at the selected element itself up to the root
 	 */
 	def String getText(ITreeSelection selection) {
-		val firstElement = selection.firstElement as EObject;
-		var result = mssLabelProvider.getText(firstElement)
+		val firstElement = selection.firstElement
+		var result = labelProvider.getText(firstElement)
 		val size = selection.paths.head.segmentCount
 		if (size > 1) {
 			for (var i = size - 1; i >= 0; i--) { // start the dropped element itself, going up the tree
-				val element = selection.paths.head.getSegment(i) as EObject
+				val element = selection.paths.head.getSegment(i)
 				result = amlDropTextProvider.adjustTextBy(size - i - 1, element, result)
 			}
 		}

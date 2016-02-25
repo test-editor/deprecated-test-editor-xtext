@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -40,7 +40,7 @@ class AmlModelTreeDropTextProvider {
 	}
 
 	/** default, no adjustment */
-	def dispatch String adjustTextBy(int distance, EObject element, String basis) {
+	def dispatch String adjustTextBy(int distance, Object element, String basis) {
 		basis
 	}
 }

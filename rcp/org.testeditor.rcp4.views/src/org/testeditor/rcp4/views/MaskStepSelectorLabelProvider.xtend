@@ -12,44 +12,23 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views
 
-import org.eclipse.jface.viewers.ILabelProvider
-import org.eclipse.jface.viewers.ILabelProviderListener
 import javax.inject.Inject
-import org.eclipse.emf.ecore.EObject
 import org.eclipse.e4.core.di.annotations.Creatable
+import org.eclipse.jface.viewers.LabelProvider
 
 /** e4 label provider for the tree view of aml models */
 @Creatable
-class MaskStepSelectorLabelProvider implements ILabelProvider{
+class MaskStepSelectorLabelProvider extends LabelProvider {
 	
-	@Inject
-	AmlModelLabelProvider amlModelLabelProvider
-	
-	@Inject
-	AmlModelIconProvider amlModelIconProvider
+	@Inject AmlModelLabelProvider amlModelLabelProvider
+	@Inject AmlModelIconProvider amlModelIconProvider
 	
 	override getImage(Object element) {
-		amlModelIconProvider.getIcon(element as EObject)
+		amlModelIconProvider.getIcon(element)
 	}
 	
 	override getText(Object element) {
-		amlModelLabelProvider.getText(element as EObject)
-	}
-	
-	override addListener(ILabelProviderListener listener) {
-
-	}
-	
-	override dispose() {
-
-	}
-	
-	override isLabelProperty(Object element, String property) {
-		false
-	}
-	
-	override removeListener(ILabelProviderListener listener) {
-
+		amlModelLabelProvider.getText(element)
 	}
 	
 }

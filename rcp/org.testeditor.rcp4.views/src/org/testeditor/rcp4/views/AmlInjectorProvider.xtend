@@ -18,8 +18,10 @@ import org.testeditor.aml.dsl.ui.internal.DslActivator
 
 /** provide an injector that is able to inject xtext and thus google guice dependent classes */
 @Creatable
-class XtextAmlInjectorProvider {
-	def Injector getInjector() {
-		DslActivator.instance.getInjector(DslActivator.ORG_TESTEDITOR_AML_DSL_AML)
+class AmlInjectorProvider {
+
+	def Injector get() {
+		return DslActivator.instance.getInjector(DslActivator.ORG_TESTEDITOR_AML_DSL_AML)
 	}
+
 }

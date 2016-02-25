@@ -56,24 +56,18 @@ class ModelUtil {
 	}
 
 	/**
-	 * @return all interaction types of the {@link Component} including the interactions through component inclusion.
-	 */
-	def Set<InteractionType> getAllComponentInteractionTypes(Component component) {
-		return getTypes(component).map[interactionTypes].flatten.toSet
-	}
-
-	/**
 	 * @return all component elements of the {@link Component} including the elements through component inclusion.
 	 */
-	def Set<ComponentElement> getAllComponentElements(Component component) {
-		return (component.elements + component.parents.map[getAllComponentElements].flatten).toSet
+	def Set<ComponentElement> getComponentElements(Component component) {
+		return (component.elements + component.parents.map[componentElements].flatten).toSet
 	}
 
 	/**
 	 * @return all interaction types of the component's elements.
 	 */
 	def Set<InteractionType> getComponentElementsInteractionTypes(Component component) {
-		return component.elements.map[componentElementInteractionTypes].flatten.toSet
+		val componentElements = component.componentElements
+		return componentElements.map[componentElementInteractionTypes].flatten.toSet
 	}
 
 	/**

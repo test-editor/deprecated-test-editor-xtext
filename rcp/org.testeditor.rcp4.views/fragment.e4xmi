@@ -3,7 +3,7 @@
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_bFv7kMNHEeWQa6b5MYvMYA" featurename="children" parentElementId="org.eclipse.ui.views.PropertySheetMStack">
     <elements xsi:type="basic:Part" xmi:id="_xq908MNHEeWQa6b5MYvMYA" elementId="org.testeditor.rcp4.views.part.maskStepSelector4rcp" contributionURI="bundleclass://org.testeditor.rcp4.views/org.testeditor.rcp4.views.MaskStepSelector" label="Mask Step Selector">
       <toolbar xmi:id="_7jEdoNV-EeWSfZhKqjrmtQ" elementId="org.testeditor.rcp4.views.part.maskStepSelector4rcp.toolbar">
-        <children xsi:type="menu:DirectToolItem" xmi:id="_M30mINWDEeWSfZhKqjrmtQ" elementId="org.testeditor.rcp4.views.directtoolitem.refresh" label="refresh" iconURI="platform:/plugin/org.testeditor.rcp4.views/icons/arrow_refresh.png" contributionURI="bundleclass://org.testeditor.rcp4.views/org.testeditor.rcp4.views.MaskStepSelectorRefresh"/>
+        <children xsi:type="menu:DirectToolItem" xmi:id="_M30mINWDEeWSfZhKqjrmtQ" elementId="org.testeditor.rcp4.views.directtoolitem.refresh" label="refresh" iconURI="platform:/plugin/org.testeditor.rcp4.views/icons/refresh.png" contributionURI="bundleclass://org.testeditor.rcp4.views/org.testeditor.rcp4.views.MaskStepSelectorRefresh"/>
       </toolbar>
     </elements>
   </fragments>

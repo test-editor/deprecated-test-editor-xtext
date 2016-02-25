@@ -12,49 +12,68 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views
 
+import com.google.common.cache.CacheBuilder
+import com.google.common.cache.LoadingCache
+import javax.annotation.PreDestroy
 import org.eclipse.core.runtime.FileLocator
 import org.eclipse.core.runtime.Path
 import org.eclipse.e4.core.di.annotations.Creatable
-import org.eclipse.emf.ecore.EObject
 import org.eclipse.jface.resource.ImageDescriptor
 import org.eclipse.swt.graphics.Image
 import org.osgi.framework.FrameworkUtil
-import org.testeditor.aml.AmlModel
 import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.InteractionType
 
+// TODO extract some stuff in an abstract super class
 /** provide icons for the drag/drop tree view for tcl - editor insertions */
 @Creatable
 class AmlModelIconProvider {
-	private static val BUNDLE = FrameworkUtil.getBundle(AmlModelIconProvider);
 
-	private static val ICON_FOLDER = ImageDescriptor.createFromURL(
-		FileLocator.find(BUNDLE, new Path("icons/folder.png"), null)).createImage
-	private static val ICON_MASK = ImageDescriptor.createFromURL(
-		FileLocator.find(BUNDLE, new Path("icons/mask.png"), null)).createImage
-	private static val ICON_STEP = ImageDescriptor.createFromURL(
-		FileLocator.find(BUNDLE, new Path("icons/text_list_bullets.png"), null)).createImage
-	private static val ICON_ELEMENT = ImageDescriptor.createFromURL(
-		FileLocator.find(BUNDLE, new Path("icons/brick.png"), null)).createImage
+	private static val BUNDLE = FrameworkUtil.getBundle(AmlModelIconProvider)
 
-	def dispatch Image getIcon(EObject element) {
+	// TODO check if we can use default Eclipse icons here
+	private static val namespace = "namespace.gif".descriptor
+	private static val mask = "mask.png".descriptor
+	private static val interaction = "interaction.gif".descriptor
+	private static val componentElement = "component_element.png".descriptor
+
+	static private def ImageDescriptor getDescriptor(String iconName) {
+		return ImageDescriptor.createFromURL(FileLocator.find(BUNDLE, new Path("icons/" + iconName), null))
+	}
+
+	val LoadingCache<ImageDescriptor, Image> cache = CacheBuilder.newBuilder.removalListener [ notification |
+		val Image image = notification.value
+		image.dispose
+	].build [
+		createImage
+	]
+
+	def dispatch Image getIcon(Object element) {
 		null
 	}
 
-	def dispatch Image getIcon(AmlModel element) {
-		ICON_FOLDER
+	/** If we pass a String, we expect this to be the namespace. */
+	def dispatch Image getIcon(String element) {
+		cache.get(namespace)
 	}
 
 	def dispatch Image getIcon(Component element) {
-		ICON_MASK
+		cache.get(mask)
 	}
 
 	def dispatch Image getIcon(ComponentElement element) {
-		ICON_ELEMENT
+		cache.get(componentElement)
 	}
 
 	def dispatch Image getIcon(InteractionType element) {
-		ICON_STEP
+		cache.get(interaction)
 	}
+
+	// TODO check when and if this is ever called
+	@PreDestroy
+	def void dispose() {
+		cache.invalidateAll
+	}
+
 }

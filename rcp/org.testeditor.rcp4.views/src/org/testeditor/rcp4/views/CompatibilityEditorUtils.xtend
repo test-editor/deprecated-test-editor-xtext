@@ -26,7 +26,7 @@ import org.eclipse.ui.texteditor.ITextEditor
 class CompatibilityEditorUtils {
 
 	@Inject
-	var EPartService partService
+	EPartService partService
 
 	// val String tag ="org.testeditor.dsl.tcl.Tcl"
 	def boolean dslEditorWithTagActive(MPart part, String tag) {

@@ -12,46 +12,60 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views
 
+import java.util.List
+import java.util.Map
 import javax.inject.Inject
-import org.eclipse.emf.ecore.EObject
 import org.eclipse.jface.viewers.ITreeContentProvider
 import org.eclipse.jface.viewers.Viewer
 import org.testeditor.aml.AmlModel
-import java.util.HashSet
-import java.util.HashMap
+import org.testeditor.aml.Component
+import org.testeditor.aml.ComponentElement
+import org.testeditor.aml.ModelUtil
 
 /** e4 tree content provider for the tree view of aml models */
 class MaskStepSelectorTreeContentProvider implements ITreeContentProvider {
 
-	@Inject
-	var AmlModelTreeAdapter amlModelTreeAdapter
+	@Inject ModelUtil modelUtil
 
-	@Inject
-	var AmlModelLabelProvider amlModelLabelProvider
+	Map<String, List<AmlModel>> input
 
 	override getChildren(Object parentElement) {
-		(amlModelTreeAdapter.children(parentElement as EObject)).toArray
+		return switch (parentElement) {
+			String: {
+				// A String means we have a namespace / package
+				val models = input.get(parentElement)
+				models.map[components].flatten
+			}
+			Component: {
+				// Interaction Types for the Component itself + its elements
+				modelUtil.getComponentInteractionTypes(parentElement) + modelUtil.getComponentElements(parentElement)
+			}
+			ComponentElement: {
+				modelUtil.getComponentElementInteractionTypes(parentElement)
+			}
+			default:
+				#[]
+		}
 	}
 
 	override getElements(Object inputElement) {
-		val clonedList = (inputElement as Iterable<AmlModel>).clone // may not return the input itself (see BUG in overridden method)
-		val mapped = new HashMap
-		clonedList.forEach[ mapped.put(amlModelLabelProvider.getText(it),it) ]
-		return  mapped.values.toList
+		return input.keySet
 	}
 
 	override getParent(Object element) {
-		amlModelTreeAdapter.parent(element as EObject)
+		return null
 	}
 
 	override hasChildren(Object element) {
-		!getChildren(element).empty
+		return !element.children.empty
 	}
 
 	override dispose() {
 	}
 
 	override inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		val input = newInput as Iterable<AmlModel>
+		this.input = input?.groupBy[package]
 	}
 
 }

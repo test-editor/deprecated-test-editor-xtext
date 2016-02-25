@@ -6,37 +6,34 @@ import org.eclipse.emf.ecore.resource.ResourceSet
 import org.testeditor.aml.AmlModel
 import org.eclipse.xtext.EcoreUtil2
 import java.util.HashSet
+import static org.testeditor.aml.AmlPackage.Literals.AML_MODEL
 
 public class AmlModelsProvider {
-	@Inject
-	var IResourceDescriptions resourceDescriptions;
 
 	@Inject
-	ResourceSet rs;
+	IResourceDescriptions resourceDescriptions
 
 	@Inject
-	AmlModelLabelProvider amlModelLabelProvider
+	ResourceSet rs
 
 	def Iterable<AmlModel> getModelsForNamespace(String namespace) {
-		getAmlModels.filter[amlModelLabelProvider.getText(it).equals(namespace)]
+		return amlModels.filter[package == namespace]
 	}
 
 	def Iterable<AmlModel> getModelsForNamespaceOf(AmlModel amlModel) {
-		getModelsForNamespace(amlModelLabelProvider.getText(amlModel))
+		return amlModel.package.modelsForNamespace
 	}
 
 	def boolean empty() {
-		try {
-			return resourceDescriptions.empty
-		} catch (Exception e) { // resource set throws an exception if the resources were not intialized (e.g. during test)
-			return true
-		}
+		return resourceDescriptions.empty
 	}
 
 	def Iterable<AmlModel> getAmlModels() {
 		if (empty) {
 			return new HashSet
 		}
+		val amlDescriptions = resourceDescriptions.getExportedObjectsByType(AML_MODEL)
+		amlDescriptions.forEach[]
 
 		return resourceDescriptions //
 		.allResourceDescriptions //
