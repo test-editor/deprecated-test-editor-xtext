@@ -39,4 +39,11 @@ itemis AG
          version="0.0.0"
          unpack="false"/>
 
+   <plugin
+         id="org.testeditor.rcp4.views.testview"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>
