@@ -12,6 +12,7 @@ import org.eclipse.ui.internal.e4.compatibility.CompatibilityView
 
 @Creatable
 class CompatibilityResultViewUtils {
+	
 	@Inject EPartService partService
 
 	def void importRunSession(String resource) {
