@@ -33,7 +33,7 @@ itemis AG
          unpack="false"/>
 
    <plugin
-         id="org.testeditor.rcp4.views.maskstepselector"
+         id="org.testeditor.rcp4.views.teststepselector"
          download-size="0"
          install-size="0"
          version="0.0.0"
