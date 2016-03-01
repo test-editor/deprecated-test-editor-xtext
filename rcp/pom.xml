@@ -33,7 +33,7 @@
 		<module>org.testeditor.rcp4.views.tests</module>
 		<module>org.testeditor.rcp4.views.testview</module>
 		<module>org.testeditor.rcp4</module>
-		<!-- <module>org.testeditor.rcp4.uatests</module> -->
+		<module>org.testeditor.rcp4.uatests</module>
 	</modules>
 
 </project>
