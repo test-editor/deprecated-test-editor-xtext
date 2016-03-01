@@ -25,6 +25,7 @@
 		<module>org.testeditor.rcp.platform.feature</module>
 		<module>org.testeditor.rcp.feature</module>
 		<module>org.testeditor.rcp.updatesite</module>
+  		<module>org.testeditor.rcp</module>
 		<module>org.testeditor.rcp4.feature</module>
 		<module>org.testeditor.rcp4.views.maskstepselection</module>
 		<module>org.testeditor.rcp4.views.maskstepselection.tests</module>

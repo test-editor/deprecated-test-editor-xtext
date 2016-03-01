@@ -15,11 +15,11 @@
          id="testeditor_rcp"
          point="org.eclipse.core.runtime.products">
       <product
-            name="Testeditor"
+            name="TestEditor"
             application="org.testeditor.rcp.application">
          <property
                name="appName"
-               value="Testeditor RCP">
+               value="TestEditor">
          </property>
       </product>
    </extension>
