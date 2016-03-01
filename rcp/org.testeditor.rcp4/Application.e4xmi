@@ -6,7 +6,7 @@
         <tags>Perspective</tags>
         <tags>categoryTag:General</tags>
         <children xsi:type="basic:PartSashContainer" xmi:id="_VnnBgNSzEeGBn6dQ9VPexA" horizontal="true">
-          <children xsi:type="basic:PartStack" xmi:id="_VnnBgdSzEeGBn6dQ9VPexA" containerData="3400">
+          <children xsi:type="basic:PartStack" xmi:id="_VnnBgdSzEeGBn6dQ9VPexA" elementId="stack.explorer" containerData="3400" selectedElement="_QR29cNS2EeGBn6dQ9VPexA">
             <tags>newtablook</tags>
             <tags>org.eclipse.e4.primaryNavigationStack</tags>
             <children xsi:type="advanced:Placeholder" xmi:id="_QR29cNS2EeGBn6dQ9VPexA" elementId="org.eclipse.ui.navigator.ProjectExplorer" ref="_sS7Q8NS1EeGBn6dQ9VPexA"/>
