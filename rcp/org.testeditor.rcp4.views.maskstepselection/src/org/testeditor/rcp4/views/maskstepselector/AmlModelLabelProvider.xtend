@@ -12,10 +12,9 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.maskstepselector
 
+import org.eclipse.e4.core.di.annotations.Creatable
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.Component
-import org.eclipse.e4.core.di.annotations.Creatable
-import org.eclipse.emf.ecore.EObject
 import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.InteractionType
 import org.testeditor.aml.TemplateText
