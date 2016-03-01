@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="org.testeditor.rcp.application"
+         name="Testeditor RCP"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="org.testeditor.rcp.product.Application">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="testeditor_rcp"
+         point="org.eclipse.core.runtime.products">
+      <product
+            name="TestEditor"
+            application="org.testeditor.rcp.application">
+         <property
+               name="appName"
+               value="TestEditor">
+         </property>
+      </product>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            name="RCP Perspective"
+            class="org.testeditor.rcp.product.Perspective"
+            id="org.testeditor.rcp.product.perspective">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.testeditor.rcp.product.perspective">
+         <view
+               closeable="false"
+               id="org.eclipse.ui.navigator.ProjectExplorer"
+               minimized="false"
+               ratio="0.3f"
+               relationship="left"
+               relative="org.eclipse.ui.editorss"
+               visible="true">
+         </view>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <wizard
+            class="org.testeditor.rcp.product.NewWizard"
+            id="org.testeditor.rcp.product.wizard"
+            name="Testeditor Project"
+            project="true">
+      </wizard>
+   </extension>
+   <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+         <commonFilter
+               activeByDefault="true"
+               class="org.testeditor.rcp.product.NavFilter"
+               description="filter all files not of interest for the test writer"
+               id="org.testeditor.product.commonFilter"
+               name="filter technical files"
+               visibleInUI="true">
+         </commonFilter>
+   </extension>
+   <extension point="org.eclipse.ui.navigator.viewer">
+   	<viewerContentBinding viewerId="org.eclipse.ui.navigator.ProjectExplorer">
+   		<includes>
+   		  <contentExtension pattern="org.testeditor.product.commonFilter"/>
+   		</includes>
+   	</viewerContentBinding>
+   </extension>
+</plugin>

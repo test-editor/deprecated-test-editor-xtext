@@ -79,5 +79,9 @@
    <feature url="features/org.eclipse.swtbot.source_2.3.0.201506081302.jar" id="org.eclipse.swtbot.source" version="2.3.0.201506081302">
       <category name="eclipse-platform"/>
    </feature>
+   <!-- gradle buildship -->
+   <feature url="features/org.eclipse.buildship_1.0.9.v20160211-1429.jar" id="org.eclipse.buildship" version="1.0.9.v20160211-1429">
+     <category name="eclipse-platform"/>
+   </feature>
    <category-def name="eclipse-platform" label="eclipse-platform"/>
 </site>

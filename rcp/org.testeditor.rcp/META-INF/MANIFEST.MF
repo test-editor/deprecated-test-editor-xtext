@@ -1,0 +1,28 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Product
+Bundle-SymbolicName: org.testeditor.rcp;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui,
+ org.eclipse.ui.navigator,
+ org.eclipse.ui.navigator.resources,
+ com.google.guava,
+ org.eclipse.xtext.xbase.lib,
+ org.eclipse.xtend.lib,
+ org.eclipse.xtend.lib.macro
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Import-Package: org.eclipse.core.resources,
+ org.eclipse.jdt.core,
+ org.eclipse.jdt.internal.core,
+ org.eclipse.jdt.internal.ui.packageview,
+ org.eclipse.jdt.junit,
+ org.eclipse.jdt.ui,
+ org.eclipse.ui.ide,
+ org.eclipse.ui.internal.ide,
+ org.eclipse.ui.wizards.newresource,
+ org.eclipse.xtext.ui,
+ org.osgi.service.event
+Bundle-Vendor: Signal Iduna Corporation
+

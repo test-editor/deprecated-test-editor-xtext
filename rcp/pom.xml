@@ -12,7 +12,6 @@
 		<profile>
 			<id>product</id>
 			<modules>
-				<module>org.testeditor.aml.rcp.product</module>
 				<module>org.testeditor.rcp.product</module>
 				<module>org.testeditor.rcp4.product</module>
 				<module>org.testeditor.rcp4</module>
@@ -23,14 +22,13 @@
 
 
 	<modules>
-		<module>org.testeditor.aml.rcp.platform.feature</module>
-		<module>org.testeditor.aml.rcp.updatesite</module>
 		<module>org.testeditor.rcp.platform.feature</module>
 		<module>org.testeditor.rcp.feature</module>
 		<module>org.testeditor.rcp.updatesite</module>
+  		<module>org.testeditor.rcp</module>
 		<module>org.testeditor.rcp4.feature</module>
-		<module>org.testeditor.rcp4.views</module>
-		<module>org.testeditor.rcp4.views.tests</module>
+		<module>org.testeditor.rcp4.views.teststepselection</module>
+		<module>org.testeditor.rcp4.views.teststepselection.tests</module>
 		<module>org.testeditor.rcp4.views.testview</module>
 		<module>org.testeditor.rcp4</module>
 		<!-- <module>org.testeditor.rcp4.uatests</module> -->

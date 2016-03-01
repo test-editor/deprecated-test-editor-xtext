@@ -10,8 +10,8 @@
 		<relativePath>../../releng/org.testeditor.aml.releng.parent</relativePath>
 	</parent>
 
-	<artifactId>org.testeditor.rcp</artifactId>
-	<packaging>eclipse-plugin</packaging>
+	<artifactId>org.testeditor.rcp4.views.teststepselector.tests</artifactId>
+	<packaging>eclipse-test-plugin</packaging>
 
 	<build>
 		<plugins>
@@ -22,3 +22,4 @@
 		</plugins>
 	</build>
 </project>
+

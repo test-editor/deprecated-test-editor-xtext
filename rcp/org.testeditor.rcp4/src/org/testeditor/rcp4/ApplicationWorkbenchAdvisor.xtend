@@ -55,22 +55,21 @@ class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 					IDE.SharedImages.IMG_OBJ_PROJECT_CLOSED, '''«ICONS_PATH»obj16/cprj_obj.gif''')
 				declareWorkbenchImage(ideBundle,
 					IDEInternalWorkbenchImages.IMG_ETOOL_PROBLEMS_VIEW, '''«ICONS_PATH»eview16/problems_view.gif''')
+				declareWorkbenchImage(ideBundle, IDEInternalWorkbenchImages.
+					IMG_ETOOL_PROBLEMS_VIEW_ERROR, '''«ICONS_PATH»eview16/problems_view_error.gif''')
+				declareWorkbenchImage(ideBundle, IDEInternalWorkbenchImages.
+					IMG_ETOOL_PROBLEMS_VIEW_WARNING, '''«ICONS_PATH»eview16/problems_view_warning.gif''')
 				declareWorkbenchImage(ideBundle,
-					IDEInternalWorkbenchImages.
-						IMG_ETOOL_PROBLEMS_VIEW_ERROR, '''«ICONS_PATH»eview16/problems_view_error.gif''')
-					declareWorkbenchImage(ideBundle, IDEInternalWorkbenchImages.
-						IMG_ETOOL_PROBLEMS_VIEW_WARNING, '''«ICONS_PATH»eview16/problems_view_warning.gif''')
-					declareWorkbenchImage(ideBundle,
-						IDEInternalWorkbenchImages.IMG_OBJS_ERROR_PATH, '''«ICONS_PATH»obj16/error_tsk.gif''')
-					declareWorkbenchImage(ideBundle,
-						IDEInternalWorkbenchImages.IMG_OBJS_WARNING_PATH, '''«ICONS_PATH»obj16/warn_tsk.gif''')
-				]
-		}
-
-		def declareWorkbenchImage(IWorkbenchConfigurer configurer, Bundle ideBundle, String symbolicName, String path) {
-			val url = ideBundle.getEntry(path)
-			val desc = ImageDescriptor.createFromURL(url)
-			configurer.declareImage(symbolicName, desc, true)
-		}
+					IDEInternalWorkbenchImages.IMG_OBJS_ERROR_PATH, '''«ICONS_PATH»obj16/error_tsk.gif''')
+				declareWorkbenchImage(ideBundle,
+					IDEInternalWorkbenchImages.IMG_OBJS_WARNING_PATH, '''«ICONS_PATH»obj16/warn_tsk.gif''')
+			]
 	}
-	
+
+	def void declareWorkbenchImage(IWorkbenchConfigurer configurer, Bundle ideBundle, String symbolicName,
+		String path) {
+		val url = ideBundle.getEntry(path)
+		val desc = ImageDescriptor.createFromURL(url)
+		configurer.declareImage(symbolicName, desc, true)
+	}
+}
