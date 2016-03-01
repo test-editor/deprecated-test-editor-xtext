@@ -61,6 +61,11 @@
 		   <layout>p2</layout>
 		   <url>http://download.eclipse.org/technology/swtbot/releases/latest/</url>
 		</repository>
+		<repository>
+		  <id>buildship</id>
+		  <layout>p2</layout>
+		  <url>http://download.eclipse.org/buildship/updates/e45/releases/1.0</url>
+		</repository>
 	</repositories>
 
 	<build>

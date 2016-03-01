@@ -86,4 +86,41 @@ itemis AG
          version="0.0.0"
          unpack="false"/ -->
 
+   <!-- gradle buildship dependencies -->
+
+   <plugin
+       id="com.google.gson"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+       id="org.gradle.toolingapi"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+       id="com.gradleware.tooling.client"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+       id="com.gradleware.tooling.model"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+       id="com.gradleware.tooling.utils"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>
