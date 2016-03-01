@@ -4,7 +4,6 @@ import javax.inject.Inject
 import org.junit.Test
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
-import org.testeditor.rcp4.views.teststepselector.TestStepSelectorTreeContentProvider
 
 class AmlModelTreeAdapterTest extends AbstractParserTest {
 

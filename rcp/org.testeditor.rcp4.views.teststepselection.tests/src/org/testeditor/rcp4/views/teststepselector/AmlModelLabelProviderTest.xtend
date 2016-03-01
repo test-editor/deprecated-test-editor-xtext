@@ -5,7 +5,6 @@ import org.junit.Test
 import org.testeditor.aml.AmlFactory
 import org.testeditor.aml.TemplateContent
 import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
-import org.testeditor.rcp4.views.teststepselector.AmlModelLabelProvider
 
 class AmlModelLabelProviderTest extends AbstractParserTest {
 
