@@ -40,7 +40,7 @@ class TestStepSelector {
 
 	public static val String SELECTOR_TOPIC_REFRESH = "MaskStepSelector_Refresh"
 
-	val logger = LoggerFactory.getLogger(TestStepSelector);
+	static val logger = LoggerFactory.getLogger(TestStepSelector);
 
 	@Inject AmlInjectorProvider amlInjectorProvider
 	@Inject TestStepSelectorLabelProvider labelProvider

@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory
 import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
 
 class TclLauncher implements Launcher {
-	val logger = LoggerFactory.getLogger(TclLauncher)
+	static val logger = LoggerFactory.getLogger(TclLauncher)
 
 	def void showResult(String path) {
 		val testResult = new File(path)
