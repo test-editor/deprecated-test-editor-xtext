@@ -14,7 +14,6 @@ package org.testeditor.rcp4.handlers;
 
 import javax.inject.Named;
 
-import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.e4.core.di.annotations.Execute;
 import org.eclipse.e4.core.di.annotations.Optional;
@@ -25,6 +24,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
 import org.osgi.service.prefs.BackingStoreException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testeditor.rcp4.Constants;
 
 /**
@@ -35,7 +36,7 @@ import org.testeditor.rcp4.Constants;
  */
 public class RestartAndResetUIHandler {
 
-	private static final Logger logger = Logger.getLogger(RestartAndResetUIHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(RestartAndResetUIHandler.class);
 
 	/**
 	 * Restarts the Application to reset the ui model.

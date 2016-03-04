@@ -14,7 +14,6 @@ package org.testeditor.rcp4;
 
 import javax.inject.Named;
 
-import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.e4.core.di.extensions.Preference;
 import org.eclipse.e4.ui.services.IServiceConstants;
@@ -23,6 +22,8 @@ import org.eclipse.e4.ui.workbench.lifecycle.PostContextCreate;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.osgi.service.prefs.BackingStoreException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -31,7 +32,7 @@ import org.osgi.service.prefs.BackingStoreException;
  */
 public class ApplicationLifeCycleHandler {
 
-	private static final Logger logger = Logger.getLogger(ApplicationLifeCycleHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(ApplicationLifeCycleHandler.class);
 
 	/**
 	 * Verifies if there is a reason to drop existing ui model states in the
