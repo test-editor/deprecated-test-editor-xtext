@@ -11,11 +11,11 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.xtend.lib,
  org.eclipse.xtend.lib.macro,
- org.eclipse.e4.ui.workbench.addons.swt
+ org.eclipse.e4.ui.workbench.addons.swt,
+ org.testeditor.logging;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Import-Package: org.apache.log4j,
- org.eclipse.core.resources,
+Import-Package: org.eclipse.core.resources,
  org.eclipse.e4.core.di,
  org.eclipse.e4.core.di.annotations,
  org.eclipse.e4.core.di.extensions,
