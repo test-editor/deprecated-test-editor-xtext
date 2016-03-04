@@ -22,6 +22,10 @@
                value="TestEditor">
          </property>
 		 <property name="applicationXMI" value="org.testeditor.rcp4/Application.e4xmi"> </property>         
+         <property
+				name="lifeCycleURI"
+				value="bundleclass://org.testeditor.rcp4/org.testeditor.rcp4.ApplicationLifeCycleHandler">
+		</property>		 
       </product>
    </extension>
    <extension
