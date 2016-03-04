@@ -1,7 +1,6 @@
 package org.testeditor.rcp4.tcltestrun
 
 import java.io.File
-import org.apache.log4j.Logger
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.ResourcesPlugin
 import org.eclipse.jdt.junit.JUnitCore
@@ -12,10 +11,11 @@ import org.gradle.tooling.ProjectConnection
 import org.gradle.tooling.ResultHandler
 import org.gradle.tooling.events.ProgressEvent
 import org.gradle.tooling.events.ProgressListener
+import org.slf4j.LoggerFactory
 import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
 
 class TclLauncher implements Launcher {
-	val logger = Logger.getLogger(TclLauncher)
+	val logger = LoggerFactory.getLogger(TclLauncher)
 
 	def void showResult(String path) {
 		val testResult = new File(path)
@@ -46,7 +46,7 @@ class TclLauncher implements Launcher {
 					logger.info(event.displayName)
 				}
 
-			})// .forTasks("test") // does not work, see issue below
+			}) // .forTasks("test") // does not work, see issue below
 			.withArguments("test", "--tests", elementId) // https://issues.gradle.org/browse/GRADLE-2972
 			// .setStandardOutput(System.out) // alternatively get a separate console output stream (see http://wiki.eclipse.org/FAQ_How_do_I_write_to_the_console_from_a_plug-in%3F)
 			.run(new ResultHandler() {

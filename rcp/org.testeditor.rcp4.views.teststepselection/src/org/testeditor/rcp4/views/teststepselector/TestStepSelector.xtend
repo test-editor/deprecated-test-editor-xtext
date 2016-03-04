@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -15,7 +15,6 @@ package org.testeditor.rcp4.views.teststepselector
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
 import javax.inject.Inject
-import org.apache.log4j.Logger
 import org.eclipse.e4.core.di.annotations.Optional
 import org.eclipse.e4.core.di.extensions.EventTopic
 import org.eclipse.e4.ui.di.Focus
@@ -29,6 +28,7 @@ import org.eclipse.swt.dnd.DragSourceListener
 import org.eclipse.swt.dnd.TextTransfer
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Display
+import org.slf4j.LoggerFactory
 
 import static org.testeditor.rcp4.views.teststepselector.XtendSWTLib.*
 
@@ -40,7 +40,7 @@ class TestStepSelector {
 
 	public static val String SELECTOR_TOPIC_REFRESH = "MaskStepSelector_Refresh"
 
-	static Logger logger = Logger.getLogger(TestStepSelector);
+	val logger = LoggerFactory.getLogger(TestStepSelector);
 
 	@Inject AmlInjectorProvider amlInjectorProvider
 	@Inject TestStepSelectorLabelProvider labelProvider
