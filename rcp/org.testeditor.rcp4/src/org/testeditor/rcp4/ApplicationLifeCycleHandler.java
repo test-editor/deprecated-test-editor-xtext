@@ -71,7 +71,7 @@ public class ApplicationLifeCycleHandler {
 		if (!prefs.get(Constants.TE_WS_VERSION_ID, "UNKNOWN").equals(Constants.TE_WS_VERSION)) {
 			if (shell != null) {
 				boolean confirm = MessageDialog.openConfirm(shell, "Migrate TE",
-						"Using the new features of this Test-Editor version, needs to rest the UI State of the Application in this workspace.");
+						"Using the new features of this Test-Editor version, needs to reset the UI State of the Application in this workspace.");
 				return confirm;
 			}
 			return true;
