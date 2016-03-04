@@ -11,7 +11,10 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.xtend.lib,
  org.eclipse.xtend.lib.macro,
- org.eclipse.e4.ui.workbench.addons.swt
+ org.eclipse.e4.ui.workbench.addons.swt,
+ org.eclipse.e4.ui.model.workbench,
+ org.eclipse.e4.ui.workbench,
+ org.testeditor.logging;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: org.apache.log4j,
@@ -22,6 +25,9 @@ Import-Package: org.apache.log4j,
  org.eclipse.e4.core.di.internal.extensions,
  org.eclipse.e4.core.di.suppliers,
  org.eclipse.e4.core.services.events,
+ org.eclipse.e4.ui.services,
+ org.eclipse.e4.ui.workbench,
+ org.eclipse.e4.ui.workbench.lifecycle,
  org.eclipse.jdt.core,
  org.eclipse.jdt.internal.core,
  org.eclipse.jdt.internal.ui.packageview,
