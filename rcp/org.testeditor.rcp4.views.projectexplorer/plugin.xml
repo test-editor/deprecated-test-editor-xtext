@@ -4,9 +4,11 @@
    <extension
          point="org.eclipse.ui.views">
       <view
-            name="Test Project Explorer"
+            allowMultiple="false"
             class="org.eclipse.ui.navigator.CommonNavigator"
-            id="org.testeditor.rcp4.views.ProjectExplorer">
+            icon="icons/test_explorer.gif"
+            id="org.testeditor.rcp4.views.ProjectExplorer"
+            name="Test Project Explorer">
       </view>
    </extension>
    <extension
@@ -16,7 +18,7 @@
             viewerId="org.testeditor.rcp4.views.ProjectExplorer">
          <popupMenu
                allowsPlatformContributions="true"
-               id="org.eclipse.ui.navigator.ProjectExplorer#PopupMenu">
+               id="org.testeditor.rcp4.views.ProjectExplorer#PopupMenu">
             <insertionPoint
                   name="group.new">
             </insertionPoint>
@@ -75,11 +77,9 @@
             <contentExtension
                   pattern="org.eclipse.ui.navigator.resources.linkHelper">
             </contentExtension>
-            <contentExtension
-                  pattern="org.eclipse.ui.navigator.resources.workingSets">
-            </contentExtension>
+   		   <contentExtension pattern="org.testeditor.projectexplorer.commonFilter"/>
          </includes>
-      </viewerContentBinding>
+      </viewerContentBinding>      
       <viewerActionBinding
             viewerId="org.testeditor.rcp4.views.ProjectExplorer">
          <includes>
@@ -95,6 +95,17 @@
       <fragment
             uri="fragment.e4xmi">
       </fragment>
+   </extension>
+   <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+         <commonFilter
+               activeByDefault="true"
+               class="org.testeditor.rcp4.views.projectexplorer.NavFilter"
+               description="filter all files not of interest for the test writer"
+               id="org.testeditor.projectexplorer.commonFilter"
+               name="Filter technical files"
+               visibleInUI="true">
+         </commonFilter>
    </extension>
 
 </plugin>
