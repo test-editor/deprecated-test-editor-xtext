@@ -20,7 +20,8 @@ import org.eclipse.jdt.internal.core.JavaElement
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.jface.viewers.ViewerFilter
 
-/** filter all classpath containers (Java RT, JUnit) and java elements from navigator
+/** 
+ * Filter all classpath containers (Java RT, JUnit) and java elements from navigator
  * 
  *  thus the user of the rcp sees only the files relevant to him in the project explorer
  */
