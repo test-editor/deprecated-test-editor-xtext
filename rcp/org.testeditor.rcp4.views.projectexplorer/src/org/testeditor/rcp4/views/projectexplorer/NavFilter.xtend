@@ -31,7 +31,8 @@ class NavFilter extends ViewerFilter {
 			return false
 		}
 		if (element instanceof IFolder) { // don't show any folders that hold generated artifacts (-gen) or maven artifacts (target)
-			if (element.projectRelativePath.segments.exists[equals("bin")||equals("target") || endsWith("-gen")]) {
+			val lastSegment = element.projectRelativePath.lastSegment
+			if (lastSegment.equals("bin")||lastSegment.equals("target") || lastSegment.endsWith("-gen")) {
 				return false;
 			}
 		}
