@@ -2,14 +2,15 @@ package org.testeditor.rcp4
 
 import org.testeditor.fixture.swt.*
 
-interaction type viewSichtbar {
-	label = "ist View sichtbar"
-	template = "ist View" ${element} "sichtbar"
-	method = SWTFixture.isViewVisible(element)
-}
+interaction type createSimpleProject {
+	label = "Einfaches Projekt erzeugen"
+	template = "Einfaches Projekt erzeugen"
+	method = TestEditorFixture.createDemoProject
+	
+} 
 
-element type View {
-	interactions = viewSichtbar
+component type TestEditorApp {
+	interactions = createSimpleProject	
 }
 
 component HauptFenster is General {
@@ -17,4 +18,12 @@ component HauptFenster is General {
 		label = "Projekt Baum"
 		locator ="Project Explorer"
 	}
+	element TestStepSelector is View {
+		label = "Test Schritt Auswahl"
+		locator = "Test Step Selector "
+	}
+}
+
+component TestEditor is TestEditorApp {
+	
 }

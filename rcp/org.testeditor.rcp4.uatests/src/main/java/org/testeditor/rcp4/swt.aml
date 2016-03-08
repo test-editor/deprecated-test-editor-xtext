@@ -13,7 +13,16 @@ interaction type warte {
 	method = SWTFixture.wait(seconds)
 }
 
+interaction type viewSichtbar {
+	label = "ist View sichtbar"
+	template = "ist View" ${element} "sichtbar"
+	method = SWTFixture.isViewVisible(element)
+}
+
 component type General {
 	interactions = reportWidgets, warte
 }
 
+element type View {
+	interactions = viewSichtbar
+}

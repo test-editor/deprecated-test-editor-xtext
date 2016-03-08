@@ -26,6 +26,10 @@ import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.testeditor.fixture.core.interaction.FixtureMethod;
 
+/**
+ * Fixture to control SWT elements in an RCP Application.
+ *
+ */
 public class SWTFixture {
 
 	Logger logger = LogManager.getLogger(SWTFixture.class);
