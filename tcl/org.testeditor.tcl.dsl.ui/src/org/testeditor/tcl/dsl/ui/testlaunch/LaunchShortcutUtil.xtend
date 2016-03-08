@@ -21,7 +21,9 @@ class LaunchShortcutUtil {
 
 	/** is a valid object for executing a test on */
 	def boolean isValidForTestrun(Object res) {
-		res instanceof IResource && fileExtensionProvider.isValid((res as IResource).fileExtension)
+		res instanceof IResource 
+		&& fileExtensionProvider.isValid((res as IResource).fileExtension)
+		&& getJavaElementForResource(res as IResource)!=null 
 	}
 
 	/** get the derived java element of the given resource */
@@ -42,13 +44,13 @@ class LaunchShortcutUtil {
 	}
 
 	/** translate package to package-name + '.' and java file to file-name w/o extension */
-	private def String idPart(IJavaElement je) {
-		switch (je) {
+	private def String idPart(IJavaElement javaElement) {
+		switch (javaElement) {
 			IPackageFragment:
-				return je.elementName + "."
+				return javaElement.elementName + "."
 			Object:
-				if (je.elementName.endsWith(".java")) {
-					return je.elementName.replace(".java", "")
+				if (javaElement.elementName.endsWith(".java")) {
+					return javaElement.elementName.replace(".java", "")
 				} else {
 					return ""
 				}
@@ -56,8 +58,8 @@ class LaunchShortcutUtil {
 	}
 
 	/** generate [ package {'.' package} '.' ] className */
-	def String elementId(IJavaElement je) {
-		(je.parent?.elementId ?: "") + je.idPart
+	def String elementId(IJavaElement javaElement) {
+		(javaElement.parent?.elementId ?: "") + javaElement.idPart
 	}
 
 }

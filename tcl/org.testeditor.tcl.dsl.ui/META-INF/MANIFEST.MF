@@ -28,7 +28,8 @@ Require-Bundle: org.testeditor.dsl.common,
  org.eclipse.xpand,
  org.eclipse.xtend.lib;resolution:=optional,
  org.eclipse.jdt.core,
- org.eclipse.jdt.junit;bundle-version="3.8.0"
+ org.eclipse.jdt.junit;bundle-version="3.8.0",
+ org.slf4j.api
 Import-Package: org.apache.log4j,
  org.eclipse.jdt.core,
  org.eclipse.jdt.junit.launcher

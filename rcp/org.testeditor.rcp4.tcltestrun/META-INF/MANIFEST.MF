@@ -11,19 +11,15 @@ Require-Bundle: org.eclipse.xtend.lib,
  org.eclipse.buildship.core,
  org.gradle.toolingapi,
  org.eclipse.jdt.core,
- org.testeditor.logging
+ org.testeditor.logging,
+ org.eclipse.e4.core.di.annotations,
+ org.eclipse.debug.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.google.inject,
  javax.inject,
  org.eclipse.core.resources,
  org.eclipse.core.runtime,
  org.eclipse.debug.core,
- org.eclipse.debug.ui,
- org.eclipse.e4.core.di.annotations,
  org.eclipse.emf.common.util,
- org.eclipse.jdt.junit.launcher,
- org.eclipse.jface.viewers,
- org.eclipse.ui,
- org.testeditor.tcl.dsl.ui.internal,
- org.testeditor.tcl.dsl.ui.testlaunch
+ org.eclipse.jface.viewers
 Bundle-ActivationPolicy: lazy
