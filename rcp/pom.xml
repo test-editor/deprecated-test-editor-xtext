@@ -29,6 +29,7 @@
 		<module>org.testeditor.rcp4.views.teststepselection</module>
 		<module>org.testeditor.rcp4.views.teststepselection.tests</module>
 		<module>org.testeditor.rcp4.views.testview</module>
+		<module>org.testeditor.rcp4.views.projectexplorer</module>
 		<module>org.testeditor.rcp4</module>
 		<module>org.testeditor.rcp4.tests</module>
 		<module>org.testeditor.rcp4.uatests</module>
