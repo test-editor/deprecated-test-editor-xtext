@@ -14,13 +14,13 @@ component type TestEditorApp {
 }
 
 component HauptFenster is General {
-	element ProjektBaum is View {
+	element ProjektBaum is TreeView {
 		label = "Projekt Baum"
 		locator ="Project Explorer"
 	}
 	element TestStepSelector is View {
 		label = "Test Schritt Auswahl"
-		locator = "Test Step Selector "
+		locator = "Test Step Selector"
 	}
 }
 

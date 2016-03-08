@@ -19,10 +19,20 @@ interaction type viewSichtbar {
 	method = SWTFixture.isViewVisible(element)
 }
 
+interaction type selektiereElement {
+	label = "selektiere Element"
+	template = "selektiere Element" ${item} "in Baum" ${element} 
+	method = SWTFixture.selectElementInTreeView(element,item)
+}
+
 component type General {
 	interactions = reportWidgets, warte
 }
 
 element type View {
 	interactions = viewSichtbar
+}
+
+element type TreeView {
+	interactions = viewSichtbar, selektiereElement
 }

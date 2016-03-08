@@ -8,10 +8,11 @@ import org.testeditor.rcp4.*
 
 Component: HauptFenster
  - ist View <ProjektBaum> sichtbar
- //- ist View <TestStepSelector> sichtbar
+ - ist View <TestStepSelector> sichtbar
  
  Component: TestEditor
 - Einfaches Projekt erzeugen
 
 Component: HauptFenster
-- Warte "10" Sekunden
+- selektiere Element "DemoProject" in Baum <ProjektBaum>
+

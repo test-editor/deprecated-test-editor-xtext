@@ -13,6 +13,7 @@
 package org.testeditor.fixture.swt;
 
 import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.widgetOfType;
+import static org.junit.Assert.assertNotNull;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -24,6 +25,8 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.testeditor.fixture.core.interaction.FixtureMethod;
 
 /**
@@ -114,9 +117,19 @@ public class SWTFixture {
 	 */
 	@FixtureMethod
 	public boolean isViewVisible(String viewName) {
-		logger.trace("search for view with name: {}", viewName);
-		SWTBotView view = bot.viewByPartName(viewName);
+		logger.trace("search for view with titel: {}", viewName);
+		SWTBotView view = bot.viewByTitle(viewName);
 		return view.isActive();
+	}
+
+	@FixtureMethod
+	public void selectElementInTreeView(String viewName, String itemName) {
+		logger.trace("search for view with titel: {}", viewName);
+		SWTBotView view = bot.viewByTitle(viewName);
+		SWTBotTree tree = view.bot().tree();
+		assertNotNull(tree);
+		SWTBotTreeItem expandNode = tree.expandNode(itemName);
+		assertNotNull(expandNode);
 	}
 
 }
