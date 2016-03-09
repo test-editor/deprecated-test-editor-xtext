@@ -4,15 +4,17 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.aml.dsl.ui.wizard
+package org.testeditor.dsl.common.ui.wizards
 
+import javax.inject.Inject
 import org.eclipse.core.resources.IContainer
+import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.ResourcesPlugin
 import org.eclipse.core.runtime.Path
@@ -31,26 +33,30 @@ import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Label
 import org.eclipse.swt.widgets.Text
 import org.eclipse.ui.dialogs.ContainerSelectionDialog
+import org.testeditor.dsl.common.ui.utils.ProjectUtils
 
 /** 
  * The "New" wizard page allows setting the container for the new file as well
  * as the file name. The page will only accept file name without the extension
- * OR with the extension that matches the expected one (aml).
+ * OR with the extension that matches the expected one.
  */
-class AmlNewFileWizardPage extends WizardPage {
+class NewFileWizardPage extends WizardPage {
+
+	@Inject extension ProjectUtils projectUtils
 
 	Text containerText
 	Text fileText
 	ISelection selection
+	String fileExtension
 
-	/** 
-	 * Constructor for SampleNewWizardPage.
-	 * @param pageName
-	 */
-	new(ISelection selection) {
+	new() {
 		super("wizardPage")
-		title = "New Aml File"
-		description = "This wizard creates a new file with *.aml extension."
+	}
+
+	def void init(ISelection selection, String title, String description, String fileExtension) {
+		this.title = title
+		this.description = description
+		this.fileExtension = fileExtension
 		this.selection = selection
 	}
 
@@ -95,37 +101,47 @@ class AmlNewFileWizardPage extends WizardPage {
 		if (selection instanceof IStructuredSelection) {
 			if(selection.size !== 1) return
 			val obj = selection.firstElement
-			if (obj instanceof IResource) {
-				val container = if (obj instanceof IContainer) obj else obj.parent
-				containerText.text = container.fullPath.toString
-				setFileText(container.name)
-			}
-			if (obj instanceof IJavaElement) {
-				val parentPackage = obj.getAncestor(IJavaElement.PACKAGE_FRAGMENT)
-				if (parentPackage !== null) {
-					containerText.text = parentPackage.resource.fullPathString	
-					setFileText(parentPackage.path.lastSegment) // elementName is fully qualified, don't want that
-				} else {
-					val project = obj.javaProject
-					containerText.text = project?.sourceFolderPath
-					setFileText(project?.elementName)
+			switch (obj) {
+				IJavaProject: {
+					containerText.text = getSourceFolderPath(obj.getAdapter(IProject)) ?: obj.path.toString
+					setFileText(obj.elementName)
+				}
+				IProject: {
+					containerText.text = getSourceFolderPath(obj) ?: obj.fullPath.toString
+					setFileText(obj.name)
+				}
+				IResource: {
+					val container = if(obj instanceof IContainer) obj else obj.parent
+					containerText.text = container.fullPath.toString
+					setFileText(container.name)
+				}
+				IJavaElement: {
+					val parentPackage = obj.getAncestor(IJavaElement.PACKAGE_FRAGMENT)
+					if (parentPackage !== null) {
+						containerText.text = parentPackage.resource.fullPathString
+						setFileText(parentPackage.path.lastSegment) // elementName is fully qualified, don't want that
+					} else {
+						val project = obj.javaProject
+						containerText.text = project?.getAdapter(IProject).sourceFolderPath
+						setFileText(project?.elementName)
+					}
 				}
 			}
 		}
 		if (fileText.text.nullOrEmpty) {
-			setFileText("demo")
+			setFileText("Demo")
 		}
 	}
-	
+
 	def private setFileText(String name) {
 		if (!name.isNullOrEmpty) {
-			fileText.text = name + ".aml"
+			fileText.text = name.toFirstUpper + "." + fileExtension
 		}
 	}
-	
-	def private getSourceFolderPath(IJavaProject javaProject) {
-		val srcFolder = javaProject.project.getFolder(AmlProjectCreator.SRC_ROOT)
-		return srcFolder.fullPathString
+
+	def private getSourceFolderPath(IProject project) {
+		val srcFolder = project.getDeepFolder(NewProjectWizard.SRC_FOLDER)
+		return srcFolder?.fullPathString
 	}
 
 	def private getFullPathString(IResource resource) {
@@ -178,8 +194,8 @@ class AmlNewFileWizardPage extends WizardPage {
 		var int dotLoc = fileName.lastIndexOf(Character.valueOf('.').charValue)
 		if (dotLoc !== -1) {
 			var String ext = fileName.substring(dotLoc + 1)
-			if (ext.equalsIgnoreCase("aml") === false) {
-				updateStatus("File extension must be \"aml\"")
+			if (ext.equalsIgnoreCase(fileExtension) === false) {
+				updateStatus('''File extension must be "«fileExtension»"''')
 				return
 			}
 		}
@@ -202,19 +218,17 @@ class AmlNewFileWizardPage extends WizardPage {
 
 	def String getFileName() {
 		val fileName = fileText.text
-		if (fileName.endsWith(".aml")) {
+		if (fileName.endsWith("." + fileExtension)) {
 			return fileName
 		} else {
-			return fileName + ".aml"
+			return fileName + "." + fileExtension
 		}
 	}
 
 	override setVisible(boolean visible) {
 		super.setVisible(visible)
-		if (visible) {
-			if (!containerText.text.nullOrEmpty) {
-				fileText.setFocus
-			}
+		if (visible && !containerText.text.nullOrEmpty) {
+			fileText.setFocus
 		}
 	}
 

@@ -11,6 +11,8 @@
 	<modules>
 		<module>org.testeditor.dsl.common</module>
 		<module>org.testeditor.dsl.common.testing</module>
+		<module>org.testeditor.dsl.common.ui</module>
+		<module>org.testeditor.dsl.common.ui.tests</module>
 		<module>org.testeditor.logging</module>
 	</modules>
 

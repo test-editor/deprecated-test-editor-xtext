@@ -4,13 +4,13 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.aml.dsl.ui.wizard
+package org.testeditor.dsl.common.ui.wizards
 
 import java.io.InputStream
 import java.lang.reflect.InvocationTargetException
@@ -37,23 +37,18 @@ import org.eclipse.xtext.util.StringInputStream
 
 import static extension org.eclipse.jface.dialogs.MessageDialog.*
 
-class AmlNewFileWizard extends Wizard implements INewWizard {
+abstract class NewFileWizard extends Wizard implements INewWizard {
 
-	AmlNewFileWizardPage page
-	ISelection selection
+	protected ISelection selection
 
 	new() {
 		super()
 		needsProgressMonitor = true
 	}
 
-	/** 
-	 * Adding the page to the wizard.
-	 */
-	override void addPages() {
-		page = new AmlNewFileWizardPage(selection)
-		addPage(page)
-	}
+	abstract def String getContainerName()
+
+	abstract def String getFileName()
 
 	/** 
 	 * This method is called when 'Finish' button is pressed in
@@ -61,8 +56,8 @@ class AmlNewFileWizard extends Wizard implements INewWizard {
 	 * using wizard as execution context.
 	 */
 	override boolean performFinish() {
-		val containerName = page.containerName
-		val fileName = page.fileName
+		// val containerName = page.containerName
+		// val fileName = page.fileName
 		var IRunnableWithProgress op = [ IProgressMonitor monitor |
 			try {
 				doFinish(containerName, fileName, monitor)
@@ -99,7 +94,7 @@ class AmlNewFileWizard extends Wizard implements INewWizard {
 		}
 		val container = resource as IContainer
 		val file = container.getFile(new Path(fileName))
-		val stream = openContentStream(container)
+		val stream = openContentStream(container, fileName)
 		if (file.exists) {
 			throw new IllegalStateException("File already exists: " + file)
 		}
@@ -117,7 +112,7 @@ class AmlNewFileWizard extends Wizard implements INewWizard {
 		monitor.worked(1)
 	}
 
-	def private InputStream openContentStream(IContainer container) {
+	def private InputStream openContentStream(IContainer container, String fileName) {
 		val javaElement = JavaCore.create(container)
 		var String thePackage = null
 		if (javaElement !== null) {
@@ -130,9 +125,16 @@ class AmlNewFileWizard extends Wizard implements INewWizard {
 				thePackage = javaElement.javaProject?.elementName
 			}
 		}
-		return new StringInputStream('''
+		return new StringInputStream(contentString(thePackage, fileName))
+	}
+
+	/** 
+	 * default implementation, please override
+	 */
+	def protected String contentString(String thePackage, String fileName) {
+		return '''
 			package «thePackage ?: "com.example"»
-		''')
+		'''
 	}
 
 	def private void throwCoreException(String message) throws CoreException {

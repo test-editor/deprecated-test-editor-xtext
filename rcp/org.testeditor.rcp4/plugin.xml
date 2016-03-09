@@ -52,15 +52,6 @@
       </perspectiveExtension>
    </extension>
    <extension
-         point="org.eclipse.ui.newWizards">
-      <wizard
-            class="org.testeditor.rcp4.NewWizard"
-            id="org.testeditor.rcp4.wizard"
-            name="Testeditor Project"
-            project="true">
-      </wizard>
-   </extension>
-   <extension
          point="org.eclipse.ui.navigator.navigatorContent">
          <commonFilter
                activeByDefault="true"
