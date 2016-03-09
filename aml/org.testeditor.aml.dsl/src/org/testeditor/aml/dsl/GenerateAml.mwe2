@@ -68,11 +68,6 @@ Workflow {
 			serializer = {
 				generateStub = false
 			}
-			fragment = FragmentAdapter {
-				fragment = SimpleProjectWizardFragment {
-					generatorProjectName = "${projectName}.generator"
-				}
-			}
 		}
 	}
 }

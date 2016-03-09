@@ -34,10 +34,13 @@ import org.eclipse.ui.PartInitException
 import org.eclipse.ui.PlatformUI
 import org.eclipse.ui.ide.IDE
 import org.eclipse.xtext.util.StringInputStream
+import org.slf4j.LoggerFactory
 
 import static extension org.eclipse.jface.dialogs.MessageDialog.*
 
 abstract class NewFileWizard extends Wizard implements INewWizard {
+
+	static val logger = LoggerFactory.getLogger(NewFileWizard)
 
 	protected ISelection selection
 
@@ -68,10 +71,11 @@ abstract class NewFileWizard extends Wizard implements INewWizard {
 			}
 		]
 		try {
-			container.run(true, false, op)
+			container.run(false, false, op) // needs to be sync, else this runs into a Invalid Thread Access violation
 		} catch (InterruptedException e) {
 			return false
 		} catch (InvocationTargetException e) {
+			logger.error("error on executing wizard", e)
 			val realException = e.targetException
 			shell.openError("Error", realException.message)
 			return false

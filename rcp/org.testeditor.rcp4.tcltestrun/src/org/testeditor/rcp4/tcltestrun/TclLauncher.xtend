@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2012 - 2016 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
 package org.testeditor.rcp4.tcltestrun
 
 import java.io.File
@@ -17,8 +29,7 @@ import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
 
 class TclLauncher implements Launcher {
 	static val logger = LoggerFactory.getLogger(TclLauncher)
-
-	static val String TEST_RESULT_FOLDER = "build/test-results"
+	static val TEST_RESULT_FOLDER = "build/test-results"
 
 	@Inject extension ProjectUtils
 
@@ -32,6 +43,7 @@ class TclLauncher implements Launcher {
 
 	override boolean launch(IStructuredSelection selection, IProject project, String elementId, String mode) {
 		if (!project.getFile("build.gradle").exists) {
+			logger.warn('''gradle based launching test for tcl element "«elementId»" failed, since to "build.gradle" was found.''')
 			return false
 		}
 
@@ -39,7 +51,9 @@ class TclLauncher implements Launcher {
 			location.toFile
 		val GradleConnector connector = GradleConnector.newConnector
 		var ProjectConnection connection = null
-		val projectFolder = project.getFile("some-virtual-file").location.removeLastSegments(1).toFile
+		// cannot get the project itself (since project.fullPath.toFile does not yield the wrong path for windows)
+		// some-virtual-file needs not exist and is not created either, just a temporary value that's stripped by removeLastSegments
+		val projectFolder = project.getFile("some-virtual-file").location.removeLastSegments(1).toFile 
 		try {
 			connection = connector.forProjectDirectory(projectFolder).connect();
 			// val BuildEnvironment environment = connection.model(BuildEnvironment).get();
