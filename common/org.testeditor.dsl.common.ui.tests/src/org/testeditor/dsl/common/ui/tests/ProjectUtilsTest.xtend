@@ -21,8 +21,7 @@ class ProjectUtilsTest extends AbstractTest {
 	@Mock IFolder lastFolder
 
 	@Before
-	override setUp() {
-		super.setUp
+	def void defaulting() {
 		
 		// folder mock setup
 		when(project.getFolder("src")).thenReturn(srcFolder)
@@ -37,7 +36,7 @@ class ProjectUtilsTest extends AbstractTest {
 
 	@Test
 	def void testCreateOrUpdate_CreateOnlyLast() {
-		// given
+		// given (defaults and ...)
 		when(srcFolder.exists).thenReturn(true)
 		when(nextFolder.exists).thenReturn(true)
 
@@ -52,7 +51,7 @@ class ProjectUtilsTest extends AbstractTest {
 
 	@Test
 	def void testCreateOrUpdate_CreateAll() {
-		// given
+		// given (defaults)
 		
 		// when
 		projectUtils.createOrGetDeepFolder(project, "src/next/last")
@@ -65,7 +64,7 @@ class ProjectUtilsTest extends AbstractTest {
 
 	@Test
 	def void testGetDeepFolder_CreateNone() {
-		// given
+		// given (defaults)
 		
 		// when
 		val result = projectUtils.getDeepFolder(project, "src/next/last")
@@ -98,7 +97,7 @@ class ProjectUtilsTest extends AbstractTest {
 
 	@Test
 	def void testGetDeepFolder_YieldLastFolder() {
-		// given
+		// given (defaults and ...)
 		when(srcFolder.exists).thenReturn(true)
 		when(nextFolder.exists).thenReturn(true)
 		when(lastFolder.exists).thenReturn(true)
@@ -117,8 +116,6 @@ class ProjectUtilsTest extends AbstractTest {
 	@Test
 	def void testGetDeepFolder_OneFolder() {
 		// given
-		when(project.getFolder("src")).thenReturn(srcFolder)
-
 		when(srcFolder.exists).thenReturn(true)
 
 		// when
