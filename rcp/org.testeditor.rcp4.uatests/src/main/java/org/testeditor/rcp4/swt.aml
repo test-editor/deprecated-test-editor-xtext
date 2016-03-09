@@ -34,5 +34,5 @@ element type View {
 }
 
 element type TreeView {
-	interactions = viewSichtbar, selektiereElement
+	interactions = selektiereElement, viewSichtbar
 }

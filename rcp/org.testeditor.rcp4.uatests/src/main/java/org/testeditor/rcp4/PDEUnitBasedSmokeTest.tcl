@@ -10,9 +10,9 @@ Component: HauptFenster
  - ist View <ProjektBaum> sichtbar
  - ist View <TestStepSelector> sichtbar
  
- Component: TestEditor
+Component: TestEditor
 - Einfaches Projekt erzeugen
 
-Component: HauptFenster
+Component: ProjectExplorer
 - selektiere Element "DemoProject" in Baum <ProjektBaum>
 

@@ -6,15 +6,14 @@ interaction type createSimpleProject {
 	label = "Einfaches Projekt erzeugen"
 	template = "Einfaches Projekt erzeugen"
 	method = TestEditorFixture.createDemoProject
-	
-} 
+}
 
 component type TestEditorApp {
-	interactions = createSimpleProject	
+	interactions = createSimpleProject
 }
 
 component HauptFenster is General {
-	element ProjektBaum is TreeView {
+	element ProjektBaum is View {
 		label = "Projekt Baum"
 		locator ="Project Explorer"
 	}
@@ -24,6 +23,12 @@ component HauptFenster is General {
 	}
 }
 
+component ProjectExplorer is General {
+	element ProjektBaum is TreeView {
+		label = "Projekt Baum"
+		locator ="Project Explorer"
+	}
+}
+
 component TestEditor is TestEditorApp {
-	
 }
