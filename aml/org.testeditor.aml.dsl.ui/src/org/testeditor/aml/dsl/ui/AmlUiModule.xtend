@@ -14,7 +14,6 @@ package org.testeditor.aml.dsl.ui
 
 import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 import org.testeditor.aml.dsl.ui.highlighting.AmlHighlightingConfiguration
-import org.testeditor.aml.dsl.ui.wizard.CustomizedAmlProjectCreator
 
 /**
  * Use this class to register components to be used within the Eclipse IDE.
@@ -24,10 +23,6 @@ class AmlUiModule extends AbstractAmlUiModule {
 
 	override bindIHighlightingConfiguration() {
 		return AmlHighlightingConfiguration
-	}
-
-	override bindIProjectCreator() {
-		return CustomizedAmlProjectCreator
 	}
 
 }

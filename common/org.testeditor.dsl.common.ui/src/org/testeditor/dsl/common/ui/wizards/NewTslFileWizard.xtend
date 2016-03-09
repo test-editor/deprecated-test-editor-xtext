@@ -12,9 +12,7 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.ui.wizards
 
-import java.io.InputStream
 import javax.inject.Inject
-import org.eclipse.xtext.util.StringInputStream
 
 class NewTslFileWizard extends NewFileWizard {
 
@@ -33,24 +31,11 @@ class NewTslFileWizard extends NewFileWizard {
 		addPage(tslPage)
 	}
 
-	override InputStream contentStream(String thePackage, String fileName) {
-		return new StringInputStream('''
+	override String contentString(String thePackage, String fileName) {
+		return '''
 			package «thePackage ?: "com.example"»
 			
-			# «fileName.replace(".tsl","").toFirstUpper» 
-			
-			Short description
-			=================
-			
-			Your description of the test case goes here.
-			
-			Test steps
-			==========
-			
-			The following steps are referenced and detailed with the Tcl
-			
-			* Test one
-			* Test two
-		''')
+			# «fileName.replace(".tsl","").toFirstUpper»
+		'''
 	}
 }

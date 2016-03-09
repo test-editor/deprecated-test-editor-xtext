@@ -12,9 +12,7 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.ui.wizards
 
-import java.io.InputStream
 import javax.inject.Inject
-import org.eclipse.xtext.util.StringInputStream
 
 class NewAmlFileWizard extends NewFileWizard {
 
@@ -33,13 +31,10 @@ class NewAmlFileWizard extends NewFileWizard {
 		addPage(amlPage)
 	}
 
-	override InputStream contentStream(String thePackage, String fileName) {
-		return new StringInputStream('''
+	override String contentString(String thePackage, String fileName) {
+		return '''
 			package «thePackage ?: "com.example"»
-			
-			component «fileName.replace(".aml","").toFirstUpper» is Application {				
-			}
-		''')
+		'''
 	}
 
 }

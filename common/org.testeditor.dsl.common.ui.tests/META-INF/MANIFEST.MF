@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests
+Bundle-SymbolicName: org.testeditor.dsl.common.ui.tests
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: Signal Iduna Corporation
+Require-Bundle: com.google.guava,
+ org.eclipse.xtext.xbase.lib,
+ org.eclipse.xtend.lib,
+ org.eclipse.xtend.lib.macro,
+ org.eclipse.xtext.junit4,
+ org.junit,
+ org.testeditor.dsl.common.testing,
+ org.eclipse.core.resources,
+ org.testeditor.dsl.common.ui,
+ org.eclipse.core.runtime,
+ org.testeditor.aml.dsl.tests,
+ com.google.inject,
+ org.eclipse.xtext
+Import-Package: javax.inject;version="1.0.0"
+

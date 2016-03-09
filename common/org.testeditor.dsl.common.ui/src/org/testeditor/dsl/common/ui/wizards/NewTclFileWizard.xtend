@@ -12,9 +12,7 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.ui.wizards
 
-import java.io.InputStream
 import javax.inject.Inject
-import org.eclipse.xtext.util.StringInputStream
 
 class NewTclFileWizard extends NewFileWizard {
 
@@ -33,13 +31,11 @@ class NewTclFileWizard extends NewFileWizard {
 		addPage(tclPage)
 	}
 
-	override InputStream contentStream(String thePackage, String fileName) {
-		return new StringInputStream('''
+	override String contentString(String thePackage, String fileName) {
+		return '''
 			package «thePackage ?: "com.example"»
 			
-			# «fileName.replace(".tcl","").toFirstUpper» 
-			
-			* Test one
-		''')
+			# «fileName.replace(".tcl","").toFirstUpper»
+		'''
 	}
 }
