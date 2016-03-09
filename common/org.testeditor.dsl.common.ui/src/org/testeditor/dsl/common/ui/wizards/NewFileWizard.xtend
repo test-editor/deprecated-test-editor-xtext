@@ -125,16 +125,16 @@ abstract class NewFileWizard extends Wizard implements INewWizard {
 				thePackage = javaElement.javaProject?.elementName
 			}
 		}
-		return contentStream(thePackage, fileName)
+		return new StringInputStream(contentString(thePackage, fileName))
 	}
 
 	/** 
 	 * default implementation, please override
 	 */
-	def protected InputStream contentStream(String thePackage, String fileName) {
-		return new StringInputStream('''
+	def protected String contentString(String thePackage, String fileName) {
+		return '''
 			package «thePackage ?: "com.example"»
-		''')
+		'''
 	}
 
 	def private void throwCoreException(String message) throws CoreException {

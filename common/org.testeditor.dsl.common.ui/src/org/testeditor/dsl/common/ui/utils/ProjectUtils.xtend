@@ -16,18 +16,18 @@ import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
 
 class ProjectUtils {
-	
-	public static val String BASIC_PATH_PATTERN="[^/]+(/[^/]+)*"
-	
+
+	public static val String BASIC_PATH_PATTERN = "[^/]+(/[^/]+)*"
+
 	/**
 	 * get a folder following the relative path given (which may include slashes)
 	 * @param project Project within to operate
 	 * @param path Path of the form dir/dir/dir
 	 */
 	def IFolder getDeepFolder(IProject project, String path) {
-		createOrGetDeepFolder(project, path, false)
+		return createOrGetDeepFolder(project, path, false)
 	}
-	
+
 	/**
 	 * get a folder following the relative path given (which may include slashes)
 	 * and create it (and all folders in between) if not existent
@@ -35,7 +35,7 @@ class ProjectUtils {
 	 * @param path Path of the form dir/dir/dir
 	 */
 	def IFolder createOrGetDeepFolder(IProject project, String path) {
-		createOrGetDeepFolder(project, path, true)
+		return createOrGetDeepFolder(project, path, true)
 	}
 
 	/**
@@ -46,7 +46,7 @@ class ProjectUtils {
 	 * @param create true = create if non existent, false = don't create, yield null if non existent
 	 */
 	private def IFolder createOrGetDeepFolder(IProject project, String path, boolean create) {
-		if(!path.matches(BASIC_PATH_PATTERN)){
+		if (!path.matches(BASIC_PATH_PATTERN)) {
 			throw new RuntimeException('''Path "«path»" does not match expected pattern «BASIC_PATH_PATTERN»''')
 		}
 		val srcFolders = path.split('/')
@@ -68,5 +68,4 @@ class ProjectUtils {
 		return folder
 	}
 
-	
 }
