@@ -31,16 +31,17 @@ class NavFilter extends ViewerFilter {
 			return false
 		}
 		if (element instanceof IFolder) { // don't show any folders that hold generated artifacts (-gen) or maven artifacts (target)
-			val lastSegment = element.projectRelativePath.lastSegment
-			if (lastSegment.equals("bin")||lastSegment.equals("target") || lastSegment.endsWith("-gen")) {
+			if (element.projectRelativePath.segments.exists [
+				equals("target") || equals("build") || equals("gradle") || equals("bin") || endsWith("-gen")
+			]) {
 				return false;
 			}
 		}
 		if (element instanceof IFile) {
-			if (element.projectRelativePath.lastSegment.matches("pom.xml")) { // don't show maven pom.xml
+			if (element.projectRelativePath.lastSegment.matches("pom.xml|gradle.+|.+gradle")) { // don't show maven pom.xml
 				return false
 			}
-			if (element.projectRelativePath.fileExtension.matches("java|xtend")) { // don't show java nor xtend files
+			if (element.projectRelativePath.fileExtension?.matches("java|xtend|groovy")) { // don't show java nor xtend files
 				return false
 			}
 		}

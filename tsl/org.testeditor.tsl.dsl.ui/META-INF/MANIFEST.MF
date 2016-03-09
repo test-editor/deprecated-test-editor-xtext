@@ -24,7 +24,8 @@ Require-Bundle: org.testeditor.tsl.dsl;visibility:=reexport,
  org.testeditor.tsl.dsl.ide,
  org.eclipse.xtend.lib;resolution:=optional
 Import-Package: org.apache.log4j
-Export-Package: org.testeditor.tsl.dsl.ui.quickfix,
+Export-Package: org.testeditor.tsl.dsl.ui,
  org.testeditor.tsl.dsl.ui.contentassist,
- org.testeditor.tsl.dsl.ui.internal
+ org.testeditor.tsl.dsl.ui.internal,
+ org.testeditor.tsl.dsl.ui.quickfix
 Bundle-Activator: org.testeditor.tsl.dsl.ui.internal.DslActivator

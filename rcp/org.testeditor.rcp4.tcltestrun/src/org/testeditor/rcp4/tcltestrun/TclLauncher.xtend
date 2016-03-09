@@ -1,8 +1,8 @@
 package org.testeditor.rcp4.tcltestrun
 
 import java.io.File
+import javax.inject.Inject
 import org.eclipse.core.resources.IProject
-import org.eclipse.core.resources.ResourcesPlugin
 import org.eclipse.jdt.junit.JUnitCore
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.gradle.tooling.GradleConnectionException
@@ -12,34 +12,36 @@ import org.gradle.tooling.ResultHandler
 import org.gradle.tooling.events.ProgressEvent
 import org.gradle.tooling.events.ProgressListener
 import org.slf4j.LoggerFactory
+import org.testeditor.dsl.common.ui.utils.ProjectUtils
 import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
 
 class TclLauncher implements Launcher {
 	static val logger = LoggerFactory.getLogger(TclLauncher)
 
-	def void showTestResult(String path) {
-		val testResult = new File(path)
+	static val String TEST_RESULT_FOLDER = "build/test-results"
+
+	@Inject extension ProjectUtils
+
+	def void showTestResult(File testResult) {
 		JUnitCore.importTestRunSession(testResult)
 	}
 
-	def boolean projectHasGradleBuild(String absoluteProjectPath) {
-		new File(absoluteProjectPath + "/build.gradle").exists
+	private def String elementIdToFileName(String elementId) {
+		'''TEST-«elementId».xml'''
 	}
 
 	override boolean launch(IStructuredSelection selection, IProject project, String elementId, String mode) {
-		val projectPath = project.fullPath.makeAbsolute.toOSString
-		val workspaceRoot = ResourcesPlugin.workspace.root
-		val workspaceRootPath = workspaceRoot.rawLocation.makeAbsolute.toOSString
-
-		if (!projectHasGradleBuild(workspaceRootPath + projectPath)) {
+		if (!project.getFile("build.gradle").exists) {
 			return false
 		}
 
-		val testResultPath = '''«workspaceRootPath»«projectPath»/build/test-results/TEST-«elementId».xml'''
+		val testResultFile = project.createOrGetDeepFolder(TEST_RESULT_FOLDER).getFile(elementId.elementIdToFileName).
+			location.toFile
 		val GradleConnector connector = GradleConnector.newConnector
 		var ProjectConnection connection = null
+		val projectFolder = project.getFile("some-virtual-file").location.removeLastSegments(1).toFile
 		try {
-			connection = connector.forProjectDirectory(new File(workspaceRootPath + projectPath)).connect();
+			connection = connector.forProjectDirectory(projectFolder).connect();
 			// val BuildEnvironment environment = connection.model(BuildEnvironment).get();
 			connection.newBuild.addProgressListener(new ProgressListener {
 
@@ -50,18 +52,21 @@ class TclLauncher implements Launcher {
 			}) // .forTasks("test") // does not work, see issue below
 			.withArguments("test", "--tests", elementId) // https://issues.gradle.org/browse/GRADLE-2972
 			// .setStandardOutput(System.out) // alternatively get a separate console output stream (see http://wiki.eclipse.org/FAQ_How_do_I_write_to_the_console_from_a_plug-in%3F)
-			.run(new ResultHandler {
+			.run(
+				new ResultHandler {
 
-				override onComplete(Object obj) {
-					testResultPath.showTestResult
-				}
+					override onComplete(Object obj) {
+						testResultFile.showTestResult
+					}
 
-				override onFailure(GradleConnectionException exception) {
-					logger.error("Failure: " + exception.toString, exception)
-					testResultPath.showTestResult
-				}
+					override onFailure(GradleConnectionException exception) {
+						logger.
+							error('''Caught error during gradle task "test" of element "«elementId»": «exception.toString»''',
+								exception)
+						testResultFile.showTestResult
+					}
 
-			})
+				})
 		} finally {
 			if (connection != null) {
 				connection.close
