@@ -1,18 +1,17 @@
 package org.testeditor.tcl.dsl.ui.testlaunch
 
+import java.util.HashMap
+import java.util.Set
 import javax.inject.Inject
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
+import org.eclipse.core.runtime.IConfigurationElement
 import org.eclipse.core.runtime.Platform
 import org.eclipse.jface.viewers.ISelection
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.eclipse.jface.viewers.StructuredSelection
 import org.eclipse.ui.IEditorPart
 import org.slf4j.LoggerFactory
-import org.eclipse.core.runtime.IConfigurationElement
-import java.util.HashMap
-import java.util.Map
-import java.util.Set
 
 /**
  * Launch shortcut that is specifically crafted to execute Tests based on TCL files
@@ -21,13 +20,12 @@ class JUnitLaunchShortcut extends org.eclipse.jdt.junit.launcher.JUnitLaunchShor
 
 	static val logger = LoggerFactory.getLogger(JUnitLaunchShortcut)
 
-	val EXTENSION_POINT_LAUNCHER_ID = "org.testeditor.tcl.dsl.ui.tcl_launcher"
-	val EXTENSION_POINT_CLASS_ATTRIBUTE = "class"
+	public val EXTENSION_POINT_LAUNCHER_ID = "org.testeditor.tcl.dsl.ui.tcl_launcher"
+	public val EXTENSION_POINT_CLASS_ATTRIBUTE = "class"
 
 	val launcherMap = new HashMap<Launcher, IConfigurationElement>
 
-	@Inject
-	extension LaunchShortcutUtil launchUtil
+	@Inject extension LaunchShortcutUtil
 
 	override void launch(ISelection selection, String mode) {
 		if (selection instanceof IStructuredSelection) {
@@ -43,25 +41,27 @@ class JUnitLaunchShortcut extends org.eclipse.jdt.junit.launcher.JUnitLaunchShor
 		if (res.isValidForTestrun) {
 			val javaElement = res.javaElementForResource
 			val selection = new StructuredSelection(javaElement)
-			val successfulLauncher = registeredLaunchers.findFirst [ // should be a firstThat
-				val result = launch(selection, javaElement.javaProject.getAdapter(IProject), javaElement.elementId,
-					mode)
+			val successfulLauncher = registeredLaunchers.findFirst [ registeredLauncher | // firstThat would be more fitting in this case
+				val result = registeredLauncher.launch(selection, javaElement.javaProject.getAdapter(IProject),
+					javaElement.toElementId, mode)
 				if (result) {
-					logger.debug("executed launcher registered for tcl test launch: " + launcherMap.get(it).logStringFor)
+					logger.debug("executed launcher registered for tcl test launch: " +
+						launcherMap.get(registeredLauncher).toLoggingString)
 				} else {
-					logger.warn("registered tcl test launcher failed: " + launcherMap.get(it).logStringFor)
+					logger.warn("registered tcl test launcher failed: " +
+						launcherMap.get(registeredLauncher).toLoggingString)
 				}
 				return result
 			]
-			if (successfulLauncher == null) {
+			if (successfulLauncher == null) { // fallback
 				super.launch(selection, mode)
 				logger.debug("executed junit launcher for tcl test launch")
 			}
 		}
 	}
-	
-	private def String logStringFor(IConfigurationElement configurationElement){
-		"contributed by "+configurationElement.contributor.name
+
+	private def String toLoggingString(IConfigurationElement configurationElement) {
+		"contributed by " + configurationElement.contributor.name
 	}
 
 	private def Set<Launcher> getRegisteredLaunchers() {
