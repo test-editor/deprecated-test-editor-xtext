@@ -45,10 +45,10 @@ class JUnitLaunchShortcut extends org.eclipse.jdt.junit.launcher.JUnitLaunchShor
 				val result = registeredLauncher.launch(selection, javaElement.javaProject.getAdapter(IProject),
 					javaElement.toElementId, mode)
 				if (result) {
-					logger.debug("executed launcher registered for tcl test launch: " +
+					logger.debug("executed launcher registered for tcl test launch: {}",
 						launcherMap.get(registeredLauncher).toLoggingString)
 				} else {
-					logger.warn("registered tcl test launcher failed: " +
+					logger.warn("registered tcl test launcher failed: {}",
 						launcherMap.get(registeredLauncher).toLoggingString)
 				}
 				return result

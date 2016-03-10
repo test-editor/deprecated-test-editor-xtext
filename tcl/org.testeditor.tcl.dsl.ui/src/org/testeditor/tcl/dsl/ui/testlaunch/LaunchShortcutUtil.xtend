@@ -32,7 +32,7 @@ class LaunchShortcutUtil {
 			val resources = derivedResourceMarkers.findDerivedResources(resource.project, sourcePath)
 			return JavaCore.create(resources.findFirst[containsElementsSearchedFor])
 		} catch (CoreException e) {
-			logger.error('''could not get derived java-file for resource "«resource.name»": ''' + e.message, e)
+			logger.error('''could not get derived java-file for resource "«resource.name»": «e.message»''', e)
 		}
 		return null;
 	}
