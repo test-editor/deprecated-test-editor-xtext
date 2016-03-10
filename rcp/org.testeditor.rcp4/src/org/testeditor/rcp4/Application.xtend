@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory
  * This class controls all aspects of the application's execution
  */
 public class Application implements IApplication {
-	val logger=LoggerFactory.getLogger(Application)
+	static val logger=LoggerFactory.getLogger(Application)
 
 	/* (non-Javadoc)
 	 * @see IApplication#start(org.eclipse.equinox.app.IApplicationContext)

@@ -23,7 +23,7 @@ import org.slf4j.Logger
 /** example usage of the event broker in e4 */
 class EventBrokerUser {
 
-	private static final Logger logger = LoggerFactory.getLogger(EventBrokerUser);
+	static val logger = LoggerFactory.getLogger(EventBrokerUser);
 
 	new() {
 		logger.info("EventBrokerUser is created")
