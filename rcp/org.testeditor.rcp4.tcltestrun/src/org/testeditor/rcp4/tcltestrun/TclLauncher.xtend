@@ -43,7 +43,8 @@ class TclLauncher implements Launcher {
 
 	override boolean launch(IStructuredSelection selection, IProject project, String elementId, String mode) {
 		if (!project.getFile("build.gradle").exists) {
-			logger.warn('''gradle based launching test for tcl element "«elementId»" failed, since to "build.gradle" was found.''')
+			logger.
+				warn('''gradle based launching test for tcl element "«elementId»" failed, since "build.gradle" was not found.''')
 			return false
 		}
 
@@ -51,9 +52,7 @@ class TclLauncher implements Launcher {
 			location.toFile
 		val GradleConnector connector = GradleConnector.newConnector
 		var ProjectConnection connection = null
-		// cannot get the project itself (since project.fullPath.toFile does not yield the wrong path for windows)
-		// some-virtual-file needs not exist and is not created either, just a temporary value that's stripped by removeLastSegments
-		val projectFolder = project.getFile("some-virtual-file").location.removeLastSegments(1).toFile 
+		val projectFolder = project.location.makeAbsolute.toFile
 		try {
 			connection = connector.forProjectDirectory(projectFolder).connect();
 			// val BuildEnvironment environment = connection.model(BuildEnvironment).get();

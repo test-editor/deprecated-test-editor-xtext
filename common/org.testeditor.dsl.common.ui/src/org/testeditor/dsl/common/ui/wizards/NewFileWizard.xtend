@@ -59,8 +59,6 @@ abstract class NewFileWizard extends Wizard implements INewWizard {
 	 * using wizard as execution context.
 	 */
 	override boolean performFinish() {
-		// val containerName = page.containerName
-		// val fileName = page.fileName
 		var IRunnableWithProgress op = [ IProgressMonitor monitor |
 			try {
 				doFinish(containerName, fileName, monitor)
