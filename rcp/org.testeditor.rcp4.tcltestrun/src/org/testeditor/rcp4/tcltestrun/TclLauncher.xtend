@@ -43,8 +43,8 @@ class TclLauncher implements Launcher {
 
 	override boolean launch(IStructuredSelection selection, IProject project, String elementId, String mode) {
 		if (!project.getFile("build.gradle").exists) {
-			logger.
-				warn('''gradle based launching test for tcl element "«elementId»" failed, since "build.gradle" was not found.''')
+			logger.warn('gradle based launching test for tcl element "{}" failed, since "build.gradle" was not found.',
+				elementId)
 			return false
 		}
 

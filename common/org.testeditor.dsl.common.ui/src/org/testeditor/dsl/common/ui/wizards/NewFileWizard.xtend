@@ -73,7 +73,7 @@ abstract class NewFileWizard extends Wizard implements INewWizard {
 		} catch (InterruptedException e) {
 			return false
 		} catch (InvocationTargetException e) {
-			logger.error("error on executing wizard", e)
+			logger.error("error on executing new file wizard", e)
 			val realException = e.targetException
 			shell.openError("Error", realException.message)
 			return false
