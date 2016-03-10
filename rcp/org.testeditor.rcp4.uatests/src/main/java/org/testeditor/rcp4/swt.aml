@@ -25,6 +25,12 @@ interaction type selektiereElement {
 	method = SWTFixture.selectElementInTreeView(element,item)
 }
 
+interaction type executeContextMenuEntry {
+	label = " execute context menu entry"
+	template = "execute menu item " ${item} " in tree" ${element} 
+	method = SWTFixture.executeContextMenuEntry(element,item)
+}
+
 component type General {
 	interactions = reportWidgets, warte
 }
@@ -34,5 +40,5 @@ element type View {
 }
 
 element type TreeView {
-	interactions = selektiereElement, viewSichtbar
+	interactions = selektiereElement, viewSichtbar, executeContextMenuEntry
 }

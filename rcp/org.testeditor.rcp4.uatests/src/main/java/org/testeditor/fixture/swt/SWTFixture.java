@@ -21,10 +21,13 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
+import org.eclipse.swtbot.swt.finder.finders.ContextMenuHelper;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.testeditor.fixture.core.interaction.FixtureMethod;
@@ -130,6 +133,18 @@ public class SWTFixture {
 		assertNotNull(tree);
 		SWTBotTreeItem expandNode = tree.expandNode(itemName);
 		assertNotNull(expandNode);
+	}
+
+	@FixtureMethod
+	public void executeContextMenuEntry(String viewName, String menuItem) throws Exception {
+		logger.trace("search for view with titel: {}", viewName);
+
+		SWTBotView view = bot.viewByTitle(viewName);
+		assertNotNull(view);
+		SWTBotTree tree = view.bot().tree();
+		assertNotNull(tree);
+		MenuItem item = ContextMenuHelper.contextMenu(tree, menuItem);
+		new SWTBotMenu(item).click();
 	}
 
 }
