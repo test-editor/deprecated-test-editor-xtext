@@ -23,6 +23,7 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
@@ -94,7 +95,7 @@ public class SWTFixture {
 		});
 		logger.info("analyzeWidgets end");
 		logger.info("---------------------------------------------");
-
+		typeInto("", "");
 	}
 
 	/**
@@ -138,13 +139,33 @@ public class SWTFixture {
 	@FixtureMethod
 	public void executeContextMenuEntry(String viewName, String menuItem) throws Exception {
 		logger.trace("search for view with titel: {}", viewName);
-
 		SWTBotView view = bot.viewByTitle(viewName);
 		assertNotNull(view);
 		SWTBotTree tree = view.bot().tree();
 		assertNotNull(tree);
-		MenuItem item = ContextMenuHelper.contextMenu(tree, menuItem);
+		MenuItem item = ContextMenuHelper.contextMenu(tree, menuItem.split("/"));
 		new SWTBotMenu(item).click();
+		logger.trace("Yeaa renne weiter");
+	}
+
+	/**
+	 * Looking for a widget in that iy typable and is identifiable by the
+	 * locator.
+	 * 
+	 * @param locator
+	 * @param value
+	 */
+	@FixtureMethod
+	public void typeInto(String locator, String value) {
+		getDisplay().syncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				List<? extends Text> textWidgets = bot.widgets(widgetOfType(Text.class));
+				for (Text text : textWidgets) {
+				}
+			}
+		});
 	}
 
 }

@@ -6,12 +6,12 @@ import org.testeditor.rcp4.*;
 
 * start creation process
 Component: ProjectExplorer
-- execute menu item  "New"  in tree <ProjektBaum>
+- execute menu item  "New/Project..."  in tree <ProjektBaum>
+- Protkolliere vorhandene UI Elemente
 
 
 * Select type Test Editor Project
-
-
+Component: NewDialog
 
 * Give the Project the name "MyFirstProject"
 

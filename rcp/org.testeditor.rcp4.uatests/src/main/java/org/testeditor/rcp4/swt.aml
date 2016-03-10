@@ -31,8 +31,16 @@ interaction type executeContextMenuEntry {
 	method = SWTFixture.executeContextMenuEntry(element,item)
 }
 
-component type General {
-	interactions = reportWidgets, warte
+interaction type typeInto {
+	label = " Type into"
+	template = "Type " ${value} " into" ${element} 
+	method = SWTFixture.typeInto(element,value)
+}
+
+interaction type click {
+	label = "ist View sichtbar"
+	template = "ist View" ${element} "sichtbar"
+	method = SWTFixture.isViewVisible(element)
 }
 
 element type View {
@@ -41,4 +49,20 @@ element type View {
 
 element type TreeView {
 	interactions = selektiereElement, viewSichtbar, executeContextMenuEntry
+}
+
+element type Text {
+	interactions = typeInto
+}
+
+element type Button {
+	interactions = click
+}
+
+component type General {
+	interactions = reportWidgets, warte
+}
+
+component type Dialog {
+	interactions = reportWidgets, warte	
 }

@@ -35,3 +35,7 @@ component ProjectExplorer is General {
 
 component TestEditor is TestEditorApp {
 }
+
+component NewDialog is Dialog {
+	
+}
