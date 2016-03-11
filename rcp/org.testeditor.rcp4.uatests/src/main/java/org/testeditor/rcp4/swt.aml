@@ -38,9 +38,9 @@ interaction type typeInto {
 }
 
 interaction type click {
-	label = "ist View sichtbar"
-	template = "ist View" ${element} "sichtbar"
-	method = SWTFixture.isViewVisible(element)
+	label = "Click on"
+	template = "click on" ${element} 
+	method = SWTFixture.clickOn(element)
 }
 
 element type View {
@@ -49,6 +49,10 @@ element type View {
 
 element type TreeView {
 	interactions = selektiereElement, viewSichtbar, executeContextMenuEntry
+}
+
+element type Tree {
+	interactions = selektiereElement,  executeContextMenuEntry
 }
 
 element type Text {

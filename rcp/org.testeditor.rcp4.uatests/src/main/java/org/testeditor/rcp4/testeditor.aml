@@ -37,5 +37,20 @@ component TestEditor is TestEditorApp {
 }
 
 component NewDialog is Dialog {
-	
+	element ProjectType is Tree {
+		label = "Project Type Tree"
+		locator = "[Single]"
+	}
+	element NextButton is Button {
+		label = "Next Button"
+		locator = "[Label]&Next >"
+	}
+	element FinishButton is Button {
+		label = "Finish Button"
+		locator = "[Label]&Finish"
+	}
+	element ProjectName is Text {
+		label = "Project Name"
+		locator = "[Single]"
+	}
 }
