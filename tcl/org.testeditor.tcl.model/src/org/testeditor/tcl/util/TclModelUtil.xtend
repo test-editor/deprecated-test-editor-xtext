@@ -27,6 +27,8 @@ import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
+import org.testeditor.aml.ValueSpaceAssignment
+import org.testeditor.aml.Component
 
 @Singleton
 class TclModelUtil extends TslModelUtil {
@@ -94,6 +96,30 @@ class TclModelUtil extends TslModelUtil {
 			return component.elements.findFirst[name == contentElement.value]
 		}
 		return null
+	}
+
+	def ValueSpaceAssignment getValueSapceAssignment(StepContentVariable contentElement) {
+		val container = contentElement.eContainer
+		if (container instanceof TestStep) {
+			val component = container.context.component
+			val valueSpace = getValueSapceAssignment(component, container)
+			if(valueSpace!=null)
+				return valueSpace
+		}
+		return null
+	}
+
+	def ValueSpaceAssignment getValueSapceAssignment(Component component, TestStep container) {
+		for (element : component.elements) {
+			val valueSpace = getValueSpaceAssignment(element, container)
+			if(valueSpace!=null) return valueSpace
+		}
+		return null
+	}
+	
+	def getValueSpaceAssignment(ComponentElement element, TestStep container) {
+			val foo = element.valueSpaceAssignments
+			return foo.findFirst[variable.template.interactionType.name == container.interaction.name]
 	}
 
 	def SpecificationStep getSpecificationStep(SpecificationStepImplementation stepImplementation) {

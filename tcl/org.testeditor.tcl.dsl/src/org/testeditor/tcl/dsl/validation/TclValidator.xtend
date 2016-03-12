@@ -23,12 +23,16 @@ import org.testeditor.tcl.TestCase
 import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tcl.SpecificationStepImplementation
 import java.util.List
+import org.testeditor.tsl.StepContentVariable
+import org.testeditor.aml.impl.StringLiteralsImpl
+import org.testeditor.tsl.TslPackage
 
 class TclValidator extends AbstractTclValidator {
 
 	public static val UNKNOWN_NAME = 'unknownName'
 	public static val NO_VALID_IMPLEMENTATION = 'noValidImplementation'
 	public static val INVALID_NAME = 'invalidName'
+	public static val UNALLOWED_VALUE = 'unallowedValue'
 
 	@Inject extension TclModelUtil
 
@@ -77,4 +81,13 @@ class TclValidator extends AbstractTclValidator {
 		}
 	}
 
+	@Check
+	def checkValueInValueSpace(StepContentVariable stepContentVariable) {
+		var comp = stepContentVariable.valueSapceAssignment.valueSpace as StringLiteralsImpl
+		if(!comp.getValues.contains(stepContentVariable)){
+			val message = '''Value is not allowed in this step. Allowed values: '«comp.getValues»'.'''
+			warning(message, TslPackage.Literals.STEP_CONTENT__VALUE, UNALLOWED_VALUE);
+		}
+	}
+	
 }
