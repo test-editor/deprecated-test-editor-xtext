@@ -182,6 +182,7 @@ public class SWTFixture {
 		SWTBotTree tree = view.bot().tree();
 		assertNotNull(tree);
 		MenuItem item = ContextMenuHelper.contextMenu(tree, menuItem.split("/"));
+		assertNotNull(item);
 		new SWTBotMenu(item).click();
 		logger.trace("Yeaa renne weiter");
 	}
