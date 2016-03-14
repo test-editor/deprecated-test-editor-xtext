@@ -14,7 +14,10 @@ package org.testeditor.tcl.dsl.jvmmodel
 
 import com.google.inject.Inject
 import java.util.Set
+import org.eclipse.xtext.common.types.JvmOperation
 import org.eclipse.xtext.common.types.JvmType
+import org.eclipse.xtext.naming.IQualifiedNameProvider
+import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable
 import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
@@ -25,19 +28,17 @@ import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepContext
+import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.util.TclModelUtil
 
-import static java.lang.System.lineSeparator
-import org.eclipse.xtext.naming.IQualifiedNameProvider
-import org.testeditor.tcl.TestStepWithAssignment
-import org.eclipse.xtext.common.types.JvmOperation
+import static org.testeditor.tcl.TclPackage.Literals.*
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	@Inject extension JvmTypesBuilder
 	@Inject extension TclModelUtil
 	@Inject IQualifiedNameProvider nameProvider
-
+	
 	def dispatch void infer(TclModel model, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		model.test?.infer(acceptor, isPreIndexingPhase)
 	}
@@ -55,29 +56,34 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			members += test.toMethod('execute', typeRef(Void.TYPE)) [
 				exceptions += typeRef(Exception)
 				annotations += annotationRef('org.junit.Test') // make sure that junit is in the classpath of the workspace containing the dsl
-				body = '''«test.generateMethodBody»'''
+				body = [test.generateMethodBody(trace(test))]
 			]
 		]
 
 	}
 
-	private def generateMethodBody(TestCase test) {
-		return test.steps.map[generate].join(lineSeparator)
+	private def void generateMethodBody(TestCase test, ITreeAppendable output) {
+		test.steps.forEach[generate(output.trace(it))]
 	}
 
-	private def generate(SpecificationStepImplementation step) '''
-		/* «step.contents.restoreString» */
-		«step.contexts.map[generate].join(lineSeparator)»
-	'''
+	private def void generate(SpecificationStepImplementation step, ITreeAppendable output) {
+		val comment = '''/* «step.contents.restoreString» */'''
+		output.newLine
+		output.append(comment)
+		step.contexts.forEach[generate(output.trace(it))]
+	}
 
-	private def generate(TestStepContext context) '''
-		// Component: «context.component.name»
-		«FOR step : context.steps»
-			// - «step.contents.restoreString»
-			«step.toFeatureCall(context)»
-			«lineSeparator»
-		«ENDFOR»
-	'''
+	private def void generate(TestStepContext context, ITreeAppendable output) {
+		output.newLine
+		output.append('''// Component: «context.component.name»''')
+		context.steps.forEach[generate(output.trace(it))]
+	}
+	
+	private def void generate(TestStep step, ITreeAppendable output) {
+		output.newLine
+		output.append('''// - «step.contents.restoreString»''')
+		generateFeatureCall(step, output)
+	}
 
 	/**
 	 * @return all {@link JvmType} of all fixtures that are referenced.
@@ -94,27 +100,38 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		return fixtureType.simpleName.toFirstLower
 	}
 
-	private def CharSequence toFeatureCall(TestStep step, TestStepContext context) {
+	private def void generateFeatureCall(TestStep step, ITreeAppendable output) {
+		output.newLine
+		val context = step.context
 		val interaction = step.interaction
 		if (interaction !== null) {
 			val fixtureField = interaction.defaultMethod?.typeReference?.type?.fixtureFieldName
 			val operation = interaction.defaultMethod?.operation
 			if (fixtureField !== null && operation !== null) {
-				return '''«step.maybeCreateAssignment(operation)»«fixtureField».«operation.simpleName»(«getParameterList(step, interaction)»);'''
+				step.maybeCreateAssignment(operation, output)
+				output.trace(interaction.defaultMethod) => [
+					append('''«fixtureField».«operation.simpleName»(«getParameterList(step, interaction)»);''')
+				]
+				output.append('''«fixtureField».«operation.simpleName»(«getParameterList(step, interaction)»);''')
 			} else {
-				return '''// TODO interaction type '«interaction.name»' does not have a proper method reference'''
+				output.append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
 			}
 		} else {
-			return '''// TODO could not resolve '«context.component.name»' - «step.contents.restoreString»'''
+			output.append('''// TODO could not resolve '«context.component.name»' - «step.contents.restoreString»''')
 		}
 	}
 	
-	def maybeCreateAssignment(TestStep step, JvmOperation operation) {
+	def void maybeCreateAssignment(TestStep step, JvmOperation operation, ITreeAppendable output) {
 		if (step instanceof TestStepWithAssignment) {
-			return '''«operation.returnType.identifier» «step.variableName» = '''
+			output.trace(step, TEST_STEP_WITH_ASSIGNMENT__VARIABLE_NAME, 0) => [
+				// TODO should we use output.declareVariable here?
+				// val variableName = output.declareVariable(step.variableName, step.variableName)
+				output.append('''«operation.returnType.identifier» «step.variableName» = ''')
+			]
 		}
 	}
 
+	// TODO we could also trace the parameters here
 	private def String getParameterList(TestStep step, InteractionType interaction) {
 		val mapping = getVariableToValueMapping(step, interaction)
 		val values = interaction.defaultMethod.parameters.map [ templateVariable |
