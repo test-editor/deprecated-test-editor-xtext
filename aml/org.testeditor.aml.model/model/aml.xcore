@@ -191,19 +191,41 @@ class InteractionValueSpace {
 }
 
 abstract class ValueSpace extends ModelElement {
+	op boolean isValidValue(String possibleValue)
+	op String getValueRange()
 }
 
 class StringLiterals extends ValueSpace {
 	String[1..*] values
+	op boolean isValidValue(String possibleValue) {
+		return values.contains(possibleValue)
+	}
+	op String getValueRange() {
+		return values.toString
+	}
 }
 
 class IntegerRange extends ValueSpace {
 	int from
 	int to
+	op boolean isValidValue(String possibleValue) {
+		return from <= Integer.parseInt(possibleValue) && Integer.parseInt(possibleValue) <= to
+	}
+	op String getValueRange() {
+		return from + " <= <X>" +  " <= " + to
+	}
 }
 
 class RegExValueSpace extends ValueSpace {
 	String expression
+
+	op boolean isValidValue(String possibleValue) {
+		return possibleValue.matches(expression)
+	}
+	op String getValueRange() {
+		return "Regular expression: " + expression
+	}
+	
 }
 
 class ValueSpaceAssignment {

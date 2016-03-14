@@ -26,6 +26,7 @@ import java.util.List
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.aml.impl.StringLiteralsImpl
 import org.testeditor.tsl.TslPackage
+import org.testeditor.aml.StringLiterals
 
 class TclValidator extends AbstractTclValidator {
 
@@ -83,9 +84,9 @@ class TclValidator extends AbstractTclValidator {
 
 	@Check
 	def checkValueInValueSpace(StepContentVariable stepContentVariable) {
-		var comp = stepContentVariable.valueSapceAssignment.valueSpace as StringLiteralsImpl
-		if(!comp.getValues.contains(stepContentVariable)){
-			val message = '''Value is not allowed in this step. Allowed values: '«comp.getValues»'.'''
+		var valueSpace = stepContentVariable.valueSapceAssignment.valueSpace 
+		if(!valueSpace.isValidValue(stepContentVariable.value)){
+			val message = '''Value is not allowed in this step. Allowed values: '«valueSpace.valueRange»'.'''
 			warning(message, TslPackage.Literals.STEP_CONTENT__VALUE, UNALLOWED_VALUE);
 		}
 	}
