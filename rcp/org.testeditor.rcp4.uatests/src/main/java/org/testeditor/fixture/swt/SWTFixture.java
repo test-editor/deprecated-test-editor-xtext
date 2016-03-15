@@ -184,7 +184,6 @@ public class SWTFixture {
 		MenuItem item = ContextMenuHelper.contextMenu(tree, menuItem.split("/"));
 		assertNotNull(item);
 		new SWTBotMenu(item).click();
-		logger.trace("Yeaa renne weiter");
 	}
 
 	/**
@@ -218,7 +217,6 @@ public class SWTFixture {
 		SWTBotButton button = null;
 		if (locator.startsWith("[Label]")) {
 			String locatorFragment = getLocatorFragmentFrom(locator);
-			logger.trace("Fragment>>>>>>>>>>>>>>>>>> {}", locatorFragment);
 			this.reportWidgets();
 			button = bot.button(locatorFragment);
 		}
