@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -12,21 +12,19 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.validation
 
+import java.util.List
+import javax.inject.Inject
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.xtype.XImportSection
+import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclPackage
-import org.testeditor.tcl.TestStepContext
-import javax.inject.Inject
-import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tcl.TestCase
+import org.testeditor.tcl.TestStepContext
+import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.SpecificationStep
-import org.testeditor.tcl.SpecificationStepImplementation
-import java.util.List
 import org.testeditor.tsl.StepContentVariable
-import org.testeditor.aml.impl.StringLiteralsImpl
 import org.testeditor.tsl.TslPackage
-import org.testeditor.aml.StringLiterals
 
 class TclValidator extends AbstractTclValidator {
 
@@ -84,11 +82,11 @@ class TclValidator extends AbstractTclValidator {
 
 	@Check
 	def checkValueInValueSpace(StepContentVariable stepContentVariable) {
-		var valueSpace = stepContentVariable.valueSapceAssignment.valueSpace 
-		if(!valueSpace.isValidValue(stepContentVariable.value)){
-			val message = '''Value is not allowed in this step. Allowed values: '«valueSpace.valueRange»'.'''
+		var valueSpace = stepContentVariable.valueSapceAssignment.valueSpace
+		if (!valueSpace.isValidValue(stepContentVariable.value)) {
+			val message = '''Value is not allowed in this step. Allowed values: '«valueSpace»'.'''
 			warning(message, TslPackage.Literals.STEP_CONTENT__VALUE, UNALLOWED_VALUE);
 		}
 	}
-	
+
 }
