@@ -84,4 +84,60 @@ class TclValidatorTest extends AbstractParserTest {
 		assertFalse(validator.validate(model).isEmpty)
 	}
 
+
+	@Test
+	def void validateNumberRange() {
+		val aml = '''
+			package com.example
+			
+					interaction type executeContextMenuEntry {
+						label = " execute context menu entry"
+						template = "execute menu item " ${item} " in tree" ${element} 
+						method = SWTFixture.executeContextMenuEntry(element,item)
+					}
+					
+					element type TreeView {
+						interactions =  executeContextMenuEntry
+					}
+					
+					value-space projectmenues = 2 .. 5
+					
+					component type General {
+					}
+					
+					
+					component ProjectExplorer is General {
+						element ProjektBaum is TreeView {
+							label = "Projekt Baum"
+							locator ="Project Explorer"
+							executeContextMenuEntry.item restrict to projectmenues 
+						}
+					}
+			'''
+		var tcl = '''
+			package com.example
+			
+			# Test
+			* Start the famous greetings application
+			Component: ProjectExplorer
+			- execute menu item  "4" in tree <ProjektBaum>
+		'''
+
+		val resourceSet = resourceSetProvider.get
+		amlParser.parse(aml, URI.createURI("swt.aml"), resourceSet)
+
+		var model = parser.parse(tcl, URI.createURI("Test.tcl"), resourceSet)
+		validator.assertNoIssues(model)
+
+		tcl = '''
+			package com.example
+			
+			# Test2
+			* Start the famous greetings application
+			Component: ProjectExplorer
+			- execute menu item  "1"  in tree <ProjektBaum>
+		'''
+		model = parser.parse(tcl, URI.createURI("Test2.tcl"), resourceSet)
+		assertFalse(validator.validate(model).isEmpty)
+	}
 }
