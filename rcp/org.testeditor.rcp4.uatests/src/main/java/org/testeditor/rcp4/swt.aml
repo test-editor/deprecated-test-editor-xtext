@@ -13,7 +13,60 @@ interaction type warte {
 	method = SWTFixture.wait(seconds)
 }
 
+interaction type viewSichtbar {
+	label = "ist View sichtbar"
+	template = "ist View" ${element} "sichtbar"
+	method = SWTFixture.isViewVisible(element)
+}
+
+interaction type selektiereElement {
+	label = "selektiere Element"
+	template = "selektiere Element" ${item} "in Baum" ${element} 
+	method = SWTFixture.selectElementInTreeView(element,item)
+}
+
+interaction type executeContextMenuEntry {
+	label = " execute context menu entry"
+	template = "execute menu item " ${item} " in tree" ${element} 
+	method = SWTFixture.executeContextMenuEntry(element,item)
+}
+
+interaction type typeInto {
+	label = " Type into"
+	template = "Type " ${value} " into" ${element} 
+	method = SWTFixture.typeInto(element,value)
+}
+
+interaction type click {
+	label = "Click on"
+	template = "click on" ${element} 
+	method = SWTFixture.clickOn(element)
+}
+
+element type View {
+	interactions = viewSichtbar
+}
+
+element type TreeView {
+	interactions = selektiereElement, viewSichtbar, executeContextMenuEntry
+}
+
+element type Tree {
+	interactions = selektiereElement,  executeContextMenuEntry
+}
+
+element type Text {
+	interactions = typeInto
+}
+
+element type Button {
+	interactions = click
+}
+
 component type General {
 	interactions = reportWidgets, warte
 }
 
+component type Dialog {
+	interactions = reportWidgets, warte	
+}

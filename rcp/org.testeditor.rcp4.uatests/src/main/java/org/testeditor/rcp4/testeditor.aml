@@ -2,19 +2,55 @@ package org.testeditor.rcp4
 
 import org.testeditor.fixture.swt.*
 
-interaction type viewSichtbar {
-	label = "ist View sichtbar"
-	template = "ist View" ${element} "sichtbar"
-	method = SWTFixture.isViewVisible(element)
+interaction type createSimpleProject {
+	label = "Einfaches Projekt erzeugen"
+	template = "Einfaches Projekt erzeugen"
+	method = TestEditorFixture.createDemoProject
 }
 
-element type View {
-	interactions = viewSichtbar
+component type TestEditorApp {
+	interactions = createSimpleProject
 }
 
 component HauptFenster is General {
 	element ProjektBaum is View {
 		label = "Projekt Baum"
 		locator ="Project Explorer"
+	}
+	element TestStepSelector is View {
+		label = "Test Schritt Auswahl"
+		locator = "Test Step Selector"
+	}
+}
+
+value-space projectmenues = #[ "New", "Open" ]
+
+component ProjectExplorer is General {
+	element ProjektBaum is TreeView {
+		label = "Projekt Baum"
+		locator ="Project Explorer"
+		executeContextMenuEntry.item restrict to projectmenues 
+	}
+}
+
+component TestEditor is TestEditorApp {
+}
+
+component NewDialog is Dialog {
+	element ProjectType is Tree {
+		label = "Project Type Tree"
+		locator = "[Single]"
+	}
+	element NextButton is Button {
+		label = "Next Button"
+		locator = "[Label]&Next >"
+	}
+	element FinishButton is Button {
+		label = "Finish Button"
+		locator = "[Label]&Finish"
+	}
+	element ProjectName is Text {
+		label = "Project Name"
+		locator = "[Single]"
 	}
 }
