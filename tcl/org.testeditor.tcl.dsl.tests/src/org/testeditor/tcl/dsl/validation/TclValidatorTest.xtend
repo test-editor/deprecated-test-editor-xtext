@@ -18,7 +18,7 @@ class TclValidatorTest extends AbstractParserTest {
 	private Provider<XtextResourceSet> resourceSetProvider;
 
 	protected ParseHelper<AmlModel> amlParser
-	
+
 	@Inject
 	ValidationTestHelper validator;
 
@@ -30,41 +30,8 @@ class TclValidatorTest extends AbstractParserTest {
 
 	@Test
 	def void validateStringArray() {
-		val aml = '''
-			package com.example
-			
-					interaction type executeContextMenuEntry {
-						label = " execute context menu entry"
-						template = "execute menu item " ${item} " in tree" ${element} 
-						method = SWTFixture.executeContextMenuEntry(element,item)
-					}
-					
-					element type TreeView {
-						interactions =  executeContextMenuEntry
-					}
-					
-					value-space projectmenues = #[ "New", "Open" ]
-					
-					component type General {
-					}
-					
-					
-					component ProjectExplorer is General {
-						element ProjektBaum is TreeView {
-							label = "Projekt Baum"
-							locator ="Project Explorer"
-							executeContextMenuEntry.item restrict to projectmenues 
-						}
-					}
-			'''
-		var tcl = '''
-			package com.example
-			
-			# Test
-			* Start the famous greetings application
-			Component: ProjectExplorer
-			- execute menu item  "New" in tree <ProjektBaum>
-		'''
+		val aml = getAMLWithValueSpace('''#[ "New", "Open" ]''')
+		var tcl = getTCLWithValue("Test", "New")
 
 		val resourceSet = resourceSetProvider.get
 		amlParser.parse(aml, URI.createURI("swt.aml"), resourceSet)
@@ -72,22 +39,57 @@ class TclValidatorTest extends AbstractParserTest {
 		var model = parser.parse(tcl, URI.createURI("Test.tcl"), resourceSet)
 		validator.assertNoIssues(model)
 
-		tcl = '''
-			package com.example
-			
-			# Test2
-			* Start the famous greetings application
-			Component: ProjectExplorer
-			- execute menu item  "Neww"  in tree <ProjektBaum>
-		'''
+		tcl = getTCLWithValue("Test2", "Save")
 		model = parser.parse(tcl, URI.createURI("Test2.tcl"), resourceSet)
 		assertFalse(validator.validate(model).isEmpty)
 	}
-
 
 	@Test
 	def void validateNumberRange() {
-		val aml = '''
+		val aml = getAMLWithValueSpace("2 ... 5")
+		var tcl = getTCLWithValue("Test", "4")
+
+		val resourceSet = resourceSetProvider.get
+		amlParser.parse(aml, URI.createURI("swt.aml"), resourceSet)
+
+		var model = parser.parse(tcl, URI.createURI("Test.tcl"), resourceSet)
+		validator.assertNoIssues(model)
+
+		tcl = getTCLWithValue("Test2", "1")
+		model = parser.parse(tcl, URI.createURI("Test2.tcl"), resourceSet)
+		assertFalse(validator.validate(model).isEmpty)
+	}
+
+	@Test
+	def void validateRegEx() {
+		val aml = getAMLWithValueSpace('''"^[a-zA-Z_0-9]"''')
+		var tcl = getTCLWithValue("Test", "h")
+		println(tcl)
+
+		val resourceSet = resourceSetProvider.get
+		amlParser.parse(aml, URI.createURI("swt.aml"), resourceSet)
+
+		var model = parser.parse(tcl, URI.createURI("Test.tcl"), resourceSet)
+		validator.assertNoIssues(model)
+
+		tcl = getTCLWithValue("Test2", "!!hello")
+		model = parser.parse(tcl, URI.createURI("Test2.tcl"), resourceSet)
+		assertFalse(validator.validate(model).isEmpty)
+	}
+
+	def CharSequence getTCLWithValue(String testName, String value) {
+		return '''
+			package com.example
+			
+			# «testName»
+			* Start the famous greetings application
+			Component: ProjectExplorer
+			- execute menu item  "«value»"  in tree <ProjektBaum>
+		'''
+	}
+
+	def CharSequence getAMLWithValueSpace(String valuespace) {
+		return '''
 			package com.example
 			
 					interaction type executeContextMenuEntry {
@@ -100,7 +102,7 @@ class TclValidatorTest extends AbstractParserTest {
 						interactions =  executeContextMenuEntry
 					}
 					
-					value-space projectmenues = 2 .. 5
+					value-space projectmenues = «valuespace» 
 					
 					component type General {
 					}
@@ -113,31 +115,7 @@ class TclValidatorTest extends AbstractParserTest {
 							executeContextMenuEntry.item restrict to projectmenues 
 						}
 					}
-			'''
-		var tcl = '''
-			package com.example
-			
-			# Test
-			* Start the famous greetings application
-			Component: ProjectExplorer
-			- execute menu item  "4" in tree <ProjektBaum>
 		'''
-
-		val resourceSet = resourceSetProvider.get
-		amlParser.parse(aml, URI.createURI("swt.aml"), resourceSet)
-
-		var model = parser.parse(tcl, URI.createURI("Test.tcl"), resourceSet)
-		validator.assertNoIssues(model)
-
-		tcl = '''
-			package com.example
-			
-			# Test2
-			* Start the famous greetings application
-			Component: ProjectExplorer
-			- execute menu item  "1"  in tree <ProjektBaum>
-		'''
-		model = parser.parse(tcl, URI.createURI("Test2.tcl"), resourceSet)
-		assertFalse(validator.validate(model).isEmpty)
 	}
+
 }
