@@ -2,9 +2,14 @@ package org.testeditor.rcp4.createprojects
 
 import org.testeditor.rcp4.*;
 
-#CreateSimpleTestEditorProjectFromContextMenuWithNewWizard implements CreateSimpleTestEditorProject
+#CreateSimpleTestEditorProjectFromContextMenuWithNewWizardTest implements CreateSimpleTestEditorProject
+
 
 * start creation process
+Component: TestEditor
+- Clean Workspace
+- Restart Test-Editor with clean environment
+
 Component: ProjectExplorer
 - execute menu item  "New/Project..."  in tree <ProjektBaum>
 - Protkolliere vorhandene UI Elemente

@@ -17,6 +17,7 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.ui.PlatformUI;
 import org.testeditor.fixture.core.interaction.FixtureMethod;
 
 /**
@@ -39,6 +40,20 @@ public class TestEditorFixture {
 		IProject project = root.getProject("DemoProject");
 		project.create(progressMonitor);
 		project.open(progressMonitor);
+	}
+
+	@FixtureMethod
+	public void cleanWorkspace() throws Exception {
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		IProject[] projects = root.getProjects();
+		for (IProject project : projects) {
+			project.delete(true, new NullProgressMonitor());
+		}
+	}
+
+	@FixtureMethod
+	public void restartApplication() throws Exception {
+		PlatformUI.getWorkbench().restart();
 	}
 
 }
