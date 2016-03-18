@@ -10,16 +10,20 @@ import org.eclipse.m2e.core.internal.Bundles;
 import org.eclipse.m2e.core.internal.MavenPluginActivator;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MavenExecutor {
+
+	private static Logger logger = LoggerFactory.getLogger(MavenExecutor.class);
 
 	public void execute(String goal, String pathToPom) {
 		System.setProperty("maven.multiModuleProjectDirectory", pathToPom);
 		MavenCli cli = new MavenCli();
-		cli.doMain(new String[] { goal }, pathToPom, System.out, System.err);
+		cli.doMain(new String[] { "clean", goal }, pathToPom, System.out, System.err);
 	}
 
-	public void executeInNewJvm(String goal, String pathtoPom) throws IOException {
+	public void executeInNewJvm(String goal, String pathtoPom, String testParam) throws IOException {
 		String jvm = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
 		List<String> command = new ArrayList<String>();
 		command.add(jvm);
@@ -28,7 +32,8 @@ public class MavenExecutor {
 		command.add(this.getClass().getName());
 		command.add(goal);
 		command.add(pathtoPom);
-		System.out.println(command);
+		command.add(testParam);
+		logger.trace("Execute maven in new jvm with: {}", command);
 		ProcessBuilder processBuilder = new ProcessBuilder();
 		processBuilder.inheritIO();
 		processBuilder.command(command);
@@ -65,6 +70,11 @@ public class MavenExecutor {
 	}
 
 	public static void main(String[] args) {
+		if (args.length > 2) {
+			logger.trace("Setting " + args[2]);
+			String[] split = args[2].split("=");
+			System.setProperty(split[0], split[1]);
+		}
 		new MavenExecutor().execute(args[0], args[1]);
 	}
 

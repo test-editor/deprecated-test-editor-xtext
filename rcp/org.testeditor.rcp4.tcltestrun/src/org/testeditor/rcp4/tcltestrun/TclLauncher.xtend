@@ -29,7 +29,8 @@ import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
 
 class TclLauncher implements Launcher {
 	static val logger = LoggerFactory.getLogger(TclLauncher)
-	static val TEST_RESULT_FOLDER = "build/test-results"
+	static val GRADLE_TEST_RESULT_FOLDER = "build/test-results"
+	static val MVN_TEST_RESULT_FOLDER = "target/surefire-reports"
 
 	@Inject extension ProjectUtils
 
@@ -51,7 +52,7 @@ class TclLauncher implements Launcher {
 			return false
 		}
 
-		val testResultFile = project.createOrGetDeepFolder(TEST_RESULT_FOLDER).getFile(elementId.elementIdToFileName).
+		val testResultFile = project.createOrGetDeepFolder(org.testeditor.rcp4.tcltestrun.TclLauncher.GRADLE_TEST_RESULT_FOLDER).getFile(elementId.elementIdToFileName).
 			location.toFile
 		val GradleConnector connector = GradleConnector.newConnector
 		var ProjectConnection connection = null
@@ -91,13 +92,15 @@ class TclLauncher implements Launcher {
 		return true
 	}
 
-	def launchMaven(IStructuredSelection selection, IProject project, String string) {
+	def launchMaven(IStructuredSelection selection, IProject project, String elementId) {
 		logger.info("Trying to launch maven test execution" )
 
 		val mvnExec = new MavenExecutor()
 		
-		mvnExec.executeInNewJvm("integration-test",project.rawLocation.toOSString)
-		
+		mvnExec.executeInNewJvm("integration-test",project.rawLocation.toOSString, "test=" + elementId)
+		val testResultFile = project.createOrGetDeepFolder(org.testeditor.rcp4.tcltestrun.TclLauncher.MVN_TEST_RESULT_FOLDER).getFile(elementId.elementIdToFileName).
+			location.toFile
+		testResultFile.showTestResult
 		return true
 	}
 
