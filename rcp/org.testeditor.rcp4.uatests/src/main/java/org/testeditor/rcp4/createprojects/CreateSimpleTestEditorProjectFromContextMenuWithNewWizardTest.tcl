@@ -17,7 +17,7 @@ Component: ProjectExplorer
 
 * Select type Test Editor Project
 Component: NewDialog
-- selektiere Element "Other/Testeditor Project" in Baum <ProjectType>
+- selektiere Element "Testeditor Project" in Baum <ProjectType>
 - click on <NextButton>
 
 * Give the Project the name "MyFirstProject"
