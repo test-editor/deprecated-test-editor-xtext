@@ -45,6 +45,9 @@ class TclLauncher implements Launcher {
 		if (!project.getFile("build.gradle").exists) {
 			logger.warn('gradle based launching test for tcl element "{}" failed, since "build.gradle" was not found.',
 				elementId)
+			if (project.getFile("pom.xml").exists) {
+				return launchMaven(selection, project, elementId)
+			}
 			return false
 		}
 
@@ -85,6 +88,16 @@ class TclLauncher implements Launcher {
 				connection.close
 			}
 		}
+		return true
+	}
+
+	def launchMaven(IStructuredSelection selection, IProject project, String string) {
+		logger.info("Trying to launch maven test execution" )
+
+		val mvnExec = new MavenExecutor()
+		
+		mvnExec.executeInNewJvm("integration-test",project.rawLocation.toOSString)
+		
 		return true
 	}
 
