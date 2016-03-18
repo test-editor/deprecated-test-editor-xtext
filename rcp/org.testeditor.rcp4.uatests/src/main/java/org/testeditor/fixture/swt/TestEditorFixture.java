@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.testeditor.fixture.swt;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -19,12 +21,15 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ui.PlatformUI;
 import org.testeditor.fixture.core.interaction.FixtureMethod;
+import org.testeditor.rcp.product.ApplicationWorkbenchAdvisor;
 
 /**
  * Fixture to enable Test-Editor specific operations to the tests.
  *
  */
 public class TestEditorFixture {
+
+	Logger logger = LogManager.getLogger(TestEditorFixture.class);
 
 	/**
 	 * Creates a simple Test-Editor project with some basic structures for
@@ -49,11 +54,14 @@ public class TestEditorFixture {
 		for (IProject project : projects) {
 			project.delete(true, new NullProgressMonitor());
 		}
+		logger.info("Workspace cleaned");
 	}
 
 	@FixtureMethod
-	public void restartApplication() throws Exception {
-		PlatformUI.getWorkbench().restart();
+	public void resetApplication() throws Exception {
+		PlatformUI.getWorkbench().getDisplay().dispose();
+		PlatformUI.createAndRunWorkbench(PlatformUI.createDisplay(), new ApplicationWorkbenchAdvisor());
+		logger.info("Application resetted");
 	}
 
 }

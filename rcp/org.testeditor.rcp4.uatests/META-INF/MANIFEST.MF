@@ -36,4 +36,5 @@ Bundle-ClassPath: lib/core-fixture-2.5.0.jar,
  .,
  lib/log4j-core-2.5.jar,
  lib/log4j-api-2.5.jar
-Import-Package: org.apache.log4j
+Import-Package: org.apache.log4j,
+ org.testeditor.rcp.product
