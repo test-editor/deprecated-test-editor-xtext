@@ -26,6 +26,9 @@ import org.gradle.tooling.events.ProgressListener
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
 import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
+import org.eclipse.core.runtime.jobs.Job
+import org.eclipse.core.runtime.IProgressMonitor
+import org.eclipse.core.runtime.Status
 
 class TclLauncher implements Launcher {
 	static val logger = LoggerFactory.getLogger(TclLauncher)
@@ -95,12 +98,20 @@ class TclLauncher implements Launcher {
 	def launchMaven(IStructuredSelection selection, IProject project, String elementId) {
 		logger.info("Trying to launch maven test execution" )
 
-		val mvnExec = new MavenExecutor()
-		
-		mvnExec.executeInNewJvm("integration-test",project.rawLocation.toOSString, "test=" + elementId)
-		val testResultFile = project.createOrGetDeepFolder(org.testeditor.rcp4.tcltestrun.TclLauncher.MVN_TEST_RESULT_FOLDER).getFile(elementId.elementIdToFileName).
-			location.toFile
-		testResultFile.showTestResult
+		val job = new Job("Execute test " + elementId){
+			
+			override protected run(IProgressMonitor monitor) {
+				val mvnExec = new MavenExecutor()
+				
+				mvnExec.executeInNewJvm("integration-test",project.rawLocation.toOSString, "test=" + elementId)
+				val testResultFile = project.createOrGetDeepFolder(org.testeditor.rcp4.tcltestrun.TclLauncher.MVN_TEST_RESULT_FOLDER).getFile(elementId.elementIdToFileName).
+					location.toFile
+				testResultFile.showTestResult
+				return Status.OK_STATUS
+			}
+			
+		}
+		job.schedule
 		return true
 	}
 

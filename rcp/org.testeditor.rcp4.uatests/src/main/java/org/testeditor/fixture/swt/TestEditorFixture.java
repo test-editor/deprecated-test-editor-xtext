@@ -47,6 +47,12 @@ public class TestEditorFixture {
 		project.open(progressMonitor);
 	}
 
+	/**
+	 * Cleans the workspace. It deletes all projects in the workspace.
+	 * 
+	 * @throws Exception
+	 *             on failure
+	 */
 	@FixtureMethod
 	public void cleanWorkspace() throws Exception {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
@@ -57,11 +63,17 @@ public class TestEditorFixture {
 		logger.info("Workspace cleaned");
 	}
 
+	/**
+	 * Resets the UI of the application to the initial state.
+	 * 
+	 * @throws Exception
+	 *             on failure
+	 */
 	@FixtureMethod
 	public void resetApplication() throws Exception {
 		PlatformUI.getWorkbench().getDisplay().dispose();
 		PlatformUI.createAndRunWorkbench(PlatformUI.createDisplay(), new ApplicationWorkbenchAdvisor());
-		logger.info("Application resetted");
+		logger.info("Application reset");
 	}
 
 }

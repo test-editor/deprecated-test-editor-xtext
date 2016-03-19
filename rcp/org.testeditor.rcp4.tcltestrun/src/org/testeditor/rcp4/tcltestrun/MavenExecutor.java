@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2012 - 2016 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
 package org.testeditor.rcp4.tcltestrun;
 
 import java.io.File;
@@ -13,16 +25,44 @@ import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Executes a maven build in a new jvm using the embedded maven. The maven
+ * embedder api allows a maven build without a m2 variable configuration.
+ *
+ */
 public class MavenExecutor {
 
 	private static Logger logger = LoggerFactory.getLogger(MavenExecutor.class);
 
+	/**
+	 * Executes the maven build using maven embedder. It allways starts with a
+	 * clean operation to delete old test results.
+	 * 
+	 * @param goal
+	 *            of maven to be exeucted.
+	 * @param pathToPom
+	 *            path to the folder where the pom.xml is located.
+	 * 
+	 */
 	public void execute(String goal, String pathToPom) {
 		System.setProperty("maven.multiModuleProjectDirectory", pathToPom);
 		MavenCli cli = new MavenCli();
 		cli.doMain(new String[] { "clean", goal }, pathToPom, System.out, System.err);
 	}
 
+	/**
+	 * Executes a maven build in a new jvm. The executable of the current jvm is
+	 * used to create a new jvm.
+	 * 
+	 * @param goal
+	 *            of maven to be exeucted.
+	 * @param pathtoPom
+	 *            path to the folder where the pom.xml is located.
+	 * @param testParam
+	 *            pvm parameter to identify the test case to be executed.
+	 * @throws IOException
+	 *             on failure
+	 */
 	public void executeInNewJvm(String goal, String pathtoPom, String testParam) throws IOException {
 		String jvm = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
 		List<String> command = new ArrayList<String>();
@@ -45,6 +85,12 @@ public class MavenExecutor {
 		}
 	}
 
+	/**
+	 * Builds the classpath to maven embedder libs, this class and the
+	 * dependencies.
+	 * 
+	 * @return String with the classpath
+	 */
 	private String getClassPath() {
 		List<String> cp = new ArrayList<String>();
 		cp.addAll(Bundles.getClasspathEntries(Bundles
@@ -69,6 +115,12 @@ public class MavenExecutor {
 		return sb.toString();
 	}
 
+	/**
+	 * Entry point of the new jvm used for the maven build.
+	 * 
+	 * @param args
+	 *            the maven parameter.
+	 */
 	public static void main(String[] args) {
 		if (args.length > 2) {
 			logger.trace("Setting " + args[2]);
