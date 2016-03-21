@@ -81,7 +81,7 @@
             <contentExtension
                   pattern="org.eclipse.ui.navigator.resources.linkHelper">
             </contentExtension>
-   		   <contentExtension pattern="org.testeditor.projectexplorer.*"/>
+   		    <contentExtension pattern="org.testeditor.projectexplorer.*"/>
          </includes>
       </viewerContentBinding>      
       <viewerActionBinding
@@ -108,7 +108,7 @@
                class="org.testeditor.rcp4.views.projectexplorer.HideRootFolderFilter"
                description="Hides all folders, which have no test files."
                id="org.testeditor.projectexplorer.rootFolderFilter"
-               name="Filter non test releated folders"
+               name="Exclude non test releated folders"
                visibleInUI="true">
          </commonFilter>         
          <commonFilter
@@ -116,9 +116,54 @@
                class="org.testeditor.rcp4.views.projectexplorer.NavFilter"
                description="filter all files not of interest for the test writer"
                id="org.testeditor.projectexplorer.commonFilter"
-               name="Filter technical files"
+               name="Exclude technical files"
                visibleInUI="true">
          </commonFilter>
+       	 <commonWizard
+	        		type="new"
+					wizardId="org.testeditor.dsl.common.ui.wizards.NewProjectWizard">
+				<enablement>
+					<or>
+						<adapt type="org.eclipse.core.resources.IFolder" />
+	         			<adapt type="org.eclipse.core.resources.IProject" /> 
+	               		<adapt type="org.eclipse.core.resources.IWorkspaceRoot" />	
+					</or>
+		         </enablement>
+  	     </commonWizard>   
+       	 <commonWizard
+	        		type="new"
+					wizardId="org.testeditor.dsl.common.ui.wizards.NewAmlFileWizard">
+				<enablement>
+					<or>
+						<adapt type="org.eclipse.core.resources.IFolder" />
+	         			<adapt type="org.eclipse.core.resources.IProject" /> 
+	               		<adapt type="org.eclipse.core.resources.IWorkspaceRoot" />	
+					</or>
+		         </enablement>
+  	     </commonWizard>   
+       	 <commonWizard
+	        		type="new"
+					wizardId="org.testeditor.dsl.common.ui.wizards.NewTclFileWizard">
+				<enablement>
+					<or>
+						<adapt type="org.eclipse.core.resources.IFolder" />
+	         			<adapt type="org.eclipse.core.resources.IProject" /> 
+	               		<adapt type="org.eclipse.core.resources.IWorkspaceRoot" />	
+					</or>
+		         </enablement>
+  	     </commonWizard>   
+       	 <commonWizard
+	        		type="new"
+					wizardId="org.testeditor.dsl.common.ui.wizards.NewTslFileWizard">
+				<enablement>
+					<or>
+						<adapt type="org.eclipse.core.resources.IFolder" />
+	         			<adapt type="org.eclipse.core.resources.IProject" /> 
+	               		<adapt type="org.eclipse.core.resources.IWorkspaceRoot" />	
+					</or>
+		         </enablement>
+  	     </commonWizard>   
+       	
          <navigatorContent
 	         activeByDefault="true"
 	         contentProvider="org.testeditor.rcp4.views.projectexplorer.TEContentProvider"
@@ -128,10 +173,6 @@
 	         priority="higher">
 			<triggerPoints>
 			   <or>
-					<!--
-					<adapt type="org.eclipse.core.resources.IFile" />
-					<adapt type="org.eclipse.core.resources.IFolder" />
-					-->
 					<adapt type="org.eclipse.jdt.core.IClasspathEntry" />
 					<adapt type="org.eclipse.core.resources.IProject" />	
 			   </or>
