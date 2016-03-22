@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -80,54 +80,60 @@ class TclModelUtil extends TslModelUtil {
 		val stepContentVariables = step.contents.filter [
 			it instanceof StepContentElement || it instanceof StepContentVariable
 		].toList
-		if (templateVariables.size !== stepContentVariables.size) {
-			throw new IllegalArgumentException('''Variables for '«step.contents.restoreString»' did not match the parameters of interaction '«interaction.name»'.''')
-		}
-		for (var i = 0; i < templateVariables.size; i++) {
-			map.put(templateVariables.get(i), stepContentVariables.get(i))
-		}
-		return map
-	}
+		if (templateVariables.size !==
+			stepContentVariables.
+				size) {
+					throw new IllegalArgumentException('''Variables for '«step.contents.restoreString»' did not match the parameters of interaction '«interaction.name»'.''')
+				}
+				for (var i = 0; i < templateVariables.size; i++) {
+					map.put(templateVariables.get(i), stepContentVariables.get(i))
+				}
+				return map
+			}
 
-	def ComponentElement getComponentElement(StepContentElement contentElement) {
-		val container = contentElement.eContainer
-		if (container instanceof TestStep) {
-			val component = container.context.component
-			return component.elements.findFirst[name == contentElement.value]
-		}
-		return null
-	}
+			def ComponentElement getComponentElement(StepContentElement contentElement) {
+				val container = contentElement.eContainer
+				if (container instanceof TestStep) {
+					val component = container.context.component
+					return component.elements.findFirst[name == contentElement.value]
+				}
+				return null
+			}
 
-	def ValueSpaceAssignment getValueSapceAssignment(StepContentVariable contentElement) {
-		val container = contentElement.eContainer
-		if (container instanceof TestStep) {
-			val component = container.context.component
-			val valueSpace = getValueSapceAssignment(component, container)
-			if(valueSpace!=null)
-				return valueSpace
-		}
-		return null
-	}
+			def ValueSpaceAssignment getValueSpaceAssignment(StepContentVariable contentElement) {
+				val container = contentElement.eContainer
+				if (container instanceof TestStep) {
+					val component = container.context.component
+					val valueSpace = getValueSpaceAssignment(component, container)
+					if (valueSpace != null) {
+						return valueSpace
+					}
+				}
+				return null
+			}
 
-	def ValueSpaceAssignment getValueSapceAssignment(Component component, TestStep container) {
-		for (element : component.elements) {
-			val valueSpace = getValueSpaceAssignment(element, container)
-			if(valueSpace!=null) return valueSpace
-		}
-		return null
-	}
-	
-	def getValueSpaceAssignment(ComponentElement element, TestStep container) {
-			val foo = element.valueSpaceAssignments
-			return foo.findFirst[variable.template.interactionType.name == container.interaction.name]
-	}
+			def ValueSpaceAssignment getValueSpaceAssignment(Component component, TestStep container) {
+				for (element : component.elements) {
+					val valueSpace = getValueSpaceAssignment(element, container)
+					if (valueSpace != null) {
+						return valueSpace
+					}
+				}
+				return null
+			}
 
-	def SpecificationStep getSpecificationStep(SpecificationStepImplementation stepImplementation) {
-		val tslModel = stepImplementation.test.specification
-		if (tslModel !== null) {
-			return tslModel.steps.findFirst[matches(stepImplementation)]
-		}
-		return null
-	}
+			def getValueSpaceAssignment(ComponentElement element, TestStep container) {
+				val foo = element.valueSpaceAssignments
+				return foo.findFirst[variable.template.interactionType.name == container.interaction.name]
+			}
 
-}
+			def SpecificationStep getSpecificationStep(SpecificationStepImplementation stepImplementation) {
+				val tslModel = stepImplementation.test.specification
+				if (tslModel !== null) {
+					return tslModel.steps.findFirst[matches(stepImplementation)]
+				}
+				return null
+			}
+
+		}
+		

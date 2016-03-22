@@ -30,55 +30,62 @@ class TclValidatorTest extends AbstractParserTest {
 
 	@Test
 	def void validateStringArray() {
+		//given
 		val aml = getAMLWithValueSpace('''#[ "New", "Open" ]''')
 		var tcl = getTCLWithValue("Test", "New")
 
 		val resourceSet = resourceSetProvider.get
 		amlParser.parse(aml, URI.createURI("swt.aml"), resourceSet)
-
+		var tclError = getTCLWithValue("Test2", "Save")
+		
+		//when
 		var model = parser.parse(tcl, URI.createURI("Test.tcl"), resourceSet)
+		var modelError = parser.parse(tclError, URI.createURI("Test2.tcl"), resourceSet)
+		
+		//then
 		validator.assertNoIssues(model)
-
-		tcl = getTCLWithValue("Test2", "Save")
-		model = parser.parse(tcl, URI.createURI("Test2.tcl"), resourceSet)
-		assertFalse(validator.validate(model).isEmpty)
+		assertFalse(validator.validate(modelError).isEmpty)
 	}
 
 	@Test
 	def void validateNumberRange() {
+		//given
 		val aml = getAMLWithValueSpace("2 ... 5")
 		var tcl = getTCLWithValue("Test", "4")
 
 		val resourceSet = resourceSetProvider.get
 		amlParser.parse(aml, URI.createURI("swt.aml"), resourceSet)
-
+		var tclError = getTCLWithValue("Test2", "1")
+		
+		//when
 		var model = parser.parse(tcl, URI.createURI("Test.tcl"), resourceSet)
-		validator.assertNoIssues(model)
+		var modelError = parser.parse(tclError, URI.createURI("Test2.tcl"), resourceSet)
 
-		tcl = getTCLWithValue("Test2", "1")
-		model = parser.parse(tcl, URI.createURI("Test2.tcl"), resourceSet)
-		assertFalse(validator.validate(model).isEmpty)
+		//then
+		validator.assertNoIssues(model)
+		assertFalse(validator.validate(modelError).isEmpty)
 	}
 
 	@Test
 	def void validateRegEx() {
+		// given
 		val aml = getAMLWithValueSpace('''"^[a-zA-Z_0-9]"''')
 		var tcl = getTCLWithValue("Test", "h")
-		println(tcl)
 
 		val resourceSet = resourceSetProvider.get
 		amlParser.parse(aml, URI.createURI("swt.aml"), resourceSet)
+		var tclError = getTCLWithValue("Test2", "!!hello")
 
+		//when
 		var model = parser.parse(tcl, URI.createURI("Test.tcl"), resourceSet)
-		validator.assertNoIssues(model)
+		var modelError = parser.parse(tclError, URI.createURI("Test2.tcl"), resourceSet)
 
-		tcl = getTCLWithValue("Test2", "!!hello")
-		model = parser.parse(tcl, URI.createURI("Test2.tcl"), resourceSet)
-		assertFalse(validator.validate(model).isEmpty)
+		//then
+		validator.assertNoIssues(model)
+		assertFalse(validator.validate(modelError).isEmpty)
 	}
 
-	def CharSequence getTCLWithValue(String testName, String value) {
-		return '''
+	def CharSequence getTCLWithValue(String testName, String value) { '''
 			package com.example
 			
 			# «testName»
@@ -88,33 +95,32 @@ class TclValidatorTest extends AbstractParserTest {
 		'''
 	}
 
-	def CharSequence getAMLWithValueSpace(String valuespace) {
-		return '''
+	def CharSequence getAMLWithValueSpace(String valuespace) {'''
 			package com.example
 			
-					interaction type executeContextMenuEntry {
-						label = " execute context menu entry"
-						template = "execute menu item " ${item} " in tree" ${element} 
-						method = SWTFixture.executeContextMenuEntry(element,item)
-					}
-					
-					element type TreeView {
-						interactions =  executeContextMenuEntry
-					}
-					
-					value-space projectmenues = «valuespace» 
-					
-					component type General {
-					}
-					
-					
-					component ProjectExplorer is General {
-						element ProjektBaum is TreeView {
-							label = "Projekt Baum"
-							locator ="Project Explorer"
-							executeContextMenuEntry.item restrict to projectmenues 
-						}
-					}
+			interaction type executeContextMenuEntry {
+				label = " execute context menu entry"
+				template = "execute menu item " ${item} " in tree" ${element} 
+				method = SWTFixture.executeContextMenuEntry(element,item)
+			}
+			
+			element type TreeView {
+				interactions =  executeContextMenuEntry
+			}
+			
+			value-space projectmenues = «valuespace» 
+			
+			component type General {
+			}
+			
+			
+			component ProjectExplorer is General {
+				element ProjektBaum is TreeView {
+					label = "Projekt Baum"
+					locator ="Project Explorer"
+					executeContextMenuEntry.item restrict to projectmenues 
+				}
+			}
 		'''
 	}
 

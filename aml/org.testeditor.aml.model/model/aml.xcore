@@ -211,7 +211,7 @@ class IntegerRange extends ValueSpace {
 		return from <= Integer.parseInt(possibleValue) && Integer.parseInt(possibleValue) <= to
 	}
 	op String toString() {
-		return from + " <= <X>" +  " <= " + to
+		return from + " <= <x> <= " + to
 	}
 }
 
