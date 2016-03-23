@@ -112,7 +112,6 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				output.trace(interaction.defaultMethod) => [
 					append('''«fixtureField».«operation.simpleName»(«getParameterList(step, interaction)»);''')
 				]
-				output.append('''«fixtureField».«operation.simpleName»(«getParameterList(step, interaction)»);''')
 			} else {
 				output.append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
 			}
