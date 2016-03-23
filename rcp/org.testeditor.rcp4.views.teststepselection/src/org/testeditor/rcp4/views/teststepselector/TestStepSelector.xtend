@@ -80,7 +80,7 @@ class TestStepSelector {
 
 				})
 		]
-		val page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		val page = PlatformUI.workbench.activeWorkbenchWindow.activePage;
 		page.addPartListener(new IPartListener() {
 
 			override partActivated(IWorkbenchPart part) {
