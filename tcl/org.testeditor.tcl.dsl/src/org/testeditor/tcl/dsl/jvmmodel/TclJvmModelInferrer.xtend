@@ -27,6 +27,7 @@ import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestStep
+import org.testeditor.tcl.TestStepAssertion
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.util.TclModelUtil
@@ -38,7 +39,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	@Inject extension JvmTypesBuilder
 	@Inject extension TclModelUtil
 	@Inject IQualifiedNameProvider nameProvider
-	
+	@Inject extension TclAssertCallBuilder
+
 	def dispatch void infer(TclModel model, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		model.test?.infer(acceptor, isPreIndexingPhase)
 	}
@@ -56,7 +58,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			members += test.toMethod('execute', typeRef(Void.TYPE)) [
 				exceptions += typeRef(Exception)
 				annotations += annotationRef('org.junit.Test') // make sure that junit is in the classpath of the workspace containing the dsl
-				body = [test.generateMethodBody(trace(test))]
+				body = [test.generateMethodBody(trace(test, true))]
 			]
 		]
 
@@ -69,20 +71,20 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	private def void generate(SpecificationStepImplementation step, ITreeAppendable output) {
 		val comment = '''/* «step.contents.restoreString» */'''
 		output.newLine
-		output.append(comment)
+		output.append(comment).newLine
 		step.contexts.forEach[generate(output.trace(it))]
 	}
 
 	private def void generate(TestStepContext context, ITreeAppendable output) {
 		output.newLine
-		output.append('''// Component: «context.component.name»''')
+		output.append('''// Component: «context.component.name»''').newLine
 		context.steps.forEach[generate(output.trace(it))]
 	}
-	
+
 	private def void generate(TestStep step, ITreeAppendable output) {
 		output.newLine
-		output.append('''// - «step.contents.restoreString»''')
-		generateFeatureCall(step, output)
+		output.append('''// - «step.contents.restoreString»''').newLine
+		toUnitTestCodeLine(step, output)
 	}
 
 	/**
@@ -100,9 +102,11 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		return fixtureType.simpleName.toFirstLower
 	}
 
-	private def void generateFeatureCall(TestStep step, ITreeAppendable output) {
-		output.newLine
-		val context = step.context
+	private def dispatch void toUnitTestCodeLine(TestStepAssertion step, ITreeAppendable output) {
+		output.append(buildAssertCall(step.negated, step.variableName, step.comparator, step.contents.restoreString)).newLine
+	}
+
+	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output) {
 		val interaction = step.interaction
 		if (interaction !== null) {
 			val fixtureField = interaction.defaultMethod?.typeReference?.type?.fixtureFieldName
@@ -116,7 +120,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				output.append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
 			}
 		} else {
-			output.append('''// TODO could not resolve '«context.component.name»' - «step.contents.restoreString»''')
+			output.append('''// TODO could not resolve '«step.context.component.name»' - «step.contents.restoreString»''')
 		}
 	}
 	
@@ -156,4 +160,3 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 }
-

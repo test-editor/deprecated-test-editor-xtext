@@ -51,8 +51,21 @@ class TestStep {
 	contains StepContent[0..*] contents
 }
 
+class TestStepAssertion extends TestStep {	
+	String variableName
+	contains Comparator comparator
+	Boolean negated
+}
+
 class TestStepWithAssignment extends TestStep {
 	String variableName
 }
 
 class StepContentElement extends StepContent {}
+class Comparator extends StepContent {
+	Boolean negated
+}
+class ComparatorEquals extends Comparator {}
+class ComparatorMatches extends Comparator {}
+class ComparatorLessThen extends Comparator {}
+class ComparatorGreaterThen extends Comparator {}

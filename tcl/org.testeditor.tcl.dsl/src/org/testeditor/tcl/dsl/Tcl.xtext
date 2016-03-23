@@ -17,8 +17,6 @@ grammar org.testeditor.tcl.dsl.Tcl with org.eclipse.xtext.xbase.Xbase
 import "http://www.testeditor.org/tcl"
 import "http://www.testeditor.org/tsl" as tsl
 import "http://www.testeditor.org/aml" as aml
-import "http://www.eclipse.org/xtext/common/JavaVMTypes" as types
-import "http://www.eclipse.org/xtext/xbase/Xtype" as xtype
 import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 
 
@@ -43,12 +41,28 @@ SpecificationStepImplementation:
 
 TestStepContext:
 	('Mask' | 'Component') ':' component=[aml::Component]
-	steps+=(TestStep | TestStepWithAssignment)*
+	steps+=(TestStep | TestStepWithAssignment | TestStepAssertion )*
 ;
 
 TestStep:
 	{TestStep}
 	'-' contents+=StepContent* '.'?
+;
+
+TestStepAssertion:
+	'-' 'assert' (negated?='!')? variableName=ID (comparator=Comparator contents+=StepContent)? '.'?
+;
+
+Comparator:
+	{ComparatorEquals} '=' |
+	{ComparatorEquals} '==' |
+	{ComparatorEquals} negated?='!=' |
+	{ComparatorEquals} negated?='<>' |
+	{ComparatorEquals} 'is' (negated?='not')? |
+	{ComparatorMatches} 'matches'  |
+	{ComparatorMatches} negated?='does' 'not' 'match' |
+	{ComparatorLessThen} ('<' | negated?='>=') |
+	{ComparatorGreaterThen} ('>' | negated?='<=' )
 ;
 
 TestStepWithAssignment: 
@@ -60,7 +74,12 @@ StepContent returns tsl::StepContent:
 ;
 
 StepContentText returns tsl::StepContentText: 
-	value=ID
+	value=ID | value=StepContentTextOperator
+;
+
+StepContentTextOperator returns ecore::EString:
+	'matches' | 'does' 'not' 'match' | 'is' 'not'?
+
 ;
 
 StepContentVariable returns tsl::StepContentVariable:

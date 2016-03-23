@@ -13,8 +13,10 @@
 package org.testeditor.tcl.dsl.tests.parser
 
 import org.junit.Test
+import org.testeditor.tcl.ComparatorMatches
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclPackage
+import org.testeditor.tcl.TestStepAssertion
 import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tsl.StepContentVariable
 
@@ -158,6 +160,63 @@ class TclModelParserTest extends AbstractParserTest {
 				steps.assertSingleElement.assertInstanceOf(TestStepWithAssignment) => [
 					variableName.assertEquals('hello')
 					contents.restoreString.assertEquals('Lese den Text von <Input>')
+				]
+			]
+		]
+	}
+
+	@Test
+	def void parseTestStepAssertionWOComparator() {
+		// given
+		val input = '''
+			package com.example
+			
+			# Test
+			* Start using some keywords like is matches does not match
+			  Mask: Demo
+			  - assert hello
+		'''
+
+		// when
+		val test = parse(input)
+
+		// then
+		test.steps.assertSingleElement => [
+			contexts.assertSingleElement => [
+				steps.assertSingleElement.assertInstanceOf(TestStepAssertion) => [
+					negated.assertNull
+					variableName.assertEquals('hello')
+					comparator.assertNull
+					contents.assertEmpty
+				]
+			]
+		]
+	}
+
+	@Test
+	def void parseTestStepAssertion() {
+		// given
+		val input = '''
+			package com.example
+			
+			# Test
+			* Start using some keywords like is matches does not match
+			  Mask: Demo
+			  - assert ! hello does    not match ".*AAABBB.*"
+		'''
+
+		// when
+		val test = parse(input)
+
+		// then
+		test.steps.assertSingleElement => [
+			contexts.assertSingleElement => [
+				steps.assertSingleElement.assertInstanceOf(TestStepAssertion) => [
+					negated.assertTrue
+					variableName.assertEquals('hello')
+					comparator.assertInstanceOf(ComparatorMatches)
+					comparator.negated.assertTrue
+					contents.restoreString.assertEquals('".*AAABBB.*"')
 				]
 			]
 		]
