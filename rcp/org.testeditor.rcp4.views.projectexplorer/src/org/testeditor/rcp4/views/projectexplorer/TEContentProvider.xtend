@@ -26,9 +26,9 @@ class TEContentProvider implements ITreeContentProvider {
 
 	override getChildren(Object parentElement) {
 		if (parentElement instanceof IProject) {
-			if (parentElement.hasNature("org.eclipse.jdt.core.javanature")) {
+			if (parentElement.hasNature(JavaCore.NATURE_ID)) {
 				val javaProject = JavaCore.create(parentElement);
-				return javaProject.rawClasspath.filter[it.entryKind == IClasspathEntry.CPE_SOURCE]
+				return javaProject.rawClasspath.filter[entryKind == IClasspathEntry.CPE_SOURCE]
 			}
 		}
 		if (parentElement instanceof IClasspathEntry) {
