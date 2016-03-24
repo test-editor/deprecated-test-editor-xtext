@@ -108,10 +108,16 @@ class TclLauncher implements Launcher {
 			override protected run(IProgressMonitor monitor) {
 				val mvnExec = new MavenExecutor
 
-				mvnExec.executeInNewJvm("integration-test", project.location.toOSString, "test=" + elementId)
+				val result = mvnExec.executeInNewJvm("integration-test", project.location.toOSString,
+					"test=" + elementId)
 				val testResultFile = project.createOrGetDeepFolder(TclLauncher.MVN_TEST_RESULT_FOLDER).getFile(
 					elementId.elementIdToFileName).location.toFile
-				testResultFile.showTestResult
+				if (result == 0) {
+					testResultFile.showTestResult
+				} else {
+					logger.error('''Error during maven task "test" of element "«elementId»"''')
+					// create error file?
+				}
 				return Status.OK_STATUS
 			}
 

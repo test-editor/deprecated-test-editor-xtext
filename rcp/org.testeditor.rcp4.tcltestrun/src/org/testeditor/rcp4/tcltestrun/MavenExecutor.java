@@ -42,12 +42,14 @@ public class MavenExecutor {
 	 *            of maven to be exeucted.
 	 * @param pathToPom
 	 *            path to the folder where the pom.xml is located.
+	 * @return int with exit code
 	 * 
 	 */
-	public void execute(String goal, String pathToPom) {
+	public int execute(String goal, String pathToPom) {
 		System.setProperty("maven.multiModuleProjectDirectory", pathToPom);
 		MavenCli cli = new MavenCli();
-		cli.doMain(new String[] { "clean", goal }, pathToPom, System.out, System.err);
+		int result = cli.doMain(new String[] { "clean", goal }, pathToPom, System.out, System.err);
+		return result;
 	}
 
 	/**
@@ -60,10 +62,12 @@ public class MavenExecutor {
 	 *            path to the folder where the pom.xml is located.
 	 * @param testParam
 	 *            pvm parameter to identify the test case to be executed.
+	 * @return int with exit code
 	 * @throws IOException
 	 *             on failure
 	 */
-	public void executeInNewJvm(String goal, String pathtoPom, String testParam) throws IOException {
+	public int executeInNewJvm(String goal, String pathtoPom, String testParam) throws IOException {
+		int result = 1; // unspecified error code != 0
 		String jvm = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
 		List<String> command = new ArrayList<String>();
 		command.add(jvm);
@@ -76,13 +80,15 @@ public class MavenExecutor {
 		logger.trace("Execute maven in new jvm with: {}", command);
 		ProcessBuilder processBuilder = new ProcessBuilder();
 		processBuilder.inheritIO();
+		processBuilder.redirectErrorStream(true);
 		processBuilder.command(command);
 		Process process = processBuilder.start();
 		try {
-			process.waitFor();
+			result = process.waitFor();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		return result;
 	}
 
 	/**
@@ -127,7 +133,10 @@ public class MavenExecutor {
 			String[] split = args[2].split("=");
 			System.setProperty(split[0], split[1]);
 		}
-		new MavenExecutor().execute(args[0], args[1]);
+		int result = new MavenExecutor().execute(args[0], args[1]);
+		if (result != 0) {
+			System.exit(result);
+		}
 	}
 
 }

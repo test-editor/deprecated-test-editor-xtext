@@ -21,7 +21,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ui.PlatformUI;
 import org.testeditor.fixture.core.interaction.FixtureMethod;
-import org.testeditor.rcp.product.ApplicationWorkbenchAdvisor;
+import org.testeditor.rcp4.ApplicationWorkbenchAdvisor;
 
 /**
  * Fixture to enable Test-Editor specific operations to the tests.
