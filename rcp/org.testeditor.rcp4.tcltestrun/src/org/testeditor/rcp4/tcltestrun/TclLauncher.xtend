@@ -46,17 +46,22 @@ class TclLauncher implements Launcher {
 	}
 
 	override boolean launch(IStructuredSelection selection, IProject project, String elementId, String mode) {
-		if (!project.getFile("build.gradle").exists) {
-			logger.warn('gradle based launching test for tcl element "{}" failed, since "build.gradle" was not found.',
-				elementId)
-			if (project.getFile("pom.xml").exists) {
-				return launchMaven(selection, project, elementId)
-			}
-			return false
+		if (project.getFile("build.gradle").exists) {
+			return launchGradleBasedTest(project, elementId)
 		}
+		if (project.getFile("pom.xml").exists) {
+			return launchMavenBasedTest(selection, project, elementId)
+		}
+		logger.warn('gradle based launching test for tcl element "{}" failed, since "build.gradle" was not found.',
+			elementId)
+		logger.warn('maven based launching test for tcl element "{}" failed, since "pom.xml" was not found.', elementId)
+		return false
+	}
 
-		val testResultFile = project.createOrGetDeepFolder(TclLauncher.GRADLE_TEST_RESULT_FOLDER).getFile(elementId.elementIdToFileName).
-			location.toFile
+	private def boolean launchGradleBasedTest(IProject project, String elementId) {
+		logger.info("Trying to launch gradle test execution")
+		val testResultFile = project.createOrGetDeepFolder(TclLauncher.GRADLE_TEST_RESULT_FOLDER).getFile(
+			elementId.elementIdToFileName).location.toFile
 		val GradleConnector connector = GradleConnector.newConnector
 		var ProjectConnection connection = null
 		val projectFolder = project.location.makeAbsolute.toFile
@@ -95,21 +100,21 @@ class TclLauncher implements Launcher {
 		return true
 	}
 
-	def launchMaven(IStructuredSelection selection, IProject project, String elementId) {
-		logger.info("Trying to launch maven test execution" )
+	private def boolean launchMavenBasedTest(IStructuredSelection selection, IProject project, String elementId) {
+		logger.info("Trying to launch maven test execution")
 
-		val job = new Job("Execute test " + elementId){
-			
+		val job = new Job("Execute test " + elementId) {
+
 			override protected run(IProgressMonitor monitor) {
-				val mvnExec = new MavenExecutor()
-				
-				mvnExec.executeInNewJvm("integration-test",project.rawLocation.toOSString, "test=" + elementId)
-				val testResultFile = project.createOrGetDeepFolder(TclLauncher.MVN_TEST_RESULT_FOLDER).getFile(elementId.elementIdToFileName).
-					location.toFile
+				val mvnExec = new MavenExecutor
+
+				mvnExec.executeInNewJvm("integration-test", project.location.toOSString, "test=" + elementId)
+				val testResultFile = project.createOrGetDeepFolder(TclLauncher.MVN_TEST_RESULT_FOLDER).getFile(
+					elementId.elementIdToFileName).location.toFile
 				testResultFile.showTestResult
 				return Status.OK_STATUS
 			}
-			
+
 		}
 		job.schedule
 		return true
