@@ -13,7 +13,11 @@
 package org.testeditor.dsl.common.ui.wizards
 
 import javax.inject.Inject
+import org.eclipse.core.resources.FileInfoMatcherDescription
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IResource
+import org.eclipse.core.resources.IResourceFilterDescription
+import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jdt.junit.JUnitCore
 import org.eclipse.jdt.ui.PreferenceConstants
@@ -60,6 +64,10 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 				setRawClasspath(rawPath, null)
 			]
 		newProject.addNature(XtextProjectHelper.NATURE_ID)
+		// make sure that no target folder is included into any resource set
+		newProject.createFilter(IResourceFilterDescription.EXCLUDE_ALL.bitwiseOr(IResourceFilterDescription.FOLDERS),
+			new FileInfoMatcherDescription("org.eclipse.core.resources.regexFilterMatcher", "target"),
+			IResource.BACKGROUND_REFRESH, new NullProgressMonitor)
 		return result
 	}
 
