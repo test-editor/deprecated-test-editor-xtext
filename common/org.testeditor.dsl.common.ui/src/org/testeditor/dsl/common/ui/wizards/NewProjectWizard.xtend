@@ -62,7 +62,7 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 	override performFinish() {
 		val result = super.performFinish()
 
-		val srcFolder = newProject.createOrGetDeepFolder(SRC_FOLDER)
+		newProject.createOrGetDeepFolder(SRC_FOLDER)
 		newProject.addNature(JavaCore.NATURE_ID)
 		JavaCore.create(newProject)
 		newProject.addNature(XtextProjectHelper.NATURE_ID)
