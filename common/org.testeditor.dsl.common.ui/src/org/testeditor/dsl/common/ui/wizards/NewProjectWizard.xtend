@@ -22,6 +22,7 @@ import org.eclipse.ui.IWorkbench
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard
 import org.eclipse.xtext.ui.XtextProjectHelper
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
+import org.testeditor.dsl.common.ide.util.ProjectContentGenerator
 
 /** wizard to create a new test project 
  *  - add java nature
@@ -33,6 +34,8 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 	@Inject extension ProjectUtils
 
 	static public val String SRC_FOLDER = 'src/main/java'
+	
+	TestProjectConfigurationWizardPage prjCfgPage
 
 	private def void addNature(IProject newProject, String nature) {
 		if (!newProject.hasNature(nature)) {
@@ -44,7 +47,13 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 
 	override init(IWorkbench bench, IStructuredSelection selection) {
 		super.init(bench, selection)
-		windowTitle = "Create test-first Testproject"
+		windowTitle = "Create test-first project"
+	}
+
+	override addPages() {
+		super.addPages()
+		prjCfgPage = new TestProjectConfigurationWizardPage("projectcfg")
+		addPage(prjCfgPage)
 	}
 
 	override performFinish() {
@@ -60,7 +69,13 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 				setRawClasspath(rawPath, null)
 			]
 		newProject.addNature(XtextProjectHelper.NATURE_ID)
+		
+		if(!prjCfgPage.selectedFixtures.isEmpty) {
+			new ProjectContentGenerator().createProjectContent(newProject,prjCfgPage.selectedFixtures, prjCfgPage.buildSystemName, prjCfgPage.withDemoCode)
+		}
+		
 		return result
 	}
-
+	
 }
+
