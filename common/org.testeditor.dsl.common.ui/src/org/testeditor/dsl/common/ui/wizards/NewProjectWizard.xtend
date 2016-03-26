@@ -15,14 +15,12 @@ package org.testeditor.dsl.common.ui.wizards
 import javax.inject.Inject
 import org.eclipse.core.resources.IProject
 import org.eclipse.jdt.core.JavaCore
-import org.eclipse.jdt.junit.JUnitCore
-import org.eclipse.jdt.ui.PreferenceConstants
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.eclipse.ui.IWorkbench
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard
 import org.eclipse.xtext.ui.XtextProjectHelper
-import org.testeditor.dsl.common.ui.utils.ProjectUtils
 import org.testeditor.dsl.common.ide.util.ProjectContentGenerator
+import org.testeditor.dsl.common.ui.utils.ProjectUtils
 
 /** wizard to create a new test project 
  *  - add java nature
@@ -34,8 +32,10 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 	@Inject extension ProjectUtils
 
 	static public val String SRC_FOLDER = 'src/main/java'
-	
+
 	TestProjectConfigurationWizardPage prjCfgPage
+
+	ProjectContentGenerator projectContentGenerator
 
 	private def void addNature(IProject newProject, String nature) {
 		if (!newProject.hasNature(nature)) {
@@ -48,11 +48,14 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 	override init(IWorkbench bench, IStructuredSelection selection) {
 		super.init(bench, selection)
 		windowTitle = "Create test-first project"
+		projectContentGenerator = new ProjectContentGenerator()
 	}
 
 	override addPages() {
 		super.addPages()
 		prjCfgPage = new TestProjectConfigurationWizardPage("projectcfg")
+		prjCfgPage.availableBuildSystems = projectContentGenerator.availableBuildSystems
+		prjCfgPage.availableFixtureNames = projectContentGenerator.availableFixtureNames
 		addPage(prjCfgPage)
 	}
 
@@ -61,21 +64,15 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 
 		val srcFolder = newProject.createOrGetDeepFolder(SRC_FOLDER)
 		newProject.addNature(JavaCore.NATURE_ID)
-		JavaCore.create(newProject) =>
-			[
-				val rawPath = PreferenceConstants.defaultJRELibrary +
-					#[JavaCore.newSourceEntry(srcFolder.fullPath),
-						JavaCore.newContainerEntry(JUnitCore.JUNIT4_CONTAINER_PATH)]
-				setRawClasspath(rawPath, null)
-			]
+		JavaCore.create(newProject)
 		newProject.addNature(XtextProjectHelper.NATURE_ID)
-		
-		if(!prjCfgPage.selectedFixtures.isEmpty) {
-			new ProjectContentGenerator().createProjectContent(newProject,prjCfgPage.selectedFixtures, prjCfgPage.buildSystemName, prjCfgPage.withDemoCode)
+
+		if (!prjCfgPage.selectedFixtures.isEmpty) {
+			projectContentGenerator.createProjectContent(newProject, prjCfgPage.selectedFixtures,
+				prjCfgPage.buildSystemName, prjCfgPage.withDemoCode)
 		}
-		
+
 		return result
 	}
-	
-}
 
+}

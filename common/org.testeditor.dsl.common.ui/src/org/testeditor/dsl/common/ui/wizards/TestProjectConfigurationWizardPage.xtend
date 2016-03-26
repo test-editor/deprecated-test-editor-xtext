@@ -32,6 +32,10 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 
 	List selectedFixtures
 
+	java.util.List<String> availableBuildSystems;
+
+	java.util.List<String> availableFixtureNames;
+
 	Button demoCode
 
 	protected new(String pageName) {
@@ -49,16 +53,21 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 		gd.horizontalSpan = 3
 		cmpBs.layoutData = gd
 		new Label(cmpBs, SWT.NORMAL).text = "Build-system:"
-		buildSystem = new Combo(cmpBs, SWT.None);
-		buildSystem.add("Maven");
-		buildSystem.add("Gradle");
-		buildSystem.text = "Maven"
+		buildSystem = new Combo(cmpBs, SWT.None)
+		for (systems : availableBuildSystems) {
+			buildSystem.add(systems)
+		}
+		if (availableBuildSystems.size > 0) {
+			buildSystem.text = availableBuildSystems.get(0)
+		}
 		new Label(cmp, SWT.NORMAL).text = "Available Fixtures:"
 		new Composite(cmp, SWT.NONE)
 		new Label(cmp, SWT.NORMAL).text = "Selected Fixtures:"
 		availableFixtures = new List(cmp, SWT.BORDER)
 		availableFixtures.layoutData = new GridData(GridData.FILL_BOTH)
-		availableFixtures.add("Web Fixture");
+		for (fixtureName : availableFixtureNames) {
+			availableFixtures.add(fixtureName)
+		}
 		val buttonArea = new Composite(cmp, SWT.NORMAL)
 		buttonArea.layout = new GridLayout(1, false)
 		val addBtn = new Button(buttonArea, SWT.BORDER)
@@ -73,7 +82,15 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 		delBtn.addSelectionListener(getMoveListener(selectedFixtures, availableFixtures))
 		demoCode = new Button(cmp, SWT.CHECK)
 		demoCode.text = "Generate with examples"
-		setControl(cmp);
+		setControl(buildSystem);
+	}
+
+	def setAvailableFixtureNames(java.util.List<String> names) {
+		availableFixtureNames = names
+	}
+
+	def setAvailableBuildSystems(java.util.List<String> buildSystems) {
+		availableBuildSystems = buildSystems
 	}
 
 	def String[] getSelectedFixtures() {

@@ -11,6 +11,7 @@ Require-Bundle: com.google.guava,
  org.eclipse.xtext.util,
  org.eclipse.emf.ecore,
  org.eclipse.xtext,
- org.eclipse.core.runtime;bundle-version="3.11.1"
+ org.eclipse.core.runtime;bundle-version="3.11.1",
+ org.eclipse.m2e.core;bundle-version="1.6.2"
 Export-Package: org.testeditor.dsl.common.ide.util
 
