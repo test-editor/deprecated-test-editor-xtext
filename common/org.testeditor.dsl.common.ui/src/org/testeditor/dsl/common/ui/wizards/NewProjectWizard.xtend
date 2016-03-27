@@ -25,7 +25,7 @@ import org.testeditor.dsl.common.ui.utils.ProjectUtils
 /** wizard to create a new test project 
  *  - add java nature
  *  - add xtext nature
- *  - add junit to the classpath 
+ *  - add build system 
  */
 class NewProjectWizard extends BasicNewProjectResourceWizard {
 

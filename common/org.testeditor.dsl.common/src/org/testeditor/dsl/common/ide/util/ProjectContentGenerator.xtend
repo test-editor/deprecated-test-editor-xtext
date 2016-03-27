@@ -26,9 +26,10 @@ import org.eclipse.m2e.core.project.ResolverConfiguration
  */
 class ProjectContentGenerator {
 
-	static val MAVEN = "Maven"
-	static val GRADLE = "Gradle"
-	static val WEBFIXTURE = "Web Fixture"
+	public static val MAVEN = "Maven"
+	public static val GRADLE = "Gradle"
+	public static val WEBFIXTURE = "Web Fixture"
+	//NOT API yet.
 	static val SWINGFIXTURE = "Swing Fixture"
 
 	def createProjectContent(IProject project, String[] fixtures, String buildsystem,
@@ -69,7 +70,7 @@ class ProjectContentGenerator {
 		if (fixtureName == WEBFIXTURE) {
 			return "org.testeditor.fixture.web.*"
 		}
-		if (fixtureName == WEBFIXTURE) {
+		if (fixtureName == SWINGFIXTURE) {
 			return "org.testeditor.fixture.swing.*"
 		}
 		return ""

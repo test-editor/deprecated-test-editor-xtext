@@ -38,7 +38,7 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 
 	Button demoCode
 
-	protected new(String pageName) {
+	new(String pageName) {
 		super(pageName)
 		description = "Specify initial configuration of the project (build-system, fixture type and templates)"
 		title = "Project configuration"
