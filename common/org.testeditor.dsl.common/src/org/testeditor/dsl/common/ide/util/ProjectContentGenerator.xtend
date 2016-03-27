@@ -17,6 +17,7 @@ import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.CoreException
+import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.m2e.core.MavenPlugin
 import org.eclipse.m2e.core.project.ResolverConfiguration
@@ -32,23 +33,23 @@ class ProjectContentGenerator {
 	// NOT API yet.
 	static val SWINGFIXTURE = "Swing Fixture"
 
-	def createProjectContent(IProject project, String[] fixtures, String buildsystem,
-		boolean demo) throws CoreException{
+	def createProjectContent(IProject project, String[] fixtures, String buildsystem, boolean demo,
+		IProgressMonitor monitor) throws CoreException{
 		if (buildsystem == MAVEN) {
 			var IFile buildFile = project.getFile("pom.xml")
 			buildFile.create(new ByteArrayInputStream(getPomContent(fixtures, project.name).getBytes()), IResource.NONE,
-				new NullProgressMonitor())
+				monitor)
 			var configurationManager = MavenPlugin.getProjectConfigurationManager()
 			var configuration = new ResolverConfiguration();
 			configuration.setResolveWorkspaceProjects(true);
 			configuration.setSelectedProfiles("");
-			configurationManager.enableMavenNature(project, configuration, new NullProgressMonitor())
-			configurationManager.updateProjectConfiguration(project, new NullProgressMonitor())
+			configurationManager.enableMavenNature(project, configuration, monitor)
+			configurationManager.updateProjectConfiguration(project, monitor)
 		}
 		if (buildsystem == GRADLE) {
 			var buildFile = project.getFile("build.gradle")
 			buildFile.create(new ByteArrayInputStream(getBuildGradleContent(fixtures).getBytes()), IResource.NONE,
-				new NullProgressMonitor())
+				monitor)
 		}
 		project.getFolder("src/main/java/" + project.name).create(true, false, new NullProgressMonitor())
 		var initAml = project.getFile("src/main/java/" + project.name + "/" + project.name + ".aml")
@@ -61,7 +62,7 @@ class ProjectContentGenerator {
 		} else {
 			amlContent = getInitialAMLContent(fixtures, project.name)
 		}
-		initAml.create(new ByteArrayInputStream(amlContent.getBytes()), IResource.NONE, new NullProgressMonitor())
+		initAml.create(new ByteArrayInputStream(amlContent.getBytes()), IResource.NONE, monitor)
 	}
 
 	def createDemoTestCase(String fixture, IProject project) {
@@ -74,26 +75,26 @@ class ProjectContentGenerator {
 
 	def String getGoogleTestCase(String packageName) {
 		'''
-			package «packageName»
-			
-			import org.testeditor.fixture.web.*
-			
-			#GoogleTest 
-			
-			* Start Brwoser with google search engine.
-			Component: WebBrowser
-			- start browser <Firefox>
-			- Browse to "http://www.google.de"
-			
-			* Search with google the Testeditor
-			Component: Searchsite
-			- Type in <Searchfield> value "testeditor"
-			- press enter in <Searchfield> 
-			
-			* Close Browser
-			Component: WebBrowser
-			- Wait "3" seconds
-			- Close browser		'''
+		package «packageName»
+		
+		import org.testeditor.fixture.web.*
+		
+		#GoogleTest 
+		
+		* Start Brwoser with google search engine.
+		Component: WebBrowser
+		- start browser <Firefox>
+		- Browse to "http://www.google.de"
+		
+		* Search with google the Testeditor
+		Component: Searchsite
+		- Type in <Searchfield> value "testeditor"
+		- press enter in <Searchfield> 
+		
+		* Close Browser
+		Component: WebBrowser
+		- Wait "3" seconds
+		- Close browser		'''
 	}
 
 	def String getDemoAMLContent(String[] fixtures, String packageName) {

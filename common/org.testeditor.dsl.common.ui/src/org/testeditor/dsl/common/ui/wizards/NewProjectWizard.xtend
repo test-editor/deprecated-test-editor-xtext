@@ -21,6 +21,11 @@ import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard
 import org.eclipse.xtext.ui.XtextProjectHelper
 import org.testeditor.dsl.common.ide.util.ProjectContentGenerator
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
+import org.eclipse.jface.dialogs.ProgressMonitorDialog
+import org.eclipse.swt.widgets.Display
+import org.eclipse.jface.operation.IRunnableWithProgress
+import org.eclipse.core.runtime.IProgressMonitor
+import java.lang.reflect.InvocationTargetException
 
 /** wizard to create a new test project 
  *  - add java nature
@@ -68,8 +73,15 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 		newProject.addNature(XtextProjectHelper.NATURE_ID)
 
 		if (!prjCfgPage.selectedFixtures.isEmpty) {
-			projectContentGenerator.createProjectContent(newProject, prjCfgPage.selectedFixtures,
-				prjCfgPage.buildSystemName, prjCfgPage.withDemoCode)
+			new ProgressMonitorDialog(Display.current.activeShell).run(false, false,
+				new IRunnableWithProgress() {
+
+					override run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+						projectContentGenerator.createProjectContent(newProject, prjCfgPage.selectedFixtures,
+							prjCfgPage.buildSystemName, prjCfgPage.withDemoCode, monitor)
+					}
+
+				})
 		}
 
 		return result
