@@ -29,7 +29,7 @@ class ProjectContentGenerator {
 	public static val MAVEN = "Maven"
 	public static val GRADLE = "Gradle"
 	public static val WEBFIXTURE = "Web Fixture"
-	//NOT API yet.
+	// NOT API yet.
 	static val SWINGFIXTURE = "Swing Fixture"
 
 	def createProjectContent(IProject project, String[] fixtures, String buildsystem,
@@ -52,8 +52,77 @@ class ProjectContentGenerator {
 		}
 		project.getFolder("src/main/java/" + project.name).create(true, false, new NullProgressMonitor())
 		var initAml = project.getFile("src/main/java/" + project.name + "/" + project.name + ".aml")
-		initAml.create(new ByteArrayInputStream(getInitialAMLContent(fixtures, project.name).getBytes()),
-			IResource.NONE, new NullProgressMonitor())
+		var String amlContent = null
+		if (demo) {
+			amlContent = getDemoAMLContent(fixtures, project.name)
+			for (fixture : fixtures) {
+				createDemoTestCase(fixture, project)
+			}
+		} else {
+			amlContent = getInitialAMLContent(fixtures, project.name)
+		}
+		initAml.create(new ByteArrayInputStream(amlContent.getBytes()), IResource.NONE, new NullProgressMonitor())
+	}
+
+	def createDemoTestCase(String fixture, IProject project) {
+		if (fixture == WEBFIXTURE) {
+			val tclFile = project.getFile("src/main/java/" + project.name + "/GoogleTest.tcl")
+			tclFile.create(new ByteArrayInputStream(getGoogleTestCase(project.name).bytes), false,
+				new NullProgressMonitor())
+		}
+	}
+
+	def String getGoogleTestCase(String packageName) {
+		'''
+			package «packageName»
+			
+			import org.testeditor.fixture.web.*
+			
+			#GoogleTest 
+			
+			* Start Brwoser with google search engine.
+			Component: WebBrowser
+			- start browser <Firefox>
+			- Browse to "http://www.google.de"
+			
+			* Search with google the Testeditor
+			Component: Searchsite
+			- Type in <Searchfield> value "testeditor"
+			- press enter in <Searchfield> 
+			
+			* Close Browser
+			Component: WebBrowser
+			- Wait "3" seconds
+			- Close browser		'''
+	}
+
+	def String getDemoAMLContent(String[] fixtures, String packageName) {
+		'''
+			package «packageName»
+			
+			«FOR fixture : fixtures»
+				import «getPackage(fixture)»
+			«ENDFOR»
+			«FOR fixture : fixtures»
+				«getDemoAMLComponentsContent(fixture)»
+			«ENDFOR»		
+		'''
+	}
+
+	def getDemoAMLComponentsContent(String fixture) {
+		if (fixture == WEBFIXTURE) {
+			return '''
+				component Searchsite is Page {
+					element Searchfield is field {
+						label = "Search field"
+						locator ="q"
+						
+					}
+				}
+			'''
+
+		}
+		return ""
 	}
 
 	def String getInitialAMLContent(String[] fixtures, String packageName) {
