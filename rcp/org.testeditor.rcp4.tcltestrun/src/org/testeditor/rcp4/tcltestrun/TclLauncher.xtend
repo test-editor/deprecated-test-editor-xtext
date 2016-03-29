@@ -59,7 +59,7 @@ class TclLauncher implements Launcher {
 	}
 
 	private def boolean launchGradleBasedTest(IProject project, String elementId) {
-		logger.info("Trying to launch gradle test execution")
+		logger.info("Trying to launch gradle test execution for test {} in project {}", elementId, project)
 		val testResultFile = project.createOrGetDeepFolder(TclLauncher.GRADLE_TEST_RESULT_FOLDER).getFile(
 			elementId.elementIdToFileName).location.toFile
 		val GradleConnector connector = GradleConnector.newConnector
@@ -101,7 +101,7 @@ class TclLauncher implements Launcher {
 	}
 
 	private def boolean launchMavenBasedTest(IStructuredSelection selection, IProject project, String elementId) {
-		logger.info("Trying to launch maven test execution")
+		logger.info("Trying to launch maven test execution for test {} in project {}", elementId, project)
 
 		val job = new Job("Execute test " + elementId) {
 
@@ -116,7 +116,7 @@ class TclLauncher implements Launcher {
 					testResultFile.showTestResult
 				} else {
 					logger.error('''Error during maven task "test" of element "«elementId»"''')
-					// create error file?
+				// create error file?
 				}
 				return Status.OK_STATUS
 			}

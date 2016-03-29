@@ -129,7 +129,7 @@ public class MavenExecutor {
 	 */
 	public static void main(String[] args) {
 		if (args.length > 2) {
-			logger.trace("Setting " + args[2]);
+			logger.info("Running maven build with settings='{}'", args[2]);
 			String[] split = args[2].split("=");
 			System.setProperty(split[0], split[1]);
 		}
