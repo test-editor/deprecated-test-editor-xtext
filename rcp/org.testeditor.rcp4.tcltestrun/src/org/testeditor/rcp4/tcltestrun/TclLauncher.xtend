@@ -14,6 +14,7 @@ package org.testeditor.rcp4.tcltestrun
 
 import java.io.File
 import javax.inject.Inject
+import javax.inject.Provider
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.Status
@@ -36,6 +37,7 @@ class TclLauncher implements Launcher {
 	static val MVN_TEST_RESULT_FOLDER = "target/surefire-reports"
 
 	@Inject extension ProjectUtils
+	@Inject Provider<MavenExecutor> executorProvider
 
 	def void showTestResult(File testResult) {
 		JUnitCore.importTestRunSession(testResult)
@@ -106,7 +108,7 @@ class TclLauncher implements Launcher {
 		val job = new Job("Execute test " + elementId) {
 
 			override protected run(IProgressMonitor monitor) {
-				val mvnExec = new MavenExecutor
+				val mvnExec = executorProvider.get
 
 				val result = mvnExec.executeInNewJvm("integration-test", project.location.toOSString,
 					"test=" + elementId)
@@ -115,7 +117,7 @@ class TclLauncher implements Launcher {
 				if (result == 0) {
 					testResultFile.showTestResult
 				} else {
-					logger.error('''Error during maven task "test" of element "«elementId»"''')
+					logger.error('''Error during maven task "integration-test" of element "«elementId»"''')
 				// create error file?
 				}
 				return Status.OK_STATUS
