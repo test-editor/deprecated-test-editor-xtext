@@ -12,32 +12,41 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.ide.util
 
-import org.junit.Test
-import static org.junit.Assert.*
 import java.util.HashSet
 import javax.xml.parsers.DocumentBuilderFactory
-import java.io.ByteArrayInputStream
 import javax.xml.xpath.XPathFactory
+import org.eclipse.xtext.util.StringInputStream
+import org.junit.Test
+
+import static org.junit.Assert.*
 
 class ProjectContentGeneratorTest {
 
 	@Test
-	def testGetAvailableSelections() {
+	def void testGetAvailableFixtureSelections() {
 		// given
 		val generator = new ProjectContentGenerator()
 		// when 
-		val buildSystems = generator.availableBuildSystems
 		val fixtures = generator.availableFixtureNames
 		// then
-		assertNotNull(buildSystems)
 		assertNotNull(fixtures)
-		assertTrue(buildSystems.contains(ProjectContentGenerator.GRADLE))
-		assertTrue(buildSystems.contains(ProjectContentGenerator.MAVEN))
 		assertTrue(fixtures.contains(ProjectContentGenerator.WEBFIXTURE))
 	}
 
 	@Test
-	def testGetPackgeForFixture() {
+	def void testGetAvailableBuildSystemSelections() {
+		// given
+		val generator = new ProjectContentGenerator()
+		// when 
+		val buildSystems = generator.availableBuildSystems
+		// then
+		assertNotNull(buildSystems)
+		assertTrue(buildSystems.contains(ProjectContentGenerator.GRADLE))
+		assertTrue(buildSystems.contains(ProjectContentGenerator.MAVEN))
+	}
+
+	@Test
+	def void testGetPackgeForFixture() {
 		// given 
 		val generator = new ProjectContentGenerator()
 
@@ -51,7 +60,7 @@ class ProjectContentGeneratorTest {
 	}
 
 	@Test
-	def testGetPackgeForEveryAvailableFixture() {
+	def void testGetPackgeForEveryAvailableFixture() {
 		// given 
 		val generator = new ProjectContentGenerator()
 		val fixtures = generator.availableFixtureNames
@@ -69,7 +78,7 @@ class ProjectContentGeneratorTest {
 	}
 
 	@Test
-	def testGetMavenDependency() {
+	def void testGetMavenDependency() {
 		// given 
 		val generator = new ProjectContentGenerator()
 
@@ -82,7 +91,7 @@ class ProjectContentGeneratorTest {
 	}
 
 	@Test
-	def testGetMavenDependencies() {
+	def void testGetMavenDependencies() {
 		// given 
 		val generator = new ProjectContentGenerator()
 		val fixtures = generator.availableFixtureNames
@@ -97,7 +106,7 @@ class ProjectContentGeneratorTest {
 	}
 
 	@Test
-	def testGetInitialAMLContent() {
+	def void testGetInitialAMLContent() {
 		// given 
 		val generator = new ProjectContentGenerator()
 
@@ -110,7 +119,7 @@ class ProjectContentGeneratorTest {
 	}
 
 	@Test
-	def testGetPom() {
+	def void testGetPom() {
 		// given 
 		val generator = new ProjectContentGenerator()
 		val builder = DocumentBuilderFactory.newInstance().newDocumentBuilder
@@ -118,7 +127,8 @@ class ProjectContentGeneratorTest {
 
 		// when
 		val pom = generator.getPomContent(#[ProjectContentGenerator.WEBFIXTURE], "MyWebProject")
-		val doc = builder.parse(pom)
+		// We need to parse with an Input Stream to work well with the XML Parser in an OSGi environment
+		val doc = builder.parse(new StringInputStream(pom))
 
 		// then
 		assertNotNull(doc)

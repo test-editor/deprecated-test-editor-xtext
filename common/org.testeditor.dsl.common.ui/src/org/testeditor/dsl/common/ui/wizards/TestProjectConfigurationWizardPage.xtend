@@ -46,22 +46,21 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 		title = "Project configuration"
 	}
 
-	override createControl(Composite superParent) {
+	override void createControl(Composite superParent) {
 		val parent = new Composite(superParent, SWT.NONE)
-		parent.layout =new GridLayout(3, false)
-		val cmpBs = new Composite(parent, SWT.NONE);
-		cmpBs.layout = new GridLayout(2, false)
-		val gd = new GridData(GridData.FILL_HORIZONTAL)
-		gd.horizontalSpan = 3
-		cmpBs.layoutData = gd
-		new Label(cmpBs, SWT.NORMAL).text = "Build-system:"
-		buildSystem = new Combo(cmpBs, SWT.None)
-		for (systems : availableBuildSystems) {
-			buildSystem.add(systems)
-		}
-		if (availableBuildSystems.size > 0) {
-			buildSystem.text = availableBuildSystems.get(0)
-		}
+		parent.layout = new GridLayout(3, false)
+		createBuildSystemSelectionArea(parent)
+		createFixtureSelectionArea(parent)
+		createDemoSelectionArea(parent)
+		setControl(buildSystem);
+	}
+	
+	private def createDemoSelectionArea(Composite parent) {
+		demoCode = new Button(parent, SWT.CHECK)
+		demoCode.text = "Generate with examples"
+	}
+	
+	private def createFixtureSelectionArea(Composite parent) {
 		new Label(parent, SWT.NONE).text = "Available Fixtures:"
 		new Composite(parent, SWT.NONE)
 		new Label(parent, SWT.NONE).text = "Selected Fixtures:"
@@ -84,16 +83,29 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 		selectedFixtures.layoutData = new GridData(GridData.FILL_BOTH)
 		addBtn.addSelectionListener(createMoveListener(availableFixtures, selectedFixtures))
 		delBtn.addSelectionListener(createMoveListener(selectedFixtures, availableFixtures))
-		demoCode = new Button(parent, SWT.CHECK)
-		demoCode.text = "Generate with examples"
-		setControl(buildSystem);
+	}
+	
+	private def createBuildSystemSelectionArea(Composite superParent) {
+		val parent = new Composite(superParent, SWT.NONE);
+		parent.layout = new GridLayout(2, false)
+		val gd = new GridData(GridData.FILL_HORIZONTAL)
+		gd.horizontalSpan = 3
+		parent.layoutData = gd
+		new Label(parent, SWT.NORMAL).text = "Build-system:"
+		buildSystem = new Combo(parent, SWT.None)
+		for (systems : availableBuildSystems) {
+			buildSystem.add(systems)
+		}
+		if (availableBuildSystems.size > 0) {
+			buildSystem.text = availableBuildSystems.get(0)
+		}
 	}
 
-	def setAvailableFixtureNames(java.util.List<String> names) {
+	def void setAvailableFixtureNames(java.util.List<String> names) {
 		availableFixtureNames = names
 	}
 
-	def setAvailableBuildSystems(java.util.List<String> buildSystems) {
+	def void setAvailableBuildSystems(java.util.List<String> buildSystems) {
 		availableBuildSystems = buildSystems
 	}
 
@@ -109,7 +121,7 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 		return demoCode.selection
 	}
 
-	def createMoveListener(List sourceList, List destList) {
+	def SelectionListener createMoveListener(List sourceList, List destList) {
 		new SelectionAdapter() {
 
 			override widgetSelected(SelectionEvent e) {
