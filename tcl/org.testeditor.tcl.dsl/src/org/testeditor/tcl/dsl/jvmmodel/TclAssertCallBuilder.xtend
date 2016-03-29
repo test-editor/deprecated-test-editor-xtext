@@ -1,5 +1,10 @@
 package org.testeditor.tcl.dsl.jvmmodel
 
+import org.testeditor.tcl.AEComparison
+import org.testeditor.tcl.AENullCheck
+import org.testeditor.tcl.AEStringConstant
+import org.testeditor.tcl.AEVariableReference
+import org.testeditor.tcl.AssertionExpression
 import org.testeditor.tcl.Comparator
 import org.testeditor.tcl.ComparatorEquals
 import org.testeditor.tcl.ComparatorGreaterThen
@@ -34,38 +39,68 @@ class TclAssertCallBuilder {
 		}
 	}
 
-	private def String adjustedOrderComparator(Comparator comparator) {
-		switch (comparator) {
-			ComparatorLessThen: if (comparator.negated ?: false) {
-				return '>='
-			} else {
-				return '<'
-			}
-			ComparatorGreaterThen: if (comparator.negated ?: false) {
-				return '<='
-			} else {
-				return '>'
-			}
-			default: throw new RuntimeException('''comparator class «comparator.class» cannot produce order comparator''')
+	def String build(AssertionExpression expression) {
+		val assertionMethod = assertionMethod(expression)
+		if (assertionMethod == null) {
+			return '''// TODO no assertion method implementation for expression type «expression.class»'''
+		} else {
+			return '''org.junit.Assert.«assertionMethod(expression)»(«buildExpression(expression)»);'''
 		}
 	}
 
-	public def String buildAssertCall(Boolean assertNegate, String variableName, Comparator comparator,
-		String expressionString) {
-		if (comparator ==
-			null) {
-			return '''org.junit.Assert.«adjustedAssertMethod(AssertMethod.assertNotNull, assertNegate)»(«variableName»);'''
+	private def AssertMethod assertionMethod(AssertionExpression expression) {
+		return switch (expression) {
+			AENullCheck: adjustedAssertMethod(AssertMethod.assertNotNull, expression.negated)
+			AEVariableReference: AssertMethod.assertNotNull
+			AEComparison: assertionMethod(expression.comparator)
+			AEStringConstant: AssertMethod.assertNotNull
+			default: throw new RuntimeException('''unknown expression type «expression.class»''')
+		}
+	}
+
+	private def AssertMethod assertionMethod(Comparator comparator) {
+		if (comparator == null) {
+			return AssertMethod.assertNotNull
+		}
+		return switch (comparator) {
+			ComparatorEquals: adjustedAssertMethod(AssertMethod.assertEquals, comparator.negated)
+			ComparatorGreaterThen: null // TODO adjustedAssertMethod(AssertMethod.assertTrue, comparator.negated)
+			ComparatorLessThen: null // TODO adjustedAssertMethod(AssertMethod.assertTrue, comparator.negated)
+			ComparatorMatches: adjustedAssertMethod(AssertMethod.assertTrue, comparator.negated)
+			default: throw new RuntimeException('''unknown comparator type «comparator.class»''')
 		}
 
-		val combinedNegate = (assertNegate ?: false).xor(comparator.negated ?:false)
-		return switch (comparator) {
-			ComparatorEquals: '''org.junit.Assert.«adjustedAssertMethod(AssertMethod.assertEquals, combinedNegate)»(«variableName», «expressionString»);'''
-			ComparatorGreaterThen: '''// TODO not complete yet org.junit.Assert.«adjustedAssertMethod(AssertMethod.assertTrue, assertNegate)»(«variableName» «adjustedOrderComparator(comparator)» «expressionString»);'''
-			ComparatorLessThen: '''// TODO not complete yet org.junit.Assert.«adjustedAssertMethod(AssertMethod.assertTrue, assertNegate)»(«variableName» «adjustedOrderComparator(comparator)» «expressionString»);'''
-			ComparatorMatches: '''org.junit.Assert.«adjustedAssertMethod(AssertMethod.assertTrue, combinedNegate)»(«variableName».matches(«expressionString»));'''
-			default: '''// TODO could not interpret comparator '«comparator»' '''
+	}
+
+	private def dispatch String buildExpression(AssertionExpression expression) {
+		throw new RuntimeException('''no builder found for type «expression.class»''')
+	}
+
+	private def dispatch String buildExpression(AENullCheck nullCheck) {
+		return nullCheck.varReference.buildExpression
+	}
+
+	private def dispatch String buildExpression(AEComparison comparison) {
+		if (comparison.comparator == null) {
+			return comparison.left.
+				buildExpression
 		}
+		switch (comparison.comparator) {
+			ComparatorEquals: '''«comparison.left.buildExpression», «comparison.right.buildExpression»'''
+			ComparatorGreaterThen: '''«comparison.left.buildExpression» «if(comparison.comparator.negated){'<='}else{'>'}» «comparison.right.buildExpression»'''
+			ComparatorLessThen: '''«comparison.left.buildExpression» «if(comparison.comparator.negated){'>='}else{'<'}» «comparison.right.buildExpression»'''
+			ComparatorMatches: '''«comparison.left.buildExpression».matches(«comparison.right.buildExpression»)'''
+			default:
+				throw new RuntimeException('''no builder found for comparator «comparison.comparator.class»''')
+		}
+	}
+
+	private def dispatch String buildExpression(AEVariableReference varRef) {
+		return varRef.name
+	}
+
+	private def dispatch String buildExpression(AEStringConstant string) {
+		return '''"«string.string»"'''
 	}
 
 }
-		

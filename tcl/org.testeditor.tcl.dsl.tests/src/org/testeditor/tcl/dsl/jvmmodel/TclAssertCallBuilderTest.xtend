@@ -2,71 +2,84 @@ package org.testeditor.tcl.dsl.jvmmodel
 
 import javax.inject.Inject
 import org.junit.Test
-import org.testeditor.tcl.dsl.tests.AbstractTest
-import org.testeditor.tcl.impl.TclFactoryImpl
+import org.testeditor.tcl.AssertionTestStep
+import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 
-class TclAssertCallBuilderTest extends AbstractTest {
-	@Inject extension TclAssertCallBuilder
-	@Inject extension TclFactoryImpl
+class TclAssertCallBuilderTest extends AbstractParserTest {
 
-	@Test
-	def void testEqualsGen() {
-		// when
-		val assertMethod = buildAssertCall(Boolean.FALSE, 'var', createComparatorEquals, '"test"')
+	@Inject TclAssertCallBuilder assertCallBuilder
 
-		// then
-		assertMethod.assertEquals('org.junit.Assert.assertEquals(var, "test");')
+	private def AssertionTestStep parseAssertionTestStep(CharSequence seq) {
+		return parse(assertionTestStepRule, seq, AssertionTestStep)
 	}
 
 	@Test
-	def void testEqualsGenWNullNegation() {
+	def void testEqualsGen() {
+		// given
+		val assertionTestStep = parseAssertionTestStep('''- assert variable == "test"''')
+
 		// when
-		val assertMethod = buildAssertCall(null, 'var', createComparatorEquals => [negated = false], '"test"')
+		val assertMethod = assertCallBuilder.build(assertionTestStep.expression)
 
 		// then
-		assertMethod.assertEquals('org.junit.Assert.assertEquals(var, "test");')
+		assertMethod.assertEquals('org.junit.Assert.assertEquals(variable, "test");')
 	}
 
 	@Test
 	def void testNotEqualsGen() {
+		// given
+		val assertionTestStep = parseAssertionTestStep('''- assert variable != "test"''')
+
 		// when
-		val assertMethod = buildAssertCall(Boolean.TRUE, 'var', createComparatorEquals => [negated = false], '"test"')
+		val assertMethod = assertCallBuilder.build(assertionTestStep.expression)
 
 		// then
-		assertMethod.assertEquals('org.junit.Assert.assertNotEquals(var, "test");')
+		assertMethod.assertEquals('org.junit.Assert.assertNotEquals(variable, "test");')
 	}
 
 	@Test
 	def void testInEqualityGen() {
+		// given
+		val assertionTestStep = parseAssertionTestStep('''- assert variable is not "test"''')
+
 		// when
-		val assertMethod = buildAssertCall(Boolean.FALSE, 'var', createComparatorEquals => [negated = true], '"test"')
+		val assertMethod = assertCallBuilder.build(assertionTestStep.expression)
 
 		// then
-		assertMethod.assertEquals('org.junit.Assert.assertNotEquals(var, "test");')
+		assertMethod.assertEquals('org.junit.Assert.assertNotEquals(variable, "test");')
 	}
 
 	@Test
 	def void testNotNullGen() {
+		// given
+		val assertionTestStep = parseAssertionTestStep('''- assert variable''')
+
 		// when
-		val assertMethod = buildAssertCall(null, 'var', null, null)
+		val assertMethod = assertCallBuilder.build(assertionTestStep.expression)
 
 		// then
-		assertMethod.assertEquals('org.junit.Assert.assertNotNull(var);')
+		assertMethod.assertEquals('org.junit.Assert.assertNotNull(variable);')
 	}
 
 	@Test
 	def void testNullGen() {
+		// given
+		val assertionTestStep = parseAssertionTestStep('''- assert !variable''')
+
 		// when
-		val assertMethod = buildAssertCall(Boolean.TRUE, 'var', null, null)
+		val assertMethod = assertCallBuilder.build(assertionTestStep.expression)
 
 		// then
-		assertMethod.assertEquals('org.junit.Assert.assertNull(var);')
+		assertMethod.assertEquals('org.junit.Assert.assertNull(variable);')
 	}
 
 	@Test
 	def void testIncompleteImpl() {
+		// given
+		val assertionTestStep = parseAssertionTestStep('''- assert variable > "ohoh"''')
+
 		// when
-		val assertMethod = buildAssertCall(Boolean.TRUE, 'var', createComparatorLessThen => [negated = true], '"test"')
+		val assertMethod = assertCallBuilder.build(assertionTestStep.expression)
 
 		// then
 		assertTrue(assertMethod.matches('// TODO .*'))
@@ -74,29 +87,25 @@ class TclAssertCallBuilderTest extends AbstractTest {
 
 	@Test
 	def void testMatches() {
+		// given
+		val assertionTestStep = parseAssertionTestStep('''- assert variable matches "ohoh"''')
+
 		// when
-		val assertMethod = buildAssertCall(null, 'var', createComparatorMatches, '"test"')
+		val assertMethod = assertCallBuilder.build(assertionTestStep.expression)
 
 		// then
-		assertMethod.assertEquals('org.junit.Assert.assertTrue(var.matches("test"));')
-	}
-
-	@Test
-	def void testNegatedMatches() {
-		// when
-		val assertMethod = buildAssertCall(Boolean.TRUE, 'var', createComparatorMatches, '"test"')
-
-		// then
-		assertMethod.assertEquals('org.junit.Assert.assertFalse(var.matches("test"));')
+		assertMethod.assertEquals('org.junit.Assert.assertTrue(variable.matches("ohoh"));')
 	}
 
 	@Test
 	def void testDoesNotMatch() {
+		// given
+		val assertionTestStep = parseAssertionTestStep('''- assert variable does not match "ohoh"''')
+
 		// when
-		val assertMethod = buildAssertCall(null, 'var', createComparatorMatches => [negated = true], '"test"')
+		val assertMethod = assertCallBuilder.build(assertionTestStep.expression)
 
 		// then
-		assertMethod.assertEquals('org.junit.Assert.assertFalse(var.matches("test"));')
+		assertMethod.assertEquals('org.junit.Assert.assertFalse(variable.matches("ohoh"));')
 	}
-
 }

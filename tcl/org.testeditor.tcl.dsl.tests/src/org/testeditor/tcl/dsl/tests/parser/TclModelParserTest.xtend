@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -13,31 +13,35 @@
 package org.testeditor.tcl.dsl.tests.parser
 
 import org.junit.Test
+import org.testeditor.tcl.AEComparison
+import org.testeditor.tcl.AENullCheck
+import org.testeditor.tcl.AEStringConstant
+import org.testeditor.tcl.AEVariableReference
+import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.ComparatorMatches
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclPackage
-import org.testeditor.tcl.TestStepAssertion
 import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tsl.StepContentVariable
 
 import static extension org.eclipse.xtext.nodemodel.util.NodeModelUtils.*
 
 class TclModelParserTest extends AbstractParserTest {
-	
+
 	@Test
 	def void parseMinimal() {
 		// given
 		val input = '''
 			package com.example
 		'''
-		
+
 		// when
 		val model = parser.parse(input)
-		
+
 		// then
 		model.package.assertEquals('com.example')
 	}
-	
+
 	@Test
 	def void parseSimpleSpecificationStep() {
 		// given
@@ -48,17 +52,17 @@ class TclModelParserTest extends AbstractParserTest {
 			* Start the famous
 			greetings application.
 		'''
-		
+
 		// when
 		val test = parse(input)
-		
+
 		// then
 		test.name.assertEquals('MyTest')
 		test.steps.assertSingleElement => [
 			contents.restoreString.assertEquals('Start the famous greetings application')
 		]
 	}
-	
+
 	@Test
 	def void parseSpecificationStepWithVariable() {
 		// given
@@ -68,19 +72,19 @@ class TclModelParserTest extends AbstractParserTest {
 			# Test
 			* send greetings "Hello World" to the world.
 		'''
-		
+
 		// when
 		val test = parse(input)
-		
+
 		// then
 		test.steps.assertSingleElement => [
 			contents.restoreString.assertEquals('send greetings "Hello World" to the world')
 			contents.get(2).assertInstanceOf(StepContentVariable) => [
 				value.assertEquals('Hello World')
 			]
-		]		
+		]
 	}
-	
+
 	@Test
 	def void parseTestContextWithSteps() {
 		// given
@@ -93,26 +97,31 @@ class TclModelParserTest extends AbstractParserTest {
 				- starte Anwendung "org.testeditor.swing.exammple.Greetings"
 				- gebe in <Eingabefeld> den Wert "Hello World" ein.
 		'''
-		
+
 		// when
 		val test = parse(input)
-		
+
 		// then
-		test.steps.assertSingleElement => [
-			contexts.assertSingleElement => [
-				val componentNode = findNodesForFeature(TclPackage.Literals.TEST_STEP_CONTEXT__COMPONENT).assertSingleElement
-				componentNode.text.assertEquals('GreetingsApplication')
-				steps.assertSize(2)
-				steps.get(0) => [
-					contents.restoreString.assertEquals('starte Anwendung "org.testeditor.swing.exammple.Greetings"')	
-				]
-				steps.get(1) => [
-					contents.restoreString.assertEquals('gebe in <Eingabefeld> den Wert "Hello World" ein')
-				]
+		test.steps.assertSingleElement =>
+			[
+				contexts.assertSingleElement =>
+					[
+						val componentNode = findNodesForFeature(TclPackage.Literals.TEST_STEP_CONTEXT__COMPONENT).
+							assertSingleElement
+						componentNode.text.assertEquals('GreetingsApplication')
+						steps.assertSize(2)
+						steps.get(0) =>
+							[
+								contents.restoreString.assertEquals(
+									'starte Anwendung "org.testeditor.swing.exammple.Greetings"')
+							]
+						steps.get(1) => [
+							contents.restoreString.assertEquals('gebe in <Eingabefeld> den Wert "Hello World" ein')
+						]
+					]
 			]
-		]
 	}
-	
+
 	@Test
 	def void parseEmptyComponentElementReference() {
 		// given
@@ -125,20 +134,20 @@ class TclModelParserTest extends AbstractParserTest {
 				- <> < 	> <
 				>
 		'''
-		
+
 		// when
 		val test = parse(input)
-		
+
 		// then
 		test.steps.assertSingleElement.contexts.assertSingleElement => [
 			val emptyReferences = steps.assertSingleElement.contents.assertSize(3)
-			emptyReferences.forEach[
+			emptyReferences.forEach [
 				assertInstanceOf(StepContentElement)
 				value.assertNull
 			]
 		]
 	}
-	
+
 	@Test
 	def void parseTestStepWithVariableAssignmentSteps() {
 		// given
@@ -150,10 +159,10 @@ class TclModelParserTest extends AbstractParserTest {
 				Mask: Demo
 				- hello = Lese den Text von <Input>
 		'''
-		
+
 		// when
 		val test = parse(input)
-		
+
 		// then
 		test.steps.assertSingleElement => [
 			contexts.assertSingleElement => [
@@ -183,11 +192,11 @@ class TclModelParserTest extends AbstractParserTest {
 		// then
 		test.steps.assertSingleElement => [
 			contexts.assertSingleElement => [
-				steps.assertSingleElement.assertInstanceOf(TestStepAssertion) => [
-					negated.assertNull
-					variableName.assertEquals('hello')
-					comparator.assertNull
-					contents.assertEmpty
+				steps.assertSingleElement.assertInstanceOf(AssertionTestStep) => [
+					expression.assertInstanceOf(AENullCheck) => [
+						negated.assertFalse
+						varReference.name.assertEquals("hello")
+					]
 				]
 			]
 		]
@@ -202,7 +211,7 @@ class TclModelParserTest extends AbstractParserTest {
 			# Test
 			* Start using some keywords like is matches does not match
 			  Mask: Demo
-			  - assert ! hello does    not match ".*AAABBB.*"
+			  - assert hello does    not match ".*AAABBB.*"
 		'''
 
 		// when
@@ -211,12 +220,15 @@ class TclModelParserTest extends AbstractParserTest {
 		// then
 		test.steps.assertSingleElement => [
 			contexts.assertSingleElement => [
-				steps.assertSingleElement.assertInstanceOf(TestStepAssertion) => [
-					negated.assertTrue
-					variableName.assertEquals('hello')
-					comparator.assertInstanceOf(ComparatorMatches)
-					comparator.negated.assertTrue
-					contents.restoreString.assertEquals('".*AAABBB.*"')
+				steps.assertSingleElement.assertInstanceOf(AssertionTestStep) => [
+					expression.assertInstanceOf(AEComparison) => [
+						left.assertInstanceOf(AEVariableReference) => [name.assertEquals("hello")]
+						comparator.assertInstanceOf(ComparatorMatches) => [negated.assertTrue]
+						right.assertInstanceOf(AEComparison) => [
+							left.assertInstanceOf(AEStringConstant) => [string.assertEquals(".*AAABBB.*")]
+							comparator.assertNull
+						]
+					]
 				]
 			]
 		]

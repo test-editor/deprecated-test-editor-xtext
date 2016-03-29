@@ -51,10 +51,31 @@ class TestStep {
 	contains StepContent[0..*] contents
 }
 
-class TestStepAssertion extends TestStep {	
-	String variableName
+class AssertionTestStep extends TestStep {
+	contains AssertionExpression expression
+}
+
+class AssertionExpression {}
+
+class BinaryAssertionExpression extends AssertionExpression{ 
+	contains AssertionExpression left
+	contains AssertionExpression right
+}
+
+class AEComparison extends BinaryAssertionExpression {
 	contains Comparator comparator
-	Boolean negated
+}
+class AENullCheck extends AssertionExpression {
+	contains AEVariableReference varReference
+	boolean negated = "false"
+}
+
+class AEVariableReference extends AssertionExpression {
+	String name
+}
+
+class AEStringConstant extends AssertionExpression {
+	String string
 }
 
 class TestStepWithAssignment extends TestStep {
@@ -62,8 +83,8 @@ class TestStepWithAssignment extends TestStep {
 }
 
 class StepContentElement extends StepContent {}
-class Comparator extends StepContent {
-	Boolean negated
+class Comparator {
+	boolean negated = "false"
 }
 class ComparatorEquals extends Comparator {}
 class ComparatorMatches extends Comparator {}

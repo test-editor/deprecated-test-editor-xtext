@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -22,12 +22,12 @@ import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
 import org.testeditor.aml.InteractionType
+import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestStep
-import org.testeditor.tcl.TestStepAssertion
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.util.TclModelUtil
@@ -38,8 +38,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	@Inject extension JvmTypesBuilder
 	@Inject extension TclModelUtil
+	@Inject TclAssertCallBuilder assertCallBuilder
 	@Inject IQualifiedNameProvider nameProvider
-	@Inject extension TclAssertCallBuilder
 
 	def dispatch void infer(TclModel model, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		model.test?.infer(acceptor, isPreIndexingPhase)
@@ -102,8 +102,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		return fixtureType.simpleName.toFirstLower
 	}
 
-	private def dispatch void toUnitTestCodeLine(TestStepAssertion step, ITreeAppendable output) {
-		output.append(buildAssertCall(step.negated, step.variableName, step.comparator, step.contents.restoreString)).newLine
+	private def dispatch void toUnitTestCodeLine(AssertionTestStep step, ITreeAppendable output) {
+		output.append(assertCallBuilder.build(step.expression)).newLine
 	}
 
 	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output) {
@@ -117,13 +117,15 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 					append('''«fixtureField».«operation.simpleName»(«getParameterList(step, interaction)»);''')
 				]
 			} else {
-				output.append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
+				output.
+					append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
 			}
 		} else {
-			output.append('''// TODO could not resolve '«step.context.component.name»' - «step.contents.restoreString»''')
+			output.
+				append('''// TODO could not resolve '«step.context.component.name»' - «step.contents.restoreString»''')
 		}
 	}
-	
+
 	def void maybeCreateAssignment(TestStep step, JvmOperation operation, ITreeAppendable output) {
 		if (step instanceof TestStepWithAssignment) {
 			output.trace(step, TEST_STEP_WITH_ASSIGNMENT__VARIABLE_NAME, 0) => [

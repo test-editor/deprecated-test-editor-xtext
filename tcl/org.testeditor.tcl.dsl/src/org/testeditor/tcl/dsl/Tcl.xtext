@@ -41,7 +41,7 @@ SpecificationStepImplementation:
 
 TestStepContext:
 	('Mask' | 'Component') ':' component=[aml::Component]
-	steps+=(TestStep | TestStepWithAssignment | TestStepAssertion )*
+	steps+=(TestStep | TestStepWithAssignment | AssertionTestStep )*
 ;
 
 TestStep:
@@ -49,21 +49,70 @@ TestStep:
 	'-' contents+=StepContent* '.'?
 ;
 
-TestStepAssertion:
-	'-' 'assert' (negated?='!')? variableName=ID (comparator=Comparator contents+=StepContent)? '.'?
+AssertionTestStep:
+	'-' 'assert' expression=AssertionExpression '.'? 	
+;
+
+AssertionExpression:
+	AENullCheck | AEFullComparison | '(' AssertionInnerExpression ')'
+;
+
+AssertionInnerExpression returns AssertionExpression:
+	AEComparison |
+	'(' AssertionInnerExpression ')' 
+;
+
+AENullCheck:
+	(negated?='!')? varReference=AEVariableReference
+;
+
+AEFullComparison returns AEComparison:
+	left=AEAtomic
+	comparator=Comparator
+	right=AssertionInnerExpression
+;
+
+AEComparison:
+	left=AEAtomic
+	( comparator=Comparator
+	  right=AssertionInnerExpression )?
+;
+
+AEVariableReference:
+	name=ID
+;
+
+AEStringConstant:
+	string=STRING
+;
+
+AEAtomic returns AssertionExpression:
+	AEVariableReference | AEStringConstant
 ;
 
 Comparator:
-	{ComparatorEquals} '=' |
-	{ComparatorEquals} '==' |
-	{ComparatorEquals} negated?='!=' |
-	{ComparatorEquals} negated?='<>' |
-	{ComparatorEquals} 'is' (negated?='not')? |
-	{ComparatorMatches} 'matches'  |
-	{ComparatorMatches} negated?='does' 'not' 'match' |
-	{ComparatorLessThen} ('<' | negated?='>=') |
-	{ComparatorGreaterThen} ('>' | negated?='<=' )
+	ComparatorEquals |
+	ComparatorMatches |
+	ComparatorLessThen |
+	ComparatorGreaterThen
 ;
+
+ComparatorEquals:
+	{ComparatorEquals} ('=' | '==' | negated?='!=' | negated?='<>' | 'is' (negated?='not')?) 	
+;
+
+ComparatorMatches:
+	{ComparatorMatches} ('matches' | negated?='does' 'not' 'match' ) 	
+;
+
+ComparatorLessThen:
+	{ComparatorLessThen} ('<' | negated?='>=')
+;
+
+ComparatorGreaterThen:
+	{ComparatorGreaterThen}  ('>' | negated?='<=' )
+;
+
 
 TestStepWithAssignment: 
 	'-' variableName=ID '=' contents+=StepContent* '.'?
