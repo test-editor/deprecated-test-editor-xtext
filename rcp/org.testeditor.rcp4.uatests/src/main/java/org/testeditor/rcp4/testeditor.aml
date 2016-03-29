@@ -53,4 +53,12 @@ component NewDialog is Dialog {
 		label = "Project Name"
 		locator = "[Single]"
 	}
+	element AddFixtureButton is Button {
+		label = "Add Fixture Button"
+		locator = "[ID]NEW_DIALOG_ADD_SELECTED_FIXTURE"
+	}
+	element AvailableFixturesList is List {
+		label = "Available fixtures list"
+		locator = "[ID]NEW_DIALOG_AVAILABLE_FIXTURE_LIST"
+	}
 }

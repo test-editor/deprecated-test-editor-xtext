@@ -14,6 +14,8 @@ package org.testeditor.dsl.common.ui.wizards
 
 import org.eclipse.jface.wizard.WizardPage
 import org.eclipse.swt.SWT
+import org.eclipse.swt.events.SelectionEvent
+import org.eclipse.swt.events.SelectionListener
 import org.eclipse.swt.layout.GridData
 import org.eclipse.swt.layout.GridLayout
 import org.eclipse.swt.widgets.Button
@@ -21,8 +23,7 @@ import org.eclipse.swt.widgets.Combo
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Label
 import org.eclipse.swt.widgets.List
-import org.eclipse.swt.events.SelectionListener
-import org.eclipse.swt.events.SelectionEvent
+import org.testeditor.dsl.common.ui.utils.Constants
 
 class TestProjectConfigurationWizardPage extends WizardPage {
 
@@ -64,6 +65,7 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 		new Composite(cmp, SWT.NONE)
 		new Label(cmp, SWT.NORMAL).text = "Selected Fixtures:"
 		availableFixtures = new List(cmp, SWT.BORDER)
+		availableFixtures.setData(Constants.SWT_BOT_ID_KEY, Constants.NEW_DIALOG_AVAILABLE_FIXTURE_LIST)
 		availableFixtures.layoutData = new GridData(GridData.FILL_BOTH)
 		for (fixtureName : availableFixtureNames) {
 			availableFixtures.add(fixtureName)
@@ -71,6 +73,7 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 		val buttonArea = new Composite(cmp, SWT.NORMAL)
 		buttonArea.layout = new GridLayout(1, false)
 		val addBtn = new Button(buttonArea, SWT.BORDER)
+		addBtn.setData(Constants.SWT_BOT_ID_KEY, Constants.NEW_DIALOG_ADD_SELECTED_FIXTURE)
 		addBtn.text = ">"
 		addBtn.layoutData = new GridData(GridData.FILL_HORIZONTAL)
 		val delBtn = new Button(buttonArea, SWT.BORDER)
