@@ -15,7 +15,7 @@ class TclAssertCallBuilderTest extends AbstractTest {
 		val assertMethod = buildAssertCall(Boolean.FALSE, 'var', createComparatorEquals, '"test"')
 
 		// then
-		assertTrue(assertMethod.matches('org.junit.Assert.assertEquals\\(var, "test"\\);'))
+		assertMethod.assertEquals('org.junit.Assert.assertEquals(var, "test");')
 	}
 
 	@Test
@@ -24,7 +24,7 @@ class TclAssertCallBuilderTest extends AbstractTest {
 		val assertMethod = buildAssertCall(null, 'var', createComparatorEquals => [negated = false], '"test"')
 
 		// then
-		assertTrue(assertMethod.matches('org.junit.Assert.assertEquals\\(var, "test"\\);'))
+		assertMethod.assertEquals('org.junit.Assert.assertEquals(var, "test");')
 	}
 
 	@Test
@@ -33,7 +33,7 @@ class TclAssertCallBuilderTest extends AbstractTest {
 		val assertMethod = buildAssertCall(Boolean.TRUE, 'var', createComparatorEquals => [negated = false], '"test"')
 
 		// then
-		assertTrue(assertMethod.matches('org.junit.Assert.assertNotEquals\\(var, "test"\\);'))
+		assertMethod.assertEquals('org.junit.Assert.assertNotEquals(var, "test");')
 	}
 
 	@Test
@@ -42,7 +42,7 @@ class TclAssertCallBuilderTest extends AbstractTest {
 		val assertMethod = buildAssertCall(Boolean.FALSE, 'var', createComparatorEquals => [negated = true], '"test"')
 
 		// then
-		assertTrue(assertMethod.matches('org.junit.Assert.assertNotEquals\\(var, "test"\\);'))
+		assertMethod.assertEquals('org.junit.Assert.assertNotEquals(var, "test");')
 	}
 
 	@Test
@@ -51,7 +51,7 @@ class TclAssertCallBuilderTest extends AbstractTest {
 		val assertMethod = buildAssertCall(null, 'var', null, null)
 
 		// then
-		assertTrue(assertMethod.matches('org.junit.Assert.assertNotNull\\(var\\);'))
+		assertMethod.assertEquals('org.junit.Assert.assertNotNull(var);')
 	}
 
 	@Test
@@ -60,7 +60,7 @@ class TclAssertCallBuilderTest extends AbstractTest {
 		val assertMethod = buildAssertCall(Boolean.TRUE, 'var', null, null)
 
 		// then
-		assertTrue(assertMethod.matches('org.junit.Assert.assertNull\\(var\\);'))
+		assertMethod.assertEquals('org.junit.Assert.assertNull(var);')
 	}
 
 	@Test
@@ -78,7 +78,7 @@ class TclAssertCallBuilderTest extends AbstractTest {
 		val assertMethod = buildAssertCall(null, 'var', createComparatorMatches, '"test"')
 
 		// then
-		assertTrue(assertMethod.matches('org.junit.Assert.assertTrue\\(var.matches\\("test"\\)\\);'))
+		assertMethod.assertEquals('org.junit.Assert.assertTrue(var.matches("test"));')
 	}
 
 	@Test
@@ -87,7 +87,7 @@ class TclAssertCallBuilderTest extends AbstractTest {
 		val assertMethod = buildAssertCall(Boolean.TRUE, 'var', createComparatorMatches, '"test"')
 
 		// then
-		assertTrue(assertMethod.matches('org.junit.Assert.assertFalse\\(var.matches\\("test"\\)\\);'))
+		assertMethod.assertEquals('org.junit.Assert.assertFalse(var.matches("test"));')
 	}
 
 	@Test
@@ -96,7 +96,7 @@ class TclAssertCallBuilderTest extends AbstractTest {
 		val assertMethod = buildAssertCall(null, 'var', createComparatorMatches => [negated = true], '"test"')
 
 		// then
-		assertTrue(assertMethod.matches('org.junit.Assert.assertFalse\\(var.matches\\("test"\\)\\);'))
+		assertMethod.assertEquals('org.junit.Assert.assertFalse(var.matches("test"));')
 	}
 
 }
