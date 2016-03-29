@@ -66,7 +66,10 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 		newProject.addNature(XtextProjectHelper.NATURE_ID)
 		// make sure that no target folder is included into any resource set
 		newProject.createFilter(IResourceFilterDescription.EXCLUDE_ALL.bitwiseOr(IResourceFilterDescription.FOLDERS),
-			new FileInfoMatcherDescription("org.eclipse.core.resources.regexFilterMatcher", "target"),
+			new FileInfoMatcherDescription("org.eclipse.core.resources.regexFilterMatcher", "target"), // hide maven generated/copied artifacts
+			IResource.BACKGROUND_REFRESH, new NullProgressMonitor)
+		newProject.createFilter(IResourceFilterDescription.EXCLUDE_ALL.bitwiseOr(IResourceFilterDescription.FOLDERS),
+			new FileInfoMatcherDescription("org.eclipse.core.resources.regexFilterMatcher", "build"), // hide gradle generated/copied artifacts
 			IResource.BACKGROUND_REFRESH, new NullProgressMonitor)
 		return result
 	}
