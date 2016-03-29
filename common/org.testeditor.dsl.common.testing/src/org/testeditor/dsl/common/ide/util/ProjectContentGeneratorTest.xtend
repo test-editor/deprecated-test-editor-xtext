@@ -26,13 +26,13 @@ class ProjectContentGeneratorTest {
 		// given
 		val generator = new ProjectContentGenerator()
 		// when 
-		val bs = generator.availableBuildSystems
+		val buildSystems = generator.availableBuildSystems
 		val fixtures = generator.availableFixtureNames
 		// then
-		assertNotNull(bs)
+		assertNotNull(buildSystems)
 		assertNotNull(fixtures)
-		assertTrue(bs.contains(ProjectContentGenerator.GRADLE))
-		assertTrue(bs.contains(ProjectContentGenerator.MAVEN))
+		assertTrue(buildSystems.contains(ProjectContentGenerator.GRADLE))
+		assertTrue(buildSystems.contains(ProjectContentGenerator.MAVEN))
 		assertTrue(fixtures.contains(ProjectContentGenerator.WEBFIXTURE))
 	}
 
@@ -113,17 +113,17 @@ class ProjectContentGeneratorTest {
 	def testGetPom() {
 		// given 
 		val generator = new ProjectContentGenerator()
+		val builder = DocumentBuilderFactory.newInstance().newDocumentBuilder
+		val xpath = XPathFactory.newInstance().newXPath
 
 		// when
 		val pom = generator.getPomContent(#[ProjectContentGenerator.WEBFIXTURE], "MyWebProject")
-		val builder = DocumentBuilderFactory.newInstance().newDocumentBuilder
-		val doc = builder.parse(new ByteArrayInputStream(pom.bytes))
-		val xpath = XPathFactory.newInstance().newXPath
+		val doc = builder.parse(pom)
 
 		// then
 		assertNotNull(doc)
-		assertEquals("MyWebProject",xpath.evaluate("/project/artifactId", doc))
-		assertTrue(xpath.evaluate("/project/dependencies",doc).contains("web-fixture"))
+		assertEquals("MyWebProject", xpath.evaluate("/project/artifactId", doc))
+		assertTrue(xpath.evaluate("/project/dependencies", doc).contains("web-fixture"))
 	}
 
 }

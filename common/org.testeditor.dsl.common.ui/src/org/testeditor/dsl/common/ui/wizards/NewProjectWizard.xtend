@@ -38,7 +38,7 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 
 	static public val String SRC_FOLDER = 'src/main/java'
 
-	TestProjectConfigurationWizardPage prjCfgPage
+	TestProjectConfigurationWizardPage configPage
 
 	ProjectContentGenerator projectContentGenerator
 
@@ -58,10 +58,10 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 
 	override addPages() {
 		super.addPages()
-		prjCfgPage = new TestProjectConfigurationWizardPage("projectcfg")
-		prjCfgPage.availableBuildSystems = projectContentGenerator.availableBuildSystems
-		prjCfgPage.availableFixtureNames = projectContentGenerator.availableFixtureNames
-		addPage(prjCfgPage)
+		configPage = new TestProjectConfigurationWizardPage("projectcfg")
+		configPage.availableBuildSystems = projectContentGenerator.availableBuildSystems
+		configPage.availableFixtureNames = projectContentGenerator.availableFixtureNames
+		addPage(configPage)
 	}
 
 	override performFinish() {
@@ -72,13 +72,13 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 		JavaCore.create(newProject)
 		newProject.addNature(XtextProjectHelper.NATURE_ID)
 
-		if (!prjCfgPage.selectedFixtures.isEmpty) {
+		if (!configPage.selectedFixtures.isEmpty) {
 			new ProgressMonitorDialog(Display.current.activeShell).run(false, false,
 				new IRunnableWithProgress() {
 
 					override run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-						projectContentGenerator.createProjectContent(newProject, prjCfgPage.selectedFixtures,
-							prjCfgPage.buildSystemName, prjCfgPage.withDemoCode, monitor)
+						projectContentGenerator.createProjectContent(newProject, configPage.selectedFixtures,
+							configPage.buildSystemName, configPage.withDemoCode, monitor)
 					}
 
 				})

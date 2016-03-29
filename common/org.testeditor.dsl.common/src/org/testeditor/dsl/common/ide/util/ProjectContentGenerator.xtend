@@ -21,6 +21,8 @@ import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.m2e.core.MavenPlugin
 import org.eclipse.m2e.core.project.ResolverConfiguration
+import java.util.List
+import org.eclipse.xtext.util.StringInputStream
 
 /**
  * Generator to genrate content to a new test project
@@ -33,12 +35,11 @@ class ProjectContentGenerator {
 	// NOT API yet.
 	static val SWINGFIXTURE = "Swing Fixture"
 
-	def createProjectContent(IProject project, String[] fixtures, String buildsystem, boolean demo,
+	def void createProjectContent(IProject project, String[] fixtures, String buildsystem, boolean demo,
 		IProgressMonitor monitor) throws CoreException{
 		if (buildsystem == MAVEN) {
 			var IFile buildFile = project.getFile("pom.xml")
-			buildFile.create(new ByteArrayInputStream(getPomContent(fixtures, project.name).getBytes()), IResource.NONE,
-				monitor)
+			buildFile.create(new StringInputStream(getPomContent(fixtures, project.name)), IResource.NONE, monitor)
 			var configurationManager = MavenPlugin.getProjectConfigurationManager()
 			var configuration = new ResolverConfiguration();
 			configuration.setResolveWorkspaceProjects(true);
@@ -48,8 +49,7 @@ class ProjectContentGenerator {
 		}
 		if (buildsystem == GRADLE) {
 			var buildFile = project.getFile("build.gradle")
-			buildFile.create(new ByteArrayInputStream(getBuildGradleContent(fixtures).getBytes()), IResource.NONE,
-				monitor)
+			buildFile.create(new StringInputStream(getBuildGradleContent(fixtures)), IResource.NONE, monitor)
 		}
 		project.getFolder("src/main/java/" + project.name).create(true, false, new NullProgressMonitor())
 		var initAml = project.getFile("src/main/java/" + project.name + "/" + project.name + ".aml")
@@ -65,15 +65,14 @@ class ProjectContentGenerator {
 		initAml.create(new ByteArrayInputStream(amlContent.getBytes()), IResource.NONE, monitor)
 	}
 
-	def createDemoTestCase(String fixture, IProject project) {
+	protected def createDemoTestCase(String fixture, IProject project) {
 		if (fixture == WEBFIXTURE) {
 			val tclFile = project.getFile("src/main/java/" + project.name + "/GoogleTest.tcl")
-			tclFile.create(new ByteArrayInputStream(getGoogleTestCase(project.name).bytes), false,
-				new NullProgressMonitor())
+			tclFile.create(new StringInputStream(getGoogleTestCase(project.name)), false, new NullProgressMonitor())
 		}
 	}
 
-	def String getGoogleTestCase(String packageName) {
+	protected def String getGoogleTestCase(String packageName) {
 		'''
 		package «packageName»
 		
@@ -97,7 +96,7 @@ class ProjectContentGenerator {
 		- Close browser		'''
 	}
 
-	def String getDemoAMLContent(String[] fixtures, String packageName) {
+	protected def String getDemoAMLContent(String[] fixtures, String packageName) {
 		'''
 			package «packageName»
 			
@@ -110,7 +109,7 @@ class ProjectContentGenerator {
 		'''
 	}
 
-	def getDemoAMLComponentsContent(String fixture) {
+	protected def getDemoAMLComponentsContent(String fixture) {
 		if (fixture == WEBFIXTURE) {
 			return '''
 				component Searchsite is Page {
@@ -126,7 +125,7 @@ class ProjectContentGenerator {
 		return ""
 	}
 
-	def String getInitialAMLContent(String[] fixtures, String packageName) {
+	protected def String getInitialAMLContent(String[] fixtures, String packageName) {
 		'''
 			package «packageName»
 			
@@ -136,7 +135,7 @@ class ProjectContentGenerator {
 		'''
 	}
 
-	def getPackage(String fixtureName) {
+	protected def getPackage(String fixtureName) {
 		if (fixtureName == WEBFIXTURE) {
 			return "org.testeditor.fixture.web.*"
 		}
@@ -146,7 +145,7 @@ class ProjectContentGenerator {
 		return ""
 	}
 
-	def String getBuildGradleContent(String[] fixtureNames) {
+	protected def String getBuildGradleContent(String[] fixtureNames) {
 		'''
 			plugins {
 			    id 'org.testeditor.gradle-plugin' version '0.1'
@@ -172,7 +171,7 @@ class ProjectContentGenerator {
 		'''
 	}
 
-	def getGradleDependency(String fixtureName) {
+	protected def getGradleDependency(String fixtureName) {
 		if (fixtureName == WEBFIXTURE) {
 			return '''
 				compile 'org.testeditor.fixture:web-fixture:3.0.0-SNAPSHOT'
@@ -185,7 +184,7 @@ class ProjectContentGenerator {
 		}
 	}
 
-	def String getPomContent(String[] fixtureNames, String projectName) {
+	protected def String getPomContent(String[] fixtureNames, String projectName) {
 		'''
 			<?xml version="1.0" encoding="UTF-8"?>
 			<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -349,7 +348,7 @@ class ProjectContentGenerator {
 		'''
 	}
 
-	def getMavenDependency(String fixtureName) {
+	protected def getMavenDependency(String fixtureName) {
 		if (fixtureName == WEBFIXTURE) {
 			return '''
 				<dependency>
@@ -370,11 +369,11 @@ class ProjectContentGenerator {
 		}
 	}
 
-	def getAvailableBuildSystems() {
+	def List<String> getAvailableBuildSystems() {
 		return #[MAVEN, GRADLE]
 	}
 
-	def getAvailableFixtureNames() {
+	def List<String> getAvailableFixtureNames() {
 		return #[WEBFIXTURE, SWINGFIXTURE]
 	}
 

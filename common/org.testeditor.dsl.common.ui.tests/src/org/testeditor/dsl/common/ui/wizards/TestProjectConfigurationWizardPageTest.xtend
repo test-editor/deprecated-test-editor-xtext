@@ -26,16 +26,16 @@ class TestProjectConfigurationWizardPageTest {
 	 */
 	@Test
 	def testUpdateListWithMoveListener() {
-		//given
+		// given
 		val source = Mockito.mock(List)
 		val dest = Mockito.mock(List)
 		Mockito.when(source.selection).thenReturn(#["MyFixture"])
-		val out = new TestProjectConfigurationWizardPage("").getMoveListener(source,dest)
+		val out = new TestProjectConfigurationWizardPage("").createMoveListener(source,dest)
 		
-		//when
+		// when
 		out.widgetSelected(null);
 		
-		//then
+		// then
 		Mockito.verify(dest).add("MyFixture")
 		Mockito.verify(source).remove("MyFixture")
 	}
