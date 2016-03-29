@@ -15,10 +15,12 @@ package org.testeditor.tcl.util
 import java.util.List
 import java.util.Map
 import javax.inject.Singleton
+import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.InteractionType
 import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
+import org.testeditor.aml.ValueSpaceAssignment
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TestStep
@@ -27,8 +29,6 @@ import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
-import org.testeditor.aml.ValueSpaceAssignment
-import org.testeditor.aml.Component
 
 @Singleton
 class TclModelUtil extends TslModelUtil {
@@ -122,7 +122,7 @@ class TclModelUtil extends TslModelUtil {
 				return null
 			}
 
-			def getValueSpaceAssignment(ComponentElement element, TestStep container) {
+			def ValueSpaceAssignment getValueSpaceAssignment(ComponentElement element, TestStep container) {
 				val foo = element.valueSpaceAssignments
 				return foo.findFirst[variable.template.interactionType.name == container.interaction.name]
 			}
