@@ -1,9 +1,8 @@
 package org.testeditor.rcp4.createprojects
 
-import org.testeditor.rcp4.*;
+import org.testeditor.rcp4.*
 
-#CreateSimpleTestEditorProjectFromContextMenuWithNewWizardTest implements CreateSimpleTestEditorProject
-
+# CreateWebProjectWithExampleTest implements CreateSimpleTestEditorProject
 
 * start creation process
 Component: TestEditor
@@ -22,9 +21,13 @@ Component: NewDialog
 * Give the Project the name "MyFirstProject"
 // We must select the dialog again, because we are in a new TSL Step.
 Component: NewDialog
-- Type  "MyFirstProject"  into <ProjectName>
+- Type  "MyFirstWebProject" into <ProjectName>
+- click on <NextButton>
+- click on <NextButton>
+- select element "Web Fixture" in List <AvailableFixturesList>
+- click on <AddFixtureButton>
 - click on <FinishButton>
 
 * Verify that the project is visible in the ui
-Component: ProjectExplorer
-- selektiere Element "MyFirstProject" in Baum <ProjektBaum>
+Component: HauptFenster
+- selektiere Element "MyFirstWebProject" in Baum <ProjektBaum>
