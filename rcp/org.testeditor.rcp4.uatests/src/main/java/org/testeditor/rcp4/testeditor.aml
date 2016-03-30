@@ -8,8 +8,20 @@ interaction type createSimpleProject {
 	method = TestEditorFixture.createDemoProject
 }
 
+interaction type cleanWorkspace {
+	label = "Clean Workspace content"
+	template = "Clean Workspace"
+	method = TestEditorFixture.cleanWorkspace
+}
+
+interaction type restartApp {
+	label = "Clean restart Test-Editor"
+	template = "Restart Test-Editor with clean environment"
+	method = TestEditorFixture.resetApplication
+}
+
 component type TestEditorApp {
-	interactions = createSimpleProject
+	interactions = createSimpleProject, restartApp, cleanWorkspace
 }
 
 component HauptFenster is General {
@@ -23,7 +35,7 @@ component HauptFenster is General {
 	}
 }
 
-value-space projectmenues = #[ "New", "Open" ]
+value-space projectmenues = #[ "New/Project...", "Open" ]
 
 component ProjectExplorer is General {
 	element ProjektBaum is TreeView {
