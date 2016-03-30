@@ -20,7 +20,7 @@ import org.eclipse.swt.widgets.Display
 
 class ProgressMonitorRunner {
 	
-	def run((IProgressMonitor)=>void runnable) {
+	def void run((IProgressMonitor)=>void runnable) {
 			new ProgressMonitorDialog(Display.current.activeShell).run(false, false,
 				new IRunnableWithProgress() {
 
