@@ -16,16 +16,13 @@ import javax.inject.Inject
 import org.eclipse.core.resources.IProject
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jface.viewers.IStructuredSelection
+import org.eclipse.jface.wizard.IWizardPage
 import org.eclipse.ui.IWorkbench
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard
 import org.eclipse.xtext.ui.XtextProjectHelper
 import org.testeditor.dsl.common.ide.util.ProjectContentGenerator
+import org.testeditor.dsl.common.ui.utils.ProgressMonitorRunner
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
-import org.eclipse.jface.dialogs.ProgressMonitorDialog
-import org.eclipse.swt.widgets.Display
-import org.eclipse.jface.operation.IRunnableWithProgress
-import org.eclipse.core.runtime.IProgressMonitor
-import java.lang.reflect.InvocationTargetException
 
 /** wizard to create a new test project 
  *  - add java nature
@@ -40,7 +37,7 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 
 	TestProjectConfigurationWizardPage configPage
 
-	ProjectContentGenerator projectContentGenerator
+	@Inject ProjectContentGenerator projectContentGenerator
 
 	private def void addNature(IProject newProject, String nature) {
 		if (!newProject.hasNature(nature)) {
@@ -53,15 +50,18 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 	override init(IWorkbench bench, IStructuredSelection selection) {
 		super.init(bench, selection)
 		windowTitle = "Create test-first project"
-		projectContentGenerator = new ProjectContentGenerator()
 	}
 
 	override addPages() {
 		super.addPages()
-		configPage = new TestProjectConfigurationWizardPage("projectcfg")
+		configPage = new TestProjectConfigurationWizardPage("configPage")
 		configPage.availableBuildSystems = projectContentGenerator.availableBuildSystems
 		configPage.availableFixtureNames = projectContentGenerator.availableFixtureNames
 		addPage(configPage)
+	}
+
+	override getNextPage(IWizardPage page) {
+		return configPage
 	}
 
 	override performFinish() {
@@ -73,15 +73,10 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 		newProject.addNature(XtextProjectHelper.NATURE_ID)
 
 		if (!configPage.selectedFixtures.isEmpty) {
-			new ProgressMonitorDialog(Display.current.activeShell).run(false, false,
-				new IRunnableWithProgress() {
-
-					override run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-						projectContentGenerator.createProjectContent(newProject, configPage.selectedFixtures,
-							configPage.buildSystemName, configPage.withDemoCode, monitor)
-					}
-
-				})
+			new ProgressMonitorRunner().run [ monitor |
+				projectContentGenerator.createProjectContent(newProject, configPage.selectedFixtures,
+					configPage.buildSystemName, configPage.withDemoCode, monitor)
+			]
 		}
 
 		return result

@@ -25,7 +25,6 @@ Component: NewDialog
 - click on <AddFixtureButton>
 - click on <FinishButton>
 
-
 * Verify that the project is visible in the ui
 Component: HauptFenster
 - selektiere Element "MyFirstWebProject" in Baum <ProjektBaum>

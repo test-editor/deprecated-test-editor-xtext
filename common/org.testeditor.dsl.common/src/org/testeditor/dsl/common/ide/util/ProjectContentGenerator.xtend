@@ -25,7 +25,7 @@ import java.util.List
 import org.eclipse.xtext.util.StringInputStream
 
 /**
- * Generator to genrate content to a new test project
+ * Generator to generate content to a new test project
  */
 class ProjectContentGenerator {
 
@@ -149,8 +149,11 @@ class ProjectContentGenerator {
 		'''
 			plugins {
 			    id 'org.testeditor.gradle-plugin' version '0.1'
+			    id 'maven'
 			}
 			
+			group = 'org.testeditor.demo'
+			version = '1.0.0-SNAPSHOT'
 			
 			// Apply the java plugin to add support for Java
 			apply plugin: 'java'
@@ -158,15 +161,14 @@ class ProjectContentGenerator {
 			// In this section you declare where to find the dependencies of your project
 			repositories {
 			    jcenter()
+			    mavenLocal()
 			}
 			
 			// In this section you declare the dependencies for your production and test code
 			dependencies {
-			    compile 'org.slf4j:slf4j-api:latest.release'
 			    «FOR s : fixtureNames»
 			    	«getGradleDependency(s)»
 				«ENDFOR»
-			    testCompile 'junit:junit:latest.release'
 			}
 		'''
 	}
@@ -174,12 +176,12 @@ class ProjectContentGenerator {
 	protected def getGradleDependency(String fixtureName) {
 		if (fixtureName == WEBFIXTURE) {
 			return '''
-				compile 'org.testeditor.fixture:web-fixture:3.0.0-SNAPSHOT'
+				testcompile 'org.testeditor.fixture:web-fixture:3.0.0-SNAPSHOT'
 			'''
 		}
 		if (fixtureName == SWINGFIXTURE) {
 			return '''
-				compile 'org.testeditor.fixture:swing-fixture:3.0.0-PROTO'
+				testcompile 'org.testeditor.fixture:swing-fixture:3.0.0-PROTO'
 			'''
 		}
 	}
