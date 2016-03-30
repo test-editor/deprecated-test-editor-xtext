@@ -66,6 +66,11 @@
 		  <layout>p2</layout>
 		  <url>http://download.eclipse.org/buildship/updates/e45/releases/1.0</url>
 		</repository>
+		<repository>
+			<id>m2e</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/technology/m2e/milestones/1.7</url>
+		</repository>
 	</repositories>
 
 	<build>

@@ -23,6 +23,10 @@ import org.eclipse.xtext.ui.XtextProjectHelper
 import org.testeditor.dsl.common.ide.util.ProjectContentGenerator
 import org.testeditor.dsl.common.ui.utils.ProgressMonitorRunner
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
+import org.eclipse.core.resources.IResourceFilterDescription
+import org.eclipse.core.resources.FileInfoMatcherDescription
+import org.eclipse.core.runtime.NullProgressMonitor
+import org.eclipse.core.resources.IResource
 
 /** wizard to create a new test project 
  *  - add java nature
@@ -72,6 +76,13 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 		newProject.addNature(JavaCore.NATURE_ID)
 		JavaCore.create(newProject)
 		newProject.addNature(XtextProjectHelper.NATURE_ID)
+		// make sure that no target folder is included into any resource set
+		newProject.createFilter(IResourceFilterDescription.EXCLUDE_ALL.bitwiseOr(IResourceFilterDescription.FOLDERS),
+			new FileInfoMatcherDescription("org.eclipse.core.resources.regexFilterMatcher", "target"), // hide maven generated/copied artifacts
+			IResource.BACKGROUND_REFRESH, new NullProgressMonitor)
+		newProject.createFilter(IResourceFilterDescription.EXCLUDE_ALL.bitwiseOr(IResourceFilterDescription.FOLDERS),
+			new FileInfoMatcherDescription("org.eclipse.core.resources.regexFilterMatcher", "build"), // hide gradle generated/copied artifacts
+			IResource.BACKGROUND_REFRESH, new NullProgressMonitor)
 
 		if (!configPage.selectedFixtures.isEmpty) {
 			progressMonitorRunner.run [ monitor |

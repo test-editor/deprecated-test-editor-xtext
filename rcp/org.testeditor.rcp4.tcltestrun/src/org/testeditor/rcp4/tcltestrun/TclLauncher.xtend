@@ -14,7 +14,11 @@ package org.testeditor.rcp4.tcltestrun
 
 import java.io.File
 import javax.inject.Inject
+import javax.inject.Provider
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.runtime.IProgressMonitor
+import org.eclipse.core.runtime.Status
+import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.jdt.junit.JUnitCore
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.gradle.tooling.GradleConnectionException
@@ -29,9 +33,11 @@ import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
 
 class TclLauncher implements Launcher {
 	static val logger = LoggerFactory.getLogger(TclLauncher)
-	static val TEST_RESULT_FOLDER = "build/test-results"
+	static val GRADLE_TEST_RESULT_FOLDER = "build/test-results"
+	static val MVN_TEST_RESULT_FOLDER = "target/surefire-reports"
 
 	@Inject extension ProjectUtils
+	@Inject Provider<MavenExecutor> executorProvider
 
 	def void showTestResult(File testResult) {
 		JUnitCore.importTestRunSession(testResult)
@@ -42,14 +48,22 @@ class TclLauncher implements Launcher {
 	}
 
 	override boolean launch(IStructuredSelection selection, IProject project, String elementId, String mode) {
-		if (!project.getFile("build.gradle").exists) {
-			logger.warn('gradle based launching test for tcl element "{}" failed, since "build.gradle" was not found.',
-				elementId)
-			return false
+		if (project.getFile("build.gradle").exists) {
+			return launchGradleBasedTest(project, elementId)
 		}
+		if (project.getFile("pom.xml").exists) {
+			return launchMavenBasedTest(selection, project, elementId)
+		}
+		logger.warn('gradle based launching test for tcl element "{}" failed, since "build.gradle" was not found.',
+			elementId)
+		logger.warn('maven based launching test for tcl element "{}" failed, since "pom.xml" was not found.', elementId)
+		return false
+	}
 
-		val testResultFile = project.createOrGetDeepFolder(TEST_RESULT_FOLDER).getFile(elementId.elementIdToFileName).
-			location.toFile
+	private def boolean launchGradleBasedTest(IProject project, String elementId) {
+		logger.info("Trying to launch gradle test execution for test {} in project {}", elementId, project)
+		val testResultFile = project.createOrGetDeepFolder(TclLauncher.GRADLE_TEST_RESULT_FOLDER).getFile(
+			elementId.elementIdToFileName).location.toFile
 		val GradleConnector connector = GradleConnector.newConnector
 		var ProjectConnection connection = null
 		val projectFolder = project.location.makeAbsolute.toFile
@@ -85,6 +99,32 @@ class TclLauncher implements Launcher {
 				connection.close
 			}
 		}
+		return true
+	}
+
+	private def boolean launchMavenBasedTest(IStructuredSelection selection, IProject project, String elementId) {
+		logger.info("Trying to launch maven test execution for test {} in project {}", elementId, project)
+
+		val job = new Job("Execute test " + elementId) {
+
+			override protected run(IProgressMonitor monitor) {
+				val mvnExec = executorProvider.get
+
+				val result = mvnExec.executeInNewJvm("integration-test", project.location.toOSString,
+					"test=" + elementId)
+				val testResultFile = project.createOrGetDeepFolder(TclLauncher.MVN_TEST_RESULT_FOLDER).getFile(
+					elementId.elementIdToFileName).location.toFile
+				if (result == 0) {
+					testResultFile.showTestResult
+				} else {
+					logger.error('''Error during maven task "integration-test" of element "«elementId»"''')
+				// create error file?
+				}
+				return Status.OK_STATUS
+			}
+
+		}
+		job.schedule
 		return true
 	}
 
