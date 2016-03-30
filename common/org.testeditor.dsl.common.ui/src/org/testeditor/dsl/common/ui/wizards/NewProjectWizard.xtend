@@ -38,6 +38,7 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 	TestProjectConfigurationWizardPage configPage
 
 	@Inject ProjectContentGenerator projectContentGenerator
+	@Inject ProgressMonitorRunner progressMonitorRunner
 
 	private def void addNature(IProject newProject, String nature) {
 		if (!newProject.hasNature(nature)) {
@@ -73,7 +74,7 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 		newProject.addNature(XtextProjectHelper.NATURE_ID)
 
 		if (!configPage.selectedFixtures.isEmpty) {
-			new ProgressMonitorRunner().run [ monitor |
+			progressMonitorRunner.run [ monitor |
 				projectContentGenerator.createProjectContent(newProject, configPage.selectedFixtures,
 					configPage.buildSystemName, configPage.withDemoCode, monitor)
 			]
