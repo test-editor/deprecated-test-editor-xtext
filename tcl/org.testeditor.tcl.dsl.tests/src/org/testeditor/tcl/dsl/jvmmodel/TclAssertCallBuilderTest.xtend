@@ -4,7 +4,6 @@ import javax.inject.Inject
 import org.junit.Test
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
-import java.util.Collections
 
 class TclAssertCallBuilderTest extends AbstractParserTest {
 
@@ -109,7 +108,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 		// then
 		assertMethod.assertEquals('org.junit.Assert.assertFalse(variable.matches("ohoh"));')
 	}
-	
+
 	@Test
 	def void testWithMapDereference() {
 		// given
