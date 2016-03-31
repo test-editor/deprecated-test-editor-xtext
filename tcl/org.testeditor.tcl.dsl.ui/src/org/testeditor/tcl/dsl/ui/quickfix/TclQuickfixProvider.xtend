@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.ui.quickfix
 
+import java.util.List
+import javax.inject.Inject
 import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.ResourcesPlugin
 import org.eclipse.jface.viewers.Viewer
@@ -23,21 +25,20 @@ import org.eclipse.ui.dialogs.ElementTreeSelectionDialog
 import org.eclipse.ui.model.BaseWorkbenchContentProvider
 import org.eclipse.ui.model.WorkbenchLabelProvider
 import org.eclipse.ui.part.FileEditorInput
+import org.eclipse.xtext.nodemodel.ICompositeNode
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.eclipse.xtext.ui.editor.XtextEditor
 import org.eclipse.xtext.ui.editor.quickfix.Fix
 import org.eclipse.xtext.ui.editor.quickfix.IssueResolutionAcceptor
 import org.eclipse.xtext.validation.Issue
 import org.eclipse.xtext.xbase.ui.quickfix.XbaseQuickfixProvider
-import org.testeditor.tcl.TestStepContext
-import org.testeditor.tcl.dsl.validation.TclValidator
 import org.testeditor.aml.AmlModel
-import org.eclipse.xtext.nodemodel.ICompositeNode
 import org.testeditor.tcl.TestCase
-import org.testeditor.tsl.SpecificationStep
-import java.util.List
+import org.testeditor.tcl.TestStepContext
+import org.testeditor.tcl.dsl.messages.TclSyntaxErrorMessageProvider
+import org.testeditor.tcl.dsl.validation.TclValidator
 import org.testeditor.tcl.util.TclModelUtil
-import javax.inject.Inject
+import org.testeditor.tsl.SpecificationStep
 
 /**
  * Custom quickfixes.
@@ -149,5 +150,13 @@ class TclQuickfixProvider extends XbaseQuickfixProvider {
 		}
 	'''
 
-}
+	@Fix(TclSyntaxErrorMessageProvider.MISSING_TEST_DESCRIPTION)
+	def void fixMissingTestDescription(Issue issue, IssueResolutionAcceptor acceptor) {
+		acceptor.accept(issue, "Add missing test description", "Add a default test description", null) [ context |
+			context.xtextDocument.replace(issue.offset, 0, '''
+				* test step description
+			''')
+		]
+	}
 
+}
