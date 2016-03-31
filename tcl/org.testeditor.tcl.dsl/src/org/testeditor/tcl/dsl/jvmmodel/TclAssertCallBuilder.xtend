@@ -42,9 +42,9 @@ class TclAssertCallBuilder {
 	def String build(AssertionExpression expression) {
 		val assertionMethod = assertionMethod(expression)
 		if (assertionMethod == null) {
-			return '''// TODO no assertion method implementation for expression type «expression.class»'''
+			return '''// TODO no assertion method implementation for expression with type "«expression.class»"'''
 		} else {
-			return '''org.junit.Assert.«assertionMethod(expression)»(«buildExpression(expression)»);'''
+			return '''org.junit.Assert.«assertionMethod(expression)»(«expression.buildExpression»);'''
 		}
 	}
 
@@ -96,7 +96,11 @@ class TclAssertCallBuilder {
 	}
 
 	private def dispatch String buildExpression(AEVariableReference varRef) {
-		return varRef.name
+		if (varRef.key == null) {
+			return varRef.name
+		} else {
+			return '''«varRef.name».get("«varRef.key»")'''
+		}
 	}
 
 	private def dispatch String buildExpression(AEStringConstant string) {

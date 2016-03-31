@@ -10,6 +10,7 @@
 package org.testeditor.dsl.common.testing
 
 import java.math.BigDecimal
+import java.util.regex.Pattern
 import javax.inject.Singleton
 import org.junit.Assert
 
@@ -58,6 +59,27 @@ class AssertionHelper {
 		if (!iterable.empty) {
 			val size = iterable.size
 			fail(message.format(size.elementsString, "empty iterable"))
+		}
+	}
+
+	/**
+	 * Asserts that a string matches the expected pattern.
+	 * If it doesn't it throws an {@link AssertionError} with an explanatory message.
+	 * 
+	 * @param actual string
+	 * @param expectedPattern as regular expression string
+	 * @param message(s) that are prefixed to the explanatory message
+	 */
+	def void assertMatches(String actual, String expectedPattern, String ... message) {
+		if (!actual.matches(expectedPattern)) {
+			val lastIndex = actual.indexOfLastMatch(Pattern.compile(expectedPattern))
+
+			fail('''
+				«message.join(System.lineSeparator).withSpace»expected pattern: "«expectedPattern»" but was: "«actual»"
+				«IF (lastIndex>0)»
+					partialMatch: «actual.substring(0,lastIndex)»[«actual.substring(lastIndex)»]
+				«ENDIF»
+			''')
 		}
 	}
 
@@ -595,6 +617,23 @@ class AssertionHelper {
 	 */
 	protected def String getElementsString(int size) {
 		return '''«size» element«IF size !== 1»s«ENDIF»'''
+	}
+
+	/**
+	 * Find index of the last (partial) match of the given input and pattern
+	 * 
+	 * @param actual string
+	 * @param pattern compiled regular expression
+	 */
+	private def int indexOfLastMatch(String actual, Pattern pattern) {
+		val matcher = pattern.matcher(actual)
+		for (i : actual.length .. 1) {
+			val region = matcher.region(0, i)
+			if (region.matches || region.hitEnd) {
+				return i
+			}
+		}
+		return 0
 	}
 
 }

@@ -4,6 +4,7 @@ import javax.inject.Inject
 import org.junit.Test
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
+import java.util.Collections
 
 class TclAssertCallBuilderTest extends AbstractParserTest {
 
@@ -108,4 +109,29 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 		// then
 		assertMethod.assertEquals('org.junit.Assert.assertFalse(variable.matches("ohoh"));')
 	}
+	
+	@Test
+	def void testWithMapDereference() {
+		// given
+		val assertionTestStep = parseAssertionTestStep('''- assert variable.key == "test"''')
+
+		// when
+		val assertMethod = assertCallBuilder.build(assertionTestStep.expression)
+
+		// then
+		assertMethod.assertEquals('org.junit.Assert.assertEquals(variable.get("key"), "test");')
+	}
+
+	@Test
+	def void testWithMapKeyAsString() {
+		// given
+		val assertionTestStep = parseAssertionTestStep('''- assert variable."key with spaces" == "test"''')
+
+		// when
+		val assertMethod = assertCallBuilder.build(assertionTestStep.expression)
+
+		// then
+		assertMethod.assertEquals('org.junit.Assert.assertEquals(variable.get("key with spaces"), "test");')
+	}
+
 }

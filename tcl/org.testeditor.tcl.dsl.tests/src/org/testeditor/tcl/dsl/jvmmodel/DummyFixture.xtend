@@ -15,6 +15,8 @@ package org.testeditor.tcl.dsl.jvmmodel
 import java.util.ArrayList
 import java.util.List
 import org.testeditor.fixture.core.interaction.FixtureMethod
+import java.util.Map
+import java.util.HashMap
 
 class DummyFixture {
 	@FixtureMethod
@@ -27,7 +29,7 @@ class DummyFixture {
 
 	@FixtureMethod
 	def String getValue(String locator) {
-		return "";
+		return ""
 	}
 
 	@FixtureMethod
@@ -36,6 +38,11 @@ class DummyFixture {
 	
     @FixtureMethod
     def List<?> getList(String locator) {
-    	return new ArrayList<Object>();
+    	return new ArrayList<Object>
     }
+    
+    @FixtureMethod
+    def Map<?,?> getMap(String locator){
+    	return new HashMap<Object,Object>
+    }    
 }

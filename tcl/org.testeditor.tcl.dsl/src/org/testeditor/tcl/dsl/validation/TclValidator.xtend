@@ -12,25 +12,36 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.validation
 
+import java.util.HashMap
+import java.util.List
+import java.util.Map
+import javax.inject.Inject
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.xtype.XImportSection
+import org.testeditor.tcl.AEVariableReference
+import org.testeditor.tcl.AssertionExpression
+import org.testeditor.tcl.AssertionTestStep
+import org.testeditor.tcl.BinaryAssertionExpression
+import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclPackage
-import org.testeditor.tcl.TestStepContext
-import javax.inject.Inject
-import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tcl.TestCase
+import org.testeditor.tcl.TestStepContext
+import org.testeditor.tcl.TestStepWithAssignment
+import org.testeditor.tcl.impl.AssertionTestStepImpl
+import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.SpecificationStep
-import org.testeditor.tcl.SpecificationStepImplementation
-import java.util.List
 
 class TclValidator extends AbstractTclValidator {
 
 	public static val UNKNOWN_NAME = 'unknownName'
 	public static val NO_VALID_IMPLEMENTATION = 'noValidImplementation'
 	public static val INVALID_NAME = 'invalidName'
+	public static val INVALID_MAP_REF = 'invalidMapReference'
+	public static val VARIABLE_UNKNOWN_HERE = 'varUnknownHere'
+	public static val VARIABLE_ASSIGNED_MORE_THAN_ONCE = 'varAssignedMoreThanOnce'
 
-	@Inject extension TclModelUtil
+	@Inject var extension TclModelUtil tclModelUtil
 
 	@Check
 	def void referencesComponentElement(StepContentElement contentElement) {
@@ -48,6 +59,57 @@ class TclValidator extends AbstractTclValidator {
 	def checkMaskPresent(TestStepContext tsContext) {
 		if (tsContext.component.eIsProxy) {
 			warning("mask is not defined in aml", TclPackage.Literals.TEST_STEP_CONTEXT__COMPONENT, UNKNOWN_NAME);
+		}
+	}
+
+	@Check
+	def checkVariableUsageWithinAssertionExpressions(TestStepContext tsContext) {
+		val varTypeMap = new HashMap<String, String>
+		// collect all var assignments
+		tsContext.steps.forEach [it,index|
+			if (it instanceof TestStepWithAssignment) {
+				// check "in order" (to prevent variable usage before assignment)
+				if (varTypeMap.containsKey(variableName)) {
+					val message = '''Variable '«variableName»' is assigned more than once.'''
+					warning(message, TclPackage.Literals.TEST_STEP_CONTEXT__STEPS, index, VARIABLE_ASSIGNED_MORE_THAN_ONCE);
+				} else {
+					varTypeMap.put(variableName, getInteraction.defaultMethod.operation.returnType.identifier)
+				}
+			} else if (it instanceof AssertionTestStepImpl) {
+				executeCheckVariableUsageWithinAssertionExpressions(varTypeMap, index)
+			}
+		]
+	}
+
+	private def executeCheckVariableUsageWithinAssertionExpressions(AssertionTestStep step,
+		Map<String, String> varTypeMap, int index) {
+		step.expression.collectVariableUsage.forEach [
+			if (varTypeMap.get(name) == null) { // regular variable dereference
+				val message = '''Variable '«name»' is unknown here.'''
+				error(message, eContainer, eContainingFeature, VARIABLE_UNKNOWN_HERE)
+			} else if (key != null) { // dereference map with a key
+				val typeIdentifier = varTypeMap.get(name).replaceFirst("<.*", "")
+				if (typeIdentifier.
+					isNotAssignableToMap) {
+					val message = '''Variable '«name»' of type '«typeIdentifier»' does not implement '«Map.canonicalName»'. It cannot be used with key '«key»'.'''
+					error(message, eContainer, eContainingFeature, INVALID_MAP_REF)
+				}
+			}
+		]
+	}
+
+	private def isNotAssignableToMap(String typeIdentifier) {
+		return !typeof(Map).isAssignableFrom(Class.forName(typeIdentifier))
+	}
+
+	private def Iterable<AEVariableReference> collectVariableUsage(AssertionExpression expression) {
+		switch (expression) {
+			BinaryAssertionExpression:
+				return expression.left.collectVariableUsage + expression.right.collectVariableUsage
+			AEVariableReference:
+				return #[expression]
+			default:
+				return #[]
 		}
 	}
 

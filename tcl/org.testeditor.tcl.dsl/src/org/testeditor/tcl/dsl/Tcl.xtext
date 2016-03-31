@@ -75,7 +75,7 @@ AEComparison:
 	right=AssertionInnerExpression)?;
 
 AEVariableReference:
-	name=ID;
+	name=ID ( '.' ( key=ID | key=STRING ) )?;
 
 AEStringConstant:
 	string=STRING;
