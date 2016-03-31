@@ -117,15 +117,13 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 					append('''«fixtureField».«operation.simpleName»(«getParameterList(step, interaction)»);''')
 				]
 			} else {
-				output.
-					append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
+				output.append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
 			}
 		} else {
-			output.
-				append('''// TODO could not resolve '«step.context.component.name»' - «step.contents.restoreString»''')
+			output.append('''// TODO could not resolve '«step.context.component.name»' - «step.contents.restoreString»''')
 		}
 	}
-
+	
 	def void maybeCreateAssignment(TestStep step, JvmOperation operation, ITreeAppendable output) {
 		if (step instanceof TestStepWithAssignment) {
 			output.trace(step, TEST_STEP_WITH_ASSIGNMENT__VARIABLE_NAME, 0) => [

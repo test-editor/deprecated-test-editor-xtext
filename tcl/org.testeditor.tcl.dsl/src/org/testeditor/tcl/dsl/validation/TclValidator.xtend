@@ -44,7 +44,7 @@ class TclValidator extends AbstractTclValidator {
 	public static val VARIABLE_ASSIGNED_MORE_THAN_ONCE = 'varAssignedMoreThanOnce'
 	public static val UNALLOWED_VALUE = 'unallowedValue'
 
-	@Inject var extension TclModelUtil tclModelUtil
+	@Inject extension TclModelUtil
 
 	@Check
 	def void referencesComponentElement(StepContentElement contentElement) {

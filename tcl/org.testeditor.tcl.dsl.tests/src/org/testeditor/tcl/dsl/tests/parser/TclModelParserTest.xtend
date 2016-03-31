@@ -97,29 +97,26 @@ class TclModelParserTest extends AbstractParserTest {
 				- starte Anwendung "org.testeditor.swing.exammple.Greetings"
 				- gebe in <Eingabefeld> den Wert "Hello World" ein.
 		'''
-
+		
 		// when
 		val test = parse(input)
-
+		
 		// then
-		test.steps.assertSingleElement =>
-			[
-				contexts.assertSingleElement =>
-					[
-						val componentNode = findNodesForFeature(TclPackage.Literals.TEST_STEP_CONTEXT__COMPONENT).
-							assertSingleElement
-						componentNode.text.assertEquals('GreetingsApplication')
-						steps.assertSize(2)
-						steps.get(0) =>
-							[
-								contents.restoreString.assertEquals(
-									'starte Anwendung "org.testeditor.swing.exammple.Greetings"')
-							]
-						steps.get(1) => [
-							contents.restoreString.assertEquals('gebe in <Eingabefeld> den Wert "Hello World" ein')
-						]
-					]
+		test.steps.assertSingleElement => [
+			contexts.assertSingleElement => [
+				val componentNode = findNodesForFeature(TclPackage.Literals.TEST_STEP_CONTEXT__COMPONENT).
+					assertSingleElement
+				componentNode.text.assertEquals('GreetingsApplication')
+				steps.assertSize(2)
+				steps.get(0) => [
+					contents.restoreString.assertEquals(
+						'starte Anwendung "org.testeditor.swing.exammple.Greetings"')
+				]
+				steps.get(1) => [
+					contents.restoreString.assertEquals('gebe in <Eingabefeld> den Wert "Hello World" ein')
+				]
 			]
+		]
 	}
 
 	@Test
