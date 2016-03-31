@@ -20,7 +20,7 @@ import static org.mockito.Matchers.*
 
 import static extension org.mockito.Mockito.*
 
-class TclValidatorTest extends AbstractParserTest {
+class TclVarUsageValidatorTest extends AbstractParserTest {
 
 	@Mock TclModelUtil tclModelUtil // injected into class under test
 	@InjectMocks TclValidator tclValidator // class under test
