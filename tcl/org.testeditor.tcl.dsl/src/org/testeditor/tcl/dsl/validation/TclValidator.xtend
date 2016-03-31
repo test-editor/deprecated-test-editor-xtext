@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -31,6 +31,8 @@ import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.impl.AssertionTestStepImpl
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.SpecificationStep
+import org.testeditor.tsl.StepContentVariable
+import org.testeditor.tsl.TslPackage
 
 class TclValidator extends AbstractTclValidator {
 
@@ -40,6 +42,7 @@ class TclValidator extends AbstractTclValidator {
 	public static val INVALID_MAP_REF = 'invalidMapReference'
 	public static val VARIABLE_UNKNOWN_HERE = 'varUnknownHere'
 	public static val VARIABLE_ASSIGNED_MORE_THAN_ONCE = 'varAssignedMoreThanOnce'
+	public static val UNALLOWED_VALUE = 'unallowedValue'
 
 	@Inject var extension TclModelUtil tclModelUtil
 
@@ -136,6 +139,15 @@ class TclValidator extends AbstractTclValidator {
 		if (!getExpectedName(testCase).equals(testCase.name)) {
 			val message = '''Test case name does not match '«testCase.eResource.URI.lastSegment»'.'''
 			error(message, TclPackage.Literals.TEST_CASE__NAME, INVALID_NAME);
+		}
+	}
+
+	@Check
+	def checkValueInValueSpace(StepContentVariable stepContentVariable) {
+		var valueSpace = stepContentVariable.valueSpaceAssignment.valueSpace
+		if (!valueSpace.isValidValue(stepContentVariable.value)) {
+			val message = '''Value is not allowed in this step. Allowed values: '«valueSpace»'.'''
+			warning(message, TslPackage.Literals.STEP_CONTENT__VALUE, UNALLOWED_VALUE);
 		}
 	}
 

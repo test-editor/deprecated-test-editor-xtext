@@ -26,8 +26,10 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
+import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.finders.ContextMenuHelper;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotList;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotText;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
@@ -163,6 +165,15 @@ public class SWTFixture {
 		expandNode.select();
 	}
 
+	@FixtureMethod
+	public void selectElementInList(String locator, String itemName) {
+		logger.trace("search for list with {}", locator);
+		if (locator.startsWith("[ID]")) {
+			SWTBotList list = bot.listWithId(getLocatorFragmentFrom(locator));
+			list.select(itemName);
+		}
+	}
+
 	/**
 	 * Opens the context Menu of a widget and executes the menuitem described as
 	 * a path.
@@ -217,8 +228,16 @@ public class SWTFixture {
 		SWTBotButton button = null;
 		if (locator.startsWith("[Label]")) {
 			String locatorFragment = getLocatorFragmentFrom(locator);
-			this.reportWidgets();
 			button = bot.button(locatorFragment);
+		}
+		if (locator.startsWith("[ID]")) {
+			String locatorFragment = getLocatorFragmentFrom(locator);
+			try {
+				button = bot.buttonWithId(locatorFragment);
+			} catch (WidgetNotFoundException e) {
+				logger.info(e.getLocalizedMessage(), e);
+				this.reportWidgets();
+			}
 		}
 		assertNotNull(button);
 		button.click();
