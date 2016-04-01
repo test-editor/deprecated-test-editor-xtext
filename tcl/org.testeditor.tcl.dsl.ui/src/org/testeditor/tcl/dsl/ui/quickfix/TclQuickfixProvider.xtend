@@ -33,6 +33,7 @@ import org.eclipse.xtext.ui.editor.quickfix.IssueResolutionAcceptor
 import org.eclipse.xtext.validation.Issue
 import org.eclipse.xtext.xbase.ui.quickfix.XbaseQuickfixProvider
 import org.testeditor.aml.AmlModel
+import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.dsl.messages.TclSyntaxErrorMessageProvider
@@ -76,12 +77,6 @@ class TclQuickfixProvider extends XbaseQuickfixProvider {
 		
 		«ENDFOR»
 	'''
-
-	def List<SpecificationStep> getMissingTestSteps(TestCase testCase) {
-		val specSteps = testCase.specification.steps
-		val steps = testCase.steps
-		return specSteps.filter[!steps.map[it.contents.restoreString].contains(it.contents.restoreString)].toList
-	}
 
 	@Fix(TclValidator.UNKNOWN_NAME)
 	def createAMLMask(Issue issue, IssueResolutionAcceptor acceptor) {
@@ -152,10 +147,26 @@ class TclQuickfixProvider extends XbaseQuickfixProvider {
 
 	@Fix(TclSyntaxErrorMessageProvider.MISSING_TEST_DESCRIPTION)
 	def void fixMissingTestDescription(Issue issue, IssueResolutionAcceptor acceptor) {
-		acceptor.accept(issue, "Add missing test description", "Add a default test description", null) [ context |
-			context.xtextDocument.replace(issue.offset, 0, '''
-				* test step description
-			''')
+		val defaultTestDescription = '''
+			* test step description
+			'''
+		acceptor.accept(issue, "Add missing test description",
+			'''
+			Add a test description that will reference 
+			the respective test of the test specification
+			''', null) [ element, context |
+			if ((element instanceof TclModel) && ( (element as TclModel)?.test?.specification != null )) {
+				val list = getMissingTestSteps((element as TclModel).test)
+				if (list.empty) {
+					context.xtextDocument.replace(issue.offset, 0, defaultTestDescription)
+				} else {
+					context.xtextDocument.replace(issue.offset, 0, '''
+						* «list.head.contents.restoreString»
+					''')
+				}
+			} else {
+				context.xtextDocument.replace(issue.offset, 0, defaultTestDescription)
+			}
 		]
 	}
 

@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.testeditor.tcl.util
 
+import java.util.Collections
 import java.util.List
 import java.util.Map
 import javax.inject.Singleton
@@ -23,6 +24,7 @@ import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.ValueSpaceAssignment
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
+import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestStep
 import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContent
@@ -132,6 +134,18 @@ class TclModelUtil extends TslModelUtil {
 			return tslModel.steps.findFirst[matches(stepImplementation)]
 		}
 		return null
+	}
+
+	def List<SpecificationStep> getMissingTestSteps(TestCase testCase) {
+		val specSteps = testCase?.specification?.steps
+		val steps = testCase?.steps
+		if( specSteps==null){
+			return Collections.EMPTY_LIST
+		}
+		if( steps==null){
+			return specSteps.toList
+		}
+		return specSteps.filter[!steps.map[it.contents.restoreString].contains(it.contents.restoreString)].toList
 	}
 
 }
