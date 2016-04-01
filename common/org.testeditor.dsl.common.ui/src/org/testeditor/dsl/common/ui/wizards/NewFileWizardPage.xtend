@@ -34,6 +34,7 @@ import org.eclipse.swt.widgets.Label
 import org.eclipse.swt.widgets.Text
 import org.eclipse.ui.dialogs.ContainerSelectionDialog
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
+import org.testeditor.dsl.common.ide.util.ProjectContentGenerator
 
 /** 
  * The "New" wizard page allows setting the container for the new file as well
@@ -140,7 +141,7 @@ class NewFileWizardPage extends WizardPage {
 	}
 
 	def private getSourceFolderPath(IProject project) {
-		val srcFolder = project.getDeepFolder(NewProjectWizard.SRC_FOLDER)
+		val srcFolder = project.getDeepFolder(ProjectContentGenerator.SRC_FOLDER)
 		return srcFolder?.fullPathString
 	}
 

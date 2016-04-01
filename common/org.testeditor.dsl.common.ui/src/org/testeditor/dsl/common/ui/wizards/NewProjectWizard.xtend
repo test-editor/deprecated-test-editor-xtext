@@ -36,9 +36,6 @@ import org.eclipse.core.resources.IResource
 class NewProjectWizard extends BasicNewProjectResourceWizard {
 
 	@Inject extension ProjectUtils
-
-	static public val String SRC_FOLDER = 'src/main/java'
-
 	TestProjectConfigurationWizardPage configPage
 
 	@Inject ProjectContentGenerator projectContentGenerator
@@ -72,10 +69,18 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 	override performFinish() {
 		val result = super.performFinish()
 
-		newProject.createOrGetDeepFolder(SRC_FOLDER)
+		newProject.createOrGetDeepFolder(ProjectContentGenerator.SRC_FOLDER)
+		newProject.createOrGetDeepFolder(ProjectContentGenerator.SRC_TEST_FOLDER)
+		newProject.createOrGetDeepFolder(ProjectContentGenerator.SRC_TCL_TEST_FOLDER)
 		newProject.addNature(JavaCore.NATURE_ID)
 		JavaCore.create(newProject)
 		newProject.addNature(XtextProjectHelper.NATURE_ID)
+		if (!configPage.selectedFixtures.isEmpty) {
+			progressMonitorRunner.run [ monitor |
+				projectContentGenerator.createProjectContent(newProject, configPage.selectedFixtures,
+					configPage.buildSystemName, configPage.withDemoCode, monitor)
+			]
+		}
 		// make sure that no target folder is included into any resource set
 		newProject.createFilter(IResourceFilterDescription.EXCLUDE_ALL.bitwiseOr(IResourceFilterDescription.FOLDERS),
 			new FileInfoMatcherDescription("org.eclipse.core.resources.regexFilterMatcher", "target"), // hide maven generated/copied artifacts
@@ -84,12 +89,6 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 			new FileInfoMatcherDescription("org.eclipse.core.resources.regexFilterMatcher", "build"), // hide gradle generated/copied artifacts
 			IResource.BACKGROUND_REFRESH, new NullProgressMonitor)
 
-		if (!configPage.selectedFixtures.isEmpty) {
-			progressMonitorRunner.run [ monitor |
-				projectContentGenerator.createProjectContent(newProject, configPage.selectedFixtures,
-					configPage.buildSystemName, configPage.withDemoCode, monitor)
-			]
-		}
 
 		return result
 	}
