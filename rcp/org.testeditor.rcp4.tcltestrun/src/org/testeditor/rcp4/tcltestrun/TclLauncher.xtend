@@ -14,11 +14,8 @@ package org.testeditor.rcp4.tcltestrun
 
 import java.io.File
 import javax.inject.Inject
-import javax.inject.Provider
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.IProgressMonitor
-import org.eclipse.core.runtime.Status
-import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.jdt.junit.JUnitCore
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.gradle.tooling.GradleConnectionException
@@ -28,9 +25,9 @@ import org.gradle.tooling.ResultHandler
 import org.gradle.tooling.events.ProgressEvent
 import org.gradle.tooling.events.ProgressListener
 import org.slf4j.LoggerFactory
+import org.testeditor.dsl.common.ui.utils.ProgressMonitorRunner
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
 import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
-import org.testeditor.dsl.common.ui.utils.ProgressMonitorRunner
 
 class TclLauncher implements Launcher {
 	static val logger = LoggerFactory.getLogger(TclLauncher)
@@ -109,7 +106,8 @@ class TclLauncher implements Launcher {
 
 		progressRunner.run([ monitor |
 			monitor.beginTask("Test ", IProgressMonitor.UNKNOWN)
-			val result = mavenExecutor.executeInNewJvm("integration-test", project.location.toOSString, "test=" + elementId)
+			val result = mavenExecutor.executeInNewJvm("integration-test", project.location.toOSString,
+				"test=" + elementId)
 			val testResultFile = project.createOrGetDeepFolder(TclLauncher.MVN_TEST_RESULT_FOLDER).getFile(
 				elementId.elementIdToFileName).location.toFile
 			if (result == 0) {
@@ -119,27 +117,6 @@ class TclLauncher implements Launcher {
 			}
 			monitor.done
 		])
-
-//		val job = new Job("Execute test " + elementId) {
-//
-//			override protected run(IProgressMonitor monitor) {
-//				val mvnExec = executorProvider.get
-//
-//				val result = mvnExec.executeInNewJvm("integration-test", project.location.toOSString,
-//					"test=" + elementId)
-//				val testResultFile = project.createOrGetDeepFolder(TclLauncher.MVN_TEST_RESULT_FOLDER).getFile(
-//					elementId.elementIdToFileName).location.toFile
-//				if (result == 0) {
-//					testResultFile.showTestResult
-//				} else {
-//					logger.error('''Error during maven task "integration-test" of element "«elementId»"''')
-//				// create error file?
-//				}
-//				return Status.OK_STATUS
-//			}
-//
-//		}
-//		job.schedule
 		return true
 	}
 
