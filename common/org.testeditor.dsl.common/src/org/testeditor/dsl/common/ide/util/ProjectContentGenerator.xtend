@@ -22,6 +22,12 @@ import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.m2e.core.MavenPlugin
 import org.eclipse.m2e.core.project.ResolverConfiguration
 import org.eclipse.xtext.util.StringInputStream
+import java.nio.file.Files
+import javax.inject.Inject
+import java.io.File
+import org.slf4j.LoggerFactory
+import org.slf4j.Logger
+import java.util.ArrayList
 
 /**
  * Generator to generate content to a new test project
@@ -38,6 +44,10 @@ class ProjectContentGenerator {
 	// NOT API yet.
 	static val SWINGFIXTURE = "Swing Fixture"
 
+	private static Logger logger = LoggerFactory.getLogger(ProjectContentGenerator)
+
+	@Inject FileLocatorService fileLocatorService
+
 	def void createProjectContent(IProject project, String[] fixtures, String buildsystem, boolean demo,
 		IProgressMonitor monitor) throws CoreException{
 		project.getFolder(SRC_TEST_FOLDER + "/" + project.name).create(true, false, new NullProgressMonitor())
@@ -49,20 +59,12 @@ class ProjectContentGenerator {
 		if (buildsystem == MAVEN) {
 			tclRootDir = SRC_TCL_TEST_FOLDER
 			initAml = project.getFile(SRC_FOLDER + "/" + project.name + "/" + project.name + ".aml")
-			var IFile buildFile = project.getFile("pom.xml")
-			buildFile.create(new StringInputStream(getPomContent(fixtures, project.name)), IResource.NONE, monitor)
-			var configurationManager = MavenPlugin.getProjectConfigurationManager()
-			var configuration = new ResolverConfiguration();
-			configuration.setResolveWorkspaceProjects(true);
-			configuration.setSelectedProfiles("");
-			configurationManager.enableMavenNature(project, configuration, monitor)
-			configurationManager.updateProjectConfiguration(project, monitor)
+			setupMavenInProject(project, fixtures, monitor)
 		}
 		if (buildsystem == GRADLE) {
 			tclRootDir = SRC_TEST_FOLDER
 			initAml = project.getFile(SRC_TEST_FOLDER + "/" + project.name + "/" + project.name + ".aml")
-			var IFile buildFile = project.getFile("build.gradle")
-			buildFile.create(new StringInputStream(getBuildGradleContent(fixtures)), IResource.NONE, monitor)
+			setupGradleInProject(project, fixtures, monitor)
 		}
 		if (demo) {
 			amlContent = getDemoAMLContent(fixtures, project.name)
@@ -73,6 +75,48 @@ class ProjectContentGenerator {
 			amlContent = getInitialAMLContent(fixtures, project.name)
 		}
 		initAml.create(new StringInputStream(amlContent), IResource.NONE, monitor)
+		if (buildsystem == GRADLE) {
+			setupEclipseMetaData(project, monitor)
+		}
+	}
+	
+	protected def setupEclipseMetaData(IProject project, IProgressMonitor monitor) {
+		val List<String> command = new ArrayList<String>();
+		command.add(project.location.toFile.toString + File.separator + "gradlew");
+		command.add("eclipse");
+		val ProcessBuilder processBuilder = new ProcessBuilder()
+		processBuilder.inheritIO()
+		processBuilder.redirectErrorStream(true)
+		processBuilder.command(command)
+		processBuilder.directory(project.location.toFile)
+		logger.trace("Create eclipse proejct with gradle command {}", command)
+		val process = processBuilder.start()
+		try {
+			process.waitFor();
+		} catch (InterruptedException e) {
+			logger.info("Error", e)
+		}
+		logger.trace("Project {} refrshed", project)
+		project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
+	}
+
+	protected def setupGradleInProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
+		var IFile buildFile = project.getFile("build.gradle")
+		buildFile.create(new StringInputStream(getBuildGradleContent(fixtures)), IResource.NONE, monitor)
+		val bundleLocation = fileLocatorService.findBundleFileLocationAsString("org.testeditor.dsl.common")
+		val src = new File(bundleLocation + File.separator + "gradlewrapper")
+		FileUtils.copyFolder(src, project.location.toFile);
+	}
+
+	protected def setupMavenInProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
+		var IFile buildFile = project.getFile("pom.xml")
+		buildFile.create(new StringInputStream(getPomContent(fixtures, project.name)), IResource.NONE, monitor)
+		var configurationManager = MavenPlugin.getProjectConfigurationManager()
+		var configuration = new ResolverConfiguration();
+		configuration.setResolveWorkspaceProjects(true);
+		configuration.setSelectedProfiles("");
+		configurationManager.enableMavenNature(project, configuration, monitor)
+		configurationManager.updateProjectConfiguration(project, monitor)
 	}
 
 	protected def createDemoTestCase(String fixture, IProject project, String srcFolder) {

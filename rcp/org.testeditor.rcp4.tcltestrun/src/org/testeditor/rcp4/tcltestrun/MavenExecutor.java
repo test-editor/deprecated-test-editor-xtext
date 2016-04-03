@@ -80,6 +80,7 @@ public class MavenExecutor {
 		logger.trace("Execute maven in new jvm with: {}", command);
 		ProcessBuilder processBuilder = new ProcessBuilder();
 		processBuilder.inheritIO();
+		processBuilder.directory(new File(pathtoPom));
 		processBuilder.redirectErrorStream(true);
 		processBuilder.command(command);
 		Process process = processBuilder.start();

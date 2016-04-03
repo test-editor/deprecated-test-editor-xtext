@@ -25,6 +25,7 @@ import org.eclipse.swt.widgets.Label
 import org.eclipse.swt.widgets.List
 import org.testeditor.dsl.common.ui.utils.Constants
 import org.eclipse.swt.events.SelectionAdapter
+import org.eclipse.swt.widgets.Display
 
 class TestProjectConfigurationWizardPage extends WizardPage {
 
@@ -40,6 +41,12 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 
 	Button demoCode
 
+	String[] selectedFixturesSelection
+
+	String selectedBuildSystemName
+
+	boolean withDemoCode
+
 	new(String pageName) {
 		super(pageName)
 		description = "Specify initial configuration of the project (build-system, fixture type and templates)"
@@ -54,12 +61,12 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 		createDemoSelectionArea(parent)
 		setControl(buildSystem);
 	}
-	
+
 	private def createDemoSelectionArea(Composite parent) {
 		demoCode = new Button(parent, SWT.CHECK)
 		demoCode.text = "Generate with examples"
 	}
-	
+
 	private def createFixtureSelectionArea(Composite parent) {
 		new Label(parent, SWT.NONE).text = "Available Fixtures:"
 		new Composite(parent, SWT.NONE)
@@ -84,7 +91,7 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 		addBtn.addSelectionListener(createMoveListener(availableFixtures, selectedFixtures))
 		delBtn.addSelectionListener(createMoveListener(selectedFixtures, availableFixtures))
 	}
-	
+
 	private def createBuildSystemSelectionArea(Composite superParent) {
 		val parent = new Composite(superParent, SWT.NONE);
 		parent.layout = new GridLayout(2, false)
@@ -110,15 +117,18 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 	}
 
 	def String[] getSelectedFixtures() {
-		return selectedFixtures.items
+		Display.getDefault.syncExec([selectedFixturesSelection = selectedFixtures.items])
+		return selectedFixturesSelection
 	}
 
 	def String getBuildSystemName() {
-		return buildSystem.text
+		Display.getDefault.syncExec([selectedBuildSystemName = buildSystem.text])
+		return selectedBuildSystemName
 	}
 
 	def boolean withDemoCode() {
-		return demoCode.selection
+		Display.getDefault.syncExec([withDemoCode = demoCode.selection])
+		return withDemoCode
 	}
 
 	def SelectionListener createMoveListener(List sourceList, List destList) {

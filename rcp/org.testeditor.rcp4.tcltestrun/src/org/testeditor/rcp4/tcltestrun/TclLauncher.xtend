@@ -30,6 +30,7 @@ import org.gradle.tooling.events.ProgressListener
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
 import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
+import org.testeditor.dsl.common.ui.utils.ProgressMonitorRunner
 
 class TclLauncher implements Launcher {
 	static val logger = LoggerFactory.getLogger(TclLauncher)
@@ -37,7 +38,8 @@ class TclLauncher implements Launcher {
 	static val MVN_TEST_RESULT_FOLDER = "target/surefire-reports"
 
 	@Inject extension ProjectUtils
-	@Inject Provider<MavenExecutor> executorProvider
+	@Inject MavenExecutor mavenExecutor
+	@Inject ProgressMonitorRunner progressRunner
 
 	def void showTestResult(File testResult) {
 		JUnitCore.importTestRunSession(testResult)
@@ -105,26 +107,39 @@ class TclLauncher implements Launcher {
 	private def boolean launchMavenBasedTest(IStructuredSelection selection, IProject project, String elementId) {
 		logger.info("Trying to launch maven test execution for test {} in project {}", elementId, project)
 
-		val job = new Job("Execute test " + elementId) {
-
-			override protected run(IProgressMonitor monitor) {
-				val mvnExec = executorProvider.get
-
-				val result = mvnExec.executeInNewJvm("integration-test", project.location.toOSString,
-					"test=" + elementId)
-				val testResultFile = project.createOrGetDeepFolder(TclLauncher.MVN_TEST_RESULT_FOLDER).getFile(
-					elementId.elementIdToFileName).location.toFile
-				if (result == 0) {
-					testResultFile.showTestResult
-				} else {
-					logger.error('''Error during maven task "integration-test" of element "«elementId»"''')
-				// create error file?
-				}
-				return Status.OK_STATUS
+		progressRunner.run([ monitor |
+			monitor.beginTask("Test ", IProgressMonitor.UNKNOWN)
+			val result = mavenExecutor.executeInNewJvm("integration-test", project.location.toOSString, "test=" + elementId)
+			val testResultFile = project.createOrGetDeepFolder(TclLauncher.MVN_TEST_RESULT_FOLDER).getFile(
+				elementId.elementIdToFileName).location.toFile
+			if (result == 0) {
+				testResultFile.showTestResult
+			} else {
+				logger.error('''Error during maven task "integration-test" of element "«elementId»"''')
 			}
+			monitor.done
+		])
 
-		}
-		job.schedule
+//		val job = new Job("Execute test " + elementId) {
+//
+//			override protected run(IProgressMonitor monitor) {
+//				val mvnExec = executorProvider.get
+//
+//				val result = mvnExec.executeInNewJvm("integration-test", project.location.toOSString,
+//					"test=" + elementId)
+//				val testResultFile = project.createOrGetDeepFolder(TclLauncher.MVN_TEST_RESULT_FOLDER).getFile(
+//					elementId.elementIdToFileName).location.toFile
+//				if (result == 0) {
+//					testResultFile.showTestResult
+//				} else {
+//					logger.error('''Error during maven task "integration-test" of element "«elementId»"''')
+//				// create error file?
+//				}
+//				return Status.OK_STATUS
+//			}
+//
+//		}
+//		job.schedule
 		return true
 	}
 

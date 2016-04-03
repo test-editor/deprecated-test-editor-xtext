@@ -27,6 +27,7 @@ import org.eclipse.core.resources.IResourceFilterDescription
 import org.eclipse.core.resources.FileInfoMatcherDescription
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.resources.IResource
+import org.eclipse.swt.widgets.Display
 
 /** wizard to create a new test project 
  *  - add java nature
