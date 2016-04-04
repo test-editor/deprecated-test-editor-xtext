@@ -226,12 +226,12 @@ class ProjectContentGenerator {
 	protected def getGradleDependency(String fixtureName) {
 		if (fixtureName == WEBFIXTURE) {
 			return '''
-				compile 'org.testeditor.fixture:web-fixture:3.0.0-SNAPSHOT'
+				compile 'org.testeditor.fixture:web-fixture:3.0.0-PROTO'
 			'''
 		}
 		if (fixtureName == SWINGFIXTURE) {
 			return '''
-				compile 'org.testeditor.fixture:swing-fixture:3.0.0-SNAPSHOT'
+				compile 'org.testeditor.fixture:swing-fixture:3.0.0-PROTO'
 			'''
 		}
 	}
@@ -461,7 +461,7 @@ class ProjectContentGenerator {
 				<dependency>
 					<groupId>org.testeditor.fixture</groupId>
 					<artifactId>web-fixture</artifactId>
-					<version>3.0.0-SNAPSHOT</version>
+					<version>3.0.0-PROTO</version>
 				</dependency>
 			'''
 		}
