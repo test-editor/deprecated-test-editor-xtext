@@ -14,6 +14,7 @@ package org.testeditor.dsl.common.ui.wizards
 
 import org.eclipse.jface.wizard.WizardPage
 import org.eclipse.swt.SWT
+import org.eclipse.swt.events.SelectionAdapter
 import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.events.SelectionListener
 import org.eclipse.swt.layout.GridData
@@ -24,8 +25,6 @@ import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Label
 import org.eclipse.swt.widgets.List
 import org.testeditor.dsl.common.ui.utils.Constants
-import org.eclipse.swt.events.SelectionAdapter
-import org.eclipse.swt.widgets.Display
 
 class TestProjectConfigurationWizardPage extends WizardPage {
 
@@ -40,12 +39,6 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 	java.util.List<String> availableFixtureNames;
 
 	Button demoCode
-
-	String[] selectedFixturesSelection
-
-	String selectedBuildSystemName
-
-	boolean withDemoCode
 
 	new(String pageName) {
 		super(pageName)
@@ -117,18 +110,15 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 	}
 
 	def String[] getSelectedFixtures() {
-		Display.getDefault.syncExec([selectedFixturesSelection = selectedFixtures.items])
-		return selectedFixturesSelection
+		return selectedFixtures.items
 	}
 
 	def String getBuildSystemName() {
-		Display.getDefault.syncExec([selectedBuildSystemName = buildSystem.text])
-		return selectedBuildSystemName
+		return buildSystem.text
 	}
 
 	def boolean withDemoCode() {
-		Display.getDefault.syncExec([withDemoCode = demoCode.selection])
-		return withDemoCode
+		return demoCode.selection
 	}
 
 	def SelectionListener createMoveListener(List sourceList, List destList) {

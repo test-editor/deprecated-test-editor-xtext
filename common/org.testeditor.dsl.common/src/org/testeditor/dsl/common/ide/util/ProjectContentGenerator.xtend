@@ -12,7 +12,10 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.ide.util
 
+import java.io.File
+import java.util.ArrayList
 import java.util.List
+import javax.inject.Inject
 import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
@@ -22,15 +25,11 @@ import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.m2e.core.MavenPlugin
 import org.eclipse.m2e.core.project.ResolverConfiguration
 import org.eclipse.xtext.util.StringInputStream
-import java.nio.file.Files
-import javax.inject.Inject
-import java.io.File
-import org.slf4j.LoggerFactory
 import org.slf4j.Logger
-import java.util.ArrayList
+import org.slf4j.LoggerFactory
 
 /**
- * Generator to generate content to a new test project
+ * Generator to generate content to a new test project.
  */
 class ProjectContentGenerator {
 
@@ -89,7 +88,7 @@ class ProjectContentGenerator {
 		processBuilder.redirectErrorStream(true)
 		processBuilder.command(command)
 		processBuilder.directory(project.location.toFile)
-		logger.trace("Create eclipse proejct with gradle command {}", command)
+		logger.trace("Create eclipse project with gradle command {}", command)
 		val process = processBuilder.start()
 		try {
 			process.waitFor();
