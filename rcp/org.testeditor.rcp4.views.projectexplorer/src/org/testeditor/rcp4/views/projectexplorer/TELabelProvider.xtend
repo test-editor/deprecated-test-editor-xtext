@@ -35,8 +35,11 @@ class TELabelProvider extends LabelProvider implements ILabelProvider {
 			val elementPath = element.path.toString
 			if (elementPath.lastIndexOf("/") > 0) {
 				val result = elementPath.substring(elementPath.indexOf("/", 1))
-				if (result == '/src/test/tcl') {
+				if (result == '/src/test/java') {
 					return "Tests"
+				}
+				if (result == '/src/main/java') {
+					return "AML"
 				}
 				return result
 			}

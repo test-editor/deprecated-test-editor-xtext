@@ -72,7 +72,6 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 
 		newProject.createOrGetDeepFolder(ProjectContentGenerator.SRC_FOLDER)
 		newProject.createOrGetDeepFolder(ProjectContentGenerator.SRC_TEST_FOLDER)
-		newProject.createOrGetDeepFolder(ProjectContentGenerator.SRC_TCL_TEST_FOLDER)
 		newProject.addNature(JavaCore.NATURE_ID)
 		JavaCore.create(newProject)
 		newProject.addNature(XtextProjectHelper.NATURE_ID)

@@ -38,7 +38,6 @@ class ProjectContentGenerator {
 	static public val WEBFIXTURE = "Web Fixture"
 	static public val String SRC_FOLDER = 'src/main/java'
 	static public val String SRC_TEST_FOLDER = 'src/test/java'
-	static public val String SRC_TCL_TEST_FOLDER = 'src/test/tcl'
 
 	// NOT API yet.
 	static val SWINGFIXTURE = "Swing Fixture"
@@ -51,24 +50,20 @@ class ProjectContentGenerator {
 		IProgressMonitor monitor) throws CoreException{
 		project.getFolder(SRC_TEST_FOLDER + "/" + project.name).create(true, false, new NullProgressMonitor())
 		project.getFolder(SRC_FOLDER + "/" + project.name).create(true, false, new NullProgressMonitor())
-		project.getFolder(SRC_TCL_TEST_FOLDER + "/" + project.name).create(true, false, new NullProgressMonitor())
 		var String amlContent = null
-		var String tclRootDir = null
 		var IFile initAml = null;
 		if (buildsystem == MAVEN) {
-			tclRootDir = SRC_TCL_TEST_FOLDER
 			initAml = project.getFile(SRC_FOLDER + "/" + project.name + "/" + project.name + ".aml")
 			setupMavenInProject(project, fixtures, monitor)
 		}
 		if (buildsystem == GRADLE) {
-			tclRootDir = SRC_TEST_FOLDER
 			initAml = project.getFile(SRC_TEST_FOLDER + "/" + project.name + "/" + project.name + ".aml")
 			setupGradleInProject(project, fixtures, monitor)
 		}
 		if (demo) {
 			amlContent = getDemoAMLContent(fixtures, project.name)
 			for (fixture : fixtures) {
-				createDemoTestCase(fixture, project, tclRootDir)
+				createDemoTestCase(fixture, project, SRC_TEST_FOLDER)
 			}
 		} else {
 			amlContent = getInitialAMLContent(fixtures, project.name)
@@ -78,7 +73,7 @@ class ProjectContentGenerator {
 			setupEclipseMetaData(project, monitor)
 		}
 	}
-	
+
 	protected def setupEclipseMetaData(IProject project, IProgressMonitor monitor) {
 		val List<String> command = new ArrayList<String>();
 		command.add(project.location.toFile.toString + File.separator + "gradlew");
@@ -88,14 +83,14 @@ class ProjectContentGenerator {
 		processBuilder.redirectErrorStream(true)
 		processBuilder.command(command)
 		processBuilder.directory(project.location.toFile)
-		logger.trace("Create eclipse project with gradle command {}", command)
+		logger.info("Create eclipse project with gradle command {}", command)
 		val process = processBuilder.start()
 		try {
 			process.waitFor();
 		} catch (InterruptedException e) {
 			logger.info("Error", e)
 		}
-		logger.trace("Project {} refrshed", project)
+		logger.debug("Project {} refreshed", project)
 		project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
 	}
 
@@ -365,7 +360,7 @@ class ProjectContentGenerator {
 								</executions>
 								<configuration>
 								<sourceRoots>
-									<sourceRoot>«SRC_TCL_TEST_FOLDER»</sourceRoot>
+									<sourceRoot>«SRC_TEST_FOLDER»</sourceRoot>
 									<sourceRoot>«SRC_FOLDER»</sourceRoot>
 								</sourceRoots>
 									<languages>
@@ -376,7 +371,7 @@ class ProjectContentGenerator {
 											<setup>org.testeditor.tcl.dsl.TclStandaloneSetup</setup>
 											<outputConfigurations>
 												<outputConfiguration>
-													<outputDirectory>src/test/java</outputDirectory>
+													<outputDirectory>src_gen/test/java</outputDirectory>
 												</outputConfiguration>
 											</outputConfigurations>
 										</language>
@@ -440,14 +435,14 @@ class ProjectContentGenerator {
 						    <version>1.8</version>
 						    <executions>
 						        <execution>
-						            <id>add-source</id>
-						            <phase>generate-sources</phase>
+						            <id>add-test-source</id>
+						            <phase>generate-test-sources</phase>
 						            <goals>
-						                <goal>add-source</goal>
+						                <goal>add-test-source</goal>
 						            </goals>
 						            <configuration>
 						                <sources>
-						                    <source>«SRC_TCL_TEST_FOLDER»</source>
+						                    <source>src_gen/test/java</source>
 						                </sources>
 						            </configuration>
 						        </execution>
