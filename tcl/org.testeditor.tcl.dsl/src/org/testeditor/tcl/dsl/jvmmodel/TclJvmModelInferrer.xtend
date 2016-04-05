@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -22,6 +22,7 @@ import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
 import org.testeditor.aml.InteractionType
+import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclModel
@@ -37,8 +38,9 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	@Inject extension JvmTypesBuilder
 	@Inject extension TclModelUtil
+	@Inject TclAssertCallBuilder assertCallBuilder
 	@Inject IQualifiedNameProvider nameProvider
-	
+
 	def dispatch void infer(TclModel model, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		model.test?.infer(acceptor, isPreIndexingPhase)
 	}
@@ -56,7 +58,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			members += test.toMethod('execute', typeRef(Void.TYPE)) [
 				exceptions += typeRef(Exception)
 				annotations += annotationRef('org.junit.Test') // make sure that junit is in the classpath of the workspace containing the dsl
-				body = [test.generateMethodBody(trace(test))]
+				body = [test.generateMethodBody(trace(test, true))]
 			]
 		]
 
@@ -69,20 +71,20 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	private def void generate(SpecificationStepImplementation step, ITreeAppendable output) {
 		val comment = '''/* «step.contents.restoreString» */'''
 		output.newLine
-		output.append(comment)
+		output.append(comment).newLine
 		step.contexts.forEach[generate(output.trace(it))]
 	}
 
 	private def void generate(TestStepContext context, ITreeAppendable output) {
 		output.newLine
-		output.append('''// Component: «context.component.name»''')
+		output.append('''// Component: «context.component.name»''').newLine
 		context.steps.forEach[generate(output.trace(it))]
 	}
-	
+
 	private def void generate(TestStep step, ITreeAppendable output) {
 		output.newLine
-		output.append('''// - «step.contents.restoreString»''')
-		generateFeatureCall(step, output)
+		output.append('''// - «step.contents.restoreString»''').newLine
+		toUnitTestCodeLine(step, output)
 	}
 
 	/**
@@ -100,9 +102,11 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		return fixtureType.simpleName.toFirstLower
 	}
 
-	private def void generateFeatureCall(TestStep step, ITreeAppendable output) {
-		output.newLine
-		val context = step.context
+	private def dispatch void toUnitTestCodeLine(AssertionTestStep step, ITreeAppendable output) {
+		output.append(assertCallBuilder.build(step.expression)).newLine
+	}
+
+	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output) {
 		val interaction = step.interaction
 		if (interaction !== null) {
 			val fixtureField = interaction.defaultMethod?.typeReference?.type?.fixtureFieldName
@@ -113,13 +117,15 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 					append('''«fixtureField».«operation.simpleName»(«getParameterList(step, interaction)»);''')
 				]
 			} else {
-				output.append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
+				output.
+					append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
 			}
 		} else {
-			output.append('''// TODO could not resolve '«context.component.name»' - «step.contents.restoreString»''')
+			output.
+				append('''// TODO could not resolve '«step.context.component.name»' - «step.contents.restoreString»''')
 		}
 	}
-	
+
 	def void maybeCreateAssignment(TestStep step, JvmOperation operation, ITreeAppendable output) {
 		if (step instanceof TestStepWithAssignment) {
 			output.trace(step, TEST_STEP_WITH_ASSIGNMENT__VARIABLE_NAME, 0) => [
@@ -156,4 +162,3 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 }
-
