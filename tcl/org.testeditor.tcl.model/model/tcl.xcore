@@ -31,13 +31,13 @@ class TclModel {
 
 class TestCase {
 	String name
-	container TclModel model opposite test
+	container derived TclModel model opposite test
 	refers TestSpecification specification
 	contains SpecificationStepImplementation[0..*] steps opposite test
 }
 
 class SpecificationStepImplementation extends SpecificationStep {
-	container TestCase test opposite steps
+	container derived TestCase test opposite steps
 	contains TestStepContext[0..*] contexts
 }
 
@@ -47,7 +47,7 @@ class TestStepContext {
 }
 
 class TestStep {
-	container TestStepContext context opposite steps
+	container derived TestStepContext context opposite steps 
 	contains StepContent[0..*] contents
 }
 
@@ -72,6 +72,7 @@ class AENullCheck extends AssertionExpression {
 
 class AEVariableReference extends AssertionExpression {
 	String name
+	String key // only != null if: map.key
 }
 
 class AEStringConstant extends AssertionExpression {
