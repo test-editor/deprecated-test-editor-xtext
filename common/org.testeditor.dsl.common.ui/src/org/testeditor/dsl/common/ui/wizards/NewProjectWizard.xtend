@@ -13,7 +13,11 @@
 package org.testeditor.dsl.common.ui.wizards
 
 import javax.inject.Inject
+import org.eclipse.core.resources.FileInfoMatcherDescription
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IResource
+import org.eclipse.core.resources.IResourceFilterDescription
+import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.eclipse.jface.wizard.IWizardPage
@@ -23,22 +27,16 @@ import org.eclipse.xtext.ui.XtextProjectHelper
 import org.testeditor.dsl.common.ide.util.ProjectContentGenerator
 import org.testeditor.dsl.common.ui.utils.ProgressMonitorRunner
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
-import org.eclipse.core.resources.IResourceFilterDescription
-import org.eclipse.core.resources.FileInfoMatcherDescription
-import org.eclipse.core.runtime.NullProgressMonitor
-import org.eclipse.core.resources.IResource
 
-/** wizard to create a new test project 
+/** 
+ * Wizard to create a new test project. 
  *  - add java nature
  *  - add xtext nature
- *  - add build system 
+ *  - add build system nature
  */
 class NewProjectWizard extends BasicNewProjectResourceWizard {
 
 	@Inject extension ProjectUtils
-
-	static public val String SRC_FOLDER = 'src/main/java'
-
 	TestProjectConfigurationWizardPage configPage
 
 	@Inject ProjectContentGenerator projectContentGenerator
@@ -72,10 +70,20 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 	override performFinish() {
 		val result = super.performFinish()
 
-		newProject.createOrGetDeepFolder(SRC_FOLDER)
+		newProject.createOrGetDeepFolder(ProjectContentGenerator.SRC_FOLDER)
+		newProject.createOrGetDeepFolder(ProjectContentGenerator.SRC_TEST_FOLDER)
 		newProject.addNature(JavaCore.NATURE_ID)
 		JavaCore.create(newProject)
 		newProject.addNature(XtextProjectHelper.NATURE_ID)
+		val selectedFixtures = configPage.selectedFixtures
+		val buildSystemName = configPage.buildSystemName
+		val withDemoCode = configPage.withDemoCode
+		if (!configPage.selectedFixtures.isEmpty) {
+			progressMonitorRunner.run [ monitor |
+				projectContentGenerator.createProjectContent(newProject, selectedFixtures, buildSystemName,
+					withDemoCode, monitor)
+			]
+		}
 		// make sure that no target folder is included into any resource set
 		newProject.createFilter(IResourceFilterDescription.EXCLUDE_ALL.bitwiseOr(IResourceFilterDescription.FOLDERS),
 			new FileInfoMatcherDescription("org.eclipse.core.resources.regexFilterMatcher", "target"), // hide maven generated/copied artifacts
@@ -83,13 +91,6 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 		newProject.createFilter(IResourceFilterDescription.EXCLUDE_ALL.bitwiseOr(IResourceFilterDescription.FOLDERS),
 			new FileInfoMatcherDescription("org.eclipse.core.resources.regexFilterMatcher", "build"), // hide gradle generated/copied artifacts
 			IResource.BACKGROUND_REFRESH, new NullProgressMonitor)
-
-		if (!configPage.selectedFixtures.isEmpty) {
-			progressMonitorRunner.run [ monitor |
-				projectContentGenerator.createProjectContent(newProject, configPage.selectedFixtures,
-					configPage.buildSystemName, configPage.withDemoCode, monitor)
-			]
-		}
 
 		return result
 	}

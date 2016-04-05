@@ -14,11 +14,8 @@ package org.testeditor.rcp4.tcltestrun
 
 import java.io.File
 import javax.inject.Inject
-import javax.inject.Provider
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.IProgressMonitor
-import org.eclipse.core.runtime.Status
-import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.jdt.junit.JUnitCore
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.gradle.tooling.GradleConnectionException
@@ -28,8 +25,10 @@ import org.gradle.tooling.ResultHandler
 import org.gradle.tooling.events.ProgressEvent
 import org.gradle.tooling.events.ProgressListener
 import org.slf4j.LoggerFactory
+import org.testeditor.dsl.common.ui.utils.ProgressMonitorRunner
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
 import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
+import org.eclipse.core.runtime.NullProgressMonitor
 
 class TclLauncher implements Launcher {
 	static val logger = LoggerFactory.getLogger(TclLauncher)
@@ -37,7 +36,8 @@ class TclLauncher implements Launcher {
 	static val MVN_TEST_RESULT_FOLDER = "target/surefire-reports"
 
 	@Inject extension ProjectUtils
-	@Inject Provider<MavenExecutor> executorProvider
+	@Inject MavenExecutor mavenExecutor
+	@Inject ProgressMonitorRunner progressRunner
 
 	def void showTestResult(File testResult) {
 		JUnitCore.importTestRunSession(testResult)
@@ -62,69 +62,69 @@ class TclLauncher implements Launcher {
 
 	private def boolean launchGradleBasedTest(IProject project, String elementId) {
 		logger.info("Trying to launch gradle test execution for test {} in project {}", elementId, project)
-		val testResultFile = project.createOrGetDeepFolder(TclLauncher.GRADLE_TEST_RESULT_FOLDER).getFile(
-			elementId.elementIdToFileName).location.toFile
-		val GradleConnector connector = GradleConnector.newConnector
-		var ProjectConnection connection = null
-		val projectFolder = project.location.makeAbsolute.toFile
-		try {
-			connection = connector.forProjectDirectory(projectFolder).connect();
-			// val BuildEnvironment environment = connection.model(BuildEnvironment).get();
-			connection.newBuild.addProgressListener(new ProgressListener {
+		progressRunner.run([ monitor |
+			monitor.beginTask("Test execution: " + elementId, IProgressMonitor.UNKNOWN)
+			val testResultFile = project.createOrGetDeepFolder(TclLauncher.GRADLE_TEST_RESULT_FOLDER).getFile(
+				elementId.elementIdToFileName).location.toFile
+			val GradleConnector connector = GradleConnector.newConnector
+			var ProjectConnection connection = null
+			try {
+				val projectFolder = project.location.makeAbsolute.toFile
+				connection = connector.forProjectDirectory(projectFolder).connect();
+				// val BuildEnvironment environment = connection.model(BuildEnvironment).get();
+				connection.newBuild.addProgressListener(new ProgressListener {
 
-				override statusChanged(ProgressEvent event) {
-					logger.info(event.displayName)
+					override statusChanged(ProgressEvent event) {
+						logger.info("Gradle build event: {}", event.displayName)
+					}
+
+				}) // .forTasks("test") // does not work, see issue below
+				.withArguments("test", "--tests", elementId) // https://issues.gradle.org/browse/GRADLE-2972
+				// .setStandardOutput(System.out) // alternatively get a separate console output stream (see http://wiki.eclipse.org/FAQ_How_do_I_write_to_the_console_from_a_plug-in%3F)
+				.run(
+					new ResultHandler {
+
+						override onComplete(Object obj) {
+							testResultFile.showTestResult
+						}
+
+						override onFailure(GradleConnectionException exception) {
+							logger.
+								error('''Caught error during gradle task "test" of element "«elementId»": «exception.toString»''',
+									exception)
+							project.refreshLocal(IProject.DEPTH_INFINITE, new NullProgressMonitor())
+							testResultFile.showTestResult
+						}
+
+					})
+			} finally {
+				if (connection != null) {
+					connection.close
 				}
-
-			}) // .forTasks("test") // does not work, see issue below
-			.withArguments("test", "--tests", elementId) // https://issues.gradle.org/browse/GRADLE-2972
-			// .setStandardOutput(System.out) // alternatively get a separate console output stream (see http://wiki.eclipse.org/FAQ_How_do_I_write_to_the_console_from_a_plug-in%3F)
-			.run(
-				new ResultHandler {
-
-					override onComplete(Object obj) {
-						testResultFile.showTestResult
-					}
-
-					override onFailure(GradleConnectionException exception) {
-						logger.
-							error('''Caught error during gradle task "test" of element "«elementId»": «exception.toString»''',
-								exception)
-						testResultFile.showTestResult
-					}
-
-				})
-		} finally {
-			if (connection != null) {
-				connection.close
 			}
-		}
+			monitor.done
+		])
+
 		return true
 	}
 
 	private def boolean launchMavenBasedTest(IStructuredSelection selection, IProject project, String elementId) {
 		logger.info("Trying to launch maven test execution for test {} in project {}", elementId, project)
 
-		val job = new Job("Execute test " + elementId) {
-
-			override protected run(IProgressMonitor monitor) {
-				val mvnExec = executorProvider.get
-
-				val result = mvnExec.executeInNewJvm("integration-test", project.location.toOSString,
-					"test=" + elementId)
-				val testResultFile = project.createOrGetDeepFolder(TclLauncher.MVN_TEST_RESULT_FOLDER).getFile(
-					elementId.elementIdToFileName).location.toFile
-				if (result == 0) {
-					testResultFile.showTestResult
-				} else {
-					logger.error('''Error during maven task "integration-test" of element "«elementId»"''')
-				// create error file?
-				}
-				return Status.OK_STATUS
+		progressRunner.run([ monitor |
+			monitor.beginTask("Test execution: " + elementId, IProgressMonitor.UNKNOWN)
+			val result = mavenExecutor.executeInNewJvm("integration-test", project.location.toOSString,
+				"test=" + elementId)
+			val testResultFile = project.createOrGetDeepFolder(TclLauncher.MVN_TEST_RESULT_FOLDER).getFile(
+				elementId.elementIdToFileName).location.toFile
+			if (result == 0) {
+				project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
+				testResultFile.showTestResult
+			} else {
+				logger.error('''Error during maven task "integration-test" of element "«elementId»"''')
 			}
-
-		}
-		job.schedule
+			monitor.done
+		])
 		return true
 	}
 

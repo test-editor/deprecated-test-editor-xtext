@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -14,6 +14,7 @@ package org.testeditor.rcp4.views.projectexplorer
 
 import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IFolder
+import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.ICompilationUnit
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot
 import org.eclipse.jdt.internal.core.JavaElement
@@ -29,6 +30,11 @@ class NavFilter extends ViewerFilter {
 	override select(Viewer viewer, Object parentElement, Object element) {
 		if (element instanceof ICompilationUnit) { // hide all java compilation units
 			return false
+		}
+		if (element instanceof IClasspathEntry) {
+			if (element.path.toString.endsWith("-gen")) {
+				return false
+			}
 		}
 		if (element instanceof IFolder) { // don't show any folders that hold generated artifacts (-gen) or maven artifacts (target)
 			if (element.projectRelativePath.segments.exists [

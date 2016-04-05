@@ -66,7 +66,7 @@ public class MavenExecutor {
 	 * @throws IOException
 	 *             on failure
 	 */
-	public int executeInNewJvm(String goal, String pathtoPom, String testParam) throws IOException {
+	public int executeInNewJvm(String goal, String pathToPom, String testParam) throws IOException {
 		int result = 1; // unspecified error code != 0
 		String jvm = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
 		List<String> command = new ArrayList<String>();
@@ -75,11 +75,12 @@ public class MavenExecutor {
 		command.add(getClassPath());
 		command.add(this.getClass().getName());
 		command.add(goal);
-		command.add(pathtoPom);
+		command.add(pathToPom);
 		command.add(testParam);
 		logger.trace("Execute maven in new jvm with: {}", command);
 		ProcessBuilder processBuilder = new ProcessBuilder();
 		processBuilder.inheritIO();
+		processBuilder.directory(new File(pathToPom));
 		processBuilder.redirectErrorStream(true);
 		processBuilder.command(command);
 		Process process = processBuilder.start();

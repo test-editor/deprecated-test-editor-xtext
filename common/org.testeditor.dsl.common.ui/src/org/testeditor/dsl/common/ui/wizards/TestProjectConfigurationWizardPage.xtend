@@ -14,6 +14,7 @@ package org.testeditor.dsl.common.ui.wizards
 
 import org.eclipse.jface.wizard.WizardPage
 import org.eclipse.swt.SWT
+import org.eclipse.swt.events.SelectionAdapter
 import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.events.SelectionListener
 import org.eclipse.swt.layout.GridData
@@ -24,15 +25,14 @@ import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Label
 import org.eclipse.swt.widgets.List
 import org.testeditor.dsl.common.ui.utils.Constants
-import org.eclipse.swt.events.SelectionAdapter
 
 class TestProjectConfigurationWizardPage extends WizardPage {
 
 	Combo buildSystem
 
-	List availableFixtures
+	List availableFixturesList
 
-	List selectedFixtures
+	List selectedFixturesList
 
 	java.util.List<String> availableBuildSystems;
 
@@ -54,21 +54,21 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 		createDemoSelectionArea(parent)
 		setControl(buildSystem);
 	}
-	
+
 	private def createDemoSelectionArea(Composite parent) {
 		demoCode = new Button(parent, SWT.CHECK)
 		demoCode.text = "Generate with examples"
 	}
-	
+
 	private def createFixtureSelectionArea(Composite parent) {
 		new Label(parent, SWT.NONE).text = "Available Fixtures:"
 		new Composite(parent, SWT.NONE)
 		new Label(parent, SWT.NONE).text = "Selected Fixtures:"
-		availableFixtures = new List(parent, SWT.BORDER)
-		availableFixtures.setData(Constants.SWT_BOT_ID_KEY, Constants.NEW_DIALOG_AVAILABLE_FIXTURE_LIST)
-		availableFixtures.layoutData = new GridData(GridData.FILL_BOTH)
+		availableFixturesList = new List(parent, SWT.BORDER)
+		availableFixturesList.setData(Constants.SWT_BOT_ID_KEY, Constants.NEW_DIALOG_AVAILABLE_FIXTURE_LIST)
+		availableFixturesList.layoutData = new GridData(GridData.FILL_BOTH)
 		for (fixtureName : availableFixtureNames) {
-			availableFixtures.add(fixtureName)
+			availableFixturesList.add(fixtureName)
 		}
 		val buttonArea = new Composite(parent, SWT.NONE)
 		buttonArea.layout = new GridLayout(1, false)
@@ -79,12 +79,12 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 		val delBtn = new Button(buttonArea, SWT.BORDER)
 		delBtn.text = "<"
 		delBtn.layoutData = new GridData(GridData.FILL_HORIZONTAL)
-		selectedFixtures = new List(parent, SWT.BORDER)
-		selectedFixtures.layoutData = new GridData(GridData.FILL_BOTH)
-		addBtn.addSelectionListener(createMoveListener(availableFixtures, selectedFixtures))
-		delBtn.addSelectionListener(createMoveListener(selectedFixtures, availableFixtures))
+		selectedFixturesList = new List(parent, SWT.BORDER)
+		selectedFixturesList.layoutData = new GridData(GridData.FILL_BOTH)
+		addBtn.addSelectionListener(createMoveListener(availableFixturesList, selectedFixturesList))
+		delBtn.addSelectionListener(createMoveListener(selectedFixturesList, availableFixturesList))
 	}
-	
+
 	private def createBuildSystemSelectionArea(Composite superParent) {
 		val parent = new Composite(superParent, SWT.NONE);
 		parent.layout = new GridLayout(2, false)
@@ -110,7 +110,7 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 	}
 
 	def String[] getSelectedFixtures() {
-		return selectedFixtures.items
+		return selectedFixturesList.items
 	}
 
 	def String getBuildSystemName() {

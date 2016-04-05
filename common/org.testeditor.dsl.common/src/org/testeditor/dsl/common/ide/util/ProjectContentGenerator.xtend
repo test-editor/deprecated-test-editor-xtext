@@ -12,7 +12,10 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.ide.util
 
-import java.io.ByteArrayInputStream
+import java.io.File
+import java.util.ArrayList
+import java.util.List
+import javax.inject.Inject
 import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
@@ -21,53 +24,98 @@ import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.m2e.core.MavenPlugin
 import org.eclipse.m2e.core.project.ResolverConfiguration
-import java.util.List
 import org.eclipse.xtext.util.StringInputStream
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
- * Generator to generate content to a new test project
+ * Generator to generate content to a new test project.
  */
 class ProjectContentGenerator {
 
-	public static val MAVEN = "Maven"
-	public static val GRADLE = "Gradle"
-	public static val WEBFIXTURE = "Web Fixture"
+	static public val MAVEN = "Maven"
+	static public val GRADLE = "Gradle"
+	static public val WEBFIXTURE = "Web Fixture"
+	static public val String SRC_FOLDER = 'src/main/java'
+	static public val String SRC_TEST_FOLDER = 'src/test/java'
+
 	// NOT API yet.
 	static val SWINGFIXTURE = "Swing Fixture"
 
+	private static Logger logger = LoggerFactory.getLogger(ProjectContentGenerator)
+
+	@Inject FileLocatorService fileLocatorService
+
 	def void createProjectContent(IProject project, String[] fixtures, String buildsystem, boolean demo,
 		IProgressMonitor monitor) throws CoreException{
+		project.getFolder(SRC_TEST_FOLDER + "/" + project.name).create(true, false, new NullProgressMonitor())
+		project.getFolder(SRC_FOLDER + "/" + project.name).create(true, false, new NullProgressMonitor())
+		var String amlContent = null
+		var IFile initAml = null;
 		if (buildsystem == MAVEN) {
-			var IFile buildFile = project.getFile("pom.xml")
-			buildFile.create(new StringInputStream(getPomContent(fixtures, project.name)), IResource.NONE, monitor)
-			var configurationManager = MavenPlugin.getProjectConfigurationManager()
-			var configuration = new ResolverConfiguration();
-			configuration.setResolveWorkspaceProjects(true);
-			configuration.setSelectedProfiles("");
-			configurationManager.enableMavenNature(project, configuration, monitor)
-			configurationManager.updateProjectConfiguration(project, monitor)
+			initAml = project.getFile(SRC_FOLDER + "/" + project.name + "/" + project.name + ".aml")
+			setupMavenInProject(project, fixtures, monitor)
 		}
 		if (buildsystem == GRADLE) {
-			var buildFile = project.getFile("build.gradle")
-			buildFile.create(new StringInputStream(getBuildGradleContent(fixtures)), IResource.NONE, monitor)
+			initAml = project.getFile(SRC_TEST_FOLDER + "/" + project.name + "/" + project.name + ".aml")
+			setupGradleInProject(project, fixtures, monitor)
 		}
-		project.getFolder("src/main/java/" + project.name).create(true, false, new NullProgressMonitor())
-		var initAml = project.getFile("src/main/java/" + project.name + "/" + project.name + ".aml")
-		var String amlContent = null
 		if (demo) {
 			amlContent = getDemoAMLContent(fixtures, project.name)
 			for (fixture : fixtures) {
-				createDemoTestCase(fixture, project)
+				createDemoTestCase(fixture, project, SRC_TEST_FOLDER)
 			}
 		} else {
 			amlContent = getInitialAMLContent(fixtures, project.name)
 		}
-		initAml.create(new ByteArrayInputStream(amlContent.getBytes()), IResource.NONE, monitor)
+		initAml.create(new StringInputStream(amlContent), IResource.NONE, monitor)
+		if (buildsystem == GRADLE) {
+			setupEclipseMetaData(project, monitor)
+		}
 	}
 
-	protected def createDemoTestCase(String fixture, IProject project) {
+	protected def setupEclipseMetaData(IProject project, IProgressMonitor monitor) {
+		val List<String> command = new ArrayList<String>();
+		command.add(project.location.toFile.toString + File.separator + "gradlew");
+		command.add("eclipse");
+		val ProcessBuilder processBuilder = new ProcessBuilder()
+		processBuilder.inheritIO()
+		processBuilder.redirectErrorStream(true)
+		processBuilder.command(command)
+		processBuilder.directory(project.location.toFile)
+		logger.info("Create eclipse project with gradle command {}", command)
+		val process = processBuilder.start()
+		try {
+			process.waitFor();
+		} catch (InterruptedException e) {
+			logger.info("Error", e)
+		}
+		logger.debug("Project {} refreshed", project)
+		project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
+	}
+
+	protected def setupGradleInProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
+		var IFile buildFile = project.getFile("build.gradle")
+		buildFile.create(new StringInputStream(getBuildGradleContent(fixtures)), IResource.NONE, monitor)
+		val bundleLocation = fileLocatorService.findBundleFileLocationAsString("org.testeditor.dsl.common")
+		val src = new File(bundleLocation, "gradlewrapper")
+		FileUtils.copyFolder(src, project.location.toFile);
+	}
+
+	protected def setupMavenInProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
+		var IFile buildFile = project.getFile("pom.xml")
+		buildFile.create(new StringInputStream(getPomContent(fixtures, project.name)), IResource.NONE, monitor)
+		var configurationManager = MavenPlugin.getProjectConfigurationManager()
+		var configuration = new ResolverConfiguration();
+		configuration.setResolveWorkspaceProjects(true);
+		configuration.setSelectedProfiles("");
+		configurationManager.enableMavenNature(project, configuration, monitor)
+		configurationManager.updateProjectConfiguration(project, monitor)
+	}
+
+	protected def createDemoTestCase(String fixture, IProject project, String srcFolder) {
 		if (fixture == WEBFIXTURE) {
-			val tclFile = project.getFile("src/main/java/" + project.name + "/GoogleTest.tcl")
+			val tclFile = project.getFile(srcFolder + "/" + project.name + "/GoogleTest.tcl")
 			tclFile.create(new StringInputStream(getGoogleTestCase(project.name)), false, new NullProgressMonitor())
 		}
 	}
@@ -150,6 +198,7 @@ class ProjectContentGenerator {
 			plugins {
 			    id 'org.testeditor.gradle-plugin' version '0.1'
 			    id 'maven'
+			    id 'eclipse'
 			}
 			
 			group = 'org.testeditor.demo'
@@ -169,6 +218,7 @@ class ProjectContentGenerator {
 			    «FOR s : fixtureNames»
 			    	«getGradleDependency(s)»
 				«ENDFOR»
+				testCompile 'junit:junit:4.12'
 			}
 		'''
 	}
@@ -176,12 +226,12 @@ class ProjectContentGenerator {
 	protected def getGradleDependency(String fixtureName) {
 		if (fixtureName == WEBFIXTURE) {
 			return '''
-				testcompile 'org.testeditor.fixture:web-fixture:3.0.0-SNAPSHOT'
+				compile 'org.testeditor.fixture:web-fixture:3.0.0-PROTO'
 			'''
 		}
 		if (fixtureName == SWINGFIXTURE) {
 			return '''
-				testcompile 'org.testeditor.fixture:swing-fixture:3.0.0-PROTO'
+				compile 'org.testeditor.fixture:swing-fixture:3.0.0-PROTO'
 			'''
 		}
 	}
@@ -265,6 +315,38 @@ class ProjectContentGenerator {
 									<target>${java.version}</target>
 								</configuration>
 							</plugin>
+							      <plugin>
+							          <groupId>org.eclipse.m2e</groupId>
+							          <artifactId>lifecycle-mapping</artifactId>
+							          <version>1.0.0</version>
+							          <configuration>
+							              <lifecycleMappingMetadata>
+							                    <pluginExecutions>
+							                      <pluginExecution>
+							                        <pluginExecutionFilter>
+							                          <groupId>org.codehaus.mojo</groupId>
+							                          <artifactId>build-helper-maven-plugin</artifactId>
+							                          <versionRange>[1.0,)</versionRange>
+							                          <goals>
+							                            <goal>parse-version</goal>
+							                            <goal>add-source</goal>
+							                            <goal>maven-version</goal>
+							                            <goal>add-resource</goal>
+							                            <goal>add-test-resource</goal>
+							                            <goal>add-test-source</goal>
+							                          </goals>
+							                        </pluginExecutionFilter>
+							                        <action>
+							                          <execute>
+							                            <runOnConfiguration>true</runOnConfiguration>
+							                            <runOnIncremental>true</runOnIncremental>
+							                          </execute>
+							                        </action>
+							                      </pluginExecution>
+							                  </pluginExecutions>
+							              </lifecycleMappingMetadata>
+							          </configuration>
+							      </plugin>
 							<plugin>
 								<groupId>org.eclipse.xtext</groupId>
 								<artifactId>xtext-maven-plugin</artifactId>
@@ -277,6 +359,10 @@ class ProjectContentGenerator {
 									</execution>
 								</executions>
 								<configuration>
+								<sourceRoots>
+									<sourceRoot>«SRC_TEST_FOLDER»</sourceRoot>
+									<sourceRoot>«SRC_FOLDER»</sourceRoot>
+								</sourceRoots>
 									<languages>
 										<language>
 											<setup>org.testeditor.tsl.dsl.TslStandaloneSetup</setup>
@@ -285,7 +371,7 @@ class ProjectContentGenerator {
 											<setup>org.testeditor.tcl.dsl.TclStandaloneSetup</setup>
 											<outputConfigurations>
 												<outputConfiguration>
-													<outputDirectory>src/test/java</outputDirectory>
+													<outputDirectory>src_gen/test/java</outputDirectory>
 												</outputConfiguration>
 											</outputConfigurations>
 										</language>
@@ -343,6 +429,25 @@ class ProjectContentGenerator {
 							<groupId>org.eclipse.xtend</groupId>
 							<artifactId>xtend-maven-plugin</artifactId>
 						</plugin>
+						<plugin>
+						    <groupId>org.codehaus.mojo</groupId>
+						    <artifactId>build-helper-maven-plugin</artifactId>
+						    <version>1.8</version>
+						    <executions>
+						        <execution>
+						            <id>add-test-source</id>
+						            <phase>generate-test-sources</phase>
+						            <goals>
+						                <goal>add-test-source</goal>
+						            </goals>
+						            <configuration>
+						                <sources>
+						                    <source>src_gen/test/java</source>
+						                </sources>
+						            </configuration>
+						        </execution>
+						    </executions>
+						</plugin>
 					</plugins>
 				</build>
 			
@@ -356,7 +461,7 @@ class ProjectContentGenerator {
 				<dependency>
 					<groupId>org.testeditor.fixture</groupId>
 					<artifactId>web-fixture</artifactId>
-					<version>3.0.0-SNAPSHOT</version>
+					<version>3.0.0-PROTO</version>
 				</dependency>
 			'''
 		}

@@ -12,16 +12,16 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.projectexplorer
 
-import org.eclipse.jface.viewers.ILabelProvider
-import org.eclipse.jface.viewers.ILabelProviderListener
 import org.eclipse.jdt.core.IClasspathEntry
-import org.eclipse.ui.PlatformUI
+import org.eclipse.jface.viewers.ILabelProvider
+import org.eclipse.jface.viewers.LabelProvider
 import org.eclipse.ui.ISharedImages
+import org.eclipse.ui.PlatformUI
 
 /**
  * Label Provider to extend the Common Navigtor for test elements. It decorates src classpath entries as root elements for test definitions.
  */
-class TELabelProvider implements ILabelProvider {
+class TELabelProvider extends LabelProvider implements ILabelProvider {
 
 	override getImage(Object element) {
 		if (element instanceof IClasspathEntry) {
@@ -34,24 +34,18 @@ class TELabelProvider implements ILabelProvider {
 		if (element instanceof IClasspathEntry) {
 			val elementPath = element.path.toString
 			if (elementPath.lastIndexOf("/") > 0) {
-				return elementPath.substring(elementPath.indexOf("/", 1))
+				val result = elementPath.substring(elementPath.indexOf("/", 1))
+				if (result == '/src/test/java') {
+					return "Tests"
+				}
+				if (result == '/src/main/java') {
+					return "AML"
+				}
+				return result
 			}
 			return elementPath
 		}
 		return null
-	}
-
-	override addListener(ILabelProviderListener listener) {
-	}
-
-	override dispose() {
-	}
-
-	override isLabelProperty(Object element, String property) {
-		return false
-	}
-
-	override removeListener(ILabelProviderListener listener) {
 	}
 
 }
