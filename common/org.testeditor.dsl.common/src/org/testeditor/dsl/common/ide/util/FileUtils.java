@@ -53,8 +53,8 @@ public final class FileUtils {
 	public static void copyFolder(File src, File dest) throws IOException {
 		if (src.isDirectory()) {
 			// if directory not exists, create it
-			if (!dest.exists() && dest.mkdir()) {
-				logger.info("Directory copied from " + src + "  to " + dest);
+			if (!dest.exists() && dest.mkdirs()) {
+				logger.info("Directory copied from {}  to {} ", src, dest);
 			}
 
 			// list all the directory contents
@@ -69,7 +69,7 @@ public final class FileUtils {
 			}
 		} else {
 			Files.copy(src.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
-			logger.debug("File copied from " + src + " to " + dest);
+			logger.debug("File copied from {}  to {} ", src, dest);
 		}
 	}
 

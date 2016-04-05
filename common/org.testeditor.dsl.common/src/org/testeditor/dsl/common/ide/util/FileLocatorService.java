@@ -81,7 +81,7 @@ public class FileLocatorService {
 	 * 
 	 * @return the bundle context of this class
 	 */
-	BundleContext getBundleContext() {
+	private BundleContext getBundleContext() {
 		return FrameworkUtil.getBundle(FileLocatorService.class).getBundleContext();
 	}
 
