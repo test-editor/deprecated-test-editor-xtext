@@ -98,7 +98,7 @@ class ProjectContentGenerator {
 		var IFile buildFile = project.getFile("build.gradle")
 		buildFile.create(new StringInputStream(getBuildGradleContent(fixtures)), IResource.NONE, monitor)
 		val bundleLocation = fileLocatorService.findBundleFileLocationAsString("org.testeditor.dsl.common")
-		val src = new File(bundleLocation + File.separator + "gradlewrapper")
+		val src = new File(bundleLocation, "gradlewrapper")
 		FileUtils.copyFolder(src, project.location.toFile);
 	}
 

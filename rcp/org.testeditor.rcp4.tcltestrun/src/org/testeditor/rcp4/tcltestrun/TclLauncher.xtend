@@ -75,7 +75,7 @@ class TclLauncher implements Launcher {
 				connection.newBuild.addProgressListener(new ProgressListener {
 
 					override statusChanged(ProgressEvent event) {
-						logger.info(event.displayName)
+						logger.info("Gradle build event: {}", event.displayName)
 					}
 
 				}) // .forTasks("test") // does not work, see issue below
