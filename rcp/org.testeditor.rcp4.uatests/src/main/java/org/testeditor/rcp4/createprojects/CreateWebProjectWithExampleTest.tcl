@@ -31,3 +31,4 @@ Component: NewDialog
 * Verify that the project is visible in the ui
 Component: HauptFenster
 - selektiere Element "MyFirstWebProject" in Baum <ProjektBaum>
+- Warte "1" Sekunden
