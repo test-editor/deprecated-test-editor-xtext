@@ -55,8 +55,8 @@ public class FileLocatorService {
 	 * @throws IOException
 	 *             is thrown if file-operations failed
 	 */
-	public String getBundleLocationFor(Class<?> class1) throws IOException {
-		File bundleFile = FileLocator.getBundleFile(FrameworkUtil.getBundle(class1));
+	public String getBundleLocationFor(Class<?> clazz) throws IOException {
+		File bundleFile = FileLocator.getBundleFile(FrameworkUtil.getBundle(clazz));
 		return bundleFile.getAbsolutePath();
 	}
 
@@ -70,8 +70,8 @@ public class FileLocatorService {
 	 * @throws IOException
 	 *             is thrown if file-operations failed
 	 */
-	public File getBundleFileFor(Class<?> class1) throws IOException {
-		File bundleFile = FileLocator.getBundleFile(FrameworkUtil.getBundle(class1));
+	public File getBundleFileFor(Class<?> clazz) throws IOException {
+		File bundleFile = FileLocator.getBundleFile(FrameworkUtil.getBundle(clazz));
 		return bundleFile;
 	}
 
