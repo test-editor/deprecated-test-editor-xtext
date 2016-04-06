@@ -7,8 +7,8 @@
         <tags>categoryTag:General</tags>
         <children xsi:type="basic:PartSashContainer" xmi:id="_VnnBgNSzEeGBn6dQ9VPexA" selectedElement="_VnnBgdSzEeGBn6dQ9VPexA" horizontal="true">
           <children xsi:type="basic:PartStack" xmi:id="_VnnBgdSzEeGBn6dQ9VPexA" elementId="stack.explorer" containerData="3400">
-            <tags>newtablook</tags>
             <tags>org.eclipse.e4.primaryNavigationStack</tags>
+            <tags>newtablook</tags>
           </children>
           <children xsi:type="basic:PartSashContainer" xmi:id="_bTQ1YNS2EeGBn6dQ9VPexA" elementId="" containerData="10000" selectedElement="_T0PvgOElEeWvgIi1MgxYeQ">
             <children xsi:type="basic:PartSashContainer" xmi:id="_T0PvgOElEeWvgIi1MgxYeQ" elementId="org.testeditor.rcp4.partsashcontainer.0" selectedElement="_hP-EYNS2EeGBn6dQ9VPexA" horizontal="true">

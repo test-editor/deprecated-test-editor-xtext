@@ -27,7 +27,7 @@ component type TestEditorApp {
 component HauptFenster is General {
 	element ProjektBaum is View {
 		label = "Projekt Baum"
-		locator ="Project Explorer"
+		locator ="Test Project Explorer"
 	}
 	element TestStepSelector is View {
 		label = "Test Schritt Auswahl"
@@ -40,7 +40,7 @@ value-space projectmenues = #[ "New/Project...", "Open" ]
 component ProjectExplorer is General {
 	element ProjektBaum is TreeView {
 		label = "Projekt Baum"
-		locator ="Project Explorer"
+		locator ="Test Project Explorer"
 		executeContextMenuEntry.item restrict to projectmenues 
 	}
 }
