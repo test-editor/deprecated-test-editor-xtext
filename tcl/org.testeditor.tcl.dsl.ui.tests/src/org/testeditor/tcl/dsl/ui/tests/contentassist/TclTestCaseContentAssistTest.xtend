@@ -17,8 +17,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.testeditor.tcl.dsl.ui.tests.TclUiInjectorProvider
 
-@RunWith(typeof(XtextRunner))
-@InjectWith(typeof(TclUiInjectorProvider))
+@RunWith(XtextRunner)
+@InjectWith(TclUiInjectorProvider)
 class TclTestCaseContentAssistTest extends AbstractContentAssistTest {
 
 	@Inject FileExtensionProvider fileExtensionProvider
@@ -28,6 +28,7 @@ class TclTestCaseContentAssistTest extends AbstractContentAssistTest {
 	def void initialize() {
 	}
 
+	/** ensure that AbstractContentAssistTest uses the this resourceSet  */
 	override getResourceFor(InputStream stream) {
 		getResourceFor(stream, "src/test/Test." + fileExtensionProvider.primaryFileExtension)
 	}
