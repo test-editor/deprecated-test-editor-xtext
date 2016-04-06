@@ -19,6 +19,15 @@
 				<groupId>org.eclipse.xtend</groupId>
 				<artifactId>xtend-maven-plugin</artifactId>
 			</plugin>
+		    <plugin>
+        		<groupId>org.eclipse.tycho</groupId>
+        		<artifactId>tycho-surefire-plugin</artifactId>
+        		<version>${tycho-version}</version>
+        		<configuration>
+        			<useUIHarness>true</useUIHarness> <!-- https://bugs.eclipse.org/bugs/show_bug.cgi?id=437425 -->
+					<useUIThread>true</useUIThread>   <!-- org.eclipse.swt.SWTException: Invalid thread access -->
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
