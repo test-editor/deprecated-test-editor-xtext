@@ -6,7 +6,7 @@ package org.testeditor.rcp4
 
 Component: TestEditor
 - Clean Workspace
-- Restart Test-Editor with clean environment
+- Reset UI State
 - Einfaches Projekt erzeugen
 
 Component: ProjectExplorer

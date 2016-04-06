@@ -8,7 +8,7 @@ import org.testeditor.rcp4.*;
 * start creation process
 Component: TestEditor
 - Clean Workspace
-- Restart Test-Editor with clean environment
+- Reset UI State
 
 Component: ProjectExplorer
 - execute menu item  "New/Project..."  in tree <ProjektBaum>

@@ -7,7 +7,7 @@ import org.testeditor.rcp4.*
 * Validate initial views
 Component: TestEditor
 - Clean Workspace
-- Restart Test-Editor with clean environment
+- Reset UI State
 
 Component: HauptFenster
  - ist View <ProjektBaum> sichtbar

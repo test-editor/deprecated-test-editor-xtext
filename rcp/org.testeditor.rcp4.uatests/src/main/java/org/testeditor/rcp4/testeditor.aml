@@ -16,7 +16,7 @@ interaction type cleanWorkspace {
 
 interaction type restartApp {
 	label = "Clean restart Test-Editor"
-	template = "Restart Test-Editor with clean environment"
+	template = "Reset UI State"
 	method = TestEditorFixture.resetApplication
 }
 
