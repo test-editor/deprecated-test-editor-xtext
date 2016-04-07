@@ -22,6 +22,7 @@ import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
 import org.testeditor.aml.InteractionType
+import org.testeditor.aml.ModelUtil
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
@@ -40,6 +41,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	@Inject extension TclModelUtil
 	@Inject TclAssertCallBuilder assertCallBuilder
 	@Inject IQualifiedNameProvider nameProvider
+	@Inject ModelUtil amlModelUtil
 
 	def dispatch void infer(TclModel model, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		model.test?.infer(acceptor, isPreIndexingPhase)
@@ -91,10 +93,10 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	 * @return all {@link JvmType} of all fixtures that are referenced.
 	 */
 	private def Set<JvmType> getFixtureTypes(TestCase test) {
-		val components = test.steps.map[contexts].flatten.map[component]
+		val components = test.steps.map[contexts].flatten.map[component].filterNull
 		// TODO the part from here should go somewhere in Aml ModelUtil
-		val interactionTypes = components.map[type?.interactionTypes].filterNull.flatten.toSet
-		val fixtureTypes = interactionTypes.map[defaultMethod?.typeReference?.type].filterNull.toSet
+		val interactionTypes = components.map[amlModelUtil.getAllInteractionTypes(it)].flatten.toSet
+		val fixtureTypes = interactionTypes.map[amlModelUtil.getFixtureType(it)].filterNull.toSet
 		return fixtureTypes
 	}
 
