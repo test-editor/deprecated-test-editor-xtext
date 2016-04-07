@@ -29,26 +29,26 @@ class JUnitLaunchShortcut extends org.eclipse.jdt.junit.launcher.JUnitLaunchShor
 
 	override void launch(ISelection selection, String mode) {
 		if (selection instanceof IStructuredSelection) {
-			launch(selection.firstElement as IResource, mode)
+			launch(selection.firstElement as IResource, mode, false)
 		}
 	}
 
 	override void launch(IEditorPart editor, String mode) {
-		launch(editor.editorInput.getAdapter(IResource), mode)
+		launch(editor.editorInput.getAdapter(IResource), mode, false)
 	}
 
-	private def launch(IResource res, String mode) {
+	protected def launch(IResource res, String mode, boolean parameterize) {
 		if (res.isValidForTestrun) {
 			val javaElement = res.javaElementForResource
 			val selection = new StructuredSelection(javaElement)
 			val successfulLauncher = registeredLaunchers.findFirst [ registeredLauncher | // firstThat would be more fitting in this case
 				val result = registeredLauncher.launch(selection, javaElement.javaProject.getAdapter(IProject),
-					javaElement.toElementId, mode)
+					javaElement.toElementId, mode, parameterize)
 				if (result) {
-					logger.debug("executed launcher registered for tcl test launch: {}",
+					logger.debug("executed registeredLauncher='{}' for tcl test launch.",
 						launcherMap.get(registeredLauncher).toLoggingString)
 				} else {
-					logger.warn("registered tcl test launcher failed: {}",
+					logger.warn("execution fo registeredLauncher='{}' failed",
 						launcherMap.get(registeredLauncher).toLoggingString)
 				}
 				return result
@@ -57,6 +57,8 @@ class JUnitLaunchShortcut extends org.eclipse.jdt.junit.launcher.JUnitLaunchShor
 				super.launch(selection, mode)
 				logger.debug("executed junit launcher for tcl test launch")
 			}
+		}else{
+			logger.warn("resource='{}' is not valid for test run (e.g. missing generated file)",res.fullPath.toString)
 		}
 	}
 

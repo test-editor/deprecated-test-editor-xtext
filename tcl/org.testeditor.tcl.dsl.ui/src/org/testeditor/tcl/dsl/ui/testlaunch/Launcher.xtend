@@ -8,5 +8,5 @@ import org.eclipse.core.resources.IProject
  * {@link JUnitLaunchShortcut}.EXTENSION_POINT_LAUNCHER_ID
  */
 interface Launcher {
-	def boolean launch(IStructuredSelection selection, IProject project, String elementId, String mode)
+	def boolean launch(IStructuredSelection selection, IProject project, String elementId, String mode, boolean parameterize)
 }
