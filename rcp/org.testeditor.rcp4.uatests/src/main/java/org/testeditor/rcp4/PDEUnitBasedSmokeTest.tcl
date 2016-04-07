@@ -10,12 +10,12 @@ Component: TestEditor
 - Reset UI State
 
 Component: HauptFenster
- - ist View <ProjektBaum> sichtbar
- - ist View <TestStepSelector> sichtbar
+ - ist View <ProjektBaum> visiable
+ - ist View <TestStepSelector> visiable
   
 Component: TestEditor
-- Einfaches Projekt erzeugen
+- Create simple project
 
 Component: ProjectExplorer
-- selektiere Element "DemoProject" in Baum <ProjektBaum>
+- Select element "DemoProject" in tree <ProjektBaum>
 

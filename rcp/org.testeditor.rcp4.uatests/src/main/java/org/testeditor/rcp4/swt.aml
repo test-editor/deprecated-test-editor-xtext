@@ -3,25 +3,25 @@ package org.testeditor.rcp4
 import org.testeditor.fixture.swt.*
 
 interaction type reportWidgets {
-	template = "Protkolliere vorhandene UI Elemente"
+	template = "Report current visable widgets"
 	method = SWTFixture.reportWidgets
 }
 
-interaction type warte {
-	label = "Warte"
-	template = "Warte" ${seconds} "Sekunden"
+interaction type wait {
+	label = "wait"
+	template = "wait " ${seconds} "seconds"
 	method = SWTFixture.wait(seconds)
 }
 
-interaction type viewSichtbar {
-	label = "ist View sichtbar"
-	template = "ist View" ${element} "sichtbar"
+interaction type isViewVisiable {
+	label = "is View visable"
+	template = "is View" ${element} "visiable"
 	method = SWTFixture.isViewVisible(element)
 }
 
-interaction type selektiereElement {
-	label = "selektiere Element"
-	template = "selektiere Element" ${item} "in Baum" ${element} 
+interaction type selectElement {
+	label = "select Element"
+	template = "Select element" ${item} "in tree" ${element} 
 	method = SWTFixture.selectElementInTreeView(element,item)
 }
 
@@ -45,20 +45,20 @@ interaction type typeInto {
 
 interaction type click {
 	label = "Click on"
-	template = "click on" ${element} 
+	template = "Click on" ${element} 
 	method = SWTFixture.clickOn(element)
 }
 
 element type View {
-	interactions = viewSichtbar
+	interactions = isViewVisiable
 }
 
 element type TreeView {
-	interactions = selektiereElement, viewSichtbar, executeContextMenuEntry
+	interactions = selectElement, isViewVisiable, executeContextMenuEntry
 }
 
 element type Tree {
-	interactions = selektiereElement,  executeContextMenuEntry
+	interactions = selectElement,  executeContextMenuEntry
 }
 
 element type Text {
@@ -74,9 +74,9 @@ element type List {
 }
 
 component type General {
-	interactions = reportWidgets, warte
+	interactions = reportWidgets, wait
 }
 
 component type Dialog {
-	interactions = reportWidgets, warte	
+	interactions = reportWidgets, wait	
 }

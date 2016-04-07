@@ -11,11 +11,13 @@ Component: TestEditor
 
 Component: ProjectExplorer
 - execute menu item  "New/Project..."  in tree <ProjektBaum>
-- Protkolliere vorhandene UI Elemente
+
+Component: NewDialog
+ - Click on <NextButton>
 
 * Select type Test Editor Project
 Component: NewDialog
-- selektiere Element "Testeditor Project" in Baum <ProjectType>
+- Select element "Testeditor Project" in tree <ProjectType>
 - click on <NextButton>
 
 * Give the Project the name "MyFirstProject"
@@ -26,8 +28,9 @@ Component: NewDialog
 - click on <NextButton>
 - select element "Web Fixture" in List <AvailableFixturesList>
 - click on <AddFixtureButton>
+- wait "5" seconds
 - click on <FinishButton>
 
 * Verify that the project is visible in the ui
-Component: HauptFenster
-- selektiere Element "MyFirstWebProject" in Baum <ProjektBaum>
+Component: ProjectExplorer
+- Select element "MyFirstWebProject" in tree <ProjektBaum>
