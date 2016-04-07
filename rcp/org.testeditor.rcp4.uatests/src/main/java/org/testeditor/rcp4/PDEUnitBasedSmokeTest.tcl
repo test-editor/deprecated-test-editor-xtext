@@ -10,8 +10,8 @@ Component: TestEditor
 - Reset UI State
 
 Component: HauptFenster
- - ist View <ProjektBaum> visiable
- - ist View <TestStepSelector> visiable
+ - Is view <ProjektBaum> visible
+ - Is view <TestStepSelector> visible
   
 Component: TestEditor
 - Create simple project

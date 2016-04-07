@@ -10,7 +10,7 @@ Component: TestEditor
 - Reset UI State
 
 Component: ProjectExplorer
-- execute menu item  "New/Project..."  in tree <ProjektBaum>
+- Execute menu item  "New/Project..."  in tree <ProjektBaum>
 
 * Select type Test Editor Project
 Component: NewDialog
@@ -20,10 +20,10 @@ Component: NewDialog
 * Give the Project the name "MyFirstProject"
 // We must select the dialog again, because we are in a new TSL Step.
 Component: NewDialog
-- Type  "MyFirstWebProject" into <ProjectName>
+- Type "MyFirstWebProject" into <ProjectName>
 - Click on <NextButton>
 - Click on <NextButton>
-- select element "Web Fixture" in List <AvailableFixturesList>
+- Select element "Web Fixture" in list <AvailableFixturesList>
 - Click on <AddFixtureButton>
 - Click on <FinishButton>
 

@@ -11,7 +11,7 @@ Component: TestEditor
 - Reset UI State
 
 Component: ProjectExplorer
-- execute menu item  "New/Project..."  in tree <ProjektBaum>
+- Execute menu item  "New/Project..."  in tree <ProjektBaum>
 
 * Select type Test Editor Project
 Component: NewDialog

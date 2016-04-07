@@ -13,32 +13,32 @@ interaction type wait {
 	method = SWTFixture.wait(seconds)
 }
 
-interaction type isViewVisiable {
-	label = "is View visable"
-	template = "is View" ${element} "visiable"
+interaction type isViewVisible {
+	label = "Is view visible"
+	template = "Is view" ${element} "visible"
 	method = SWTFixture.isViewVisible(element)
 }
 
 interaction type selectElement {
-	label = "select Element"
+	label = "Select element"
 	template = "Select element" ${item} "in tree" ${element} 
 	method = SWTFixture.selectElementInTreeView(element,item)
 }
 
 interaction type selectElementInList {
-	label = "Select element is List"
-	template = "select element" ${item} "in List" ${element}
+	label = "Select element in list"
+	template = "Select element" ${item} "in list" ${element}
 	method = SWTFixture.selectElementInList(element, item)
 }
 
 interaction type executeContextMenuEntry {
-	label = " execute context menu entry"
-	template = "execute menu item " ${item} " in tree" ${element} 
+	label = "Execute context menu entry"
+	template = "Execute menu item " ${item} " in tree" ${element} 
 	method = SWTFixture.executeContextMenuEntry(element,item)
 }
 
 interaction type typeInto {
-	label = " Type into"
+	label = "Type into"
 	template = "Type " ${value} " into" ${element} 
 	method = SWTFixture.typeInto(element,value)
 }
@@ -50,11 +50,11 @@ interaction type click {
 }
 
 element type View {
-	interactions = isViewVisiable
+	interactions = isViewVisible
 }
 
 element type TreeView {
-	interactions = selectElement, isViewVisiable, executeContextMenuEntry
+	interactions = selectElement, isViewVisible, executeContextMenuEntry
 }
 
 element type Tree {
