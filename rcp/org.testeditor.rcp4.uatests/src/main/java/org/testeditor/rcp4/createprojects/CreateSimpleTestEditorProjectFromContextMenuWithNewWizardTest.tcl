@@ -16,13 +16,13 @@ Component: ProjectExplorer
 * Select type Test Editor Project
 Component: NewDialog
 - Select element "Testeditor Project" in tree <ProjectType>
-- click on <NextButton>
+- Click on <NextButton>
 
 * Give the Project the name "MyFirstProject"
 // We must select the dialog again, because we are in a new TSL Step.
 Component: NewDialog
 - Type  "MyFirstProject"  into <ProjectName>
-- click on <FinishButton>
+- Click on <FinishButton>
 
 * Verify that the project is visible in the ui
 Component: ProjectExplorer
