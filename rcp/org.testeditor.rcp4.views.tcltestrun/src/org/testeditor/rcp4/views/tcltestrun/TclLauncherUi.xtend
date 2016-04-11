@@ -19,7 +19,6 @@ import java.io.OutputStream
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.util.HashMap
-import java.util.List
 import java.util.Map
 import javax.inject.Inject
 import org.eclipse.core.resources.IProject
@@ -68,20 +67,20 @@ class TclLauncherUi implements Launcher {
 	}
 
 	private def Map<String, Object> uiCollectMavenOptions(IProject project) {
-		val mavenProfiles = mavenGetProfilesWithUiFeedback(project)
-		val dialog = new ElementListSelectionDialog(PlatformUI.workbench.activeWorkbenchWindow.shell, new LabelProvider());
+		val mavenProfiles = project.mavenGetProfilesWithUiFeedback
+		val dialog = new ElementListSelectionDialog(PlatformUI.workbench.activeWorkbenchWindow.shell, new LabelProvider)
 		dialog.setElements(mavenProfiles)
 		dialog.setTitle("Which maven profile should be used?")
-		if (dialog.open() == Window.OK) {
-			val selectedProfile = dialog.getResult();
+		if (dialog.open == Window.OK) {
+			val selectedProfile = dialog.result
 			return #{TclMavenLauncher.PROFILE -> selectedProfile.get(0)}
 		} else {
 			return null // cancelled
 		}
 	}
 
-	private def List<String> mavenGetProfilesWithUiFeedback(IProject project) {
-		val List<String>[] container = newArrayOfSize(1)
+	private def Iterable<String> mavenGetProfilesWithUiFeedback(IProject project) {
+		val Iterable<String>[] container = newArrayOfSize(1)
 		progressRunner.run([ monitor |
 			monitor.beginTask("Collect maven profiles", IProgressMonitor.UNKNOWN)
 			container.set(0, mavenLauncher.getProfiles(project))
