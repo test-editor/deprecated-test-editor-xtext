@@ -101,7 +101,7 @@ class TclLauncherUi implements Launcher {
 			if (expectedFile == null) {
 				logger.error("resulting expectedFile must not be null")
 			} else {
-				updateJunitTestView(elementId, expectedFile)
+				safeUpdateJunitTestView(elementId, expectedFile)
 			}
 			monitor.done
 		])
@@ -112,33 +112,39 @@ class TclLauncherUi implements Launcher {
 	 * provide test result file (either the one created by the test run, or, if absent/on error 
 	 * a default error file) that is imported into junit (and thus displayed) 
 	 * */
-	private def void updateJunitTestView(String elementId, File expectedFile) {
-		val newFile = File.createTempFile(expectedFile.name, ".xml", new File(expectedFile.parent))
-		if (expectedFile.exists) {
-			var OutputStream os = null
-			try {
-				os = new FileOutputStream(newFile)
-				Files.copy(expectedFile.toPath, os)
-				Files.delete(expectedFile.toPath)
-			} catch (IOException e) {
-				logger.error("error during storage of test run result " + expectedFile.path, e)
-				writeErrorFile(elementId, newFile)
-			} finally {
-				try {
-					os?.close
-				} catch (IOException e) {
-					logger.error('''error closing the outputstream during copy to newFile='«newFile.absolutePath»' ''',
-						e)
-				}
-			}
+	private def void safeUpdateJunitTestView(String elementId, File expectedFile) {
+		val parentFolder = new File(expectedFile.parent)
+		if (!parentFolder.exists && !parentFolder.mkdirs) {
+			logger.error('''failed to change into parentFolder='{}' ''', parentFolder.absolutePath)
 		} else {
-			writeErrorFile(elementId, newFile)
-		}
-		JUnitCore.importTestRunSession(newFile)
-		try {
-			Files.delete(newFile.toPath)
-		} catch (IOException e) {
-			logger.warn("error during removal of obsolete test result " + newFile.path, e)
+			val newFile = File.createTempFile(expectedFile.name, ".xml", parentFolder)
+			if (expectedFile.exists) {
+				var OutputStream os = null
+				try {
+					os = new FileOutputStream(newFile)
+					Files.copy(expectedFile.toPath, os)
+					Files.delete(expectedFile.toPath)
+				} catch (IOException e) {
+					logger.error("error during storage of test run result " + expectedFile.path, e)
+					writeErrorFile(elementId, newFile)
+				} finally {
+					try {
+						os?.close
+					} catch (IOException e) {
+						logger.
+							error('''error closing the outputstream during copy to newFile='«newFile.absolutePath»' ''',
+								e)
+					}
+				}
+			} else {
+				writeErrorFile(elementId, newFile)
+			}
+			JUnitCore.importTestRunSession(newFile)
+			try {
+				Files.delete(newFile.toPath)
+			} catch (IOException e) {
+				logger.warn("error during removal of obsolete test result " + newFile.path, e)
+			}
 		}
 	}
 
