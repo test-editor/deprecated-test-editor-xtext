@@ -39,17 +39,17 @@ public class TclMavenLauncher implements TclLauncher {
 
 	override launchTest(IStructuredSelection selection, IProject project, String elementId, IProgressMonitor monitor,
 		Map<String, Object> options) {
-		val goal = if (options.containsKey(PROFILE)) {
+		val parameters = if (options.containsKey(PROFILE)) {
 						"clean generate-test-sources org.testeditor:testeditor-maven-plugin:testEnvUp org.testeditor:testeditor-maven-plugin:testExec -P" +
 							options.get(PROFILE)
 					} else {
 						"clean integration-test"
 					}
-		val result = mavenExecutor.executeInNewJvm(goal, project.location.toOSString, "test=" + elementId)
+		val result = mavenExecutor.executeInNewJvm(parameters, project.location.toOSString, "test=" + elementId)
 		val testResultFile = project.createOrGetDeepFolder(MVN_TEST_RESULT_FOLDER).getFile(
 			elementId.elementIdToFileName).location.toFile
 		if (result != 0) {
-			logger.error('''Error during maven task='«goal»' of element='«elementId»' ''')
+			logger.error('''Error during maven parameters='«parameters»' of element='«elementId»' ''')
 		}
 		return #{RETURN_CODE -> result, EXPECTED_FILE -> testResultFile}
 	}
