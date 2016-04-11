@@ -28,7 +28,7 @@ import org.eclipse.jdt.junit.JUnitCore
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.eclipse.jface.viewers.LabelProvider
 import org.eclipse.jface.window.Window
-import org.eclipse.swt.widgets.Shell
+import org.eclipse.ui.PlatformUI
 import org.eclipse.ui.dialogs.ElementListSelectionDialog
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.ProgressMonitorRunner
@@ -52,7 +52,7 @@ class TclLauncherUi implements Launcher {
 		}
 		if (project.getFile("pom.xml").exists) {
 			if (parameterize) {
-				val mavenOptions = uiCollectMavenOptions
+				val mavenOptions = uiCollectMavenOptions(project)
 				if (mavenOptions == null) {
 					return true // should an option always be selected?
 				}
@@ -67,24 +67,24 @@ class TclLauncherUi implements Launcher {
 		return false
 	}
 
-	private def Map<String, Object> uiCollectMavenOptions() {
-		val mavenProfiles = mavenGetProfilesWithUiFeedback
-		val dialog = new ElementListSelectionDialog(new Shell, new LabelProvider)
+	private def Map<String, Object> uiCollectMavenOptions(IProject project) {
+		val mavenProfiles = mavenGetProfilesWithUiFeedback(project)
+		val dialog = new ElementListSelectionDialog(PlatformUI.workbench.activeWorkbenchWindow.shell, new LabelProvider());
 		dialog.setElements(mavenProfiles)
 		dialog.setTitle("Which maven profile should be used?")
 		if (dialog.open() == Window.OK) {
-			val selectedProfile = dialog.result
-			return #{TclMavenLauncher.PROFILE -> selectedProfile}
+			val selectedProfile = dialog.getResult();
+			return #{TclMavenLauncher.PROFILE -> selectedProfile.get(0)}
 		} else {
 			return null // cancelled
 		}
 	}
 
-	private def List<String> mavenGetProfilesWithUiFeedback() {
+	private def List<String> mavenGetProfilesWithUiFeedback(IProject project) {
 		val List<String>[] container = newArrayOfSize(1)
 		progressRunner.run([ monitor |
 			monitor.beginTask("Collect maven profiles", IProgressMonitor.UNKNOWN)
-			container.set(0, mavenLauncher.profiles)
+			container.set(0, mavenLauncher.getProfiles(project))
 			monitor.done
 		])
 		return container.head

@@ -48,7 +48,7 @@ public class MavenExecutor {
 	public int execute(String goal, String pathToPom) {
 		System.setProperty("maven.multiModuleProjectDirectory", pathToPom);
 		MavenCli cli = new MavenCli();
-		int result = cli.doMain(new String[] { "clean", goal }, pathToPom, System.out, System.err);
+		int result = cli.doMain(goal.split(" "), pathToPom, System.out, System.err);
 		return result;
 	}
 
@@ -131,8 +131,10 @@ public class MavenExecutor {
 	public static void main(String[] args) {
 		if (args.length > 2) {
 			logger.info("Running maven build with settings='{}'", args[2]);
-			String[] split = args[2].split("=");
-			System.setProperty(split[0], split[1]);
+			if (args[2].contains("=")) {
+				String[] split = args[2].split("=");
+				System.setProperty(split[0], split[1]);
+			}
 		}
 		int result = new MavenExecutor().execute(args[0], args[1]);
 		if (result != 0) {
