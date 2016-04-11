@@ -15,6 +15,7 @@ package org.testeditor.rcp4.views.tcltestrun
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.OutputStream
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.util.HashMap
@@ -48,13 +49,12 @@ class TclLauncherUi implements Launcher {
 		val options = new HashMap<String, Object>
 		if (project.getFile("build.gradle").exists) {
 			return launchTest(selection, project, elementId, gradleLauncher, options)
-
 		}
 		if (project.getFile("pom.xml").exists) {
 			if (parameterize) {
 				val mavenOptions = uiCollectMavenOptions
 				if (mavenOptions == null) {
-					return true; // should an option always be selected?
+					return true // should an option always be selected?
 				}
 				options.putAll(mavenOptions)
 			}
@@ -69,11 +69,11 @@ class TclLauncherUi implements Launcher {
 
 	private def Map<String, Object> uiCollectMavenOptions() {
 		val mavenProfiles = mavenGetProfilesWithUiFeedback
-		val dialog = new ElementListSelectionDialog(new Shell(), new LabelProvider());
+		val dialog = new ElementListSelectionDialog(new Shell, new LabelProvider)
 		dialog.setElements(mavenProfiles)
-		dialog.setTitle("Which maven profile should be used?");
+		dialog.setTitle("Which maven profile should be used?")
 		if (dialog.open() == Window.OK) {
-			val selectedProfile = dialog.getResult();
+			val selectedProfile = dialog.result
 			return #{TclMavenLauncher.PROFILE -> selectedProfile}
 		} else {
 			return null // cancelled
@@ -116,14 +116,21 @@ class TclLauncherUi implements Launcher {
 	private def void updateJunitTestView(String elementId, File expectedFile) {
 		val newFile = File.createTempFile(expectedFile.name, ".xml", new File(expectedFile.parent))
 		if (expectedFile.exists) {
+			var OutputStream os = null
 			try {
-				val os = new FileOutputStream(newFile)
+				os = new FileOutputStream(newFile)
 				Files.copy(expectedFile.toPath, os)
-				os.close
 				Files.delete(expectedFile.toPath)
 			} catch (IOException e) {
 				logger.error("error during storage of test run result " + expectedFile.path, e)
 				writeErrorFile(elementId, newFile)
+			} finally {
+				try {
+					os?.close
+				} catch (IOException e) {
+					logger.error('''error closing the outputstream during copy to newFile='«newFile.absolutePath»' ''',
+						e)
+				}
 			}
 		} else {
 			writeErrorFile(elementId, newFile)
