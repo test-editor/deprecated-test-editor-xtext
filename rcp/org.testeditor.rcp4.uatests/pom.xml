@@ -73,6 +73,17 @@
 								</excludes>
 							</fileset>
 						</filesets>
+						<filesets combine.children="append">
+							<fileset>
+								<directory>lib</directory>
+								<includes>
+									<include>**</include>
+								</includes>
+								<excludes>
+									<exclude>.gitignore</exclude>
+								</excludes>
+							</fileset>
+						</filesets>
 					</configuration>
 				</plugin>
 				<plugin>
