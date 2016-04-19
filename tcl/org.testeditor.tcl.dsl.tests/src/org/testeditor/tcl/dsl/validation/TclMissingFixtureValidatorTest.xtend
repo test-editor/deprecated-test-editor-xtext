@@ -62,9 +62,10 @@ class TclMissingFixtureValidatorTest extends AbstractParserTest {
 			Component: some_fantasy_component
 			- test step that maps
 		''')
+		val testStepThatMaps=tclFix.steps.head.contexts.head.steps.head
 
 		// when
-		tclValidator.checkFixtureMethodForExistence(tclFix.steps.head.contexts.head.steps.head)
+		tclValidator.checkFixtureMethodForExistence(testStepThatMaps)
 
 		// then
 		messageAcceptor.verify(never).acceptInfo(anyString, anyObject, anyObject, anyInt, anyString)
