@@ -130,11 +130,15 @@ public class MavenExecutor {
 	 */
 	public static void main(String[] args) {
 		if (args.length > 2) {
-			logger.info("Running maven build with settings='{}'", args[2]);
 			if (args[2].contains("=")) {
+				logger.info("Running maven build with settings='{}'", args[2]);
 				String[] split = args[2].split("=");
 				System.setProperty(split[0], split[1]);
+			}else{
+				logger.warn("Running maven build IGNORING MISSPELLED settings='{}' (missing infix '=')",  args[2]);
 			}
+		}else{
+			logger.info("Running maven build without settings");
 		}
 		int result = new MavenExecutor().execute(args[0], args[1]);
 		if (result != 0) {

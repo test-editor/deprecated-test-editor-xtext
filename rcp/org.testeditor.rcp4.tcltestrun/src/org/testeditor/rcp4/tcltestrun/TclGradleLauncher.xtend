@@ -12,7 +12,8 @@
  *******************************************************************************/
 package org.testeditor.rcp4.tcltestrun
 
-import java.util.concurrent.ConcurrentHashMap
+import java.util.Map
+import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.IProgressMonitor
@@ -21,11 +22,9 @@ import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProjectConnection
 import org.gradle.tooling.ResultHandler
-import org.gradle.tooling.events.ProgressEvent
-import org.gradle.tooling.events.ProgressListener
+import org.gradle.tooling.events.OperationType
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
-import java.util.Map
 
 public class TclGradleLauncher implements TclLauncher {
 
@@ -38,50 +37,45 @@ public class TclGradleLauncher implements TclLauncher {
 		'''TEST-«elementId».xml'''
 	}
 
-	override launchTest(IStructuredSelection selection, IProject project, String elementId, IProgressMonitor monitor, Map<String,Object> options) {
+	override launchTest(IStructuredSelection selection, IProject project, String elementId, IProgressMonitor monitor,
+		Map<String, Object> options) {
 		monitor.beginTask("Test execution: " + elementId, IProgressMonitor.UNKNOWN)
 		val testResultFile = project.createOrGetDeepFolder(GRADLE_TEST_RESULT_FOLDER).getFile(
 			elementId.elementIdToFileName).location.toFile
 		val GradleConnector connector = GradleConnector.newConnector
 		var ProjectConnection connection = null
-		val container = new ConcurrentHashMap<String, Object>()
-		container.putAll(#{RETURN_CODE -> Integer.valueOf(1) as Object, EXPECTED_FILE -> testResultFile})
+		val result = new CompletableFuture<LaunchResult>
 		try {
 			val projectFolder = project.location.makeAbsolute.toFile
 			val task = "test"
 			connection = connector.forProjectDirectory(projectFolder).connect();
 			// val BuildEnvironment environment = connection.model(BuildEnvironment).get();
-			connection.newBuild.addProgressListener(new ProgressListener {
+			connection.newBuild =>
+				[
+					addProgressListener([event|logger.info("Gradle build event='{}'", event.displayName)],
+						OperationType.values)
+					// .forTasks("test") // does not work, see issue below
+					withArguments(task, "--tests", elementId) // https://issues.gradle.org/browse/GRADLE-2972
+					// .setStandardOutput(System.out) // alternatively get a separate console output stream (see http://wiki.eclipse.org/FAQ_How_do_I_write_to_the_console_from_a_plug-in%3F)
+					run(new ResultHandler {
 
-				override statusChanged(ProgressEvent event) {
-					logger.info("Gradle build event='{}'", event.displayName)
-				}
+						override onComplete(Object obj) {
+							result.complete(new LaunchResult(testResultFile, 0, null))
+						}
 
-			}) // .forTasks("test") // does not work, see issue below
-			.withArguments(task, "--tests", elementId) // https://issues.gradle.org/browse/GRADLE-2972
-			// .setStandardOutput(System.out) // alternatively get a separate console output stream (see http://wiki.eclipse.org/FAQ_How_do_I_write_to_the_console_from_a_plug-in%3F)
-			.run(
-				new ResultHandler {
+						override onFailure(GradleConnectionException e) {
+							logger.error('''Caught error during gradle task='«task»' of elementId='«elementId»' ''', e)
+							result.complete(new LaunchResult(testResultFile, 1, e))
+						}
 
-					override onComplete(Object obj) {
-						container.put(RETURN_CODE, 0)
-					}
-
-					override onFailure(GradleConnectionException exception) {
-						logger.
-							error('''Caught error during gradle task='«task»' of elementId='«elementId»' ''',
-								exception)
-						container.put(RETURN_CODE, 1)
-						container.put(EXCEPTION, exception)
-					}
-
-				})
+					})
+				]
 		} finally {
 			if (connection != null) {
 				connection.close
 			}
 		}
-		return container
+		return result.get
 	}
 
 }

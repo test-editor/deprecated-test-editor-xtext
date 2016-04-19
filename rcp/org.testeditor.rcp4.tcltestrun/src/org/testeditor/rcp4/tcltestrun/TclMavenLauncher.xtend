@@ -40,26 +40,27 @@ public class TclMavenLauncher implements TclLauncher {
 	override launchTest(IStructuredSelection selection, IProject project, String elementId, IProgressMonitor monitor,
 		Map<String, Object> options) {
 		val parameters = if (options.containsKey(PROFILE)) {
-						"clean generate-test-sources org.testeditor:testeditor-maven-plugin:testEnvUp org.testeditor:testeditor-maven-plugin:testExec -P" +
-							options.get(PROFILE)
-					} else {
-						"clean integration-test"
-					}
-		val result = mavenExecutor.executeInNewJvm(parameters, project.location.toOSString, "test=" + elementId)
-		val testResultFile = project.createOrGetDeepFolder(MVN_TEST_RESULT_FOLDER).getFile(
-			elementId.elementIdToFileName).location.toFile
-		if (result != 0) {
-			logger.error('''Error during maven parameters='«parameters»' of element='«elementId»' ''')
+					"clean generate-test-sources org.testeditor:testeditor-maven-plugin:testEnvUp org.testeditor:testeditor-maven-plugin:testExec -P" +
+						options.get(PROFILE)
+				} else {
+					"clean integration-test"
+				}
+			val result = mavenExecutor.executeInNewJvm(parameters, project.location.toOSString, "test=" + elementId)
+			val testResultFile = project.createOrGetDeepFolder(MVN_TEST_RESULT_FOLDER).getFile(
+				elementId.elementIdToFileName).location.toFile
+			if (result != 0) {
+				logger.error('''Error during maven parameters='«parameters»' of element='«elementId»' ''')
+			}
+			return new LaunchResult(testResultFile, result, null)
 		}
-		return #{RETURN_CODE -> result, EXPECTED_FILE -> testResultFile}
-	}
 
-	def Iterable<String> getProfiles(IProject project) {
-		mavenExecutor.executeInNewJvm("help:all-profiles",
-			project.location.toOSString, '''output=«PROFILE_TXT_PATH»''')
-		val file = new File('''«project.location.toOSString»/«PROFILE_TXT_PATH»''')
-		val profileOutput = Files.readAllLines(file.toPath)
-		return profileOutput.filter[contains("Profile Id:")].map[substring(indexOf("Id:") + 3, indexOf("(")).trim]
-	}
+		def Iterable<String> getProfiles(IProject project) {
+			mavenExecutor.executeInNewJvm("help:all-profiles",
+				project.location.toOSString, '''output=«PROFILE_TXT_PATH»''')
+			val file = new File('''«project.location.toOSString»/«PROFILE_TXT_PATH»''')
+			val profileOutput = Files.readAllLines(file.toPath)
+			return profileOutput.filter[contains("Profile Id:")].map[substring(indexOf("Id:") + 3, indexOf("(")).trim].toSet
+		}
 
-}
+	}
+	

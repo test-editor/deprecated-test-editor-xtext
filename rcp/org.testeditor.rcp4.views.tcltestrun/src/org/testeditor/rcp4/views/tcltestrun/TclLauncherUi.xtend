@@ -12,14 +12,13 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.tcltestrun
 
+import com.google.common.io.Files
 import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
-import java.io.OutputStream
-import java.nio.charset.Charset
-import java.nio.file.Files
+import java.nio.charset.StandardCharsets
 import java.util.HashMap
 import java.util.Map
+import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.IProgressMonitor
@@ -51,11 +50,11 @@ class TclLauncherUi implements Launcher {
 		}
 		if (project.getFile("pom.xml").exists) {
 			if (parameterize) {
-				val mavenOptions = uiCollectMavenOptions(project)
-				if (mavenOptions == null) {
+				val profile = uiCollectMavenProfile(project)
+				if (profile == null) {
 					return true // should an option always be selected?
 				}
-				options.putAll(mavenOptions)
+				options.putAll(#{TclMavenLauncher.PROFILE -> profile})
 			}
 			return launchTest(selection, project, elementId, mavenLauncher, options)
 		}
@@ -66,27 +65,26 @@ class TclLauncherUi implements Launcher {
 		return false
 	}
 
-	private def Map<String, Object> uiCollectMavenOptions(IProject project) {
+	private def String uiCollectMavenProfile(IProject project) {
 		val mavenProfiles = project.mavenGetProfilesWithUiFeedback
 		val dialog = new ElementListSelectionDialog(PlatformUI.workbench.activeWorkbenchWindow.shell, new LabelProvider)
 		dialog.setElements(mavenProfiles)
 		dialog.setTitle("Which maven profile should be used?")
 		if (dialog.open == Window.OK) {
-			val selectedProfile = dialog.result
-			return #{TclMavenLauncher.PROFILE -> selectedProfile.get(0)}
+			return dialog.result.get(0).toString
 		} else {
 			return null // cancelled
 		}
 	}
 
 	private def Iterable<String> mavenGetProfilesWithUiFeedback(IProject project) {
-		val Iterable<String>[] container = newArrayOfSize(1)
+		val result = new CompletableFuture<Iterable<String>>
 		progressRunner.run([ monitor |
 			monitor.beginTask("Collect maven profiles", IProgressMonitor.UNKNOWN)
-			container.set(0, mavenLauncher.getProfiles(project))
+			result.complete(mavenLauncher.getProfiles(project))
 			monitor.done
 		])
-		return container.head
+		return result.get
 	}
 
 	private def boolean launchTest(IStructuredSelection selection, IProject project, String elementId,
@@ -97,11 +95,10 @@ class TclLauncherUi implements Launcher {
 			monitor.beginTask("Test execution: " + elementId, IProgressMonitor.UNKNOWN)
 			val result = launcher.launchTest(selection, project, elementId, monitor, options)
 			project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
-			val expectedFile = (result.get(TclLauncher.EXPECTED_FILE) as File)
-			if (expectedFile == null) {
+			if (result.expectedFile == null) {
 				logger.error("resulting expectedFile must not be null")
 			} else {
-				safeUpdateJunitTestView(elementId, expectedFile)
+				safeUpdateJunitTestView(elementId, result.expectedFile)
 			}
 			monitor.done
 		])
@@ -119,29 +116,18 @@ class TclLauncherUi implements Launcher {
 		} else {
 			val newFile = File.createTempFile(expectedFile.name, ".xml", parentFolder)
 			if (expectedFile.exists) {
-				var OutputStream os = null
 				try {
-					os = new FileOutputStream(newFile)
-					Files.copy(expectedFile.toPath, os)
-					Files.delete(expectedFile.toPath)
+					Files.move(expectedFile, newFile)
 				} catch (IOException e) {
 					logger.error("error during storage of test run result " + expectedFile.path, e)
 					writeErrorFile(elementId, newFile)
-				} finally {
-					try {
-						os?.close
-					} catch (IOException e) {
-						logger.
-							error('''error closing the outputstream during copy to newFile='«newFile.absolutePath»' ''',
-								e)
-					}
 				}
 			} else {
 				writeErrorFile(elementId, newFile)
 			}
 			JUnitCore.importTestRunSession(newFile)
 			try {
-				Files.delete(newFile.toPath)
+				java.nio.file.Files.delete(newFile.toPath)
 			} catch (IOException e) {
 				logger.warn("error during removal of obsolete test result " + newFile.path, e)
 			}
@@ -153,8 +139,7 @@ class TclLauncherUi implements Launcher {
 	 */
 	private def void writeErrorFile(String elementId, File file) {
 		try {
-			val os = new FileOutputStream(file)
-			os.write('''
+			Files.write('''
 			<?xml version="1.0" encoding="UTF-8"?>
 			<testsuite name="«elementId»" tests="1" skipped="0" failures="0" errors="1" time="0.000">
 			  <properties/>
@@ -163,8 +148,7 @@ class TclLauncherUi implements Launcher {
 			      failed to execute test, please check your technical test setup 
 			    </error>
 			  </testcase>
-			</testsuite>'''.toString.getBytes(Charset.forName('UTF-8')))
-			os.close
+			</testsuite>''', file, StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			logger.error('''could not write test result error file='«file.path»' ''', e)
 		}
