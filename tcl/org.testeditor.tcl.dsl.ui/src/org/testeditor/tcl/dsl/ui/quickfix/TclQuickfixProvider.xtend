@@ -32,7 +32,6 @@ import org.eclipse.xtext.ui.editor.quickfix.IssueResolutionAcceptor
 import org.eclipse.xtext.validation.Issue
 import org.eclipse.xtext.xbase.ui.quickfix.XbaseQuickfixProvider
 import org.testeditor.aml.AmlModel
-import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.dsl.messages.TclSyntaxErrorMessageProvider
@@ -149,24 +148,12 @@ class TclQuickfixProvider extends XbaseQuickfixProvider {
 		val defaultTestDescription = '''
 			* test step description
 			'''
-		acceptor.accept(issue, "Add missing test description",
-			'''
+		// inserting the missing test step in the right order and position is non trivial.
+		// the quick fix for incomplete "implements" of a tsl should provide that.
+		acceptor.accept(issue, "Add missing test description", '''
 			Add a test description that will reference 
 			the respective test of the test specification
-			''', null) [ element, context |
-			if ((element instanceof TclModel) && ( (element as TclModel)?.test?.specification != null )) {
-				val list = getMissingTestSteps((element as TclModel).test)
-				if (list.empty) {
-					context.xtextDocument.replace(issue.offset, 0, defaultTestDescription)
-				} else {
-					context.xtextDocument.replace(issue.offset, 0, '''
-						* «list.head.contents.restoreString»
-					''')
-				}
-			} else {
-				context.xtextDocument.replace(issue.offset, 0, defaultTestDescription)
-			}
-		]
+			''', null) [ context | context.xtextDocument.replace(issue.offset, 0, defaultTestDescription)]
 	}
 
 }
