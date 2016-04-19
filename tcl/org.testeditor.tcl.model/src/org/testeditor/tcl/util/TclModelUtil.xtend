@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.testeditor.tcl.util
 
-import java.util.Collections
 import java.util.List
 import java.util.Map
 import javax.inject.Singleton
@@ -136,16 +135,19 @@ class TclModelUtil extends TslModelUtil {
 		return null
 	}
 
-	def List<SpecificationStep> getMissingTestSteps(TestCase testCase) {
-		val specSteps = testCase?.specification?.steps
-		val steps = testCase?.steps
+	def Iterable<SpecificationStep> getMissingTestSteps(TestCase testCase) {
+		val specSteps = testCase.specification?.steps
+		val steps = testCase.steps
 		if( specSteps==null){
-			return Collections.EMPTY_LIST
+			return emptyList
 		}
 		if( steps==null){
 			return specSteps.toList
 		}
-		return specSteps.filter[!steps.map[it.contents.restoreString].contains(it.contents.restoreString)].toList
+		return specSteps.filter[
+				val specStepContentsString=contents.restoreString
+				return steps.forall[contents.restoreString!=specStepContentsString]
+		]
 	}
 
 }

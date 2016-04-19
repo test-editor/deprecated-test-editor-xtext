@@ -1,13 +1,11 @@
 package org.testeditor.tcl.dsl.messages
 
-import javax.inject.Inject
 import org.antlr.runtime.MismatchedTokenException
 import org.antlr.runtime.RecognitionException
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.nodemodel.SyntaxErrorMessage
 import org.eclipse.xtext.parser.antlr.SyntaxErrorMessageProvider
 import org.testeditor.tcl.TclModel
-import org.testeditor.tcl.util.TclModelUtil
 
 class TclSyntaxErrorMessageProvider extends SyntaxErrorMessageProvider {
 
@@ -17,8 +15,8 @@ class TclSyntaxErrorMessageProvider extends SyntaxErrorMessageProvider {
 	 * Customized error message missing test description
 	 */
 	override getSyntaxErrorMessage(IParserErrorContext context) {
-		if (context?.recognitionException.isAmismatchedTokenExceptionExpectingEOF &&
-			context?.currentContext?.isAtestModelWithoutTestStepsYet) {
+		if (context?.recognitionException.isMismatchedTokenExceptionExpectingEOF &&
+			context?.currentContext?.isTestModelWithoutTestStepsYet) {
 			return new SyntaxErrorMessage('''
 				Insert a test description before the actual test context.
 				E.g. "* This test will check that the answer will be 42" 
@@ -30,15 +28,15 @@ class TclSyntaxErrorMessageProvider extends SyntaxErrorMessageProvider {
 	/**
 	 * exception is a MismatchedTokenException raised because EOF is expected
 	 */
-	private def boolean isAmismatchedTokenExceptionExpectingEOF(RecognitionException exception) {
+	private def boolean isMismatchedTokenExceptionExpectingEOF(RecognitionException exception) {
 		(exception instanceof MismatchedTokenException) && (exception as MismatchedTokenException )?.expecting == -1
 	}
 
 	/**
 	 * context is a TclModel which has no steps defined yet
 	 */
-	private def boolean isAtestModelWithoutTestStepsYet(EObject context) {
-		(context instanceof TclModel) && (context as TclModel)?.test?.steps?.empty
+	private def boolean isTestModelWithoutTestStepsYet(EObject context) {
+		(context instanceof TclModel) && (context as TclModel).test?.steps?.empty
 	}
 
 }

@@ -19,9 +19,7 @@ import org.eclipse.xtext.RuleCall
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
 import org.testeditor.aml.ModelUtil
-import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestStep
-import org.testeditor.tcl.dsl.ui.quickfix.TclQuickfixProvider
 import org.testeditor.tcl.util.TclModelUtil
 
 class TclProposalProvider extends AbstractTclProposalProvider {
@@ -38,18 +36,10 @@ class TclProposalProvider extends AbstractTclProposalProvider {
 
 	override completeTestCase_Steps(EObject model, Assignment assignment, ContentAssistContext context,
 		ICompletionProposalAcceptor acceptor) {
-		if ((model instanceof TestCase)&&((model as TestCase).specification!=null)) {
-			val list = getMissingTestSteps(model as TestCase)
-			list.forEach [
-				val stepString = '''* «it.contents.restoreString»'''
-				acceptor.accept(createCompletionProposal(stepString, stepString, null, context))
-			]
-			if(list.empty){
-				acceptor.accept(createCompletionProposal('* ', '* test description', null, context))
-			}
-		} else {
-			acceptor.accept(createCompletionProposal('* ', '* test description', null, context))
-		}
+		// a proposal of missing steps is not trivial, since the order of the existing/missing steps must
+		// be taken into account. the completion of steps should be done via (quick) fix.
+		// this completion proposal will allow for steps to be entered even though no "implements" is given yet.
+		acceptor.accept(createCompletionProposal('* ', '* test description', null, context))
 	}
 
 	override complete_TestStep(EObject model, RuleCall ruleCall, ContentAssistContext context,

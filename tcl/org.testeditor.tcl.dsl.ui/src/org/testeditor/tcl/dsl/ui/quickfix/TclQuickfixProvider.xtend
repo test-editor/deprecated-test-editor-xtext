@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.ui.quickfix
 
-import java.util.List
 import javax.inject.Inject
 import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.ResourcesPlugin
@@ -69,7 +68,7 @@ class TclQuickfixProvider extends XbaseQuickfixProvider {
 		]
 	}
 
-	def String getStepsDSLFragment(List<SpecificationStep> steps) '''
+	def String getStepsDSLFragment(Iterable<SpecificationStep> steps) '''
 		«FOR step : steps»
 		
 		
