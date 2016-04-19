@@ -4,7 +4,7 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="src" path="src/main/java"/>
-	<classpathentry exported="true" kind="lib" path="lib/core-fixture-2.5.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/core-fixture-2.5.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/log4j-core-2.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/log4j-api-2.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
