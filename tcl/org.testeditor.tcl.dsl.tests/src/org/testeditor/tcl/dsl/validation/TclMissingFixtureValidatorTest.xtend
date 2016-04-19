@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.validation
 
-import org.eclipse.xtext.common.types.JvmOperation
 import org.eclipse.xtext.common.types.JvmParameterizedTypeReference
 import org.eclipse.xtext.common.types.JvmType
 import org.eclipse.xtext.validation.ValidationMessageAcceptor
@@ -21,12 +20,7 @@ import org.junit.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.MockitoAnnotations
-import org.testeditor.aml.AmlFactory
 import org.testeditor.aml.InteractionType
-import org.testeditor.aml.MethodReference
-import org.testeditor.aml.dsl.AmlStandaloneSetup
-import org.testeditor.aml.impl.AmlFactoryImpl
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 import org.testeditor.tcl.util.TclModelUtil
 
@@ -36,34 +30,23 @@ import static extension org.mockito.Mockito.*
 
 class TclMissingFixtureValidatorTest extends AbstractParserTest {
 
-	@Mock TclModelUtil tclModelUtil // injected into class under test
 	@InjectMocks TclValidator tclValidator // class under test
+	@Mock TclModelUtil tclModelUtil // injected into class under test
 	@Mock JvmParameterizedTypeReference typeReferenceMock
 	@Mock ValidationMessageAcceptor messageAcceptor
-
-	var AmlFactory amlFactory
 
 	val message = ArgumentCaptor.forClass(String)
 
 	@Before
 	override void setUp() {
 		super.setUp
-		MockitoAnnotations.initMocks(this)
 
-		val injector = (new AmlStandaloneSetup).createInjectorAndDoEMFRegistration
-		amlFactory = injector.getInstance(AmlFactoryImpl)
-
-		val operationMock = mock(JvmOperation)
-		val jvmTypeMock = mock(JvmType)
-		val interactionTypeMock = mock(InteractionType)
-		val methodReferenceMock = mock(MethodReference)
+		val jvmTypeMock = JvmType.mock
+		val interactionTypeMock = InteractionType.mock(RETURNS_DEEP_STUBS)
 
 		when(tclModelUtil.getInteraction(anyObject)).thenReturn(interactionTypeMock)
-		when(interactionTypeMock.defaultMethod).thenReturn(methodReferenceMock)
-		when(methodReferenceMock.operation).thenReturn(operationMock)
-		when(methodReferenceMock.typeReference).thenReturn(typeReferenceMock)
-		when(typeReferenceMock.type).thenReturn(jvmTypeMock)
-
+		when(interactionTypeMock.defaultMethod.typeReference).thenReturn(typeReferenceMock)
+		when(typeReferenceMock.type).thenReturn(jvmTypeMock) // default is != null => fixture exists 
 		val state = tclValidator.setMessageAcceptor(messageAcceptor)
 		state.state // needs to be called in order for internal state to be initialized. this again is necessary to allow messages to be issued on the "currentObject" of the validation
 	}
@@ -98,10 +81,11 @@ class TclMissingFixtureValidatorTest extends AbstractParserTest {
 			Component: some_fantasy_component
 			- test step that does not map
 		''')
+		val testStepThatDoesNotMap = tclFix.steps.head.contexts.head.steps.head
 		when(typeReferenceMock.type).thenReturn(null)
 
 		// when
-		tclValidator.checkFixtureMethodForExistence(tclFix.steps.head.contexts.head.steps.head)
+		tclValidator.checkFixtureMethodForExistence(testStepThatDoesNotMap)
 
 		// then
 		messageAcceptor.verify.acceptInfo(message.capture, anyObject, anyObject, anyInt, anyString)

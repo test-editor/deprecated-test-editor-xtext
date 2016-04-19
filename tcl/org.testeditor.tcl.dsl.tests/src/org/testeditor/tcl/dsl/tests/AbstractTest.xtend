@@ -23,30 +23,34 @@ import org.eclipse.xtext.junit4.XtextRunner
 import org.eclipse.xtext.junit4.validation.ValidationTestHelper
 import org.eclipse.xtext.util.Modules2
 import org.junit.runner.RunWith
+import org.mockito.MockitoAnnotations
 import org.testeditor.dsl.common.testing.AssertionHelper
 import org.testeditor.tcl.dsl.TclRuntimeModule
 import org.testeditor.tcl.dsl.TclStandaloneSetup
 
 @RunWith(XtextRunner)
 abstract class AbstractTest extends AbstractXtextTests {
-	
+
 	@Inject protected extension AssertionHelper
 	@Inject protected extension ValidationTestHelper
-	
+
 	override setUp() throws Exception {
 		super.setUp()
-		
+
 		// Setup dependency injection
 		val injector = createInjector
 		setInjector(injector)
 		injector.injectMembers(this)
+
+		// Setup mocking 
+		MockitoAnnotations.initMocks(this)
 	}
-	
+
 	protected def Injector createInjector() {
 		val modules = new ArrayList<Module>
 		modules += new TclRuntimeModule
 		modules.collectModules
-		
+
 		val mixinModule = Modules2.mixin(modules)
 		val setup = new TclStandaloneSetup {
 			override createInjector() {

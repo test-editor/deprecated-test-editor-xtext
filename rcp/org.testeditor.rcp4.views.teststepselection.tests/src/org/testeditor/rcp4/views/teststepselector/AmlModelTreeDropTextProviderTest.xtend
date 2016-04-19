@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -24,9 +24,12 @@ class AmlModelTreeDropTextProviderTest extends AbstractTest {
 
 	@Test
 	def void elementReplacementRestrictedToUiElementReferences() {
+		// given
+		val componentElement = amlFactory.createComponentElement => [name = "Test"]
+		val replacementCandidates = "<MyTest> <element> element <noelement> <lement>"
+
 		// when
-		val result = dropTextProvider.adjustTextBy(0, amlFactory.createComponentElement => [name = "Test"],
-			"<MyTest> <element> element <noelement> <lement>")
+		val result = dropTextProvider.adjustTextBy(0, componentElement, replacementCandidates)
 
 		// then
 		assertEquals(result, "<MyTest> <Test> element <noelement> <lement>")
