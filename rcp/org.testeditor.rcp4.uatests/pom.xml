@@ -230,7 +230,7 @@
 							</requirement>
 							<requirement>
 								<type>eclipse-feature</type>
-								<id>org.testeditor.rcp.platform.feature</id>
+								<id>org.testeditor.rcp4.platform.feature</id>
 								<versionRange>1.0.0</versionRange>
 							</requirement>
 						</extraRequirements>

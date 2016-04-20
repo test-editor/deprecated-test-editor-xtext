@@ -80,7 +80,7 @@
       <category name="eclipse-platform"/>
    </feature>
    <!-- gradle buildship -->
-   <feature url="features/org.eclipse.buildship_1.0.9.v20160211-1429.jar" id="org.eclipse.buildship" version="1.0.9.v20160211-1429">
+   <feature url="features/org.eclipse.buildship_1.0.12.v20160330-1501.jar" id="org.eclipse.buildship" version="1.0.12.v20160330-1501">
      <category name="eclipse-platform"/>
    </feature>
    <category-def name="eclipse-platform" label="eclipse-platform"/>
