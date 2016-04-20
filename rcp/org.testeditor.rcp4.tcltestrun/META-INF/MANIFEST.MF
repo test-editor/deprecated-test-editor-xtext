@@ -5,25 +5,12 @@ Bundle-SymbolicName: org.testeditor.rcp4.tcltestrun;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Signal Iduna Corporation
 Require-Bundle: org.eclipse.xtend.lib,
- org.eclipse.jdt.junit,
  org.eclipse.xtext.ui,
- org.testeditor.tcl.dsl.ui,
- org.eclipse.buildship.core,
  org.gradle.toolingapi,
- org.eclipse.jdt.core,
  org.testeditor.logging,
- org.eclipse.e4.core.di.annotations,
- org.eclipse.debug.ui,
  org.testeditor.dsl.common.ui;bundle-version="1.0.0",
  org.eclipse.m2e.maven.runtime;bundle-version="1.6.2",
  org.eclipse.m2e.core;bundle-version="1.6.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: com.google.inject,
- javax.inject,
- org.eclipse.core.resources,
- org.eclipse.core.runtime,
- org.eclipse.debug.core,
- org.eclipse.emf.common.util,
- org.eclipse.jface.viewers
+Export-Package: org.testeditor.rcp4.tcltestrun
 Bundle-ActivationPolicy: lazy
-Bundle-Activator: org.testeditor.rcp4.tcltestrun.Activator

@@ -38,17 +38,18 @@ public class MavenExecutor {
 	 * Executes the maven build using maven embedder. It allways starts with a
 	 * clean operation to delete old test results.
 	 * 
-	 * @param goal
-	 *            of maven to be exeucted.
+	 * @param parameters
+	 *            for maven (separated by spaces, e.g. "clean integration-test"
+	 *            to execute the given goals)
 	 * @param pathToPom
 	 *            path to the folder where the pom.xml is located.
 	 * @return int with exit code
 	 * 
 	 */
-	public int execute(String goal, String pathToPom) {
+	public int execute(String parameters, String pathToPom) {
 		System.setProperty("maven.multiModuleProjectDirectory", pathToPom);
 		MavenCli cli = new MavenCli();
-		int result = cli.doMain(new String[] { "clean", goal }, pathToPom, System.out, System.err);
+		int result = cli.doMain(parameters.split(" "), pathToPom, System.out, System.err);
 		return result;
 	}
 
@@ -56,8 +57,9 @@ public class MavenExecutor {
 	 * Executes a maven build in a new jvm. The executable of the current jvm is
 	 * used to create a new jvm.
 	 * 
-	 * @param goal
-	 *            of maven to be exeucted.
+	 * @param parameters
+	 *            for maven (separated by spaces, e.g. "clean integration-test"
+	 *            to execute the given goals)
 	 * @param pathtoPom
 	 *            path to the folder where the pom.xml is located.
 	 * @param testParam
@@ -66,7 +68,7 @@ public class MavenExecutor {
 	 * @throws IOException
 	 *             on failure
 	 */
-	public int executeInNewJvm(String goal, String pathToPom, String testParam) throws IOException {
+	public int executeInNewJvm(String parameters, String pathToPom, String testParam) throws IOException {
 		int result = 1; // unspecified error code != 0
 		String jvm = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
 		List<String> command = new ArrayList<String>();
@@ -74,7 +76,7 @@ public class MavenExecutor {
 		command.add("-cp");
 		command.add(getClassPath());
 		command.add(this.getClass().getName());
-		command.add(goal);
+		command.add(parameters);
 		command.add(pathToPom);
 		command.add(testParam);
 		logger.trace("Execute maven in new jvm with: {}", command);
@@ -130,9 +132,15 @@ public class MavenExecutor {
 	 */
 	public static void main(String[] args) {
 		if (args.length > 2) {
-			logger.info("Running maven build with settings='{}'", args[2]);
-			String[] split = args[2].split("=");
-			System.setProperty(split[0], split[1]);
+			if (args[2].contains("=")) {
+				logger.info("Running maven build with settings='{}'", args[2]);
+				String[] split = args[2].split("=");
+				System.setProperty(split[0], split[1]);
+			} else {
+				logger.warn("Running maven build IGNORING MISSPELLED settings='{}' (missing infix '=')", args[2]);
+			}
+		} else {
+			logger.info("Running maven build without settings");
 		}
 		int result = new MavenExecutor().execute(args[0], args[1]);
 		if (result != 0) {

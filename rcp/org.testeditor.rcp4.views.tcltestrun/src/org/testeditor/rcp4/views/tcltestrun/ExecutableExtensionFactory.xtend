@@ -10,7 +10,7 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.rcp4.tcltestrun
+package org.testeditor.rcp4.views.tcltestrun
 
 import org.osgi.framework.Bundle
 
