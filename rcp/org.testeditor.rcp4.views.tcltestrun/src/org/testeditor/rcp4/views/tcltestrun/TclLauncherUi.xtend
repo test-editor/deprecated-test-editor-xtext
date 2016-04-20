@@ -112,14 +112,14 @@ class TclLauncherUi implements Launcher {
 	private def void safeUpdateJunitTestView(String elementId, File expectedFile) {
 		val parentFolder = new File(expectedFile.parent)
 		if (!parentFolder.exists && !parentFolder.mkdirs) {
-			logger.error('''failed to change into parentFolder='{}' ''', parentFolder.absolutePath)
+			logger.error("failed to change into parentFolder='{}'", parentFolder.absolutePath)
 		} else {
 			val newFile = File.createTempFile(expectedFile.name, ".xml", parentFolder)
 			if (expectedFile.exists) {
 				try {
 					Files.move(expectedFile, newFile)
 				} catch (IOException e) {
-					logger.error("error during storage of test run result " + expectedFile.path, e)
+					logger.error("error during storage of test run result {}", expectedFile.path, e)
 					writeErrorFile(elementId, newFile)
 				}
 			} else {
@@ -129,7 +129,7 @@ class TclLauncherUi implements Launcher {
 			try {
 				java.nio.file.Files.delete(newFile.toPath)
 			} catch (IOException e) {
-				logger.warn("error during removal of obsolete test result " + newFile.path, e)
+				logger.warn("error during removal of obsolete test result {}", newFile.path, e)
 			}
 		}
 	}
