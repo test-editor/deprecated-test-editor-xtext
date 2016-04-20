@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.testeditor.rcp.platform.feature"
+      id="org.testeditor.rcp4.platform.feature"
       label="Platform Feature"
       version="1.0.0.qualifier">
 
@@ -1622,5 +1622,5 @@ itemis AG
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-         
+
 </feature>

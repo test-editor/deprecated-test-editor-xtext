@@ -10,7 +10,7 @@
 		<relativePath>../../releng/org.testeditor.aml.releng.parent</relativePath>
 	</parent>
 
-	<artifactId>org.testeditor.rcp.platform.feature</artifactId>
+	<artifactId>org.testeditor.rcp4.platform.feature</artifactId>
 	<packaging>eclipse-feature</packaging>
 
 </project>
