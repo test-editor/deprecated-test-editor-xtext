@@ -26,6 +26,7 @@ import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclPackage
 import org.testeditor.tcl.TestCase
+import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.impl.AssertionTestStepImpl
@@ -43,6 +44,7 @@ class TclValidator extends AbstractTclValidator {
 	public static val VARIABLE_UNKNOWN_HERE = 'varUnknownHere'
 	public static val VARIABLE_ASSIGNED_MORE_THAN_ONCE = 'varAssignedMoreThanOnce'
 	public static val UNALLOWED_VALUE = 'unallowedValue'
+	public static val MISSING_FIXTURE = 'missingFixture'
 
 	@Inject extension TclModelUtil
 
@@ -66,15 +68,24 @@ class TclValidator extends AbstractTclValidator {
 	}
 
 	@Check
+	def checkFixtureMethodForExistence(TestStep testStep) {
+		val method = testStep.interaction?.defaultMethod
+		if ((method == null ) || (method.operation == null) || (method.typeReference?.type == null)) {
+			info("test step could not resolve fixture", TclPackage.Literals.TEST_STEP__CONTENTS, MISSING_FIXTURE)
+		}
+	}
+
+	@Check
 	def checkVariableUsageWithinAssertionExpressions(TestStepContext tsContext) {
 		val varTypeMap = new HashMap<String, String>
 		// collect all var assignments
-		tsContext.steps.forEach [it,index|
+		tsContext.steps.forEach [ it, index |
 			if (it instanceof TestStepWithAssignment) {
 				// check "in order" (to prevent variable usage before assignment)
 				if (varTypeMap.containsKey(variableName)) {
 					val message = '''Variable '«variableName»' is assigned more than once.'''
-					warning(message, TclPackage.Literals.TEST_STEP_CONTEXT__STEPS, index, VARIABLE_ASSIGNED_MORE_THAN_ONCE);
+					warning(message, TclPackage.Literals.TEST_STEP_CONTEXT__STEPS, index,
+						VARIABLE_ASSIGNED_MORE_THAN_ONCE);
 				} else {
 					varTypeMap.put(variableName, getInteraction.defaultMethod.operation.returnType.identifier)
 				}

@@ -14,6 +14,7 @@ package org.testeditor.aml
 
 import java.util.HashSet
 import java.util.Set
+import org.eclipse.xtext.common.types.JvmType
 
 class ModelUtil {
 
@@ -85,6 +86,13 @@ class ModelUtil {
 		return template.contents.filter(TemplateVariable).filter [
 			!name.nullOrEmpty && name != TEMPLATE_VARIABLE_ELEMENT
 		].toSet
+	}
+
+	/**
+	 * @return the fixture type if the given interaction type (may be null!)
+	 */
+	def JvmType getFixtureType(InteractionType interactionType) {
+		return interactionType?.defaultMethod?.typeReference?.type
 	}
 
 }

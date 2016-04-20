@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -27,7 +27,7 @@ import org.testeditor.aml.InteractionType
 @Creatable
 class AmlModelTreeDropTextProvider {
 	def dispatch String adjustTextBy(int distance, ComponentElement element, String basis) {
-		basis.replace("element", element.name)
+		basis.replace("<element>", '''<«element.name»>''')
 	}
 
 	def dispatch String adjustTextBy(int distance, InteractionType element, String basis) {
@@ -35,7 +35,7 @@ class AmlModelTreeDropTextProvider {
 	}
 
 	def dispatch String adjustTextBy(int distance, Component element, String basis) {
-		(if(distance == 0) 'Mask: ' else '') + basis + (if(distance == 0) '\n' else '')
+		(if(distance == 0) 'Component: ' else '') + basis + (if(distance == 0) '\n' else '')
 	}
 
 	/** default, no adjustment */
