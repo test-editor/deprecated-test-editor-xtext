@@ -18,7 +18,6 @@ import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.util.HashMap
 import java.util.Map
-import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.IProgressMonitor
@@ -34,6 +33,7 @@ import org.testeditor.rcp4.tcltestrun.TclGradleLauncher
 import org.testeditor.rcp4.tcltestrun.TclLauncher
 import org.testeditor.rcp4.tcltestrun.TclMavenLauncher
 import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
+import java.util.concurrent.atomic.AtomicReference
 
 class TclLauncherUi implements Launcher {
 	static val logger = LoggerFactory.getLogger(TclLauncherUi)
@@ -78,10 +78,10 @@ class TclLauncherUi implements Launcher {
 	}
 
 	private def Iterable<String> collectMavenProfilesWithProgress(IProject project) {
-		val result = new CompletableFuture<Iterable<String>>
+		val result = new AtomicReference<Iterable<String>>
 		progressRunner.run([ monitor |
 			monitor.beginTask("Collect maven profiles", IProgressMonitor.UNKNOWN)
-			result.complete(mavenLauncher.getProfiles(project))
+			result.set(mavenLauncher.getProfiles(project))
 			monitor.done
 		])
 		return result.get

@@ -12,8 +12,9 @@ Require-Bundle: com.google.guava,
  org.eclipse.emf.ecore,
  org.eclipse.xtext,
  org.eclipse.core.runtime;bundle-version="3.11.1",
- org.eclipse.m2e.core;bundle-version="1.6.2"
-Export-Package: org.testeditor.dsl.common.ide.util
+ org.eclipse.m2e.core
+Export-Package: org.testeditor.dsl.common.ide.util,
+ org.testeditor.dsl.common.util
 Import-Package: org.slf4j
 Eclipse-BundleShape: dir
 Bundle-ActivationPolicy: lazy
