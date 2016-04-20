@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -16,6 +16,8 @@ import org.eclipse.emf.ecore.EPackage
 import org.testeditor.aml.AmlPackage
 import org.testeditor.tcl.TclPackage
 import org.testeditor.tsl.TslPackage
+
+import static extension org.testeditor.dsl.common.util.CollectionUtils.putIfAbsent
 
 /**
  * Initialization support for running Xtext languages without Equinox extension registry.

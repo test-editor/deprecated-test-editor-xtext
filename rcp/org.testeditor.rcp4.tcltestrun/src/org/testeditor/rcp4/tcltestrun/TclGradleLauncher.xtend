@@ -13,7 +13,6 @@
 package org.testeditor.rcp4.tcltestrun
 
 import java.util.Map
-import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.IProgressMonitor
@@ -25,6 +24,7 @@ import org.gradle.tooling.ResultHandler
 import org.gradle.tooling.events.OperationType
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
+import java.util.concurrent.atomic.AtomicReference
 
 public class TclGradleLauncher implements TclLauncher {
 
@@ -44,7 +44,7 @@ public class TclGradleLauncher implements TclLauncher {
 			elementId.elementIdToFileName).location.toFile
 		val GradleConnector connector = GradleConnector.newConnector
 		var ProjectConnection connection = null
-		val result = new CompletableFuture<LaunchResult>
+		val result = new AtomicReference<LaunchResult>
 		try {
 			val projectFolder = project.location.makeAbsolute.toFile
 			val task = "test"
@@ -60,12 +60,12 @@ public class TclGradleLauncher implements TclLauncher {
 					run(new ResultHandler {
 
 						override onComplete(Object obj) {
-							result.complete(new LaunchResult(testResultFile, 0, null))
+							result.set(new LaunchResult(testResultFile, 0, null))
 						}
 
 						override onFailure(GradleConnectionException e) {
 							logger.error('''Caught error during gradle task='«task»' of elementId='«elementId»' ''', e)
-							result.complete(new LaunchResult(testResultFile, 1, e))
+							result.set(new LaunchResult(testResultFile, 1, e))
 						}
 
 					})

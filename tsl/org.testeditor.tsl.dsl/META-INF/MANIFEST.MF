@@ -15,7 +15,8 @@ Require-Bundle: org.eclipse.xtext;visibility:=reexport,
  org.eclipse.emf.ecore,
  org.eclipse.emf.common,
  org.testeditor.tsl.model;visibility:=reexport,
- org.eclipse.xtend.lib
+ org.eclipse.xtend.lib,
+ org.testeditor.dsl.common;bundle-version="1.0.0"
 Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.testeditor.tsl.dsl,
