@@ -20,7 +20,7 @@ Require-Bundle: org.eclipse.xtext,
  org.eclipse.osgi,
  org.eclipse.xtend.lib
 Import-Package: org.apache.log4j
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.testeditor.aml.dsl,
  org.testeditor.aml.dsl.formatting2,
  org.testeditor.aml.dsl.generator,

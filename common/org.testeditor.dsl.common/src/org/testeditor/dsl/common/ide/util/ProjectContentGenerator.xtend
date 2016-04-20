@@ -249,7 +249,7 @@ class ProjectContentGenerator {
 			
 				<properties>
 					<!-- Version definitions below -->
-					<java.version>1.8</java.version>
+					<java.version>1.7</java.version>
 					<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 			
 					<maven-clean-plugin.version>2.5</maven-clean-plugin.version>
@@ -432,7 +432,7 @@ class ProjectContentGenerator {
 						<plugin>
 						    <groupId>org.codehaus.mojo</groupId>
 						    <artifactId>build-helper-maven-plugin</artifactId>
-						    <version>1.8</version>
+						    <version>1.7</version>
 						    <executions>
 						        <execution>
 						            <id>add-test-source</id>

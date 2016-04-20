@@ -5,7 +5,7 @@ Bundle-Vendor: Signal Iduna Corporation
 Bundle-Version: 1.0.0.qualifier
 Bundle-SymbolicName: org.testeditor.tcl.dsl.tests; singleton:=true
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.xtext.junit4,
  org.eclipse.xtext.xbase.lib,

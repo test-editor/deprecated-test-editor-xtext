@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: TcltestrunUi
 Bundle-SymbolicName: org.testeditor.rcp4.views.tcltestrun;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.testeditor.tcl.dsl.ui,
  org.testeditor.rcp4.tcltestrun,
  org.eclipse.jdt.junit,

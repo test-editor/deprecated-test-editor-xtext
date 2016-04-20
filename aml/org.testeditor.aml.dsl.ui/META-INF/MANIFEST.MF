@@ -28,7 +28,7 @@ Require-Bundle: org.testeditor.aml.dsl,
  org.eclipse.xtend.lib;resolution:=optional,
  org.testeditor.aml.dsl.ide
 Import-Package: org.apache.log4j
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.testeditor.aml.dsl.ui,
  org.testeditor.aml.dsl.ui.contentassist,
  org.testeditor.aml.dsl.ui.highlighting,

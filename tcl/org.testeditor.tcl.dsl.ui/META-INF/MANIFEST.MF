@@ -5,7 +5,7 @@ Bundle-Vendor: Signal Iduna Corporation
 Bundle-Version: 1.0.0.qualifier
 Bundle-SymbolicName: org.testeditor.tcl.dsl.ui; singleton:=true
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.testeditor.dsl.common,
  org.testeditor.tcl.dsl;visibility:=reexport,
  org.testeditor.tcl.dsl.ide,
@@ -28,11 +28,11 @@ Require-Bundle: org.testeditor.dsl.common,
  org.eclipse.xpand,
  org.eclipse.xtend.lib;resolution:=optional,
  org.eclipse.jdt.core,
- org.eclipse.jdt.junit;bundle-version="3.8.0",
- org.slf4j.api
+ org.eclipse.jdt.junit;bundle-version="3.8.0"
 Import-Package: org.apache.log4j,
  org.eclipse.jdt.core,
- org.eclipse.jdt.junit.launcher
+ org.eclipse.jdt.junit.launcher,
+ org.slf4j
 Export-Package: org.testeditor.tcl.dsl.ui,
  org.testeditor.tcl.dsl.ui.contentassist,
  org.testeditor.tcl.dsl.ui.internal,
