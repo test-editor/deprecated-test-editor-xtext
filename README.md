@@ -16,7 +16,7 @@ The latest development version can be downloaded [here](https://ci.testeditor.or
 
 After checking out the source code we first need to build the Eclipse target platform:
 
-    mvn clean install -f "releng/org.testeditor.aml.releng.target/pom.xml" 
+    mvn clean install -f "releng/org.testeditor.releng.target/pom.xml" 
     
 This will take some time for the first run but should be fast afterwards.
 
