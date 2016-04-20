@@ -39,7 +39,8 @@ public class MavenExecutor {
 	 * clean operation to delete old test results.
 	 * 
 	 * @param parameters
-	 *            for maven (separated by spaces, e.g. "clean integration-test" to execute the given goals)
+	 *            for maven (separated by spaces, e.g. "clean integration-test"
+	 *            to execute the given goals)
 	 * @param pathToPom
 	 *            path to the folder where the pom.xml is located.
 	 * @return int with exit code
@@ -57,7 +58,8 @@ public class MavenExecutor {
 	 * used to create a new jvm.
 	 * 
 	 * @param parameters
-	 *            for maven (separated by spaces, e.g. "clean integration-test" to execute the given goals)
+	 *            for maven (separated by spaces, e.g. "clean integration-test"
+	 *            to execute the given goals)
 	 * @param pathtoPom
 	 *            path to the folder where the pom.xml is located.
 	 * @param testParam
@@ -134,10 +136,10 @@ public class MavenExecutor {
 				logger.info("Running maven build with settings='{}'", args[2]);
 				String[] split = args[2].split("=");
 				System.setProperty(split[0], split[1]);
-			}else{
-				logger.warn("Running maven build IGNORING MISSPELLED settings='{}' (missing infix '=')",  args[2]);
+			} else {
+				logger.warn("Running maven build IGNORING MISSPELLED settings='{}' (missing infix '=')", args[2]);
 			}
-		}else{
+		} else {
 			logger.info("Running maven build without settings");
 		}
 		int result = new MavenExecutor().execute(args[0], args[1]);

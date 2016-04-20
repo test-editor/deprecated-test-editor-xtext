@@ -57,8 +57,8 @@ class JUnitLaunchShortcut extends org.eclipse.jdt.junit.launcher.JUnitLaunchShor
 				super.launch(selection, mode)
 				logger.debug("executed junit launcher for tcl test launch")
 			}
-		}else{
-			logger.warn("resource='{}' is not valid for test run (e.g. missing generated file)",res.fullPath.toString)
+		} else {
+			logger.warn("resource='{}' is not valid for test run (e.g. missing generated file)", res.fullPath)
 		}
 	}
 

@@ -50,11 +50,11 @@ class TclLauncherUi implements Launcher {
 		}
 		if (project.getFile("pom.xml").exists) {
 			if (parameterize) {
-				val profile = uiCollectMavenProfile(project)
+				val profile = selectMavenProfile(project)
 				if (profile == null) {
 					return true // should an option always be selected?
 				}
-				options.putAll(#{TclMavenLauncher.PROFILE -> profile})
+				options.put(TclMavenLauncher.PROFILE, profile)
 			}
 			return launchTest(selection, project, elementId, mavenLauncher, options)
 		}
@@ -65,19 +65,19 @@ class TclLauncherUi implements Launcher {
 		return false
 	}
 
-	private def String uiCollectMavenProfile(IProject project) {
-		val mavenProfiles = project.mavenGetProfilesWithUiFeedback
+	private def String selectMavenProfile(IProject project) {
+		val mavenProfiles = project.collectMavenProfilesWithProgress
 		val dialog = new ElementListSelectionDialog(PlatformUI.workbench.activeWorkbenchWindow.shell, new LabelProvider)
 		dialog.setElements(mavenProfiles)
 		dialog.setTitle("Which maven profile should be used?")
 		if (dialog.open == Window.OK) {
-			return dialog.result.get(0).toString
+			return dialog.result.head.toString
 		} else {
 			return null // cancelled
 		}
 	}
 
-	private def Iterable<String> mavenGetProfilesWithUiFeedback(IProject project) {
+	private def Iterable<String> collectMavenProfilesWithProgress(IProject project) {
 		val result = new CompletableFuture<Iterable<String>>
 		progressRunner.run([ monitor |
 			monitor.beginTask("Collect maven profiles", IProgressMonitor.UNKNOWN)
