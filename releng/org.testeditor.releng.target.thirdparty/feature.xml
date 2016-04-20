@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.testeditor.aml.releng.target.thirdparty"
+      id="org.testeditor.releng.target.thirdparty"
       version="1.0.0.qualifier">
 
    <copyright>
@@ -91,35 +91,35 @@ itemis AG
    <!-- gradle buildship dependencies -->
 
    <plugin
-       id="com.google.gson"
+         id="com.google.gson"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-       id="org.gradle.toolingapi"
+         id="org.gradle.toolingapi"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-       id="com.gradleware.tooling.client"
+         id="com.gradleware.tooling.client"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-       id="com.gradleware.tooling.model"
+         id="com.gradleware.tooling.model"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-       id="com.gradleware.tooling.utils"
+         id="com.gradleware.tooling.utils"
          download-size="0"
          install-size="0"
          version="0.0.0"
