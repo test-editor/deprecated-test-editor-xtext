@@ -27,7 +27,7 @@
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 
 		<!-- point to te.target -->
-		<xtext-target>file:///${basedir}/../../releng/org.testeditor.aml.releng.target/p2-local</xtext-target>
+		<xtext-target>file:///${basedir}/../../releng/org.testeditor.releng.target/p2-local</xtext-target>
 	</properties>
 
 	<repositories>
