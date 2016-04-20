@@ -119,7 +119,7 @@ class TclLauncherUi implements Launcher {
 				try {
 					Files.move(expectedFile, newFile)
 				} catch (IOException e) {
-					logger.error("error during storage of test run result {}", expectedFile.path, e)
+					logger.error('''error during storage of test run result expectedFile='«expectedFile.path»' ''', e)
 					writeErrorFile(elementId, newFile)
 				}
 			} else {
@@ -129,7 +129,7 @@ class TclLauncherUi implements Launcher {
 			try {
 				java.nio.file.Files.delete(newFile.toPath)
 			} catch (IOException e) {
-				logger.warn("error during removal of obsolete test result {}", newFile.path, e)
+				logger.warn("error during removal of obsolete test result newFile='{}'", newFile.path)
 			}
 		}
 	}
