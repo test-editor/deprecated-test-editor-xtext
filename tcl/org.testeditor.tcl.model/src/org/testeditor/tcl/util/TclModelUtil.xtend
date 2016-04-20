@@ -23,6 +23,7 @@ import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.ValueSpaceAssignment
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
+import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestStep
 import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContent
@@ -132,6 +133,21 @@ class TclModelUtil extends TslModelUtil {
 			return tslModel.steps.findFirst[matches(stepImplementation)]
 		}
 		return null
+	}
+
+	def Iterable<SpecificationStep> getMissingTestSteps(TestCase testCase) {
+		val specSteps = testCase.specification?.steps
+		val steps = testCase.steps
+		if( specSteps==null){
+			return emptyList
+		}
+		if( steps==null){
+			return specSteps.toList
+		}
+		return specSteps.filter[
+				val specStepContentsString=contents.restoreString
+				return steps.forall[contents.restoreString!=specStepContentsString]
+		]
 	}
 
 }
