@@ -6,6 +6,6 @@ cache:
   directories:
   - $HOME/.m2
 before_install:
-  - mvn clean install -f "releng/org.testeditor.aml.releng.target/pom.xml" -B -V
+  - mvn clean install -f "releng/org.testeditor.releng.target/pom.xml" -B -V
 after_success:
   - bash <(curl -s https://codecov.io/bash)
