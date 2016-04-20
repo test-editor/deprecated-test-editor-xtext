@@ -25,6 +25,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.testeditor.tcl.dsl,
  org.testeditor.tcl.dsl.formatting2,
  org.testeditor.tcl.dsl.jvmmodel,
+ org.testeditor.tcl.dsl.messages,
  org.testeditor.tcl.dsl.naming,
  org.testeditor.tcl.dsl.parser.antlr,
  org.testeditor.tcl.dsl.parser.antlr.internal,

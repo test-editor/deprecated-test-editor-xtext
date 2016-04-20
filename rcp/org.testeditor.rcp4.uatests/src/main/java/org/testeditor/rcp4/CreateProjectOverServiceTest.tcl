@@ -6,11 +6,11 @@ package org.testeditor.rcp4
 
 Component: TestEditor
 - Clean Workspace
-- Restart Test-Editor with clean environment
-- Einfaches Projekt erzeugen
+- Reset UI State
+- Create simple project
 
 Component: ProjectExplorer
-- selektiere Element "DemoProject" in Baum <ProjektBaum>
+- Select element "DemoProject" in tree <ProjektBaum>
 
 
 

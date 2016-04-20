@@ -3,8 +3,8 @@ package org.testeditor.rcp4
 import org.testeditor.fixture.swt.*
 
 interaction type createSimpleProject {
-	label = "Einfaches Projekt erzeugen"
-	template = "Einfaches Projekt erzeugen"
+	label = "Create simple project"
+	template = "Create simple project"
 	method = TestEditorFixture.createDemoProject
 }
 
@@ -16,7 +16,7 @@ interaction type cleanWorkspace {
 
 interaction type restartApp {
 	label = "Clean restart Test-Editor"
-	template = "Restart Test-Editor with clean environment"
+	template = "Reset UI State"
 	method = TestEditorFixture.resetApplication
 }
 
@@ -26,11 +26,11 @@ component type TestEditorApp {
 
 component HauptFenster is General {
 	element ProjektBaum is View {
-		label = "Projekt Baum"
+		label = "Project Explorer"
 		locator ="Test Project Explorer"
 	}
 	element TestStepSelector is View {
-		label = "Test Schritt Auswahl"
+		label = "Test Step Selector"
 		locator = "Test Step Selector"
 	}
 }
@@ -39,7 +39,7 @@ value-space projectmenues = #[ "New/Project...", "Open" ]
 
 component ProjectExplorer is General {
 	element ProjektBaum is TreeView {
-		label = "Projekt Baum"
+		label = "Project Explorer"
 		locator ="Test Project Explorer"
 		executeContextMenuEntry.item restrict to projectmenues 
 	}

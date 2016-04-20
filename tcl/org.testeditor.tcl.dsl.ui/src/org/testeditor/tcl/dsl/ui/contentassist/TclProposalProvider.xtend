@@ -14,6 +14,7 @@ package org.testeditor.tcl.dsl.ui.contentassist
 
 import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.xtext.Assignment
 import org.eclipse.xtext.RuleCall
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
@@ -31,6 +32,19 @@ class TclProposalProvider extends AbstractTclProposalProvider {
 		// TODO this should be done using an auto-editing feature
 		acceptor.accept(createCompletionProposal('Mask: ', 'Mask:', getImage(model), context))
 		acceptor.accept(createCompletionProposal('Component: ', 'Component:', getImage(model), context))
+	}
+
+	override completeTestCase_Steps(EObject model, Assignment assignment, ContentAssistContext context,
+		ICompletionProposalAcceptor acceptor) {
+		// a proposal of missing steps is not trivial, since the order of the existing/missing steps must
+		// be taken into account. the completion of steps should be done via (quick) fix.
+		// this completion proposal will allow for steps to be entered even though no "implements" is given yet.
+		acceptor.accept(createCompletionProposal('* ', '* test description', null, context))
+	}
+
+	override complete_TestStep(EObject model, RuleCall ruleCall, ContentAssistContext context,
+		ICompletionProposalAcceptor acceptor) {
+		acceptor.accept(createCompletionProposal('- ', '- test step', null, context))
 	}
 
 	override complete_StepContentElement(EObject model, RuleCall ruleCall, ContentAssistContext context,

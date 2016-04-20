@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ui.PlatformUI;
 import org.testeditor.fixture.core.interaction.FixtureMethod;
-import org.testeditor.rcp4.ApplicationWorkbenchAdvisor;
 
 /**
  * Fixture to enable Test-Editor specific operations to the tests.
@@ -71,9 +70,12 @@ public class TestEditorFixture {
 	 */
 	@FixtureMethod
 	public void resetApplication() throws Exception {
-		PlatformUI.getWorkbench().getDisplay().dispose();
-		PlatformUI.createAndRunWorkbench(PlatformUI.createDisplay(), new ApplicationWorkbenchAdvisor());
-		logger.info("Application reset");
+		if (PlatformUI.getWorkbench().getActiveWorkbenchWindow() != null) {
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().closeAllEditors(true);
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().resetPerspective();
+			logger.info("Reset Workbench");
+		}
+		logger.info("Reset Appliucation");
 	}
 
 }
