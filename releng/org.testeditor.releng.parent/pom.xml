@@ -30,6 +30,7 @@
 
 		<!-- other properties -->
 		<tycho-surefire-argline>-Xms40m -Xmx1G</tycho-surefire-argline>
+		<os-jvm-flags />
 	</properties>
 
 	<profiles>
