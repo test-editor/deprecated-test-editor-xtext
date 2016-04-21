@@ -18,7 +18,6 @@ import org.eclipse.e4.core.di.annotations.Optional
 import org.eclipse.e4.core.di.extensions.EventTopic
 import org.eclipse.e4.core.services.events.IEventBroker
 import org.slf4j.LoggerFactory
-import org.slf4j.Logger
 
 /** example usage of the event broker in e4 */
 class EventBrokerUser {
