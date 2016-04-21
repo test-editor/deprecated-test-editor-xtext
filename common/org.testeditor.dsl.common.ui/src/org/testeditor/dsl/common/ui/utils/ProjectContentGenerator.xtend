@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.m2e.core.MavenPlugin
 import org.eclipse.m2e.core.project.ResolverConfiguration
 import org.eclipse.xtext.util.StringInputStream
+import org.osgi.framework.FrameworkUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ide.util.FileUtils
@@ -76,18 +77,23 @@ class ProjectContentGenerator {
 	}
 
 	protected def setupEclipseMetaData(IProject project, IProgressMonitor monitor) {
-		val List<String> command = new ArrayList<String>();
-		command.add(project.location.toFile.toString + File.separator + "gradlew");
+		val List<String> command = new ArrayList<String>
+		val fileExtension = if (System.getProperty("os.name").toLowerCase.startsWith("win")) {
+				".bat"
+			} else {
+				""
+			}
+		command.add(project.location.toFile.toString + File.separator + "gradlew" + fileExtension);
 		command.add("eclipse");
-		val ProcessBuilder processBuilder = new ProcessBuilder()
-		processBuilder.inheritIO()
+		val ProcessBuilder processBuilder = new ProcessBuilder
+		processBuilder.inheritIO
 		processBuilder.redirectErrorStream(true)
 		processBuilder.command(command)
 		processBuilder.directory(project.location.toFile)
 		logger.info("Create eclipse project with gradle command {}", command)
-		val process = processBuilder.start()
+		val process = processBuilder.start
 		try {
-			process.waitFor();
+			process.waitFor
 		} catch (InterruptedException e) {
 			logger.info("Error", e)
 		}
@@ -98,7 +104,8 @@ class ProjectContentGenerator {
 	protected def setupGradleInProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
 		var IFile buildFile = project.getFile("build.gradle")
 		buildFile.create(new StringInputStream(getBuildGradleContent(fixtures)), IResource.NONE, monitor)
-		val bundleLocation = fileLocatorService.findBundleFileLocationAsString("org.testeditor.dsl.common")
+		val name = FrameworkUtil.getBundle(ProjectContentGenerator).symbolicName
+		val bundleLocation = fileLocatorService.findBundleFileLocationAsString(name)
 		val src = new File(bundleLocation, "gradlewrapper")
 		FileUtils.copyFolder(src, project.location.toFile);
 	}
@@ -107,9 +114,9 @@ class ProjectContentGenerator {
 		var IFile buildFile = project.getFile("pom.xml")
 		buildFile.create(new StringInputStream(getPomContent(fixtures, project.name)), IResource.NONE, monitor)
 		var configurationManager = MavenPlugin.getProjectConfigurationManager()
-		var configuration = new ResolverConfiguration();
-		configuration.setResolveWorkspaceProjects(true);
-		configuration.setSelectedProfiles("");
+		var configuration = new ResolverConfiguration
+		configuration.resolveWorkspaceProjects = true
+		configuration.selectedProfiles = ""
 		configurationManager.enableMavenNature(project, configuration, monitor)
 		configurationManager.updateProjectConfiguration(project, monitor)
 	}
@@ -121,7 +128,7 @@ class ProjectContentGenerator {
 		}
 	}
 
-	 def String getGoogleTestCase(String packageName) {
+	def String getGoogleTestCase(String packageName) {
 		'''
 		package «packageName»
 		
