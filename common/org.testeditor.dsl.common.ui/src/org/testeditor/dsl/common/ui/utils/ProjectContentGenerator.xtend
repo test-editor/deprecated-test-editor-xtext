@@ -10,7 +10,7 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.dsl.common.ide.util
+package org.testeditor.dsl.common.ui.utils
 
 import java.io.File
 import java.util.ArrayList
@@ -27,6 +27,7 @@ import org.eclipse.m2e.core.project.ResolverConfiguration
 import org.eclipse.xtext.util.StringInputStream
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.testeditor.dsl.common.ide.util.FileUtils
 
 /**
  * Generator to generate content to a new test project.
@@ -120,7 +121,7 @@ class ProjectContentGenerator {
 		}
 	}
 
-	protected def String getGoogleTestCase(String packageName) {
+	 def String getGoogleTestCase(String packageName) {
 		'''
 		package «packageName»
 		
@@ -144,7 +145,7 @@ class ProjectContentGenerator {
 		- Close browser		'''
 	}
 
-	protected def String getDemoAMLContent(String[] fixtures, String packageName) {
+	def String getDemoAMLContent(String[] fixtures, String packageName) {
 		'''
 			package «packageName»
 			
@@ -157,7 +158,7 @@ class ProjectContentGenerator {
 		'''
 	}
 
-	protected def getDemoAMLComponentsContent(String fixture) {
+	def String getDemoAMLComponentsContent(String fixture) {
 		if (fixture == WEBFIXTURE) {
 			return '''
 				component Searchsite is Page {
@@ -173,7 +174,7 @@ class ProjectContentGenerator {
 		return ""
 	}
 
-	protected def String getInitialAMLContent(String[] fixtures, String packageName) {
+	def String getInitialAMLContent(String[] fixtures, String packageName) {
 		'''
 			package «packageName»
 			
@@ -183,7 +184,7 @@ class ProjectContentGenerator {
 		'''
 	}
 
-	protected def getPackage(String fixtureName) {
+	def String getPackage(String fixtureName) {
 		if (fixtureName == WEBFIXTURE) {
 			return "org.testeditor.fixture.web.*"
 		}
@@ -193,7 +194,7 @@ class ProjectContentGenerator {
 		return ""
 	}
 
-	protected def String getBuildGradleContent(String[] fixtureNames) {
+	def String getBuildGradleContent(String[] fixtureNames) {
 		'''
 			plugins {
 			    id 'org.testeditor.gradle-plugin' version '0.1'
@@ -223,7 +224,7 @@ class ProjectContentGenerator {
 		'''
 	}
 
-	protected def getGradleDependency(String fixtureName) {
+	def String getGradleDependency(String fixtureName) {
 		if (fixtureName == WEBFIXTURE) {
 			return '''
 				compile 'org.testeditor.fixture:web-fixture:3.0.0-PROTO'
@@ -236,7 +237,7 @@ class ProjectContentGenerator {
 		}
 	}
 
-	protected def String getPomContent(String[] fixtureNames, String projectName) {
+	def String getPomContent(String[] fixtureNames, String projectName) {
 		'''
 			<?xml version="1.0" encoding="UTF-8"?>
 			<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -455,7 +456,7 @@ class ProjectContentGenerator {
 		'''
 	}
 
-	protected def getMavenDependency(String fixtureName) {
+	def String getMavenDependency(String fixtureName) {
 		if (fixtureName == WEBFIXTURE) {
 			return '''
 				<dependency>

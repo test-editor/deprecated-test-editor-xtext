@@ -6,22 +6,14 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-SymbolicName: org.testeditor.tcl.dsl.tests; singleton:=true
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Require-Bundle: org.eclipse.core.runtime,
+Require-Bundle: org.eclipse.xtext,
  org.eclipse.xtext.junit4,
- org.eclipse.xtext.xbase.lib,
- org.eclipse.ui.workbench;resolution:=optional,
- org.objectweb.asm;bundle-version="[5.0.1,6.0.0)";resolution:=optional,
- org.testeditor.tcl.model,
  org.testeditor.dsl.common.testing,
  org.testeditor.aml.dsl,
  org.testeditor.tsl.dsl,
  org.testeditor.tcl.dsl
 Import-Package: org.apache.log4j,
- org.hamcrest.core,
  org.junit,
  org.junit.runner,
- org.junit.runner.manipulation,
- org.junit.runner.notification,
- org.junit.runners,
- org.junit.runners.model
+ javax.inject
 Export-Package: org.testeditor.tcl.dsl.tests

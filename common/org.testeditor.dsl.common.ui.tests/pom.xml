@@ -10,7 +10,7 @@
 		<relativePath>../../releng/org.testeditor.releng.parent.dsl</relativePath>
 	</parent>
 
-	<artifactId>org.testeditor.dsl.common.ui.tests</artifactId>
+	<artifactId>org.testeditor.dsl.common.ui.utils</artifactId>
 	<packaging>eclipse-test-plugin</packaging>
 
 	<build>
