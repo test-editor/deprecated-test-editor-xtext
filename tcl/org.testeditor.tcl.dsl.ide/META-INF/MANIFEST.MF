@@ -8,6 +8,5 @@ Export-Package: org.testeditor.tcl.dsl.ide.contentassist.antlr,
  org.testeditor.tcl.dsl.ide.highlighting
 Require-Bundle: org.testeditor.dsl.common,
  org.testeditor.tcl.dsl,
- org.eclipse.xtext.ide,
- org.eclipse.xtext.xbase.ide
+ org.eclipse.xtext.ide
 

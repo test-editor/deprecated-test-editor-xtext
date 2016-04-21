@@ -9,7 +9,7 @@
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
  *******************************************************************************/
-package org.testeditor.dsl.common.ui.ide.utils;
+package org.testeditor.dsl.common.ui.utils;
 
 import java.io.File;
 import java.io.IOException;

@@ -10,7 +10,7 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.dsl.common.ide.util
+package org.testeditor.dsl.common.ui.utils
 
 import java.util.HashSet
 import javax.xml.parsers.DocumentBuilderFactory
@@ -19,6 +19,7 @@ import org.eclipse.xtext.util.StringInputStream
 import org.junit.Test
 
 import static org.junit.Assert.*
+import org.testeditor.dsl.common.ui.utils.ProjectContentGenerator
 
 class ProjectContentGeneratorTest {
 

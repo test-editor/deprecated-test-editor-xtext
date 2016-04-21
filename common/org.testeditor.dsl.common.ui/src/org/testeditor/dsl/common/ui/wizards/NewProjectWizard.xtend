@@ -26,7 +26,7 @@ import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard
 import org.eclipse.xtext.ui.XtextProjectHelper
 import org.testeditor.dsl.common.ui.utils.ProgressMonitorRunner
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
-import org.testeditor.dsl.common.ui.ide.utils.ProjectContentGenerator
+import org.testeditor.dsl.common.ui.utils.ProjectContentGenerator
 
 /** 
  * Wizard to create a new test project. 

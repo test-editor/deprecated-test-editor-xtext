@@ -10,7 +10,7 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.dsl.common.ui.tests
+package org.testeditor.dsl.common.ui.utils
 
 import javax.inject.Inject
 import org.eclipse.core.resources.IFolder

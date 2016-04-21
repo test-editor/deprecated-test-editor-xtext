@@ -7,22 +7,16 @@ Bundle-SymbolicName: org.testeditor.tsl.dsl.ui; singleton:=true
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.testeditor.tsl.dsl;visibility:=reexport,
+ org.testeditor.tsl.dsl.ide,
  org.eclipse.xtext.ui,
- org.eclipse.ui.editors;bundle-version="3.5.0",
- org.eclipse.ui.ide;bundle-version="3.5.0",
  org.eclipse.xtext.ui.shared,
- org.eclipse.ui,
  org.eclipse.xtext.builder,
- org.eclipse.xtext.xbase.lib,
- org.eclipse.xtext.common.types.ui,
  org.eclipse.xtext.ui.codetemplates.ui,
  org.eclipse.compare,
- org.eclipse.core.runtime,
- org.eclipse.core.resources,
- org.eclipse.xtend,
- org.eclipse.xpand,
- org.testeditor.tsl.dsl.ide,
- org.eclipse.xtend.lib;resolution:=optional
+ org.eclipse.ui,
+ org.eclipse.ui.editors,
+ org.eclipse.xtend.lib;resolution:=optional,
+ org.eclipse.xtext.xbase.lib
 Import-Package: org.apache.log4j
 Export-Package: org.testeditor.tsl.dsl.ui,
  org.testeditor.tsl.dsl.ui.contentassist,

@@ -6,7 +6,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.xtext.xbase.lib
 Import-Package: org.junit,
- org.hamcrest.core
+ org.hamcrest.core,
+ javax.inject
 Export-Package: org.testeditor.dsl.common.testing,
  org.testeditor.fixture.core.interaction,
  org.mockito,

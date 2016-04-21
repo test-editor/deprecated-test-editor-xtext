@@ -16,6 +16,5 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.emf.ecore.xcore.lib,
  org.eclipse.xtext.xbase;visibility:=reexport,
- org.eclipse.xtext.common.types;visibility:=reexport,
- org.testeditor.aml.model;visibility:=reexport
+ org.eclipse.xtext.common.types;visibility:=reexport
 Bundle-ActivationPolicy: lazy
