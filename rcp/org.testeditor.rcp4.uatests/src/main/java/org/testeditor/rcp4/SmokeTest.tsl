@@ -1,0 +1,5 @@
+package org.testeditor.rcp4
+
+# SmokeTest
+
+* Validate initial views

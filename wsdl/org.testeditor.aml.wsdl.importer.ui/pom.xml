@@ -5,9 +5,9 @@
 
 	<parent>
 		<groupId>org.testeditor</groupId>
-		<artifactId>org.testeditor.aml.releng.parent</artifactId>
+		<artifactId>org.testeditor.releng.parent</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
-		<relativePath>../../releng/org.testeditor.aml.releng.parent</relativePath>
+		<relativePath>../../releng/org.testeditor.releng.parent</relativePath>
 	</parent>
 
 	<artifactId>org.testeditor.aml.wsdl.importer.ui</artifactId>

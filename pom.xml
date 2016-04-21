@@ -9,8 +9,8 @@
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>releng/org.testeditor.aml.releng.parent</module>
-		<module>releng/org.testeditor.aml.releng.parent.dsl</module>
+		<module>releng/org.testeditor.releng.parent</module>
+		<module>releng/org.testeditor.releng.parent.dsl</module>
 
 		<module>common</module>
 		<module>aml</module>

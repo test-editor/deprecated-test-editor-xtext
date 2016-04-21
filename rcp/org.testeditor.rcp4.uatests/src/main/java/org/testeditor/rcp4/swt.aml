@@ -1,0 +1,82 @@
+package org.testeditor.rcp4
+
+import org.testeditor.fixture.swt.*
+
+interaction type reportWidgets {
+	template = "Report current visable widgets"
+	method = SWTFixture.reportWidgets
+}
+
+interaction type wait {
+	label = "wait"
+	template = "wait " ${seconds} "seconds"
+	method = SWTFixture.wait(seconds)
+}
+
+interaction type isViewVisible {
+	label = "Is view visible"
+	template = "Is view" ${element} "visible"
+	method = SWTFixture.isViewVisible(element)
+}
+
+interaction type selectElement {
+	label = "Select element"
+	template = "Select element" ${item} "in tree" ${element} 
+	method = SWTFixture.selectElementInTreeView(element,item)
+}
+
+interaction type selectElementInList {
+	label = "Select element in list"
+	template = "Select element" ${item} "in list" ${element}
+	method = SWTFixture.selectElementInList(element, item)
+}
+
+interaction type executeContextMenuEntry {
+	label = "Execute context menu entry"
+	template = "Execute menu item " ${item} " in tree" ${element} 
+	method = SWTFixture.executeContextMenuEntry(element,item)
+}
+
+interaction type typeInto {
+	label = "Type into"
+	template = "Type " ${value} " into" ${element} 
+	method = SWTFixture.typeInto(element,value)
+}
+
+interaction type click {
+	label = "Click on"
+	template = "Click on" ${element} 
+	method = SWTFixture.clickOn(element)
+}
+
+element type View {
+	interactions = isViewVisible
+}
+
+element type TreeView {
+	interactions = selectElement, isViewVisible, executeContextMenuEntry
+}
+
+element type Tree {
+	interactions = selectElement,  executeContextMenuEntry
+}
+
+element type Text {
+	interactions = typeInto
+}
+
+element type Button {
+	interactions = click
+}
+
+element type List {
+	interactions = selectElementInList
+}
+
+component type General {
+	interactions = reportWidgets, wait
+}
+
+component type Dialog {
+	interactions = reportWidgets, wait	
+}

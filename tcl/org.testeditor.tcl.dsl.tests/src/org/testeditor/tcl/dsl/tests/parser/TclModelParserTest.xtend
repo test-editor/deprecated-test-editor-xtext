@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2012 - 2015 Signal Iduna Corporation and others.
+ * Copyright (c) 2012 - 2016 Signal Iduna Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -13,6 +13,12 @@
 package org.testeditor.tcl.dsl.tests.parser
 
 import org.junit.Test
+import org.testeditor.tcl.AEComparison
+import org.testeditor.tcl.AENullCheck
+import org.testeditor.tcl.AEStringConstant
+import org.testeditor.tcl.AEVariableReference
+import org.testeditor.tcl.AssertionTestStep
+import org.testeditor.tcl.ComparatorMatches
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclPackage
 import org.testeditor.tcl.TestStepWithAssignment
@@ -158,6 +164,66 @@ class TclModelParserTest extends AbstractParserTest {
 				steps.assertSingleElement.assertInstanceOf(TestStepWithAssignment) => [
 					variableName.assertEquals('hello')
 					contents.restoreString.assertEquals('Lese den Text von <Input>')
+				]
+			]
+		]
+	}
+
+	@Test
+	def void parseTestStepAssertionWOComparator() {
+		// given
+		val input = '''
+			package com.example
+			
+			# Test
+			* Start using some keywords like is matches does not match
+			  Mask: Demo
+			  - assert hello
+		'''
+
+		// when
+		val test = parse(input)
+
+		// then
+		test.steps.assertSingleElement => [
+			contexts.assertSingleElement => [
+				steps.assertSingleElement.assertInstanceOf(AssertionTestStep) => [
+					expression.assertInstanceOf(AENullCheck) => [
+						negated.assertFalse
+						varReference.name.assertEquals("hello")
+					]
+				]
+			]
+		]
+	}
+
+	@Test
+	def void parseTestStepAssertion() {
+		// given
+		val input = '''
+			package com.example
+			
+			# Test
+			* Start using some keywords like is matches does not match
+			  Mask: Demo
+			  - assert hello does    not match ".*AAABBB.*"
+		'''
+
+		// when
+		val test = parse(input)
+
+		// then
+		test.steps.assertSingleElement => [
+			contexts.assertSingleElement => [
+				steps.assertSingleElement.assertInstanceOf(AssertionTestStep) => [
+					expression.assertInstanceOf(AEComparison) => [
+						left.assertInstanceOf(AEVariableReference) => [name.assertEquals("hello")]
+						comparator.assertInstanceOf(ComparatorMatches) => [negated.assertTrue]
+						right.assertInstanceOf(AEComparison) => [
+							left.assertInstanceOf(AEStringConstant) => [string.assertEquals(".*AAABBB.*")]
+							comparator.assertNull
+						]
+					]
 				]
 			]
 		]

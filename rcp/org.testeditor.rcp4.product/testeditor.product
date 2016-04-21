@@ -29,7 +29,7 @@
 
 
    <vm>
-      <windows include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</windows>
+      <windows include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7</windows>
    </vm>
 
 
@@ -290,7 +290,7 @@
       <feature id="org.testeditor.aml.sdk" version="1.0.0.qualifier"/>
       <feature id="org.testeditor.tcl.sdk" version="1.0.0.qualifier"/>
       <feature id="org.testeditor.tsl.sdk" version="1.0.0.qualifier"/>
-      <feature id="org.testeditor.rcp.platform.feature" version="1.0.0.qualifier"/>
+      <feature id="org.testeditor.rcp4.platform.feature" version="1.0.0.qualifier"/>
       <feature id="org.testeditor.rcp4.feature" version="1.0.0.qualifier"/>
    </features>
 

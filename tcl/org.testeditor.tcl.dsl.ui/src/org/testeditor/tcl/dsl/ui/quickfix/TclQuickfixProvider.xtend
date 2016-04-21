@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2012 - 2015 Signal Iduna Corporation and others.
+ * Copyright (c) 2012 - 2016 Signal Iduna Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.ui.quickfix
 
+import javax.inject.Inject
 import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.ResourcesPlugin
 import org.eclipse.jface.viewers.Viewer
@@ -23,21 +24,20 @@ import org.eclipse.ui.dialogs.ElementTreeSelectionDialog
 import org.eclipse.ui.model.BaseWorkbenchContentProvider
 import org.eclipse.ui.model.WorkbenchLabelProvider
 import org.eclipse.ui.part.FileEditorInput
+import org.eclipse.xtext.nodemodel.ICompositeNode
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.eclipse.xtext.ui.editor.XtextEditor
 import org.eclipse.xtext.ui.editor.quickfix.Fix
 import org.eclipse.xtext.ui.editor.quickfix.IssueResolutionAcceptor
 import org.eclipse.xtext.validation.Issue
 import org.eclipse.xtext.xbase.ui.quickfix.XbaseQuickfixProvider
-import org.testeditor.tcl.TestStepContext
-import org.testeditor.tcl.dsl.validation.TclValidator
 import org.testeditor.aml.AmlModel
-import org.eclipse.xtext.nodemodel.ICompositeNode
 import org.testeditor.tcl.TestCase
-import org.testeditor.tsl.SpecificationStep
-import java.util.List
+import org.testeditor.tcl.TestStepContext
+import org.testeditor.tcl.dsl.messages.TclSyntaxErrorMessageProvider
+import org.testeditor.tcl.dsl.validation.TclValidator
 import org.testeditor.tcl.util.TclModelUtil
-import javax.inject.Inject
+import org.testeditor.tsl.SpecificationStep
 
 /**
  * Custom quickfixes.
@@ -67,7 +67,7 @@ class TclQuickfixProvider extends XbaseQuickfixProvider {
 		]
 	}
 
-	def String getStepsDSLFragment(List<SpecificationStep> steps) '''
+	def String getStepsDSLFragment(Iterable<SpecificationStep> steps) '''
 		«FOR step : steps»
 		
 		
@@ -75,12 +75,6 @@ class TclQuickfixProvider extends XbaseQuickfixProvider {
 		
 		«ENDFOR»
 	'''
-
-	def List<SpecificationStep> getMissingTestSteps(TestCase testCase) {
-		val specSteps = testCase.specification.steps
-		val steps = testCase.steps
-		return specSteps.filter[!steps.map[it.contents.restoreString].contains(it.contents.restoreString)].toList
-	}
 
 	@Fix(TclValidator.UNKNOWN_NAME)
 	def createAMLMask(Issue issue, IssueResolutionAcceptor acceptor) {
@@ -149,5 +143,17 @@ class TclQuickfixProvider extends XbaseQuickfixProvider {
 		}
 	'''
 
-}
+	@Fix(TclSyntaxErrorMessageProvider.MISSING_TEST_DESCRIPTION)
+	def void fixMissingTestDescription(Issue issue, IssueResolutionAcceptor acceptor) {
+		val defaultTestDescription = '''
+			* test step description
+			'''
+		// inserting the missing test step in the right order and position is non trivial.
+		// the quick fix for incomplete "implements" of a tsl should provide that.
+		acceptor.accept(issue, "Add missing test description", '''
+			Add a test description that will reference 
+			the respective test of the test specification
+			''', null) [ context | context.xtextDocument.replace(issue.offset, 0, defaultTestDescription)]
+	}
 
+}

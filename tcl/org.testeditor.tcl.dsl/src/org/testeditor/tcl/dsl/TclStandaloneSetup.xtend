@@ -17,6 +17,8 @@ import org.testeditor.aml.AmlPackage
 import org.testeditor.tcl.TclPackage
 import org.testeditor.tsl.TslPackage
 
+import static extension org.testeditor.dsl.common.util.CollectionUtils.putIfAbsent
+
 /**
  * Initialization support for running Xtext languages without Equinox extension registry.
  */

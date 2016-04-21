@@ -2,6 +2,7 @@
 <?eclipse version="3.0"?>
 
 <plugin>
+   <extension-point id="tcl_launcher" name="org.testeditor.tcl.dsl.ui.testlaunch.launcher" schema="schema/tcl_launcher.exsd"/>
 
     <extension
             point="org.eclipse.ui.editors">
@@ -607,5 +608,98 @@
             type="text">
     </fileTypes>
   </extension>
+  <!-- enable run/debug of tcl files (that is the generated java test classes based on them) -->
+  <extension point="org.eclipse.debug.ui.launchShortcuts">
+      <shortcut
+            label="Test"
+            icon="icons/run_test.png"
+            helpContextId="org.eclipse.jdt.junit.launch_shortcut"
+            class="org.testeditor.tcl.dsl.ui.TclExecutableExtensionFactory:org.testeditor.tcl.dsl.ui.testlaunch.JUnitLaunchShortcut"
+            modes="run, debug"
+            id="org.testeditor.tcl.dsl.ui.junitShortcut">
+         <contextualLaunch>
+            <enablement>
+               <with
+                     variable="selection">
+                  <count
+                        value="1">
+                  </count>
+                  <iterate>
+                     <and>
+                        <not>
+                           <adapt
+                                 type="org.eclipse.jdt.core.IJavaElement">
+                           </adapt>
+                        </not>
+                        <adapt
+                              type=" org.eclipse.core.resources.IResource">
+                           <test
+                                 property="org.eclipse.core.resources.name"
+                                 value="*.tcl">
+                           </test>
+                        </adapt>
+                     </and>
+                  </iterate>
+               </with>
+            </enablement>
+         </contextualLaunch>
+         <configurationType
+               id="org.eclipse.jdt.junit.launchconfig">
+         </configurationType>
+         <description
+               description="Test"
+               mode="debug">
+         </description>
+         <description
+               description="Test"
+               mode="run">
+         </description>
+      </shortcut>
+      <shortcut
+            label="Test ..."
+            icon="icons/run_test.png"
+            helpContextId="org.eclipse.jdt.junit.launch_shortcut"
+            class="org.testeditor.tcl.dsl.ui.TclExecutableExtensionFactory:org.testeditor.tcl.dsl.ui.testlaunch.JUnitLaunchShortcutParameterized"
+            modes="run, debug"
+            id="org.testeditor.tcl.dsl.ui.junitShortcutParameterized">
+         <contextualLaunch>
+            <enablement>
+               <with
+                     variable="selection">
+                  <count
+                        value="1">
+                  </count>
+                  <iterate>
+                     <and>
+                        <not>
+                           <adapt
+                                 type="org.eclipse.jdt.core.IJavaElement">
+                           </adapt>
+                        </not>
+                        <adapt
+                              type=" org.eclipse.core.resources.IResource">
+                           <test
+                                 property="org.eclipse.core.resources.name"
+                                 value="*.tcl">
+                           </test>
+                        </adapt>
+                     </and>
+                  </iterate>
+               </with>
+            </enablement>
+         </contextualLaunch>
+         <configurationType
+               id="org.eclipse.jdt.junit.launchconfig">
+         </configurationType>
+         <description
+               description="Test ..."
+               mode="debug">
+         </description>
+         <description
+               description="Test ..."
+               mode="run">
+         </description>
+      </shortcut>
+   </extension>
 
 </plugin>

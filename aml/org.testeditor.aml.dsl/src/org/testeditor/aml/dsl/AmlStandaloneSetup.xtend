@@ -15,6 +15,8 @@ package org.testeditor.aml.dsl
 import org.eclipse.emf.ecore.EPackage
 import org.testeditor.aml.AmlPackage
 
+import static extension org.testeditor.dsl.common.util.CollectionUtils.putIfAbsent
+
 /**
  * Initialization support for running Xtext languages without Equinox extension registry.
  */

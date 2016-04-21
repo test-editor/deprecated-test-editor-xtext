@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 - 2015 Signal Iduna Corporation and others.
+ * Copyright (c) 2012 - 2016 Signal Iduna Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,12 +15,15 @@ package org.testeditor.tcl.util
 import java.util.List
 import java.util.Map
 import javax.inject.Singleton
+import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.InteractionType
 import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
+import org.testeditor.aml.ValueSpaceAssignment
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
+import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestStep
 import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContent
@@ -79,7 +82,8 @@ class TclModelUtil extends TslModelUtil {
 			it instanceof StepContentElement || it instanceof StepContentVariable
 		].toList
 		if (templateVariables.size !== stepContentVariables.size) {
-			throw new IllegalArgumentException('''Variables for '«step.contents.restoreString»' did not match the parameters of interaction '«interaction.name»'.''')
+			val message = '''Variables for '«step.contents.restoreString»' did not match the parameters of interaction '«interaction.name»'.'''
+			throw new IllegalArgumentException(message)
 		}
 		for (var i = 0; i < templateVariables.size; i++) {
 			map.put(templateVariables.get(i), stepContentVariables.get(i))
@@ -96,12 +100,54 @@ class TclModelUtil extends TslModelUtil {
 		return null
 	}
 
+	def ValueSpaceAssignment getValueSpaceAssignment(StepContentVariable contentElement) {
+		val container = contentElement.eContainer
+		if (container instanceof TestStep) {
+			val component = container.context.component
+			val valueSpace = getValueSpaceAssignment(component, container)
+			if (valueSpace != null) {
+				return valueSpace
+			}
+		}
+		return null
+	}
+
+	def ValueSpaceAssignment getValueSpaceAssignment(Component component, TestStep container) {
+		for (element : component.elements) {
+			val valueSpace = getValueSpaceAssignment(element, container)
+			if (valueSpace != null) {
+				return valueSpace
+			}
+		}
+		return null
+	}
+
+	def ValueSpaceAssignment getValueSpaceAssignment(ComponentElement element, TestStep container) {
+		val foo = element.valueSpaceAssignments
+		return foo.findFirst[variable.template.interactionType.name == container.interaction.name]
+	}
+
 	def SpecificationStep getSpecificationStep(SpecificationStepImplementation stepImplementation) {
 		val tslModel = stepImplementation.test.specification
 		if (tslModel !== null) {
 			return tslModel.steps.findFirst[matches(stepImplementation)]
 		}
 		return null
+	}
+
+	def Iterable<SpecificationStep> getMissingTestSteps(TestCase testCase) {
+		val specSteps = testCase.specification?.steps
+		val steps = testCase.steps
+		if( specSteps==null){
+			return emptyList
+		}
+		if( steps==null){
+			return specSteps.toList
+		}
+		return specSteps.filter[
+				val specStepContentsString=contents.restoreString
+				return steps.forall[contents.restoreString!=specStepContentsString]
+		]
 	}
 
 }

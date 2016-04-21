@@ -22,6 +22,10 @@
                value="TestEditor">
          </property>
 		 <property name="applicationXMI" value="org.testeditor.rcp4/Application.e4xmi"> </property>         
+         <property
+				name="lifeCycleURI"
+				value="bundleclass://org.testeditor.rcp4/org.testeditor.rcp4.ApplicationLifeCycleHandler">
+		</property>		 
       </product>
    </extension>
    <extension
@@ -46,26 +50,6 @@
                visible="true">
          </view>
       </perspectiveExtension>
-   </extension>
-   <extension
-         point="org.eclipse.ui.newWizards">
-      <wizard
-            class="org.testeditor.rcp4.NewWizard"
-            id="org.testeditor.rcp4.wizard"
-            name="Testeditor Project"
-            project="true">
-      </wizard>
-   </extension>
-   <extension
-         point="org.eclipse.ui.navigator.navigatorContent">
-         <commonFilter
-               activeByDefault="true"
-               class="org.testeditor.rcp4.NavFilter"
-               description="filter all files not of interest for the test writer"
-               id="org.testeditor.product.commonFilter"
-               name="filter technical files"
-               visibleInUI="true">
-         </commonFilter>
    </extension>
    <extension point="org.eclipse.ui.navigator.viewer">
    	<viewerContentBinding viewerId="org.eclipse.ui.navigator.ProjectExplorer">

@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2012 - 2015 Signal Iduna Corporation and others.
+ * Copyright (c) 2012 - 2016 Signal Iduna Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -14,6 +14,7 @@ package org.testeditor.aml
 
 import java.util.HashSet
 import java.util.Set
+import org.eclipse.xtext.common.types.JvmType
 
 class ModelUtil {
 
@@ -85,6 +86,13 @@ class ModelUtil {
 		return template.contents.filter(TemplateVariable).filter [
 			!name.nullOrEmpty && name != TEMPLATE_VARIABLE_ELEMENT
 		].toSet
+	}
+
+	/**
+	 * @return the fixture type if the given interaction type (may be null!)
+	 */
+	def JvmType getFixtureType(InteractionType interactionType) {
+		return interactionType?.defaultMethod?.typeReference?.type
 	}
 
 }

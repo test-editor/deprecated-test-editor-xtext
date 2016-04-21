@@ -26,14 +26,49 @@ itemis AG
    </license>
 
    <plugin
-         id="org.testeditor.rcp4.views"
+         id="org.testeditor.rcp4"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.testeditor.rcp4"
+         id="org.testeditor.rcp4.views.teststepselector"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.testeditor.rcp4.views.testview"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.testeditor.rcp4.tcltestrun"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.testeditor.rcp4.views.projectexplorer"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.testeditor.dsl.common.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.testeditor.rcp4.views.tcltestrun"
          download-size="0"
          install-size="0"
          version="0.0.0"
