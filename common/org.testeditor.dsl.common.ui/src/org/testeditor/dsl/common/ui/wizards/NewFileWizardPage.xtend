@@ -34,7 +34,7 @@ import org.eclipse.swt.widgets.Label
 import org.eclipse.swt.widgets.Text
 import org.eclipse.ui.dialogs.ContainerSelectionDialog
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
-import org.testeditor.dsl.common.ide.util.ProjectContentGenerator
+import org.testeditor.dsl.common.ui.ide.utils.ProjectContentGenerator
 
 /** 
  * The "New" wizard page allows setting the container for the new file as well

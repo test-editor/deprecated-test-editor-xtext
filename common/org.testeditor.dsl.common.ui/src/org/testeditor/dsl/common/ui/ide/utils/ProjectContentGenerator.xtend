@@ -10,7 +10,7 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.dsl.common.ide.util
+package org.testeditor.dsl.common.ui.ide.utils
 
 import java.io.File
 import java.util.ArrayList
@@ -27,6 +27,7 @@ import org.eclipse.m2e.core.project.ResolverConfiguration
 import org.eclipse.xtext.util.StringInputStream
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.testeditor.dsl.common.ide.util.FileUtils
 
 /**
  * Generator to generate content to a new test project.
