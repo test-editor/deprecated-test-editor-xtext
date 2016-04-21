@@ -120,6 +120,10 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 	def boolean withDemoCode() {
 		return demoCode.selection
 	}
+	
+	override getNextPage(){
+		return null
+	}
 
 	def SelectionListener createMoveListener(List sourceList, List destList) {
 		new SelectionAdapter() {
