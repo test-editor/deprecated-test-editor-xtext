@@ -129,7 +129,7 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 		return null
 	}
 
-	private def void moveSelectionProc(List from, List to) {
+	private def void moveSelection(List from, List to) {
 		from.selection.forEach [
 			to.add(it)
 			from.remove(it)
@@ -140,7 +140,7 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 	private def MouseListener createDblClickMouseListener(List from, List to) {
 		return new MouseListener() {
 
-			override mouseDoubleClick(MouseEvent e) { moveSelectionProc(from, to) }
+			override mouseDoubleClick(MouseEvent e) { moveSelection(from, to) }
 
 			override mouseDown(MouseEvent e) {}
 
@@ -153,7 +153,7 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 		return new SelectionAdapter() {
 
 			override widgetSelected(SelectionEvent e) {
-				moveSelectionProc(sourceList, destList)
+				moveSelection(sourceList, destList)
 			}
 
 		}
