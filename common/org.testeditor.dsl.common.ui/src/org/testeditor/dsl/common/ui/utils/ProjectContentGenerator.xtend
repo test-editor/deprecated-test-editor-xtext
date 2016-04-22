@@ -16,14 +16,17 @@ import java.io.File
 import java.util.ArrayList
 import java.util.List
 import javax.inject.Inject
+import org.eclipse.core.resources.FileInfoMatcherDescription
 import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
+import org.eclipse.core.resources.IResourceFilterDescription
 import org.eclipse.core.runtime.CoreException
 import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.m2e.core.MavenPlugin
 import org.eclipse.m2e.core.project.ResolverConfiguration
+import org.eclipse.xtext.ui.XtextProjectHelper
 import org.eclipse.xtext.util.StringInputStream
 import org.osgi.framework.FrameworkUtil
 import org.slf4j.Logger
@@ -35,9 +38,9 @@ import org.testeditor.dsl.common.ide.util.FileUtils
  */
 class ProjectContentGenerator {
 
-	static public val MAVEN = "Maven"
-	static public val GRADLE = "Gradle"
-	static public val WEBFIXTURE = "Web Fixture"
+	static public val String MAVEN = "Maven"
+	static public val String GRADLE = "Gradle"
+	static public val String WEBFIXTURE = "Web Fixture"
 	static public val String SRC_FOLDER = 'src/main/java'
 	static public val String SRC_TEST_FOLDER = 'src/test/java'
 
@@ -47,49 +50,64 @@ class ProjectContentGenerator {
 	private static Logger logger = LoggerFactory.getLogger(ProjectContentGenerator)
 
 	@Inject FileLocatorService fileLocatorService
+	@Inject extension ProjectUtils
 
 	def void createProjectContent(IProject project, String[] fixtures, String buildsystem, boolean demo,
 		IProgressMonitor monitor) throws CoreException{
-		project.getFolder(SRC_TEST_FOLDER + "/" + project.name).create(true, false, new NullProgressMonitor())
-		project.getFolder(SRC_FOLDER + "/" + project.name).create(true, false, new NullProgressMonitor())
-		var String amlContent = null
-		var IFile initAml = null;
-		if (buildsystem == MAVEN) {
-			initAml = project.getFile(SRC_FOLDER + "/" + project.name + "/" + project.name + ".aml")
-			setupMavenInProject(project, fixtures, monitor)
-		}
-		if (buildsystem == GRADLE) {
-			initAml = project.getFile(SRC_TEST_FOLDER + "/" + project.name + "/" + project.name + ".aml")
-			setupGradleInProject(project, fixtures, monitor)
-		}
-		if (demo) {
-			amlContent = getDemoAMLContent(fixtures, project.name)
-			for (fixture : fixtures) {
-				createDemoTestCase(fixture, project, SRC_TEST_FOLDER)
+		project => [
+			val projectMain = SRC_FOLDER + "/" + name
+			val projectTest = SRC_TEST_FOLDER + "/" + name
+			var String amlContent = null
+			var IFile initAml = null
+			if (buildsystem == MAVEN) {
+				initAml = getFile(projectMain + "/" + name + ".aml")
+				setupMavenProject(fixtures, monitor)
 			}
-		} else {
-			amlContent = getInitialAMLContent(fixtures, project.name)
-		}
-		initAml.create(new StringInputStream(amlContent), IResource.NONE, monitor)
-		if (buildsystem == GRADLE) {
-			setupEclipseMetaData(project, monitor)
-		}
+			if (buildsystem == GRADLE) {
+				initAml = getFile(projectTest + "/" + name + ".aml")
+				setupGradleProject(fixtures, monitor)
+			}
+			createOrGetDeepFolder(projectMain)
+			createOrGetDeepFolder(projectTest)
+			if (demo) {
+				amlContent = getDemoAMLContent(fixtures, name)
+				fixtures.forEach[createDemoTestCase(project, SRC_TEST_FOLDER)]
+			} else {
+				amlContent = getInitialAMLContent(fixtures, name)
+			}
+			initAml.create(new StringInputStream(amlContent), IResource.NONE, monitor)
+			if (buildsystem == GRADLE) {
+				setupEclipseMetaData(monitor)
+			}
+			filterTechnicalProjectFiles(monitor)
+		]
 	}
 
-	protected def setupEclipseMetaData(IProject project, IProgressMonitor monitor) {
-		val List<String> command = new ArrayList<String>
+	private def filterTechnicalProjectFiles(IProject project, IProgressMonitor monitor) {
+		// make sure that no target folder is included into any resource set
+		#["target", "build", "src-gen", "xtend-gen"].forEach [
+			project.createFilter(IResourceFilterDescription.EXCLUDE_ALL.bitwiseOr(IResourceFilterDescription.FOLDERS),
+				new FileInfoMatcherDescription("org.eclipse.core.resources.regexFilterMatcher", it), // hide (maven,gradle,xtend,xtext) generated/copied artifacts
+				IResource.BACKGROUND_REFRESH, monitor)
+		]
+	}
+
+	protected def void setupEclipseMetaData(IProject project, IProgressMonitor monitor) {
 		val fileExtension = if (System.getProperty("os.name").toLowerCase.startsWith("win")) {
 				".bat"
 			} else {
 				""
 			}
-		command.add(project.location.toFile.toString + File.separator + "gradlew" + fileExtension);
-		command.add("eclipse");
-		val ProcessBuilder processBuilder = new ProcessBuilder
-		processBuilder.inheritIO
-		processBuilder.redirectErrorStream(true)
-		processBuilder.command(command)
-		processBuilder.directory(project.location.toFile)
+		val command = new ArrayList<String> => [
+			add(project.location.toFile.toString + File.separator + "gradlew" + fileExtension)
+			add("eclipse")
+		]
+		val ProcessBuilder processBuilder = new ProcessBuilder => [
+			inheritIO
+			redirectErrorStream(true)
+			command(command)
+			directory(project.location.toFile)
+		]
 		logger.info("Create eclipse project with gradle command {}", command)
 		val process = processBuilder.start
 		try {
@@ -101,30 +119,30 @@ class ProjectContentGenerator {
 		project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
 	}
 
-	protected def setupGradleInProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
+	protected def void setupGradleProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
 		var IFile buildFile = project.getFile("build.gradle")
 		buildFile.create(new StringInputStream(getBuildGradleContent(fixtures)), IResource.NONE, monitor)
 		val name = FrameworkUtil.getBundle(ProjectContentGenerator).symbolicName
 		val bundleLocation = fileLocatorService.findBundleFileLocationAsString(name)
 		val src = new File(bundleLocation, "gradlewrapper")
-		FileUtils.copyFolder(src, project.location.toFile);
+		FileUtils.copyFolder(src, project.location.toFile)
 	}
 
-	protected def setupMavenInProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
+	protected def void setupMavenProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
 		var IFile buildFile = project.getFile("pom.xml")
 		buildFile.create(new StringInputStream(getPomContent(fixtures, project.name)), IResource.NONE, monitor)
-		var configurationManager = MavenPlugin.getProjectConfigurationManager()
+		var configurationManager = MavenPlugin.projectConfigurationManager
 		var configuration = new ResolverConfiguration
 		configuration.resolveWorkspaceProjects = true
 		configuration.selectedProfiles = ""
+		project.addNature(XtextProjectHelper.NATURE_ID)
 		configurationManager.enableMavenNature(project, configuration, monitor)
-		configurationManager.updateProjectConfiguration(project, monitor)
 	}
 
-	protected def createDemoTestCase(String fixture, IProject project, String srcFolder) {
+	protected def void createDemoTestCase(String fixture, IProject project, String srcFolder) {
 		if (fixture == WEBFIXTURE) {
 			val tclFile = project.getFile(srcFolder + "/" + project.name + "/GoogleTest.tcl")
-			tclFile.create(new StringInputStream(getGoogleTestCase(project.name)), false, new NullProgressMonitor())
+			tclFile.create(new StringInputStream(getGoogleTestCase(project.name)), false, new NullProgressMonitor)
 		}
 	}
 
@@ -490,6 +508,14 @@ class ProjectContentGenerator {
 
 	def List<String> getAvailableFixtureNames() {
 		return #[WEBFIXTURE, SWINGFIXTURE]
+	}
+
+	private def void addNature(IProject newProject, String nature) {
+		if (!newProject.hasNature(nature)) {
+			val description = newProject.getDescription
+			description.setNatureIds(description.getNatureIds + #[nature])
+			newProject.setDescription(description, null)
+		}
 	}
 
 }
