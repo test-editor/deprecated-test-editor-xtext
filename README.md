@@ -2,7 +2,7 @@ test-editor-xtext
 =================
 
 [![License](http://img.shields.io/badge/license-EPL-blue.svg?style=flat)](https://www.eclipse.org/legal/epl-v10.html)
-[![Build Status](https://travis-ci.org/test-editor/test-editor-xtext.svg?branch=develop)](https://travis-ci.org/test-editor/test-editor-xtext)
+[![Build Status](https://ci.testeditor.org/buildStatus/icon?job=Test-Editor-Xtext)](https://ci.testeditor.org/job/Test-Editor-Xtext/)
 
 An Xtext based editor to specify domain-driven acceptance tests.
 

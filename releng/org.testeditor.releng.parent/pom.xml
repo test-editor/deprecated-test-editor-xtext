@@ -20,7 +20,6 @@
 		<maven-resources-plugin.version>2.7</maven-resources-plugin.version>
 		<maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
 
-
 		<!-- Settings for xtext-maven-plugin -->
 		<xtext.encoding>${project.build.sourceEncoding}</xtext.encoding>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
@@ -28,7 +27,23 @@
 
 		<!-- point to te.target -->
 		<xtext-target>file:///${basedir}/../../releng/org.testeditor.releng.target/p2-local</xtext-target>
+
+		<!-- other properties -->
+		<tycho-surefire-argline>-Xms40m -Xmx1G</tycho-surefire-argline>
+		<os-jvm-flags />
 	</properties>
+
+	<profiles>
+		<profile>
+			<id>macosx-jvm-flags</id>
+			<activation>
+				<os><family>mac</family></os>
+			</activation>
+			<properties>
+				<os-jvm-flags>-XstartOnFirstThread</os-jvm-flags>
+			</properties>
+		</profile>
+	</profiles>
 
 	<repositories>
 		<repository>
@@ -130,6 +145,14 @@
 								</pluginExecution>
 							</pluginExecutions>
 						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-surefire-plugin</artifactId>
+					<version>${tycho-version}</version>
+					<configuration>
+						<argLine>${tycho-surefire-argline} ${os-jvm-flags}</argLine>
 					</configuration>
 				</plugin>
 			</plugins>
