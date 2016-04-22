@@ -14,6 +14,7 @@ package org.testeditor.dsl.common.ui.wizards
 
 import org.eclipse.jface.wizard.WizardPage
 import org.eclipse.swt.SWT
+import org.eclipse.swt.events.MouseAdapter
 import org.eclipse.swt.events.MouseEvent
 import org.eclipse.swt.events.MouseListener
 import org.eclipse.swt.events.SelectionAdapter
@@ -138,13 +139,11 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 	}
 
 	private def MouseListener createDblClickMouseListener(List from, List to) {
-		return new MouseListener() {
+		return new MouseAdapter() {
 
-			override mouseDoubleClick(MouseEvent e) { moveSelection(from, to) }
-
-			override mouseDown(MouseEvent e) {}
-
-			override mouseUp(MouseEvent e) {}
+			override mouseDoubleClick(MouseEvent e) {
+				moveSelection(from, to)
+			}
 
 		}
 	}
