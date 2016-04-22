@@ -49,10 +49,6 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 		title = "Project configuration"
 	}
 
-	override isPageComplete() {
-		return !selectedFixtures.empty
-	}
-
 	override void createControl(Composite superParent) {
 		val parent = new Composite(superParent, SWT.NONE) => [layout = new GridLayout(3, false)]
 		createBuildSystemSelectionArea(parent)
@@ -130,12 +126,11 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 		return null
 	}
 
-	private def void moveSelection(List from, List to) {
+	def void moveSelection(List from, List to) {
 		from.selection.forEach [
 			to.add(it)
 			from.remove(it)
 		]
-		container.updateButtons
 	}
 
 	private def MouseListener createDblClickMouseListener(List from, List to) {
@@ -143,16 +138,18 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 
 			override mouseDoubleClick(MouseEvent e) {
 				moveSelection(from, to)
+				container.updateButtons
 			}
 
 		}
 	}
 
-	def SelectionListener createMoveListener(List sourceList, List destList) {
+	private def SelectionListener createMoveListener(List sourceList, List destList) {
 		return new SelectionAdapter() {
 
 			override widgetSelected(SelectionEvent e) {
 				moveSelection(sourceList, destList)
+				container.updateButtons
 			}
 
 		}

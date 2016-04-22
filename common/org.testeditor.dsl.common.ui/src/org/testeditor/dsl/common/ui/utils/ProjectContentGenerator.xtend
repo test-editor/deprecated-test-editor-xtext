@@ -503,7 +503,7 @@ class ProjectContentGenerator {
 	}
 
 	def List<String> getAvailableBuildSystems() {
-		return #[MAVEN, GRADLE]
+		return #[GRADLE, MAVEN]
 	}
 
 	def List<String> getAvailableFixtureNames() {
