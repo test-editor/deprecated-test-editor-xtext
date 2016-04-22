@@ -12,9 +12,16 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.ui.utils
 
+import com.google.common.io.ByteStreams
+import com.google.common.io.Files
 import java.io.File
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 import java.util.ArrayList
 import java.util.List
+import java.util.zip.ZipException
+import java.util.zip.ZipFile
 import javax.inject.Inject
 import org.eclipse.core.resources.FileInfoMatcherDescription
 import org.eclipse.core.resources.IFile
@@ -124,8 +131,36 @@ class ProjectContentGenerator {
 		buildFile.create(new StringInputStream(getBuildGradleContent(fixtures)), IResource.NONE, monitor)
 		val name = FrameworkUtil.getBundle(ProjectContentGenerator).symbolicName
 		val bundleLocation = fileLocatorService.findBundleFileLocationAsString(name)
-		val src = new File(bundleLocation, "gradlewrapper")
-		FileUtils.copyFolder(src, project.location.toFile)
+		val dest = project.location.toFile
+		if (bundleLocation.endsWith(".jar")) {
+			unpackZipFile(new File(bundleLocation), dest, "gradlewrapper/")
+		} else {
+			val src = new File(bundleLocation, "gradlewrapper")
+			FileUtils.copyFolder(src, dest)
+		}
+	}
+
+	def void unpackZipFile(File archive, File targetDirectory, String prefix) throws ZipException, IOException {
+		val zipFile = new ZipFile(archive)
+		val entries = zipFile.entries
+		while (entries.hasMoreElements) {
+			val zipEntry = entries.nextElement
+			if (!zipEntry.isDirectory && zipEntry.name.startsWith(prefix)) {
+				val targetName = zipEntry.name.replace(prefix, "")
+				val targetFile = new File(targetDirectory, targetName)
+				Files.createParentDirs(targetFile)
+				var InputStream inputStream
+				var OutputStream outputStream
+				try {
+					inputStream = zipFile.getInputStream(zipEntry)
+					outputStream = Files.newOutputStreamSupplier(targetFile).output
+					ByteStreams.copy(inputStream, outputStream)
+				} finally {
+					inputStream?.close
+					outputStream?.close
+				}
+			}
+		}
 	}
 
 	protected def void setupMavenProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
