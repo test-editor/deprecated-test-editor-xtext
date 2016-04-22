@@ -2,7 +2,8 @@ package org.testeditor.dsl.common.utils
 
 import org.junit.Test
 import java.util.HashMap
-import  static org.junit.Assert.*
+import static org.junit.Assert.*
+import static extension org.testeditor.dsl.common.utils.CollectionUtils.putIfAbsent
 
 class CollectionUtilsTest {
 	

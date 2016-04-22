@@ -1,4 +1,4 @@
-package org.testeditor.dsl.common.util
+package org.testeditor.dsl.common.utils
 
 import java.util.Map
 
