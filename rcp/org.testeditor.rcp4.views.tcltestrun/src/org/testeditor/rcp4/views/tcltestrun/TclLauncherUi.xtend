@@ -16,8 +16,8 @@ import com.google.common.io.Files
 import java.io.File
 import java.io.IOException
 import java.nio.charset.StandardCharsets
-import java.util.HashMap
 import java.util.Map
+import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.IProgressMonitor
@@ -33,7 +33,6 @@ import org.testeditor.rcp4.tcltestrun.TclGradleLauncher
 import org.testeditor.rcp4.tcltestrun.TclLauncher
 import org.testeditor.rcp4.tcltestrun.TclMavenLauncher
 import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
-import java.util.concurrent.atomic.AtomicReference
 
 class TclLauncherUi implements Launcher {
 	static val logger = LoggerFactory.getLogger(TclLauncherUi)
@@ -44,7 +43,7 @@ class TclLauncherUi implements Launcher {
 
 	override boolean launch(IStructuredSelection selection, IProject project, String elementId, String mode,
 		boolean parameterize) {
-		val options = new HashMap<String, Object>
+		val options = newHashMap
 		if (project.getFile("build.gradle").exists) {
 			return launchTest(selection, project, elementId, gradleLauncher, options)
 		}

@@ -15,7 +15,6 @@ package org.testeditor.tcl.dsl.tests
 import com.google.inject.Guice
 import com.google.inject.Injector
 import com.google.inject.Module
-import java.util.ArrayList
 import java.util.List
 import javax.inject.Inject
 import org.eclipse.xtext.junit4.AbstractXtextTests
@@ -47,8 +46,7 @@ abstract class AbstractTest extends AbstractXtextTests {
 	}
 
 	protected def Injector createInjector() {
-		val modules = new ArrayList<Module>
-		modules += new TclRuntimeModule
+		val modules = newArrayList(new TclRuntimeModule)
 		modules.collectModules
 
 		val mixinModule = Modules2.mixin(modules)
@@ -63,7 +61,7 @@ abstract class AbstractTest extends AbstractXtextTests {
 	/**
 	 * Subclasses may add modules here, they will be mixed-in.
 	 */	
-	protected def void collectModules(List<Module> modules) {
+	protected def void collectModules(List<? extends Module> modules) {
 	}
 	
 }

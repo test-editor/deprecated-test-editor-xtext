@@ -1,6 +1,5 @@
 package org.testeditor.tcl.dsl.ui.testlaunch
 
-import java.util.HashMap
 import java.util.Set
 import javax.inject.Inject
 import org.eclipse.core.resources.IProject
@@ -23,7 +22,7 @@ class JUnitLaunchShortcut extends org.eclipse.jdt.junit.launcher.JUnitLaunchShor
 	public val EXTENSION_POINT_LAUNCHER_ID = "org.testeditor.tcl.dsl.ui.tcl_launcher"
 	public val EXTENSION_POINT_CLASS_ATTRIBUTE = "class"
 
-	val launcherMap = new HashMap<Launcher, IConfigurationElement>
+	val launcherMap = <Launcher,IConfigurationElement>newHashMap
 
 	@Inject extension LaunchShortcutUtil
 

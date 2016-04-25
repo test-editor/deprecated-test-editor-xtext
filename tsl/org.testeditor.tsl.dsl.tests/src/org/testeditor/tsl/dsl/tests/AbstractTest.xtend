@@ -43,8 +43,7 @@ abstract class AbstractTest extends AbstractXtextTests {
 	}
 	
 	protected def Injector createInjector() {
-		val modules = new ArrayList<Module>
-		modules += new TslRuntimeModule
+		val modules = newArrayList(new TslRuntimeModule)
 		modules.collectModules
 		
 		val mixinModule = Modules2.mixin(modules)
@@ -59,7 +58,7 @@ abstract class AbstractTest extends AbstractXtextTests {
 	/**
 	 * Subclasses may add modules here, they will be mixed-in.
 	 */	
-	protected def void collectModules(List<Module> modules) {
+	protected def void collectModules(List<? extends Module> modules) {
 	}
 	
 }

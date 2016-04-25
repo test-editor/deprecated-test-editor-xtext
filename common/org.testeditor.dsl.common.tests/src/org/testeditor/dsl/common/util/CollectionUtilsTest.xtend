@@ -1,7 +1,7 @@
 package org.testeditor.dsl.common.util
 
 import org.junit.Test
-import java.util.HashMap
+
 import static org.junit.Assert.*
 
 import static extension org.testeditor.dsl.common.util.CollectionUtils.*
@@ -24,7 +24,7 @@ class CollectionUtilsTest {
 	@Test
 	def void testAddIfNotExisting() {
 		// given
-		val map = new HashMap<String, String>
+		val map = newHashMap
 
 		// when
 		map.putIfAbsent("notexisting", "othervalue")
