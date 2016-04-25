@@ -12,16 +12,8 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.ui.utils
 
-import com.google.common.io.ByteStreams
-import com.google.common.io.Files
 import java.io.File
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
-import java.util.ArrayList
 import java.util.List
-import java.util.zip.ZipException
-import java.util.zip.ZipFile
 import javax.inject.Inject
 import org.eclipse.core.resources.FileInfoMatcherDescription
 import org.eclipse.core.resources.IFile
@@ -104,22 +96,27 @@ class ProjectContentGenerator {
 			} else {
 				""
 			}
-		val command = new ArrayList<String> => [
-			add(project.location.toFile.toString + File.separator + "gradlew" + fileExtension)
-			add("eclipse")
-		]
-		val ProcessBuilder processBuilder = new ProcessBuilder => [
+		val completedFileName = project.location.toOSString + File.separator + "gradlew" + fileExtension
+		if (!new File(completedFileName).canExecute) {
+			logger.warn("completedFileName='{}' is not executable for user='{}'", completedFileName,
+				System.getProperty("user.name"))
+		}
+		val command = #[completedFileName, "eclipse"]
+		val processBuilder = new ProcessBuilder => [
 			inheritIO
 			redirectErrorStream(true)
 			command(command)
 			directory(project.location.toFile)
 		]
-		logger.info("Create eclipse project with gradle command {}", command)
-		val process = processBuilder.start
+		logger.info("Create eclipse project with gradle command={}", command)
+
 		try {
-			process.waitFor
-		} catch (InterruptedException e) {
-			logger.info("Error", e)
+			val result = processBuilder.start.waitFor
+			if (result != 0) {
+				logger.warn("gradle command return with result='{}'", result)
+			}
+		} catch (Exception e) {
+			logger.error("error during gradle command execution", e)
 		}
 		logger.debug("Project {} refreshed", project)
 		project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
@@ -138,7 +135,12 @@ class ProjectContentGenerator {
 			val src = new File(bundleLocation, "gradlewrapper")
 			FileUtils.copyFolder(src, dest)
 		}
-		#["gradlew", "gradlew.bat"].forEach[new File(dest, it).setExecutable(true, false)]
+		#["gradlew", "gradlew.bat"].forEach [
+			val success = new File(dest, it).setExecutable(true, false)
+			if (!success) {
+				logger.warn("could not make file='{}' in dest='{}' executable", it, dest)
+			}
+		]
 	}
 
 	protected def void setupMavenProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
