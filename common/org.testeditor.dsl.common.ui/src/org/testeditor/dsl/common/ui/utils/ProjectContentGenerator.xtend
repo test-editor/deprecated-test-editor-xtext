@@ -133,35 +133,12 @@ class ProjectContentGenerator {
 		val dest = project.location.toFile
 		logger.info("using bundleLocation='{}' to copy gradlewrapper", bundleLocation)
 		if (bundleLocation.endsWith(".jar")) {
-			unpackZipFile(new File(bundleLocation), dest, "gradlewrapper/")
+			FileUtils.unpackZipFile(new File(bundleLocation), dest, "gradlewrapper/")
 		} else {
 			val src = new File(bundleLocation, "gradlewrapper")
 			FileUtils.copyFolder(src, dest)
 		}
-	}
-
-	// TODO move to file utils
-	def void unpackZipFile(File archive, File targetDirectory, String prefix) throws ZipException, IOException {
-		val zipFile = new ZipFile(archive)
-		val entries = zipFile.entries
-		while (entries.hasMoreElements) {
-			val zipEntry = entries.nextElement
-			if (!zipEntry.isDirectory && zipEntry.name.startsWith(prefix)) {
-				val targetName = zipEntry.name.replace(prefix, "")
-				val targetFile = new File(targetDirectory, targetName)
-				Files.createParentDirs(targetFile)
-				var InputStream inputStream
-				var OutputStream outputStream
-				try {
-					inputStream = zipFile.getInputStream(zipEntry)
-					outputStream = Files.newOutputStreamSupplier(targetFile).output
-					ByteStreams.copy(inputStream, outputStream)
-				} finally {
-					inputStream?.close
-					outputStream?.close
-				}
-			}
-		}
+		#["gradlew", "gradlew.bat"].forEach[new File(dest, it).setExecutable(true, false)]
 	}
 
 	protected def void setupMavenProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
