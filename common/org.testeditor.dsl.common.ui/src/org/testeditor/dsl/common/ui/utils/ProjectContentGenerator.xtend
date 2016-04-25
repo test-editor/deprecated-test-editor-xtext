@@ -22,7 +22,6 @@ import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IResourceFilterDescription
 import org.eclipse.core.runtime.CoreException
 import org.eclipse.core.runtime.IProgressMonitor
-import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.m2e.core.MavenPlugin
 import org.eclipse.m2e.core.project.ResolverConfiguration
 import org.eclipse.xtext.ui.XtextProjectHelper
@@ -69,7 +68,7 @@ class ProjectContentGenerator {
 			createOrGetDeepFolder(projectTest)
 			if (demo) {
 				amlContent = getDemoAMLContent(fixtures, name)
-				fixtures.forEach[createDemoTestCase(project, SRC_TEST_FOLDER)]
+				fixtures.forEach[createDemoTestCase(project, SRC_TEST_FOLDER, monitor)]
 			} else {
 				amlContent = getInitialAMLContent(fixtures, name)
 			}
@@ -113,7 +112,7 @@ class ProjectContentGenerator {
 		try {
 			val result = processBuilder.start.waitFor
 			if (result != 0) {
-				logger.warn("gradle command return with result='{}'", result)
+				logger.warn("gradle command returned with result='{}'", result)
 			}
 		} catch (Exception e) {
 			logger.error("error during gradle command execution", e)
@@ -154,10 +153,10 @@ class ProjectContentGenerator {
 		configurationManager.enableMavenNature(project, configuration, monitor)
 	}
 
-	protected def void createDemoTestCase(String fixture, IProject project, String srcFolder) {
+	protected def void createDemoTestCase(String fixture, IProject project, String srcFolder, IProgressMonitor monitor) {
 		if (fixture == WEBFIXTURE) {
 			val tclFile = project.getFile(srcFolder + "/" + project.name + "/GoogleTest.tcl")
-			tclFile.create(new StringInputStream(getGoogleTestCase(project.name)), false, new NullProgressMonitor)
+			tclFile.create(new StringInputStream(getGoogleTestCase(project.name)), false, monitor)
 		}
 	}
 

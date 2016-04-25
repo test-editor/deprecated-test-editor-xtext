@@ -10,8 +10,11 @@
  */
 package org.testeditor.dsl.common.ide.util
 
+import com.google.common.io.ByteStreams
 import java.io.File
 import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 import java.nio.file.FileVisitResult
 import java.nio.file.FileVisitor
 import java.nio.file.Files
@@ -20,25 +23,20 @@ import java.nio.file.Path
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.StandardCopyOption
 import java.nio.file.attribute.BasicFileAttributes
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import java.util.Set
 import java.util.zip.ZipException
 import java.util.zip.ZipFile
-import java.io.InputStream
-import java.io.OutputStream
-import com.google.common.io.ByteStreams
-import java.util.Set
+import org.slf4j.LoggerFactory
 
 /** 
  * Util class for file operations.
  */
 final class FileUtils {
-	/** 
-	 */
-	private new() { // do nothing
-	}
 
-	static Logger logger = LoggerFactory.getLogger(FileUtils)
+	static val logger = LoggerFactory.getLogger(FileUtils)
+
+	private new() {
+	}
 
 	/** 
 	 * copies the directories.
@@ -47,23 +45,26 @@ final class FileUtils {
 	 * @throws IOExceptionIOException
 	 */
 	def static void copyFolder(File src, File dest) throws IOException {
-		if (src.isDirectory()) {
+		if (src.directory) {
 			// if directory not exists, create it
-			if (!dest.exists() && dest.mkdirs()) {
-				logger.info("Directory copied from {}  to {} ", src, dest)
+			if (!dest.exists && !dest.mkdirs) {
+				logger.error("target directory dest='{}' could not be created, copying of src='{}' omitted.",dest, src)
+				return
 			}
 			// list all the directory contents
-			var String[] files = src.list()
-			for (String file : files) {
+			src.list.forEach [
 				// construct the src and dest file structure
-				var File srcFile = new File(src, file)
-				var File destFile = new File(dest, file)
+				var File srcFile = new File(src, it)
+				var File destFile = new File(dest, it)
 				// recursive copy
 				copyFolder(srcFile, destFile)
-			}
-		} else {
-			Files.copy(src.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING)
+			]
+			logger.info("Directory copied from src='{}' to dest='{}'.", src, dest)			
+		} else if(src.file) {
+			Files.copy(src.toPath, dest.toPath, StandardCopyOption.REPLACE_EXISTING)
 			logger.debug("File copied from {}  to {} ", src, dest)
+		} else {
+			logger.warn("ignored src='{}' during copy, since it is neither file nor directory.", src)
 		}
 	}
 
@@ -85,7 +86,7 @@ final class FileUtils {
 			}
 		}
 	}
-	
+
 	/**
 	 * copy entries starting with filteredFilePrefix from the given zip/jar into the targetDirectory.
 	 * since each zip/jar entries has the complete path as prefix, this can be used to copy complete subtrees.
@@ -96,11 +97,12 @@ final class FileUtils {
 	 * @param filteredFilePrefix path-string that an entry must start with in order to be copied
 	 * @return Set<String> of created files as file-path-strings
 	 */
-	def static Set<String> unpackZipFile(File archive, File targetDirectory, String filteredFilePrefix) throws ZipException, IOException {
-		val result=newHashSet
+	def static Set<String> unpackZipFile(File archive, File targetDirectory,
+		String filteredFilePrefix) throws ZipException, IOException {
+		val result = newHashSet
 		val zipFile = new ZipFile(archive)
 		val entries = zipFile.entries
-		val targetDirString=targetDirectory.absolutePath
+		val targetDirString = targetDirectory.absolutePath
 		while (entries.hasMoreElements) {
 			val zipEntry = entries.nextElement
 			if (!zipEntry.isDirectory && zipEntry.name.startsWith(filteredFilePrefix)) {
@@ -123,5 +125,4 @@ final class FileUtils {
 		return result
 	}
 
-	
 }
