@@ -36,7 +36,6 @@ import org.eclipse.m2e.core.project.ResolverConfiguration
 import org.eclipse.xtext.ui.XtextProjectHelper
 import org.eclipse.xtext.util.StringInputStream
 import org.osgi.framework.FrameworkUtil
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ide.util.FileUtils
 
@@ -54,7 +53,7 @@ class ProjectContentGenerator {
 	// NOT API yet.
 	static val SWINGFIXTURE = "Swing Fixture"
 
-	private static Logger logger = LoggerFactory.getLogger(ProjectContentGenerator)
+	private static val logger = LoggerFactory.getLogger(ProjectContentGenerator)
 
 	@Inject FileLocatorService fileLocatorService
 	@Inject extension ProjectUtils
@@ -132,6 +131,7 @@ class ProjectContentGenerator {
 		val name = FrameworkUtil.getBundle(ProjectContentGenerator).symbolicName
 		val bundleLocation = fileLocatorService.findBundleFileLocationAsString(name)
 		val dest = project.location.toFile
+		logger.info("using bundleLocation='{}' to copy gradlewrapper", bundleLocation)
 		if (bundleLocation.endsWith(".jar")) {
 			unpackZipFile(new File(bundleLocation), dest, "gradlewrapper/")
 		} else {
@@ -140,6 +140,7 @@ class ProjectContentGenerator {
 		}
 	}
 
+	// TODO move to file utils
 	def void unpackZipFile(File archive, File targetDirectory, String prefix) throws ZipException, IOException {
 		val zipFile = new ZipFile(archive)
 		val entries = zipFile.entries

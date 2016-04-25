@@ -27,7 +27,7 @@ public class Application implements IApplication {
 	 * @see IApplication#start(org.eclipse.equinox.app.IApplicationContext)
 	 */
 	override start(IApplicationContext context) {
-		logger.info("STARTING APPLICATION ..");
+		logger.info("STARTING APPLICATION ..")
 		val display = PlatformUI.createDisplay
 		try {
 			val returnCode = PlatformUI.createAndRunWorkbench(display, new ApplicationWorkbenchAdvisor)
@@ -45,7 +45,7 @@ public class Application implements IApplication {
 	 * @see IApplication#stop()
 	 */
 	override stop() {
-		logger.info("STOPPING APPLICATION ..");
+		logger.info("STOPPING APPLICATION ..")
 		if (!PlatformUI.isWorkbenchRunning) {
 			return
 		}
