@@ -1,5 +1,23 @@
 # swing
 
-A simple demo project that shows the usage of AML by example.
+A simple demo project that shows the test-editor 2 concepts.
 
-Work in progress! Generated source are currently checked in for demo purposes and comparison.
+## Gradle
+
+Build and execute tests:
+
+	./gradlew clean build
+
+Import as project:
+
+	./gradlew eclipse
+	
+## Maven
+
+Build and execute tests:
+
+	mvn clean install
+
+Import as project:
+
+	mvn eclipse:eclipse
