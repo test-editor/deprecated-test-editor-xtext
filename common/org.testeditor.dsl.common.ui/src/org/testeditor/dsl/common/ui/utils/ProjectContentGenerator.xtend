@@ -244,13 +244,16 @@ class ProjectContentGenerator {
 			group = 'org.testeditor.demo'
 			version = '1.0.0-SNAPSHOT'
 			
-			// Apply the java plugin to add support for Java
-			apply plugin: 'java'
-			
 			// In this section you declare where to find the dependencies of your project
 			repositories {
 			    jcenter()
-			    mavenLocal()
+			    maven { url "http://dl.bintray.com/test-editor/Fixtures" }
+			    maven { url "http://dl.bintray.com/test-editor/test-dsls" }
+			}
+			
+			// Configure the testeditor plugin
+			testeditor {
+				version '1.0.0'
 			}
 			
 			// In this section you declare the dependencies for your production and test code
@@ -258,7 +261,7 @@ class ProjectContentGenerator {
 			    «FOR s : fixtureNames»
 			    	«getGradleDependency(s)»
 				«ENDFOR»
-				testCompile 'junit:junit:4.12'
+			    testCompile 'junit:junit:4.12'
 			}
 		'''
 	}
