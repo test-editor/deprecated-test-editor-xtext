@@ -27,11 +27,13 @@ import org.mockito.MockitoAnnotations
 import org.testeditor.aml.dsl.AmlRuntimeModule
 import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.dsl.common.testing.AssertionHelper
+import org.testeditor.dsl.common.testing.XtextAssertionHelper
 
 @RunWith(XtextRunner)
 abstract class AbstractTest extends AbstractXtextTests {
 	
 	@Inject protected extension AssertionHelper
+	@Inject protected extension XtextAssertionHelper
 	@Inject protected extension ValidationTestHelper
 	
 	override setUp() throws Exception {
