@@ -1,4 +1,4 @@
-# swing
+# swing-gradle
 
 A simple demo project that shows the test-editor 2 concepts.
 
