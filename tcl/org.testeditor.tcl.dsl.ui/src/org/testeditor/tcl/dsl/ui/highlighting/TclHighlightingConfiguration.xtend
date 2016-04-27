@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -28,6 +28,13 @@ class TclHighlightingConfiguration extends DefaultHighlightingConfiguration {
 		acceptor.acceptDefaultHighlighting(TEST_CASE_NAME, "TestCase Name", testCaseName)
 		acceptor.acceptDefaultHighlighting(COMPONENT_ELEMENT_REFERENCE, "Component Element Reference",
 			componentElementReference)
+		acceptor.acceptDefaultHighlighting(STEP_CONTENT_ELEMENT, "Step content element", stepContentElement)
+	}
+
+	def stepContentElement() {
+		val textStyle = defaultTextStyle.copy
+		textStyle.style = SWT.BOLD.bitwiseOr(SWT.ITALIC)
+		return textStyle
 	}
 
 	def TextStyle testCaseName() {
