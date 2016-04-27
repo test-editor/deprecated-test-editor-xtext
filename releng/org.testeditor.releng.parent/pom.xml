@@ -30,7 +30,8 @@
 
 		<!-- other properties -->
 		<tycho-surefire-argline>-Xms40m -Xmx1G</tycho-surefire-argline>
-		<os-jvm-flags />
+		<os-jvm-flags></os-jvm-flags>
+		<argLine>${tycho-surefire-argline} ${os-jvm-flags}</argLine>
 	</properties>
 
 	<profiles>
@@ -151,9 +152,6 @@
 					<groupId>org.eclipse.tycho</groupId>
 					<artifactId>tycho-surefire-plugin</artifactId>
 					<version>${tycho-version}</version>
-					<configuration>
-						<argLine>${tycho-surefire-argline} ${os-jvm-flags}</argLine>
-					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -205,7 +203,6 @@
 					</execution>
 					<execution>
 						<id>report</id>
-						<phase>test</phase>
 						<goals>
 							<goal>report</goal>
 						</goals>
