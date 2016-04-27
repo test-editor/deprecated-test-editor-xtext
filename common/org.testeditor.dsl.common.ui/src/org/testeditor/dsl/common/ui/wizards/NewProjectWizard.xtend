@@ -54,10 +54,10 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 	}
 	
 	override canFinish(){
-		val projectName=(pages.get(0) as WizardNewProjectCreationPage).projectName
-		val nameOk=projectName.matches("^[a-zA-Z_0-9]+$")
+		val projectName=(pages.head as WizardNewProjectCreationPage).projectName
+		val nameOk=projectName.matches("^[a-zA-Z\\._0-9]+$")
 		if(!nameOk && !projectName.empty){
-			(pages.get(0) as WizardPage).errorMessage = "project name may contain A-Z, 0-9 and underscore only"
+			(pages.head as WizardPage).errorMessage = "project name may contain A-Z, 0-9, dots and underscore only"
 		}
 		return super.canFinish && nameOk
 	}

@@ -26,6 +26,7 @@ import org.mockito.MockitoAnnotations
 import org.testeditor.aml.dsl.AmlRuntimeModule
 import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.dsl.common.testing.AssertionHelper
+import java.util.ArrayList
 
 @RunWith(XtextRunner)
 abstract class AbstractTest extends AbstractXtextTests {
@@ -45,7 +46,8 @@ abstract class AbstractTest extends AbstractXtextTests {
 	}
 
 	protected def Injector createInjector() {
-		val modules = newArrayList(new AmlRuntimeModule)
+		val modules = new ArrayList<Module>
+		modules+=new AmlRuntimeModule
 		modules.collectModules
 
 		val mixinModule = Modules2.mixin(modules)
@@ -60,7 +62,7 @@ abstract class AbstractTest extends AbstractXtextTests {
 	/**
 	 * Subclasses may add modules here, they will be mixed-in.
 	 */
-	protected def void collectModules(List<? extends Module> modules) {
+	protected def void collectModules(List<Module> modules) {
 	}
 
 }
