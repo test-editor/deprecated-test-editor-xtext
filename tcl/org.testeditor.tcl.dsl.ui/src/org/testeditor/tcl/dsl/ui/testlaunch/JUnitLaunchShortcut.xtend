@@ -11,6 +11,7 @@ import org.eclipse.jface.viewers.IStructuredSelection
 import org.eclipse.jface.viewers.StructuredSelection
 import org.eclipse.ui.IEditorPart
 import org.slf4j.LoggerFactory
+import java.util.HashMap
 
 /**
  * Launch shortcut that is specifically crafted to execute Tests based on TCL files
@@ -22,7 +23,7 @@ class JUnitLaunchShortcut extends org.eclipse.jdt.junit.launcher.JUnitLaunchShor
 	public val EXTENSION_POINT_LAUNCHER_ID = "org.testeditor.tcl.dsl.ui.tcl_launcher"
 	public val EXTENSION_POINT_CLASS_ATTRIBUTE = "class"
 
-	val launcherMap = <Launcher,IConfigurationElement>newHashMap
+	val launcherMap = new HashMap<Launcher,IConfigurationElement>
 
 	@Inject extension LaunchShortcutUtil
 

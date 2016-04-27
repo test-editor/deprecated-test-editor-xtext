@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -15,6 +15,7 @@ package org.testeditor.aml.dsl.tests
 import com.google.inject.Guice
 import com.google.inject.Injector
 import com.google.inject.Module
+import java.util.ArrayList
 import java.util.List
 import javax.inject.Inject
 import org.eclipse.xtext.junit4.AbstractXtextTests
@@ -26,16 +27,18 @@ import org.mockito.MockitoAnnotations
 import org.testeditor.aml.dsl.AmlRuntimeModule
 import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.dsl.common.testing.AssertionHelper
+import org.testeditor.dsl.common.testing.XtextAssertionHelper
 
 @RunWith(XtextRunner)
 abstract class AbstractTest extends AbstractXtextTests {
-	
+
 	@Inject protected extension AssertionHelper
+	@Inject protected extension XtextAssertionHelper
 	@Inject protected extension ValidationTestHelper
-	
+
 	override setUp() throws Exception {
 		super.setUp()
-		
+
 		MockitoAnnotations.initMocks(this)
 
 		// Setup dependency injection
@@ -45,7 +48,8 @@ abstract class AbstractTest extends AbstractXtextTests {
 	}
 
 	protected def Injector createInjector() {
-		val modules = newArrayList(new AmlRuntimeModule)
+		val modules = new ArrayList<Module>
+		modules += new AmlRuntimeModule
 		modules.collectModules
 
 		val mixinModule = Modules2.mixin(modules)
@@ -60,7 +64,7 @@ abstract class AbstractTest extends AbstractXtextTests {
 	/**
 	 * Subclasses may add modules here, they will be mixed-in.
 	 */
-	protected def void collectModules(List<? extends Module> modules) {
+	protected def void collectModules(List<Module> modules) {
 	}
 
 }

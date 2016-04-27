@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -21,7 +21,7 @@ import org.testeditor.aml.TemplateVariable
  * Parsing tests for {@link InteractionType}.
  */
 class InteractionTypeParserTest extends AbstractParserTest {
-	
+
 	@Test
 	def void parseMinimal() {
 		// Given
@@ -32,14 +32,14 @@ class InteractionTypeParserTest extends AbstractParserTest {
 			interaction type MyInteractionType {
 			}
 		'''
-		
+
 		// When + Then
-		#[withoutBrackets, withBrackets].map[parse(InteractionType)].forEach[
+		#[withoutBrackets, withBrackets].map[parse(InteractionType)].forEach [
 			assertNoErrors
 			name.assertEquals("MyInteractionType")
 		]
 	}
-	
+
 	@Test
 	def void parseWithLabel() {
 		// Given
@@ -48,17 +48,17 @@ class InteractionTypeParserTest extends AbstractParserTest {
 				label = "Do something"
 			}
 		'''
-		
+
 		// When
 		val interactionType = input.parse(InteractionType)
-		
+
 		// Then
 		interactionType => [
 			assertNoErrors
 			label.assertEquals("Do something")
 		]
 	}
-	
+
 	@Test
 	def void parseWithStringOnlyTemplate() {
 		// Given
@@ -68,10 +68,10 @@ class InteractionTypeParserTest extends AbstractParserTest {
 				template = "«templateText»"
 			}
 		'''
-		
+
 		// When
 		val interactionType = input.parse(InteractionType)
-		
+
 		// Then
 		interactionType => [
 			assertNoErrors
@@ -79,7 +79,7 @@ class InteractionTypeParserTest extends AbstractParserTest {
 			head.value.assertEquals(templateText)
 		]
 	}
-	
+
 	@Test
 	def void parseWithComplexTemplate() {
 		// Given
@@ -88,10 +88,10 @@ class InteractionTypeParserTest extends AbstractParserTest {
 				template = "Put" ${value} "into field" ${element} "."
 			}
 		'''
-		
+
 		// When
 		val interactionType = input.parse(InteractionType)
-		
+
 		// Then
 		interactionType => [
 			assertNoErrors
@@ -104,5 +104,22 @@ class InteractionTypeParserTest extends AbstractParserTest {
 			]
 		]
 	}
-	
+
+	@Test
+	def void parseWithMethodReference() {
+		// Given
+		val input = '''
+			interaction type MyAddition {
+				template = "Add" ${x} "and" ${y} "and write into" ${element} "."
+				method = MyFixture.addAndWrite(x, y, element)
+			}
+		'''
+
+		// When
+		val interactionType = input.parse(InteractionType)
+
+		// Then
+		interactionType.assertNoSyntaxErrors
+	}
+
 }

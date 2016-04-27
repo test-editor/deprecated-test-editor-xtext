@@ -50,7 +50,8 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 	}
 
 	override void createControl(Composite superParent) {
-		val parent = new Composite(superParent, SWT.NONE) => [layout = new GridLayout(3, false)]
+		val parent = new Composite(superParent, SWT.NONE)
+		parent.layout = new GridLayout(3, false)
 		createBuildSystemSelectionArea(parent)
 		createFixtureSelectionArea(parent)
 		createDemoSelectionArea(parent)
@@ -58,7 +59,8 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 	}
 
 	private def createDemoSelectionArea(Composite parent) {
-		demoCode = new Button(parent, SWT.CHECK) => [text = "Generate with examples"]
+		demoCode = new Button(parent, SWT.CHECK)
+		demoCode.text = "Generate with examples"
 	}
 
 	private def createFixtureSelectionArea(Composite parent) {
@@ -70,7 +72,8 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 			layoutData = new GridData(GridData.FILL_BOTH)
 		]
 		availableFixtureNames.forEach[availableFixturesList.add(it)]
-		val buttonArea = new Composite(parent, SWT.NONE) => [layout = new GridLayout(1, false)]
+		val buttonArea = new Composite(parent, SWT.NONE)
+		buttonArea.layout = new GridLayout(1, false)
 		val rbutton = new Button(buttonArea, SWT.BORDER) => [
 			setData(Constants.SWT_BOT_ID_KEY, Constants.NEW_DIALOG_ADD_SELECTED_FIXTURE)
 			text = ">"
@@ -84,8 +87,8 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 			layoutData = new GridData(GridData.FILL_BOTH)
 		]
 
-		selectedFixturesList.addMouseListener(createDblClickMouseListener(selectedFixturesList, availableFixturesList))
-		availableFixturesList.addMouseListener(createDblClickMouseListener(availableFixturesList, selectedFixturesList))
+		selectedFixturesList.addMouseListener(createDoubleClickListener(selectedFixturesList, availableFixturesList))
+		availableFixturesList.addMouseListener(createDoubleClickListener(availableFixturesList, selectedFixturesList))
 		rbutton.addSelectionListener(createMoveListener(availableFixturesList, selectedFixturesList))
 		lbutton.addSelectionListener(createMoveListener(selectedFixturesList, availableFixturesList))
 	}
@@ -133,7 +136,7 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 		]
 	}
 
-	private def MouseListener createDblClickMouseListener(List from, List to) {
+	private def MouseListener createDoubleClickListener(List from, List to) {
 		return new MouseAdapter() {
 
 			override mouseDoubleClick(MouseEvent e) {
