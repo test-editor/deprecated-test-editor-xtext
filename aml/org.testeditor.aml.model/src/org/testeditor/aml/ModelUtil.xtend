@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.testeditor.aml
 
-import java.util.HashSet
 import java.util.Set
 import org.eclipse.xtext.common.types.JvmType
 
@@ -30,7 +29,7 @@ class ModelUtil {
 	}
 
 	def Set<ComponentType> getTypes(Component component) {
-		val result = new HashSet
+		val result = newHashSet
 		component.collectTypes(result)
 		return result
 	}

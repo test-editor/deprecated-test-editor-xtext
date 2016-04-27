@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.validation
 
-import java.util.HashMap
 import java.util.List
 import java.util.Map
 import javax.inject.Inject
@@ -77,7 +76,7 @@ class TclValidator extends AbstractTclValidator {
 
 	@Check
 	def checkVariableUsageWithinAssertionExpressions(TestStepContext tsContext) {
-		val varTypeMap = new HashMap<String, String>
+		val varTypeMap = newHashMap
 		// collect all var assignments
 		tsContext.steps.forEach [ it, index |
 			if (it instanceof TestStepWithAssignment) {

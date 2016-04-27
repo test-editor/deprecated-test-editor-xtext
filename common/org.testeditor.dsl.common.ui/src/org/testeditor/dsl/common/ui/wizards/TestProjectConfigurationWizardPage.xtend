@@ -14,6 +14,9 @@ package org.testeditor.dsl.common.ui.wizards
 
 import org.eclipse.jface.wizard.WizardPage
 import org.eclipse.swt.SWT
+import org.eclipse.swt.events.MouseAdapter
+import org.eclipse.swt.events.MouseEvent
+import org.eclipse.swt.events.MouseListener
 import org.eclipse.swt.events.SelectionAdapter
 import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.events.SelectionListener
@@ -64,25 +67,30 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 		new Label(parent, SWT.NONE).text = "Available Fixtures:"
 		new Composite(parent, SWT.NONE)
 		new Label(parent, SWT.NONE).text = "Selected Fixtures:"
-		availableFixturesList = new List(parent, SWT.BORDER)
-		availableFixturesList.setData(Constants.SWT_BOT_ID_KEY, Constants.NEW_DIALOG_AVAILABLE_FIXTURE_LIST)
-		availableFixturesList.layoutData = new GridData(GridData.FILL_BOTH)
-		for (fixtureName : availableFixtureNames) {
-			availableFixturesList.add(fixtureName)
-		}
+		availableFixturesList = new List(parent, SWT.BORDER) => [
+			setData(Constants.SWT_BOT_ID_KEY, Constants.NEW_DIALOG_AVAILABLE_FIXTURE_LIST)
+			layoutData = new GridData(GridData.FILL_BOTH)
+		]
+		availableFixtureNames.forEach[availableFixturesList.add(it)]
 		val buttonArea = new Composite(parent, SWT.NONE)
 		buttonArea.layout = new GridLayout(1, false)
-		val addBtn = new Button(buttonArea, SWT.BORDER)
-		addBtn.setData(Constants.SWT_BOT_ID_KEY, Constants.NEW_DIALOG_ADD_SELECTED_FIXTURE)
-		addBtn.text = ">"
-		addBtn.layoutData = new GridData(GridData.FILL_HORIZONTAL)
-		val delBtn = new Button(buttonArea, SWT.BORDER)
-		delBtn.text = "<"
-		delBtn.layoutData = new GridData(GridData.FILL_HORIZONTAL)
-		selectedFixturesList = new List(parent, SWT.BORDER)
-		selectedFixturesList.layoutData = new GridData(GridData.FILL_BOTH)
-		addBtn.addSelectionListener(createMoveListener(availableFixturesList, selectedFixturesList))
-		delBtn.addSelectionListener(createMoveListener(selectedFixturesList, availableFixturesList))
+		val rbutton = new Button(buttonArea, SWT.BORDER) => [
+			setData(Constants.SWT_BOT_ID_KEY, Constants.NEW_DIALOG_ADD_SELECTED_FIXTURE)
+			text = ">"
+			layoutData = new GridData(GridData.FILL_HORIZONTAL)
+		]
+		val lbutton = new Button(buttonArea, SWT.BORDER) => [
+			text = "<"
+			layoutData = new GridData(GridData.FILL_HORIZONTAL)
+		]
+		selectedFixturesList = new List(parent, SWT.BORDER) => [
+			layoutData = new GridData(GridData.FILL_BOTH)
+		]
+
+		selectedFixturesList.addMouseListener(createDoubleClickListener(selectedFixturesList, availableFixturesList))
+		availableFixturesList.addMouseListener(createDoubleClickListener(availableFixturesList, selectedFixturesList))
+		rbutton.addSelectionListener(createMoveListener(availableFixturesList, selectedFixturesList))
+		lbutton.addSelectionListener(createMoveListener(selectedFixturesList, availableFixturesList))
 	}
 
 	private def createBuildSystemSelectionArea(Composite superParent) {
@@ -93,12 +101,8 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 		parent.layoutData = gd
 		new Label(parent, SWT.NORMAL).text = "Build-system:"
 		buildSystem = new Combo(parent, SWT.None)
-		for (systems : availableBuildSystems) {
-			buildSystem.add(systems)
-		}
-		if (availableBuildSystems.size > 0) {
-			buildSystem.text = availableBuildSystems.get(0)
-		}
+		availableBuildSystems.forEach[buildSystem.add(it)]
+		buildSystem.text = availableBuildSystems.head
 	}
 
 	def void setAvailableFixtureNames(java.util.List<String> names) {
@@ -120,20 +124,35 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 	def boolean withDemoCode() {
 		return demoCode.selection
 	}
-	
-	override getNextPage(){
+
+	override getNextPage() {
 		return null
 	}
 
-	def SelectionListener createMoveListener(List sourceList, List destList) {
-		new SelectionAdapter() {
+	def void moveSelection(List from, List to) {
+		from.selection.forEach [
+			to.add(it)
+			from.remove(it)
+		]
+	}
+
+	private def MouseListener createDoubleClickListener(List from, List to) {
+		return new MouseAdapter() {
+
+			override mouseDoubleClick(MouseEvent e) {
+				moveSelection(from, to)
+				container.updateButtons
+			}
+
+		}
+	}
+
+	private def SelectionListener createMoveListener(List sourceList, List destList) {
+		return new SelectionAdapter() {
 
 			override widgetSelected(SelectionEvent e) {
-				val sel = sourceList.selection
-				for (fixtureName : sel) {
-					destList.add(fixtureName)
-					sourceList.remove(fixtureName)
-				}
+				moveSelection(sourceList, destList)
+				container.updateButtons
 			}
 
 		}

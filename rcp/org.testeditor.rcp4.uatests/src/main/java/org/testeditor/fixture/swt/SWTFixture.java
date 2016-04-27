@@ -133,7 +133,7 @@ public class SWTFixture {
 	 */
 	@FixtureMethod
 	public boolean isViewVisible(String viewName) {
-		logger.trace("search for view with titel: {}", viewName);
+		logger.trace("search for view with title: {}", viewName);
 		SWTBotView view = bot.viewByTitle(viewName);
 		return view.isActive();
 	}
@@ -150,7 +150,7 @@ public class SWTFixture {
 	 */
 	@FixtureMethod
 	public void selectElementInTreeView(String locator, String itemName) {
-		logger.trace("search for view with titel: {}", locator);
+		logger.trace("search for view with title: {}", locator);
 		SWTBotTree tree = null;
 		if (locator.startsWith("[Single]")) {
 			tree = bot.tree();
@@ -187,7 +187,7 @@ public class SWTFixture {
 	 */
 	@FixtureMethod
 	public void executeContextMenuEntry(String viewName, String menuItem) throws Exception {
-		logger.trace("search for view with titel: {}", viewName);
+		logger.trace("search for view with title: {}", viewName);
 		SWTBotView view = bot.viewByTitle(viewName);
 		assertNotNull(view);
 		SWTBotTree tree = view.bot().tree();
@@ -208,7 +208,7 @@ public class SWTFixture {
 	 */
 	@FixtureMethod
 	public void typeInto(String locator, String value) {
-		logger.trace("search for text with titel: {}", locator);
+		logger.trace("search for text with title: {}", locator);
 		SWTBotText text = null;
 		if (locator.startsWith("[Single]")) {
 			text = bot.text();
@@ -224,7 +224,7 @@ public class SWTFixture {
 	 */
 	@FixtureMethod
 	public void clickOn(String locator) {
-		logger.trace("search for button with titel: {}", locator);
+		logger.trace("search for button with title: {}", locator);
 		SWTBotButton button = null;
 		if (locator.startsWith("[Label]")) {
 			String locatorFragment = getLocatorFragmentFrom(locator);

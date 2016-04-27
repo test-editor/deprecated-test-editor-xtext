@@ -22,7 +22,6 @@ Component: NewDialog
 Component: NewDialog
 - Type "MyFirstWebProject" into <ProjectName>
 - Click on <NextButton>
-- Click on <NextButton>
 - Select element "Web Fixture" in list <AvailableFixturesList>
 - Click on <AddFixtureButton>
 - Click on <FinishButton>

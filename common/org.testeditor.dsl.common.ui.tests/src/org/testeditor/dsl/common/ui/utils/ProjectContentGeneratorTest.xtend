@@ -12,21 +12,19 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.ui.utils
 
-import java.util.HashSet
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.xpath.XPathFactory
 import org.eclipse.xtext.util.StringInputStream
 import org.junit.Test
 
 import static org.junit.Assert.*
-import org.testeditor.dsl.common.ui.utils.ProjectContentGenerator
 
 class ProjectContentGeneratorTest {
 
 	@Test
 	def void testGetAvailableFixtureSelections() {
 		// given
-		val generator = new ProjectContentGenerator()
+		val generator = new ProjectContentGenerator
 		// when 
 		val fixtures = generator.availableFixtureNames
 		// then
@@ -37,7 +35,7 @@ class ProjectContentGeneratorTest {
 	@Test
 	def void testGetAvailableBuildSystemSelections() {
 		// given
-		val generator = new ProjectContentGenerator()
+		val generator = new ProjectContentGenerator
 		// when 
 		val buildSystems = generator.availableBuildSystems
 		// then
@@ -49,7 +47,7 @@ class ProjectContentGeneratorTest {
 	@Test
 	def void testGetPackgeForFixture() {
 		// given 
-		val generator = new ProjectContentGenerator()
+		val generator = new ProjectContentGenerator
 
 		// when
 		var validPackageString = generator.getPackage(ProjectContentGenerator.WEBFIXTURE)
@@ -63,10 +61,10 @@ class ProjectContentGeneratorTest {
 	@Test
 	def void testGetPackgeForEveryAvailableFixture() {
 		// given 
-		val generator = new ProjectContentGenerator()
+		val generator = new ProjectContentGenerator
 		val fixtures = generator.availableFixtureNames
 		val invalidPackage = generator.getPackage("")
-		val packageSet = new HashSet<String>()
+		val packageSet = newHashSet
 
 		// when
 		for (fixture : fixtures) {
@@ -81,7 +79,7 @@ class ProjectContentGeneratorTest {
 	@Test
 	def void testGetMavenDependency() {
 		// given 
-		val generator = new ProjectContentGenerator()
+		val generator = new ProjectContentGenerator
 
 		// when
 		val mavenDep = generator.getMavenDependency(ProjectContentGenerator.WEBFIXTURE)
@@ -93,8 +91,8 @@ class ProjectContentGeneratorTest {
 
 	@Test
 	def void testGetMavenDependencies() {
-		// given 
-		val generator = new ProjectContentGenerator()
+		// given
+		val generator = new ProjectContentGenerator
 		val fixtures = generator.availableFixtureNames
 
 		// when
@@ -109,7 +107,7 @@ class ProjectContentGeneratorTest {
 	@Test
 	def void testGetInitialAMLContent() {
 		// given 
-		val generator = new ProjectContentGenerator()
+		val generator = new ProjectContentGenerator
 
 		// when
 		val initAml = generator.getInitialAMLContent(#[ProjectContentGenerator.WEBFIXTURE], "org.example")
@@ -122,9 +120,9 @@ class ProjectContentGeneratorTest {
 	@Test
 	def void testGetPom() {
 		// given 
-		val generator = new ProjectContentGenerator()
-		val builder = DocumentBuilderFactory.newInstance().newDocumentBuilder
-		val xpath = XPathFactory.newInstance().newXPath
+		val generator = new ProjectContentGenerator
+		val builder = DocumentBuilderFactory.newInstance.newDocumentBuilder
+		val xpath = XPathFactory.newInstance.newXPath
 
 		// when
 		val pom = generator.getPomContent(#[ProjectContentGenerator.WEBFIXTURE], "MyWebProject")

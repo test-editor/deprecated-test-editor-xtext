@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -31,14 +31,14 @@ import org.testeditor.dsl.common.testing.XtextAssertionHelper
 
 @RunWith(XtextRunner)
 abstract class AbstractTest extends AbstractXtextTests {
-	
+
 	@Inject protected extension AssertionHelper
 	@Inject protected extension XtextAssertionHelper
 	@Inject protected extension ValidationTestHelper
-	
+
 	override setUp() throws Exception {
 		super.setUp()
-		
+
 		MockitoAnnotations.initMocks(this)
 
 		// Setup dependency injection
@@ -46,12 +46,12 @@ abstract class AbstractTest extends AbstractXtextTests {
 		setInjector(injector)
 		injector.injectMembers(this)
 	}
-	
+
 	protected def Injector createInjector() {
 		val modules = new ArrayList<Module>
 		modules += new AmlRuntimeModule
 		modules.collectModules
-		
+
 		val mixinModule = Modules2.mixin(modules)
 		val setup = new AmlStandaloneSetup {
 			override createInjector() {
@@ -60,11 +60,11 @@ abstract class AbstractTest extends AbstractXtextTests {
 		}
 		return setup.createInjectorAndDoEMFRegistration
 	}
-	
+
 	/**
 	 * Subclasses may add modules here, they will be mixed-in.
-	 */	
+	 */
 	protected def void collectModules(List<Module> modules) {
 	}
-	
+
 }
