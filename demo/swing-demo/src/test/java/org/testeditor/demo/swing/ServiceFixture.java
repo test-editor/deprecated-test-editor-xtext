@@ -20,4 +20,5 @@ public class ServiceFixture {
 	public String callService(String name) {
 		return new GreetingApplication().sayHello();
 	}
+
 }
