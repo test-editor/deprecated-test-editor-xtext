@@ -306,29 +306,20 @@
       <plugin id="org.slf4j.impl.log4j12" fragment="true"/>
       <plugin id="org.testeditor.aml.dsl"/>
       <plugin id="org.testeditor.aml.dsl.ide"/>
-      <plugin id="org.testeditor.aml.dsl.tests"/>
       <plugin id="org.testeditor.aml.dsl.ui"/>
       <plugin id="org.testeditor.aml.model"/>
       <plugin id="org.testeditor.dsl.common"/>
-      <plugin id="org.testeditor.dsl.common.testing"/>
-      <plugin id="org.testeditor.dsl.common.tests" fragment="true"/>
       <plugin id="org.testeditor.dsl.common.ui"/>
-      <plugin id="org.testeditor.dsl.common.ui.utils"/>
       <plugin id="org.testeditor.logging"/>
       <plugin id="org.testeditor.rcp4"/>
       <plugin id="org.testeditor.rcp4.tcltestrun"/>
-      <plugin id="org.testeditor.rcp4.tests" fragment="true"/>
-      <plugin id="org.testeditor.rcp4.uatests"/>
       <plugin id="org.testeditor.rcp4.views.projectexplorer"/>
       <plugin id="org.testeditor.rcp4.views.tcltestrun"/>
       <plugin id="org.testeditor.rcp4.views.teststepselector"/>
-      <plugin id="org.testeditor.rcp4.views.teststepselector.tests"/>
       <plugin id="org.testeditor.rcp4.views.testview"/>
       <plugin id="org.testeditor.tcl.dsl"/>
       <plugin id="org.testeditor.tcl.dsl.ide"/>
-      <plugin id="org.testeditor.tcl.dsl.tests"/>
       <plugin id="org.testeditor.tcl.dsl.ui"/>
-      <plugin id="org.testeditor.tcl.dsl.ui.tests" fragment="true"/>
       <plugin id="org.testeditor.tcl.model"/>
       <plugin id="org.testeditor.tsl.dsl"/>
       <plugin id="org.testeditor.tsl.dsl.ide"/>
