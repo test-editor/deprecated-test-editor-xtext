@@ -59,7 +59,8 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 	}
 
 	private def createDemoSelectionArea(Composite parent) {
-		demoCode = new Button(parent, SWT.CHECK) => [text = "Generate with examples"]
+		demoCode = new Button(parent, SWT.CHECK)
+		demoCode.text = "Generate with examples"
 	}
 
 	private def createFixtureSelectionArea(Composite parent) {

@@ -44,7 +44,7 @@ abstract class AbstractTest extends AbstractXtextTests {
 	
 	protected def Injector createInjector() {
 		val modules = new ArrayList<Module>
-		modules+=new TslRuntimeModule
+		modules += new TslRuntimeModule
 		modules.collectModules
 		
 		val mixinModule = Modules2.mixin(modules)
