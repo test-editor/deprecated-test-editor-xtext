@@ -31,7 +31,7 @@ class TclHighlightingConfiguration extends DefaultHighlightingConfiguration {
 		acceptor.acceptDefaultHighlighting(STEP_CONTENT_ELEMENT, "Step content element", stepContentElement)
 	}
 
-	def stepContentElement() {
+	def TextStyle stepContentElement() {
 		val textStyle = defaultTextStyle.copy
 		textStyle.style = SWT.BOLD.bitwiseOr(SWT.ITALIC)
 		return textStyle
