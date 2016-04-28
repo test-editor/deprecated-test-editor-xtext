@@ -14,25 +14,27 @@ package org.testeditor.rcp4.views.teststepselector
 
 import javax.inject.Inject
 import org.junit.Test
-import org.testeditor.aml.dsl.tests.AbstractTest
-import org.testeditor.aml.impl.AmlFactoryImpl
+import org.testeditor.aml.AmlFactory
+import org.testeditor.aml.dsl.tests.AbstractAmlTest
 
-class AmlModelTreeDropTextProviderTest extends AbstractTest {
+class AmlModelTreeDropTextProviderTest extends AbstractAmlTest {
 
+	static val aml = AmlFactory.eINSTANCE
 	@Inject AmlModelTreeDropTextProvider dropTextProvider
-	@Inject AmlFactoryImpl amlFactory
 
 	@Test
 	def void elementReplacementRestrictedToUiElementReferences() {
 		// given
-		val componentElement = amlFactory.createComponentElement => [name = "Test"]
+		val componentElement = aml.createComponentElement => [
+			name = "Test"
+		]
 		val replacementCandidates = "<MyTest> <element> element <noelement> <lement>"
 
 		// when
 		val result = dropTextProvider.adjustTextBy(0, componentElement, replacementCandidates)
 
 		// then
-		assertEquals(result, "<MyTest> <Test> element <noelement> <lement>")
+		result.assertEquals("<MyTest> <Test> element <noelement> <lement>")
 	}
 
 }

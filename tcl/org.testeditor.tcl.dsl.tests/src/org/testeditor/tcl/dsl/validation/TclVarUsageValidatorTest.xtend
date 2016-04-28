@@ -9,9 +9,7 @@ import org.junit.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.MockitoAnnotations
-import org.testeditor.aml.dsl.AmlStandaloneSetup
-import org.testeditor.aml.impl.AmlFactoryImpl
+import org.testeditor.aml.AmlFactory
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 import org.testeditor.tcl.util.TclModelUtil
@@ -30,12 +28,8 @@ class TclVarUsageValidatorTest extends AbstractParserTest {
 	val message = ArgumentCaptor.forClass(String)
 
 	@Before
-	override void setUp() {
-		super.setUp
-		MockitoAnnotations.initMocks(this)
-
-		val injector = (new AmlStandaloneSetup).createInjectorAndDoEMFRegistration
-		val amlFactory = injector.getInstance(AmlFactoryImpl)
+	def void initMocks() {
+		val amlFactory = AmlFactory.eINSTANCE
 
 		// always assume that the return type of the operation used in any step is of typeRefMock
 		// => setting typeRefMock to return some type will affect all assignment steps! 
@@ -44,7 +38,7 @@ class TclVarUsageValidatorTest extends AbstractParserTest {
 			defaultMethod = amlFactory.createMethodReference => [
 				operation = operationMock
 			]
-		]);
+		])
 		when(operationMock.getReturnType).thenReturn(typeRefMock)
 
 		val state = tclValidator.setMessageAcceptor(messageAcceptor)
@@ -142,7 +136,7 @@ class TclVarUsageValidatorTest extends AbstractParserTest {
 	}
 
 	private def TestStepContext parseTestStepContext(CharSequence seq) {
-		return parse(testStepContextRule, seq, TestStepContext)
+		return seq.parse(grammarAccess.testStepContextRule, TestStepContext)
 	}
 
 }

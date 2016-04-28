@@ -20,12 +20,12 @@ import org.eclipse.xtext.generator.InMemoryFileSystemAccess
 import org.eclipse.xtext.junit4.util.ParseHelper
 import org.eclipse.xtext.resource.XtextResourceSet
 import org.junit.Before
-import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.aml.AmlModel
+import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.tcl.TclModel
-import org.testeditor.tcl.dsl.tests.AbstractTest
+import org.testeditor.tcl.dsl.tests.AbstractTclTest
 
-abstract class AbstractTclGeneratorIntegrationTest extends AbstractTest {
+abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 
 	@Inject protected Provider<XtextResourceSet> resourceSetProvider
 	@Inject protected XtextResourceSet resourceSet

@@ -16,17 +16,18 @@ import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.xpath.XPathFactory
 import org.eclipse.xtext.util.StringInputStream
 import org.junit.Test
+import org.testeditor.dsl.common.testing.AbstractTest
 
-import static org.junit.Assert.*
-
-class ProjectContentGeneratorTest {
+class ProjectContentGeneratorTest extends AbstractTest {
 
 	@Test
 	def void testGetAvailableFixtureSelections() {
 		// given
 		val generator = new ProjectContentGenerator
+
 		// when 
 		val fixtures = generator.availableFixtureNames
+
 		// then
 		assertNotNull(fixtures)
 		assertTrue(fixtures.contains(ProjectContentGenerator.WEBFIXTURE))
@@ -36,8 +37,10 @@ class ProjectContentGeneratorTest {
 	def void testGetAvailableBuildSystemSelections() {
 		// given
 		val generator = new ProjectContentGenerator
+
 		// when 
 		val buildSystems = generator.availableBuildSystems
+
 		// then
 		assertNotNull(buildSystems)
 		assertTrue(buildSystems.contains(ProjectContentGenerator.GRADLE))
@@ -72,8 +75,8 @@ class ProjectContentGeneratorTest {
 		}
 
 		// then
-		assertFalse("No invalid package returned for a fixture name", packageSet.contains(invalidPackage))
-		assertSame("Same amount of fixtures and packages", packageSet.size, fixtures.size)
+		packageSet.contains(invalidPackage).assertFalse("No invalid package returned for a fixture name")
+		packageSet.size.assertSame(fixtures.size, "Same amount of fixtures and packages")
 	}
 
 	@Test

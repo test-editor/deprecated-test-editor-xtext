@@ -18,8 +18,7 @@ import org.eclipse.core.resources.IProject
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
-import org.testeditor.aml.dsl.tests.AbstractTest
-import org.testeditor.dsl.common.ui.utils.ProjectUtils
+import org.testeditor.dsl.common.testing.AbstractTest
 
 import static extension org.mockito.Matchers.*
 import static extension org.mockito.Mockito.*
