@@ -9,10 +9,6 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 
 	@Inject TclAssertCallBuilder assertCallBuilder
 
-	private def AssertionTestStep parseAssertionTestStep(CharSequence seq) {
-		return parse(assertionTestStepRule, seq, AssertionTestStep)
-	}
-
 	@Test
 	def void testEqualsGen() {
 		// given
@@ -131,6 +127,10 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 
 		// then
 		assertMethod.assertEquals('org.junit.Assert.assertEquals(variable.get("key with spaces"), "test");')
+	}
+
+	private def AssertionTestStep parseAssertionTestStep(CharSequence seq) {
+		return seq.parse(grammarAccess.assertionTestStepRule, AssertionTestStep)
 	}
 
 }

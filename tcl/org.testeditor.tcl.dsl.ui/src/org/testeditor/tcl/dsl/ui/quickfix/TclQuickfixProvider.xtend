@@ -137,7 +137,6 @@ class TclQuickfixProvider extends XbaseQuickfixProvider {
 	}
 
 	def String getComponentDSLFragment(String maskName) '''
-		
 		component «maskName» is <TYPE> {
 		
 		}

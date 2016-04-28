@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -18,6 +18,7 @@ import org.eclipse.xtext.validation.ValidationMessageAcceptor
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
+import org.mockito.Captor
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.testeditor.aml.InteractionType
@@ -35,12 +36,10 @@ class TclMissingFixtureValidatorTest extends AbstractParserTest {
 	@Mock JvmParameterizedTypeReference typeReferenceMock
 	@Mock ValidationMessageAcceptor messageAcceptor
 
-	val message = ArgumentCaptor.forClass(String)
+	@Captor ArgumentCaptor<String> message
 
 	@Before
-	override void setUp() {
-		super.setUp
-
+	def void initMocks() {
 		val jvmTypeMock = JvmType.mock
 		val interactionTypeMock = InteractionType.mock(RETURNS_DEEP_STUBS)
 
@@ -62,7 +61,7 @@ class TclMissingFixtureValidatorTest extends AbstractParserTest {
 			Component: some_fantasy_component
 			- test step that maps
 		''')
-		val testStepThatMaps=tclFix.steps.head.contexts.head.steps.head
+		val testStepThatMaps = tclFix.steps.head.contexts.head.steps.head
 
 		// when
 		tclValidator.checkFixtureMethodForExistence(testStepThatMaps)

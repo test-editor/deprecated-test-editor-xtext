@@ -12,11 +12,11 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.generator
 
-import org.testeditor.aml.dsl.tests.AbstractTest
 import org.testeditor.aml.AmlFactory
 import org.testeditor.aml.ComponentElementType
+import org.testeditor.aml.dsl.tests.AbstractAmlTest
 
-abstract class AbstractGeneratorTest extends AbstractTest {
+abstract class AbstractGeneratorTest extends AbstractAmlTest {
 
 	protected static val factory = AmlFactory.eINSTANCE
 

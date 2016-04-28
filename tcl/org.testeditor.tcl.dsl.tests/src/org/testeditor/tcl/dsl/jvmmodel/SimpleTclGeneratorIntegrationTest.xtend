@@ -81,8 +81,8 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 		'''
 		val amlModel = amlParseHelper.parse(aml, resourceSet)
 		val tclModel = tclParseHelper.parse(tcl, 'SimpleTest.tcl'.createFileURI, resourceSet)
-		amlModel.assertNoErrors
-		tclModel.assertNoErrors
+		amlModel.assertNoSyntaxErrors
+		tclModel.assertNoSyntaxErrors
 
 		// when
 		val obj = generate(tclModel)

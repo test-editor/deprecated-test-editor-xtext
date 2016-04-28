@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -13,22 +13,26 @@
 package org.testeditor.tcl.dsl.ui.tests.quickfix
 
 import org.junit.Test
+import org.mockito.InjectMocks
+import org.testeditor.tcl.dsl.tests.AbstractTclTest
 import org.testeditor.tcl.dsl.ui.quickfix.TclQuickfixProvider
-import org.testeditor.tcl.dsl.tests.AbstractTest
 
-class TclQuickfixProviderTest extends AbstractTest{
-	
+class TclQuickfixProviderTest extends AbstractTclTest {
+
+	@InjectMocks TclQuickfixProvider quickFixProvider
+
 	@Test
 	def void testGetComponentDSLFragment() {
-		val qProv = new TclQuickfixProvider()
-		
-		val result = '''
+		// when
+		val componentDslFragment = quickFixProvider.getComponentDSLFragment("Foo")
+
+		// then
+		val expected = '''
 			component Foo is <TYPE> {
 			
 			}
 		'''
-		//expect
-		qProv.getComponentDSLFragment("Foo").trim.assertEquals(result.trim)
+		componentDslFragment.assertEquals(expected)
 	}
-		
+
 }

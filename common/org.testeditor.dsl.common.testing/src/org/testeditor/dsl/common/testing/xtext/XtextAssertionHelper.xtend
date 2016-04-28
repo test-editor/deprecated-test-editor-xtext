@@ -10,13 +10,14 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.dsl.common.testing
+package org.testeditor.dsl.common.testing.xtext
 
 import javax.inject.Singleton
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.resource.XtextResource
 import org.junit.Assert
+import org.eclipse.xtext.parser.IParseResult
 
 @Singleton
 class XtextAssertionHelper {
@@ -28,7 +29,12 @@ class XtextAssertionHelper {
 
 	def XtextResource assertNoSyntaxErrors(Resource resource) {
 		val xtextResource = resource as XtextResource
-		val errors = xtextResource.parseResult.syntaxErrors
+		xtextResource.parseResult.assertNoSyntaxErrors
+		return xtextResource
+	}
+
+	def IParseResult assertNoSyntaxErrors(IParseResult parseResult) {
+		val errors = parseResult.syntaxErrors
 		if (!errors.empty) {
 			val message = '''
 				Expected no syntax errors but got:
@@ -38,7 +44,7 @@ class XtextAssertionHelper {
 			'''
 			Assert.fail(message)
 		}
-		return xtextResource
+		return parseResult
 	}
 
 }
