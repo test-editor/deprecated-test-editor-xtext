@@ -11,8 +11,7 @@ Import-Package: javax.inject,
  org.hamcrest.core,
  org.junit,
  org.slf4j
-Export-Package: org.testeditor.dsl.common.testing,
- org.testeditor.fixture.core.interaction,
+Export-Package: org.hamcrest,
  org.mockito,
  org.mockito.configuration,
  org.mockito.exceptions,
@@ -29,7 +28,9 @@ Export-Package: org.testeditor.dsl.common.testing,
  org.mockito.stubbing,
  org.mockito.stubbing.answers,
  org.mockito.verification,
- org.hamcrest
+ org.testeditor.dsl.common.testing,
+ org.testeditor.dsl.common.testing.xtext,
+ org.testeditor.fixture.core.interaction
 Bundle-Vendor: Signal Iduna Corporation
 Bundle-Name: org.testeditor.dsl.common.testing
 Bundle-ClassPath: lib/mockito-all-1.10.19.jar,
