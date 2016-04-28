@@ -75,7 +75,7 @@ public class TestEditorFixture {
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().resetPerspective();
 			logger.info("Reset Workbench");
 		}
-		logger.info("Reset Appliucation");
+		logger.info("Reset Application");
 	}
 
 }

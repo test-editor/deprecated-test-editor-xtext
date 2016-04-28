@@ -2,7 +2,7 @@ test-editor-xtext
 =================
 
 [![License](http://img.shields.io/badge/license-EPL-blue.svg?style=flat)](https://www.eclipse.org/legal/epl-v10.html)
-[![Build Status](https://ci.testeditor.org/buildStatus/icon?job=Test-Editor-Xtext)](https://ci.testeditor.org/job/Test-Editor-Xtext/)
+[![Build Status](https://ci.testeditor.org/buildStatus/icon?job=test-editor-xtext_develop)](https://ci.testeditor.org/job/test-editor-xtext_develop)
 
 An Xtext based editor to specify domain-driven acceptance tests.
 
@@ -10,7 +10,7 @@ An Xtext based editor to specify domain-driven acceptance tests.
 
 The latest released version can be found on [bintray](https://bintray.com/test-editor/test-editor/testeditor-app).
 
-The latest development version can be downloaded [here](https://ci.testeditor.org/job/Test-Editor-Xtext-Product/lastSuccessfulBuild/artifact/rcp/org.testeditor.aml.rcp.product/target/products/).
+The latest development version can be downloaded [here](https://ci.testeditor.org/job/test-editor-xtext_develop/lastSuccessfulBuild/artifact/rcp/org.testeditor.rcp4.product/target/products/).
 
 ## Developers
 

@@ -15,7 +15,7 @@ import org.testeditor.tcl.dsl.ui.tests.TclUiInjectorProvider
 
 @RunWith(XtextRunner)
 @InjectWith(TclUiInjectorProvider)
-class AbstractTclContentAssistTest extends AbstractContentAssistTest {
+abstract class AbstractTclContentAssistTest extends AbstractContentAssistTest {
 
 	@Inject FileExtensionProvider fileExtensionProvider
 	@Inject XtextResourceSet resourceSet

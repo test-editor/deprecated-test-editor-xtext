@@ -15,7 +15,7 @@ package org.testeditor.dsl.common.ui.wizards
 import org.eclipse.swt.widgets.List
 import org.junit.Test
 
-import static org.mockito.Mockito.*
+import static extension org.mockito.Mockito.*
 
 /**
  * Logic tests for TestProjectConfigurationWizardPage.
@@ -28,13 +28,12 @@ class TestProjectConfigurationWizardPageTest {
 	@Test
 	def void testUpdateListWithMoveListener() {
 		// given
-		val source = mock(List)
-		val dest = mock(List)
+		val source = List.mock
+		val dest = List.mock
 		when(source.selection).thenReturn(#["MyFixture"])
-		val out = new TestProjectConfigurationWizardPage("").createMoveListener(source, dest)
 
 		// when
-		out.widgetSelected(null);
+		new TestProjectConfigurationWizardPage("").moveSelection(source, dest)
 
 		// then
 		verify(dest).add("MyFixture")

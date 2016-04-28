@@ -59,7 +59,7 @@
 		<repository>
 		   <id>swtbot</id>
 		   <layout>p2</layout>
-		   <url>http://download.eclipse.org/technology/swtbot/releases/latest/</url>
+		   <url>http://download.eclipse.org/technology/swtbot/releases/2.4.0/</url>
 		</repository>
 		<repository>
 		  <id>buildship</id>

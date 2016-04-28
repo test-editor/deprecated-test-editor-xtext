@@ -34,7 +34,7 @@ public class GreetingApplication extends JFrame {
         JPanel inputArea = new JPanel(new GridLayout(1, 3));
         panel.add(inputArea);
         inputArea.add(new JLabel("Your greeting:"));
-        final JTextField input = new JTextField("Hello world!");
+        final JTextField input = new JTextField("");
         input.setName("text.input");
         inputArea.add(input);
         JButton button = new JButton("Greet");
