@@ -68,9 +68,11 @@ class TclValidator extends AbstractTclValidator {
 
 	@Check
 	def checkFixtureMethodForExistence(TestStep testStep) {
-		val method = testStep.interaction?.defaultMethod
-		if ((method == null ) || (method.operation == null) || (method.typeReference?.type == null)) {
-			info("test step could not resolve fixture", TclPackage.Literals.TEST_STEP__CONTENTS, MISSING_FIXTURE)
+		if (!(testStep instanceof AssertionTestStep)) {
+			val method = testStep.interaction?.defaultMethod
+			if ((method == null ) || (method.operation == null) || (method.typeReference?.type == null)) {
+				info("test step could not resolve fixture", TclPackage.Literals.TEST_STEP__CONTENTS, MISSING_FIXTURE)
+			}
 		}
 	}
 
