@@ -84,7 +84,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 		val assertMethod=genCode.split(System.lineSeparator).last
 
 		// then
-		assertTrue(assertMethod.matches('// TODO .*'))
+		assertMethod.assertMatches('// TODO .*')
 	}
 
 	@Test
