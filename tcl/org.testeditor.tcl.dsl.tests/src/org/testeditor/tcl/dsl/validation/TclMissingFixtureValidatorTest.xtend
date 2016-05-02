@@ -92,4 +92,24 @@ class TclMissingFixtureValidatorTest extends AbstractParserTest {
 		assertMatches(message.value, ".*could not resolve fixture")
 	}
 
+	@Test
+	def void noInfoOnAssertion() {
+		// given
+		val tclFix = parse('''
+			package pa
+			# Test
+			
+			* first
+			Component: some_fantasy_component
+			- assert variable = "Hello"
+		''')
+		val testStepThatDoesNotMap = tclFix.steps.head.contexts.head.steps.head
+		when(typeReferenceMock.type).thenReturn(null)
+
+		// when
+		tclValidator.checkFixtureMethodForExistence(testStepThatDoesNotMap)
+
+		// then
+		messageAcceptor.verify(never).acceptInfo(anyString, anyObject, anyObject, anyInt, anyString)
+	}
 }
