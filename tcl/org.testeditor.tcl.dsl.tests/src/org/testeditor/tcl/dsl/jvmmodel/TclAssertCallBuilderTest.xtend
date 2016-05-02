@@ -16,7 +16,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 
 		// when
 		val genCode = assertCallBuilder.build(assertionTestStep.expression)
-		val assertMethod=genCode.split(System.lineSeparator).last
+		val assertMethod = genCode.split(System.lineSeparator).last
 
 		// then
 		assertMethod.assertEquals('org.junit.Assert.assertEquals("test", variable);')
@@ -29,7 +29,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 
 		// when
 		val genCode = assertCallBuilder.build(assertionTestStep.expression)
-		val assertMethod=genCode.split(System.lineSeparator).last
+		val assertMethod = genCode.split(System.lineSeparator).last
 
 		// then
 		assertMethod.assertEquals('org.junit.Assert.assertNotEquals("test", variable);')
@@ -42,7 +42,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 
 		// when
 		val genCode = assertCallBuilder.build(assertionTestStep.expression)
-		val assertMethod=genCode.split(System.lineSeparator).last
+		val assertMethod = genCode.split(System.lineSeparator).last
 
 		// then
 		assertMethod.assertEquals('org.junit.Assert.assertNotEquals("test", variable);')
@@ -55,7 +55,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 
 		// when
 		val genCode = assertCallBuilder.build(assertionTestStep.expression)
-		val assertMethod=genCode.split(System.lineSeparator).last
+		val assertMethod = genCode.split(System.lineSeparator).last
 
 		// then
 		assertMethod.assertEquals('org.junit.Assert.assertNotNull(variable);')
@@ -68,7 +68,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 
 		// when
 		val genCode = assertCallBuilder.build(assertionTestStep.expression)
-		val assertMethod=genCode.split(System.lineSeparator).last
+		val assertMethod = genCode.split(System.lineSeparator).last
 
 		// then
 		assertMethod.assertEquals('org.junit.Assert.assertNull(variable);')
@@ -81,7 +81,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 
 		// when
 		val genCode = assertCallBuilder.build(assertionTestStep.expression)
-		val assertMethod=genCode.split(System.lineSeparator).last
+		val assertMethod = genCode.split(System.lineSeparator).last
 
 		// then
 		assertMethod.assertMatches('// TODO .*')
@@ -94,7 +94,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 
 		// when
 		val genCode = assertCallBuilder.build(assertionTestStep.expression)
-		val assertMethod=genCode.split(System.lineSeparator).last
+		val assertMethod = genCode.split(System.lineSeparator).last
 
 		// then
 		assertMethod.assertEquals('org.junit.Assert.assertTrue(variable.matches("ohoh"));')
@@ -107,7 +107,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 
 		// when
 		val genCode = assertCallBuilder.build(assertionTestStep.expression)
-		val assertMethod=genCode.split(System.lineSeparator).last
+		val assertMethod = genCode.split(System.lineSeparator).last
 
 		// then
 		assertMethod.assertEquals('org.junit.Assert.assertFalse(variable.matches("ohoh"));')
@@ -120,7 +120,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 
 		// when
 		val genCode = assertCallBuilder.build(assertionTestStep.expression)
-		val assertMethod=genCode.split(System.lineSeparator).last
+		val assertMethod = genCode.split(System.lineSeparator).last
 
 		// then
 		assertMethod.assertEquals('org.junit.Assert.assertEquals("test", variable.get("key"));')
@@ -133,7 +133,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 
 		// when
 		val genCode = assertCallBuilder.build(assertionTestStep.expression)
-		val assertMethod=genCode.split(System.lineSeparator).last
+		val assertMethod = genCode.split(System.lineSeparator).last
 
 		// then
 		assertMethod.assertEquals('org.junit.Assert.assertEquals("test", variable.get("key with spaces"));')
@@ -142,7 +142,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 	private def AssertionTestStep parseAssertionTestStep(CharSequence seq) {
 		return seq.parse(grammarAccess.assertionTestStepRule, AssertionTestStep)
 	}
-	
+
 	@Test
 	def void testGeneratedComment() {
 		// given
@@ -150,11 +150,11 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 
 		// when
 		val genCode = assertCallBuilder.build(assertionTestStep.expression)
-		val assertComment=genCode.split(System.lineSeparator).head
+		val assertComment = genCode.split(System.lineSeparator).head
 
 		// then
 		assertComment.assertMatches('// - assert +variable."key with spaces" == "test"')
-		
+
 	}
 
 }
