@@ -1,0 +1,58 @@
+module org.testeditor.tml.dsl.GenerateTml
+
+import org.eclipse.emf.mwe.utils.*
+import org.eclipse.xtext.xtext.generator.*
+import org.eclipse.xtext.xtext.generator.model.project.*
+
+var projectName = "org.testeditor.tml.dsl"
+var rootPath = ".."
+var runtimeProject = "${rootPath}/${projectName}"
+var fileHeader =
+"/*******************************************************************************\n* Copyright (c) 2012 - \${year} Signal Iduna Corporation and others.\n* All rights reserved. This program and the accompanying materials\n* are made available under the terms of the Eclipse Public License v1.0\n* which accompanies this distribution, and is available at\n* http://www.eclipse.org/legal/epl-v10.html\n* \n* Contributors:\n* Signal Iduna Corporation - initial API and implementation\n* akquinet AG\n* itemis AG\n*******************************************************************************/"
+
+Workflow {
+	
+	component = DirectoryCleaner {
+		directory = "${runtimeProject}/src-gen"
+	}
+
+	component = DirectoryCleaner {
+		directory = "${runtimeProject}.ide/src-gen"
+	}
+	
+	component = DirectoryCleaner {
+		directory = "${runtimeProject}.ui/src-gen"
+	}
+	
+	component = XtextGenerator {
+		configuration = {
+			project = StandardProjectConfig {
+				baseName = projectName
+				rootPath = rootPath
+				eclipsePlugin = {
+					enabled = true
+				}
+				createEclipseMetaData = true
+			}
+			code = {
+				encoding = "UTF-8"
+				fileHeader = fileHeader
+			}
+		}
+		language = StandardLanguage {
+			name = "org.testeditor.tml.dsl.Tml"
+			fileExtensions = "tml"
+			referencedResource = "platform:/resource/org.testeditor.tsl.model/model/tsl.xcore"
+			referencedResource = "platform:/resource/org.testeditor.tcl.model/model/tcl.xcore"
+			referencedResource = "platform:/resource/org.testeditor.aml.model/model/aml.xcore"
+			referencedResource = "platform:/resource/org.testeditor.tml.model/model/tml.xcore"
+			formatter = {
+				generateStub = true
+			}
+			serializer = {
+				generateStub = false
+			}
+		}
+	}
+
+}
