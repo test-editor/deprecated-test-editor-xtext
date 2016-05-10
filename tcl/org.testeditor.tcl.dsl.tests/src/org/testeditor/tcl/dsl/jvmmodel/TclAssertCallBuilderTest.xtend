@@ -11,150 +11,122 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 
 	@Test
 	def void testEqualsGen() {
-		// given
-		val assertionTestStep = parseAssertionTestStep('- assert variable == "test"')
-
-		// when
-		val genCode = assertCallBuilder.build(assertionTestStep.expression)
-		val assertMethod = genCode.split(System.lineSeparator).last
-
-		// then
-		assertMethod.assertEquals('org.junit.Assert.assertEquals("test", variable);')
+		'- assert variable == "test"' //
+		.assertTclTestStepGeneratesCodeLine( //
+		'org.junit.Assert.assertEquals("test", variable);')
 	}
 
 	@Test
 	def void testNotEqualsGen() {
-		// given
-		val assertionTestStep = parseAssertionTestStep('- assert variable != "test"')
-
-		// when
-		val genCode = assertCallBuilder.build(assertionTestStep.expression)
-		val assertMethod = genCode.split(System.lineSeparator).last
-
-		// then
-		assertMethod.assertEquals('org.junit.Assert.assertNotEquals("test", variable);')
+		'- assert variable != "test"' //
+		.assertTclTestStepGeneratesCodeLine( //
+		'org.junit.Assert.assertNotEquals("test", variable);')
 	}
 
 	@Test
 	def void testInEqualityGen() {
-		// given
-		val assertionTestStep = parseAssertionTestStep('- assert variable is not "test"')
-
-		// when
-		val genCode = assertCallBuilder.build(assertionTestStep.expression)
-		val assertMethod = genCode.split(System.lineSeparator).last
-
-		// then
-		assertMethod.assertEquals('org.junit.Assert.assertNotEquals("test", variable);')
+		'- assert variable is not "test"' //
+		.assertTclTestStepGeneratesCodeLine( //
+		'org.junit.Assert.assertNotEquals("test", variable);')
 	}
 
 	@Test
 	def void testNotNullGen() {
-		// given
-		val assertionTestStep = parseAssertionTestStep('- assert variable')
-
-		// when
-		val genCode = assertCallBuilder.build(assertionTestStep.expression)
-		val assertMethod = genCode.split(System.lineSeparator).last
-
-		// then
-		assertMethod.assertEquals('org.junit.Assert.assertNotNull(variable);')
+		'- assert variable' //
+		.assertTclTestStepGeneratesCodeLine( //
+		'org.junit.Assert.assertNotNull(variable);')
 	}
 
 	@Test
 	def void testNullGen() {
-		// given
-		val assertionTestStep = parseAssertionTestStep('- assert !variable')
-
-		// when
-		val genCode = assertCallBuilder.build(assertionTestStep.expression)
-		val assertMethod = genCode.split(System.lineSeparator).last
-
-		// then
-		assertMethod.assertEquals('org.junit.Assert.assertNull(variable);')
+		'- assert !variable' //
+		.assertTclTestStepGeneratesCodeLine( //
+		'org.junit.Assert.assertNull(variable);')
 	}
 
 	@Test
 	def void testIncompleteImpl() {
-		// given
-		val assertionTestStep = parseAssertionTestStep('- assert variable > "ohoh"')
-
-		// when
-		val genCode = assertCallBuilder.build(assertionTestStep.expression)
-		val assertMethod = genCode.split(System.lineSeparator).last
-
-		// then
-		assertMethod.assertMatches('// TODO .*')
+		'- assert variable > "ohoh"'//
+		.assertTclTestStepGeneratesMatchingComment(//
+		'// TODO .*')
 	}
 
 	@Test
 	def void testMatches() {
-		// given
-		val assertionTestStep = parseAssertionTestStep('- assert variable matches "ohoh"')
-
-		// when
-		val genCode = assertCallBuilder.build(assertionTestStep.expression)
-		val assertMethod = genCode.split(System.lineSeparator).last
-
-		// then
-		assertMethod.assertEquals('org.junit.Assert.assertTrue(variable.matches("ohoh"));')
+		'- assert variable matches "ohoh"' //
+		.assertTclTestStepGeneratesCodeLine( //
+		'org.junit.Assert.assertTrue(variable.matches("ohoh"));')
 	}
 
 	@Test
 	def void testDoesNotMatch() {
-		// given
-		val assertionTestStep = parseAssertionTestStep('- assert variable does not match "ohoh"')
-
-		// when
-		val genCode = assertCallBuilder.build(assertionTestStep.expression)
-		val assertMethod = genCode.split(System.lineSeparator).last
-
-		// then
-		assertMethod.assertEquals('org.junit.Assert.assertFalse(variable.matches("ohoh"));')
+		'- assert variable does not match "ohoh"' //
+		.assertTclTestStepGeneratesCodeLine( //
+		'org.junit.Assert.assertFalse(variable.matches("ohoh"));')
 	}
 
 	@Test
 	def void testWithMapDereference() {
-		// given
-		val assertionTestStep = parseAssertionTestStep('- assert variable.key == "test"')
-
-		// when
-		val genCode = assertCallBuilder.build(assertionTestStep.expression)
-		val assertMethod = genCode.split(System.lineSeparator).last
-
-		// then
-		assertMethod.assertEquals('org.junit.Assert.assertEquals("test", variable.get("key"));')
+		'- assert variable.key == "test"' //
+		.assertTclTestStepGeneratesCodeLine( //
+		'org.junit.Assert.assertEquals("test", variable.get("key"));')
 	}
 
 	@Test
 	def void testWithMapKeyAsString() {
-		// given
-		val assertionTestStep = parseAssertionTestStep('- assert variable."key with spaces" == "test"')
-
-		// when
-		val genCode = assertCallBuilder.build(assertionTestStep.expression)
-		val assertMethod = genCode.split(System.lineSeparator).last
-
-		// then
-		assertMethod.assertEquals('org.junit.Assert.assertEquals("test", variable.get("key with spaces"));')
-	}
-
-	private def AssertionTestStep parseAssertionTestStep(CharSequence seq) {
-		return seq.parse(grammarAccess.assertionTestStepRule, AssertionTestStep)
+		'- assert variable."key with spaces" == "test"' //
+		.assertTclTestStepGeneratesCodeLine( //
+		'org.junit.Assert.assertEquals("test", variable.get("key with spaces"));')
 	}
 
 	@Test
 	def void testGeneratedComment() {
+		'- assert variable."key with spaces" == "test"'//
+		.assertTclTestStepGeneratesMatchingComment(//
+		'// - assert variable."key with spaces" == "test"')
+	}
+
+	// parse the given char sequence as tcl AssertionTestStep
+	private def AssertionTestStep parseAssertionTestStep(CharSequence seq) {
+		return seq.parse(grammarAccess.assertionTestStepRule, AssertionTestStep)
+	}
+
+	// assert that the given tcl AssertionTestStep results in the generation of the expectedCode
+	private def void assertTclTestStepGeneratesCodeLine(String testStep, String expectedCode) {
 		// given
-		val assertionTestStep = parseAssertionTestStep('- assert variable."key with spaces" == "test"')
+		val assertionTestStep = parseAssertionTestStep(testStep)
 
 		// when
 		val genCode = assertCallBuilder.build(assertionTestStep.expression)
-		val assertComment = genCode.split(System.lineSeparator).head
 
 		// then
-		assertComment.assertMatches('// - assert +variable."key with spaces" == "test"')
+		genCode.assertCodeLine(expectedCode)
+	}
 
+	// assert that the given tcl AssertionTestStep results in the generation of the expectedCommentPattern
+	private def void assertTclTestStepGeneratesMatchingComment(String testStep, String expectedCommentPattern) {
+		// given
+		val assertionTestStep = parseAssertionTestStep(testStep)
+
+		// when
+		val genCode = assertCallBuilder.build(assertionTestStep.expression)
+
+		// then
+		genCode.assertMatchingCommentLine(expectedCommentPattern)
+	}
+
+	// assert that the generated code holds 2 lines of which the second is identical to expectedCode
+	private def void assertCodeLine(String generatedCode, String expectedCode) {
+		val generatedCodeLines = generatedCode.split(System.lineSeparator)
+		assertSize(generatedCodeLines, 2, "expecting two generated code lines, a comment and the assertion call")
+		val assertMethod = generatedCodeLines.last
+		assertMethod.assertEquals(expectedCode)
+	}
+
+	// assert that the generated codes first line matches the expectedCommentPattern
+	private def void assertMatchingCommentLine(String generatedCode, String expectedCommentPattern) {
+		val assertMethod = generatedCode.split(System.lineSeparator).head
+		assertMethod.assertMatches(expectedCommentPattern)
 	}
 
 }

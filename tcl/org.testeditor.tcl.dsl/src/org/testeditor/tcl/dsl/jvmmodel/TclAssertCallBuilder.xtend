@@ -46,7 +46,7 @@ class TclAssertCallBuilder {
 			return '''// TODO no assertion method implementation for expression with type "«expression.class»"'''
 		} else {
 			return '''
-				// - assert «NodeModelUtils.getNode(expression).text»
+				// - assert «NodeModelUtils.getNode(expression).text.trim»
 				org.junit.Assert.«assertionMethod(expression)»(«expression.buildExpression»);
 				'''
 		}
