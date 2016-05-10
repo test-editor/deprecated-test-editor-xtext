@@ -21,6 +21,7 @@ import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
 import org.testeditor.aml.ModelUtil
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.tcl.ComponentTestStep
 
 class TclProposalProvider extends AbstractTclProposalProvider {
 
@@ -42,7 +43,7 @@ class TclProposalProvider extends AbstractTclProposalProvider {
 		acceptor.accept(createCompletionProposal('* ', '* test description', null, context))
 	}
 
-	override complete_TestStep(EObject model, RuleCall ruleCall, ContentAssistContext context,
+	override complete_ComponentTestStep(EObject model, RuleCall ruleCall, ContentAssistContext context,
 		ICompletionProposalAcceptor acceptor) {
 		acceptor.accept(createCompletionProposal('- ', '- test step', null, context))
 	}
@@ -50,7 +51,7 @@ class TclProposalProvider extends AbstractTclProposalProvider {
 	override complete_StepContentElement(EObject model, RuleCall ruleCall, ContentAssistContext context,
 		ICompletionProposalAcceptor acceptor) {
 		super.complete_StepContentElement(model, ruleCall, context, acceptor)
-		if (model instanceof TestStep) {
+		if (model instanceof ComponentTestStep) {
 			val interaction = model.interaction
 			val componentElements = model.context.component.elements
 			val possibleElements = componentElements.filter [

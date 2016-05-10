@@ -7,4 +7,31 @@ import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 TmlModel:
 	'package' package=QualifiedName
 	(importSection=XImportSection)?
+	(testMacros+=TestMacro)*
+;
+
+TestMacro:
+	'#' name=ID
+	'template' '=' template=Template
+	contexts+=TestStepContext*		
+;
+
+Template returns aml::Template:
+	contents+=TemplateText (contents+=TemplateVariable contents+=TemplateText?)*	
+;
+
+TemplateText returns aml::TemplateText: 
+	value=STRING
+;
+
+TemplateVariable returns aml::TemplateVariable: 
+	name=TEMPLATE_VARIABLE_DEF
+;
+
+/* 
+ * Using a separate terminal is required since we'd like to write ${element} and
+ * this would otherwise be matched as the keyword 'element'.
+ */
+terminal TEMPLATE_VARIABLE_DEF:
+	'${' ID? '}'
 ;

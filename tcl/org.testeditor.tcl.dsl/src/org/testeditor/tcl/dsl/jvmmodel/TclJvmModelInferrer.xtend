@@ -24,12 +24,14 @@ import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
 import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
 import org.testeditor.tcl.AssertionTestStep
+import org.testeditor.tcl.ComponentTestStep
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestStep
-import org.testeditor.tcl.TestStepContext
+import org.testeditor.tcl.TestStepComponentContext
+import org.testeditor.tcl.TestStepMacroContext
 import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.util.TclModelUtil
 
@@ -74,16 +76,22 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		val comment = '''/* «step.contents.restoreString» */'''
 		output.newLine
 		output.append(comment).newLine
-		step.contexts.forEach[generate(output.trace(it))]
+		step.contexts.forEach[generateContext(output.trace(it))]
 	}
 
-	private def void generate(TestStepContext context, ITreeAppendable output) {
+	private def dispatch void generateContext(TestStepMacroContext context, ITreeAppendable output) {
+		output.newLine
+		output.append('''// Macro: «context.macroId»''').newLine
+	// TODO: generate code for macro usage
+	}
+
+	private def dispatch void generateContext(TestStepComponentContext context, ITreeAppendable output) {
 		output.newLine
 		output.append('''// Component: «context.component.name»''').newLine
 		context.steps.forEach[generate(output.trace(it))]
 	}
 
-	private def void generate(TestStep step, ITreeAppendable output) {
+	private def void generate(ComponentTestStep step, ITreeAppendable output) {
 		output.newLine
 		output.append('''// - «step.contents.restoreString»''').newLine
 		toUnitTestCodeLine(step, output)
@@ -93,7 +101,9 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	 * @return all {@link JvmType} of all fixtures that are referenced.
 	 */
 	private def Set<JvmType> getFixtureTypes(TestCase test) {
-		val components = test.steps.map[contexts].flatten.filterNull.map[component].filterNull
+		val components = test.steps.map[contexts].flatten.filterNull.filter[it instanceof TestStepComponentContext].map [
+			(it as TestStepComponentContext).component
+		].filterNull
 		// TODO the part from here should go somewhere in Aml ModelUtil
 		val interactionTypes = components.map[amlModelUtil.getAllInteractionTypes(it)].flatten.toSet
 		val fixtureTypes = interactionTypes.map[amlModelUtil.getFixtureType(it)].filterNull.toSet
@@ -108,7 +118,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		output.append(assertCallBuilder.build(step.expression)).newLine
 	}
 
-	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output) {
+	private def dispatch void toUnitTestCodeLine(ComponentTestStep step, ITreeAppendable output) {
 		val interaction = step.interaction
 		if (interaction !== null) {
 			val fixtureField = interaction.defaultMethod?.typeReference?.type?.fixtureFieldName
@@ -119,13 +129,15 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 					append('''«fixtureField».«operation.simpleName»(«getParameterList(step, interaction)»);''')
 				]
 			} else {
-				output.append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
+				output.
+					append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
 			}
 		} else {
-			output.append('''// TODO could not resolve '«step.context.component.name»' - «step.contents.restoreString»''')
+			output.
+				append('''// TODO could not resolve '«step.context.component.name»' - «step.contents.restoreString»''')
 		}
 	}
-	
+
 	def void maybeCreateAssignment(TestStep step, JvmOperation operation, ITreeAppendable output) {
 		if (step instanceof TestStepWithAssignment) {
 			output.trace(step, TEST_STEP_WITH_ASSIGNMENT__VARIABLE_NAME, 0) => [

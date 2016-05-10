@@ -25,6 +25,7 @@ import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tsl.StepContentVariable
 
 import static extension org.eclipse.xtext.nodemodel.util.NodeModelUtils.*
+import org.testeditor.tcl.TestStepComponentContext
 
 class TclModelParserTest extends AbstractParserTest {
 	
@@ -103,8 +104,8 @@ class TclModelParserTest extends AbstractParserTest {
 		
 		// then
 		test.steps.assertSingleElement => [
-			contexts.assertSingleElement => [
-				val componentNode = findNodesForFeature(TclPackage.Literals.TEST_STEP_CONTEXT__COMPONENT).assertSingleElement
+			contexts.assertSingleElement.assertInstanceOf(TestStepComponentContext) => [
+				val componentNode = findNodesForFeature(TclPackage.Literals.TEST_STEP_COMPONENT_CONTEXT__COMPONENT).assertSingleElement
 				componentNode.text.assertEquals('GreetingsApplication')
 				steps.assertSize(2)
 				steps.get(0) => [
@@ -134,7 +135,7 @@ class TclModelParserTest extends AbstractParserTest {
 		val test = parse(input)
 		
 		// then
-		test.steps.assertSingleElement.contexts.assertSingleElement => [
+		test.steps.assertSingleElement.contexts.assertSingleElement.assertInstanceOf(TestStepComponentContext) => [
 			val emptyReferences = steps.assertSingleElement.contents.assertSize(3)
 			emptyReferences.forEach[
 				assertInstanceOf(StepContentElement)
@@ -160,7 +161,7 @@ class TclModelParserTest extends AbstractParserTest {
 		
 		// then
 		test.steps.assertSingleElement => [
-			contexts.assertSingleElement => [
+			contexts.assertSingleElement.assertInstanceOf(TestStepComponentContext) => [
 				steps.assertSingleElement.assertInstanceOf(TestStepWithAssignment) => [
 					variableName.assertEquals('hello')
 					contents.restoreString.assertEquals('Lese den Text von <Input>')
@@ -186,7 +187,7 @@ class TclModelParserTest extends AbstractParserTest {
 
 		// then
 		test.steps.assertSingleElement => [
-			contexts.assertSingleElement => [
+			contexts.assertSingleElement.assertInstanceOf(TestStepComponentContext) => [
 				steps.assertSingleElement.assertInstanceOf(AssertionTestStep) => [
 					expression.assertInstanceOf(AENullCheck) => [
 						negated.assertFalse
@@ -214,7 +215,7 @@ class TclModelParserTest extends AbstractParserTest {
 
 		// then
 		test.steps.assertSingleElement => [
-			contexts.assertSingleElement => [
+			contexts.assertSingleElement.assertInstanceOf(TestStepComponentContext) => [
 				steps.assertSingleElement.assertInstanceOf(AssertionTestStep) => [
 					expression.assertInstanceOf(AEComparison) => [
 						left.assertInstanceOf(AEVariableReference) => [name.assertEquals("hello")]

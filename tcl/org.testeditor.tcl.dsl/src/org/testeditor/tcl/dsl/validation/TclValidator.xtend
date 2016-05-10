@@ -33,6 +33,8 @@ import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
+import org.testeditor.tcl.TestStepComponentContext
+import org.testeditor.tcl.ComponentTestStep
 
 class TclValidator extends AbstractTclValidator {
 
@@ -60,14 +62,14 @@ class TclValidator extends AbstractTclValidator {
 	}
 
 	@Check
-	def checkMaskPresent(TestStepContext tsContext) {
+	def checkMaskPresent(TestStepComponentContext tsContext) {
 		if (tsContext.component.eIsProxy) {
-			warning("mask is not defined in aml", TclPackage.Literals.TEST_STEP_CONTEXT__COMPONENT, UNKNOWN_NAME);
+			warning("mask is not defined in aml", TclPackage.Literals.TEST_STEP_COMPONENT_CONTEXT__COMPONENT, UNKNOWN_NAME);
 		}
 	}
 
 	@Check
-	def checkFixtureMethodForExistence(TestStep testStep) {
+	def checkFixtureMethodForExistence(ComponentTestStep testStep) {
 		if (!(testStep instanceof AssertionTestStep)) {
 			val method = testStep.interaction?.defaultMethod
 			if ((method == null ) || (method.operation == null) || (method.typeReference?.type == null)) {
@@ -77,7 +79,7 @@ class TclValidator extends AbstractTclValidator {
 	}
 
 	@Check
-	def checkVariableUsageWithinAssertionExpressions(TestStepContext tsContext) {
+	def checkVariableUsageWithinAssertionExpressions(TestStepComponentContext tsContext) {
 		val varTypeMap = newHashMap
 		// collect all var assignments
 		tsContext.steps.forEach [ it, index |
@@ -85,7 +87,7 @@ class TclValidator extends AbstractTclValidator {
 				// check "in order" (to prevent variable usage before assignment)
 				if (varTypeMap.containsKey(variableName)) {
 					val message = '''Variable '«variableName»' is assigned more than once.'''
-					warning(message, TclPackage.Literals.TEST_STEP_CONTEXT__STEPS, index,
+					warning(message, TclPackage.Literals.TEST_STEP_COMPONENT_CONTEXT__STEPS, index,
 						VARIABLE_ASSIGNED_MORE_THAN_ONCE);
 				} else {
 					varTypeMap.put(variableName, getInteraction.defaultMethod.operation.returnType.identifier)

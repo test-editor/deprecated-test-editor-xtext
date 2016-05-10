@@ -33,12 +33,26 @@ SpecificationStepImplementation:
 	contexts+=TestStepContext*;
 
 TestStepContext:
-	('Mask' | 'Component') ':' component=[aml::Component]
-	steps+=(TestStep | TestStepWithAssignment | AssertionTestStep)*;
+	(TestStepComponentContext | TestStepMacroContext);
 
-TestStep:
-	{TestStep}
+TestStepComponentContext returns TestStepContext:
+	{TestStepComponentContext}
+	('Mask' | 'Component') ':' component=[aml::Component]
+	steps+=(ComponentTestStep | TestStepWithAssignment | AssertionTestStep)*;
+
+TestStepMacroContext returns TestStepContext:
+	{TestStepMacroContext}
+	'Macro' ':' macroId=ID
+	step=MacroTestStep;
+
+ComponentTestStep:
+	{ComponentTestStep}
 	'-' contents+=StepContent* '.'?;
+
+MacroTestStep:
+	{MacroTestStep}
+	'-' contents+=StepContent* '.'?;
+
 
 AssertionTestStep:
 	'-' 'assert' expression=AssertionExpression '.'?;

@@ -30,6 +30,8 @@ import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
+import org.testeditor.tcl.MacroTestStep
+import org.testeditor.tcl.ComponentTestStep
 
 @Singleton
 class TclModelUtil extends TslModelUtil {
@@ -45,7 +47,7 @@ class TclModelUtil extends TslModelUtil {
 		].join(' ')
 	}
 
-	def InteractionType getInteraction(TestStep step) {
+	def InteractionType getInteraction(ComponentTestStep step) {
 		// TODO this should be solved by using an adapter (so that we don't need to recalculate it over and over again)
 		val component = step.context.component
 		if (component !== null) {
@@ -93,7 +95,7 @@ class TclModelUtil extends TslModelUtil {
 
 	def ComponentElement getComponentElement(StepContentElement contentElement) {
 		val container = contentElement.eContainer
-		if (container instanceof TestStep) {
+		if (container instanceof ComponentTestStep) {
 			val component = container.context.component
 			return component.elements.findFirst[name == contentElement.value]
 		}
@@ -102,7 +104,7 @@ class TclModelUtil extends TslModelUtil {
 
 	def ValueSpaceAssignment getValueSpaceAssignment(StepContentVariable contentElement) {
 		val container = contentElement.eContainer
-		if (container instanceof TestStep) {
+		if (container instanceof ComponentTestStep) {
 			val component = container.context.component
 			val valueSpace = getValueSpaceAssignment(component, container)
 			if (valueSpace != null) {
@@ -112,7 +114,7 @@ class TclModelUtil extends TslModelUtil {
 		return null
 	}
 
-	def ValueSpaceAssignment getValueSpaceAssignment(Component component, TestStep container) {
+	def ValueSpaceAssignment getValueSpaceAssignment(Component component, ComponentTestStep container) {
 		for (element : component.elements) {
 			val valueSpace = getValueSpaceAssignment(element, container)
 			if (valueSpace != null) {
@@ -122,7 +124,7 @@ class TclModelUtil extends TslModelUtil {
 		return null
 	}
 
-	def ValueSpaceAssignment getValueSpaceAssignment(ComponentElement element, TestStep container) {
+	def ValueSpaceAssignment getValueSpaceAssignment(ComponentElement element, ComponentTestStep container) {
 		val foo = element.valueSpaceAssignments
 		return foo.findFirst[variable.template.interactionType.name == container.interaction.name]
 	}

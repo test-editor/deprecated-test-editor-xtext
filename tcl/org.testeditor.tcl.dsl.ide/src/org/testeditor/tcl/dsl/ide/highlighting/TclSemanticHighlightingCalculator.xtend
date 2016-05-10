@@ -26,6 +26,7 @@ import org.testeditor.tsl.StepContent
 import static org.testeditor.tcl.TclPackage.Literals.*
 
 import static extension org.eclipse.xtext.nodemodel.util.NodeModelUtils.getNode
+import org.testeditor.tcl.TestStepComponentContext
 
 class TclSemanticHighlightingCalculator extends DefaultSemanticHighlightingCalculator {
 
@@ -63,11 +64,13 @@ class TclSemanticHighlightingCalculator extends DefaultSemanticHighlightingCalcu
 		for (specificationStep : test.steps) {
 			specificationStep.contents.forEach[provideHighlightingFor(acceptor)]
 			for (context : specificationStep.contexts) {
-				for (testStep : context.steps) {
-					if (cancelIndicator.canceled) {
-						return
+				if( context instanceof TestStepComponentContext){
+					for (testStep : context.steps) {
+						if (cancelIndicator.canceled) {
+							return
+						}
+						testStep.contents.filter(StepContentElement).forEach[provideHighlightingFor(acceptor)]
 					}
-					testStep.contents.filter(StepContentElement).forEach[provideHighlightingFor(acceptor)]
 				}
 			}
 		}

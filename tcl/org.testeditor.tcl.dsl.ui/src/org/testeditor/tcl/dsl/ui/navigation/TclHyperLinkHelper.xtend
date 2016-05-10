@@ -30,6 +30,7 @@ import org.testeditor.tsl.StepContent
 
 import static org.testeditor.tcl.TclPackage.Literals.*
 import static org.testeditor.tsl.TslPackage.Literals.*
+import org.testeditor.tcl.ComponentTestStep
 
 class TclHyperLinkHelper extends XbaseHyperLinkHelper {
 
@@ -55,7 +56,7 @@ class TclHyperLinkHelper extends XbaseHyperLinkHelper {
 	/**
 	 * Create a hyperlink from a {@link TestStep} to its interaction's template. 
 	 */
-	protected def dispatch void createHyperlinks(TestStep testStep, IHyperlinkAcceptor acceptor) {
+	protected def dispatch void createHyperlinks(ComponentTestStep testStep, IHyperlinkAcceptor acceptor) {
 		val interaction = testStep.interaction
 		if (interaction !== null) {
 			testStep.createHyperlinkTo(TEST_STEP__CONTENTS, interaction.template, acceptor)

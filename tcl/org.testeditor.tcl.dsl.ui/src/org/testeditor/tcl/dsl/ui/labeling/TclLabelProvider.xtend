@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -16,7 +16,7 @@ import com.google.inject.Inject
 import org.eclipse.emf.edit.ui.provider.AdapterFactoryLabelProvider
 import org.eclipse.xtext.xbase.ui.labeling.XbaseLabelProvider
 import org.testeditor.tcl.TestStep
-import org.testeditor.tcl.TestStepContext
+import org.testeditor.tcl.TestStepComponentContext
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.SpecificationStep
 
@@ -31,7 +31,7 @@ class TclLabelProvider extends XbaseLabelProvider {
 	}
 
 	// Labels and icons can be computed like this:
-	def text(TestStepContext context) {
+	def text(TestStepComponentContext context) {
 		val component = context.component
 		return "Mask: " + (component.label ?: component.name)
 	}

@@ -19,8 +19,17 @@
 package org.testeditor.tml
 
 import org.eclipse.xtext.xtype.XImportSection
+import org.testeditor.tcl.TestStepContext
+import org.testeditor.aml.Template
 
 class TmlModel {
 	String ^package
 	contains XImportSection importSection
+	contains TestMacro[0..*] testMacros
+}
+
+class TestMacro {
+	String ^name
+	contains Template template
+	contains TestStepContext[0..*] contexts
 }

@@ -28,6 +28,7 @@ import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.tcl.TestStep
 import org.testeditor.aml.InteractionType
+import org.testeditor.tcl.ComponentTestStep
 
 class TclTemplateProposalProvider extends DefaultTemplateProposalProvider {
 
@@ -47,7 +48,7 @@ class TclTemplateProposalProvider extends DefaultTemplateProposalProvider {
 		super.createTemplates(templateContext, context, acceptor)
 
 		val model = context.currentModel
-		if (model instanceof TestStep) {
+		if (model instanceof ComponentTestStep) {
 			val component = model.context.component
 			component?.proposeAvailableInteractions(model, templateContext, context, acceptor)
 		}

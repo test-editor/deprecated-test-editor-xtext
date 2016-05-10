@@ -38,6 +38,7 @@ import org.testeditor.tcl.dsl.messages.TclSyntaxErrorMessageProvider
 import org.testeditor.tcl.dsl.validation.TclValidator
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.SpecificationStep
+import org.testeditor.tcl.TestStepComponentContext
 
 /**
  * Custom quickfixes.
@@ -79,7 +80,7 @@ class TclQuickfixProvider extends XbaseQuickfixProvider {
 	@Fix(TclValidator.UNKNOWN_NAME)
 	def createAMLMask(Issue issue, IssueResolutionAcceptor acceptor) {
 		acceptor.accept(issue, "Create AML Mask", "Creates a new AML Mask", 'upcase.png') [ element, context |
-			if (element instanceof TestStepContext) {
+			if (element instanceof TestStepComponentContext) {
 				if (element.component.eIsProxy) {
 					val maskName = getMaskName(element)
 					var amlFile = getTargetFile(context.xtextDocument.getAdapter(IFile))
