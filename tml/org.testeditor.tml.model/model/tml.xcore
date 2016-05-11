@@ -29,7 +29,7 @@ class TmlModel {
 }
 
 class TestMacro {
-	String ^name
+	String name
 	contains Template template
 	contains TestStepContext[0..*] contexts
 }
