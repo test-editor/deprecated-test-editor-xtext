@@ -15,7 +15,6 @@ package org.testeditor.tml.dsl
 import org.testeditor.tml.TmlPackage
 import org.eclipse.emf.ecore.EPackage
 import org.testeditor.tsl.TslPackage
-import org.testeditor.tcl.TclPackage
 import org.testeditor.aml.AmlPackage
 
 import static extension org.testeditor.dsl.common.util.CollectionUtils.putIfAbsent
@@ -32,7 +31,6 @@ class TmlStandaloneSetup extends TmlStandaloneSetupGenerated {
 	override createInjectorAndDoEMFRegistration() {
 		EPackage.Registry.INSTANCE.putIfAbsent(TmlPackage.eNS_URI, TmlPackage.eINSTANCE)
 		EPackage.Registry.INSTANCE.putIfAbsent(TslPackage.eNS_URI, TslPackage.eINSTANCE)
-		EPackage.Registry.INSTANCE.putIfAbsent(TclPackage.eNS_URI, TclPackage.eINSTANCE)
 		EPackage.Registry.INSTANCE.putIfAbsent(AmlPackage.eNS_URI, AmlPackage.eINSTANCE)
 		return super.createInjectorAndDoEMFRegistration
 	}

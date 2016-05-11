@@ -13,18 +13,18 @@
 package org.testeditor.tcl.dsl.tests.parser
 
 import org.junit.Test
-import org.testeditor.tcl.AEComparison
-import org.testeditor.tcl.AENullCheck
-import org.testeditor.tcl.AEStringConstant
-import org.testeditor.tcl.AEVariableReference
-import org.testeditor.tcl.AssertionTestStep
-import org.testeditor.tcl.ComparatorMatches
-import org.testeditor.tcl.ComponentTestStepContext
-import org.testeditor.tcl.MacroTestStepContext
-import org.testeditor.tcl.StepContentElement
-import org.testeditor.tcl.TclPackage
-import org.testeditor.tcl.TestStep
-import org.testeditor.tcl.TestStepWithAssignment
+import org.testeditor.tml.AEComparison
+import org.testeditor.tml.AENullCheck
+import org.testeditor.tml.AEStringConstant
+import org.testeditor.tml.AEVariableReference
+import org.testeditor.tml.AssertionTestStep
+import org.testeditor.tml.ComparatorMatches
+import org.testeditor.tml.ComponentTestStepContext
+import org.testeditor.tml.MacroTestStepContext
+import org.testeditor.tml.StepContentElement
+import org.testeditor.tml.TestStep
+import org.testeditor.tml.TestStepWithAssignment
+import org.testeditor.tml.TmlPackage
 import org.testeditor.tsl.StepContentVariable
 
 import static extension org.eclipse.xtext.nodemodel.util.NodeModelUtils.*
@@ -107,7 +107,7 @@ class TclModelParserTest extends AbstractParserTest {
 		// then
 		test.steps.assertSingleElement => [
 			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
-				val componentNode = findNodesForFeature(TclPackage.Literals.COMPONENT_TEST_STEP_CONTEXT__COMPONENT).assertSingleElement
+				val componentNode = findNodesForFeature(TmlPackage.Literals.COMPONENT_TEST_STEP_CONTEXT__COMPONENT).assertSingleElement
 				componentNode.text.assertEquals('GreetingsApplication')
 				steps.assertSize(2)
 				steps.get(0) => [

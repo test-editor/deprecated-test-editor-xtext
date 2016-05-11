@@ -33,12 +33,12 @@ import org.eclipse.xtext.validation.Issue
 import org.eclipse.xtext.xbase.ui.quickfix.XbaseQuickfixProvider
 import org.testeditor.aml.AmlModel
 import org.testeditor.tcl.TestCase
-import org.testeditor.tcl.TestStepContext
+import org.testeditor.tml.TestStepContext
 import org.testeditor.tcl.dsl.messages.TclSyntaxErrorMessageProvider
 import org.testeditor.tcl.dsl.validation.TclValidator
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.SpecificationStep
-import org.testeditor.tcl.ComponentTestStepContext
+import org.testeditor.tml.ComponentTestStepContext
 
 /**
  * Custom quickfixes.

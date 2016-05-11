@@ -21,12 +21,12 @@ import org.testeditor.aml.InteractionType
 import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.ValueSpaceAssignment
-import org.testeditor.tcl.ComponentTestStepContext
-import org.testeditor.tcl.MacroTestStepContext
+import org.testeditor.tml.ComponentTestStepContext
+import org.testeditor.tml.MacroTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
-import org.testeditor.tcl.StepContentElement
+import org.testeditor.tml.StepContentElement
 import org.testeditor.tcl.TestCase
-import org.testeditor.tcl.TestStep
+import org.testeditor.tml.TestStep
 import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentText

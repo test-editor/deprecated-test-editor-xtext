@@ -59,6 +59,7 @@ Workflow {
 			referencedResource = "platform:/resource/org.testeditor.tsl.model/model/tsl.xcore"
 			referencedResource = "platform:/resource/org.testeditor.tcl.model/model/tcl.xcore"
 			referencedResource = "platform:/resource/org.testeditor.aml.model/model/aml.xcore"
+			referencedResource = "platform:/resource/org.testeditor.tml.model/model/tml.xcore"
 			formatter = {
 				generateStub = true
 			}

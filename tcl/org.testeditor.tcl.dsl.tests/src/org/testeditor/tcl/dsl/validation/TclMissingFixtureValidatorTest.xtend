@@ -24,11 +24,11 @@ import org.mockito.Mock
 import org.testeditor.aml.InteractionType
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.tml.ComponentTestStepContext
 
 import static org.mockito.Matchers.*
 
 import static extension org.mockito.Mockito.*
-import org.testeditor.tcl.ComponentTestStepContext
 
 class TclMissingFixtureValidatorTest extends AbstractParserTest {
 

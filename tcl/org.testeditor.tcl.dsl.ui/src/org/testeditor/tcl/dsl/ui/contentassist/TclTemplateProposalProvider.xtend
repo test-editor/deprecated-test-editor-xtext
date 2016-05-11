@@ -27,7 +27,7 @@ import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
-import org.testeditor.tcl.TestStep
+import org.testeditor.tml.TestStep
 import org.testeditor.tcl.util.TclModelUtil
 
 class TclTemplateProposalProvider extends DefaultTemplateProposalProvider {

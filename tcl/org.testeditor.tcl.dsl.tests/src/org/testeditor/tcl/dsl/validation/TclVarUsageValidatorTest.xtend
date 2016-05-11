@@ -10,14 +10,14 @@ import org.mockito.ArgumentCaptor
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.testeditor.aml.AmlFactory
-import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.tml.ComponentTestStepContext
+import org.testeditor.tml.TestStepContext
 
 import static org.mockito.Matchers.*
 
 import static extension org.mockito.Mockito.*
-import org.testeditor.tcl.ComponentTestStepContext
 
 class TclVarUsageValidatorTest extends AbstractParserTest {
 

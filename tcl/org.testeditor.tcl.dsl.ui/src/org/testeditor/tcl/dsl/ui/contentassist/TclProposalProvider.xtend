@@ -19,7 +19,7 @@ import org.eclipse.xtext.RuleCall
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
 import org.testeditor.aml.ModelUtil
-import org.testeditor.tcl.TestStep
+import org.testeditor.tml.TestStep
 import org.testeditor.tcl.util.TclModelUtil
 
 class TclProposalProvider extends AbstractTclProposalProvider {

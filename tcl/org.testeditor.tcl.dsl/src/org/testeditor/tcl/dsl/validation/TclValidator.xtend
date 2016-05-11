@@ -17,22 +17,23 @@ import java.util.Map
 import javax.inject.Inject
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.xtype.XImportSection
-import org.testeditor.tcl.AEVariableReference
-import org.testeditor.tcl.AssertionExpression
-import org.testeditor.tcl.AssertionTestStep
-import org.testeditor.tcl.BinaryAssertionExpression
-import org.testeditor.tcl.ComponentTestStepContext
+import org.testeditor.tml.AEVariableReference
+import org.testeditor.tml.AssertionExpression
+import org.testeditor.tml.AssertionTestStep
+import org.testeditor.tml.BinaryAssertionExpression
+import org.testeditor.tml.ComponentTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
-import org.testeditor.tcl.StepContentElement
+import org.testeditor.tml.StepContentElement
 import org.testeditor.tcl.TclPackage
 import org.testeditor.tcl.TestCase
-import org.testeditor.tcl.TestStep
-import org.testeditor.tcl.TestStepWithAssignment
-import org.testeditor.tcl.impl.AssertionTestStepImpl
+import org.testeditor.tml.TestStep
+import org.testeditor.tml.TestStepWithAssignment
+import org.testeditor.tml.impl.AssertionTestStepImpl
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
+import org.testeditor.tml.TmlPackage
 
 class TclValidator extends AbstractTclValidator {
 
@@ -62,7 +63,7 @@ class TclValidator extends AbstractTclValidator {
 	@Check
 	def checkMaskPresent(ComponentTestStepContext tsContext) {
 		if (tsContext.component.eIsProxy) {
-			warning("mask is not defined in aml", TclPackage.Literals.COMPONENT_TEST_STEP_CONTEXT__COMPONENT,
+			warning("mask is not defined in aml", TmlPackage.Literals.COMPONENT_TEST_STEP_CONTEXT__COMPONENT,
 				UNKNOWN_NAME);
 		}
 	}
@@ -72,7 +73,7 @@ class TclValidator extends AbstractTclValidator {
 		if (!(testStep instanceof AssertionTestStep)) {
 			val method = testStep.interaction?.defaultMethod
 			if ((method == null ) || (method.operation == null) || (method.typeReference?.type == null)) {
-				info("test step could not resolve fixture", TclPackage.Literals.TEST_STEP__CONTENTS, MISSING_FIXTURE)
+				info("test step could not resolve fixture", TmlPackage.Literals.TEST_STEP__CONTENTS, MISSING_FIXTURE)
 			}
 		}
 	}
@@ -86,7 +87,7 @@ class TclValidator extends AbstractTclValidator {
 				// check "in order" (to prevent variable usage before assignment)
 				if (varTypeMap.containsKey(variableName)) {
 					val message = '''Variable '«variableName»' is assigned more than once.'''
-					warning(message, TclPackage.Literals.COMPONENT_TEST_STEP_CONTEXT__STEPS, index,
+					warning(message, TmlPackage.Literals.COMPONENT_TEST_STEP_CONTEXT__STEPS, index,
 						VARIABLE_ASSIGNED_MORE_THAN_ONCE);
 				} else {
 					varTypeMap.put(variableName, interaction.defaultMethod.operation.returnType.identifier)

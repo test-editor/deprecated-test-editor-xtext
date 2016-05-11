@@ -18,7 +18,7 @@ import org.eclipse.xtext.ide.editor.syntaxcoloring.IHighlightedPositionAcceptor
 import org.eclipse.xtext.resource.XtextResource
 import org.eclipse.xtext.util.CancelIndicator
 import org.testeditor.dsl.common.ide.util.NodeRegionUtil
-import org.testeditor.tcl.StepContentElement
+import org.testeditor.tml.StepContentElement
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.util.TclModelUtil

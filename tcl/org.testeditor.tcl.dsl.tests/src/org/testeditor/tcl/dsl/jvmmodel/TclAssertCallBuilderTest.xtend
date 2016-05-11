@@ -2,7 +2,7 @@ package org.testeditor.tcl.dsl.jvmmodel
 
 import javax.inject.Inject
 import org.junit.Test
-import org.testeditor.tcl.AssertionTestStep
+import org.testeditor.tml.AssertionTestStep
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 
 class TclAssertCallBuilderTest extends AbstractParserTest {

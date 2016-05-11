@@ -22,13 +22,13 @@ import org.eclipse.xtext.xbase.ui.navigation.XbaseHyperLinkHelper
 import org.testeditor.aml.ComponentElement
 import org.testeditor.dsl.common.ide.util.NodeRegionUtil
 import org.testeditor.tcl.SpecificationStepImplementation
-import org.testeditor.tcl.StepContentElement
-import org.testeditor.tcl.TestStep
+import org.testeditor.tml.StepContentElement
+import org.testeditor.tml.TestStep
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContent
 
-import static org.testeditor.tcl.TclPackage.Literals.*
+import static org.testeditor.tml.TmlPackage.Literals.*
 import static org.testeditor.tsl.TslPackage.Literals.*
 
 class TclHyperLinkHelper extends XbaseHyperLinkHelper {

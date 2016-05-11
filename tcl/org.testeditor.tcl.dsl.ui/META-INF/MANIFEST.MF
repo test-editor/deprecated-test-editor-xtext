@@ -25,7 +25,8 @@ Require-Bundle: org.testeditor.dsl.common,
  org.eclipse.ui,
  org.eclipse.jdt.debug.ui,
  org.testeditor.logging
-Import-Package: org.apache.log4j
+Import-Package: org.apache.log4j,
+ org.testeditor.tml.dsl.ui.contentassist
 Export-Package: org.testeditor.tcl.dsl.ui,
  org.testeditor.tcl.dsl.ui.contentassist,
  org.testeditor.tcl.dsl.ui.internal,

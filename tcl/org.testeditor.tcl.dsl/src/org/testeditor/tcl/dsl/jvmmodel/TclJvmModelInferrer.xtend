@@ -23,18 +23,18 @@ import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
 import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
-import org.testeditor.tcl.AssertionTestStep
-import org.testeditor.tcl.ComponentTestStepContext
-import org.testeditor.tcl.MacroTestStepContext
+import org.testeditor.tml.AssertionTestStep
+import org.testeditor.tml.ComponentTestStepContext
+import org.testeditor.tml.MacroTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
-import org.testeditor.tcl.StepContentElement
+import org.testeditor.tml.StepContentElement
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
-import org.testeditor.tcl.TestStep
-import org.testeditor.tcl.TestStepWithAssignment
+import org.testeditor.tml.TestStep
+import org.testeditor.tml.TestStepWithAssignment
 import org.testeditor.tcl.util.TclModelUtil
 
-import static org.testeditor.tcl.TclPackage.Literals.*
+import static org.testeditor.tml.TmlPackage.Literals.*
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
