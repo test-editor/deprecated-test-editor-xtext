@@ -16,9 +16,9 @@ import com.google.inject.Inject
 import org.eclipse.emf.edit.ui.provider.AdapterFactoryLabelProvider
 import org.eclipse.xtext.xbase.ui.labeling.XbaseLabelProvider
 import org.testeditor.tcl.TestStep
-import org.testeditor.tcl.TestStepComponentContext
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.SpecificationStep
+import org.testeditor.tcl.ComponentTestStepContext
 
 class TclLabelProvider extends XbaseLabelProvider {
 
@@ -31,7 +31,7 @@ class TclLabelProvider extends XbaseLabelProvider {
 	}
 
 	// Labels and icons can be computed like this:
-	def text(TestStepComponentContext context) {
+	def text(ComponentTestStepContext context) {
 		val component = context.component
 		return "Mask: " + (component.label ?: component.name)
 	}

@@ -33,26 +33,21 @@ SpecificationStepImplementation:
 	contexts+=TestStepContext*;
 
 TestStepContext:
-	(TestStepComponentContext | TestStepMacroContext);
+	(ComponentTestStepContext | MacroTestStepContext);
 
-TestStepComponentContext returns TestStepContext:
-	{TestStepComponentContext}
+ComponentTestStepContext returns TestStepContext:
+	{ComponentTestStepContext}
 	('Mask' | 'Component') ':' component=[aml::Component]
-	steps+=(ComponentTestStep | TestStepWithAssignment | AssertionTestStep)*;
+	steps+=(TestStep | TestStepWithAssignment | AssertionTestStep)*;
 
-TestStepMacroContext returns TestStepContext:
-	{TestStepMacroContext}
+MacroTestStepContext returns TestStepContext:
+	{MacroTestStepContext}
 	'Macro' ':' macroId=ID
-	step=MacroTestStep;
+	step=TestStep;
 
-ComponentTestStep:
-	{ComponentTestStep}
+TestStep:
+	{TestStep}
 	'-' contents+=StepContent* '.'?;
-
-MacroTestStep:
-	{MacroTestStep}
-	'-' contents+=StepContent* '.'?;
-
 
 AssertionTestStep:
 	'-' 'assert' expression=AssertionExpression '.'?;
@@ -126,7 +121,7 @@ StepContentText returns tsl::StepContentText:
 
 /** hold all keywords that are allowed as step content text (to prevent parser to fail on keyword usage) */
 StepContentTextOperator returns ecore::EString:
-	'matches' | 'does' 'not' 'match' | 'is' 'not'?;
+	'matches' | 'does' 'not' 'match' | 'is' 'not'? | 'template' | 'as' | 'Mask' | 'Component' | 'Macro' | 'implements' | 'package';
 
 StepContentVariable returns tsl::StepContentVariable:
 	value=STRING;

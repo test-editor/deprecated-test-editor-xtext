@@ -21,20 +21,18 @@ import org.testeditor.tcl.AEVariableReference
 import org.testeditor.tcl.AssertionExpression
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.BinaryAssertionExpression
+import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclPackage
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestStep
-import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.impl.AssertionTestStepImpl
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
-import org.testeditor.tcl.TestStepComponentContext
-import org.testeditor.tcl.ComponentTestStep
 
 class TclValidator extends AbstractTclValidator {
 
@@ -62,14 +60,15 @@ class TclValidator extends AbstractTclValidator {
 	}
 
 	@Check
-	def checkMaskPresent(TestStepComponentContext tsContext) {
+	def checkMaskPresent(ComponentTestStepContext tsContext) {
 		if (tsContext.component.eIsProxy) {
-			warning("mask is not defined in aml", TclPackage.Literals.TEST_STEP_COMPONENT_CONTEXT__COMPONENT, UNKNOWN_NAME);
+			warning("mask is not defined in aml", TclPackage.Literals.COMPONENT_TEST_STEP_CONTEXT__COMPONENT,
+				UNKNOWN_NAME);
 		}
 	}
 
 	@Check
-	def checkFixtureMethodForExistence(ComponentTestStep testStep) {
+	def checkFixtureMethodForExistence(TestStep testStep) {
 		if (!(testStep instanceof AssertionTestStep)) {
 			val method = testStep.interaction?.defaultMethod
 			if ((method == null ) || (method.operation == null) || (method.typeReference?.type == null)) {
@@ -79,7 +78,7 @@ class TclValidator extends AbstractTclValidator {
 	}
 
 	@Check
-	def checkVariableUsageWithinAssertionExpressions(TestStepComponentContext tsContext) {
+	def checkVariableUsageWithinAssertionExpressions(ComponentTestStepContext tsContext) {
 		val varTypeMap = newHashMap
 		// collect all var assignments
 		tsContext.steps.forEach [ it, index |
@@ -87,10 +86,10 @@ class TclValidator extends AbstractTclValidator {
 				// check "in order" (to prevent variable usage before assignment)
 				if (varTypeMap.containsKey(variableName)) {
 					val message = '''Variable '«variableName»' is assigned more than once.'''
-					warning(message, TclPackage.Literals.TEST_STEP_COMPONENT_CONTEXT__STEPS, index,
+					warning(message, TclPackage.Literals.COMPONENT_TEST_STEP_CONTEXT__STEPS, index,
 						VARIABLE_ASSIGNED_MORE_THAN_ONCE);
 				} else {
-					varTypeMap.put(variableName, getInteraction.defaultMethod.operation.returnType.identifier)
+					varTypeMap.put(variableName, interaction.defaultMethod.operation.returnType.identifier)
 				}
 			} else if (it instanceof AssertionTestStepImpl) {
 				executeCheckVariableUsageWithinAssertionExpressions(varTypeMap, index)

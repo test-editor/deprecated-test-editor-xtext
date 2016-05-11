@@ -21,6 +21,8 @@ import org.testeditor.aml.InteractionType
 import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.ValueSpaceAssignment
+import org.testeditor.tcl.ComponentTestStepContext
+import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TestCase
@@ -30,8 +32,6 @@ import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
-import org.testeditor.tcl.MacroTestStep
-import org.testeditor.tcl.ComponentTestStep
 
 @Singleton
 class TclModelUtil extends TslModelUtil {
@@ -47,9 +47,9 @@ class TclModelUtil extends TslModelUtil {
 		].join(' ')
 	}
 
-	def InteractionType getInteraction(ComponentTestStep step) {
+	def InteractionType getInteraction(TestStep step) {
 		// TODO this should be solved by using an adapter (so that we don't need to recalculate it over and over again)
-		val component = step.context.component
+		val component = step.componentContext?.component
 		if (component !== null) {
 			val allElementInteractions = component.elements.map[type.interactionTypes].flatten.filterNull
 			val interactionTypes = component.type.interactionTypes + allElementInteractions
@@ -95,26 +95,40 @@ class TclModelUtil extends TslModelUtil {
 
 	def ComponentElement getComponentElement(StepContentElement contentElement) {
 		val container = contentElement.eContainer
-		if (container instanceof ComponentTestStep) {
-			val component = container.context.component
-			return component.elements.findFirst[name == contentElement.value]
+		if (container instanceof TestStep) {
+			val component = container.componentContext?.component
+			return component?.elements?.findFirst[name == contentElement.value]
 		}
 		return null
 	}
 
 	def ValueSpaceAssignment getValueSpaceAssignment(StepContentVariable contentElement) {
 		val container = contentElement.eContainer
-		if (container instanceof ComponentTestStep) {
-			val component = container.context.component
-			val valueSpace = getValueSpaceAssignment(component, container)
-			if (valueSpace != null) {
-				return valueSpace
+		if (container instanceof TestStep) {
+			val component = container.componentContext?.component
+			if (component!=null){
+				val valueSpace = getValueSpaceAssignment(component, container)
+				if (valueSpace != null) {
+					return valueSpace
+				}
 			}
 		}
 		return null
 	}
 
-	def ValueSpaceAssignment getValueSpaceAssignment(Component component, ComponentTestStep container) {
+	def boolean hasComponentContext(TestStep step){
+		return step.componentContext != null
+	}
+
+	def ComponentTestStepContext getComponentContext(TestStep step){
+		if( step.eContainer instanceof ComponentTestStepContext){
+			return step.eContainer as ComponentTestStepContext
+		} else {
+			return null
+		}
+	}
+
+	def ValueSpaceAssignment getValueSpaceAssignment(Component component, TestStep container) {
 		for (element : component.elements) {
 			val valueSpace = getValueSpaceAssignment(element, container)
 			if (valueSpace != null) {
@@ -124,9 +138,9 @@ class TclModelUtil extends TslModelUtil {
 		return null
 	}
 
-	def ValueSpaceAssignment getValueSpaceAssignment(ComponentElement element, ComponentTestStep container) {
+	def ValueSpaceAssignment getValueSpaceAssignment(ComponentElement element, TestStep container) {
 		val foo = element.valueSpaceAssignments
-		return foo.findFirst[variable.template.interactionType.name == container.interaction.name]
+		return foo.findFirst[variable.template.interactionType.name == container.interaction?.name]
 	}
 
 	def SpecificationStep getSpecificationStep(SpecificationStepImplementation stepImplementation) {
@@ -152,4 +166,11 @@ class TclModelUtil extends TslModelUtil {
 		]
 	}
 
+	def dispatch Iterable<TestStep> getTestSteps(ComponentTestStepContext context){
+		return context.steps
+	}
+
+	def dispatch Iterable<TestStep> getTestSteps(MacroTestStepContext context){
+		return #[ context.step ]
+	}
 }

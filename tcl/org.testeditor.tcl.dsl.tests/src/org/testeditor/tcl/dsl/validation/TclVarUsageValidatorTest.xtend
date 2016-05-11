@@ -17,7 +17,7 @@ import org.testeditor.tcl.util.TclModelUtil
 import static org.mockito.Matchers.*
 
 import static extension org.mockito.Mockito.*
-import org.testeditor.tcl.TestStepComponentContext
+import org.testeditor.tcl.ComponentTestStepContext
 
 class TclVarUsageValidatorTest extends AbstractParserTest {
 
@@ -55,7 +55,7 @@ class TclVarUsageValidatorTest extends AbstractParserTest {
 		''')
 
 		// when
-		tclValidator.checkVariableUsageWithinAssertionExpressions(testStepContext.assertInstanceOf(TestStepComponentContext))
+		tclValidator.checkVariableUsageWithinAssertionExpressions(testStepContext.assertInstanceOf(ComponentTestStepContext))
 
 		// then
 		messageAcceptor.verify.acceptError(message.capture, anyObject, anyObject, anyInt, anyString)
@@ -74,7 +74,7 @@ class TclVarUsageValidatorTest extends AbstractParserTest {
 		when(typeRefMock.identifier).thenReturn(String.canonicalName)
 
 		// when
-		tclValidator.checkVariableUsageWithinAssertionExpressions(testStepContext.assertInstanceOf(TestStepComponentContext))
+		tclValidator.checkVariableUsageWithinAssertionExpressions(testStepContext.assertInstanceOf(ComponentTestStepContext))
 
 		// then
 		messageAcceptor.verify.acceptWarning(message.capture, anyObject, anyObject, anyInt, anyString)
@@ -93,7 +93,7 @@ class TclVarUsageValidatorTest extends AbstractParserTest {
 		when(typeRefMock.identifier).thenReturn(Map.canonicalName)
 
 		// when
-		tclValidator.checkVariableUsageWithinAssertionExpressions(testStepContext.assertInstanceOf(TestStepComponentContext))
+		tclValidator.checkVariableUsageWithinAssertionExpressions(testStepContext.assertInstanceOf(ComponentTestStepContext))
 
 		// then
 		messageAcceptor.verify(never).acceptError(anyString, anyObject, anyObject, anyInt, anyString)
@@ -111,7 +111,7 @@ class TclVarUsageValidatorTest extends AbstractParserTest {
 		when(typeRefMock.identifier).thenReturn(String.canonicalName)
 
 		// when
-		tclValidator.checkVariableUsageWithinAssertionExpressions(testStepContext.assertInstanceOf(TestStepComponentContext))
+		tclValidator.checkVariableUsageWithinAssertionExpressions(testStepContext.assertInstanceOf(ComponentTestStepContext))
 
 		// then
 		messageAcceptor.verify(never).acceptError(anyString, anyObject, anyObject, anyInt, anyString)
@@ -129,7 +129,7 @@ class TclVarUsageValidatorTest extends AbstractParserTest {
 		when(typeRefMock.identifier).thenReturn(Integer.canonicalName)
 
 		// when
-		tclValidator.checkVariableUsageWithinAssertionExpressions(testStepContext.assertInstanceOf(TestStepComponentContext))
+		tclValidator.checkVariableUsageWithinAssertionExpressions(testStepContext.assertInstanceOf(ComponentTestStepContext))
 
 		// then
 		messageAcceptor.verify.acceptError(message.capture, anyObject, anyObject, anyInt, anyString)

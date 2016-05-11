@@ -28,7 +28,7 @@ import org.testeditor.tcl.util.TclModelUtil
 import static org.mockito.Matchers.*
 
 import static extension org.mockito.Mockito.*
-import org.testeditor.tcl.TestStepComponentContext
+import org.testeditor.tcl.ComponentTestStepContext
 
 class TclMissingFixtureValidatorTest extends AbstractParserTest {
 
@@ -62,7 +62,7 @@ class TclMissingFixtureValidatorTest extends AbstractParserTest {
 			Component: some_fantasy_component
 			- test step that maps
 		''')
-		val testStepThatMaps = tclFix.steps.head.contexts.head.assertInstanceOf(TestStepComponentContext).steps.head
+		val testStepThatMaps = tclFix.steps.head.contexts.head.assertInstanceOf(ComponentTestStepContext).steps.head
 
 		// when
 		tclValidator.checkFixtureMethodForExistence(testStepThatMaps)
@@ -82,7 +82,7 @@ class TclMissingFixtureValidatorTest extends AbstractParserTest {
 			Component: some_fantasy_component
 			- test step that does not map
 		''')
-		val testStepThatDoesNotMap = tclFix.steps.head.contexts.head.assertInstanceOf(TestStepComponentContext).steps.head
+		val testStepThatDoesNotMap = tclFix.steps.head.contexts.head.assertInstanceOf(ComponentTestStepContext).steps.head
 		when(typeReferenceMock.type).thenReturn(null)
 
 		// when
@@ -104,7 +104,7 @@ class TclMissingFixtureValidatorTest extends AbstractParserTest {
 			Component: some_fantasy_component
 			- assert variable = "Hello"
 		''')
-		val testStepThatDoesNotMap = tclFix.steps.head.contexts.head.assertInstanceOf(TestStepComponentContext).steps.head
+		val testStepThatDoesNotMap = tclFix.steps.head.contexts.head.assertInstanceOf(ComponentTestStepContext).steps.head
 		when(typeReferenceMock.type).thenReturn(null)
 
 		// when

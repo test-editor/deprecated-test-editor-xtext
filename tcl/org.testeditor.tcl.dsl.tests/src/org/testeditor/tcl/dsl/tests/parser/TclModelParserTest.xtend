@@ -19,13 +19,15 @@ import org.testeditor.tcl.AEStringConstant
 import org.testeditor.tcl.AEVariableReference
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.ComparatorMatches
+import org.testeditor.tcl.ComponentTestStepContext
+import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclPackage
+import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tsl.StepContentVariable
 
 import static extension org.eclipse.xtext.nodemodel.util.NodeModelUtils.*
-import org.testeditor.tcl.TestStepComponentContext
 
 class TclModelParserTest extends AbstractParserTest {
 	
@@ -104,8 +106,8 @@ class TclModelParserTest extends AbstractParserTest {
 		
 		// then
 		test.steps.assertSingleElement => [
-			contexts.assertSingleElement.assertInstanceOf(TestStepComponentContext) => [
-				val componentNode = findNodesForFeature(TclPackage.Literals.TEST_STEP_COMPONENT_CONTEXT__COMPONENT).assertSingleElement
+			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
+				val componentNode = findNodesForFeature(TclPackage.Literals.COMPONENT_TEST_STEP_CONTEXT__COMPONENT).assertSingleElement
 				componentNode.text.assertEquals('GreetingsApplication')
 				steps.assertSize(2)
 				steps.get(0) => [
@@ -135,7 +137,7 @@ class TclModelParserTest extends AbstractParserTest {
 		val test = parse(input)
 		
 		// then
-		test.steps.assertSingleElement.contexts.assertSingleElement.assertInstanceOf(TestStepComponentContext) => [
+		test.steps.assertSingleElement.contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
 			val emptyReferences = steps.assertSingleElement.contents.assertSize(3)
 			emptyReferences.forEach[
 				assertInstanceOf(StepContentElement)
@@ -161,7 +163,7 @@ class TclModelParserTest extends AbstractParserTest {
 		
 		// then
 		test.steps.assertSingleElement => [
-			contexts.assertSingleElement.assertInstanceOf(TestStepComponentContext) => [
+			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
 				steps.assertSingleElement.assertInstanceOf(TestStepWithAssignment) => [
 					variableName.assertEquals('hello')
 					contents.restoreString.assertEquals('Lese den Text von <Input>')
@@ -187,7 +189,7 @@ class TclModelParserTest extends AbstractParserTest {
 
 		// then
 		test.steps.assertSingleElement => [
-			contexts.assertSingleElement.assertInstanceOf(TestStepComponentContext) => [
+			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
 				steps.assertSingleElement.assertInstanceOf(AssertionTestStep) => [
 					expression.assertInstanceOf(AENullCheck) => [
 						negated.assertFalse
@@ -215,7 +217,7 @@ class TclModelParserTest extends AbstractParserTest {
 
 		// then
 		test.steps.assertSingleElement => [
-			contexts.assertSingleElement.assertInstanceOf(TestStepComponentContext) => [
+			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
 				steps.assertSingleElement.assertInstanceOf(AssertionTestStep) => [
 					expression.assertInstanceOf(AEComparison) => [
 						left.assertInstanceOf(AEVariableReference) => [name.assertEquals("hello")]
@@ -225,6 +227,31 @@ class TclModelParserTest extends AbstractParserTest {
 							comparator.assertNull
 						]
 					]
+				]
+			]
+		]
+	}
+
+	@Test
+	def void parseMacroTestStep(){
+		// given
+		val input = '''
+			package com.example
+
+			# Test
+			* Do some complex step
+			  Macro: MyMacroFile
+			  - template execute with "param" as a and "param2"
+		'''
+
+		// when
+		val test = parse(input)
+
+		// then
+		test.steps.assertSingleElement => [
+			contexts.assertSingleElement.assertInstanceOf(MacroTestStepContext) => [
+				step.assertInstanceOf(TestStep) => [
+					contents.restoreString.assertMatches('template execute with "param" as a and "param2"')
 				]
 			]
 		]

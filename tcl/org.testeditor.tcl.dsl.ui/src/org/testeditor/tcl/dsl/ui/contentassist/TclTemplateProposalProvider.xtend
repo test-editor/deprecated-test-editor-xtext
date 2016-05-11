@@ -23,16 +23,17 @@ import org.eclipse.xtext.ui.editor.contentassist.ITemplateAcceptor
 import org.eclipse.xtext.ui.editor.templates.ContextTypeIdHelper
 import org.eclipse.xtext.ui.editor.templates.DefaultTemplateProposalProvider
 import org.testeditor.aml.Component
+import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.tcl.TestStep
-import org.testeditor.aml.InteractionType
-import org.testeditor.tcl.ComponentTestStep
+import org.testeditor.tcl.util.TclModelUtil
 
 class TclTemplateProposalProvider extends DefaultTemplateProposalProvider {
 
 	@Inject extension ModelUtil
+	@Inject extension TclModelUtil
 	@Inject IQualifiedNameProvider nameProvider
 
 	@Inject
@@ -48,8 +49,8 @@ class TclTemplateProposalProvider extends DefaultTemplateProposalProvider {
 		super.createTemplates(templateContext, context, acceptor)
 
 		val model = context.currentModel
-		if (model instanceof ComponentTestStep) {
-			val component = model.context.component
+		if (model instanceof TestStep) {
+			val component = model.componentContext.component
 			component?.proposeAvailableInteractions(model, templateContext, context, acceptor)
 		}
 	}

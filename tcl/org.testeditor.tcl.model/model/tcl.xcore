@@ -43,29 +43,21 @@ class SpecificationStepImplementation extends SpecificationStep {
 
 class TestStepContext { }
 
-class TestStepComponentContext extends TestStepContext{
+class ComponentTestStepContext extends TestStepContext{
 	refers Component component
-	contains ComponentTestStep[0..*] steps opposite context
+	contains TestStep[0..*] steps 
 }
 
-class TestStepMacroContext extends TestStepContext{
+class MacroTestStepContext extends TestStepContext{
 	String macroId
-	contains MacroTestStep step opposite context
+	contains TestStep step
 }
 
 class TestStep {
 	contains StepContent[0..*] contents
 }
 
-class ComponentTestStep extends TestStep{
-	container derived TestStepComponentContext context opposite steps
-}
-
-class MacroTestStep extends TestStep {
-	container derived TestStepMacroContext context opposite step
-}
-
-class AssertionTestStep extends ComponentTestStep {
+class AssertionTestStep extends /*Component*/TestStep {
 	contains AssertionExpression expression
 }
 
@@ -93,7 +85,7 @@ class AEStringConstant extends AssertionExpression {
 	String string
 }
 
-class TestStepWithAssignment extends ComponentTestStep {
+class TestStepWithAssignment extends /*Component*/TestStep {
 	String variableName
 }
 

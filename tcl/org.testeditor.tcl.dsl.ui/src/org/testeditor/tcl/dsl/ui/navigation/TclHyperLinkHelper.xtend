@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -30,7 +30,6 @@ import org.testeditor.tsl.StepContent
 
 import static org.testeditor.tcl.TclPackage.Literals.*
 import static org.testeditor.tsl.TslPackage.Literals.*
-import org.testeditor.tcl.ComponentTestStep
 
 class TclHyperLinkHelper extends XbaseHyperLinkHelper {
 
@@ -46,7 +45,8 @@ class TclHyperLinkHelper extends XbaseHyperLinkHelper {
 	/**
 	 * Create a hyperlink from a {@link SpecificationStepImplementation} to the {@link SpecificationStep}.
 	 */
-	protected def dispatch void createHyperlinks(SpecificationStepImplementation stepImpl, IHyperlinkAcceptor acceptor) {
+	protected def dispatch void createHyperlinks(SpecificationStepImplementation stepImpl,
+		IHyperlinkAcceptor acceptor) {
 		val specificationStep = stepImpl.specificationStep
 		if (specificationStep !== null) {
 			stepImpl.createHyperlinkTo(SPECIFICATION_STEP__CONTENTS, specificationStep, acceptor)
@@ -56,7 +56,7 @@ class TclHyperLinkHelper extends XbaseHyperLinkHelper {
 	/**
 	 * Create a hyperlink from a {@link TestStep} to its interaction's template. 
 	 */
-	protected def dispatch void createHyperlinks(ComponentTestStep testStep, IHyperlinkAcceptor acceptor) {
+	protected def dispatch void createHyperlinks(TestStep testStep, IHyperlinkAcceptor acceptor) {
 		val interaction = testStep.interaction
 		if (interaction !== null) {
 			testStep.createHyperlinkTo(TEST_STEP__CONTENTS, interaction.template, acceptor)
@@ -89,7 +89,8 @@ class TclHyperLinkHelper extends XbaseHyperLinkHelper {
 		// do nothing
 	}
 
-	private def void createHyperlinkTo(EObject source, EStructuralFeature sourceFeature, EObject target, IHyperlinkAcceptor acceptor) {
+	private def void createHyperlinkTo(EObject source, EStructuralFeature sourceFeature, EObject target,
+		IHyperlinkAcceptor acceptor) {
 		val textRegion = findNodesRegionForFeature(source, sourceFeature)
 		if (textRegion !== null) {
 			val resource = source.eResource as XtextResource

@@ -21,7 +21,6 @@ import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
 import org.testeditor.aml.ModelUtil
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.util.TclModelUtil
-import org.testeditor.tcl.ComponentTestStep
 
 class TclProposalProvider extends AbstractTclProposalProvider {
 
@@ -43,7 +42,7 @@ class TclProposalProvider extends AbstractTclProposalProvider {
 		acceptor.accept(createCompletionProposal('* ', '* test description', null, context))
 	}
 
-	override complete_ComponentTestStep(EObject model, RuleCall ruleCall, ContentAssistContext context,
+	override complete_TestStep(EObject model, RuleCall ruleCall, ContentAssistContext context,
 		ICompletionProposalAcceptor acceptor) {
 		acceptor.accept(createCompletionProposal('- ', '- test step', null, context))
 	}
@@ -51,21 +50,24 @@ class TclProposalProvider extends AbstractTclProposalProvider {
 	override complete_StepContentElement(EObject model, RuleCall ruleCall, ContentAssistContext context,
 		ICompletionProposalAcceptor acceptor) {
 		super.complete_StepContentElement(model, ruleCall, context, acceptor)
-		if (model instanceof ComponentTestStep) {
+		if (model instanceof TestStep) {
 			val interaction = model.interaction
-			val componentElements = model.context.component.elements
-			val possibleElements = componentElements.filter [
-				val interactionTypes = componentElementInteractionTypes
-				return interactionTypes.contains(interaction)
-			]
-			// need to consider whether the completion should contain the '>' as well
-			val currentNode = context.currentNode
-			val includeClosingBracket = !currentNode.text.contains('>') && !currentNode.nextSibling.text.contains('>')
-			possibleElements.forEach [
-				val displayString = '''«name»«IF !label.nullOrEmpty» - "«label»"«ENDIF» (type: «type.name»)'''
-				val proposal = '''<«name»«IF includeClosingBracket»>«ENDIF»'''
-				acceptor.accept(createCompletionProposal(proposal, displayString, image, context))
-			]
+			val component = model.componentContext?.component
+			if (component != null) {
+				val possibleElements = component.elements.filter [
+					val interactionTypes = componentElementInteractionTypes
+					return interactionTypes.contains(interaction)
+				]
+				// need to consider whether the completion should contain the '>' as well
+				val currentNode = context.currentNode
+				val includeClosingBracket = !currentNode.text.contains('>') &&
+					!currentNode.nextSibling.text.contains('>')
+				possibleElements.forEach [
+					val displayString = '''«name»«IF !label.nullOrEmpty» - "«label»"«ENDIF» (type: «type.name»)'''
+					val proposal = '''<«name»«IF includeClosingBracket»>«ENDIF»'''
+					acceptor.accept(createCompletionProposal(proposal, displayString, image, context))
+				]
+			}
 		}
 	}
 
