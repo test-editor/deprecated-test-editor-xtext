@@ -33,7 +33,7 @@ class TclLabelProvider extends XbaseLabelProvider {
 	// Labels and icons can be computed like this:
 	def text(ComponentTestStepContext context) {
 		val component = context.component
-		return "Mask: " + (component.label ?: component.name)
+		return "Component: " + (component.label ?: component.name)
 	}
 
 	def text(SpecificationStep specStep) {

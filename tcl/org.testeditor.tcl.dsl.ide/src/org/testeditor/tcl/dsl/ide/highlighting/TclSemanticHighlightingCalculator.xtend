@@ -13,22 +13,19 @@
 package org.testeditor.tcl.dsl.ide.highlighting
 
 import javax.inject.Inject
-import org.eclipse.xtext.ide.editor.syntaxcoloring.DefaultSemanticHighlightingCalculator
 import org.eclipse.xtext.ide.editor.syntaxcoloring.IHighlightedPositionAcceptor
 import org.eclipse.xtext.resource.XtextResource
 import org.eclipse.xtext.util.CancelIndicator
 import org.testeditor.dsl.common.ide.util.NodeRegionUtil
-import org.testeditor.tml.StepContentElement
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.util.TclModelUtil
-import org.testeditor.tsl.StepContent
+import org.testeditor.tml.StepContentElement
+import org.testeditor.tml.dsl.ide.highlighting.TmlSemanticHighlightingCalculator
 
 import static org.testeditor.tcl.TclPackage.Literals.*
 
-import static extension org.eclipse.xtext.nodemodel.util.NodeModelUtils.getNode
-
-class TclSemanticHighlightingCalculator extends DefaultSemanticHighlightingCalculator {
+class TclSemanticHighlightingCalculator extends TmlSemanticHighlightingCalculator {
 
 	public static val String TEST_CASE_NAME = "tcl.testname"
 	public static val String COMPONENT_ELEMENT_REFERENCE = "tcl.componentElementReference"
@@ -64,28 +61,10 @@ class TclSemanticHighlightingCalculator extends DefaultSemanticHighlightingCalcu
 		// Provide highlighting for all component element references
 		for (specificationStep : test.steps) {
 			specificationStep.contents.forEach[provideHighlightingFor(acceptor)]
-			val testSteps=specificationStep.contexts.map[testSteps].flatten
-			val stepContents=testSteps.map[contents]
+			val testSteps = specificationStep.contexts.map[testSteps].flatten
+			val stepContents = testSteps.map[contents]
 			stepContents.filter(StepContentElement).forEach[provideHighlightingFor(acceptor)]
 		}
-	}
-
-	/**
-	 * Calculate highlighting for {@link StepContentElement}.
-	 */
-	protected def void provideHighlightingFor(StepContentElement componentElementReference,
-		IHighlightedPositionAcceptor acceptor) {
-		val node = componentElementReference.node
-		acceptor.addPosition(node.offset, node.length, COMPONENT_ELEMENT_REFERENCE)
-	}
-
-	/**
-	 * Calculate highlighting for {@link StepContent}.
-	 */
-	protected def void provideHighlightingFor(StepContent componentElementReference,
-		IHighlightedPositionAcceptor acceptor) {
-		val node = componentElementReference.node
-		acceptor.addPosition(node.offset, node.length, STEP_CONTENT_ELEMENT)
 	}
 
 }

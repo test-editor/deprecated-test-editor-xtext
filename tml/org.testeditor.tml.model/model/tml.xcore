@@ -25,11 +25,11 @@ import org.testeditor.tsl.StepContent
 class TmlModel {
 	String ^package
 	contains XImportSection importSection
-	contains TestMacro[0..*] testMacros
+	String name
+	contains Macro[0..*] macros
 }
 
-class TestMacro {
-	String name
+class Macro {
 	contains Template template
 	contains TestStepContext[0..*] contexts
 }
@@ -42,7 +42,7 @@ class ComponentTestStepContext extends TestStepContext{
 }
 
 class MacroTestStepContext extends TestStepContext{
-	String macroId
+	refers TmlModel macroModel
 	contains TestStep step
 }
 
@@ -82,6 +82,7 @@ class TestStepWithAssignment extends /*Component*/TestStep {
 	String variableName
 }
 
+class StepContentDereferencedVariable extends StepContent{ }
 class StepContentElement extends StepContent {}
 class Comparator {
 	boolean negated = "false"

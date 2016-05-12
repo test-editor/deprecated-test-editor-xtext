@@ -13,10 +13,29 @@
 package org.testeditor.tml.dsl.ui
 
 import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
+import org.testeditor.tml.dsl.ui.highlighting.TmlHighlightingConfiguration
+import org.testeditor.tml.dsl.ide.highlighting.TmlSemanticHighlightingCalculator
+import org.testeditor.tml.dsl.ui.navigation.TmlHyperLinkHelper
+import org.testeditor.tml.dsl.ui.contentassist.TmlTemplateProposalProvider
 
 /**
  * Use this class to register components to be used within the Eclipse IDE.
  */
 @FinalFieldsConstructor
 class TmlUiModule extends AbstractTmlUiModule {
+	override bindIHighlightingConfiguration() {
+		return TmlHighlightingConfiguration
+	}
+
+	override bindIdeSemanticHighlightingCalculator() {
+		return TmlSemanticHighlightingCalculator
+	}
+
+	override bindIHyperlinkHelper() {
+		return TmlHyperLinkHelper
+	}
+
+	override bindITemplateProposalProvider() {
+		return TmlTemplateProposalProvider
+	}
 }

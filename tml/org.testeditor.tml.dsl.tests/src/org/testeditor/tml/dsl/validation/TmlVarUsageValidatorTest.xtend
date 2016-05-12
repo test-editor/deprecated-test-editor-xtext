@@ -1,4 +1,4 @@
-package org.testeditor.tcl.dsl.validation
+package org.testeditor.tml.dsl.validation
 
 import java.util.Map
 import org.eclipse.xtext.common.types.JvmOperation
@@ -10,8 +10,8 @@ import org.mockito.ArgumentCaptor
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.testeditor.aml.AmlFactory
-import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
-import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.tml.dsl.tests.parser.AbstractParserTest
+import org.testeditor.tml.util.TmlModelUtil
 import org.testeditor.tml.ComponentTestStepContext
 import org.testeditor.tml.TestStepContext
 
@@ -19,10 +19,10 @@ import static org.mockito.Matchers.*
 
 import static extension org.mockito.Mockito.*
 
-class TclVarUsageValidatorTest extends AbstractParserTest {
+class TmlVarUsageValidatorTest extends AbstractParserTest {
 
-	@Mock TclModelUtil tclModelUtil // injected into class under test
-	@InjectMocks TclValidator tclValidator // class under test
+	@Mock TmlModelUtil tclModelUtil // injected into class under test
+	@InjectMocks TmlValidator tclValidator // class under test
 	@Mock JvmTypeReference typeRefMock
 	@Mock ValidationMessageAcceptor messageAcceptor
 
@@ -33,7 +33,7 @@ class TclVarUsageValidatorTest extends AbstractParserTest {
 		val amlFactory = AmlFactory.eINSTANCE
 
 		// always assume that the return type of the operation used in any step is of typeRefMock
-		// => setting typeRefMock to return some type will affect all assignment steps! 
+		// => setting typeRefMock to return some type will affect all assignment steps!
 		val operationMock = mock(JvmOperation)
 		when(tclModelUtil.getInteraction(anyObject)).thenReturn(amlFactory.createInteractionType => [
 			defaultMethod = amlFactory.createMethodReference => [

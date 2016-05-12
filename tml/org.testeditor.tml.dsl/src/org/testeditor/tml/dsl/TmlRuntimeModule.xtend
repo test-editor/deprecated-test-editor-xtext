@@ -12,9 +12,13 @@
 *******************************************************************************/
 package org.testeditor.tml.dsl
 
+import org.testeditor.tml.dsl.conversion.TmlValueConverterService
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
  */
 class TmlRuntimeModule extends AbstractTmlRuntimeModule {
+	override bindIValueConverterService() {
+		return TmlValueConverterService
+	}
 }

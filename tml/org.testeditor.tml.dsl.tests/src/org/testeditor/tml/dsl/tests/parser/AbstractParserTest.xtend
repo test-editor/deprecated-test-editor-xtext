@@ -21,14 +21,18 @@ import org.eclipse.xtext.parser.IParser
 import org.testeditor.tml.TmlModel
 import org.testeditor.tml.dsl.services.TmlGrammarAccess
 import org.testeditor.tml.dsl.tests.AbstractTmlTest
-import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.tml.util.TmlModelUtil
 
 abstract class AbstractParserTest extends AbstractTmlTest {
 
 	@Inject protected ParseHelper<TmlModel> parser
 	@Inject protected IParser iparser
-	@Inject protected extension TclModelUtil modelUtil
+	@Inject protected extension TmlModelUtil modelUtil
 	@Inject protected TmlGrammarAccess grammarAccess
+
+	protected def TmlModel parse(CharSequence input) {
+		return parser.parse(input)
+	}
 
 	protected def <T> T parse(CharSequence input, ParserRule rule, Class<T> ruleClass) {
 		return iparser.parse(rule, new StringReader(input.toString)).assertNoSyntaxErrors.getParsedRule(ruleClass)
