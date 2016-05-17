@@ -16,6 +16,7 @@
 		<module>aml</module>
 		<module>tsl</module>
 		<module>tcl</module>
+		<module>tml</module>
 		<module>legacy</module>
 		<module>rcp</module>
 
