@@ -41,7 +41,6 @@ class ValidationTest extends AbstractValidationTest {
 		component.assertError(COMPONENT, COMPONENT__TYPE__MISSING, Validation_Component_Type_Missing)
 	}
 
-	@Ignore
 	@Test
 	def void regExValueSpace() {
 		// Given
@@ -52,14 +51,7 @@ class ValidationTest extends AbstractValidationTest {
 		// Expect
 		input.parse(ValueSpace).assertError(
 			REG_EX_VALUE_SPACE,
-			REG_EX_VALUE_SPACE__EXPRESSION__INVALID,
-			'''
-				The given expression is not a valid regular expression in Java:
-				java.util.regex.PatternSyntaxException: Illegal repetition near index 0
-				${
-				^
-			'''.toString.trim
-		)
+			REG_EX_VALUE_SPACE__EXPRESSION__INVALID)
 	}
 
 }
