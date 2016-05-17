@@ -19,4 +19,30 @@ class TmlModelParserTest extends AbstractParserTest {
 	}
 	
 	
+
+
+	@Test
+	def void parseWithMultiVariableDereference() {
+		// given
+		val input = '''
+			package com.example
+
+			# MyMacroCollection
+
+			template = "start with" ${startparam}
+			Component: MyComponent
+			- put @startparam into <other>
+
+			template = "use macro with" ${useparam}
+			Macro: MyMacroCollection
+			- start with @useparam
+		'''
+
+		// when
+		val model = parser.parse(input)
+
+		// then
+		model.package.assertEquals('com.example')
+	}
+
 }

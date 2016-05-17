@@ -24,6 +24,8 @@ import org.testeditor.aml.AmlModel
 import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
+import org.testeditor.tml.TmlModel
+import org.testeditor.tml.dsl.TmlStandaloneSetup
 
 abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 
@@ -31,6 +33,8 @@ abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 	@Inject protected XtextResourceSet resourceSet
 	
 	protected ParseHelper<AmlModel> amlParseHelper
+	protected ParseHelper<TmlModel> tmlParseHelper
+
 	@Inject protected ParseHelper<TclModel> tclParseHelper
 	@Inject protected IGenerator generator
 
@@ -39,8 +43,11 @@ abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 	@Before
 	def void setup() {
 		resourceSet = resourceSetProvider.get
+		resourceSet.classpathURIContext = this
 		val injector = (new AmlStandaloneSetup).createInjectorAndDoEMFRegistration
 		amlParseHelper = injector.getInstance(ParseHelper)
+		val tmlInjector = (new TmlStandaloneSetup).createInjectorAndDoEMFRegistration
+		tmlParseHelper = tmlInjector.getInstance(ParseHelper)
 		fsa = new InMemoryFileSystemAccess
 	}
 

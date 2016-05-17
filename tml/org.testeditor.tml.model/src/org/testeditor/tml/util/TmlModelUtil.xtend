@@ -26,6 +26,7 @@ class TmlModelUtil extends TslModelUtil {
 			switch (it) {
 				StepContentVariable: '''"«value»"'''
 				StepContentElement: '''<«value»>'''
+				StepContentDereferencedVariable: '''@«value»'''
 				default:
 					value
 			}
@@ -33,7 +34,7 @@ class TmlModelUtil extends TslModelUtil {
 	}
 
 	def Macro findMacroDefinition(MacroTestStepContext macroCallSite) {
-		macroCallSite.macroModel.macros.findFirst[template.normalize == macroCallSite.step.normalize]
+		macroCallSite.macroModel.macros?.findFirst[template.normalize == macroCallSite.step.normalize]
 	}
 
 	def InteractionType getInteraction(TestStep step) {
@@ -75,15 +76,15 @@ class TmlModelUtil extends TslModelUtil {
 	}
 
 	// TODO we need a common super class for StepContentElement and StepContentVariable and StepContentDereferencedVariable
-	def Map<TemplateVariable, StepContent> getVariableToValueMapping(TestStep step, InteractionType interaction) {
+	def Map<TemplateVariable, StepContent> getVariableToValueMapping(TestStep step, Template template) {
 		val map = newHashMap
-		val templateVariables = interaction.template.contents.filter(TemplateVariable).toList
+		val templateVariables = template.contents.filter(TemplateVariable).toList
 		val stepContentVariables = step.contents.filter [
 			it instanceof StepContentElement || it instanceof StepContentVariable ||
 				it instanceof StepContentDereferencedVariable
 		].toList
 		if (templateVariables.size !== stepContentVariables.size) {
-			val message = '''Variables for '«step.contents.restoreString»' did not match the parameters of interaction '«interaction.name»'.'''
+			val message = '''Variables for '«step.contents.restoreString»' did not match the parameters of template '«template.normalize»' (normalized).'''
 			throw new IllegalArgumentException(message)
 		}
 		for (var i = 0; i < templateVariables.size; i++) {
