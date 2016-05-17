@@ -44,7 +44,10 @@ class TclAssertCallBuilder {
 		if (assertionMethod == null) {
 			return '''// TODO no assertion method implementation for expression with type "«expression.class»"'''
 		} else {
-			return '''org.junit.Assert.«assertionMethod(expression)»(«expression.buildExpression»);'''
+			return '''
+				// - assert «NodeModelUtils.getNode(expression).text.trim»
+				org.junit.Assert.«assertionMethod(expression)»(«expression.buildExpression»);
+				'''
 		}
 	}
 
@@ -86,7 +89,7 @@ class TclAssertCallBuilder {
 				buildExpression
 		}
 		switch (comparison.comparator) {
-			ComparatorEquals: '''«comparison.left.buildExpression», «comparison.right.buildExpression»'''
+			ComparatorEquals: '''«comparison.right.buildExpression», «comparison.left.buildExpression»'''
 			ComparatorGreaterThen: '''«comparison.left.buildExpression» «if(comparison.comparator.negated){'<='}else{'>'}» «comparison.right.buildExpression»'''
 			ComparatorLessThen: '''«comparison.left.buildExpression» «if(comparison.comparator.negated){'>='}else{'<'}» «comparison.right.buildExpression»'''
 			ComparatorMatches: '''«comparison.left.buildExpression».matches(«comparison.right.buildExpression»)'''
