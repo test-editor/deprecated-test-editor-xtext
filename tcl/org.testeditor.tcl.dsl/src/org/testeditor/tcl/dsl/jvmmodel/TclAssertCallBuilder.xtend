@@ -10,6 +10,7 @@ import org.testeditor.tml.ComparatorEquals
 import org.testeditor.tml.ComparatorGreaterThen
 import org.testeditor.tml.ComparatorLessThen
 import org.testeditor.tml.ComparatorMatches
+import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 
 class TclAssertCallBuilder {
 	/** assert method calls used, toString must yield the actual method name! */
