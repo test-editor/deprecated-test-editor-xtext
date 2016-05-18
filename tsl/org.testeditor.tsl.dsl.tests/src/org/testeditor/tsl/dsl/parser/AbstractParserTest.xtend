@@ -19,10 +19,10 @@ import org.testeditor.tsl.dsl.tests.AbstractTslTest
 
 abstract class AbstractParserTest extends AbstractTslTest {
 
-	@Inject protected ParseHelper<TslModel> parser
+	@Inject protected ParseHelper<TslModel> parseHelper
 
 	protected def TslModel parse(CharSequence input) {
-		return parser.parse(input)
+		return parseHelper.parse(input)
 	}
 	
 	protected def TslModel parse(CharSequence input, (TslModel)=>void assertionBlock) {

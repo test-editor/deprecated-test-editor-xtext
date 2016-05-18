@@ -63,7 +63,7 @@ class ReferenceTslModelIntegrationTest extends AbstractParserTest {
 		'''
 
 		// when
-		val tclModel = parser.parse(tcl, resourceSet)
+		val tclModel = parseHelper.parse(tcl, resourceSet)
 
 		// then
 		tclModel.test.specification.assertSame(tslModel.specification)
@@ -83,7 +83,7 @@ class ReferenceTslModelIntegrationTest extends AbstractParserTest {
 		'''
 
 		// when
-		val tclModel = parser.parse(tcl, resourceSet)
+		val tclModel = parseHelper.parse(tcl, resourceSet)
 
 		// then
 		tclModel.test.specification.assertSame(tslModel.specification)
@@ -101,7 +101,7 @@ class ReferenceTslModelIntegrationTest extends AbstractParserTest {
 			
 			* First step
 		'''
-		val tclModel = parser.parse(tcl, resourceSet)
+		val tclModel = parseHelper.parse(tcl, resourceSet)
 		val firstStepImpl = tclModel.test.steps.assertSingleElement
 
 		// when

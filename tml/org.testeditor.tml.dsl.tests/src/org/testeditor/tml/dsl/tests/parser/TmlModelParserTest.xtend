@@ -12,7 +12,7 @@ class TmlModelParserTest extends AbstractParserTest {
 		'''
 		
 		// when
-		val model = parser.parse(input)
+		val model = parseHelper.parse(input)
 		
 		// then
 		model.package.assertEquals('com.example')
@@ -39,7 +39,7 @@ class TmlModelParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val model = parser.parse(input)
+		val model = parseHelper.parse(input)
 
 		// then
 		model.package.assertEquals('com.example')
