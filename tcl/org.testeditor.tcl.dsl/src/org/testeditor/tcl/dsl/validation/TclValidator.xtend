@@ -13,21 +13,35 @@
 package org.testeditor.tcl.dsl.validation
 
 import java.util.List
+import java.util.Map
+import java.util.Set
 import javax.inject.Inject
+import org.eclipse.xtext.common.types.JvmTypeReference
+import org.eclipse.xtext.common.types.util.TypeReferences
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.xtype.XImportSection
 import org.testeditor.tcl.SpecificationStepImplementation
+import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TclPackage
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.tml.ComponentTestStepContext
+import org.testeditor.tml.MacroTestStepContext
+import org.testeditor.tml.StepContentDereferencedVariable
+import org.testeditor.tml.StepContentElement
+import org.testeditor.tml.TestStep
+import org.testeditor.tml.TestStepContext
 import org.testeditor.tsl.SpecificationStep
+import org.testeditor.tsl.StepContentVariable
 
 class TclValidator extends AbstractTclValidator {
 
 	public static val NO_VALID_IMPLEMENTATION = 'noValidImplementation'
 	public static val INVALID_NAME = 'invalidName'
+	public static val INVALID_TYPED_VAR_DEREF = "invalidTypeOfVariableDereference"
 
 	@Inject extension TclModelUtil
+	@Inject TypeReferences typeReferences
 
 	override checkImports(XImportSection importSection) {
 		// ignore for now
@@ -44,7 +58,7 @@ class TclValidator extends AbstractTclValidator {
 		}
 	}
 
-	def boolean matches(List<SpecificationStep> specSteps, List<SpecificationStepImplementation> specImplSteps) {
+	private def boolean matches(List<SpecificationStep> specSteps, List<SpecificationStepImplementation> specImplSteps) {
 		if (specSteps.size > specImplSteps.size) {
 			return false
 		}
@@ -57,6 +71,58 @@ class TclValidator extends AbstractTclValidator {
 			val message = '''Test case name does not match '«testCase.eResource.URI.lastSegment»'.'''
 			error(message, TclPackage.Literals.TEST_CASE__NAME, INVALID_NAME)
 		}
+	}
+
+	@Check
+	def checkVariableDerefUsage(TclModel tclModel) {
+		val stringTypeReference = typeReferences.getTypeForName(String, tclModel)
+		val environmentParams = tclModel.envParams.map[name].toSet
+		val actualTypeMap = newHashMap
+		environmentParams.forEach [
+			actualTypeMap.put(it, #{stringTypeReference})
+		]
+		tclModel.test.steps.map[contexts].flatten.forEach [
+			checkAllDerefVariableAreKnownParmeters(environmentParams, "Dereferenced variable must be a required environment variable")
+			checkAllDerefVariableTypeEquality(actualTypeMap)
+		]
+	}
+
+	/**
+	 * check that all deref variables are used according to their actual type (transitively in their fixture)
+	 */
+	private def void checkAllDerefVariableTypeEquality(TestStepContext ctx,
+		Map<String, Set<JvmTypeReference>> actualTypeMap) {
+		switch ctx {
+			ComponentTestStepContext: ctx.steps.forEach [ checkAllDerefVariableTypeEquality(actualTypeMap, ctx) ]
+			MacroTestStepContext: ctx.step.checkAllDerefVariableTypeEquality(actualTypeMap, ctx)
+			default: throw new RuntimeException('''Unknown TestStepContextType '«ctx.class.canonicalName»'.''')
+		}
+	}
+
+	/**
+	 * check that all deref variables are used according to their actual type (transitively in their fixture)
+	 */
+	private def void checkAllDerefVariableTypeEquality(TestStep step, Map<String, Set<JvmTypeReference>> actualTypeMap, TestStepContext context) {
+		val indexedVariables = step.contents.indexed.filter [
+			value instanceof StepContentDereferencedVariable || value instanceof StepContentVariable ||
+				value instanceof StepContentElement
+		]
+		val derefVariables = indexedVariables.filter[value instanceof StepContentDereferencedVariable]
+		derefVariables.forEach [
+			val expectedTypeSet = getTypeUsagesOfVariable(context, value.value)
+			val actualTypeSet = actualTypeMap.get(value.value)
+			if (!expectedTypeSet.identicalSingleTypeInSet(actualTypeSet)) {
+				error('''Environment variables can only be used for parameters of type '«expectedTypeSet.map[qualifiedName].join(", ")»' (actual type expected = '«expectedTypeSet.map[qualifiedName].join(", ")»')''',
+					value.eContainer, value.eContainingFeature, key, INVALID_TYPED_VAR_DEREF)
+			}
+		]
+	}
+
+	/**
+	 * both sets hold only one type and this type is equal
+	 */
+	private def boolean identicalSingleTypeInSet(Set<JvmTypeReference> setA, Set<JvmTypeReference> setB) {
+		setA.size == 1 && setB.size == 1 && setA.head.qualifiedName == setB.head.qualifiedName
 	}
 
 }

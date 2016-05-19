@@ -2,9 +2,13 @@ package org.testeditor.tml.util
 
 import java.util.List
 import java.util.Map
+import java.util.Set
+import javax.inject.Inject
+import org.eclipse.emf.ecore.EObject
 import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.InteractionType
+import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
@@ -21,6 +25,8 @@ import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
 
 class TmlModelUtil extends TslModelUtil {
+	@Inject extension ModelUtil
+
 	override String restoreString(List<StepContent> contents) {
 		return contents.map [
 			switch (it) {
@@ -162,6 +168,17 @@ class TmlModelUtil extends TslModelUtil {
 	def ValueSpaceAssignment getValueSpaceAssignment(ComponentElement element, TestStep container) {
 		val foo = element.valueSpaceAssignments
 		return foo.findFirst[variable.template.interactionType.name == container.interaction?.name]
+	}
+
+	def Set<TemplateVariable> getMacroParameters(EObject object) {
+		var curObject = object
+		while (curObject != null) {
+			if (curObject instanceof Macro) {
+				return curObject.template.referenceableVariables
+			}
+			curObject = curObject.eContainer
+		}
+		return #{}
 	}
 
 }

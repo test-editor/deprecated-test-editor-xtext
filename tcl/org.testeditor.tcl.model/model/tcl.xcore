@@ -25,6 +25,7 @@ import org.testeditor.tml.TestStepContext
 class TclModel {
 	String ^package
 	contains XImportSection importSection
+	contains RequiredEnvParams requiredEnvParams
 	contains TestCase test opposite model
 }
 
@@ -39,4 +40,13 @@ class SpecificationStepImplementation extends SpecificationStep {
 	container derived TestCase test opposite steps
 	contains TestStepContext[0..*] contexts
 }
+
+class RequiredEnvParams {
+	contains EnvParam[0..*] envParams
+}
+
+class EnvParam {
+	String name
+}
+
 

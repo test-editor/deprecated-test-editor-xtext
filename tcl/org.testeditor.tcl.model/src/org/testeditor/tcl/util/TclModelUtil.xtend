@@ -12,8 +12,12 @@
  *******************************************************************************/
 package org.testeditor.tcl.util
 
+import java.util.Set
 import javax.inject.Singleton
+import org.eclipse.emf.ecore.EObject
+import org.testeditor.tcl.EnvParam
 import org.testeditor.tcl.SpecificationStepImplementation
+import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tml.ComponentTestStepContext
 import org.testeditor.tml.MacroTestStepContext
@@ -54,4 +58,20 @@ class TclModelUtil extends TmlModelUtil {
 	def dispatch Iterable<TestStep> getTestSteps(MacroTestStepContext context) {
 		return #[context.step]
 	}
+
+	def Set<EnvParam> getEnvParams(EObject object) {
+		var curObject = object
+		while (curObject !== null) {
+			if (curObject instanceof TclModel) {
+				if (curObject.requiredEnvParams !== null) {
+					return curObject.requiredEnvParams.envParams.toSet
+				} else {
+					return #{}
+				}
+			}
+			curObject = curObject.eContainer
+		}
+		return #{}
+	}
+
 }

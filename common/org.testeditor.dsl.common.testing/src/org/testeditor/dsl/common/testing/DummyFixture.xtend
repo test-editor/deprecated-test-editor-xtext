@@ -13,6 +13,8 @@
 package org.testeditor.dsl.common.testing
 
 import org.testeditor.fixture.core.interaction.FixtureMethod
+import java.util.List
+import java.util.Map
 
 public class DummyFixture {
 
@@ -28,7 +30,25 @@ public class DummyFixture {
 	}
 
 	@FixtureMethod
+	def void waitSeconds(long secs){
+	}
+
+	@FixtureMethod
 	def void setValue(String locator, String value) {
 	}
 
+	@FixtureMethod
+	def String getValue(String locator) {
+		return ""
+	}
+
+    @FixtureMethod
+    def List<?> getList(String locator) {
+		return newArrayList
+    }
+
+    @FixtureMethod
+    def Map<?,?> getMap(String locator){
+		return newHashMap
+    }
 }

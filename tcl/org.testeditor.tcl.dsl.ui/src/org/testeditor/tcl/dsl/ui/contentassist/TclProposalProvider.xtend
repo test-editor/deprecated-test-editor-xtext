@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -14,10 +14,15 @@ package org.testeditor.tcl.dsl.ui.contentassist
 
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.Assignment
+import org.eclipse.xtext.RuleCall
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
+import org.testeditor.tml.TestStep
+import org.testeditor.tcl.util.TclModelUtil
+import javax.inject.Inject
 
 class TclProposalProvider extends AbstractTclProposalProvider {
+	@Inject extension TclModelUtil
 
 	override completeTestCase_Steps(EObject model, Assignment assignment, ContentAssistContext context,
 		ICompletionProposalAcceptor acceptor) {
@@ -25,6 +30,16 @@ class TclProposalProvider extends AbstractTclProposalProvider {
 		// be taken into account. the completion of steps should be done via (quick) fix.
 		// this completion proposal will allow for steps to be entered even though no "implements" is given yet.
 		acceptor.accept(createCompletionProposal('* ', '* test description', null, context))
+	}
+
+	override complete_StepContentElement(EObject model, RuleCall ruleCall, ContentAssistContext context,
+		ICompletionProposalAcceptor acceptor) {
+		super.complete_StepContentElement(model, ruleCall, context, acceptor)
+		if (model instanceof TestStep) {
+			model.envParams.forEach[
+				acceptor.accept(createCompletionProposal("@" + name, "@" + name + " // environment variable", null, context))
+			]
+		}
 	}
 
 }

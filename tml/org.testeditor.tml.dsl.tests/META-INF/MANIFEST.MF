@@ -11,6 +11,6 @@ Require-Bundle: org.testeditor.tml.dsl,
  org.eclipse.xtext.xbase.junit,
  org.testeditor.dsl.common,
  org.testeditor.dsl.common.testing,
- org.testeditor.tcl.model
+ org.testeditor.aml.dsl
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.testeditor.tml.dsl.tests
