@@ -15,9 +15,6 @@ package org.testeditor.tcl.util
 import javax.inject.Singleton
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.TestCase
-import org.testeditor.tml.ComponentTestStepContext
-import org.testeditor.tml.MacroTestStepContext
-import org.testeditor.tml.TestStep
 import org.testeditor.tml.util.TmlModelUtil
 import org.testeditor.tsl.SpecificationStep
 
@@ -47,11 +44,4 @@ class TclModelUtil extends TmlModelUtil {
 		]
 	}
 
-	def dispatch Iterable<TestStep> getTestSteps(ComponentTestStepContext context) {
-		return context.steps
-	}
-
-	def dispatch Iterable<TestStep> getTestSteps(MacroTestStepContext context) {
-		return #[context.step]
-	}
 }

@@ -164,4 +164,12 @@ class TmlModelUtil extends TslModelUtil {
 		return foo.findFirst[variable.template.interactionType.name == container.interaction?.name]
 	}
 
+	def dispatch Iterable<TestStep> getTestSteps(ComponentTestStepContext context) {
+		return context.steps
+	}
+
+	def dispatch Iterable<TestStep> getTestSteps(MacroTestStepContext context) {
+		return #[context.step]
+	}
+
 }

@@ -80,26 +80,26 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	private def dispatch void generateContext(MacroTestStepContext context, ITreeAppendable output,
-		Iterable<MacroTestStepContext> macroUseStack) {
+		Iterable<MacroTestStepContext> macroCallStack) {
 		output.newLine
 		val macro = context.findMacroDefinition
 		output.append('''// Macro start: «context.macroModel.name» - «macro.template.normalize»''').newLine
-		macro.contexts.forEach[generateContext(output.trace(it), #[context] + macroUseStack)]
+		macro.contexts.forEach[generateContext(output.trace(it), #[context] + macroCallStack)]
 		output.newLine
 		output.append('''// Macro end: «context.macroModel.name» - «macro.template.normalize»''').newLine
 	}
 
 	private def dispatch void generateContext(ComponentTestStepContext context, ITreeAppendable output,
-		Iterable<MacroTestStepContext> macroUseStack) {
+		Iterable<MacroTestStepContext> macroCallStack) {
 		output.newLine
 		output.append('''// Component: «context.component.name»''').newLine
-		context.steps.forEach[generate(output.trace(it), macroUseStack)]
+		context.steps.forEach[generate(output.trace(it), macroCallStack)]
 	}
 
-	protected def void generate(TestStep step, ITreeAppendable output, Iterable<MacroTestStepContext> macroUseStack) {
+	protected def void generate(TestStep step, ITreeAppendable output, Iterable<MacroTestStepContext> macroCallStack) {
 		output.newLine
 		output.append('''// - «step.contents.restoreString»''').newLine
-		toUnitTestCodeLine(step, output, macroUseStack)
+		toUnitTestCodeLine(step, output, macroCallStack)
 	}
 
 	/**
@@ -130,12 +130,12 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	private def dispatch void toUnitTestCodeLine(AssertionTestStep step, ITreeAppendable output,
-		Iterable<MacroTestStepContext> macroUseStack) {
+		Iterable<MacroTestStepContext> macroCallStack) {
 		output.append(assertCallBuilder.build(step.expression)).newLine
 	}
 
 	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output,
-		Iterable<MacroTestStepContext> macroUseStack) {
+		Iterable<MacroTestStepContext> macroCallStack) {
 		val interaction = step.interaction
 		if (interaction !== null) {
 			val fixtureField = interaction.defaultMethod?.typeReference?.type?.fixtureFieldName
@@ -143,16 +143,14 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			if (fixtureField !== null && operation !== null) {
 				step.maybeCreateAssignment(operation, output)
 				output.trace(interaction.defaultMethod) => [
-					val codeLine='''«fixtureField».«operation.simpleName»(«getParameterList(step, interaction, macroUseStack)»);'''
+					val codeLine='''«fixtureField».«operation.simpleName»(«getParameterList(step, interaction, macroCallStack)»);'''
 					append(codeLine) // please call with string, since tests checks against expected string which fails for passing ''' directly
 				]
 			} else {
-				output.
-					append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
+				output.append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
 			}
 		} else if (step.componentContext != null) {
-			output.
-				append('''// TODO could not resolve '«step.componentContext.component.name»' - «step.contents.restoreString»''')
+			output.append('''// TODO could not resolve '«step.componentContext.component.name»' - «step.contents.restoreString»''')
 		} else {
 			output.append('''// TODO could not resolve unknown component - «step.contents.restoreString»''')
 		}
@@ -170,7 +168,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	// TODO we could also trace the parameters here
 	private def String getParameterList(TestStep step, InteractionType interaction,
-		Iterable<MacroTestStepContext> macroUseStack) {
+		Iterable<MacroTestStepContext> macroCallStack) {
 		val mapping = getVariableToValueMapping(step, interaction.template)
 		val values = interaction.defaultMethod.parameters.map [ templateVariable |
 			val stepContent = mapping.get(templateVariable)
@@ -178,7 +176,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				val element = stepContent.componentElement
 				return element.locator
 			} else if (stepContent instanceof StepContentDereferencedVariable) {
-				return stepContent.dereferenceMacroVariableReference(macroUseStack)
+				return stepContent.dereferenceMacroVariableReference(macroCallStack)
 			} else {
 				return stepContent.value
 			}
@@ -200,8 +198,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	 * resolve dereferenced variable in macro with call site value (recursively if necessary)
 	 */
 	private def String dereferenceMacroVariableReference(StepContentDereferencedVariable dereferencedVariable,
-		Iterable<MacroTestStepContext> macroUseStack) {
-		val callSiteMacroContext = macroUseStack.head
+		Iterable<MacroTestStepContext> macroCallStack) {
+		val callSiteMacroContext = macroCallStack.head
 		val macroCalled = callSiteMacroContext.findMacroDefinition
 
 		val varValMap = getVariableToValueMapping(callSiteMacroContext.step, macroCalled.template)
@@ -209,7 +207,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		val callSiteParameter = varValMap.get(varKey)
 
 		if (callSiteParameter instanceof StepContentDereferencedVariable) {
-			return callSiteParameter.dereferenceMacroVariableReference(macroUseStack.tail)
+			return callSiteParameter.dereferenceMacroVariableReference(macroCallStack.tail)
 		} else {
 			return callSiteParameter.value
 		}

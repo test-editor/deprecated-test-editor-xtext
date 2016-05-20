@@ -21,7 +21,7 @@ class TmlModelUtilTest extends AbstractParserTest {
 		assertMatches(testStep.contents.join(" ")[value], "hello world ohoh xyz")
 
 		// when
-		val result = tmlModelUtil.restoreString(testStep.contents /*contentList*/ )
+		val result = tmlModelUtil.restoreString(testStep.contents)
 
 		// then
 		result.assertEquals('<hello> world "ohoh" @xyz')

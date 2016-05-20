@@ -11,12 +11,9 @@ import org.testeditor.tcl.dsl.jvmmodel.TclJvmModelInferrer
 import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
 
-import static extension org.eclipse.emf.common.util.URI.createFileURI
-
 class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 
 	@Inject TclJvmModelInferrer jvmModelInferrer // class under test
-
 	@Mock ITreeAppendable outputStub
 
 	override void setup() {
@@ -26,12 +23,12 @@ class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 	}
 
 	private def parseAmlModel(String aml) {
-		val amlModel = amlParseHelper.parse(aml, /*'DummySpec.aml'.createFileURI, */resourceSet).assertNoSyntaxErrors
+		val amlModel = amlParseHelper.parse(aml, resourceSet).assertNoSyntaxErrors
 		return amlModel
 	}
 
 	private def parseTmlModel(String tml) {
-		val tmlModel = tmlParseHelper.parse(tml, /*'DummySpec.tml'.createFileURI, */resourceSet).assertNoSyntaxErrors
+		val tmlModel = tmlParseHelper.parse(tml, resourceSet).assertNoSyntaxErrors
 		return tmlModel
 	}
 
