@@ -16,6 +16,16 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 	@Inject TclJvmModelInferrer jvmModelInferrer // class under test
 	@Mock ITreeAppendable outputStub
 
+	private static val TCL_CLICK_ON_DUMMY_BUTTON = '''
+		package org.test
+
+		# Test
+
+		* my test
+		Component: Dummy
+		- click on <DummyButton>
+	'''
+
 	override void setup() {
 		super.setup
 		when(outputStub.trace(any(EObject))).thenReturn(outputStub)
@@ -59,16 +69,7 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 			}
 		''')
 
-		// tcl that uses the macro(template) "other" with parameter "MyApp"
-		val tcl = parseTclModel('''
-			package org.test
-
-			# Test
-
-			* my test
-			Component: Dummy
-			- click on <DummyButton>
-		''')
+		val tcl = parseTclModel(org.testeditor.tcl.dsl.scoping.integration.TclGenerationOfLocatorStrategyTests.TCL_CLICK_ON_DUMMY_BUTTON)
 
 		// when
 		jvmModelInferrer.generateMethodBody(tcl.test, outputStub, #{})
@@ -106,16 +107,7 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 			}
 		''')
 
-		// tcl that uses the macro(template) "other" with parameter "MyApp"
-		val tcl = parseTclModel('''
-			package org.test
-
-			# Test
-
-			* my test
-			Component: Dummy
-			- click on <DummyButton>
-		''')
+		val tcl = parseTclModel(org.testeditor.tcl.dsl.scoping.integration.TclGenerationOfLocatorStrategyTests.TCL_CLICK_ON_DUMMY_BUTTON)
 
 		// when
 		jvmModelInferrer.generateMethodBody(tcl.test, outputStub, #{})
@@ -152,16 +144,7 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 			}
 		''')
 
-		// tcl that uses the macro(template) "other" with parameter "MyApp"
-		val tcl = parseTclModel('''
-			package org.test
-
-			# Test
-
-			* my test
-			Component: Dummy
-			- click on <DummyButton>
-		''')
+		val tcl = parseTclModel(org.testeditor.tcl.dsl.scoping.integration.TclGenerationOfLocatorStrategyTests.TCL_CLICK_ON_DUMMY_BUTTON)
 
 		// when
 		jvmModelInferrer.generateMethodBody(tcl.test, outputStub, #{})

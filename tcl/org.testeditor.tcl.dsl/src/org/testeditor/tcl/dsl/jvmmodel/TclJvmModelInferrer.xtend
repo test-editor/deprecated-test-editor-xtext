@@ -205,7 +205,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		val typedValues = newArrayList
 		stepContents.forEach [ stepContent, i |
 			val jvmParameter = interaction.getTypeOfFixtureParameter(i)
-			typedValues += generateCallParameter(stepContent, jvmParameter, interaction)
+			typedValues += stepContent.generateCallParameters(jvmParameter, interaction)
 		]
 		return typedValues.join(', ')
 	}
@@ -213,7 +213,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	/**
 	 * generate the parameter-code passed to the fixture call depending on the type of the step content
 	 */
-	private def dispatch Iterable<String> generateCallParameter(StepContentElement stepContent,
+	private def dispatch Iterable<String> generateCallParameters(StepContentElement stepContent,
 		JvmTypeReference expectedType, InteractionType interaction) {
 		val element = stepContent.componentElement
 		val locator = '''"«element.locator»"'''
@@ -229,7 +229,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	/**
 	 * generate the parameter-code passed to the fixture call depending on the type of the step content
 	 */
-	private def dispatch Iterable<String> generateCallParameter(StepContent stepContent, JvmTypeReference expectedType,
+	private def dispatch Iterable<String> generateCallParameters(StepContent stepContent, JvmTypeReference expectedType,
 		InteractionType interaction) {
 		if (expectedType.qualifiedName == String.name) {
 			return #['''"«stepContent.value»"''']
@@ -241,7 +241,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	/**
 	 * generate the parameter-code passed to the fixture call depending on the type of the step content
 	 */
-	private def dispatch Iterable<String> generateCallParameter(StepContentDereferencedVariable stepContent,
+	private def dispatch Iterable<String> generateCallParameters(StepContentDereferencedVariable stepContent,
 		JvmTypeReference expectedType, InteractionType interaction) {
 		if (expectedType.qualifiedName.equals(String.name)) {
 			return #[stepContent.value.envParamToVarName]
