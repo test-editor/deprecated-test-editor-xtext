@@ -34,6 +34,7 @@ package org.testeditor.aml
 import org.eclipse.xtext.xtype.XImportSection
 import org.eclipse.xtext.common.types.JvmParameterizedTypeReference
 import org.eclipse.xtext.common.types.JvmOperation
+import org.eclipse.xtext.common.types.JvmEnumerationLiteral
 
 class AmlModel {
 	String[1] ^package
@@ -88,6 +89,7 @@ class Component extends ElementWithInteractions<ComponentType> {
  */
 class ComponentElement extends ElementWithInteractions<ComponentElementType> {
 	String locator
+	refers JvmEnumerationLiteral locatorStrategy // overriding default strategy of interaction type
 	// TODO support overriding of elements
 }
 
@@ -132,12 +134,15 @@ class InteractionType extends ModelElement {
 	 */
 	contains Template template opposite interactionType 
 	contains MethodReference defaultMethod
+	refers JvmEnumerationLiteral locatorStrategy // default strategy
 }
 
 class MethodReference {
 	contains JvmParameterizedTypeReference typeReference
 	refers JvmOperation operation
 	refers TemplateVariable[0..*] parameters
+	String[0..*] locatorStrategyParameters
+	// locator strategy (see interaction type) is added as parameter to operation right after element-locator
 }
 
 /* <p>

@@ -31,7 +31,7 @@ class AmlModelParserTest extends AbstractParserTest {
 		'''
 		
 		// When
-		val model = parser.parse(input)
+		val model = parse(input)
 		
 		// Then
 		model => [
@@ -56,7 +56,7 @@ class AmlModelParserTest extends AbstractParserTest {
 		'''
 		
 		// When
-		val model = parser.parse(input)
+		val model = parse(input)
 		
 		// Then
 		model => [

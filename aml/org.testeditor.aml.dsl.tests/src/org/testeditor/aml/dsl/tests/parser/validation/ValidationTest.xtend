@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -20,7 +20,6 @@ import org.testeditor.aml.dsl.validation.AmlValidator
 import static org.testeditor.aml.AmlPackage.Literals.*
 import static org.testeditor.aml.dsl.Messages.*
 import static org.testeditor.aml.dsl.validation.AmlValidator.*
-import org.junit.Ignore
 
 /**
  * Tests for {@link AmlValidator}.
@@ -41,7 +40,6 @@ class ValidationTest extends AbstractValidationTest {
 		component.assertError(COMPONENT, COMPONENT__TYPE__MISSING, Validation_Component_Type_Missing)
 	}
 
-	@Ignore
 	@Test
 	def void regExValueSpace() {
 		// Given
@@ -53,13 +51,115 @@ class ValidationTest extends AbstractValidationTest {
 		input.parse(ValueSpace).assertError(
 			REG_EX_VALUE_SPACE,
 			REG_EX_VALUE_SPACE__EXPRESSION__INVALID,
-			'''
-				The given expression is not a valid regular expression in Java:
-				java.util.regex.PatternSyntaxException: Illegal repetition near index 0
-				${
-				^
-			'''.toString.trim
+			"The given expression is not a valid regular expression in Java:",
+			"java.util.regex.PatternSyntaxException: Illegal repetition near index 0",
+			"${",
+			"^"
 		)
 	}
 
+	@Test
+	def void testUsageOfDefaultLocatorStrategy() {
+		// given
+		val input = '''
+			package org.test
+
+			import org.testeditor.dsl.common.testing.DummyLocatorStrategy
+			import org.testeditor.dsl.common.testing.DummyFixture
+
+			interaction type click {
+				label = "Click on"
+				template = "click on" ${element}
+				method = DummyFixture.clickOn(element, locatorStrategy)
+				locatorStrategy = SINGLE
+			}
+		'''
+
+		// when
+		val amlModel = input.parse
+		amlModel.assertNoErrors
+		val interactionType = amlModel.interactionTypes.head
+
+		// then
+		interactionType.locatorStrategy.qualifiedName.assertEquals(
+			"org.testeditor.dsl.common.testing.DummyLocatorStrategy.SINGLE")
+	}
+
+	@Test
+	def void testUsageOfElementOverDefaultLocatorStrategy() {
+		// given
+		val input = '''
+			package org.test
+
+			import org.testeditor.dsl.common.testing.DummyLocatorStrategy
+			import org.testeditor.dsl.common.testing.DummyFixture
+
+			interaction type click {
+				label = "Click on"
+				template = "click on" ${element}
+				method = DummyFixture.clickOn(element, locatorStrategy)
+				locatorStrategy = SINGLE
+			}
+
+			element type Button {
+				interactions = click
+			}
+
+			component type Dialog { }
+
+			component NewDialog is Dialog {
+				element NewButton is Button {
+					locator = "ok"
+					locatorStrategy = ID
+				}
+			}
+		'''
+
+		// when
+		val amlModel = input.parse
+		amlModel.assertNoErrors
+		val elementNewButton = amlModel.components.head.elements.head
+
+		// then
+		elementNewButton.locatorStrategy.qualifiedName.assertEquals(
+			"org.testeditor.dsl.common.testing.DummyLocatorStrategy.ID")
+	}
+
+	@Test
+	def void testMissingLocatorStrategy() {
+		// given
+		val input = '''
+			package org.test
+
+			import org.testeditor.dsl.common.testing.DummyLocatorStrategy
+			import org.testeditor.dsl.common.testing.DummyFixture
+
+			interaction type click {
+				label = "Click on"
+				template = "click on" ${element}
+				method = DummyFixture.clickOn(element, locatorStrategy)
+			}
+
+			element type Button {
+				interactions = click
+			}
+
+			component type Dialog { }
+
+			component NewDialog is Dialog {
+				element NewButton is Button {
+					locator = "ok"
+				}
+			}
+		'''
+
+		// when
+		val amlModel = input.parse
+
+		// then
+		amlModel.assertError(
+			COMPONENT_ELEMENT,
+			COMPONENT_ELEMENT__LOCATOR_STRATEGY__MISSING
+		)
+	}
 }

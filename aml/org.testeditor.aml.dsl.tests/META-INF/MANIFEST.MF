@@ -14,7 +14,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.testeditor.dsl.common.testing,
  org.testeditor.aml.dsl,
  com.google.inject,
- org.testeditor.aml.model
+ org.testeditor.aml.model,
+ org.eclipse.xtext
 Import-Package: com.google.inject,
  org.apache.log4j,
  org.eclipse.xtext.diagnostics,

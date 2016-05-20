@@ -52,8 +52,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		model.test?.infer(acceptor, isPreIndexingPhase)
 	}
 
-	private def String envParamToVarName(String name){
-		return "env_"+name
+	private def String envParamToVarName(String name) {
+		return "env_" + name
 	}
 
 	def dispatch void infer(TestCase test, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
@@ -86,7 +86,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		test.steps.forEach[generate(output.trace(it), envParams)]
 	}
 
-	private def void generateEnvCheck(EnvParam envParam, ITreeAppendable output){
+	private def void generateEnvCheck(EnvParam envParam, ITreeAppendable output) {
 		output.append('''
 			if (!System.getenv().containsKey("«envParam.name»")) {
 				org.junit.Assert.fail("Required system property '«envParam.name»' is missing in environment.");
@@ -165,18 +165,15 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			val operation = interaction.defaultMethod?.operation
 			if (fixtureField !== null && operation !== null) {
 				step.maybeCreateAssignment(operation, output)
-				output.trace(interaction.defaultMethod) =>
-					[
-						val codeLine = '''«fixtureField».«operation.simpleName»(«getParameterList(step, interaction, macroUseStack, envParams)»);'''
-						append(codeLine) // please call with string, since tests checks against expected string which fails for passing ''' directly
-					]
+				output.trace(interaction.defaultMethod) => [
+					val codeLine = '''«fixtureField».«operation.simpleName»(«getParameterList(step, interaction, macroUseStack, envParams)»);'''
+					append(codeLine) // please call with string, since tests checks against expected string which fails for passing ''' directly
+				]
 			} else {
-				output.
-					append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
+				output.append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
 			}
 		} else if (step.componentContext != null) {
-			output.
-				append('''// TODO could not resolve '«step.componentContext.component.name»' - «step.contents.restoreString»''')
+			output.append('''// TODO could not resolve '«step.componentContext.component.name»' - «step.contents.restoreString»''')
 		} else {
 			output.append('''// TODO could not resolve unknown component - «step.contents.restoreString»''')
 		}
@@ -208,7 +205,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		val typedValues = newArrayList
 		stepContents.forEach [ stepContent, i |
 			val jvmParameter = interaction.getTypeOfFixtureParameter(i)
-			typedValues += generateCallParameter(stepContent, jvmParameter)
+			typedValues += generateCallParameter(stepContent, jvmParameter, interaction)
 		]
 		return typedValues.join(', ')
 	}
@@ -216,22 +213,40 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	/**
 	 * generate the parameter-code passed to the fixture call depending on the type of the step content
 	 */
-	private def String generateCallParameter(StepContent stepContent, JvmTypeReference expectedType) {
-		switch stepContent {
-			StepContentElement:
-				return '''"«stepContent.componentElement.locator»"'''
-			StepContentDereferencedVariable:
-				if (expectedType.qualifiedName != String.name) {
-					throw new RuntimeException('''Environment variable '«stepContent.value»' (always of type String) is used where type '«expectedType.qualifiedName»' is expected.''')
-				} else {
-					return stepContent.value.envParamToVarName
-				}
-			default:
-				if (expectedType.qualifiedName == String.name) {
-					return '''"«stepContent.value»"'''
-				} else {
-					return stepContent.value
-				}
+	private def dispatch Iterable<String> generateCallParameter(StepContentElement stepContent,
+		JvmTypeReference expectedType, InteractionType interaction) {
+		val element = stepContent.componentElement
+		val locator = '''"«element.locator»"'''
+		if (interaction.defaultMethod.locatorStrategyParameters.size>0) {
+			// use element locator strategy if present, else use default of interaction
+			val locatorStrategy = element.locatorStrategy ?: interaction.locatorStrategy
+			return #[locator, locatorStrategy.qualifiedName] // locatorStrategy is the parameter right after locator (convention)
+		} else {
+			return #[locator]
+		}
+	}
+
+	/**
+	 * generate the parameter-code passed to the fixture call depending on the type of the step content
+	 */
+	private def dispatch Iterable<String> generateCallParameter(StepContent stepContent, JvmTypeReference expectedType,
+		InteractionType interaction) {
+		if (expectedType.qualifiedName == String.name) {
+			return #['''"«stepContent.value»"''']
+		} else {
+			return #[stepContent.value]
+		}
+	}
+
+	/**
+	 * generate the parameter-code passed to the fixture call depending on the type of the step content
+	 */
+	private def dispatch Iterable<String> generateCallParameter(StepContentDereferencedVariable stepContent,
+		JvmTypeReference expectedType, InteractionType interaction) {
+		if (expectedType.qualifiedName.equals(String.name)) {
+			return #[stepContent.value.envParamToVarName]
+		} else {
+			throw new RuntimeException('''Environment variable '«stepContent.value»' (always of type String) is used where type '«expectedType.qualifiedName»' is expected.''')
 		}
 	}
 
