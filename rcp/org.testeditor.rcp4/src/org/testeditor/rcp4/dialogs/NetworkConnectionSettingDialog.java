@@ -13,9 +13,8 @@
 package org.testeditor.rcp4.dialogs;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
+import java.net.URL;
+import java.net.URLConnection;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.dialogs.Dialog;
@@ -197,7 +196,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 
 			@Override
 			public void run() {
-				if (isInternetAvailable()) {
+				if (isInternetAvailable(true)) {
 					if (workOffline) {
 						updateNetworkSateWidget("work offline", SWT.COLOR_DARK_YELLOW);
 					} else {
@@ -231,7 +230,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 
 	@Override
 	protected Point getInitialSize() {
-		return new Point(500, 350);
+		return new Point(500, 380);
 	}
 
 	@Override
@@ -256,11 +255,11 @@ public class NetworkConnectionSettingDialog extends Dialog {
 	 * 
 	 * @return if it is possible to reach internet resources.
 	 */
-	public boolean isInternetAvailable() {
+	public boolean isInternetAvailable(boolean updateSessings) {
 		if (workOffline) {
 			return true;
 		}
-		if (System.getProperty(PROXY_HOST) == null) {
+		if (System.getProperty(PROXY_HOST) == null | updateSessings) {
 			if (proxyHostSetting.length() > 0) {
 				System.setProperty(PROXY_HOST, proxyHostSetting);
 				System.setProperty(PROXY_PORT, proxyPortSetting);
@@ -269,10 +268,10 @@ public class NetworkConnectionSettingDialog extends Dialog {
 				System.setProperty(NON_PROXY_HOSTS, noProxyHostsSetting);
 			}
 		}
-		try (Socket socket = new Socket()) {
-			InetAddress inetAddress = InetAddress.getByName("www.google.com");
-			InetSocketAddress adr = new InetSocketAddress(inetAddress, 80);
-			socket.connect(adr, 500);
+		try {
+			URL url = new URL("http://www.google.com");
+			URLConnection openConnection = url.openConnection();
+			openConnection.connect();
 			return true;
 		} catch (IOException e) {
 			return false;

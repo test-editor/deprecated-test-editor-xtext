@@ -61,7 +61,7 @@ public class ApplicationLifeCycleHandler {
 	 */
 	private void checkInternetConnection(Shell shell, IEclipsePreferences prefs) {
 		NetworkConnectionSettingDialog connectionSettingDialog = new NetworkConnectionSettingDialog(shell, prefs);
-		if (!connectionSettingDialog.isInternetAvailable()) {
+		if (!connectionSettingDialog.isInternetAvailable(false)) {
 			connectionSettingDialog.open();
 		}
 	}
