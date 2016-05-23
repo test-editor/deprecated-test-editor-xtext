@@ -114,7 +114,6 @@ class TestStepSelector {
 
 	@Focus
 	def void setFocus() {
-		populateViewIfEmpty
 		viewer.control.setFocus
 	}
 
