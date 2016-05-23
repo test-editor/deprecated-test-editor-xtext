@@ -20,6 +20,8 @@ import java.net.Socket;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
@@ -49,9 +51,10 @@ public class NetworkConnectionSettingDialog extends Dialog {
 	private static final String PATH_TO_MAVENSETTINGS = "MAVENSETTINGSPATH";
 	private static final String PROXY_HOST = "http.proxyHost";
 	private static final String WORKOFFLINE = "workOffline";
-	private static final String PROXY_PORT = "http.proxyPor";
+	private static final String PROXY_PORT = "http.proxyPort";
 	private static final String PROXY_USER = "http.proxyUser";
 	private static final String PROXY_PWD = "http.proxyPassword";
+	private static final String NON_PROXY_HOSTS = "http.nonProxyHosts";
 
 	private Label internetState;
 	private Text pathToMavenSettings;
@@ -66,6 +69,9 @@ public class NetworkConnectionSettingDialog extends Dialog {
 	private String proxyUserSetting;
 	private Text proxyPwd;
 	private String proxyPwdSetting;
+	private Text noProxyHosts;
+
+	private String noProxyHostsSetting;
 
 	public NetworkConnectionSettingDialog(Shell parentShell, IEclipsePreferences prefs) {
 		super(parentShell);
@@ -75,6 +81,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 		proxyPortSetting = prefs.get(PROXY_PORT, "");
 		proxyUserSetting = prefs.get(PROXY_USER, "");
 		proxyPwdSetting = prefs.get(PROXY_PWD, "");
+		noProxyHostsSetting = prefs.get(NON_PROXY_HOSTS, "");
 	}
 
 	@Override
@@ -104,18 +111,62 @@ public class NetworkConnectionSettingDialog extends Dialog {
 		proxyHost = new Text(container, SWT.BORDER);
 		proxyHost.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		proxyHost.setText(proxyHostSetting);
+		proxyHost.addModifyListener(new ModifyListener() {
+
+			@Override
+			public void modifyText(ModifyEvent e) {
+				proxyHostSetting = proxyHost.getText();
+				updateNetworkState();
+			}
+		});
 		new Label(container, SWT.NORMAL).setText("Proxy port:");
 		proxyPort = new Text(container, SWT.BORDER);
 		proxyPort.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		proxyPort.setText(proxyPortSetting);
+		proxyPort.addModifyListener(new ModifyListener() {
+
+			@Override
+			public void modifyText(ModifyEvent e) {
+				proxyPortSetting = proxyPort.getText();
+				updateNetworkState();
+			}
+		});
 		new Label(container, SWT.NORMAL).setText("Proxy username:");
 		proxyUser = new Text(container, SWT.BORDER);
 		proxyUser.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		proxyUser.setText(proxyUserSetting);
+		proxyUser.addModifyListener(new ModifyListener() {
+
+			@Override
+			public void modifyText(ModifyEvent e) {
+				proxyUserSetting = proxyUser.getText();
+				updateNetworkState();
+			}
+		});
 		new Label(container, SWT.NORMAL).setText("Proxy password:");
 		proxyPwd = new Text(container, SWT.BORDER);
 		proxyPwd.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		proxyPwd.setText(proxyPwdSetting);
+		proxyPwd.addModifyListener(new ModifyListener() {
+
+			@Override
+			public void modifyText(ModifyEvent e) {
+				proxyPwdSetting = proxyPwd.getText();
+				updateNetworkState();
+			}
+		});
+		new Label(container, SWT.NORMAL).setText("No Proxy for:");
+		noProxyHosts = new Text(container, SWT.BORDER);
+		noProxyHosts.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		noProxyHosts.setText(noProxyHostsSetting);
+		noProxyHosts.addModifyListener(new ModifyListener() {
+
+			@Override
+			public void modifyText(ModifyEvent e) {
+				noProxyHostsSetting = noProxyHosts.getText();
+				updateNetworkState();
+			}
+		});
 	}
 
 	private void createMavenSettingsWidgets(final Composite container) {
@@ -187,7 +238,11 @@ public class NetworkConnectionSettingDialog extends Dialog {
 	protected void okPressed() {
 		prefs.putBoolean(WORKOFFLINE, workOffline);
 		prefs.put(PATH_TO_MAVENSETTINGS, pathToMavenSettings.getText());
-		prefs.put(PROXY_HOST, proxyHost.getText());
+		prefs.put(PROXY_HOST, proxyHostSetting);
+		prefs.put(PROXY_PORT, proxyPortSetting);
+		prefs.put(PROXY_USER, proxyUserSetting);
+		prefs.put(PROXY_PWD, proxyPwdSetting);
+		prefs.put(NON_PROXY_HOSTS, noProxyHostsSetting);
 		try {
 			prefs.flush();
 		} catch (BackingStoreException e) {
@@ -211,6 +266,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 				System.setProperty(PROXY_PORT, proxyPortSetting);
 				System.setProperty(PROXY_USER, proxyUserSetting);
 				System.setProperty(PROXY_PWD, proxyPwdSetting);
+				System.setProperty(NON_PROXY_HOSTS, noProxyHostsSetting);
 			}
 		}
 		try (Socket socket = new Socket()) {
