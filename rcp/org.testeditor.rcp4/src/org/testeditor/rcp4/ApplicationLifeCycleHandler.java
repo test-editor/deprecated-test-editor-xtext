@@ -24,6 +24,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.osgi.service.prefs.BackingStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testeditor.rcp4.dialogs.NetworkConnectionSettingDialog;
 
 /**
  * 
@@ -33,6 +34,37 @@ import org.slf4j.LoggerFactory;
 public class ApplicationLifeCycleHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(ApplicationLifeCycleHandler.class);
+
+	/**
+	 * Checks the state of the Test-Editor Envirnoment like internet connection
+	 * and ui model migration.
+	 * 
+	 * @param shell
+	 * @param prefs
+	 * @throws BackingStoreException
+	 */
+	@PostContextCreate
+	public void checkTestEditorState(@Named(IServiceConstants.ACTIVE_SHELL) Shell shell,
+			@Preference(nodePath = Constants.CONFIGURATION_STORE) IEclipsePreferences prefs)
+			throws BackingStoreException {
+		handlePossibleUIModelReset(shell, prefs);
+		checkInternetConnection(shell, prefs);
+	}
+
+	/**
+	 * Check the internet connection and opens a config page on problems with
+	 * the internet connection.
+	 * 
+	 * @param shell
+	 *            used to open a connection dialog.
+	 * @param prefs
+	 */
+	private void checkInternetConnection(Shell shell, IEclipsePreferences prefs) {
+		NetworkConnectionSettingDialog connectionSettingDialog = new NetworkConnectionSettingDialog(shell, prefs);
+		if (!connectionSettingDialog.isInternetAvailable()) {
+			connectionSettingDialog.open();
+		}
+	}
 
 	/**
 	 * Verifies if there is a reason to drop existing ui model states in the
@@ -46,10 +78,9 @@ public class ApplicationLifeCycleHandler {
 	 * @throws BackingStoreException
 	 *             on problems storing preferences.
 	 */
-	@PostContextCreate
 	public void handlePossibleUIModelReset(@Named(IServiceConstants.ACTIVE_SHELL) Shell shell,
 			@Preference(nodePath = Constants.CONFIGURATION_STORE) IEclipsePreferences prefs)
-					throws BackingStoreException {
+			throws BackingStoreException {
 		if (isUIModelResetNeeded(shell, prefs)) {
 			System.getProperties().put(IWorkbench.CLEAR_PERSISTED_STATE, "true");
 			prefs.put(Constants.TE_WS_VERSION_ID, Constants.TE_WS_VERSION);
