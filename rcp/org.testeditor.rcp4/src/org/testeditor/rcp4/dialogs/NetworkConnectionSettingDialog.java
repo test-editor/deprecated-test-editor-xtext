@@ -148,6 +148,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 		proxyPwd = new Text(container, SWT.BORDER);
 		proxyPwd.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		proxyPwd.setText(proxyPwdSetting);
+		proxyPwd.setEchoChar('*');
 		proxyPwd.addModifyListener(new ModifyListener() {
 
 			@Override
