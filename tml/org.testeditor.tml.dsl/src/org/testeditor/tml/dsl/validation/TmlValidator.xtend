@@ -92,8 +92,8 @@ class TmlValidator extends AbstractTmlValidator {
 	def checkMacroCall(TestStep testStep) {
 		if (testStep.hasMacroContext) {
 			val normalizedTeststep = testStep.normalize
-			val macroModel = testStep.macroContext.macroModel
-			if (!macroModel.macros.exists[template.normalize == normalizedTeststep]) {
+			val macroCollection = testStep.macroContext.macroCollection
+			if (!macroCollection.macros.exists[template.normalize == normalizedTeststep]) {
 				warning("test step could not resolve macro usage", TmlPackage.Literals.TEST_STEP__CONTENTS,
 					MISSING_MACRO)
 			}

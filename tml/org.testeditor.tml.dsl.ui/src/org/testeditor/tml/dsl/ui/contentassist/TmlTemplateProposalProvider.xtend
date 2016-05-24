@@ -67,7 +67,7 @@ class TmlTemplateProposalProvider extends DefaultTemplateProposalProvider {
 	 */
 	def void proposeAvailableInteractions(MacroTestStepContext testStepContext, TestStep step, TemplateContext templateContext,
 		ContentAssistContext context, ITemplateAcceptor acceptor) {
-		val macros = testStepContext.macroModel.macros
+		val macros = testStepContext.macroCollection.macros
 		macros.forEach [
 			val template = createTemplate(testStepContext)
 			val relevance = 500
@@ -103,7 +103,7 @@ class TmlTemplateProposalProvider extends DefaultTemplateProposalProvider {
 	private def Template createTemplate(Macro macro, MacroTestStepContext context) {
 		val proposalDescription = macro.template.restoreString(false)
 		val proposalTemplate = macro.template.restoreString(true)
-		val templateId = nameProvider.getFullyQualifiedName(context.macroModel)?.toString+"."+proposalDescription// .replaceAll('[\\<\\>\\" ]','')
+		val templateId = nameProvider.getFullyQualifiedName(context.macroCollection)?.toString+"."+proposalDescription// .replaceAll('[\\<\\>\\" ]','')
 		return new Template(proposalDescription, 'test step', templateId, proposalTemplate, false)
 	}
 

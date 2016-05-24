@@ -43,8 +43,8 @@ class TmlModelUtilTest extends AbstractParserTest {
 			Macro: MyMacroCollection
 			- start with @useparam						
 		''')
-		val macroCalled = macroCollection.macros.head
-		val macroCall = macroCollection.macros.last
+		val macroCalled = macroCollection.macroCollection.macros.head
+		val macroCall = macroCollection.macroCollection.macros.last
 		val macroTestStepContext = macroCall.contexts.head as MacroTestStepContext
 
 		// when

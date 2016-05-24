@@ -105,10 +105,10 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		Iterable<MacroTestStepContext> macroUseStack, Set<EnvParam> envParams) {
 		output.newLine
 		val macro = context.findMacroDefinition
-		output.append('''// Macro start: «context.macroModel.name» - «macro.template.normalize»''').newLine
+		output.append('''// Macro start: «context.macroCollection.name» - «macro.template.normalize»''').newLine
 		macro.contexts.forEach[generateContext(output.trace(it), #[context] + macroUseStack, envParams)]
 		output.newLine
-		output.append('''// Macro end: «context.macroModel.name» - «macro.template.normalize»''').newLine
+		output.append('''// Macro end: «context.macroCollection.name» - «macro.template.normalize»''').newLine
 	}
 
 	private def dispatch void generateContext(ComponentTestStepContext context, ITreeAppendable output,

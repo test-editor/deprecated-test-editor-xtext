@@ -82,8 +82,8 @@ class TmlParameterUsageValidatorTest extends AbstractParserTest {
 			- wait @secs
 		''', resourceSet)
 
-		val myCallContext = tmlModel.macros.head.contexts.head
-		val otherCallContext = tmlModel.macros.last.contexts.head
+		val myCallContext = tmlModel.macroCollection.macros.head.contexts.head
+		val otherCallContext = tmlModel.macroCollection.macros.last.contexts.head
 
 		// when
 		val setWithString = tmlValidator.getTypeUsagesOfVariable(myCallContext, "appname")
@@ -116,7 +116,7 @@ class TmlParameterUsageValidatorTest extends AbstractParserTest {
 			- wait @secs
 		''', resourceSet)
 
-		val myCallContext = tmlModel.macros.head.contexts.head
+		val myCallContext = tmlModel.macroCollection.macros.head.contexts.head
 
 		// when
 		val setWithLong = tmlValidator.getTypeUsagesOfVariable(myCallContext, "unknown")
@@ -146,7 +146,7 @@ class TmlParameterUsageValidatorTest extends AbstractParserTest {
 			- unknown @secs
 		''', resourceSet)
 
-		val myCallContext = tmlModel.macros.head.contexts.head
+		val myCallContext = tmlModel.macroCollection.macros.head.contexts.head
 
 		// when
 		val setWithLong = tmlValidator.getTypeUsagesOfVariable(myCallContext, "unknown")
