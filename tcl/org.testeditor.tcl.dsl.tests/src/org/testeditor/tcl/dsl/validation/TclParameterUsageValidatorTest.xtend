@@ -75,8 +75,6 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 		tmlParseHelper.parse('''
 			package org.test
 
-			import org.test.*
-
 			# MacroCollection
 
 			template = "mycall" ${appname}
@@ -98,7 +96,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 			* test something
 			Macro: MacroCollection
 			- mycall @myEnvString
-	
+
 			* test other
 			Macro: MacroCollection
 			- othercall @envVar
@@ -124,8 +122,6 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 		// given
 		tmlParseHelper.parse('''
 			package org.test
-
-			import org.test.*
 
 			# MacroCollection
 
@@ -165,8 +161,6 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 		// given
 		tmlParseHelper.parse('''
 			package org.test
-
-			import org.test.*
 
 			# MacroCollection
 
@@ -209,8 +203,6 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 		tmlParseHelper.parse('''
 			package org.test
 
-			import org.test.*
-
 			# MacroCollection
 
 			template = "mycall" ${unknown}
@@ -244,8 +236,6 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 		// given + when
 		tmlParseHelper.parse('''
 			package org.test
-
-			import org.test.*
 
 			# MacroCollection
 

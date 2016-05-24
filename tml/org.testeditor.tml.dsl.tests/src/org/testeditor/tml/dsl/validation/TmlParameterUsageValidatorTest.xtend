@@ -103,8 +103,6 @@ class TmlParameterUsageValidatorTest extends AbstractParserTest {
 		val tmlModel = parser.parse('''
 			package org.test
 
-			import org.test.*
-
 			# MacroCollection
 
 			template = "mycall" ${unknown}
