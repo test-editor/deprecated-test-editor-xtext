@@ -57,7 +57,7 @@ TestStepContext:
 
 ComponentTestStepContext returns TestStepContext:
 	{ComponentTestStepContext}
-	('Mask' | 'Component') ':' component=[aml::Component]
+	('Mask' | 'Component') ':' component=[aml::Component|QualifiedName]
 	steps+=(TestStep | TestStepWithAssignment | AssertionTestStep)*;
 
 MacroTestStepContext returns TestStepContext:
