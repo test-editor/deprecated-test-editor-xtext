@@ -79,11 +79,18 @@ public class MavenExecutor {
 		command.add(parameters);
 		command.add(pathToPom);
 		command.add(testParam);
-		logger.trace("Execute maven in new jvm with: {}", command);
+		String mavenSettings = System.getProperty("TE.MAVENSETTINGSPATH");
+		if (mavenSettings != null) {
+			if (mavenSettings.length() > 0) {
+				command.add("-s");
+				command.add(mavenSettings);
+			}
+		}
 		ProcessBuilder processBuilder = new ProcessBuilder();
 		processBuilder.inheritIO();
 		processBuilder.directory(new File(pathToPom));
 		processBuilder.redirectErrorStream(true);
+		logger.info("Execute maven in new jvm with: {}", command);
 		processBuilder.command(command);
 		Process process = processBuilder.start();
 		try {

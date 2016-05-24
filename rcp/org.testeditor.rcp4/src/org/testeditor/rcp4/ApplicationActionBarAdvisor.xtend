@@ -23,6 +23,7 @@ import org.eclipse.ui.PlatformUI
 import org.eclipse.ui.application.ActionBarAdvisor
 import org.eclipse.ui.application.IActionBarConfigurer
 import org.testeditor.rcp4.handlers.OpenNetworkConfigurationHandler
+import org.osgi.service.prefs.PreferencesService
 
 /** dummy class */
 class ApplicationActionBarAdvisor extends ActionBarAdvisor {

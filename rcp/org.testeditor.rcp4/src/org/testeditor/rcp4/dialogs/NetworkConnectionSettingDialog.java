@@ -47,7 +47,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 
 	private static final Logger logger = LoggerFactory.getLogger(ApplicationLifeCycleHandler.class);
 
-	private static final String PATH_TO_MAVENSETTINGS = "MAVENSETTINGSPATH";
+	private static final String PATH_TO_MAVENSETTINGS = "TE.MAVENSETTINGSPATH";
 	private static final String PROXY_HOST = "http.proxyHost";
 	private static final String WORKOFFLINE = "workOffline";
 	private static final String PROXY_PORT = "http.proxyPort";
@@ -56,7 +56,8 @@ public class NetworkConnectionSettingDialog extends Dialog {
 	private static final String NON_PROXY_HOSTS = "http.nonProxyHosts";
 
 	private Label internetState;
-	private Text pathToMavenSettings;
+	private Text pathToMavenSettingsFile;
+	private String pathToMavenSettingsFileSettings;
 	private Text proxyHost;
 	private Button offlineSwtich;
 	private boolean workOffline;
@@ -81,6 +82,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 		proxyUserSetting = prefs.get(PROXY_USER, "");
 		proxyPwdSetting = prefs.get(PROXY_PWD, "");
 		noProxyHostsSetting = prefs.get(NON_PROXY_HOSTS, "");
+		pathToMavenSettingsFileSettings = prefs.get(PATH_TO_MAVENSETTINGS, "");
 	}
 
 	@Override
@@ -173,9 +175,16 @@ public class NetworkConnectionSettingDialog extends Dialog {
 		Composite mavenPathControl = new Composite(container, SWT.NORMAL);
 		mavenPathControl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		mavenPathControl.setLayout(new GridLayout(2, false));
-		pathToMavenSettings = new Text(mavenPathControl, SWT.BORDER);
-		pathToMavenSettings.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		pathToMavenSettings.setText(prefs.get(PATH_TO_MAVENSETTINGS, ""));
+		pathToMavenSettingsFile = new Text(mavenPathControl, SWT.BORDER);
+		pathToMavenSettingsFile.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		pathToMavenSettingsFile.setText(pathToMavenSettingsFileSettings);
+		pathToMavenSettingsFile.addModifyListener(new ModifyListener() {
+
+			@Override
+			public void modifyText(ModifyEvent e) {
+				pathToMavenSettingsFileSettings = pathToMavenSettingsFile.getText();
+			}
+		});
 		Button fileSelection = new Button(mavenPathControl, SWT.BORDER);
 		fileSelection.setText("...");
 		fileSelection.addSelectionListener(new SelectionAdapter() {
@@ -185,7 +194,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 				fileDialog.setText("Select Maven settings");
 				String path = fileDialog.open();
 				if (path != null) {
-					pathToMavenSettings.setText(path);
+					pathToMavenSettingsFile.setText(path);
 				}
 			}
 		});
@@ -215,9 +224,11 @@ public class NetworkConnectionSettingDialog extends Dialog {
 
 			@Override
 			public void run() {
-				internetState.setText(message);
-				internetState.setForeground(Display.getDefault().getSystemColor(color));
-				internetState.getParent().layout(true);
+				if (!internetState.isDisposed()) {
+					internetState.setText(message);
+					internetState.setForeground(Display.getDefault().getSystemColor(color));
+					internetState.getParent().layout(true);
+				}
 			}
 		});
 	}
@@ -236,7 +247,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 	@Override
 	protected void okPressed() {
 		prefs.putBoolean(WORKOFFLINE, workOffline);
-		prefs.put(PATH_TO_MAVENSETTINGS, pathToMavenSettings.getText());
+		prefs.put(PATH_TO_MAVENSETTINGS, pathToMavenSettingsFileSettings);
 		prefs.put(PROXY_HOST, proxyHostSetting);
 		prefs.put(PROXY_PORT, proxyPortSetting);
 		prefs.put(PROXY_USER, proxyUserSetting);
@@ -266,6 +277,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 				System.setProperty(PROXY_USER, proxyUserSetting);
 				System.setProperty(PROXY_PWD, proxyPwdSetting);
 				System.setProperty(NON_PROXY_HOSTS, noProxyHostsSetting);
+				System.setProperty(PATH_TO_MAVENSETTINGS, pathToMavenSettingsFileSettings);
 			}
 		}
 		try {

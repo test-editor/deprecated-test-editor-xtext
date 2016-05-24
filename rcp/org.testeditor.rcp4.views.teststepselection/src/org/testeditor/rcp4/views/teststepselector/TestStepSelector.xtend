@@ -105,12 +105,12 @@ class TestStepSelector {
 
 	}
 
-	@Inject
-	@Optional
-	def void startupComplete(@EventTopic(UIEvents.UILifeCycle.APP_STARTUP_COMPLETE) Object data) {
-		// startup complete ensures the index to be populated
-		Display.getDefault.syncExec[populateViewIfEmpty] // is only run, if view is created on startup
-	}
+//	@Inject
+//	@Optional
+//	def void startupComplete(@EventTopic(UIEvents.UILifeCycle.APP_STARTUP_COMPLETE) Object data) {
+//		// startup complete ensures the index to be populated
+//		Display.getDefault.syncExec[populateViewIfEmpty] // is only run, if view is created on startup
+//	}
 
 	@Focus
 	def void setFocus() {

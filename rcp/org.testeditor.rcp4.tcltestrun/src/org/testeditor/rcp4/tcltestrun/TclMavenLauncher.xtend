@@ -22,6 +22,10 @@ import org.eclipse.jface.viewers.IStructuredSelection
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
 import java.nio.charset.StandardCharsets
+import org.eclipse.ui.PlatformUI
+import org.eclipse.e4.core.contexts.IEclipseContext
+import org.osgi.service.prefs.PreferencesService
+import org.testeditor.dsl.common.ui.utils.Constants
 
 public class TclMavenLauncher implements TclLauncher {
 
@@ -55,7 +59,7 @@ public class TclMavenLauncher implements TclLauncher {
 		}
 		return new LaunchResult(testResultFile, result, null)
 	}
-
+	
 	def Iterable<String> getProfiles(IProject project) {
 		mavenExecutor.executeInNewJvm("help:all-profiles", project.location.toOSString, '''output=«PROFILE_TXT_PATH»''')
 		val file = new File('''«project.location.toOSString»/«PROFILE_TXT_PATH»''')
