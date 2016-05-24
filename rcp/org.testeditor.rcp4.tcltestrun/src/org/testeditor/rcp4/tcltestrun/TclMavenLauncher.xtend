@@ -13,6 +13,7 @@
 package org.testeditor.rcp4.tcltestrun
 
 import java.io.File
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.Map
 import javax.inject.Inject
@@ -21,11 +22,6 @@ import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
-import java.nio.charset.StandardCharsets
-import org.eclipse.ui.PlatformUI
-import org.eclipse.e4.core.contexts.IEclipseContext
-import org.osgi.service.prefs.PreferencesService
-import org.testeditor.dsl.common.ui.utils.Constants
 
 public class TclMavenLauncher implements TclLauncher {
 

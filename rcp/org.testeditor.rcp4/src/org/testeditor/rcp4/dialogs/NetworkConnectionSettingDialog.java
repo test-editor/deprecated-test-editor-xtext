@@ -273,10 +273,15 @@ public class NetworkConnectionSettingDialog extends Dialog {
 		if (System.getProperty(PROXY_HOST) == null | updateSessings) {
 			if (proxyHostSetting.length() > 0) {
 				System.setProperty(PROXY_HOST, proxyHostSetting);
+				System.setProperty("te." + PROXY_HOST, proxyHostSetting);
 				System.setProperty(PROXY_PORT, proxyPortSetting);
+				System.setProperty("te." + PROXY_PORT, proxyPortSetting);
 				System.setProperty(PROXY_USER, proxyUserSetting);
+				System.setProperty("te." + PROXY_USER, proxyUserSetting);
 				System.setProperty(PROXY_PWD, proxyPwdSetting);
+				System.setProperty("te." + PROXY_PWD, proxyPwdSetting);
 				System.setProperty(NON_PROXY_HOSTS, noProxyHostsSetting);
+				System.setProperty("te." + NON_PROXY_HOSTS, noProxyHostsSetting);
 				System.setProperty(PATH_TO_MAVENSETTINGS, pathToMavenSettingsFileSettings);
 			}
 		}

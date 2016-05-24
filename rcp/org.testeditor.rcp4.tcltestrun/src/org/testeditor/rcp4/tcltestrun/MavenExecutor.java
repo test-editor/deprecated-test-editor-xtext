@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.maven.cli.MavenCli;
 import org.eclipse.m2e.core.internal.Bundles;
@@ -75,6 +76,12 @@ public class MavenExecutor {
 		command.add(jvm);
 		command.add("-cp");
 		command.add(getClassPath());
+		Properties props = System.getProperties();
+		for (String key : props.stringPropertyNames()) {
+			if (key.startsWith("te.")) {
+				command.add("-D" + key.substring(key.indexOf(".") + 1) + "=" + props.getProperty(key));
+			}
+		}
 		command.add(this.getClass().getName());
 		command.add(parameters);
 		command.add(pathToPom);
@@ -138,6 +145,7 @@ public class MavenExecutor {
 	 *            the maven parameter.
 	 */
 	public static void main(String[] args) {
+		logger.info("Proxy host: {}", System.getProperty("http.proxyHost"));
 		if (args.length > 2) {
 			if (args[2].contains("=")) {
 				logger.info("Running maven build with settings='{}'", args[2]);
