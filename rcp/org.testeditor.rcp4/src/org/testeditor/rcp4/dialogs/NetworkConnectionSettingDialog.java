@@ -208,30 +208,24 @@ public class NetworkConnectionSettingDialog extends Dialog {
 		});
 	}
 
-	private void updateNetworkState() {
-		Runnable runnable = new Runnable() {
+	protected void updateNetworkState() {
+		Display.getDefault().asyncExec(new Runnable() {
 
 			@Override
 			public void run() {
 				if (isInternetAvailable(true)) {
 					if (workOffline) {
-						updateNetworkSateWidget("work offline", SWT.COLOR_DARK_YELLOW);
+						upDateUI("work offline", SWT.COLOR_DARK_YELLOW);
 					} else {
-						updateNetworkSateWidget("connected", SWT.COLOR_DARK_GREEN);
+						upDateUI("connected", SWT.COLOR_DARK_GREEN);
 					}
 				} else {
-					updateNetworkSateWidget("diconnected", SWT.COLOR_RED);
+					upDateUI("diconnected", SWT.COLOR_RED);
 				}
+
 			}
-		};
-		new Thread(runnable).start();
-	}
 
-	protected void updateNetworkSateWidget(final String message, final int color) {
-		Display.getDefault().asyncExec(new Runnable() {
-
-			@Override
-			public void run() {
+			public void upDateUI(String message, int color) {
 				if (!internetState.isDisposed()) {
 					internetState.setText(message);
 					internetState.setForeground(Display.getDefault().getSystemColor(color));
@@ -285,7 +279,9 @@ public class NetworkConnectionSettingDialog extends Dialog {
 				proxyService.setSystemProxiesEnabled(true);
 				IProxyData proxyData = proxyService.getProxyData(IProxyData.HTTP_PROXY_TYPE);
 				proxyData.setHost(proxyHostSetting);
-				proxyData.setPort(Integer.parseInt(proxyPortSetting));
+				if (proxyPortSetting.length() > 0) {
+					proxyData.setPort(Integer.parseInt(proxyPortSetting));
+				}
 				proxyData.setUserid(proxyUserSetting);
 				proxyData.setPassword(proxyPwdSetting);
 				try {
@@ -300,7 +296,9 @@ public class NetworkConnectionSettingDialog extends Dialog {
 				System.setProperty(PROXY_USER, proxyUserSetting);
 				System.setProperty(PROXY_PWD, proxyPwdSetting);
 				System.setProperty(NON_PROXY_HOSTS, noProxyHostsSetting);
-				System.setProperty(PATH_TO_MAVENSETTINGS, pathToMavenSettingsFileSettings);
+				if (pathToMavenSettingsFileSettings.length() > 0) {
+					System.setProperty(PATH_TO_MAVENSETTINGS, pathToMavenSettingsFileSettings);
+				}
 			}
 		}
 		try {

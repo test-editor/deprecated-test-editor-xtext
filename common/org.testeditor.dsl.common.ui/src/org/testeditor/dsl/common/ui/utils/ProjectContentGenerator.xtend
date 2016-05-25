@@ -145,8 +145,8 @@ class ProjectContentGenerator {
 	protected def void setupMavenProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
 		var IFile buildFile = project.getFile("pom.xml")
 		buildFile.create(new StringInputStream(getPomContent(fixtures, project.name)), IResource.NONE, monitor)
-		val mavenSettings = System.getProperty("TE.MAVENSETTINGSPATH", "")
-		if (mavenSettings.length > 0) {
+		val mavenSettings = System.getProperty("TE.MAVENSETTINGSPATH")
+		if (!mavenSettings.isNullOrEmpty) {
 			MavenPlugin.mavenConfiguration.userSettingsFile = mavenSettings
 		}
 		var configurationManager = MavenPlugin.projectConfigurationManager

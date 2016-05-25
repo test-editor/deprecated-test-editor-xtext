@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.testeditor.rcp4.tcltestrun;
 
+import static org.eclipse.xtext.xbase.lib.StringExtensions.isNullOrEmpty;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -54,13 +56,11 @@ public class MavenExecutor {
 		List<String> params = new ArrayList<String>();
 		params.addAll(Arrays.asList(parameters.split(" ")));
 		String mavenSettings = System.getProperty("TE.MAVENSETTINGSPATH");
-		if (mavenSettings != null) {
-			if (mavenSettings.length() > 0) {
-				params.add("-s");
-				params.add(mavenSettings);
-			}
+		if (!isNullOrEmpty(mavenSettings)) {
+			params.add("-s");
+			params.add(mavenSettings);
 		}
-		int result = cli.doMain(params.toArray(new String[]{}), pathToPom, System.out, System.err);
+		int result = cli.doMain(params.toArray(new String[] {}), pathToPom, System.out, System.err);
 		return result;
 	}
 
@@ -88,14 +88,8 @@ public class MavenExecutor {
 		command.add(getClassPath());
 		Properties props = System.getProperties();
 		for (String key : props.stringPropertyNames()) {
-			if (key.startsWith("http.")) {
+			if (key.startsWith("http.") | key.startsWith("TE.") | key.startsWith("https.")) {
 				command.add("-D" + key + "=" + props.getProperty(key));
-			}
-		}
-		String mavenSettings = System.getProperty("TE.MAVENSETTINGSPATH");
-		if (mavenSettings != null) {
-			if (mavenSettings.length() > 0) {
-				command.add("-DTE.MAVENSETTINGSPATH="+mavenSettings);
 			}
 		}
 		command.add(this.getClass().getName());
@@ -106,7 +100,7 @@ public class MavenExecutor {
 		processBuilder.inheritIO();
 		processBuilder.directory(new File(pathToPom));
 		processBuilder.redirectErrorStream(true);
-		logger.info("Execute maven in new jvm with: {}", command);
+		logger.info("Executing maven in new jvm with command=	{}", command);
 		processBuilder.command(command);
 		Process process = processBuilder.start();
 		try {
