@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.testeditor.rcp4.tcltestrun;
 
-import static org.eclipse.xtext.xbase.lib.StringExtensions.isNullOrEmpty;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -56,7 +54,7 @@ public class MavenExecutor {
 		List<String> params = new ArrayList<String>();
 		params.addAll(Arrays.asList(parameters.split(" ")));
 		String mavenSettings = System.getProperty("TE.MAVENSETTINGSPATH");
-		if (!isNullOrEmpty(mavenSettings)) {
+		if (mavenSettings != null && mavenSettings.length() > 0) {
 			params.add("-s");
 			params.add(mavenSettings);
 		}
