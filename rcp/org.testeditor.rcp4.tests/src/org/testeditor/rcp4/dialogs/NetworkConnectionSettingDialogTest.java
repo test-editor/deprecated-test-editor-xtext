@@ -33,7 +33,7 @@ public class NetworkConnectionSettingDialogTest {
 		Shell parentShell = mock(Shell.class);
 		IEclipsePreferences prefs = mock(IEclipsePreferences.class);
 		when(prefs.getBoolean("workOffline", false)).thenReturn(true);
-		NetworkConnectionSettingDialog dialog = new NetworkConnectionSettingDialog(parentShell, prefs);
+		NetworkConnectionSettingDialog dialog = new NetworkConnectionSettingDialog(parentShell, prefs, null);
 		// when & then
 		assertTrue(dialog.isInternetAvailable(false));
 	}
@@ -44,7 +44,7 @@ public class NetworkConnectionSettingDialogTest {
 		Shell parentShell = mock(Shell.class);
 		IEclipsePreferences prefs = getPrefsMockWithProxy();
 		System.setProperty("http.proxyHost", "myProxy");
-		NetworkConnectionSettingDialog dialog = new NetworkConnectionSettingDialog(parentShell, prefs);
+		NetworkConnectionSettingDialog dialog = new NetworkConnectionSettingDialog(parentShell, prefs, null);
 		// when
 		assertTrue(dialog.isInternetAvailable(false));
 		// then
@@ -69,7 +69,7 @@ public class NetworkConnectionSettingDialogTest {
 		IEclipsePreferences prefs = getPrefsMockWithProxy();
 		when(prefs.get("http.proxyHost", "")).thenReturn("proxy");
 		System.setProperty("http.proxyHost", "myProxy");
-		NetworkConnectionSettingDialog dialog = new NetworkConnectionSettingDialog(parentShell, prefs);
+		NetworkConnectionSettingDialog dialog = new NetworkConnectionSettingDialog(parentShell, prefs, null);
 		// when
 		assertTrue(dialog.isInternetAvailable(true));
 		// then

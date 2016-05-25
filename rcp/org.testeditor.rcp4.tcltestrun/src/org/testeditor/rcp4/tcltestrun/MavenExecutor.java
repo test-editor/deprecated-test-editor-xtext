@@ -78,8 +78,8 @@ public class MavenExecutor {
 		command.add(getClassPath());
 		Properties props = System.getProperties();
 		for (String key : props.stringPropertyNames()) {
-			if (key.startsWith("te.")) {
-				command.add("-D" + key.substring(key.indexOf(".") + 1) + "=" + props.getProperty(key));
+			if (key.startsWith("http.")) {
+				command.add("-D" + key + "=" + props.getProperty(key));
 			}
 		}
 		command.add(this.getClass().getName());

@@ -15,6 +15,7 @@ package org.testeditor.rcp4;
 import javax.inject.Named;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.di.extensions.Preference;
 import org.eclipse.e4.ui.services.IServiceConstants;
 import org.eclipse.e4.ui.workbench.IWorkbench;
@@ -45,10 +46,10 @@ public class ApplicationLifeCycleHandler {
 	 */
 	@PostContextCreate
 	public void checkTestEditorState(@Named(IServiceConstants.ACTIVE_SHELL) Shell shell,
-			@Preference(nodePath = Constants.CONFIGURATION_STORE) IEclipsePreferences prefs)
+			@Preference(nodePath = Constants.CONFIGURATION_STORE) IEclipsePreferences prefs, IEclipseContext context)
 			throws BackingStoreException {
 		handlePossibleUIModelReset(shell, prefs);
-		checkInternetConnection(shell, prefs);
+		checkInternetConnection(shell, prefs, context);
 	}
 
 	/**
@@ -58,9 +59,11 @@ public class ApplicationLifeCycleHandler {
 	 * @param shell
 	 *            used to open a connection dialog.
 	 * @param prefs
+	 * @param context
 	 */
-	private void checkInternetConnection(Shell shell, IEclipsePreferences prefs) {
-		NetworkConnectionSettingDialog connectionSettingDialog = new NetworkConnectionSettingDialog(shell, prefs);
+	private void checkInternetConnection(Shell shell, IEclipsePreferences prefs, IEclipseContext context) {
+		NetworkConnectionSettingDialog connectionSettingDialog = new NetworkConnectionSettingDialog(shell, prefs,
+				context);
 		if (!connectionSettingDialog.isInternetAvailable(false)) {
 			connectionSettingDialog.open();
 		}

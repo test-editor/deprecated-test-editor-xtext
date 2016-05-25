@@ -15,6 +15,7 @@ package org.testeditor.rcp4.handlers;
 import javax.inject.Named;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.di.annotations.Execute;
 import org.eclipse.e4.core.di.extensions.Preference;
 import org.eclipse.e4.ui.services.IServiceConstants;
@@ -26,7 +27,7 @@ public class OpenNetworkConfigurationHandler {
 
 	@Execute
 	public void execute(@Named(IServiceConstants.ACTIVE_SHELL) Shell shell,
-			@Preference(nodePath = Constants.CONFIGURATION_STORE) IEclipsePreferences prefs) {
-		new NetworkConnectionSettingDialog(shell, prefs).open();
+			@Preference(nodePath = Constants.CONFIGURATION_STORE) IEclipsePreferences prefs, IEclipseContext context) {
+		new NetworkConnectionSettingDialog(shell, prefs, context).open();
 	}
 }

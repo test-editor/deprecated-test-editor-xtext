@@ -16,7 +16,11 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 
+import org.eclipse.core.net.proxy.IProxyData;
+import org.eclipse.core.net.proxy.IProxyService;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -73,9 +77,12 @@ public class NetworkConnectionSettingDialog extends Dialog {
 
 	private String noProxyHostsSetting;
 
-	public NetworkConnectionSettingDialog(Shell parentShell, IEclipsePreferences prefs) {
+	private IEclipseContext context;
+
+	public NetworkConnectionSettingDialog(Shell parentShell, IEclipsePreferences prefs, IEclipseContext context) {
 		super(parentShell);
 		this.prefs = prefs;
+		this.context = context;
 		workOffline = prefs.getBoolean(WORKOFFLINE, false);
 		proxyHostSetting = prefs.get(PROXY_HOST, "");
 		proxyPortSetting = prefs.get(PROXY_PORT, "");
@@ -273,16 +280,26 @@ public class NetworkConnectionSettingDialog extends Dialog {
 		}
 		if (System.getProperty(PROXY_HOST) == null | updateSessings) {
 			if (proxyHostSetting.length() > 0) {
+				IProxyService proxyService = context.get(IProxyService.class);
+				proxyService.setProxiesEnabled(true);
+				proxyService.setSystemProxiesEnabled(true);
+				IProxyData proxyData = proxyService.getProxyData(IProxyData.HTTP_PROXY_TYPE);
+				proxyData.setHost(proxyHostSetting);
+				proxyData.setPort(Integer.parseInt(proxyPortSetting));
+				proxyData.setUserid(proxyUserSetting);
+				proxyData.setPassword(proxyPwdSetting);
+				try {
+					if (noProxyHostsSetting.length() > 0) {
+						proxyService.setNonProxiedHosts(noProxyHostsSetting.split(","));
+					}
+				} catch (CoreException e) {
+					e.printStackTrace();
+				}
 				System.setProperty(PROXY_HOST, proxyHostSetting);
-				System.setProperty("te." + PROXY_HOST, proxyHostSetting);
 				System.setProperty(PROXY_PORT, proxyPortSetting);
-				System.setProperty("te." + PROXY_PORT, proxyPortSetting);
 				System.setProperty(PROXY_USER, proxyUserSetting);
-				System.setProperty("te." + PROXY_USER, proxyUserSetting);
 				System.setProperty(PROXY_PWD, proxyPwdSetting);
-				System.setProperty("te." + PROXY_PWD, proxyPwdSetting);
 				System.setProperty(NON_PROXY_HOSTS, noProxyHostsSetting);
-				System.setProperty("te." + NON_PROXY_HOSTS, noProxyHostsSetting);
 				System.setProperty(PATH_TO_MAVENSETTINGS, pathToMavenSettingsFileSettings);
 			}
 		}
