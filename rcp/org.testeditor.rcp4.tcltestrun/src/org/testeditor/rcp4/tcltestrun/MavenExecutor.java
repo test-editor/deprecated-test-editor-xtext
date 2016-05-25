@@ -15,6 +15,7 @@ package org.testeditor.rcp4.tcltestrun;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -50,7 +51,16 @@ public class MavenExecutor {
 	public int execute(String parameters, String pathToPom) {
 		System.setProperty("maven.multiModuleProjectDirectory", pathToPom);
 		MavenCli cli = new MavenCli();
-		int result = cli.doMain(parameters.split(" "), pathToPom, System.out, System.err);
+		List<String> params = new ArrayList<String>();
+		params.addAll(Arrays.asList(parameters.split(" ")));
+		String mavenSettings = System.getProperty("TE.MAVENSETTINGSPATH");
+		if (mavenSettings != null) {
+			if (mavenSettings.length() > 0) {
+				params.add("-s");
+				params.add(mavenSettings);
+			}
+		}
+		int result = cli.doMain(params.toArray(new String[]{}), pathToPom, System.out, System.err);
 		return result;
 	}
 
@@ -82,17 +92,16 @@ public class MavenExecutor {
 				command.add("-D" + key + "=" + props.getProperty(key));
 			}
 		}
+		String mavenSettings = System.getProperty("TE.MAVENSETTINGSPATH");
+		if (mavenSettings != null) {
+			if (mavenSettings.length() > 0) {
+				command.add("-DTE.MAVENSETTINGSPATH="+mavenSettings);
+			}
+		}
 		command.add(this.getClass().getName());
 		command.add(parameters);
 		command.add(pathToPom);
 		command.add(testParam);
-		String mavenSettings = System.getProperty("TE.MAVENSETTINGSPATH");
-		if (mavenSettings != null) {
-			if (mavenSettings.length() > 0) {
-				command.add("-s");
-				command.add(mavenSettings);
-			}
-		}
 		ProcessBuilder processBuilder = new ProcessBuilder();
 		processBuilder.inheritIO();
 		processBuilder.directory(new File(pathToPom));
