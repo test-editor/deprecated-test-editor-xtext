@@ -4,22 +4,22 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.tcl.dsl.ui.tests.quickfix
+package org.testeditor.tml.dsl.ui.tests.quickfix
 
 import org.junit.Test
 import org.mockito.InjectMocks
-import org.testeditor.tcl.dsl.tests.AbstractTclTest
-import org.testeditor.tcl.dsl.ui.quickfix.TclQuickfixProvider
+import org.testeditor.tml.dsl.ui.quickfix.TmlQuickfixProvider
+import org.testeditor.tml.dsl.tests.AbstractTmlTest
 
-class TclQuickfixProviderTest extends AbstractTclTest {
+class TmlQuickfixProviderTest extends AbstractTmlTest {
 
-	@InjectMocks TclQuickfixProvider quickFixProvider
+	@InjectMocks TmlQuickfixProvider quickFixProvider
 
 	@Test
 	def void testGetComponentDSLFragment() {
@@ -29,7 +29,7 @@ class TclQuickfixProviderTest extends AbstractTclTest {
 		// then
 		val expected = '''
 			component Foo is <TYPE> {
-			
+
 			}
 		'''
 		componentDslFragment.assertEquals(expected)

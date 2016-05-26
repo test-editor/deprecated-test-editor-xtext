@@ -8,8 +8,10 @@ Bundle-ActivationPolicy: lazy
 Require-Bundle: org.testeditor.tml.dsl,
  org.eclipse.xtext.ide,
  org.eclipse.xtext.xbase.ide,
- org.testeditor.tcl.dsl
+ org.testeditor.tcl.dsl,
+ org.testeditor.dsl.common
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.testeditor.tml.dsl.ide.contentassist.antlr.internal,
- org.testeditor.tml.dsl.ide.contentassist.antlr
+Export-Package: org.testeditor.tml.dsl.ide.contentassist.antlr,
+ org.testeditor.tml.dsl.ide.contentassist.antlr.internal,
+ org.testeditor.tml.dsl.ide.highlighting
 

@@ -20,7 +20,6 @@ import org.junit.Ignore
 class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 
 	@Test
-	@Ignore("DummyFixture not reachable for plugin aml.dsl")
 	def void test() {
 		// given
 		val aml = '''

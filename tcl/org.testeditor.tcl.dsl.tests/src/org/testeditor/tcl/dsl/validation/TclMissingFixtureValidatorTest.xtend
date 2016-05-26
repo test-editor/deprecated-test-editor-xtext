@@ -24,6 +24,7 @@ import org.mockito.Mock
 import org.testeditor.aml.InteractionType
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.tml.ComponentTestStepContext
 
 import static org.mockito.Matchers.*
 
@@ -44,6 +45,7 @@ class TclMissingFixtureValidatorTest extends AbstractParserTest {
 		val interactionTypeMock = InteractionType.mock(RETURNS_DEEP_STUBS)
 
 		when(tclModelUtil.getInteraction(anyObject)).thenReturn(interactionTypeMock)
+		when(tclModelUtil.hasComponentContext(anyObject)).thenReturn(true)
 		when(interactionTypeMock.defaultMethod.typeReference).thenReturn(typeReferenceMock)
 		when(typeReferenceMock.type).thenReturn(jvmTypeMock) // default is != null => fixture exists 
 		val state = tclValidator.setMessageAcceptor(messageAcceptor)
@@ -61,7 +63,7 @@ class TclMissingFixtureValidatorTest extends AbstractParserTest {
 			Component: some_fantasy_component
 			- test step that maps
 		''')
-		val testStepThatMaps = tclFix.steps.head.contexts.head.steps.head
+		val testStepThatMaps = tclFix.steps.head.contexts.head.assertInstanceOf(ComponentTestStepContext).steps.head
 
 		// when
 		tclValidator.checkFixtureMethodForExistence(testStepThatMaps)
@@ -81,7 +83,7 @@ class TclMissingFixtureValidatorTest extends AbstractParserTest {
 			Component: some_fantasy_component
 			- test step that does not map
 		''')
-		val testStepThatDoesNotMap = tclFix.steps.head.contexts.head.steps.head
+		val testStepThatDoesNotMap = tclFix.steps.head.contexts.head.assertInstanceOf(ComponentTestStepContext).steps.head
 		when(typeReferenceMock.type).thenReturn(null)
 
 		// when
@@ -103,7 +105,7 @@ class TclMissingFixtureValidatorTest extends AbstractParserTest {
 			Component: some_fantasy_component
 			- assert variable = "Hello"
 		''')
-		val testStepThatDoesNotMap = tclFix.steps.head.contexts.head.steps.head
+		val testStepThatDoesNotMap = tclFix.steps.head.contexts.head.assertInstanceOf(ComponentTestStepContext).steps.head
 		when(typeReferenceMock.type).thenReturn(null)
 
 		// when

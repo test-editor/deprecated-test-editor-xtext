@@ -12,4 +12,5 @@ Require-Bundle: org.testeditor.tml.dsl,
  org.testeditor.dsl.common,
  org.testeditor.dsl.common.testing,
  org.testeditor.tcl.model
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: org.testeditor.tml.dsl.tests

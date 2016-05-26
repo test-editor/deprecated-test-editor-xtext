@@ -20,11 +20,12 @@ Require-Bundle: org.testeditor.tml.dsl,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.xtext.xbase.ui,
  org.eclipse.xtext.builder,
- org.testeditor.tcl.dsl,
- org.testeditor.tcl.dsl.ui
+ org.testeditor.dsl.common
 Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.testeditor.tml.dsl.ui.quickfix,
- org.testeditor.tml.dsl.ui.contentassist,
- org.testeditor.tml.dsl.ui.internal
+Export-Package: org.testeditor.tml.dsl.ui.contentassist,
+ org.testeditor.tml.dsl.ui.highlighting,
+ org.testeditor.tml.dsl.ui.internal,
+ org.testeditor.tml.dsl.ui.navigation,
+ org.testeditor.tml.dsl.ui.quickfix
 Bundle-Activator: org.testeditor.tml.dsl.ui.internal.DslActivator

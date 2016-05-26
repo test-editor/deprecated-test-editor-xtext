@@ -1,4 +1,4 @@
-package org.testeditor.tcl.dsl.validation
+package org.testeditor.tml.dsl.validation
 
 import java.util.Map
 import org.eclipse.xtext.common.types.JvmOperation
@@ -10,18 +10,19 @@ import org.mockito.ArgumentCaptor
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.testeditor.aml.AmlFactory
-import org.testeditor.tcl.TestStepContext
-import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
-import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.tml.dsl.tests.parser.AbstractParserTest
+import org.testeditor.tml.util.TmlModelUtil
+import org.testeditor.tml.ComponentTestStepContext
+import org.testeditor.tml.TestStepContext
 
 import static org.mockito.Matchers.*
 
 import static extension org.mockito.Mockito.*
 
-class TclVarUsageValidatorTest extends AbstractParserTest {
+class TmlVarUsageValidatorTest extends AbstractParserTest {
 
-	@Mock TclModelUtil tclModelUtil // injected into class under test
-	@InjectMocks TclValidator tclValidator // class under test
+	@Mock TmlModelUtil tclModelUtil // injected into class under test
+	@InjectMocks TmlValidator tclValidator // class under test
 	@Mock JvmTypeReference typeRefMock
 	@Mock ValidationMessageAcceptor messageAcceptor
 
@@ -32,7 +33,7 @@ class TclVarUsageValidatorTest extends AbstractParserTest {
 		val amlFactory = AmlFactory.eINSTANCE
 
 		// always assume that the return type of the operation used in any step is of typeRefMock
-		// => setting typeRefMock to return some type will affect all assignment steps! 
+		// => setting typeRefMock to return some type will affect all assignment steps!
 		val operationMock = mock(JvmOperation)
 		when(tclModelUtil.getInteraction(anyObject)).thenReturn(amlFactory.createInteractionType => [
 			defaultMethod = amlFactory.createMethodReference => [
@@ -52,9 +53,10 @@ class TclVarUsageValidatorTest extends AbstractParserTest {
 			Component: some_fantasy_component
 			- assert unknownVar = "get some map"
 		''')
+		val componentTestStepContext=testStepContext.assertInstanceOf(ComponentTestStepContext)
 
 		// when
-		tclValidator.checkVariableUsageWithinAssertionExpressions(testStepContext)
+		tclValidator.checkVariableUsageWithinAssertionExpressions(componentTestStepContext)
 
 		// then
 		messageAcceptor.verify.acceptError(message.capture, anyObject, anyObject, anyInt, anyString)
@@ -69,11 +71,12 @@ class TclVarUsageValidatorTest extends AbstractParserTest {
 			- value = get some map
 			- value = execute second assignment
 		''')
+		val componentTestStepContext=testStepContext.assertInstanceOf(ComponentTestStepContext)
 
 		when(typeRefMock.identifier).thenReturn(String.canonicalName)
 
 		// when
-		tclValidator.checkVariableUsageWithinAssertionExpressions(testStepContext)
+		tclValidator.checkVariableUsageWithinAssertionExpressions(componentTestStepContext)
 
 		// then
 		messageAcceptor.verify.acceptWarning(message.capture, anyObject, anyObject, anyInt, anyString)
@@ -88,11 +91,12 @@ class TclVarUsageValidatorTest extends AbstractParserTest {
 			- value = get some map
 			- assert value.key == "fixed value"
 		''')
+		val componentTestStepContext=testStepContext.assertInstanceOf(ComponentTestStepContext)
 
 		when(typeRefMock.identifier).thenReturn(Map.canonicalName)
 
 		// when
-		tclValidator.checkVariableUsageWithinAssertionExpressions(testStepContext)
+		tclValidator.checkVariableUsageWithinAssertionExpressions(componentTestStepContext)
 
 		// then
 		messageAcceptor.verify(never).acceptError(anyString, anyObject, anyObject, anyInt, anyString)
@@ -106,11 +110,12 @@ class TclVarUsageValidatorTest extends AbstractParserTest {
 			- value = get some map
 			- assert value == "fixed value"
 		''')
+		val componentTestStepContext=testStepContext.assertInstanceOf(ComponentTestStepContext)
 
 		when(typeRefMock.identifier).thenReturn(String.canonicalName)
 
 		// when
-		tclValidator.checkVariableUsageWithinAssertionExpressions(testStepContext)
+		tclValidator.checkVariableUsageWithinAssertionExpressions(componentTestStepContext)
 
 		// then
 		messageAcceptor.verify(never).acceptError(anyString, anyObject, anyObject, anyInt, anyString)
@@ -124,11 +129,12 @@ class TclVarUsageValidatorTest extends AbstractParserTest {
 			- value = get some that is not a map
 			- assert value.key == "fixed value"
 		''')
+		val componentTestStepContext=testStepContext.assertInstanceOf(ComponentTestStepContext)
 
 		when(typeRefMock.identifier).thenReturn(Integer.canonicalName)
 
 		// when
-		tclValidator.checkVariableUsageWithinAssertionExpressions(testStepContext)
+		tclValidator.checkVariableUsageWithinAssertionExpressions(componentTestStepContext)
 
 		// then
 		messageAcceptor.verify.acceptError(message.capture, anyObject, anyObject, anyInt, anyString)

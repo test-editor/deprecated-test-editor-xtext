@@ -18,7 +18,8 @@ Require-Bundle: org.eclipse.xtext,
  org.objectweb.asm;bundle-version="[5.0.1,6.0.0)";resolution:=optional,
  org.eclipse.xtext.util,
  org.eclipse.xtend.lib,
- org.testeditor.tcl.dsl
+ org.testeditor.aml.dsl,
+ org.testeditor.tsl.dsl
 Import-Package: org.apache.log4j,
  javax.inject
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

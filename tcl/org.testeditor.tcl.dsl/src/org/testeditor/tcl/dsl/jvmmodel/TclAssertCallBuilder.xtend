@@ -1,15 +1,15 @@
 package org.testeditor.tcl.dsl.jvmmodel
 
-import org.testeditor.tcl.AEComparison
-import org.testeditor.tcl.AENullCheck
-import org.testeditor.tcl.AEStringConstant
-import org.testeditor.tcl.AEVariableReference
-import org.testeditor.tcl.AssertionExpression
-import org.testeditor.tcl.Comparator
-import org.testeditor.tcl.ComparatorEquals
-import org.testeditor.tcl.ComparatorGreaterThen
-import org.testeditor.tcl.ComparatorLessThen
-import org.testeditor.tcl.ComparatorMatches
+import org.testeditor.tml.AEComparison
+import org.testeditor.tml.AENullCheck
+import org.testeditor.tml.AEStringConstant
+import org.testeditor.tml.AEVariableReference
+import org.testeditor.tml.AssertionExpression
+import org.testeditor.tml.Comparator
+import org.testeditor.tml.ComparatorEquals
+import org.testeditor.tml.ComparatorGreaterThen
+import org.testeditor.tml.ComparatorLessThen
+import org.testeditor.tml.ComparatorMatches
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 
 class TclAssertCallBuilder {

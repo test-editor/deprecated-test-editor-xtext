@@ -13,15 +13,18 @@
 package org.testeditor.tcl.dsl.tests.parser
 
 import org.junit.Test
-import org.testeditor.tcl.AEComparison
-import org.testeditor.tcl.AENullCheck
-import org.testeditor.tcl.AEStringConstant
-import org.testeditor.tcl.AEVariableReference
-import org.testeditor.tcl.AssertionTestStep
-import org.testeditor.tcl.ComparatorMatches
-import org.testeditor.tcl.StepContentElement
-import org.testeditor.tcl.TclPackage
-import org.testeditor.tcl.TestStepWithAssignment
+import org.testeditor.tml.AEComparison
+import org.testeditor.tml.AENullCheck
+import org.testeditor.tml.AEStringConstant
+import org.testeditor.tml.AEVariableReference
+import org.testeditor.tml.AssertionTestStep
+import org.testeditor.tml.ComparatorMatches
+import org.testeditor.tml.ComponentTestStepContext
+import org.testeditor.tml.MacroTestStepContext
+import org.testeditor.tml.StepContentElement
+import org.testeditor.tml.TestStep
+import org.testeditor.tml.TestStepWithAssignment
+import org.testeditor.tml.TmlPackage
 import org.testeditor.tsl.StepContentVariable
 
 import static extension org.eclipse.xtext.nodemodel.util.NodeModelUtils.*
@@ -103,8 +106,8 @@ class TclModelParserTest extends AbstractParserTest {
 		
 		// then
 		test.steps.assertSingleElement => [
-			contexts.assertSingleElement => [
-				val componentNode = findNodesForFeature(TclPackage.Literals.TEST_STEP_CONTEXT__COMPONENT).assertSingleElement
+			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
+				val componentNode = findNodesForFeature(TmlPackage.Literals.COMPONENT_TEST_STEP_CONTEXT__COMPONENT).assertSingleElement
 				componentNode.text.assertEquals('GreetingsApplication')
 				steps.assertSize(2)
 				steps.get(0) => [
@@ -134,7 +137,7 @@ class TclModelParserTest extends AbstractParserTest {
 		val test = parse(input)
 		
 		// then
-		test.steps.assertSingleElement.contexts.assertSingleElement => [
+		test.steps.assertSingleElement.contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
 			val emptyReferences = steps.assertSingleElement.contents.assertSize(3)
 			emptyReferences.forEach[
 				assertInstanceOf(StepContentElement)
@@ -160,7 +163,7 @@ class TclModelParserTest extends AbstractParserTest {
 		
 		// then
 		test.steps.assertSingleElement => [
-			contexts.assertSingleElement => [
+			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
 				steps.assertSingleElement.assertInstanceOf(TestStepWithAssignment) => [
 					variableName.assertEquals('hello')
 					contents.restoreString.assertEquals('Lese den Text von <Input>')
@@ -186,7 +189,7 @@ class TclModelParserTest extends AbstractParserTest {
 
 		// then
 		test.steps.assertSingleElement => [
-			contexts.assertSingleElement => [
+			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
 				steps.assertSingleElement.assertInstanceOf(AssertionTestStep) => [
 					expression.assertInstanceOf(AENullCheck) => [
 						negated.assertFalse
@@ -214,7 +217,7 @@ class TclModelParserTest extends AbstractParserTest {
 
 		// then
 		test.steps.assertSingleElement => [
-			contexts.assertSingleElement => [
+			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
 				steps.assertSingleElement.assertInstanceOf(AssertionTestStep) => [
 					expression.assertInstanceOf(AEComparison) => [
 						left.assertInstanceOf(AEVariableReference) => [name.assertEquals("hello")]
@@ -224,6 +227,31 @@ class TclModelParserTest extends AbstractParserTest {
 							comparator.assertNull
 						]
 					]
+				]
+			]
+		]
+	}
+
+	@Test
+	def void parseMacroTestStep(){
+		// given
+		val input = '''
+			package com.example
+
+			# Test
+			* Do some complex step
+			  Macro: MyMacroFile
+			  - template execute with "param" as a and "param2"
+		'''
+
+		// when
+		val test = parse(input)
+
+		// then
+		test.steps.assertSingleElement => [
+			contexts.assertSingleElement.assertInstanceOf(MacroTestStepContext) => [
+				step.assertInstanceOf(TestStep) => [
+					contents.restoreString.assertMatches('template execute with "param" as a and "param2"')
 				]
 			]
 		]

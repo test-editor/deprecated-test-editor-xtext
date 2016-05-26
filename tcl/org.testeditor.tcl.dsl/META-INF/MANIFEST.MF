@@ -5,16 +5,22 @@ Bundle-Vendor: Signal Iduna Corporation
 Bundle-Version: 1.0.0.qualifier
 Bundle-SymbolicName: org.testeditor.tcl.dsl; singleton:=true
 Bundle-ActivationPolicy: lazy
-Require-Bundle: org.testeditor.tcl.model;visibility:=reexport,
+Require-Bundle: org.eclipse.xtext,
+ org.eclipse.equinox.common,
+ org.testeditor.tcl.model;visibility:=reexport,
  org.testeditor.dsl.common,
  org.eclipse.xtext.xbase,
+ org.eclipse.emf.ecore.xcore,
  org.eclipse.xtext.common.types,
  org.eclipse.xtext.xbase.lib,
+ org.eclipse.xtext.generator,
  org.antlr.runtime,
  org.objectweb.asm;bundle-version="[5.0.1,6.0.0)";resolution:=optional,
  org.eclipse.xtext.util,
  org.eclipse.xtend.lib,
- org.eclipse.xtext
+ org.testeditor.aml.dsl,
+ org.testeditor.tsl.dsl,
+ org.testeditor.tml.dsl
 Import-Package: org.apache.log4j,
  javax.inject
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
