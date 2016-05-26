@@ -23,6 +23,7 @@ import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
 import org.testeditor.tml.StepContentVariableReference
+import org.testeditor.tsl.StepContentValue
 
 class TmlModelUtil extends TslModelUtil {
 	@Inject extension ModelUtil
@@ -32,9 +33,9 @@ class TmlModelUtil extends TslModelUtil {
 			switch (it) {
 				StepContentVariable: '''"«value»"'''
 				StepContentElement: '''<«value»>'''
-				default:
-					value
-				StepContentVariableReference: '''@«variable.name»'''
+				StepContentVariableReference: '''@«variable?.name»'''
+				StepContentValue: value
+				default: '?'
 			}
 		].join(' ')
 	}

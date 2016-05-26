@@ -39,6 +39,7 @@ import org.testeditor.tml.TestStepWithAssignment
 import org.testeditor.tsl.StepContent
 
 import static org.testeditor.tml.TmlPackage.Literals.*
+import org.testeditor.tsl.StepContentValue
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -220,16 +221,17 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				return '''"«stepContent.componentElement.locator»"'''
 			StepContentVariableReference:
 				if (expectedType.qualifiedName != String.name) {
-					throw new RuntimeException('''Environment variable '«stepContent.value»' (always of type String) is used where type '«expectedType.qualifiedName»' is expected.''')
+					throw new RuntimeException('''Environment variable '«stepContent.variable.name»' (always of type String) is used where type '«expectedType.qualifiedName»' is expected.''')
 				} else {
 					return stepContent.variable.name.envParamToVarName
 				}
-			default:
+			StepContentValue:
 				if (expectedType.qualifiedName == String.name) {
 					return '''"«stepContent.value»"'''
 				} else {
 					return stepContent.value
 				}
+			default: throw new RuntimeException('''StepContent type ('«stepContent.class.canonicalName»') unknown.''')
 		}
 	}
 

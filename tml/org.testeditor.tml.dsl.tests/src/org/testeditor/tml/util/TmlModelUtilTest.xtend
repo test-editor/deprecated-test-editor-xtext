@@ -18,13 +18,12 @@ class TmlModelUtilTest extends AbstractParserTest {
 		// given
 		val testStep = parse('-  <hello>     world "ohoh"   @xyz', grammarAccess.testStepRule, TestStep)
 		testStep.contents.get(3).assertInstanceOf(StepContentVariableReference)
-		testStep.contents.join(" ")[value].assertMatches("hello world ohoh .+")
 
 		// when
 		val result = tmlModelUtil.restoreString(testStep.contents)
 
 		// then
-		result.assertMatches('<hello> world "ohoh" @')
+		result.assertMatches('<hello> world "ohoh" @') // empty variable reference name, since the reference is null
 	}
 
 	@Test
@@ -32,18 +31,18 @@ class TmlModelUtilTest extends AbstractParserTest {
 		// given
 		val macroCollection = parse( '''
 			package com.example
-			
+
 			# MyMacroCollection
-			
+
 			## MacroStartWith
 			template = "start with" ${startparam}
 			Component: MyComponent
 			- put @startparam into <other>
-			
+
 			## MacroUseWith
 			template = "use macro with" ${useparam}
 			Macro: MyMacroCollection
-			- start with @useparam						
+			- start with @useparam
 		''')
 		val macroCalled = macroCollection.macros.head
 		val macroCall = macroCollection.macros.last

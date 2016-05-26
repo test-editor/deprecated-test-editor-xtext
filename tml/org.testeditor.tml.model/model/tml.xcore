@@ -19,6 +19,7 @@ import org.eclipse.xtext.xtype.XImportSection
 import org.testeditor.aml.Template
 import org.testeditor.aml.Component
 import org.testeditor.tsl.StepContent
+import org.testeditor.tsl.StepContentValue
 import org.testeditor.aml.VariableReference
 
 class TmlModel {
@@ -89,7 +90,7 @@ class StepContentVariableReference extends StepContent{
 	refers VariableReference variable
 }
 
-class StepContentElement extends StepContent {
+class StepContentElement extends StepContentValue {
 }
 
 class Comparator {
