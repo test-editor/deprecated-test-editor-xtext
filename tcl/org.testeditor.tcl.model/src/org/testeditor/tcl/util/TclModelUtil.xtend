@@ -12,11 +12,10 @@
  *******************************************************************************/
 package org.testeditor.tcl.util
 
-import java.util.Set
 import javax.inject.Singleton
 import org.eclipse.emf.ecore.EObject
-import org.eclipse.emf.ecore.util.EcoreUtil
-import org.testeditor.tcl.EnvParam
+import org.eclipse.xtext.EcoreUtil2
+import org.testeditor.tcl.EnvironmentVariableReference
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
@@ -60,12 +59,10 @@ class TclModelUtil extends TmlModelUtil {
 		return #[context.step]
 	}
 
-	def Set<EnvParam> getEnvParams(EObject object) {
-		val root = EcoreUtil.getRootContainer(object)
-		if (root instanceof TclModel) {
-			if (root.requiredEnvParams !== null) {
-				return root.requiredEnvParams.envParams.toSet
-			}
+	def Iterable<EnvironmentVariableReference> getEnvParams(EObject object) {
+		val root = EcoreUtil2.getContainerOfType(object, TclModel)
+		if (root !== null) {
+			return root.environmentVariableReferences
 		}
 		return #{}
 	}

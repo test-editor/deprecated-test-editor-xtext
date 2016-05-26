@@ -27,6 +27,7 @@ import org.testeditor.tml.ComponentTestStepContext
 import org.testeditor.tml.Macro
 import org.testeditor.tml.MacroTestStepContext
 import org.testeditor.tml.StepContentElement
+import org.testeditor.tml.StepContentVariableReference
 import org.testeditor.tml.TestStep
 import org.testeditor.tml.TestStepContext
 import org.testeditor.tml.TestStepWithAssignment
@@ -36,8 +37,7 @@ import org.testeditor.tml.util.TmlModelUtil
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
-import org.testeditor.aml.ModelUtil
-import org.testeditor.tml.StepContentVariableReference
+import org.testeditor.dsl.common.util.CollectionUtils
 
 /**
  * This class contains custom validation rules. 
@@ -56,7 +56,7 @@ class TmlValidator extends AbstractTmlValidator {
 	public static val INVALID_VAR_DEREF = "invalidVariableDereference"
 
 	@Inject extension TmlModelUtil
-	@Inject extension ModelUtil
+	@Inject extension CollectionUtils
 
 	@Check
 	def void referencesComponentElement(StepContentElement contentElement) {
@@ -112,9 +112,12 @@ class TmlValidator extends AbstractTmlValidator {
 	/**
 	 *  check that each deref variable used is known as parameterName(s)
 	 */
-	def void checkAllDerefVariableAreKnownParmeters(TestStepContext context, Set<String> parameterNames, String errorMessage) {
+	def void checkAllDerefVariableAreKnownParmeters(TestStepContext context, Set<String> parameterNames,
+		String errorMessage) {
 		switch context {
-			ComponentTestStepContext: context.steps.forEach[checkAllDerefVariableAreKnownParmeters(parameterNames, errorMessage)]
+			ComponentTestStepContext: context.steps.forEach [
+				checkAllDerefVariableAreKnownParmeters(parameterNames, errorMessage)
+			]
 			MacroTestStepContext: context.step.checkAllDerefVariableAreKnownParmeters(parameterNames, errorMessage)
 			default: throw new RuntimeException('''Unknown TestStepContextType '«context.class.canonicalName»'.''')
 		}
@@ -125,7 +128,8 @@ class TmlValidator extends AbstractTmlValidator {
 	 */
 	private def checkAllDerefVariableAreKnownParmeters(TestStep step, Set<String> parameterNames, String errorMessage) {
 		step.contents.forEach [ it, idx |
-			if (it instanceof StepContentVariableReference && !parameterNames.contains((it as StepContentVariableReference).variable.name)) {
+			if (it instanceof StepContentVariableReference &&
+				!parameterNames.contains((it as StepContentVariableReference).variable.name)) {
 				error(errorMessage, eContainer, eContainingFeature, idx, INVALID_VAR_DEREF)
 			}
 		]
@@ -139,8 +143,10 @@ class TmlValidator extends AbstractTmlValidator {
 		val macro = macroTestStepContext.findMacroDefinition
 		if (macro != null) {
 			val varMap = getVariableToValueMapping(macroTestStepContext.step, macro.template)
-			val parametersThatGetVariablePassedIn = varMap.filter[key, stepContent|stepContent instanceof StepContentVariableReference && (stepContent as StepContentVariableReference).variable.name == variable].
-				keySet.map[name].toSet
+			val parametersThatGetVariablePassedIn = varMap.filter [key, stepContent|
+				stepContent instanceof StepContentVariableReference &&
+					(stepContent as StepContentVariableReference).variable.name == variable
+			].keySet.map[name].toSet
 			val relevantContexts = macro.contexts.filter [
 				makesUseOfVariablesViaDeref(parametersThatGetVariablePassedIn)
 			]
@@ -170,30 +176,24 @@ class TmlValidator extends AbstractTmlValidator {
 	 * does the given step make use of (one of the) variables passed?
 	 */
 	private def boolean makesUseOfVariablesViaDeref(StepContent stepContent, Set<String> variables) {
-		return stepContent instanceof StepContentVariableReference && variables.contains((stepContent as StepContentVariableReference).variable.name)
+		return stepContent instanceof StepContentVariableReference &&
+			variables.contains((stepContent as StepContentVariableReference).variable.name)
 	}
 
 	/** 
 	 * get the actual jvm types from the fixtures that are transitively used and to which this variable/parameter is passed to
 	 */
 	def dispatch Set<JvmTypeReference> getTypeUsagesOfVariable(ComponentTestStepContext componentTestStepContext,
-		String variable) {
-		val releveantSteps = componentTestStepContext.steps.filter [
-			contents.exists[it instanceof StepContentVariableReference && (it as StepContentVariableReference).variable.name == variable]
+		String variableReference) {
+		val stepsUsingThisVariable = componentTestStepContext.steps.filter [
+			contents.filter(StepContentVariableReference).exists[variable.name == variableReference]
 		]
-		val typesOfAllParametersUsed = releveantSteps.map [ step |
-			val parameters = step.contents.filter [
-				it instanceof StepContentVariable || it instanceof StepContentVariableReference ||
-					it instanceof StepContentElement
-			]
-			val indicesOfParametersThatGetVariablePassedIn = parameters.indexed.filter [
-				value instanceof StepContentVariableReference && (value as StepContentVariableReference).variable.name == variable
-			].map[key]
-			return indicesOfParametersThatGetVariablePassedIn.map [ index |
-				step.interaction?.getTypeOfFixtureParameter(index)
-			].filterNull
-		].flatten.toSet
-		return typesOfAllParametersUsed
+		val typesUsages = stepsUsingThisVariable.map [ step |
+			step.stepVariableFixtureParameterTypePairs.filterKey(StepContentVariableReference).filter [
+				key.variable.name == variableReference
+			].map[value]
+		].flatten.filterNull.toSet
+		return typesUsages
 	}
 
 	@Check
@@ -224,7 +224,8 @@ class TmlValidator extends AbstractTmlValidator {
 				error(message, eContainer, eContainingFeature, VARIABLE_UNKNOWN_HERE)
 			} else if (key != null) { // dereference map with a key
 				val typeIdentifier = varTypeMap.get(name).replaceFirst("<.*", "")
-				if (typeIdentifier.isNotAssignableToMap) {
+				if (typeIdentifier.
+					isNotAssignableToMap) {
 					val message = '''Variable '«name»' of type '«typeIdentifier»' does not implement '«Map.canonicalName»'. It cannot be used with key '«key»'.'''
 					error(message, eContainer, eContainingFeature, INVALID_MAP_REF)
 				}
