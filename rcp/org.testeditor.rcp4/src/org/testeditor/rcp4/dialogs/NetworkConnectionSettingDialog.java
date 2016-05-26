@@ -58,6 +58,8 @@ public class NetworkConnectionSettingDialog extends Dialog {
 	private static final String PROXY_USER = "http.proxyUser";
 	private static final String PROXY_PWD = "http.proxyPassword";
 	private static final String NON_PROXY_HOSTS = "http.nonProxyHosts";
+	private static final String PROXY_HTTPS_HOST = "https.proxyHost";
+	private static final String PROXY_HTTPS_PORT = "https.proxyPort";
 
 	private Label internetState;
 	private Text pathToMavenSettingsFile;
@@ -278,12 +280,18 @@ public class NetworkConnectionSettingDialog extends Dialog {
 				proxyService.setProxiesEnabled(true);
 				proxyService.setSystemProxiesEnabled(true);
 				IProxyData proxyData = proxyService.getProxyData(IProxyData.HTTP_PROXY_TYPE);
+				IProxyData httpsProxyData = proxyService.getProxyData(IProxyData.HTTPS_PROXY_TYPE);
 				proxyData.setHost(proxyHostSetting);
+				httpsProxyData.setHost(proxyHostSetting);
 				if (proxyPortSetting.length() > 0) {
-					proxyData.setPort(Integer.parseInt(proxyPortSetting));
+					int port = Integer.parseInt(proxyPortSetting);
+					proxyData.setPort(port);
+					httpsProxyData.setPort(port);
 				}
 				proxyData.setUserid(proxyUserSetting);
 				proxyData.setPassword(proxyPwdSetting);
+				httpsProxyData.setUserid(proxyUserSetting);
+				httpsProxyData.setPassword(proxyPwdSetting);
 				try {
 					if (noProxyHostsSetting.length() > 0) {
 						proxyService.setNonProxiedHosts(noProxyHostsSetting.split(","));
@@ -292,7 +300,9 @@ public class NetworkConnectionSettingDialog extends Dialog {
 					e.printStackTrace();
 				}
 				System.setProperty(PROXY_HOST, proxyHostSetting);
+				System.setProperty(PROXY_HTTPS_HOST, proxyHostSetting);
 				System.setProperty(PROXY_PORT, proxyPortSetting);
+				System.setProperty(PROXY_HTTPS_PORT, proxyPortSetting);
 				System.setProperty(PROXY_USER, proxyUserSetting);
 				System.setProperty(PROXY_PWD, proxyPwdSetting);
 				System.setProperty(NON_PROXY_HOSTS, noProxyHostsSetting);
