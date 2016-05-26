@@ -32,8 +32,8 @@ import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tml.AssertionTestStep
 import org.testeditor.tml.ComponentTestStepContext
 import org.testeditor.tml.MacroTestStepContext
-import org.testeditor.tml.StepContentDereferencedVariable
 import org.testeditor.tml.StepContentElement
+import org.testeditor.tml.StepContentVariableReference
 import org.testeditor.tml.TestStep
 import org.testeditor.tml.TestStepWithAssignment
 import org.testeditor.tsl.StepContent
@@ -171,12 +171,10 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 						append(codeLine) // please call with string, since tests checks against expected string which fails for passing ''' directly
 					]
 			} else {
-				output.
-					append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
+				output.append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
 			}
 		} else if (step.componentContext != null) {
-			output.
-				append('''// TODO could not resolve '«step.componentContext.component.name»' - «step.contents.restoreString»''')
+			output.append('''// TODO could not resolve '«step.componentContext.component.name»' - «step.contents.restoreString»''')
 		} else {
 			output.append('''// TODO could not resolve unknown component - «step.contents.restoreString»''')
 		}
@@ -198,7 +196,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		val mapping = getVariableToValueMapping(step, interaction.template)
 		val stepContents = interaction.defaultMethod.parameters.map [ templateVariable |
 			val stepContent = mapping.get(templateVariable)
-			val stepContentDereferenced = if (stepContent instanceof StepContentDereferencedVariable) {
+			val stepContentDereferenced = if (stepContent instanceof StepContentVariableReference) {
 					stepContent.dereferenceVariableReference(macroUseStack, envParams)
 				} else {
 					stepContent
@@ -238,22 +236,21 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	/**
 	 * resolve dereferenced variable (in macro) with call site value (recursively if necessary)
 	 */
-	private def StepContent dereferenceVariableReference(StepContentDereferencedVariable dereferencedVariable,
+	private def StepContent dereferenceVariableReference(StepContentDereferencedVariable referencedVariable,
 		Iterable<MacroTestStepContext> macroUseStack, Set<EnvParam> envParams) {
 
-		if (macroUseStack.empty && envParams.map[name].exists[equals(dereferencedVariable.value)]) {
-			return dereferencedVariable
+		if (macroUseStack.empty && envParams.map[name].exists[equals(referencedVariable.variable.name)]) {
+			return referencedVariable
 		}
 
 		val callSiteMacroContext = macroUseStack.head
 		val macroCalled = callSiteMacroContext.findMacroDefinition
 
 		val varValMap = getVariableToValueMapping(callSiteMacroContext.step, macroCalled.template)
-		val varKey = varValMap.keySet.findFirst[name.equals(dereferencedVariable.value)]
-
+		val varKey = varValMap.keySet.findFirst[name.equals(referencedVariable.variable.name)]
 		val callSiteParameter = varValMap.get(varKey)
 
-		if (callSiteParameter instanceof StepContentDereferencedVariable) {
+		if (callSiteParameter instanceof StepContentVariableReference) {
 			return callSiteParameter.dereferenceVariableReference(macroUseStack.tail, envParams)
 		} else {
 			return callSiteParameter

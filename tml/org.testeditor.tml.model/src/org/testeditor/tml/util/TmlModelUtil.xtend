@@ -16,13 +16,13 @@ import org.testeditor.aml.ValueSpaceAssignment
 import org.testeditor.tml.ComponentTestStepContext
 import org.testeditor.tml.Macro
 import org.testeditor.tml.MacroTestStepContext
-import org.testeditor.tml.StepContentDereferencedVariable
 import org.testeditor.tml.StepContentElement
 import org.testeditor.tml.TestStep
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
+import org.testeditor.tml.StepContentVariableReference
 
 class TmlModelUtil extends TslModelUtil {
 	@Inject extension ModelUtil
@@ -32,7 +32,7 @@ class TmlModelUtil extends TslModelUtil {
 			switch (it) {
 				StepContentVariable: '''"«value»"'''
 				StepContentElement: '''<«value»>'''
-				StepContentDereferencedVariable: '''@«value»'''
+				StepContentVariableReference: '''@«value»'''
 				default:
 					value
 			}
@@ -70,7 +70,7 @@ class TmlModelUtil extends TslModelUtil {
 			switch (it) {
 				StepContentElement: '<>'
 				StepContentVariable: '""'
-				StepContentDereferencedVariable: '""'
+				StepContentVariableReference: '""'
 				StepContentText: value.trim
 			}
 		].join(' ')
@@ -87,7 +87,7 @@ class TmlModelUtil extends TslModelUtil {
 		val templateVariables = template.contents.filter(TemplateVariable).toList
 		val stepContentVariables = step.contents.filter [
 			it instanceof StepContentElement || it instanceof StepContentVariable ||
-				it instanceof StepContentDereferencedVariable
+				it instanceof StepContentVariableReference
 		].toList
 		if (templateVariables.size !== stepContentVariables.size) {
 			val message = '''Variables for '«step.contents.restoreString»' did not match the parameters of template '«template.normalize»' (normalized).'''

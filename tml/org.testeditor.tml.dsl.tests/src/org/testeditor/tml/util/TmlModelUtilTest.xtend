@@ -4,7 +4,7 @@ import javax.inject.Inject
 import org.junit.Test
 import org.testeditor.aml.Template
 import org.testeditor.tml.MacroTestStepContext
-import org.testeditor.tml.StepContentDereferencedVariable
+import org.testeditor.tml.StepContentVariableReference
 import org.testeditor.tml.TestStep
 import org.testeditor.tml.dsl.tests.parser.AbstractParserTest
 import org.testeditor.tsl.StepContentVariable
@@ -17,14 +17,14 @@ class TmlModelUtilTest extends AbstractParserTest {
 	def void testRestoreString() {
 		// given
 		val testStep = parse('-  <hello>     world "ohoh"   @xyz', grammarAccess.testStepRule, TestStep)
-		testStep.contents.get(3).assertInstanceOf(StepContentDereferencedVariable)
-		assertMatches(testStep.contents.join(" ")[value], "hello world ohoh xyz")
+		testStep.contents.get(3).assertInstanceOf(StepContentVariableReference)
+		testStep.contents.join(" ")[value].assertMatches("hello world ohoh .+")
 
 		// when
-		val result = tmlModelUtil.restoreString(testStep.contents /*contentList*/ )
+		val result = tmlModelUtil.restoreString(testStep.contents)
 
 		// then
-		result.assertEquals('<hello> world "ohoh" @xyz')
+		result.assertMatches('<hello> world "ohoh" @')
 	}
 
 	@Test
@@ -35,10 +35,12 @@ class TmlModelUtilTest extends AbstractParserTest {
 			
 			# MyMacroCollection
 			
+			## MacroStartWith
 			template = "start with" ${startparam}
 			Component: MyComponent
 			- put @startparam into <other>
 			
+			## MacroUseWith
 			template = "use macro with" ${useparam}
 			Macro: MyMacroCollection
 			- start with @useparam						
@@ -101,7 +103,7 @@ class TmlModelUtilTest extends AbstractParserTest {
 		// then
 		varValueMap.keySet.assertSize(2)
 		varValueMap.get(somevar).assertInstanceOf(StepContentVariable).value.assertEquals("some")
-		varValueMap.get(othervar).assertInstanceOf(StepContentDereferencedVariable).value.assertEquals("other")
+		varValueMap.get(othervar).assertInstanceOf(StepContentVariableReference)
 	}
 
 }
