@@ -51,7 +51,7 @@ class TestStep {
 	contains StepContent[0..*] contents
 }
 
-class AssertionTestStep extends /*Component*/TestStep {
+class AssertionTestStep extends TestStep {
 	contains AssertionExpression expression
 }
 
