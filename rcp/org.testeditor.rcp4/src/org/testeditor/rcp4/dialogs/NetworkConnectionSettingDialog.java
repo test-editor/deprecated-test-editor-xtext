@@ -217,17 +217,17 @@ public class NetworkConnectionSettingDialog extends Dialog {
 			public void run() {
 				if (isInternetAvailable(true)) {
 					if (workOffline) {
-						upDateUI("work offline", SWT.COLOR_DARK_YELLOW);
+						updateUI("work offline", SWT.COLOR_DARK_YELLOW);
 					} else {
-						upDateUI("connected", SWT.COLOR_DARK_GREEN);
+						updateUI("connected", SWT.COLOR_DARK_GREEN);
 					}
 				} else {
-					upDateUI("diconnected", SWT.COLOR_RED);
+					updateUI("diconnected", SWT.COLOR_RED);
 				}
 
 			}
 
-			public void upDateUI(String message, int color) {
+			public void updateUI(String message, int color) {
 				if (!internetState.isDisposed()) {
 					internetState.setText(message);
 					internetState.setForeground(Display.getDefault().getSystemColor(color));

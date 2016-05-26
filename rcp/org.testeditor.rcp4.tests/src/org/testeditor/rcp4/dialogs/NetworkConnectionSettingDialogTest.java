@@ -76,6 +76,7 @@ public class NetworkConnectionSettingDialogTest {
 		IProxyService proxyService = mock(IProxyService.class);
 		IProxyData proxyData = mock(IProxyData.class);
 		when(proxyService.getProxyData(IProxyData.HTTP_PROXY_TYPE)).thenReturn(proxyData);
+		when(proxyService.getProxyData(IProxyData.HTTPS_PROXY_TYPE)).thenReturn(proxyData);
 		when(context.get(IProxyService.class)).thenReturn(proxyService);
 		NetworkConnectionSettingDialog dialog = new NetworkConnectionSettingDialog(parentShell, prefs, context);
 		// when

@@ -98,7 +98,7 @@ public class MavenExecutor {
 		processBuilder.inheritIO();
 		processBuilder.directory(new File(pathToPom));
 		processBuilder.redirectErrorStream(true);
-		logger.info("Executing maven in new jvm with command=	{}", command);
+		logger.info("Executing maven in new jvm with command={}", command);
 		processBuilder.command(command);
 		Process process = processBuilder.start();
 		try {
