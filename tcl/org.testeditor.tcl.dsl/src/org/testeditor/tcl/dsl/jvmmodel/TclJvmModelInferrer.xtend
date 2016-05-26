@@ -30,8 +30,8 @@ import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tml.AssertionTestStep
 import org.testeditor.tml.ComponentTestStepContext
 import org.testeditor.tml.MacroTestStepContext
-import org.testeditor.tml.StepContentDereferencedVariable
 import org.testeditor.tml.StepContentElement
+import org.testeditor.tml.StepContentVariableReference
 import org.testeditor.tml.TestStep
 import org.testeditor.tml.TestStepWithAssignment
 
@@ -175,7 +175,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			if (stepContent instanceof StepContentElement) {
 				val element = stepContent.componentElement
 				return element.locator
-			} else if (stepContent instanceof StepContentDereferencedVariable) {
+			} else if (stepContent instanceof StepContentVariableReference) {
 				return stepContent.dereferenceMacroVariableReference(macroCallStack)
 			} else {
 				return stepContent.value
@@ -197,16 +197,16 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	/**
 	 * resolve dereferenced variable in macro with call site value (recursively if necessary)
 	 */
-	private def String dereferenceMacroVariableReference(StepContentDereferencedVariable dereferencedVariable,
+	private def String dereferenceMacroVariableReference(StepContentVariableReference referencedVariable,
 		Iterable<MacroTestStepContext> macroCallStack) {
 		val callSiteMacroContext = macroCallStack.head
 		val macroCalled = callSiteMacroContext.findMacroDefinition
 
 		val varValMap = getVariableToValueMapping(callSiteMacroContext.step, macroCalled.template)
-		val varKey = varValMap.keySet.findFirst[name.equals(dereferencedVariable.value)]
+		val varKey = varValMap.keySet.findFirst[name.equals(referencedVariable.variable.name)]
 		val callSiteParameter = varValMap.get(varKey)
 
-		if (callSiteParameter instanceof StepContentDereferencedVariable) {
+		if (callSiteParameter instanceof StepContentVariableReference) {
 			return callSiteParameter.dereferenceMacroVariableReference(macroCallStack.tail)
 		} else {
 			return callSiteParameter.value

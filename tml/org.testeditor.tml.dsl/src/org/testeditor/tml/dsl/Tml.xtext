@@ -25,6 +25,7 @@ TmlModel:
 ;
 
 Macro:
+	'##' name=ID
 	'template' '=' template=Template
 	contexts+=TestStepContext*		
 ;
@@ -131,7 +132,7 @@ TestStepWithAssignment:
 	'-' variableName=ID '=' contents+=StepContent* '.'?;
 
 StepContent returns tsl::StepContent:
-	StepContentText | StepContentElement | StepContentVariable | StepContentDereferencedVariable;
+	StepContentText | StepContentElement | StepContentVariable | StepContentVariableReference;
 
 StepContentText returns tsl::StepContentText:
 	value=ID | value=StepContentTextOperator;
@@ -147,6 +148,6 @@ StepContentElement hidden():
 	('<' value=ID '>') |
 	{StepContentElement} ('<>' | '<' WS+ '>');
 	
-StepContentDereferencedVariable:
-	{StepContentDereferencedVariable}
-	'@' value=ID;	
+StepContentVariableReference:
+	{StepContentVariableReference}
+	'@' variable=[aml::TemplateVariable];	
