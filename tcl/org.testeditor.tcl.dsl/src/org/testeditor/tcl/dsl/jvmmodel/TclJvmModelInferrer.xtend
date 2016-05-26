@@ -218,7 +218,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		switch stepContent {
 			StepContentElement:
 				return '''"«stepContent.componentElement.locator»"'''
-			StepContentDereferencedVariable:
+			StepContentVariableReference:
 				if (expectedType.qualifiedName != String.name) {
 					throw new RuntimeException('''Environment variable '«stepContent.value»' (always of type String) is used where type '«expectedType.qualifiedName»' is expected.''')
 				} else {
@@ -236,7 +236,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	/**
 	 * resolve dereferenced variable (in macro) with call site value (recursively if necessary)
 	 */
-	private def StepContent dereferenceVariableReference(StepContentDereferencedVariable referencedVariable,
+	private def StepContent dereferenceVariableReference(StepContentVariableReference referencedVariable,
 		Iterable<MacroTestStepContext> macroUseStack, Set<EnvParam> envParams) {
 
 		if (macroUseStack.empty && envParams.map[name].exists[equals(referencedVariable.variable.name)]) {

@@ -73,10 +73,12 @@ class TmlParameterUsageValidatorTest extends AbstractParserTest {
 
 			# MacroCollection
 
+			## MyCallMacro
 			template = "mycall" ${appname}
 			Component: Dummy
 			- start @appname
 
+			## OtherCallMacro
 			template = "othercall" ${secs}
 			Component: Dummy
 			- wait @secs
@@ -107,10 +109,12 @@ class TmlParameterUsageValidatorTest extends AbstractParserTest {
 
 			# MacroCollection
 
+			## MyCallMacro
 			template = "mycall" ${unknown}
 			Macro: MacroCollection
 			- othercall @unknown
 
+			## OtherCallMacro
 			template = "othercall" ${secs}
 			Component: Dummy
 			- wait @secs
@@ -136,10 +140,12 @@ class TmlParameterUsageValidatorTest extends AbstractParserTest {
 
 			# MacroCollection
 
+			## MyCallMacro
 			template = "mycall" ${unknown}
 			Macro: MacroCollection
 			- othercall @unknown
 
+			## OtherCallMacro
 			template = "othercall" ${secs}
 			Component: Dummy
 			- wait @secs

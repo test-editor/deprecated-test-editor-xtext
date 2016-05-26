@@ -26,7 +26,6 @@ import org.testeditor.tml.BinaryAssertionExpression
 import org.testeditor.tml.ComponentTestStepContext
 import org.testeditor.tml.Macro
 import org.testeditor.tml.MacroTestStepContext
-import org.testeditor.tml.StepContentDereferencedVariable
 import org.testeditor.tml.StepContentElement
 import org.testeditor.tml.TestStep
 import org.testeditor.tml.TestStepContext
@@ -38,6 +37,7 @@ import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
 import org.testeditor.aml.ModelUtil
+import org.testeditor.tml.StepContentVariableReference
 
 /**
  * This class contains custom validation rules. 
@@ -125,7 +125,7 @@ class TmlValidator extends AbstractTmlValidator {
 	 */
 	private def checkAllDerefVariableAreKnownParmeters(TestStep step, Set<String> parameterNames, String errorMessage) {
 		step.contents.forEach [ it, idx |
-			if (it instanceof StepContentDereferencedVariable && !parameterNames.contains(value)) {
+			if (it instanceof StepContentVariableReference && !parameterNames.contains(value)) {
 				error(errorMessage, eContainer, eContainingFeature, idx, INVALID_VAR_DEREF)
 			}
 		]
@@ -139,7 +139,7 @@ class TmlValidator extends AbstractTmlValidator {
 		val macro = macroTestStepContext.findMacroDefinition
 		if (macro != null) {
 			val varMap = getVariableToValueMapping(macroTestStepContext.step, macro.template)
-			val parametersThatGetVariablePassedIn = varMap.filter[key, stepContent|stepContent.value == variable].
+			val parametersThatGetVariablePassedIn = varMap.filter[key, stepContent|stepContent instanceof StepContentVariableReference && (stepContent as StepContentVariableReference).variable.name == variable].
 				keySet.map[name].toSet
 			val relevantContexts = macro.contexts.filter [
 				makesUseOfVariablesViaDeref(parametersThatGetVariablePassedIn)
@@ -170,7 +170,7 @@ class TmlValidator extends AbstractTmlValidator {
 	 * does the given step make use of (one of the) variables passed?
 	 */
 	private def boolean makesUseOfVariablesViaDeref(StepContent stepContent, Set<String> variables) {
-		return stepContent instanceof StepContentDereferencedVariable && variables.contains(stepContent.value)
+		return stepContent instanceof StepContentVariableReference && variables.contains((stepContent as StepContentVariableReference).variable.name)
 	}
 
 	/** 
@@ -179,15 +179,15 @@ class TmlValidator extends AbstractTmlValidator {
 	def dispatch Set<JvmTypeReference> getTypeUsagesOfVariable(ComponentTestStepContext componentTestStepContext,
 		String variable) {
 		val releveantSteps = componentTestStepContext.steps.filter [
-			contents.exists[it instanceof StepContentDereferencedVariable && it.value == variable]
+			contents.exists[it instanceof StepContentVariableReference && (it as StepContentVariableReference).variable.name == variable]
 		]
 		val typesOfAllParametersUsed = releveantSteps.map [ step |
 			val parameters = step.contents.filter [
-				it instanceof StepContentVariable || it instanceof StepContentDereferencedVariable ||
+				it instanceof StepContentVariable || it instanceof StepContentVariableReference ||
 					it instanceof StepContentElement
 			]
 			val indicesOfParametersThatGetVariablePassedIn = parameters.indexed.filter [
-				value instanceof StepContentDereferencedVariable && value.value == variable
+				value instanceof StepContentVariableReference && (value as StepContentVariableReference).variable.name == variable
 			].map[key]
 			return indicesOfParametersThatGetVariablePassedIn.map [ index |
 				step.interaction?.getTypeOfFixtureParameter(index)

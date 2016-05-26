@@ -22,7 +22,7 @@ public class Messages extends NLS {
 	
 	public static String Validation_Component_Type_Missing;
 	public static String Validation_Component_Cycle;
-	public static String Validation_TemplateVariable_MissingName;
+	public static String Validation_VariableReference_MissingName;
 	public static String Validation_ValueSpaceAssignment_NonUnique;
 	public static String Validation_MethodReference_InvalidParameterList;
 	public static String Validation_RegExValueSpace_InvalidRegEx;

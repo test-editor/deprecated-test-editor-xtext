@@ -19,6 +19,9 @@ import org.testeditor.tcl.EnvParam
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
+import org.testeditor.tml.ComponentTestStepContext
+import org.testeditor.tml.MacroTestStepContext
+import org.testeditor.tml.TestStep
 import org.testeditor.tml.util.TmlModelUtil
 import org.testeditor.tsl.SpecificationStep
 

@@ -79,10 +79,12 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 
 			# MacroCollection
 
+			## MyCallMacro
 			template = "mycall" ${appname}
 			Component: Dummy
 			- start @appname
 
+			## OtherCallMacro
 			template = "othercall" ${secs}
 			Component: Dummy
 			- wait @secs
@@ -129,10 +131,12 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 
 			# MacroCollection
 
+			## MyCallMacro
 			template = "mycall" ${unknown}
 			Macro: MacroCollection
 			- othercall @unknown
 
+			## OtherCallMacro
 			template = "othercall" ${secs}
 			Component: Dummy
 			- wait @secs
@@ -170,10 +174,12 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 
 			# MacroCollection
 
+			## MyCallMacro
 			template = "mycall" ${unknown}
 			Macro: MacroCollection
 			- othercall @unknown with @unknown
 
+			## OtherCallMacro
 			template = "othercall" ${secs} "with" ${strParam}
 			Component: Dummy
 			- wait @secs
@@ -213,10 +219,12 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 
 			# MacroCollection
 
+			## MyCallMacro
 			template = "mycall" ${unknown}
 			Macro: MacroCollection
 			- othercall "3" with @unknown
 
+			## OtherCallMacro
 			template = "othercall" ${secs} "with" ${strParam}
 			Component: Dummy
 			- wait @secs
@@ -249,10 +257,12 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 
 			# MacroCollection
 
+			## MyCallMacro
 			template = "mycall" ${unknown}
 			Macro: MacroCollection
 			- othercall @unknown with @unknown
 
+			## OtherCallMacro
 			template = "othercall" ${secs} "with" ${strParam}
 			Component: Dummy
 			- wait @secs
