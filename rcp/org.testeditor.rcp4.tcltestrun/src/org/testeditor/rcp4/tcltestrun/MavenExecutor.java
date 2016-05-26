@@ -15,7 +15,9 @@ package org.testeditor.rcp4.tcltestrun;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.maven.cli.MavenCli;
 import org.eclipse.m2e.core.internal.Bundles;
@@ -49,7 +51,14 @@ public class MavenExecutor {
 	public int execute(String parameters, String pathToPom) {
 		System.setProperty("maven.multiModuleProjectDirectory", pathToPom);
 		MavenCli cli = new MavenCli();
-		int result = cli.doMain(parameters.split(" "), pathToPom, System.out, System.err);
+		List<String> params = new ArrayList<String>();
+		params.addAll(Arrays.asList(parameters.split(" ")));
+		String mavenSettings = System.getProperty("TE.MAVENSETTINGSPATH");
+		if (mavenSettings != null && mavenSettings.length() > 0) {
+			params.add("-s");
+			params.add(mavenSettings);
+		}
+		int result = cli.doMain(params.toArray(new String[] {}), pathToPom, System.out, System.err);
 		return result;
 	}
 
@@ -75,15 +84,21 @@ public class MavenExecutor {
 		command.add(jvm);
 		command.add("-cp");
 		command.add(getClassPath());
+		Properties props = System.getProperties();
+		for (String key : props.stringPropertyNames()) {
+			if (key.startsWith("http.") | key.startsWith("TE.") | key.startsWith("https.")) {
+				command.add("-D" + key + "=" + props.getProperty(key));
+			}
+		}
 		command.add(this.getClass().getName());
 		command.add(parameters);
 		command.add(pathToPom);
 		command.add(testParam);
-		logger.trace("Execute maven in new jvm with: {}", command);
 		ProcessBuilder processBuilder = new ProcessBuilder();
 		processBuilder.inheritIO();
 		processBuilder.directory(new File(pathToPom));
 		processBuilder.redirectErrorStream(true);
+		logger.info("Executing maven in new jvm with command={}", command);
 		processBuilder.command(command);
 		Process process = processBuilder.start();
 		try {
@@ -131,6 +146,7 @@ public class MavenExecutor {
 	 *            the maven parameter.
 	 */
 	public static void main(String[] args) {
+		logger.info("Proxy host: {}", System.getProperty("http.proxyHost"));
 		if (args.length > 2) {
 			if (args[2].contains("=")) {
 				logger.info("Running maven build with settings='{}'", args[2]);
