@@ -162,4 +162,46 @@ class ValidationTest extends AbstractValidationTest {
 			COMPONENT_ELEMENT__LOCATOR_STRATEGY__MISSING
 		)
 	}
+
+	@Test
+	def void testForDuplicateInteractionNames() {
+		// given
+		val input = '''
+			package com.example
+			
+			interaction type abc { }
+			interaction type efg { }
+			interaction type abc { }
+		'''
+		val startOfFirstAbc = input.indexOf("interaction type abc")
+		val startOfSecondAbc = input.indexOf("interaction type abc", startOfFirstAbc + 1)
+		val lengthOfinteractionType = 24
+
+		// when
+		val amlModel = input.parse
+
+		// then
+		amlModel.assertError(AML_MODEL, INTERACTION_NAME_DUPLICATION, startOfFirstAbc, lengthOfinteractionType,
+			"has name ('abc')")
+		amlModel.assertError(AML_MODEL, INTERACTION_NAME_DUPLICATION, startOfSecondAbc, lengthOfinteractionType,
+			"has name ('abc')")
+
+	}
+
+	@Test
+	def void testUniqueInteractionNames() {
+		// given
+		val input = '''
+			package com.example
+			
+			interaction type efg { }
+			interaction type abc { }
+		'''
+		// when
+		val amlModel = input.parse
+
+		// then
+		amlModel.assertNoErrors
+	}
+
 }

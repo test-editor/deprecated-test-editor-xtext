@@ -18,6 +18,7 @@ import java.util.regex.PatternSyntaxException
 import javax.inject.Inject
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.xtype.XImportSection
+import org.testeditor.aml.AmlModel
 import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.MethodReference
@@ -37,6 +38,7 @@ class AmlValidator extends AbstractAmlValidator {
 	public static val VALUE_SPACE_ASSIGNMENT__VARIABLE__NON_UNIQUE = 'valueSpaceAssignment.variable.nonUnique'
 	public static val REG_EX_VALUE_SPACE__EXPRESSION__INVALID = "RegExValueSpace.expression.invalid"
 	public static val COMPONENT_ELEMENT__LOCATOR_STRATEGY__MISSING = "componentElement.locatorStrategy.missing"
+	public static val INTERACTION_NAME_DUPLICATION = "interactionType.name.duplication"
 
 	@Inject
 	private extension ModelUtil
@@ -134,7 +136,7 @@ class AmlValidator extends AbstractAmlValidator {
 			)
 		}
 	}
-	
+
 	/**
 	 * Check that elements or interactions must provides locators if the fixture operation needs those
 	 */
@@ -142,17 +144,36 @@ class AmlValidator extends AbstractAmlValidator {
 	def void checkComponentElementLocatorStrategy(ComponentElement componentElement) {
 		val elementHasNoStrategy = componentElement.locatorStrategy == null
 		val interactionsExpectingButWithoutStrategy = componentElement.componentElementInteractionTypes.filter [
-			!defaultMethod.locatorStrategyParameters.empty
-			&& locatorStrategy == null
+			!defaultMethod.locatorStrategyParameters.empty && locatorStrategy == null
 		]
-		if(elementHasNoStrategy && !interactionsExpectingButWithoutStrategy.empty){
-			val message='''Element has interactions ('«interactionsExpectingButWithoutStrategy.map[name].join(', ')»') that require a locator strategy, but none is given.'''
+		if (elementHasNoStrategy &&	!interactionsExpectingButWithoutStrategy.empty) {
+			val message = '''Element has interactions ('«interactionsExpectingButWithoutStrategy.map[name].join(', ')»') that require a locator strategy, but none is given.'''
 			error(message, COMPONENT_ELEMENT__LOCATOR_STRATEGY, COMPONENT_ELEMENT__LOCATOR_STRATEGY__MISSING)
 		}
 	}
 
 	override checkImports(XImportSection importSection) {
 		// ignore for now
+	}
+
+	@Check
+	def void checkInteractionNameIsUnique(AmlModel amlModel) {
+		val uniqueNames = amlModel.interactionTypes.map[name].toSet
+		val doubleUsedInteractionNames = amlModel.interactionTypes.dropWhile [
+			val result = uniqueNames.contains(name)
+			if (result) {
+				uniqueNames.remove(name)
+			}
+			return result
+		].map[name]
+		doubleUsedInteractionNames.forEach [doubleUsedInteractionName|
+			val message = '''Interaction has name ('«doubleUsedInteractionName»') which is used at least twice.'''
+			amlModel.interactionTypes.forEach[interaction,idx|
+				if(interaction.name==doubleUsedInteractionName){
+					error(message, interaction.eContainer, interaction.eContainingFeature, idx, INTERACTION_NAME_DUPLICATION)
+				}
+			]
+		]
 	}
 
 }
