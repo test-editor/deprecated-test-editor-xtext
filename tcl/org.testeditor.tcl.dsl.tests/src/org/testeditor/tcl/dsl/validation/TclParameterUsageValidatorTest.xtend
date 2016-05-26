@@ -100,7 +100,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 			* test something
 			Macro: MacroCollection
 			- mycall @myEnvString
-	
+
 			* test other
 			Macro: MacroCollection
 			- othercall @envVar
@@ -119,6 +119,8 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 
 		setWithLong.assertSize(1)
 		setWithLong.head.simpleName.assertEquals(long.simpleName)
+
+		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_TYPED_VAR_DEREF)
 	}
 
 	@Test
@@ -162,6 +164,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 		// then
 		setWithLong.assertSize(1)
 		setWithLong.head.simpleName.assertEquals(long.simpleName)
+		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_TYPED_VAR_DEREF)
 	}
 
 	@Test
@@ -207,6 +210,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 		setWithLong.assertSize(2)
 		setWithLong.map[simpleName].toList.contains(long.simpleName)
 		setWithLong.map[simpleName].toList.contains(String.simpleName)
+		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_TYPED_VAR_DEREF)
 	}
 
 	@Test
@@ -245,6 +249,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 
 		// then
 		validator.assertNoError(tclModel, TclValidator.INVALID_TYPED_VAR_DEREF)
+		validator.assertNoError(tclModel, TclValidator.INVALID_VAR_DEREF)
 	}
 
 	@Test

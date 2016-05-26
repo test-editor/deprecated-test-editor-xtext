@@ -222,7 +222,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				if (expectedType.qualifiedName != String.name) {
 					throw new RuntimeException('''Environment variable '«stepContent.value»' (always of type String) is used where type '«expectedType.qualifiedName»' is expected.''')
 				} else {
-					return stepContent.value.envParamToVarName
+					return stepContent.variable.name.envParamToVarName
 				}
 			default:
 				if (expectedType.qualifiedName == String.name) {

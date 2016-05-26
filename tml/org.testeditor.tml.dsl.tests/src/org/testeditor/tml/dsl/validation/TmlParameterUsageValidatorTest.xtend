@@ -21,11 +21,13 @@ import org.junit.Test
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.tml.dsl.tests.parser.AbstractParserTest
+import org.eclipse.xtext.junit4.validation.ValidationTestHelper
 
 class TmlParameterUsageValidatorTest extends AbstractParserTest {
 	@Inject TmlValidator tmlValidator // class under test
 	@Inject protected Provider<XtextResourceSet> resourceSetProvider
 	@Inject protected XtextResourceSet resourceSet
+	@Inject	ValidationTestHelper validator
 
 	protected ParseHelper<AmlModel> amlParseHelper
 
@@ -97,6 +99,8 @@ class TmlParameterUsageValidatorTest extends AbstractParserTest {
 
 		setWithLong.assertSize(1)
 		setWithLong.head.simpleName.assertEquals(long.simpleName)
+
+		validator.assertNoErrors(tmlModel)
 	}
 
 	@Test
@@ -128,6 +132,8 @@ class TmlParameterUsageValidatorTest extends AbstractParserTest {
 		// then
 		setWithLong.assertSize(1)
 		setWithLong.head.simpleName.assertEquals(long.simpleName)
+		
+		
 	}
 
 	@Test

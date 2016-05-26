@@ -118,7 +118,7 @@ class TclValidator extends AbstractTclValidator {
 			if (!expectedTypeSet.
 				identicalSingleTypeInSet(
 					actualTypeSet)) {
-					error('''Environment variables can only be used for parameters of type '«expectedTypeSet.map[qualifiedName].join(", ")»' (actual type expected = '«expectedTypeSet.map[qualifiedName].join(", ")»')''',
+					error('''Environment variables can only be used for parameters of type '«actualTypeSet.map[qualifiedName].join(", ")»' (type expected = '«expectedTypeSet.map[qualifiedName].join(", ")»')''',
 						value.eContainer, value.eContainingFeature, key, INVALID_TYPED_VAR_DEREF)
 				}
 			]

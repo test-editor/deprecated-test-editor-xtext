@@ -125,7 +125,7 @@ class TmlValidator extends AbstractTmlValidator {
 	 */
 	private def checkAllDerefVariableAreKnownParmeters(TestStep step, Set<String> parameterNames, String errorMessage) {
 		step.contents.forEach [ it, idx |
-			if (it instanceof StepContentVariableReference && !parameterNames.contains(value)) {
+			if (it instanceof StepContentVariableReference && !parameterNames.contains((it as StepContentVariableReference).variable.name)) {
 				error(errorMessage, eContainer, eContainingFeature, idx, INVALID_VAR_DEREF)
 			}
 		]

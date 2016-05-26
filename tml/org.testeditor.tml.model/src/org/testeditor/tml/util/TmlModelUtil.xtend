@@ -32,9 +32,9 @@ class TmlModelUtil extends TslModelUtil {
 			switch (it) {
 				StepContentVariable: '''"«value»"'''
 				StepContentElement: '''<«value»>'''
-				StepContentVariableReference: '''@«value»'''
 				default:
 					value
+				StepContentVariableReference: '''@«variable.name»'''
 			}
 		].join(' ')
 	}
@@ -170,7 +170,7 @@ class TmlModelUtil extends TslModelUtil {
 		return foo.findFirst[variable.template.interactionType.name == container.interaction?.name]
 	}
 
-	def Set<TemplateVariable> getMacroParameters(EObject object) {
+	def Set<TemplateVariable> getEnclosingMacroParameters(EObject object) {
 		var curObject = object
 		while (curObject != null) {
 			if (curObject instanceof Macro) {
