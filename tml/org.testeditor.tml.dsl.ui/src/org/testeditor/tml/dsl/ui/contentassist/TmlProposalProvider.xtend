@@ -45,7 +45,7 @@ class TmlProposalProvider extends AbstractTmlProposalProvider {
 		ICompletionProposalAcceptor acceptor) {
 		super.complete_StepContentElement(model, ruleCall, context, acceptor)
 		if (model instanceof TestStep) {
-			model.macroParameters.forEach [
+			model.enclosingMacroParameters.forEach [
 				acceptor.accept(createCompletionProposal("@" + name, "@" + name + " // macro parameter", null, context))
 			]
 			val interaction = model.interaction

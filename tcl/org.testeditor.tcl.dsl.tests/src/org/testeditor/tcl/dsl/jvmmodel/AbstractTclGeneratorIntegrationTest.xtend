@@ -51,13 +51,25 @@ abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 		fsa = new InMemoryFileSystemAccess
 	}
 
+	protected def AmlModel parseAmlModel(String aml) {
+		return amlParseHelper.parse(aml, resourceSet).assertNoSyntaxErrors
+	}
+
+	protected def TmlModel parseTmlModel(String tml) {
+		return tmlParseHelper.parse(tml, resourceSet).assertNoSyntaxErrors
+	}
+
+	protected def TclModel parseTclModel(String tcl) {
+		return tclParseHelper.parse(tcl, resourceSet).assertNoSyntaxErrors
+	}
+
 	protected def String generate(TclModel model) {
 		generator.doGenerate(model.eResource, fsa)
 		val file = fsa.getJavaFile(model.package, model.test.name)
 		return file.toString
 	}
 
-	protected def getJavaFile(InMemoryFileSystemAccess fsa, String ^package, String name) {
+	protected def Object getJavaFile(InMemoryFileSystemAccess fsa, String ^package, String name) {
 		val key = '''«IFileSystemAccess.DEFAULT_OUTPUT»«package.replaceAll('\\.', '/')»/«name».java'''
 		return fsa.allFiles.get(key)
 	}

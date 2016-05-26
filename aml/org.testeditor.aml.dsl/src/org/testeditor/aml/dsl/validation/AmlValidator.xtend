@@ -23,8 +23,8 @@ import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.MethodReference
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.RegExValueSpace
-import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.ValueSpaceAssignment
+import org.testeditor.aml.VariableReference
 
 import static org.testeditor.aml.AmlPackage.Literals.*
 import static org.testeditor.aml.dsl.Messages.*
@@ -33,7 +33,7 @@ class AmlValidator extends AbstractAmlValidator {
 
 	public static val COMPONENT__PARENTS__CYCLE = "component.parents.cycle"
 	public static val COMPONENT__TYPE__MISSING = 'component.type.missing'
-	public static val TEMPLATE_VARIABLE__NAME__MISSING = 'templateVariable.name.missing'
+	public static val VARIABLE_REFERENCE_NAME__MISSING = 'variableReference.name.missing'
 	public static val VALUE_SPACE_ASSIGNMENT__VARIABLE__NON_UNIQUE = 'valueSpaceAssignment.variable.nonUnique'
 	public static val REG_EX_VALUE_SPACE__EXPRESSION__INVALID = "RegExValueSpace.expression.invalid"
 	public static val COMPONENT_ELEMENT__LOCATOR_STRATEGY__MISSING = "componentElement.locatorStrategy.missing"
@@ -73,12 +73,12 @@ class AmlValidator extends AbstractAmlValidator {
 	 * Checks if a template variable has a name, if not => warning
 	 */
 	@Check
-	def void checkTemplateVariableHasName(TemplateVariable variable) {
+	def void checkVariableReferenceHasName(VariableReference variable) {
 		if (variable.name.nullOrEmpty) {
 			warning(
-				Validation_TemplateVariable_MissingName,
-				TEMPLATE_VARIABLE__NAME,
-				TEMPLATE_VARIABLE__NAME__MISSING
+				Validation_VariableReference_MissingName,
+				VARIABLE_REFERENCE__NAME,
+				VARIABLE_REFERENCE_NAME__MISSING
 			)
 		}
 	}

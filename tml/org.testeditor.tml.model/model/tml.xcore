@@ -11,16 +11,16 @@
  * itemis AG
  *******************************************************************************/
 @Ecore(nsURI="http://www.testeditor.org/tml")
-@GenModel(
-	modelDirectory="org.testeditor.tml.model/src-gen", 
-	complianceLevel="7.0"
-)
+@GenModel(modelDirectory="org.testeditor.tml.model/src-gen", 
+	complianceLevel="7.0")
 package org.testeditor.tml
 
 import org.eclipse.xtext.xtype.XImportSection
 import org.testeditor.aml.Template
 import org.testeditor.aml.Component
 import org.testeditor.tsl.StepContent
+import org.testeditor.tsl.StepContentValue
+import org.testeditor.aml.VariableReference
 
 class TmlModel {
 	String ^package
@@ -30,15 +30,17 @@ class TmlModel {
 }
 
 class Macro {
+	String name
 	contains Template template
 	contains TestStepContext[0..*] contexts
 }
 
-class TestStepContext { }
+abstract class TestStepContext {
+}
 
 class ComponentTestStepContext extends TestStepContext{
 	refers Component component
-	contains TestStep[0..*] steps 
+	contains TestStep[0..*] steps
 }
 
 class MacroTestStepContext extends TestStepContext{
@@ -50,13 +52,14 @@ class TestStep {
 	contains StepContent[0..*] contents
 }
 
-class AssertionTestStep extends /*Component*/TestStep {
+class AssertionTestStep extends TestStep {
 	contains AssertionExpression expression
 }
 
-class AssertionExpression {}
+abstract class AssertionExpression {
+}
 
-class BinaryAssertionExpression extends AssertionExpression{ 
+class BinaryAssertionExpression extends AssertionExpression{
 	contains AssertionExpression left
 	contains AssertionExpression right
 }
@@ -64,6 +67,7 @@ class BinaryAssertionExpression extends AssertionExpression{
 class AEComparison extends BinaryAssertionExpression {
 	contains Comparator comparator
 }
+
 class AENullCheck extends AssertionExpression {
 	contains AEVariableReference varReference
 	boolean negated = "false"
@@ -78,16 +82,29 @@ class AEStringConstant extends AssertionExpression {
 	String string
 }
 
-class TestStepWithAssignment extends /*Component*/TestStep {
+class TestStepWithAssignment extends TestStep {
 	String variableName
 }
 
-class StepContentDereferencedVariable extends StepContent{ }
-class StepContentElement extends StepContent {}
+class StepContentVariableReference extends StepContent{
+	refers VariableReference variable
+}
+
+class StepContentElement extends StepContentValue {
+}
+
 class Comparator {
 	boolean negated = "false"
 }
-class ComparatorEquals extends Comparator {}
-class ComparatorMatches extends Comparator {}
-class ComparatorLessThen extends Comparator {}
-class ComparatorGreaterThen extends Comparator {}
+
+class ComparatorEquals extends Comparator {
+}
+
+class ComparatorMatches extends Comparator {
+}
+
+class ComparatorLessThen extends Comparator {
+}
+
+class ComparatorGreaterThen extends Comparator {
+}

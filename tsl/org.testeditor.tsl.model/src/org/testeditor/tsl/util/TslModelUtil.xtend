@@ -18,6 +18,7 @@ import org.eclipse.emf.ecore.EObject
 import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentVariable
+import org.testeditor.tsl.StepContentValue
 
 @Singleton
 class TslModelUtil {
@@ -39,7 +40,8 @@ class TslModelUtil {
 		return contents.map [
 			switch (it) {
 				StepContentVariable: '''"«value»"'''
-				default: value
+				StepContentValue: value
+				default: '?'
 			}
 		].join(' ')
 	}

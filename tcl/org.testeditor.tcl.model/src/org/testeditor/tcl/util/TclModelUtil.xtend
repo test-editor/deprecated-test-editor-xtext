@@ -15,6 +15,7 @@ package org.testeditor.tcl.util
 import java.util.Set
 import javax.inject.Singleton
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.util.EcoreUtil
 import org.testeditor.tcl.EnvParam
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.TclModel
@@ -60,16 +61,11 @@ class TclModelUtil extends TmlModelUtil {
 	}
 
 	def Set<EnvParam> getEnvParams(EObject object) {
-		var curObject = object
-		while (curObject !== null) {
-			if (curObject instanceof TclModel) {
-				if (curObject.requiredEnvParams !== null) {
-					return curObject.requiredEnvParams.envParams.toSet
-				} else {
-					return #{}
-				}
+		val root = EcoreUtil.getRootContainer(object)
+		if (root instanceof TclModel) {
+			if (root.requiredEnvParams !== null) {
+				return root.requiredEnvParams.envParams.toSet
 			}
-			curObject = curObject.eContainer
 		}
 		return #{}
 	}

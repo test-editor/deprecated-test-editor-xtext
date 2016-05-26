@@ -32,13 +32,14 @@ import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tml.AssertionTestStep
 import org.testeditor.tml.ComponentTestStepContext
 import org.testeditor.tml.MacroTestStepContext
-import org.testeditor.tml.StepContentDereferencedVariable
 import org.testeditor.tml.StepContentElement
+import org.testeditor.tml.StepContentVariableReference
 import org.testeditor.tml.TestStep
 import org.testeditor.tml.TestStepWithAssignment
 import org.testeditor.tsl.StepContent
 
 import static org.testeditor.tml.TmlPackage.Literals.*
+import org.testeditor.tsl.StepContentValue
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -195,7 +196,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		val mapping = getVariableToValueMapping(step, interaction.template)
 		val stepContents = interaction.defaultMethod.parameters.map [ templateVariable |
 			val stepContent = mapping.get(templateVariable)
-			val stepContentDereferenced = if (stepContent instanceof StepContentDereferencedVariable) {
+			val stepContentDereferenced = if (stepContent instanceof StepContentVariableReference) {
 					stepContent.dereferenceVariableReference(macroUseStack, envParams)
 				} else {
 					stepContent
@@ -229,7 +230,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	/**
 	 * generate the parameter-code passed to the fixture call depending on the type of the step content
 	 */
-	private def dispatch Iterable<String> generateCallParameters(StepContent stepContent, JvmTypeReference expectedType,
+	private def dispatch Iterable<String> generateCallParameters(StepContentValue stepContent, JvmTypeReference expectedType,
 		InteractionType interaction) {
 		if (expectedType.qualifiedName == String.name) {
 			return #['''"«stepContent.value»"''']
@@ -241,34 +242,33 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	/**
 	 * generate the parameter-code passed to the fixture call depending on the type of the step content
 	 */
-	private def dispatch Iterable<String> generateCallParameters(StepContentDereferencedVariable stepContent,
+	private def dispatch Iterable<String> generateCallParameters(StepContentVariableReference stepContent,
 		JvmTypeReference expectedType, InteractionType interaction) {
 		if (expectedType.qualifiedName.equals(String.name)) {
-			return #[stepContent.value.envParamToVarName]
+			return #[stepContent.variable.name.envParamToVarName]
 		} else {
-			throw new RuntimeException('''Environment variable '«stepContent.value»' (always of type String) is used where type '«expectedType.qualifiedName»' is expected.''')
+			throw new RuntimeException('''Environment variable '«stepContent.variable?.name»' (always of type String) is used where type '«expectedType.qualifiedName»' is expected.''')
 		}
 	}
 
 	/**
 	 * resolve dereferenced variable (in macro) with call site value (recursively if necessary)
 	 */
-	private def StepContent dereferenceVariableReference(StepContentDereferencedVariable dereferencedVariable,
+	private def StepContent dereferenceVariableReference(StepContentVariableReference referencedVariable,
 		Iterable<MacroTestStepContext> macroUseStack, Set<EnvParam> envParams) {
 
-		if (macroUseStack.empty && envParams.map[name].exists[equals(dereferencedVariable.value)]) {
-			return dereferencedVariable
+		if (macroUseStack.empty && envParams.map[name].exists[equals(referencedVariable.variable.name)]) {
+			return referencedVariable
 		}
 
 		val callSiteMacroContext = macroUseStack.head
 		val macroCalled = callSiteMacroContext.findMacroDefinition
 
 		val varValMap = getVariableToValueMapping(callSiteMacroContext.step, macroCalled.template)
-		val varKey = varValMap.keySet.findFirst[name.equals(dereferencedVariable.value)]
-
+		val varKey = varValMap.keySet.findFirst[name.equals(referencedVariable.variable.name)]
 		val callSiteParameter = varValMap.get(varKey)
 
-		if (callSiteParameter instanceof StepContentDereferencedVariable) {
+		if (callSiteParameter instanceof StepContentVariableReference) {
 			return callSiteParameter.dereferenceVariableReference(macroUseStack.tail, envParams)
 		} else {
 			return callSiteParameter

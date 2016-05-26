@@ -3,6 +3,7 @@ package org.testeditor.tcl.dsl.scoping.integration
 import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable
+import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
 import org.testeditor.tcl.dsl.jvmmodel.AbstractTclGeneratorIntegrationTest
@@ -16,24 +17,10 @@ class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 	@Inject TclJvmModelInferrer jvmModelInferrer // class under test
 	@Mock ITreeAppendable outputStub
 
-	override void setup() {
-		super.setup
+	@Before
+	def void initMocks() {
 		when(outputStub.trace(any(EObject))).thenReturn(outputStub)
 		when(outputStub.append(any(CharSequence))).thenReturn(outputStub)
-	}
-
-	private def parseAmlModel(String aml) {
-		val amlModel = amlParseHelper.parse(aml, resourceSet).assertNoSyntaxErrors
-		return amlModel
-	}
-
-	private def parseTmlModel(String tml) {
-		val tmlModel = tmlParseHelper.parse(tml, resourceSet).assertNoSyntaxErrors
-		return tmlModel
-	}
-
-	private def parseTclModel(String tcl) {
-		return tclParseHelper.parse(tcl, resourceSet).assertNoSyntaxErrors
 	}
 
 	@Test
@@ -65,10 +52,12 @@ class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 			
 			# MacroCollection
 			
+			## MacroOther
 			template = "other" ${op}
 			Macro: MacroCollection
 			- something @op
 			
+			## MacroSomething
 			template = "something" ${param}
 			Component: Dummy
 			- start @param

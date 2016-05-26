@@ -79,10 +79,12 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 
 			# MacroCollection
 
+			## MyCallMacro
 			template = "mycall" ${appname}
 			Component: Dummy
 			- start @appname
 
+			## OtherCallMacro
 			template = "othercall" ${secs}
 			Component: Dummy
 			- wait @secs
@@ -98,7 +100,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 			* test something
 			Macro: MacroCollection
 			- mycall @myEnvString
-	
+
 			* test other
 			Macro: MacroCollection
 			- othercall @envVar
@@ -117,6 +119,8 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 
 		setWithLong.assertSize(1)
 		setWithLong.head.simpleName.assertEquals(long.simpleName)
+
+		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_TYPED_VAR_DEREF)
 	}
 
 	@Test
@@ -129,10 +133,12 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 
 			# MacroCollection
 
+			## MyCallMacro
 			template = "mycall" ${unknown}
 			Macro: MacroCollection
 			- othercall @unknown
 
+			## OtherCallMacro
 			template = "othercall" ${secs}
 			Component: Dummy
 			- wait @secs
@@ -158,6 +164,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 		// then
 		setWithLong.assertSize(1)
 		setWithLong.head.simpleName.assertEquals(long.simpleName)
+		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_TYPED_VAR_DEREF)
 	}
 
 	@Test
@@ -170,10 +177,12 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 
 			# MacroCollection
 
+			## MyCallMacro
 			template = "mycall" ${unknown}
 			Macro: MacroCollection
 			- othercall @unknown with @unknown
 
+			## OtherCallMacro
 			template = "othercall" ${secs} "with" ${strParam}
 			Component: Dummy
 			- wait @secs
@@ -201,6 +210,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 		setWithLong.assertSize(2)
 		setWithLong.map[simpleName].toList.contains(long.simpleName)
 		setWithLong.map[simpleName].toList.contains(String.simpleName)
+		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_TYPED_VAR_DEREF)
 	}
 
 	@Test
@@ -213,10 +223,12 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 
 			# MacroCollection
 
+			## MyCallMacro
 			template = "mycall" ${unknown}
 			Macro: MacroCollection
 			- othercall "3" with @unknown
 
+			## OtherCallMacro
 			template = "othercall" ${secs} "with" ${strParam}
 			Component: Dummy
 			- wait @secs
@@ -237,6 +249,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 
 		// then
 		validator.assertNoError(tclModel, TclValidator.INVALID_TYPED_VAR_DEREF)
+		validator.assertNoError(tclModel, TclValidator.INVALID_VAR_DEREF)
 	}
 
 	@Test
@@ -249,10 +262,12 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 
 			# MacroCollection
 
+			## MyCallMacro
 			template = "mycall" ${unknown}
 			Macro: MacroCollection
 			- othercall @unknown with @unknown
 
+			## OtherCallMacro
 			template = "othercall" ${secs} "with" ${strParam}
 			Component: Dummy
 			- wait @secs
