@@ -53,7 +53,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 
 	private static final String PATH_TO_MAVENSETTINGS = "TE.MAVENSETTINGSPATH";
 	private static final String PROXY_HOST = "http.proxyHost";
-	private static final String WORKOFFLINE = "workOffline";
+	private static final String WORKOFFLINE = "te.workOffline";
 	private static final String PROXY_PORT = "http.proxyPort";
 	private static final String PROXY_USER = "http.proxyUser";
 	private static final String PROXY_PWD = "http.proxyPassword";
@@ -281,6 +281,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 	 */
 	public boolean isInternetAvailable(boolean updateSessings) {
 		if (workOffline) {
+			System.setProperty(WORKOFFLINE, Boolean.toString(workOffline));
 			return true;
 		}
 		if (System.getProperty(PROXY_HOST) == null | updateSessings) {

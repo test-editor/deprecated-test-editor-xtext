@@ -94,6 +94,9 @@ public class MavenExecutor {
 		command.add(parameters);
 		command.add(pathToPom);
 		command.add(testParam);
+		if (Boolean.getBoolean("te.workOffline")) {
+			command.add("-o");
+		}
 		ProcessBuilder processBuilder = new ProcessBuilder();
 		processBuilder.inheritIO();
 		processBuilder.directory(new File(pathToPom));
