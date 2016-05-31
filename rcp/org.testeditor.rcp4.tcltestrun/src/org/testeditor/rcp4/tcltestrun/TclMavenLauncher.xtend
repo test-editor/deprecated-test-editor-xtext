@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
+import org.eclipse.core.runtime.NullProgressMonitor
 
 public class TclMavenLauncher implements TclLauncher {
 
@@ -47,7 +48,7 @@ public class TclMavenLauncher implements TclLauncher {
 			} else {
 				"clean integration-test"
 			}
-		val result = mavenExecutor.executeInNewJvm(parameters, project.location.toOSString, "test=" + elementId)
+		val result = mavenExecutor.executeInNewJvm(parameters, project.location.toOSString, "test=" + elementId, monitor)
 		val testResultFile = project.createOrGetDeepFolder(MVN_TEST_RESULT_FOLDER).getFile(
 			elementId.elementIdToFileName).location.toFile
 		if (result != 0) {
@@ -57,7 +58,7 @@ public class TclMavenLauncher implements TclLauncher {
 	}
 	
 	def Iterable<String> getProfiles(IProject project) {
-		mavenExecutor.executeInNewJvm("help:all-profiles", project.location.toOSString, '''output=«PROFILE_TXT_PATH»''')
+		mavenExecutor.executeInNewJvm("help:all-profiles", project.location.toOSString, '''output=«PROFILE_TXT_PATH»''', new NullProgressMonitor)
 		val file = new File('''«project.location.toOSString»/«PROFILE_TXT_PATH»''')
 		val profileOutput = Files.readAllLines(file.toPath, StandardCharsets.UTF_8)
 		return profileOutput.filter[contains("Profile Id:")].map[substring(indexOf("Id:") + 3, indexOf("(")).trim].toSet
