@@ -210,8 +210,11 @@ public class NetworkConnectionSettingDialog extends Dialog {
 		});
 	}
 
+	/**
+	 * It runs the connection test in a new thread to avoid blocking the ui.
+	 */
 	protected void updateNetworkState() {
-		Display.getDefault().asyncExec(new Runnable() {
+		new Thread(new Runnable() {
 
 			@Override
 			public void run() {
@@ -224,17 +227,23 @@ public class NetworkConnectionSettingDialog extends Dialog {
 				} else {
 					updateUI("diconnected", SWT.COLOR_RED);
 				}
-
 			}
 
-			public void updateUI(String message, int color) {
-				if (!internetState.isDisposed()) {
-					internetState.setText(message);
-					internetState.setForeground(Display.getDefault().getSystemColor(color));
-					internetState.getParent().layout(true);
-				}
+			public void updateUI(final String message, final int color) {
+				Display.getDefault().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						if (!internetState.isDisposed()) {
+							internetState.setText(message);
+							internetState.setForeground(Display.getDefault().getSystemColor(color));
+							internetState.getParent().layout(true);
+						}
+					}
+				});
 			}
-		});
+		}).start();
+		;
 	}
 
 	@Override
