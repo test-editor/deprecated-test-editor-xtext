@@ -46,7 +46,7 @@
 						</execution>
 					</executions>
 					<configuration>
-						<failOnValidationError>true</failOnValidationError>
+                        <classPathLookupFilter>.*(ecore|genmodel|xcore|xtext).*</classPathLookupFilter>
 						<languages>
 							<language>
 								<setup>org.eclipse.xtext.ecore.EcoreSupport</setup>
