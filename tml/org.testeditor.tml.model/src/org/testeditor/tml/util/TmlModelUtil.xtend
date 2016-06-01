@@ -1,6 +1,5 @@
 package org.testeditor.tml.util
 
-import com.google.common.collect.Iterables
 import java.util.List
 import java.util.Map
 import java.util.Set
@@ -192,7 +191,7 @@ class TmlModelUtil extends TslModelUtil {
 	def Iterable<Pair<StepContent, JvmTypeReference>> getStepVariableFixtureParameterTypePairs(TestStep step) {
 		val parameters = step.stepContentVariables
 		val result = newLinkedList
-		parameters.forEach [stepContent,index|
+		parameters.forEach [ stepContent, index |
 			result.add(new Pair(stepContent, step.interaction?.getTypeOfFixtureParameter(index)))
 		]
 		return result

@@ -83,7 +83,7 @@ class TclValidator extends AbstractTclValidator {
 			actualTypeMap.put(it, #{stringTypeReference})
 		]
 		tclModel.test.steps.map[contexts].flatten.forEach [
-			checkAllDerefVariableAreKnownParmeters(environmentParams,
+			checkAllVariableReferencesAreKnownParameters(environmentParams,
 				"Dereferenced variable must be a required environment variable")
 			checkAllVariableReferencesOnTypeEquality(actualTypeMap)
 		]
@@ -113,7 +113,7 @@ class TclValidator extends AbstractTclValidator {
 		val derefVariables = indexedVariables.filter[value instanceof StepContentVariableReference]
 		derefVariables.forEach [
 			val varName=(value as StepContentVariableReference).variable.name
-			val expectedTypeSet = context.getTypeUsagesOfVariable(varName)
+			val expectedTypeSet = context.getAllTypeUsagesOfVariable(varName)
 			val actualTypeSet = actualTypeMap.get(varName)
 			if (!expectedTypeSet.
 				identicalSingleTypeInSet(

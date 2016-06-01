@@ -115,8 +115,8 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 		val otherContext = tclModel.test.steps.last.contexts.head
 
 		// when
-		val setWithString = tclValidator.getTypeUsagesOfVariable(somethingContext, "myEnvString")
-		val setWithLong = tclValidator.getTypeUsagesOfVariable(otherContext, "envVar")
+		val setWithString = tclValidator.getAllTypeUsagesOfVariable(somethingContext, "myEnvString")
+		val setWithLong = tclValidator.getAllTypeUsagesOfVariable(otherContext, "envVar")
 
 		// then
 		setWithString.assertSize(1)
@@ -152,7 +152,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 		val myCallContext = tclModel.test.steps.head.contexts.head
 
 		// when
-		val setWithLong = tclValidator.getTypeUsagesOfVariable(myCallContext, "myEnvString")
+		val setWithLong = tclValidator.getAllTypeUsagesOfVariable(myCallContext, "myEnvString")
 
 		// then
 		setWithLong.assertSize(1)
@@ -182,7 +182,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 		val myCallContext = tclModel.test.steps.head.contexts.head
 
 		// when
-		val setWithLong = tclValidator.getTypeUsagesOfVariable(myCallContext, "myEnvString")
+		val setWithLong = tclValidator.getAllTypeUsagesOfVariable(myCallContext, "myEnvString")
 
 		// then
 		setWithLong.assertSize(2)
