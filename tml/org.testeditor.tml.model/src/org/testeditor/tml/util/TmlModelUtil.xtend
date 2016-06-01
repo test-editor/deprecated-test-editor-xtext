@@ -5,6 +5,7 @@ import java.util.Map
 import java.util.Set
 import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.xtext.common.types.JvmTypeReference
 import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.InteractionType
@@ -17,13 +18,13 @@ import org.testeditor.tml.ComponentTestStepContext
 import org.testeditor.tml.Macro
 import org.testeditor.tml.MacroTestStepContext
 import org.testeditor.tml.StepContentElement
+import org.testeditor.tml.StepContentVariableReference
 import org.testeditor.tml.TestStep
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentText
+import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
-import org.testeditor.tml.StepContentVariableReference
-import org.testeditor.tsl.StepContentValue
 
 class TmlModelUtil extends TslModelUtil {
 	@Inject extension ModelUtil
@@ -34,8 +35,10 @@ class TmlModelUtil extends TslModelUtil {
 				StepContentVariable: '''"«value»"'''
 				StepContentElement: '''<«value»>'''
 				StepContentVariableReference: '''@«variable?.name»'''
-				StepContentValue: value
-				default: '?'
+				StepContentValue:
+					value
+				default:
+					'?'
 			}
 		].join(' ')
 	}
@@ -180,6 +183,29 @@ class TmlModelUtil extends TslModelUtil {
 			curObject = curObject.eContainer
 		}
 		return #{}
+	}
+
+	/**
+	 * provide an iterable with all step content variables as key and their respective fixture parameter type as value
+	 */
+	def Iterable<Pair<StepContent, JvmTypeReference>> getStepVariableFixtureParameterTypePairs(TestStep step) {
+		val parameters = step.stepContentVariables
+		val result = newLinkedList
+		parameters.forEach [ stepContent, index |
+			result.add(new Pair(stepContent, step.interaction?.getTypeOfFixtureParameter(index)))
+		]
+		return result
+
+	}
+
+	/** 
+	 * get all variables, variable references and elements that are used as parameters in this test step
+	 */
+	def Iterable<StepContent> getStepContentVariables(TestStep step) {
+		return step.contents.filter [
+			it instanceof StepContentVariable || it instanceof StepContentVariableReference ||
+				it instanceof StepContentElement
+		]
 	}
 
 }

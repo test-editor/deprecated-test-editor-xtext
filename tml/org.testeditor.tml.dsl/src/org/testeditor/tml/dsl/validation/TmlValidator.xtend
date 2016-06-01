@@ -27,6 +27,7 @@ import org.testeditor.tml.ComponentTestStepContext
 import org.testeditor.tml.Macro
 import org.testeditor.tml.MacroTestStepContext
 import org.testeditor.tml.StepContentElement
+import org.testeditor.tml.StepContentVariableReference
 import org.testeditor.tml.TestStep
 import org.testeditor.tml.TestStepContext
 import org.testeditor.tml.TestStepWithAssignment
@@ -36,8 +37,8 @@ import org.testeditor.tml.util.TmlModelUtil
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
-import org.testeditor.aml.ModelUtil
-import org.testeditor.tml.StepContentVariableReference
+import org.testeditor.dsl.common.util.CollectionUtils
+import org.testeditor.aml.Template
 
 /**
  * This class contains custom validation rules. 
@@ -56,7 +57,7 @@ class TmlValidator extends AbstractTmlValidator {
 	public static val INVALID_VAR_DEREF = "invalidVariableDereference"
 
 	@Inject extension TmlModelUtil
-	@Inject extension ModelUtil
+	@Inject extension CollectionUtils
 
 	@Check
 	def void referencesComponentElement(StepContentElement contentElement) {
@@ -104,50 +105,56 @@ class TmlValidator extends AbstractTmlValidator {
 	def checkMacroParameterUsage(Macro macro) {
 		val templateParameterNames = macro.template.contents.filter(TemplateVariable).map[name].toSet
 		macro.contexts.forEach [ context |
-			context.checkAllDerefVariableAreKnownParmeters(templateParameterNames,
+			context.checkAllVariableReferencesAreKnownParameters(templateParameterNames,
 				"Dereferenced variable must be a template variable of the macro itself")
 		]
 	}
 
 	/**
-	 *  check that each deref variable used is known as parameterName(s)
+	 *  check that each variable references used is known as parameterName(s)
 	 */
-	def void checkAllDerefVariableAreKnownParmeters(TestStepContext context, Set<String> parameterNames, String errorMessage) {
+	def void checkAllVariableReferencesAreKnownParameters(TestStepContext context, Set<String> parameterNames,
+		String errorMessage) {
 		switch context {
-			ComponentTestStepContext: context.steps.forEach[checkAllDerefVariableAreKnownParmeters(parameterNames, errorMessage)]
-			MacroTestStepContext: context.step.checkAllDerefVariableAreKnownParmeters(parameterNames, errorMessage)
-			default: throw new RuntimeException('''Unknown TestStepContextType '«context.class.canonicalName»'.''')
+			ComponentTestStepContext:
+				context.steps.forEach [
+					checkAllVariableReferencesAreKnownParameters(parameterNames, errorMessage)
+				]
+			MacroTestStepContext:
+				context.step.checkAllVariableReferencesAreKnownParameters(parameterNames, errorMessage)
+			default:
+				throw new RuntimeException('''Unknown TestStepContextType '«context.class.canonicalName»'.''')
 		}
 	}
 
 	/**
 	 * check that each deref variable used is known as parameterName(s)
 	 */
-	private def checkAllDerefVariableAreKnownParmeters(TestStep step, Set<String> parameterNames, String errorMessage) {
-		step.contents.forEach [ it, idx |
-			if (it instanceof StepContentVariableReference && !parameterNames.contains((it as StepContentVariableReference).variable.name)) {
-				error(errorMessage, eContainer, eContainingFeature, idx, INVALID_VAR_DEREF)
-			}
+	private def checkAllVariableReferencesAreKnownParameters(TestStep step, Set<String> parameterNames,
+		String errorMessage) {
+		val erroneousIndexedStepContents = step.contents.indexed.filterValue(StepContentVariableReference).filter [
+			!parameterNames.contains(value.variable.name)
+		]
+		erroneousIndexedStepContents.forEach [
+			error(errorMessage, value.eContainer, value.eContainingFeature, key, INVALID_VAR_DEREF)
 		]
 	}
 
 	/** 
 	 * get the actual jvm types from the fixtures that are transitively used and to which this variable/parameter is passed to
 	 */
-	def dispatch Set<JvmTypeReference> getTypeUsagesOfVariable(MacroTestStepContext macroTestStepContext,
+	def dispatch Set<JvmTypeReference> getAllTypeUsagesOfVariable(MacroTestStepContext callingMacroTestStepContext,
 		String variable) {
-		val macro = macroTestStepContext.findMacroDefinition
-		if (macro != null) {
-			val varMap = getVariableToValueMapping(macroTestStepContext.step, macro.template)
-			val parametersThatGetVariablePassedIn = varMap.filter[key, stepContent|stepContent instanceof StepContentVariableReference && (stepContent as StepContentVariableReference).variable.name == variable].
-				keySet.map[name].toSet
-			val relevantContexts = macro.contexts.filter [
-				makesUseOfVariablesViaDeref(parametersThatGetVariablePassedIn)
+		val macroCalled = callingMacroTestStepContext.findMacroDefinition
+		if (macroCalled != null) {
+			val templateParamToVarRefMap = mapCalledTemplateParamToCallingVariableReference(
+				callingMacroTestStepContext.step, macroCalled.template, variable)
+			val calledMacroTemplateParameters = templateParamToVarRefMap.keySet.map[name].toSet
+			val contextsUsingAnyOfTheseParameters = macroCalled.contexts.filter [
+				makesUseOfVariablesViaReference(calledMacroTemplateParameters)
 			]
-			val typesOfAllParametersUsed = relevantContexts.map [ context |
-				parametersThatGetVariablePassedIn.map [ parameter |
-					context.getTypeUsagesOfVariable(parameter)
-				].flatten
+			val typesOfAllParametersUsed = contextsUsingAnyOfTheseParameters.map [ context |
+				context.getAllTypeUsagesOfVariables(calledMacroTemplateParameters)
 			].flatten.toSet
 			return typesOfAllParametersUsed
 		} else {
@@ -155,45 +162,55 @@ class TmlValidator extends AbstractTmlValidator {
 		}
 	}
 
-	/**
-	 * does the given context make use of (one of the) variables passed?
-	 */
-	private def boolean makesUseOfVariablesViaDeref(TestStepContext context, Set<String> variables) {
-		switch context {
-			ComponentTestStepContext: context.steps.exists[contents.exists[makesUseOfVariablesViaDeref(variables)]]
-			MacroTestStepContext: context.step.contents.exists[makesUseOfVariablesViaDeref(variables)]
-			default: false
-		}
+	def Iterable<JvmTypeReference> getAllTypeUsagesOfVariables(TestStepContext context, Iterable<String> variables) {
+		variables.map [ parameter |
+			context.getAllTypeUsagesOfVariable(parameter)
+		].flatten
 	}
 
-	/**
-	 * does the given step make use of (one of the) variables passed?
-	 */
-	private def boolean makesUseOfVariablesViaDeref(StepContent stepContent, Set<String> variables) {
-		return stepContent instanceof StepContentVariableReference && variables.contains((stepContent as StepContentVariableReference).variable.name)
+	def Map<TemplateVariable, StepContent> mapCalledTemplateParamToCallingVariableReference(TestStep callingStep,
+		Template calledMacroTemplate, String callingVariableReference) {
+		val varMap = getVariableToValueMapping(callingStep, calledMacroTemplate)
+		return varMap.filter [ key, stepContent |
+			stepContent.makesUseOfVariablesViaReference(#{callingVariableReference})
+		]
 	}
 
 	/** 
 	 * get the actual jvm types from the fixtures that are transitively used and to which this variable/parameter is passed to
 	 */
-	def dispatch Set<JvmTypeReference> getTypeUsagesOfVariable(ComponentTestStepContext componentTestStepContext,
-		String variable) {
-		val releveantSteps = componentTestStepContext.steps.filter [
-			contents.exists[it instanceof StepContentVariableReference && (it as StepContentVariableReference).variable.name == variable]
+	def dispatch Set<JvmTypeReference> getAllTypeUsagesOfVariable(ComponentTestStepContext componentTestStepContext,
+		String variableReference) {
+		val stepsUsingThisVariable = componentTestStepContext.steps.filter [
+			contents.filter(StepContentVariableReference).exists[variable.name == variableReference]
 		]
-		val typesOfAllParametersUsed = releveantSteps.map [ step |
-			val parameters = step.contents.filter [
-				it instanceof StepContentVariable || it instanceof StepContentVariableReference ||
-					it instanceof StepContentElement
-			]
-			val indicesOfParametersThatGetVariablePassedIn = parameters.indexed.filter [
-				value instanceof StepContentVariableReference && (value as StepContentVariableReference).variable.name == variable
-			].map[key]
-			return indicesOfParametersThatGetVariablePassedIn.map [ index |
-				step.interaction?.getTypeOfFixtureParameter(index)
-			].filterNull
-		].flatten.toSet
-		return typesOfAllParametersUsed
+		val typesUsages = stepsUsingThisVariable.map [ step |
+			step.stepVariableFixtureParameterTypePairs.filterKey(StepContentVariableReference).filter [
+				key.variable.name == variableReference
+			].map[value]
+		].flatten.filterNull.toSet
+		return typesUsages
+	}
+
+	/**
+	 * does the given context make use of (one of the) variables passed via variable reference?
+	 */
+	private def boolean makesUseOfVariablesViaReference(TestStepContext context, Set<String> variables) {
+		switch context {
+			ComponentTestStepContext: context.steps.exists[contents.exists[makesUseOfVariablesViaReference(variables)]]
+			MacroTestStepContext: context.step.contents.exists[makesUseOfVariablesViaReference(variables)]
+			default: false
+		}
+	}
+
+	/**
+	 * does the given step make use of (one of the) variables passed via variable reference?
+	 */
+	private def boolean makesUseOfVariablesViaReference(StepContent stepContent, Set<String> variables) {
+		if (stepContent instanceof StepContentVariableReference) {
+			return variables.contains(stepContent.variable.name)
+		}
+		return false
 	}
 
 	@Check
@@ -224,7 +241,8 @@ class TmlValidator extends AbstractTmlValidator {
 				error(message, eContainer, eContainingFeature, VARIABLE_UNKNOWN_HERE)
 			} else if (key != null) { // dereference map with a key
 				val typeIdentifier = varTypeMap.get(name).replaceFirst("<.*", "")
-				if (typeIdentifier.isNotAssignableToMap) {
+				if (typeIdentifier.
+					isNotAssignableToMap) {
 					val message = '''Variable '«name»' of type '«typeIdentifier»' does not implement '«Map.canonicalName»'. It cannot be used with key '«key»'.'''
 					error(message, eContainer, eContainingFeature, INVALID_MAP_REF)
 				}

@@ -98,6 +98,7 @@
 						</execution>
 					</executions>
 					<configuration>
+						<classPathLookupFilter>.*(tsl|tml|tcl|aml).*</classPathLookupFilter>
 						<languages>
 							<language>
 								<setup>org.testeditor.tsl.dsl.TslStandaloneSetup</setup>
@@ -119,6 +120,11 @@
 						</languages>
 					</configuration>
 					<dependencies>
+						<dependency>
+							<groupId>org.testeditor</groupId>
+							<artifactId>org.testeditor.dsl.common</artifactId>
+							<version>${project.version}</version>
+						</dependency>
 						<dependency>
 							<groupId>org.testeditor</groupId>
 							<artifactId>org.testeditor.tsl.model</artifactId>

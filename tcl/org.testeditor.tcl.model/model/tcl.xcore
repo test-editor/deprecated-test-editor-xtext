@@ -26,7 +26,7 @@ import org.testeditor.aml.VariableReference
 class TclModel {
 	String ^package
 	contains XImportSection importSection
-	contains RequiredEnvParams requiredEnvParams
+	contains EnvironmentVariableReference [0..*] environmentVariableReferences
 	contains TestCase test opposite model
 }
 
@@ -42,11 +42,7 @@ class SpecificationStepImplementation extends SpecificationStep {
 	contains TestStepContext[0..*] contexts
 }
 
-class RequiredEnvParams {
-	contains EnvParam[0..*] envParams
-}
-
-class EnvParam extends VariableReference {
+class EnvironmentVariableReference extends VariableReference {
 }
 
 

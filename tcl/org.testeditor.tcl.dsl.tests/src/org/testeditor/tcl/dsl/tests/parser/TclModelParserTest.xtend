@@ -140,8 +140,9 @@ class TclModelParserTest extends AbstractParserTest {
 		test.steps.assertSingleElement.contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
 			val emptyReferences = steps.assertSingleElement.contents.assertSize(3)
 			emptyReferences.forEach[
-				assertInstanceOf(StepContentElement)
-				(it as StepContentElement).value.assertNull
+				assertInstanceOf(StepContentElement) => [
+					value.assertNull
+				]
 			]
 		]
 	}
