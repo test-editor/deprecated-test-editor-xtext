@@ -145,6 +145,10 @@ class ProjectContentGenerator {
 	protected def void setupMavenProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
 		var IFile buildFile = project.getFile("pom.xml")
 		buildFile.create(new StringInputStream(getPomContent(fixtures, project.name)), IResource.NONE, monitor)
+		val mavenSettings = System.getProperty("TE.MAVENSETTINGSPATH")
+		if (!mavenSettings.isNullOrEmpty) {
+			MavenPlugin.mavenConfiguration.userSettingsFile = mavenSettings
+		}
 		var configurationManager = MavenPlugin.projectConfigurationManager
 		var configuration = new ResolverConfiguration
 		configuration.resolveWorkspaceProjects = true
@@ -153,7 +157,8 @@ class ProjectContentGenerator {
 		configurationManager.enableMavenNature(project, configuration, monitor)
 	}
 
-	protected def void createDemoTestCase(String fixture, IProject project, String srcFolder, IProgressMonitor monitor) {
+	protected def void createDemoTestCase(String fixture, IProject project, String srcFolder,
+		IProgressMonitor monitor) {
 		if (fixture == WEBFIXTURE) {
 			val tclFile = project.getFile(srcFolder + "/" + project.name + "/GoogleTest.tcl")
 			tclFile.create(new StringInputStream(getGoogleTestCase(project.name)), false, monitor)
@@ -426,6 +431,10 @@ class ProjectContentGenerator {
 								<dependencies>
 									<dependency>
 										<groupId>org.testeditor</groupId>
+										<artifactId>org.testeditor.tml.model</artifactId>
+										<version>${project.version}</version>
+									</dependency>									<dependency>
+										<groupId>org.testeditor</groupId>
 										<artifactId>org.testeditor.tsl.model</artifactId>
 										<version>${project.version}</version>
 									</dependency>
@@ -440,6 +449,10 @@ class ProjectContentGenerator {
 										<version>${project.version}</version>
 									</dependency>
 									<dependency>
+										<groupId>org.testeditor</groupId>
+										<artifactId>org.testeditor.tml.dsl</artifactId>
+										<version>${project.version}</version>
+									</dependency>									<dependency>
 										<groupId>org.testeditor</groupId>
 										<artifactId>org.testeditor.tcl.dsl</artifactId>
 										<version>${project.version}</version>
