@@ -78,7 +78,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			if (! envParams.empty) {
 				members += test.toMethod('checkEnvironmentVariablesOnExistence', typeRef(Void.TYPE)) [
 					exceptions += typeRef(Exception)
-					annotations += annotationRef('org.junit.BeforeClass') // make sure that junit is in the classpath of the workspace containing the dsl
+					annotations += annotationRef('org.junit.Before') // make sure that junit is in the classpath of the workspace containing the dsl
 					body = [
 						val output = trace(test, true)
 						envParams.forEach[generateEnvironmentVariableAssertion(output)]
