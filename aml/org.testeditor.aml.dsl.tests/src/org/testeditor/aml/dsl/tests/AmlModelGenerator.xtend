@@ -12,7 +12,6 @@ import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentType
 import org.testeditor.aml.InteractionType
 import org.testeditor.aml.MethodReference
-import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.impl.AmlFactoryImpl
 
@@ -22,12 +21,7 @@ class AmlModelGenerator {
 	@Inject JvmTypeReferenceBuilder.Factory jvmTypeReferenceBuilderFactory
 
 	def AmlModel amlModel() {
-		return amlFactory.createAmlModel
-	}
-
-	def AmlModel withPackage(AmlModel me, String packageName) {
-		me.^package = packageName
-		return me
+		return amlFactory.createAmlModel => [^package = "com.example"]
 	}
 
 	def AmlModel withNamespaceImport(AmlModel me, String namespace) {
@@ -40,23 +34,8 @@ class AmlModelGenerator {
 		return me
 	}
 
-	def AmlModel withInteractionType(AmlModel me, InteractionType interactionType) {
-		me.interactionTypes += interactionType
-		return me
-	}
-
 	def InteractionType interactionType(String name) {
 		return amlFactory.createInteractionType => [it.name = name]
-	}
-
-	def InteractionType withTemplate(InteractionType me, Template template) {
-		me.template = template
-		return me
-	}
-
-	def InteractionType withMethodReference(InteractionType me, MethodReference methodReference) {
-		me.defaultMethod = methodReference
-		return me
 	}
 
 	def <T> MethodReference methodReference(ResourceSet resourceSet, Class<T> clazz, String methodName,
@@ -79,32 +58,12 @@ class AmlModelGenerator {
 		return amlFactory.createTemplateVariable => [it.name = name]
 	}
 
-	def AmlModel withComponentType(AmlModel me, ComponentType componentType) {
-		me.componentTypes += componentType
-		return me
-	}
-
 	def ComponentType componentType(String name) {
 		return amlFactory.createComponentType => [it.name = name]
 	}
 
 	def Component component(String name) {
 		return amlFactory.createComponent => [it.name = name]
-	}
-
-	def AmlModel withComponent(AmlModel me, Component component) {
-		me.components += component
-		return me
-	}
-
-	def Component isA(Component me, ComponentType componentType) {
-		me.type = componentType
-		return me
-	}
-
-	def ComponentType withInteractions(ComponentType me, InteractionType ... interactions) {
-		me.interactionTypes += interactions
-		return me
 	}
 
 }

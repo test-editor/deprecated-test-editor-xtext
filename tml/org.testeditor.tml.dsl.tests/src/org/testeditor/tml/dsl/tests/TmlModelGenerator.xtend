@@ -4,16 +4,15 @@ import javax.inject.Inject
 import org.eclipse.xtext.xtype.XtypeFactory
 import org.testeditor.aml.Component
 import org.testeditor.aml.Template
+import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.impl.AmlFactoryImpl
 import org.testeditor.tml.ComponentTestStepContext
 import org.testeditor.tml.Macro
 import org.testeditor.tml.MacroTestStepContext
 import org.testeditor.tml.TestStep
-import org.testeditor.tml.TestStepContext
 import org.testeditor.tml.TmlModel
 import org.testeditor.tml.impl.TmlFactoryImpl
 import org.testeditor.tsl.impl.TslFactoryImpl
-import org.testeditor.aml.TemplateVariable
 
 class TmlModelGenerator {
 	@Inject TmlFactoryImpl tmlFactory
@@ -24,11 +23,8 @@ class TmlModelGenerator {
 	def TmlModel tmlModel(String macroCollection) {
 		return tmlFactory.createTmlModel => [
 			name = macroCollection
+			^package = "com.example"
 		]
-	}
-
-	def TmlModel withPackage(TmlModel me, String packageName) {
-		return me => [^package = packageName]
 	}
 
 	def TmlModel withImportNamespace(TmlModel me, String namespace) {
@@ -41,23 +37,8 @@ class TmlModelGenerator {
 		return me
 	}
 
-	def TmlModel withMacro(TmlModel me, Macro macro) {
-		me.macros += macro
-		return me
-	}
-
 	def Macro macro(String macroName) {
 		return tmlFactory.createMacro => [name = macroName]
-	}
-
-	def Macro withTemplate(Macro me, Template template) {
-		me.template = template
-		return me
-	}
-
-	def Macro withTestStepContext(Macro me, TestStepContext testStepContext) {
-		me.contexts += testStepContext
-		return me
 	}
 
 	def Template template(String ... texts) {
@@ -70,7 +51,7 @@ class TmlModelGenerator {
 	}
 
 	def Template withParameter(Template me, String variable) {
-		me.contents += amlFactory.createTemplateVariable => [name=variable]
+		me.contents += amlFactory.createTemplateVariable => [name = variable]
 		return me
 	}
 
@@ -108,20 +89,10 @@ class TmlModelGenerator {
 		return tmlFactory.createMacroTestStepContext => [macroModel = model]
 	}
 
-	def MacroTestStepContext withTestStep(MacroTestStepContext me, TestStep testStep) {
-		me.step = testStep
-		return me
-	}
-
 	def ComponentTestStepContext componentTestStepContext(Component referencedComponent) {
 		return tmlFactory.createComponentTestStepContext => [
 			component = referencedComponent
 		]
-	}
-
-	def ComponentTestStepContext withTestStep(ComponentTestStepContext me, TestStep testStep) {
-		me.steps += testStep
-		return me
 	}
 
 }
