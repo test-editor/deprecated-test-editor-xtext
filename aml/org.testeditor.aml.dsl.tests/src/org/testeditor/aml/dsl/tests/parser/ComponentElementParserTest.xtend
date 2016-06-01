@@ -78,8 +78,31 @@ class ComponentElementParserTest extends AbstractParserTest {
 			locator.assertEquals("label::ok")
 		]
 	}
-	
+
+	@Test
+	def void parseWithLocatorStrategy() {
+		// Given
+		val input = '''
+			element MyButton is «typeName» {
+				locator = "OK_ID"
+				locatorStrategy = ID
+			}
+		'''.surroundWithComponentAndElementType
+
+		// When
+		val element = input.parse(ComponentElement)
+
+		// Then
+		element => [
+			assertNoErrors
+			locator.assertEquals("OK_ID")
+			locatorStrategy.simpleName.assertEquals("ID")
+		]
+	}
+
 	protected def surroundWithComponentAndElementType(CharSequence element) '''
+		import org.testeditor.dsl.common.testing.DummyLocatorStrategy
+
 		component type Dialog
 		component MyDialog is Dialog {
 			«element»
