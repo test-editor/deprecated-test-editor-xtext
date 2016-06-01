@@ -26,6 +26,9 @@ import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
 import org.testeditor.tml.TmlModel
 import org.testeditor.tml.dsl.TmlStandaloneSetup
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.common.util.URI
+import java.util.UUID
 
 abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 
@@ -72,6 +75,17 @@ abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 	protected def Object getJavaFile(InMemoryFileSystemAccess fsa, String ^package, String name) {
 		val key = '''«IFileSystemAccess.DEFAULT_OUTPUT»«package.replaceAll('\\.', '/')»/«name».java'''
 		return fsa.allFiles.get(key)
+	}
+
+	/**
+	 * register the given model with the resource set (for cross linking)
+	 */
+	protected def <T extends EObject> T register(T model, String fileExtension) {
+		val uri = URI.createURI(UUID.randomUUID.toString + "." + fileExtension)
+
+		val newResource = resourceSet.createResource(uri)
+		newResource.getContents().add(model)
+		return model
 	}
 
 }

@@ -65,6 +65,13 @@ class TmlModelGenerator {
 		return tmlFactory.createTestStep.withText(texts)
 	}
 
+	def TestStep withElement(TestStep me, String elementName) {
+		me.contents+=tmlFactory.createStepContentElement => [
+			value = elementName
+		]
+		return me
+	}
+
 	def TestStep withVariableReference(TestStep me, String variableReferenceName) {
 		me.contents += tmlFactory.createStepContentVariableReference => [
 			variable = amlFactory.createTemplateVariable => [
