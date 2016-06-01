@@ -64,7 +64,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			documentation = '''Generated from «test.eResource.URI»'''
 			// Create variables for used fixture types
 			members += test.fixtureTypes.map [ fixtureType |
-				toField(test, fixtureFieldName, typeRef) [
+				toField(test, fixtureType.fixtureFieldName, fixtureType.typeRef) [
 					initializer = '''new «fixtureType»()'''
 				]
 			]
