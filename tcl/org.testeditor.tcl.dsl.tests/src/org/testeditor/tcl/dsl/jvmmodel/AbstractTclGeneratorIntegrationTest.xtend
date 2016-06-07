@@ -78,13 +78,14 @@ abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 	}
 
 	/**
-	 * register the given model with the resource set (for cross linking)
+	 * register the given model with the resource set (allows resolving links within same set)
+	 * @param fileExtension to be used (e.g. aml, tcl, tml, tsl)
 	 */
 	protected def <T extends EObject> T register(T model, String fileExtension) {
 		val uri = URI.createURI(UUID.randomUUID.toString + "." + fileExtension)
 
 		val newResource = resourceSet.createResource(uri)
-		newResource.getContents().add(model)
+		newResource.contents.add(model)
 		return model
 	}
 
