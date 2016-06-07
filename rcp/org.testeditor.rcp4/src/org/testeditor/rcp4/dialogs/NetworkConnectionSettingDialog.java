@@ -193,6 +193,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 			@Override
 			public void modifyText(ModifyEvent e) {
 				pathToMavenSettingsFileSettings = pathToMavenSettingsFile.getText();
+				updateNetworkState();
 			}
 		});
 		Button fileSelection = new Button(mavenPathControl, SWT.BORDER);
