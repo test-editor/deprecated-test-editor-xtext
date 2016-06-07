@@ -14,6 +14,7 @@ package org.testeditor.aml
 
 import java.util.Set
 import org.eclipse.xtext.common.types.JvmType
+import org.eclipse.xtext.common.types.JvmTypeReference
 
 class ModelUtil {
 
@@ -92,6 +93,18 @@ class ModelUtil {
 	 */
 	def JvmType getFixtureType(InteractionType interactionType) {
 		return interactionType?.defaultMethod?.typeReference?.type
+	}
+
+	/**
+	 * @return the type of the parameter of the fixture of the given interaction at position index (if present)
+	 */
+	def JvmTypeReference getTypeOfFixtureParameter(InteractionType interaction, int index) {
+		val jvmParameters = interaction.defaultMethod.operation.parameters
+		if (jvmParameters.size > index) {
+			return jvmParameters.get(index).parameterType
+		} else {
+			return null
+		}
 	}
 
 }

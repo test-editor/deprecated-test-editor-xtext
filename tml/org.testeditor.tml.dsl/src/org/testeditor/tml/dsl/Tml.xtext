@@ -147,7 +147,7 @@ StepContentVariable returns tsl::StepContentVariable:
 StepContentElement hidden():
 	('<' value=ID '>') |
 	{StepContentElement} ('<>' | '<' WS+ '>');
-	
+
 StepContentVariableReference:
 	{StepContentVariableReference}
-	'@' variable=[aml::TemplateVariable];	
+	'@' variable=[aml::VariableReference];	

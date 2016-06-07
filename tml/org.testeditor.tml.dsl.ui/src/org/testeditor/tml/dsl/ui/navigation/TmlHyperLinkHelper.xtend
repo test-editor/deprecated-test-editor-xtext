@@ -61,7 +61,7 @@ class TmlHyperLinkHelper extends XbaseHyperLinkHelper {
 	protected def dispatch void createHyperlinks(StepContentElement element, IHyperlinkAcceptor acceptor) {
 		val componentElement = element.componentElement
 		if (componentElement !== null) {
-			element.createHyperlinkTo(STEP_CONTENT__VALUE, componentElement, acceptor)
+			element.createHyperlinkTo(STEP_CONTENT_VALUE__VALUE, componentElement, acceptor)
 		} else {
 			element.eContainer.createHyperlinks(acceptor)
 		}

@@ -2,9 +2,14 @@ package org.testeditor.tml.util
 
 import java.util.List
 import java.util.Map
+import java.util.Set
+import javax.inject.Inject
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.xtext.common.types.JvmTypeReference
 import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.InteractionType
+import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
@@ -13,22 +18,27 @@ import org.testeditor.tml.ComponentTestStepContext
 import org.testeditor.tml.Macro
 import org.testeditor.tml.MacroTestStepContext
 import org.testeditor.tml.StepContentElement
+import org.testeditor.tml.StepContentVariableReference
 import org.testeditor.tml.TestStep
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentText
+import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
-import org.testeditor.tml.StepContentVariableReference
 
 class TmlModelUtil extends TslModelUtil {
+	@Inject extension ModelUtil
+
 	override String restoreString(List<StepContent> contents) {
 		return contents.map [
 			switch (it) {
 				StepContentVariable: '''"«value»"'''
 				StepContentElement: '''<«value»>'''
-				StepContentVariableReference: '''@«value»'''
-				default:
+				StepContentVariableReference: '''@«variable?.name»'''
+				StepContentValue:
 					value
+				default:
+					'?'
 			}
 		].join(' ')
 	}
@@ -164,12 +174,38 @@ class TmlModelUtil extends TslModelUtil {
 		return foo.findFirst[variable.template.interactionType.name == container.interaction?.name]
 	}
 
-	def dispatch Iterable<TestStep> getTestSteps(ComponentTestStepContext context) {
-		return context.steps
+	def Set<TemplateVariable> getEnclosingMacroParameters(EObject object) {
+		var curObject = object
+		while (curObject != null) {
+			if (curObject instanceof Macro) {
+				return curObject.template.referenceableVariables
+			}
+			curObject = curObject.eContainer
+		}
+		return #{}
 	}
 
-	def dispatch Iterable<TestStep> getTestSteps(MacroTestStepContext context) {
-		return #[context.step]
+	/**
+	 * provide an iterable with all step content variables as key and their respective fixture parameter type as value
+	 */
+	def Iterable<Pair<StepContent, JvmTypeReference>> getStepVariableFixtureParameterTypePairs(TestStep step) {
+		val parameters = step.stepContentVariables
+		val result = newLinkedList
+		parameters.forEach [ stepContent, index |
+			result.add(new Pair(stepContent, step.interaction?.getTypeOfFixtureParameter(index)))
+		]
+		return result
+
+	}
+
+	/** 
+	 * get all variables, variable references and elements that are used as parameters in this test step
+	 */
+	def Iterable<StepContent> getStepContentVariables(TestStep step) {
+		return step.contents.filter [
+			it instanceof StepContentVariable || it instanceof StepContentVariableReference ||
+				it instanceof StepContentElement
+		]
 	}
 
 }

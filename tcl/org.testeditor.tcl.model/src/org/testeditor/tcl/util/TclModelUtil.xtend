@@ -13,8 +13,15 @@
 package org.testeditor.tcl.util
 
 import javax.inject.Singleton
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.xtext.EcoreUtil2
+import org.testeditor.tcl.EnvironmentVariableReference
 import org.testeditor.tcl.SpecificationStepImplementation
+import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
+import org.testeditor.tml.ComponentTestStepContext
+import org.testeditor.tml.MacroTestStepContext
+import org.testeditor.tml.TestStep
 import org.testeditor.tml.util.TmlModelUtil
 import org.testeditor.tsl.SpecificationStep
 
@@ -42,6 +49,22 @@ class TclModelUtil extends TmlModelUtil {
 			val specStepContentsString = contents.restoreString
 			return steps.forall[contents.restoreString != specStepContentsString]
 		]
+	}
+
+	def dispatch Iterable<TestStep> getTestSteps(ComponentTestStepContext context) {
+		return context.steps
+	}
+
+	def dispatch Iterable<TestStep> getTestSteps(MacroTestStepContext context) {
+		return #[context.step]
+	}
+
+	def Iterable<EnvironmentVariableReference> getEnvParams(EObject object) {
+		val root = EcoreUtil2.getContainerOfType(object, TclModel)
+		if (root !== null) {
+			return root.environmentVariableReferences
+		}
+		return #{}
 	}
 
 }
