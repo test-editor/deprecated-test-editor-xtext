@@ -156,12 +156,12 @@ class ProjectContentGenerator {
 
 	def String getProxyProperties() {
 		'''
-			systemProp.http.proxyHost=«System.getProperties().getProperty("http.proxyHost")»
-			systemProp.http.proxyPort=«System.getProperties().getProperty("http.proxyPort")»
-			systemProp.http.proxyUser=«System.getProperties().getProperty("http.proxyUser")»
-			systemProp.http.proxyPassword=«System.getProperties().getProperty("http.proxyPassword")»
-			systemProp.https.proxyHost=«System.getProperties().getProperty("https.proxyHost")»
-			systemProp.https.proxyPort=«System.getProperties().getProperty("https.proxyPort")»
+		systemProp.http.proxyHost=«System.getProperties().getProperty("http.proxyHost")»
+		systemProp.http.proxyPort=«System.getProperties().getProperty("http.proxyPort")»
+		systemProp.http.proxyUser=«System.getProperties().getProperty("http.proxyUser")»
+		systemProp.http.proxyPassword=«System.getProperties().getProperty("http.proxyPassword")»
+		systemProp.https.proxyHost=«System.getProperties().getProperty("https.proxyHost")»
+		systemProp.https.proxyPort=«System.getProperties().getProperty("https.proxyPort")»
 		'''
 	}
 
