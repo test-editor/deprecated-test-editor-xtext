@@ -156,12 +156,12 @@ class ProjectContentGenerator {
 
 	def String getProxyProperties() {
 		'''
-		systemProp.http.proxyHost=«System.getProperties().getProperty("http.proxyHost")»
-		systemProp.http.proxyPort=«System.getProperties().getProperty("http.proxyPort")»
-		systemProp.http.proxyUser=«System.getProperties().getProperty("http.proxyUser")»
-		systemProp.http.proxyPassword=«System.getProperties().getProperty("http.proxyPassword")»
-		systemProp.https.proxyHost=«System.getProperties().getProperty("https.proxyHost")»
-		systemProp.https.proxyPort=«System.getProperties().getProperty("https.proxyPort")»
+			systemProp.http.proxyHost=«System.getProperties().getProperty("http.proxyHost")»
+			systemProp.http.proxyPort=«System.getProperties().getProperty("http.proxyPort")»
+			systemProp.http.proxyUser=«System.getProperties().getProperty("http.proxyUser")»
+			systemProp.http.proxyPassword=«System.getProperties().getProperty("http.proxyPassword")»
+			systemProp.https.proxyHost=«System.getProperties().getProperty("https.proxyHost")»
+			systemProp.https.proxyPort=«System.getProperties().getProperty("https.proxyPort")»
 		'''
 	}
 
@@ -452,12 +452,12 @@ class ProjectContentGenerator {
 									</languages>
 								</configuration>
 								<dependencies>
-						            <dependency>
-						              <groupId>org.testeditor</groupId>
-						              <artifactId>org.testeditor.dsl.common</artifactId>
-						              <version>${project.version}</version>
-						            </dependency>
-						            <dependency>
+									<dependency>
+										<groupId>org.testeditor</groupId>
+										<artifactId>org.testeditor.dsl.common</artifactId>
+										<version>${project.version}</version>
+									</dependency>
+									<dependency>
 										<groupId>org.testeditor</groupId>
 										<artifactId>org.testeditor.tml.model</artifactId>
 										<version>${project.version}</version>
