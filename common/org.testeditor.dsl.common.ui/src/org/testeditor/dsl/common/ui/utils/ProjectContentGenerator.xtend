@@ -452,11 +452,17 @@ class ProjectContentGenerator {
 									</languages>
 								</configuration>
 								<dependencies>
-									<dependency>
+						            <dependency>
+						              <groupId>org.testeditor</groupId>
+						              <artifactId>org.testeditor.dsl.common</artifactId>
+						              <version>${project.version}</version>
+						            </dependency>
+						            <dependency>
 										<groupId>org.testeditor</groupId>
 										<artifactId>org.testeditor.tml.model</artifactId>
 										<version>${project.version}</version>
-									</dependency>									<dependency>
+									</dependency>
+									<dependency>
 										<groupId>org.testeditor</groupId>
 										<artifactId>org.testeditor.tsl.model</artifactId>
 										<version>${project.version}</version>
@@ -475,7 +481,8 @@ class ProjectContentGenerator {
 										<groupId>org.testeditor</groupId>
 										<artifactId>org.testeditor.tml.dsl</artifactId>
 										<version>${project.version}</version>
-									</dependency>									<dependency>
+									</dependency>
+									<dependency>
 										<groupId>org.testeditor</groupId>
 										<artifactId>org.testeditor.tcl.dsl</artifactId>
 										<version>${project.version}</version>
