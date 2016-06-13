@@ -64,7 +64,7 @@
 		<repository>
 		  <id>buildship</id>
 		  <layout>p2</layout>
-		  <url>http://download.eclipse.org/buildship/updates/e45/releases/1.0</url>
+		  <url>http://download.eclipse.org/buildship/updates/e45/releases/1.0/1.0.12.v20160330-1501/</url>
 		</repository>
 		<repository>
 			<id>m2e</id>

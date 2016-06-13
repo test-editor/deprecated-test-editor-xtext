@@ -3,9 +3,14 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.testeditor</groupId>
+	<parent>
+		<groupId>org.testeditor</groupId>
+		<artifactId>org.testeditor.releng.parent.dsl</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+		<relativePath>../releng/org.testeditor.releng.parent.dsl</relativePath>
+	</parent>
+
 	<artifactId>org.testeditor.tml.build</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<modules>
