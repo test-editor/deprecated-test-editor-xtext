@@ -9,5 +9,6 @@ Export-Package: org.testeditor.tcl.dsl.ide.contentassist.antlr,
 Require-Bundle: org.testeditor.dsl.common,
  org.testeditor.tcl.dsl,
  org.eclipse.xtext.ide,
- org.eclipse.xtext.xbase.ide
+ org.testeditor.tml.dsl.ide
+Import-Package: org.testeditor.tml.dsl.services
 

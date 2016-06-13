@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+   <extension
+         point="org.testeditor.tcl.dsl.ui.tcl_launcher">
+      <launcher
+            class="org.testeditor.rcp4.views.tcltestrun.ExecutableExtensionFactory:org.testeditor.rcp4.views.tcltestrun.TclLauncherUi">
+      </launcher>
+   </extension>
+
+</plugin>

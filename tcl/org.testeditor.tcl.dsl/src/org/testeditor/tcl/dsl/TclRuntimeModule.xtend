@@ -13,6 +13,8 @@
 package org.testeditor.tcl.dsl
 
 import org.testeditor.tcl.dsl.naming.TclQualifiedNameProvider
+import org.testeditor.tcl.dsl.messages.TclSyntaxErrorMessageProvider
+import org.eclipse.xtext.parser.antlr.ISyntaxErrorMessageProvider
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
@@ -23,4 +25,7 @@ class TclRuntimeModule extends AbstractTclRuntimeModule {
 		return TclQualifiedNameProvider
 	}
 
+    def Class<? extends ISyntaxErrorMessageProvider> bindISyntaxErrorMessageProvider() {
+        return TclSyntaxErrorMessageProvider
+    }
 }

@@ -13,53 +13,67 @@
 package org.testeditor.dsl.common.ui.wizards
 
 import javax.inject.Inject
-import org.eclipse.core.resources.IProject
-import org.eclipse.jdt.core.JavaCore
-import org.eclipse.jdt.junit.JUnitCore
-import org.eclipse.jdt.ui.PreferenceConstants
 import org.eclipse.jface.viewers.IStructuredSelection
+import org.eclipse.jface.wizard.IWizardPage
 import org.eclipse.ui.IWorkbench
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard
-import org.eclipse.xtext.ui.XtextProjectHelper
-import org.testeditor.dsl.common.ui.utils.ProjectUtils
+import org.testeditor.dsl.common.ui.utils.ProgressMonitorRunner
+import org.testeditor.dsl.common.ui.utils.ProjectContentGenerator
+import org.eclipse.ui.dialogs.WizardNewProjectCreationPage
+import org.eclipse.jface.wizard.WizardPage
 
-/** wizard to create a new test project 
+/** 
+ * Wizard to create a new test project. 
  *  - add java nature
  *  - add xtext nature
- *  - add junit to the classpath 
+ *  - add build system nature
  */
 class NewProjectWizard extends BasicNewProjectResourceWizard {
 
-	@Inject extension ProjectUtils
+	TestProjectConfigurationWizardPage configPage
 
-	static public val String SRC_FOLDER = 'src/main/java'
-
-	private def void addNature(IProject newProject, String nature) {
-		if (!newProject.hasNature(nature)) {
-			val description = newProject.getDescription
-			description.setNatureIds(description.getNatureIds + #[nature])
-			newProject.setDescription(description, null)
-		}
-	}
+	@Inject ProjectContentGenerator projectContentGenerator
+	@Inject ProgressMonitorRunner progressMonitorRunner
 
 	override init(IWorkbench bench, IStructuredSelection selection) {
 		super.init(bench, selection)
-		windowTitle = "Create test-first Testproject"
+		windowTitle = "Create test-first project"
+	}
+
+	override addPages() {
+		super.addPages
+		configPage = new TestProjectConfigurationWizardPage("configPage") => [
+			availableBuildSystems = projectContentGenerator.availableBuildSystems
+			availableFixtureNames = projectContentGenerator.availableFixtureNames
+			addPage
+		]
+	}
+
+	override getNextPage(IWizardPage page) {
+		return configPage
+	}
+	
+	override canFinish(){
+		val projectName=(pages.head as WizardNewProjectCreationPage).projectName
+		val nameOk=projectName.matches("^[a-zA-Z\\._0-9]+$")
+		if(!nameOk && !projectName.empty){
+			(pages.head as WizardPage).errorMessage = "project name may contain A-Z, 0-9, dots and underscore only"
+		}
+		return super.canFinish && nameOk
 	}
 
 	override performFinish() {
 		val result = super.performFinish()
 
-		val srcFolder = newProject.createOrGetDeepFolder(SRC_FOLDER)
-		newProject.addNature(JavaCore.NATURE_ID)
-		JavaCore.create(newProject) =>
-			[
-				val rawPath = PreferenceConstants.defaultJRELibrary +
-					#[JavaCore.newSourceEntry(srcFolder.fullPath),
-						JavaCore.newContainerEntry(JUnitCore.JUNIT4_CONTAINER_PATH)]
-				setRawClasspath(rawPath, null)
+		val selectedFixtures = configPage.selectedFixtures
+		val buildSystemName = configPage.buildSystemName
+		val withDemoCode = configPage.withDemoCode
+		if (!configPage.selectedFixtures.isEmpty) {
+			progressMonitorRunner.run [ monitor |
+				projectContentGenerator.createProjectContent(newProject, selectedFixtures, buildSystemName,
+					withDemoCode, monitor)
 			]
-		newProject.addNature(XtextProjectHelper.NATURE_ID)
+		}
 		return result
 	}
 

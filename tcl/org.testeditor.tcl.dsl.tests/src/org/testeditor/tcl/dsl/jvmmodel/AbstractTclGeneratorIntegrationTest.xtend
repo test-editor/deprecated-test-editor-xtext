@@ -20,17 +20,21 @@ import org.eclipse.xtext.generator.InMemoryFileSystemAccess
 import org.eclipse.xtext.junit4.util.ParseHelper
 import org.eclipse.xtext.resource.XtextResourceSet
 import org.junit.Before
-import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.aml.AmlModel
+import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.tcl.TclModel
-import org.testeditor.tcl.dsl.tests.AbstractTest
+import org.testeditor.tcl.dsl.tests.AbstractTclTest
+import org.testeditor.tml.TmlModel
+import org.testeditor.tml.dsl.TmlStandaloneSetup
 
-abstract class AbstractTclGeneratorIntegrationTest extends AbstractTest {
+abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 
 	@Inject protected Provider<XtextResourceSet> resourceSetProvider
 	@Inject protected XtextResourceSet resourceSet
 	
 	protected ParseHelper<AmlModel> amlParseHelper
+	protected ParseHelper<TmlModel> tmlParseHelper
+
 	@Inject protected ParseHelper<TclModel> tclParseHelper
 	@Inject protected IGenerator generator
 
@@ -39,9 +43,24 @@ abstract class AbstractTclGeneratorIntegrationTest extends AbstractTest {
 	@Before
 	def void setup() {
 		resourceSet = resourceSetProvider.get
+		resourceSet.classpathURIContext = this
 		val injector = (new AmlStandaloneSetup).createInjectorAndDoEMFRegistration
 		amlParseHelper = injector.getInstance(ParseHelper)
+		val tmlInjector = (new TmlStandaloneSetup).createInjectorAndDoEMFRegistration
+		tmlParseHelper = tmlInjector.getInstance(ParseHelper)
 		fsa = new InMemoryFileSystemAccess
+	}
+
+	protected def AmlModel parseAmlModel(String aml) {
+		return amlParseHelper.parse(aml, resourceSet).assertNoSyntaxErrors
+	}
+
+	protected def TmlModel parseTmlModel(String tml) {
+		return tmlParseHelper.parse(tml, resourceSet).assertNoSyntaxErrors
+	}
+
+	protected def TclModel parseTclModel(String tcl) {
+		return tclParseHelper.parse(tcl, resourceSet).assertNoSyntaxErrors
 	}
 
 	protected def String generate(TclModel model) {
@@ -50,7 +69,7 @@ abstract class AbstractTclGeneratorIntegrationTest extends AbstractTest {
 		return file.toString
 	}
 
-	protected def getJavaFile(InMemoryFileSystemAccess fsa, String ^package, String name) {
+	protected def Object getJavaFile(InMemoryFileSystemAccess fsa, String ^package, String name) {
 		val key = '''«IFileSystemAccess.DEFAULT_OUTPUT»«package.replaceAll('\\.', '/')»/«name».java'''
 		return fsa.allFiles.get(key)
 	}

@@ -176,12 +176,15 @@ class TemplateText extends TemplateContent {
 	String value
 }
 
+abstract class VariableReference {
+	String name
+}
+
 /* <p>
  * Represents a variable within a {@link Template}.
  * </p>
  */
-class TemplateVariable extends TemplateContent {
-	String name
+class TemplateVariable extends TemplateContent, VariableReference {
 }
 
 class InteractionValueSpace {
@@ -191,19 +194,40 @@ class InteractionValueSpace {
 }
 
 abstract class ValueSpace extends ModelElement {
+	op boolean isValidValue(String possibleValue)
 }
 
 class StringLiterals extends ValueSpace {
 	String[1..*] values
+	op boolean isValidValue(String possibleValue) {
+		return values.contains(possibleValue)
+	}
+	op String toString() {
+		return values.toString
+	}
 }
 
 class IntegerRange extends ValueSpace {
 	int from
 	int to
+	op boolean isValidValue(String possibleValue) {
+		return from <= Integer.parseInt(possibleValue) && Integer.parseInt(possibleValue) <= to
+	}
+	op String toString() {
+		return from + " <= <x> <= " + to
+	}
 }
 
 class RegExValueSpace extends ValueSpace {
 	String expression
+
+	op boolean isValidValue(String possibleValue) {
+		return possibleValue.matches(expression)
+	}
+	op String toString() {
+		return "Regular expression: " + expression
+	}
+	
 }
 
 class ValueSpaceAssignment {

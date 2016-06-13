@@ -17,9 +17,9 @@ import javax.inject.Provider
 import org.eclipse.xtext.junit4.formatter.FormatterTestRequest
 import org.eclipse.xtext.junit4.formatter.FormatterTester
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure1
-import org.testeditor.aml.dsl.tests.AbstractTest
+import org.testeditor.aml.dsl.tests.AbstractAmlTest
 
-abstract class AbstractFormatterTest extends AbstractTest {
+abstract class AbstractFormatterTest extends AbstractAmlTest {
 	
 	@Inject
 	Provider<FormatterTestRequest> formatterRequestProvider

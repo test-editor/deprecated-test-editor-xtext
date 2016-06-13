@@ -26,8 +26,10 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
+import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.finders.ContextMenuHelper;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotList;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotText;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
@@ -131,7 +133,7 @@ public class SWTFixture {
 	 */
 	@FixtureMethod
 	public boolean isViewVisible(String viewName) {
-		logger.trace("search for view with titel: {}", viewName);
+		logger.trace("search for view with title: {}", viewName);
 		SWTBotView view = bot.viewByTitle(viewName);
 		return view.isActive();
 	}
@@ -148,7 +150,7 @@ public class SWTFixture {
 	 */
 	@FixtureMethod
 	public void selectElementInTreeView(String locator, String itemName) {
-		logger.trace("search for view with titel: {}", locator);
+		logger.trace("search for view with title: {}", locator);
 		SWTBotTree tree = null;
 		if (locator.startsWith("[Single]")) {
 			tree = bot.tree();
@@ -161,6 +163,15 @@ public class SWTFixture {
 		SWTBotTreeItem expandNode = tree.expandNode(itemName.split("/"));
 		assertNotNull(expandNode);
 		expandNode.select();
+	}
+
+	@FixtureMethod
+	public void selectElementInList(String locator, String itemName) {
+		logger.trace("search for list with {}", locator);
+		if (locator.startsWith("[ID]")) {
+			SWTBotList list = bot.listWithId(getLocatorFragmentFrom(locator));
+			list.select(itemName);
+		}
 	}
 
 	/**
@@ -176,7 +187,7 @@ public class SWTFixture {
 	 */
 	@FixtureMethod
 	public void executeContextMenuEntry(String viewName, String menuItem) throws Exception {
-		logger.trace("search for view with titel: {}", viewName);
+		logger.trace("search for view with title: {}", viewName);
 		SWTBotView view = bot.viewByTitle(viewName);
 		assertNotNull(view);
 		SWTBotTree tree = view.bot().tree();
@@ -197,7 +208,7 @@ public class SWTFixture {
 	 */
 	@FixtureMethod
 	public void typeInto(String locator, String value) {
-		logger.trace("search for text with titel: {}", locator);
+		logger.trace("search for text with title: {}", locator);
 		SWTBotText text = null;
 		if (locator.startsWith("[Single]")) {
 			text = bot.text();
@@ -213,12 +224,20 @@ public class SWTFixture {
 	 */
 	@FixtureMethod
 	public void clickOn(String locator) {
-		logger.trace("search for button with titel: {}", locator);
+		logger.trace("search for button with title: {}", locator);
 		SWTBotButton button = null;
 		if (locator.startsWith("[Label]")) {
 			String locatorFragment = getLocatorFragmentFrom(locator);
-			this.reportWidgets();
 			button = bot.button(locatorFragment);
+		}
+		if (locator.startsWith("[ID]")) {
+			String locatorFragment = getLocatorFragmentFrom(locator);
+			try {
+				button = bot.buttonWithId(locatorFragment);
+			} catch (WidgetNotFoundException e) {
+				logger.info(e.getLocalizedMessage(), e);
+				this.reportWidgets();
+			}
 		}
 		assertNotNull(button);
 		button.click();

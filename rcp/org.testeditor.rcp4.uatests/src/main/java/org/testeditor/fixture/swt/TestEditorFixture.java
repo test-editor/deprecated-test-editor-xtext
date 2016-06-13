@@ -12,11 +12,14 @@
  *******************************************************************************/
 package org.testeditor.fixture.swt;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.ui.PlatformUI;
 import org.testeditor.fixture.core.interaction.FixtureMethod;
 
 /**
@@ -24,6 +27,8 @@ import org.testeditor.fixture.core.interaction.FixtureMethod;
  *
  */
 public class TestEditorFixture {
+
+	Logger logger = LogManager.getLogger(TestEditorFixture.class);
 
 	/**
 	 * Creates a simple Test-Editor project with some basic structures for
@@ -39,6 +44,38 @@ public class TestEditorFixture {
 		IProject project = root.getProject("DemoProject");
 		project.create(progressMonitor);
 		project.open(progressMonitor);
+	}
+
+	/**
+	 * Cleans the workspace. It deletes all projects in the workspace.
+	 * 
+	 * @throws Exception
+	 *             on failure
+	 */
+	@FixtureMethod
+	public void cleanWorkspace() throws Exception {
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		IProject[] projects = root.getProjects();
+		for (IProject project : projects) {
+			project.delete(true, new NullProgressMonitor());
+		}
+		logger.info("Workspace cleaned");
+	}
+
+	/**
+	 * Resets the UI of the application to the initial state.
+	 * 
+	 * @throws Exception
+	 *             on failure
+	 */
+	@FixtureMethod
+	public void resetApplication() throws Exception {
+		if (PlatformUI.getWorkbench().getActiveWorkbenchWindow() != null) {
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().closeAllEditors(true);
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().resetPerspective();
+			logger.info("Reset Workbench");
+		}
+		logger.info("Reset Application");
 	}
 
 }

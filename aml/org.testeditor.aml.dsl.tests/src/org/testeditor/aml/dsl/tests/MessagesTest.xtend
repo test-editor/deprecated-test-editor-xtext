@@ -18,7 +18,7 @@ import org.testeditor.aml.dsl.Messages
 /**
  * Test that the {@link Messages} class works properly.
  */
-class MessagesTest extends AbstractTest {
+class MessagesTest extends AbstractAmlTest {
 	
 	@Test
 	def void testMessages() {

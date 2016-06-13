@@ -5,14 +5,17 @@ import org.testeditor.rcp4.*
 # PDEUnitBasedSmokeTest implements SmokeTest
 
 * Validate initial views
+Component: TestEditor
+- Clean Workspace
+- Reset UI State
 
 Component: HauptFenster
- - ist View <ProjektBaum> sichtbar
- - ist View <TestStepSelector> sichtbar
+ - Is view <ProjektBaum> visible
+ - Is view <TestStepSelector> visible
   
 Component: TestEditor
-- Einfaches Projekt erzeugen
+- Create simple project
 
 Component: ProjectExplorer
-- selektiere Element "DemoProject" in Baum <ProjektBaum>
+- Select element "DemoProject" in tree <ProjektBaum>
 

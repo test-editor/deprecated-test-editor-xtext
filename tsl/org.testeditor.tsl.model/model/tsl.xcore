@@ -82,8 +82,11 @@ class SpecificationStep {
 }
 
 abstract class StepContent {
+}
+
+abstract class StepContentValue extends StepContent {
 	String value
 }
 
-class StepContentText extends StepContent {}
-class StepContentVariable extends StepContent {}
+class StepContentText extends StepContentValue {}
+class StepContentVariable extends StepContentValue {}

@@ -13,11 +13,11 @@
 package org.testeditor.rcp4.views.teststepselector
 
 import javax.inject.Inject
-import org.eclipse.xtext.resource.IResourceDescriptions
 import org.eclipse.emf.ecore.resource.ResourceSet
-import org.testeditor.aml.AmlModel
 import org.eclipse.xtext.EcoreUtil2
-import java.util.HashSet
+import org.eclipse.xtext.resource.IResourceDescriptions
+import org.testeditor.aml.AmlModel
+
 import static org.testeditor.aml.AmlPackage.Literals.AML_MODEL
 
 public class AmlModelsProvider {
@@ -42,18 +42,10 @@ public class AmlModelsProvider {
 
 	def Iterable<AmlModel> getAmlModels() {
 		if (empty) {
-			return new HashSet
+			return emptySet
 		}
 		val amlDescriptions = resourceDescriptions.getExportedObjectsByType(AML_MODEL)
-		amlDescriptions.forEach[]
-
-		return resourceDescriptions //
-		.allResourceDescriptions //
-		.map[exportedObjects] //
-		.flatten //
-		.filter[EObjectOrProxy.eClass.name == AmlModel.simpleName] //
-		.map[EObjectOrProxy] //
-		.map[EcoreUtil2.resolve(it, rs) as AmlModel]
+		return amlDescriptions.map[EObjectOrProxy].map[EcoreUtil2.resolve(it, rs) as AmlModel]
 	}
 
 }

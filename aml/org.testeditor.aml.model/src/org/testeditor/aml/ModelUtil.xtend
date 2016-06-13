@@ -12,8 +12,9 @@
  *******************************************************************************/
 package org.testeditor.aml
 
-import java.util.HashSet
 import java.util.Set
+import org.eclipse.xtext.common.types.JvmType
+import org.eclipse.xtext.common.types.JvmTypeReference
 
 class ModelUtil {
 
@@ -29,7 +30,7 @@ class ModelUtil {
 	}
 
 	def Set<ComponentType> getTypes(Component component) {
-		val result = new HashSet
+		val result = newHashSet
 		component.collectTypes(result)
 		return result
 	}
@@ -85,6 +86,25 @@ class ModelUtil {
 		return template.contents.filter(TemplateVariable).filter [
 			!name.nullOrEmpty && name != TEMPLATE_VARIABLE_ELEMENT
 		].toSet
+	}
+
+	/**
+	 * @return the fixture type if the given interaction type (may be null!)
+	 */
+	def JvmType getFixtureType(InteractionType interactionType) {
+		return interactionType?.defaultMethod?.typeReference?.type
+	}
+
+	/**
+	 * @return the type of the parameter of the fixture of the given interaction at position index (if present)
+	 */
+	def JvmTypeReference getTypeOfFixtureParameter(InteractionType interaction, int index) {
+		val jvmParameters = interaction.defaultMethod.operation.parameters
+		if (jvmParameters.size > index) {
+			return jvmParameters.get(index).parameterType
+		} else {
+			return null
+		}
 	}
 
 }

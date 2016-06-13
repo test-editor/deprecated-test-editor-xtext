@@ -3,16 +3,20 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.testeditor</groupId>
+	<parent>
+		<groupId>org.testeditor</groupId>
+		<artifactId>org.testeditor.releng.parent.dsl</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+		<relativePath>../releng/org.testeditor.releng.parent.dsl</relativePath>
+	</parent>
+
 	<artifactId>org.testeditor.product</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<profiles>
 		<profile>
 			<id>product</id>
 			<modules>
-				<module>org.testeditor.rcp.product</module>
 				<module>org.testeditor.rcp4.product</module>
 			</modules>
 		</profile>
@@ -20,12 +24,11 @@
 
 
 	<modules>
-		<module>org.testeditor.rcp.platform.feature</module>
-		<module>org.testeditor.rcp.feature</module>
-		<module>org.testeditor.rcp.updatesite</module>
-  		<module>org.testeditor.rcp</module>
+		<module>org.testeditor.rcp4.platform.feature</module>
+		<module>org.testeditor.rcp4.updatesite</module>
 		<module>org.testeditor.rcp4.feature</module>
 		<module>org.testeditor.rcp4.tcltestrun</module>
+		<module>org.testeditor.rcp4.views.tcltestrun</module>
 		<module>org.testeditor.rcp4.views.teststepselection</module>
 		<module>org.testeditor.rcp4.views.teststepselection.tests</module>
 		<module>org.testeditor.rcp4.views.testview</module>

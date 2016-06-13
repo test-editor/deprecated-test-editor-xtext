@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="TestEditor" uid="testeditor_rcp" id="org.testeditor.rcp4.testeditor_rcp" application="org.testeditor.rcp4.application" version="1.0.0.qualifier" useFeatures="true" includeLaunchers="true">
-
+<product name="TestEditor" uid="testeditor_rcp" id="org.testeditor.rcp4.testeditor_rcp" application="org.testeditor.rcp4.application" version="1.0.0.qualifier" useFeatures="false" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>
@@ -16,7 +15,6 @@
 
    <windowImages/>
 
-
    <launcher>
       <linux icon="icons/_TE_Icon_all.xpm"/>
       <macosx icon="icons/TE_Icon_all_mac.icns"/>
@@ -27,15 +25,17 @@
       </win>
    </launcher>
 
-
    <vm>
       <windows include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</windows>
    </vm>
 
-
    <plugins>
+      <plugin id="com.google.gson"/>
       <plugin id="com.google.guava"/>
       <plugin id="com.google.inject"/>
+      <plugin id="com.gradleware.tooling.client"/>
+      <plugin id="com.gradleware.tooling.model"/>
+      <plugin id="com.gradleware.tooling.utils"/>
       <plugin id="com.ibm.icu"/>
       <plugin id="javax.annotation"/>
       <plugin id="javax.inject"/>
@@ -60,6 +60,7 @@
       <plugin id="org.eclipse.ant.core"/>
       <plugin id="org.eclipse.ant.launching"/>
       <plugin id="org.eclipse.ant.ui"/>
+      <plugin id="org.eclipse.buildship.core"/>
       <plugin id="org.eclipse.compare"/>
       <plugin id="org.eclipse.compare.core"/>
       <plugin id="org.eclipse.core.commands"/>
@@ -73,13 +74,17 @@
       <plugin id="org.eclipse.core.filebuffers"/>
       <plugin id="org.eclipse.core.filesystem"/>
       <plugin id="org.eclipse.core.filesystem.java7" fragment="true"/>
+      <plugin id="org.eclipse.core.filesystem.linux.x86_64" fragment="true"/>
+      <plugin id="org.eclipse.core.filesystem.macosx" fragment="true"/>
       <plugin id="org.eclipse.core.filesystem.win32.x86_64" fragment="true"/>
       <plugin id="org.eclipse.core.jobs"/>
       <plugin id="org.eclipse.core.net"/>
+      <plugin id="org.eclipse.core.net.linux.x86_64" fragment="true"/>
       <plugin id="org.eclipse.core.net.win32.x86_64" fragment="true"/>
       <plugin id="org.eclipse.core.resources"/>
       <plugin id="org.eclipse.core.resources.win32.x86_64" fragment="true"/>
       <plugin id="org.eclipse.core.runtime"/>
+      <plugin id="org.eclipse.core.runtime.compatibility"/>
       <plugin id="org.eclipse.core.runtime.compatibility.registry" fragment="true"/>
       <plugin id="org.eclipse.core.variables"/>
       <plugin id="org.eclipse.debug.core"/>
@@ -98,10 +103,12 @@
       <plugin id="org.eclipse.e4.ui.di"/>
       <plugin id="org.eclipse.e4.ui.model.workbench"/>
       <plugin id="org.eclipse.e4.ui.services"/>
+      <plugin id="org.eclipse.e4.ui.swt.gtk" fragment="true"/>
       <plugin id="org.eclipse.e4.ui.widgets"/>
       <plugin id="org.eclipse.e4.ui.workbench"/>
       <plugin id="org.eclipse.e4.ui.workbench.addons.swt"/>
       <plugin id="org.eclipse.e4.ui.workbench.renderers.swt"/>
+      <plugin id="org.eclipse.e4.ui.workbench.renderers.swt.cocoa" fragment="true"/>
       <plugin id="org.eclipse.e4.ui.workbench.swt"/>
       <plugin id="org.eclipse.e4.ui.workbench3"/>
       <plugin id="org.eclipse.ecf"/>
@@ -110,18 +117,28 @@
       <plugin id="org.eclipse.emf"/>
       <plugin id="org.eclipse.emf.codegen"/>
       <plugin id="org.eclipse.emf.codegen.ecore"/>
+      <plugin id="org.eclipse.emf.codegen.ecore.ui"/>
       <plugin id="org.eclipse.emf.codegen.ecore.xtext"/>
+      <plugin id="org.eclipse.emf.codegen.ecore.xtext.ui"/>
       <plugin id="org.eclipse.emf.common"/>
       <plugin id="org.eclipse.emf.common.ui"/>
+      <plugin id="org.eclipse.emf.converter"/>
       <plugin id="org.eclipse.emf.ecore"/>
       <plugin id="org.eclipse.emf.ecore.change"/>
+      <plugin id="org.eclipse.emf.ecore.change.edit"/>
       <plugin id="org.eclipse.emf.ecore.edit"/>
       <plugin id="org.eclipse.emf.ecore.editor"/>
       <plugin id="org.eclipse.emf.ecore.xcore"/>
+      <plugin id="org.eclipse.emf.ecore.xcore.edit"/>
+      <plugin id="org.eclipse.emf.ecore.xcore.exporter"/>
+      <plugin id="org.eclipse.emf.ecore.xcore.importer"/>
       <plugin id="org.eclipse.emf.ecore.xcore.lib"/>
+      <plugin id="org.eclipse.emf.ecore.xcore.ui"/>
       <plugin id="org.eclipse.emf.ecore.xmi"/>
       <plugin id="org.eclipse.emf.edit"/>
       <plugin id="org.eclipse.emf.edit.ui"/>
+      <plugin id="org.eclipse.emf.exporter"/>
+      <plugin id="org.eclipse.emf.importer"/>
       <plugin id="org.eclipse.emf.mwe.core"/>
       <plugin id="org.eclipse.emf.mwe.utils"/>
       <plugin id="org.eclipse.emf.mwe2.language"/>
@@ -140,6 +157,8 @@
       <plugin id="org.eclipse.equinox.http.jetty"/>
       <plugin id="org.eclipse.equinox.http.servlet"/>
       <plugin id="org.eclipse.equinox.launcher"/>
+      <plugin id="org.eclipse.equinox.launcher.cocoa.macosx.x86_64" fragment="true"/>
+      <plugin id="org.eclipse.equinox.launcher.gtk.linux.x86_64" fragment="true"/>
       <plugin id="org.eclipse.equinox.launcher.win32.win32.x86_64" fragment="true"/>
       <plugin id="org.eclipse.equinox.p2.artifact.repository"/>
       <plugin id="org.eclipse.equinox.p2.console"/>
@@ -165,6 +184,7 @@
       <plugin id="org.eclipse.equinox.preferences"/>
       <plugin id="org.eclipse.equinox.registry"/>
       <plugin id="org.eclipse.equinox.security"/>
+      <plugin id="org.eclipse.equinox.security.macosx" fragment="true"/>
       <plugin id="org.eclipse.equinox.security.ui"/>
       <plugin id="org.eclipse.equinox.security.win32.x86_64" fragment="true"/>
       <plugin id="org.eclipse.equinox.simpleconfigurator"/>
@@ -196,6 +216,14 @@
       <plugin id="org.eclipse.jface.text"/>
       <plugin id="org.eclipse.ltk.core.refactoring"/>
       <plugin id="org.eclipse.ltk.ui.refactoring"/>
+      <plugin id="org.eclipse.m2e.archetype.common"/>
+      <plugin id="org.eclipse.m2e.core"/>
+      <plugin id="org.eclipse.m2e.jdt"/>
+      <plugin id="org.eclipse.m2e.lifecyclemapping.defaults"/>
+      <plugin id="org.eclipse.m2e.maven.indexer"/>
+      <plugin id="org.eclipse.m2e.maven.runtime"/>
+      <plugin id="org.eclipse.m2e.maven.runtime.slf4j.simple"/>
+      <plugin id="org.eclipse.m2e.workspace.cli"/>
       <plugin id="org.eclipse.osgi"/>
       <plugin id="org.eclipse.osgi.compatibility.state" fragment="true"/>
       <plugin id="org.eclipse.osgi.services"/>
@@ -207,12 +235,18 @@
       <plugin id="org.eclipse.rcp"/>
       <plugin id="org.eclipse.search"/>
       <plugin id="org.eclipse.swt"/>
+      <plugin id="org.eclipse.swt.cocoa.macosx.x86_64" fragment="true"/>
+      <plugin id="org.eclipse.swt.gtk.linux.x86_64" fragment="true"/>
       <plugin id="org.eclipse.swt.win32.win32.x86_64" fragment="true"/>
+      <plugin id="org.eclipse.swtbot.ant.junit" fragment="true"/>
+      <plugin id="org.eclipse.swtbot.eclipse.finder"/>
+      <plugin id="org.eclipse.swtbot.swt.finder"/>
       <plugin id="org.eclipse.team.core"/>
       <plugin id="org.eclipse.team.ui"/>
       <plugin id="org.eclipse.text"/>
       <plugin id="org.eclipse.ui"/>
       <plugin id="org.eclipse.ui.cheatsheets"/>
+      <plugin id="org.eclipse.ui.cocoa" fragment="true"/>
       <plugin id="org.eclipse.ui.console"/>
       <plugin id="org.eclipse.ui.editors"/>
       <plugin id="org.eclipse.ui.externaltools"/>
@@ -222,6 +256,7 @@
       <plugin id="org.eclipse.ui.intro"/>
       <plugin id="org.eclipse.ui.navigator"/>
       <plugin id="org.eclipse.ui.navigator.resources"/>
+      <plugin id="org.eclipse.ui.net"/>
       <plugin id="org.eclipse.ui.trace"/>
       <plugin id="org.eclipse.ui.views"/>
       <plugin id="org.eclipse.ui.views.log"/>
@@ -260,7 +295,9 @@
       <plugin id="org.eclipse.xtext.xbase.lib"/>
       <plugin id="org.eclipse.xtext.xbase.ui"/>
       <plugin id="org.eclipse.xtext.xtext.generator"/>
+      <plugin id="org.gradle.toolingapi"/>
       <plugin id="org.hamcrest.core"/>
+      <plugin id="org.hamcrest.library"/>
       <plugin id="org.junit"/>
       <plugin id="org.objectweb.asm"/>
       <plugin id="org.sat4j.core"/>
@@ -268,12 +305,26 @@
       <plugin id="org.slf4j.api"/>
       <plugin id="org.slf4j.impl.log4j12" fragment="true"/>
       <plugin id="org.testeditor.aml.dsl"/>
+      <plugin id="org.testeditor.aml.dsl.ide"/>
       <plugin id="org.testeditor.aml.dsl.ui"/>
       <plugin id="org.testeditor.aml.model"/>
+      <plugin id="org.testeditor.dsl.common"/>
+      <plugin id="org.testeditor.dsl.common.ui"/>
+      <plugin id="org.testeditor.logging"/>
+      <plugin id="org.testeditor.rcp4"/>
+      <plugin id="org.testeditor.rcp4.tcltestrun"/>
+      <plugin id="org.testeditor.rcp4.views.projectexplorer"/>
+      <plugin id="org.testeditor.rcp4.views.tcltestrun"/>
+      <plugin id="org.testeditor.rcp4.views.teststepselector"/>
+      <plugin id="org.testeditor.rcp4.views.testview"/>
       <plugin id="org.testeditor.tcl.dsl"/>
+      <plugin id="org.testeditor.tcl.dsl.ide"/>
       <plugin id="org.testeditor.tcl.dsl.ui"/>
       <plugin id="org.testeditor.tcl.model"/>
-      <plugin id="org.testeditor.tcl.rcp.product"/>
+      <plugin id="org.testeditor.tml.dsl"/>
+      <plugin id="org.testeditor.tml.dsl.ide"/>
+      <plugin id="org.testeditor.tml.dsl.ui"/>
+      <plugin id="org.testeditor.tml.model"/>
       <plugin id="org.testeditor.tsl.dsl"/>
       <plugin id="org.testeditor.tsl.dsl.ide"/>
       <plugin id="org.testeditor.tsl.dsl.ui"/>
@@ -290,7 +341,7 @@
       <feature id="org.testeditor.aml.sdk" version="1.0.0.qualifier"/>
       <feature id="org.testeditor.tcl.sdk" version="1.0.0.qualifier"/>
       <feature id="org.testeditor.tsl.sdk" version="1.0.0.qualifier"/>
-      <feature id="org.testeditor.rcp.platform.feature" version="1.0.0.qualifier"/>
+      <feature id="org.testeditor.rcp4.platform.feature" version="1.0.0.qualifier"/>
       <feature id="org.testeditor.rcp4.feature" version="1.0.0.qualifier"/>
    </features>
 

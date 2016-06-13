@@ -3,12 +3,10 @@ Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.testeditor.dsl.common
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: com.google.guava,
- org.eclipse.xtext.xbase.lib,
- org.eclipse.xtend.lib,
- org.eclipse.xtend.lib.macro,
- org.eclipse.xtext.util,
- org.eclipse.emf.ecore,
- org.eclipse.xtext
-Export-Package: org.testeditor.dsl.common.ide.util
-
+Require-Bundle: org.eclipse.xtend.lib.macro,
+ org.eclipse.xtext,
+ org.testeditor.logging
+Export-Package: org.testeditor.dsl.common.ide.util,
+ org.testeditor.dsl.common.util
+Eclipse-BundleShape: dir
+Bundle-ActivationPolicy: lazy

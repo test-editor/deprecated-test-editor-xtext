@@ -3,56 +3,62 @@ package org.testeditor.rcp4
 import org.testeditor.fixture.swt.*
 
 interaction type reportWidgets {
-	template = "Protkolliere vorhandene UI Elemente"
+	template = "Report current visable widgets"
 	method = SWTFixture.reportWidgets
 }
 
-interaction type warte {
-	label = "Warte"
-	template = "Warte" ${seconds} "Sekunden"
+interaction type wait {
+	label = "wait"
+	template = "wait " ${seconds} "seconds"
 	method = SWTFixture.wait(seconds)
 }
 
-interaction type viewSichtbar {
-	label = "ist View sichtbar"
-	template = "ist View" ${element} "sichtbar"
+interaction type isViewVisible {
+	label = "Is view visible"
+	template = "Is view" ${element} "visible"
 	method = SWTFixture.isViewVisible(element)
 }
 
-interaction type selektiereElement {
-	label = "selektiere Element"
-	template = "selektiere Element" ${item} "in Baum" ${element} 
+interaction type selectElement {
+	label = "Select element"
+	template = "Select element" ${item} "in tree" ${element} 
 	method = SWTFixture.selectElementInTreeView(element,item)
 }
 
+interaction type selectElementInList {
+	label = "Select element in list"
+	template = "Select element" ${item} "in list" ${element}
+	method = SWTFixture.selectElementInList(element, item)
+}
+
 interaction type executeContextMenuEntry {
-	label = " execute context menu entry"
-	template = "execute menu item " ${item} " in tree" ${element} 
+	label = "Execute context menu entry"
+	template = "Execute menu item " ${item} " in tree" ${element} 
 	method = SWTFixture.executeContextMenuEntry(element,item)
 }
 
 interaction type typeInto {
-	label = " Type into"
+	label = "Type into"
 	template = "Type " ${value} " into" ${element} 
 	method = SWTFixture.typeInto(element,value)
 }
 
 interaction type click {
 	label = "Click on"
-	template = "click on" ${element} 
+	template = "Click on" ${element} 
 	method = SWTFixture.clickOn(element)
 }
 
 element type View {
-	interactions = viewSichtbar
+	interactions = isViewVisible
 }
 
 element type TreeView {
-	interactions = selektiereElement, viewSichtbar, executeContextMenuEntry
+	interactions = selectElement, isViewVisible, executeContextMenuEntry
 }
 
 element type Tree {
-	interactions = selektiereElement,  executeContextMenuEntry
+	interactions = selectElement,  executeContextMenuEntry
 }
 
 element type Text {
@@ -63,10 +69,14 @@ element type Button {
 	interactions = click
 }
 
+element type List {
+	interactions = selectElementInList
+}
+
 component type General {
-	interactions = reportWidgets, warte
+	interactions = reportWidgets, wait
 }
 
 component type Dialog {
-	interactions = reportWidgets, warte	
+	interactions = reportWidgets, wait	
 }

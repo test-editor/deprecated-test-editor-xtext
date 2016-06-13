@@ -13,14 +13,13 @@
 package org.testeditor.tcl.dsl.jvmmodel
 
 import org.junit.Test
+import org.testeditor.dsl.common.testing.DummyFixture
 
 import static extension org.eclipse.emf.common.util.URI.createFileURI
-import org.junit.Ignore
 
 class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 
 	@Test
-	@Ignore("DummyFixture not reachable for plugin aml.dsl")
 	def void test() {
 		// given
 		val aml = '''
@@ -81,8 +80,8 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 		'''
 		val amlModel = amlParseHelper.parse(aml, resourceSet)
 		val tclModel = tclParseHelper.parse(tcl, 'SimpleTest.tcl'.createFileURI, resourceSet)
-		amlModel.assertNoErrors
-		tclModel.assertNoErrors
+		amlModel.assertNoSyntaxErrors
+		tclModel.assertNoSyntaxErrors
 
 		// when
 		val obj = generate(tclModel)

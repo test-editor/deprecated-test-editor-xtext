@@ -3,32 +3,44 @@ package org.testeditor.rcp4
 import org.testeditor.fixture.swt.*
 
 interaction type createSimpleProject {
-	label = "Einfaches Projekt erzeugen"
-	template = "Einfaches Projekt erzeugen"
+	label = "Create simple project"
+	template = "Create simple project"
 	method = TestEditorFixture.createDemoProject
 }
 
+interaction type cleanWorkspace {
+	label = "Clean Workspace content"
+	template = "Clean Workspace"
+	method = TestEditorFixture.cleanWorkspace
+}
+
+interaction type restartApp {
+	label = "Clean restart Test-Editor"
+	template = "Reset UI State"
+	method = TestEditorFixture.resetApplication
+}
+
 component type TestEditorApp {
-	interactions = createSimpleProject
+	interactions = createSimpleProject, restartApp, cleanWorkspace
 }
 
 component HauptFenster is General {
 	element ProjektBaum is View {
-		label = "Projekt Baum"
-		locator ="Project Explorer"
+		label = "Project Explorer"
+		locator ="Test Project Explorer"
 	}
 	element TestStepSelector is View {
-		label = "Test Schritt Auswahl"
+		label = "Test Step Selector"
 		locator = "Test Step Selector"
 	}
 }
 
-value-space projectmenues = #[ "New", "Open" ]
+value-space projectmenues = #[ "New/Project...", "Open" ]
 
 component ProjectExplorer is General {
 	element ProjektBaum is TreeView {
-		label = "Projekt Baum"
-		locator ="Project Explorer"
+		label = "Project Explorer"
+		locator ="Test Project Explorer"
 		executeContextMenuEntry.item restrict to projectmenues 
 	}
 }
@@ -52,5 +64,13 @@ component NewDialog is Dialog {
 	element ProjectName is Text {
 		label = "Project Name"
 		locator = "[Single]"
+	}
+	element AddFixtureButton is Button {
+		label = "Add Fixture Button"
+		locator = "[ID]NEW_DIALOG_ADD_SELECTED_FIXTURE"
+	}
+	element AvailableFixturesList is List {
+		label = "Available fixtures list"
+		locator = "[ID]NEW_DIALOG_AVAILABLE_FIXTURE_LIST"
 	}
 }

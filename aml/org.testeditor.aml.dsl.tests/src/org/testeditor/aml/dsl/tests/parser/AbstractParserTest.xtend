@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -14,19 +14,20 @@ package org.testeditor.aml.dsl.tests.parser
 
 import javax.inject.Inject
 import org.eclipse.xtext.junit4.util.ParseHelper
-import org.testeditor.aml.dsl.tests.AbstractTest
+import org.eclipse.xtext.junit4.validation.ValidationTestHelper
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.ModelElement
+import org.testeditor.aml.dsl.tests.AbstractAmlTest
 
-abstract class AbstractParserTest extends AbstractTest {
-	
-	@Inject
-	protected ParseHelper<AmlModel> parser
+abstract class AbstractParserTest extends AbstractAmlTest {
+
+	@Inject protected extension ValidationTestHelper
+	@Inject protected ParseHelper<AmlModel> parser
 
 	protected def AmlModel parse(CharSequence input) {
 		return parser.parse(input)
 	}
-	
+
 	/**
 	 * Creates a sample model by adding a package definition to the passed input, i.e.
 	 * <pre>

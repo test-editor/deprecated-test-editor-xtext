@@ -12,12 +12,15 @@
 		<java.version>1.8</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<maven-clean-plugin.version>2.5</maven-clean-plugin.version>
+		<maven-clean-plugin.version>3.0.0</maven-clean-plugin.version>
 		<maven-resources-plugin.version>2.7</maven-resources-plugin.version>
 		<maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
 
 		<xtext.version>2.9.0</xtext.version>
 		<xtend.version>${xtext.version}</xtend.version>
+
+		<testeditor.version>1.0.0</testeditor.version>
+		<testeditor.output>src-gen/test/java</testeditor.output>
 	</properties>
 
 	<repositories>
@@ -37,7 +40,25 @@
 			<name>bintray</name>
 			<url>http://dl.bintray.com/test-editor/Fixtures</url>
 		</repository>
+		<repository>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>bintray-test-editor-test-dsls</id>
+			<name>bintray</name>
+			<url>http://dl.bintray.com/test-editor/test-dsls</url>
+		</repository>
 	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>bintray-test-editor-test-dsls</id>
+			<name>bintray-plugins</name>
+			<url>http://dl.bintray.com/test-editor/test-dsls</url>
+		</pluginRepository>
+	</pluginRepositories>
 
 	<dependencies>
 		<dependency>
@@ -78,6 +99,24 @@
 					</configuration>
 				</plugin>
 				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>${maven-clean-plugin.version}</version>
+					<configuration>
+						<filesets>
+							<fileset>
+								<directory>${testeditor.output}</directory>
+								<includes>
+									<include>**</include>
+								</includes>
+								<excludes>
+									<exclude>.gitignore</exclude>
+								</excludes>
+							</fileset>
+						</filesets>
+					</configuration>
+				</plugin>
+				<plugin>
 					<groupId>org.eclipse.xtext</groupId>
 					<artifactId>xtext-maven-plugin</artifactId>
 					<version>${xtext.version}</version>
@@ -89,6 +128,10 @@
 						</execution>
 					</executions>
 					<configuration>
+						<sourceRoots>
+							<sourceRoot>src/test/java</sourceRoot>
+							<sourceRoot>src/main/java</sourceRoot>
+						</sourceRoots>
 						<languages>
 							<language>
 								<setup>org.testeditor.tsl.dsl.TslStandaloneSetup</setup>
@@ -97,7 +140,7 @@
 								<setup>org.testeditor.tcl.dsl.TclStandaloneSetup</setup>
 								<outputConfigurations>
 									<outputConfiguration>
-										<outputDirectory>src/test/java</outputDirectory>
+										<outputDirectory>${testeditor.output}</outputDirectory>
 									</outputConfiguration>
 								</outputConfigurations>
 							</language>
@@ -110,32 +153,32 @@
 						<dependency>
 							<groupId>org.testeditor</groupId>
 							<artifactId>org.testeditor.tsl.model</artifactId>
-							<version>${project.version}</version>
+							<version>${testeditor.version}</version>
 						</dependency>
 						<dependency>
 							<groupId>org.testeditor</groupId>
 							<artifactId>org.testeditor.tsl.dsl</artifactId>
-							<version>${project.version}</version>
+							<version>${testeditor.version}</version>
 						</dependency>
 						<dependency>
 							<groupId>org.testeditor</groupId>
 							<artifactId>org.testeditor.tcl.model</artifactId>
-							<version>${project.version}</version>
+							<version>${testeditor.version}</version>
 						</dependency>
 						<dependency>
 							<groupId>org.testeditor</groupId>
 							<artifactId>org.testeditor.tcl.dsl</artifactId>
-							<version>${project.version}</version>
+							<version>${testeditor.version}</version>
 						</dependency>
 						<dependency>
 							<groupId>org.testeditor</groupId>
 							<artifactId>org.testeditor.aml.model</artifactId>
-							<version>${project.version}</version>
+							<version>${testeditor.version}</version>
 						</dependency>
 						<dependency>
 							<groupId>org.testeditor</groupId>
 							<artifactId>org.testeditor.aml.dsl</artifactId>
-							<version>${project.version}</version>
+							<version>${testeditor.version}</version>
 						</dependency>
 					</dependencies>
 				</plugin>
@@ -177,6 +220,25 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<id>add-test-source</id>
+						<phase>generate-test-sources</phase>
+						<goals>
+							<goal>add-test-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${testeditor.output}</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

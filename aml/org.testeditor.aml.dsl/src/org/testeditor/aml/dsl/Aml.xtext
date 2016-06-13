@@ -79,7 +79,7 @@ MethodReference:
 	typeReference=SimpleTypeReference '.'
 	operation=[types::JvmOperation|QualifiedName]
 	( '('
-		(parameters+=[TemplateVariable|TemplateVariableId] (',' parameters+=[TemplateVariable|TemplateVariableId])?)?
+		(parameters+=[TemplateVariable|TemplateVariableId] (',' parameters+=[TemplateVariable|TemplateVariableId])*)?
 	')' )?
 ;
 

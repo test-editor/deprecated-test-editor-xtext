@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: org.testeditor.tml.dsl.ide
+Bundle-Vendor: Signal Iduna Corporation
+Bundle-Version: 1.0.0.qualifier
+Bundle-SymbolicName: org.testeditor.tml.dsl.ide; singleton:=true
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.testeditor.tml.dsl,
+ org.eclipse.xtext.ide,
+ org.eclipse.xtext.xbase.ide,
+ org.testeditor.tcl.dsl,
+ org.testeditor.dsl.common
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: org.testeditor.tml.dsl.ide.contentassist.antlr,
+ org.testeditor.tml.dsl.ide.contentassist.antlr.internal,
+ org.testeditor.tml.dsl.ide.highlighting
+
