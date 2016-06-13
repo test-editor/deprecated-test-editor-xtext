@@ -134,7 +134,7 @@ class AmlValidator extends AbstractAmlValidator {
 			)
 		}
 	}
-	
+
 	/**
 	 * Check that elements or interactions must provides locators if the fixture operation needs those
 	 */
@@ -142,11 +142,10 @@ class AmlValidator extends AbstractAmlValidator {
 	def void checkComponentElementLocatorStrategy(ComponentElement componentElement) {
 		val elementHasNoStrategy = componentElement.locatorStrategy == null
 		val interactionsExpectingButWithoutStrategy = componentElement.componentElementInteractionTypes.filter [
-			!defaultMethod.locatorStrategyParameters.empty
-			&& locatorStrategy == null
+			!defaultMethod.locatorStrategyParameters.empty && locatorStrategy == null
 		]
-		if(elementHasNoStrategy && !interactionsExpectingButWithoutStrategy.empty){
-			val message='''Element has interactions ('«interactionsExpectingButWithoutStrategy.map[name].join(', ')»') that require a locator strategy, but none is given.'''
+		if (elementHasNoStrategy && !interactionsExpectingButWithoutStrategy.empty) {
+			val message = '''Element has interactions ('«interactionsExpectingButWithoutStrategy.map[name].join(', ')»') that require a locator strategy, but none is given.'''
 			error(message, COMPONENT_ELEMENT__LOCATOR_STRATEGY, COMPONENT_ELEMENT__LOCATOR_STRATEGY__MISSING)
 		}
 	}
