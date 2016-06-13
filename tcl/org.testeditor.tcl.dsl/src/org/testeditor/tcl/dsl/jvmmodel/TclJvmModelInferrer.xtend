@@ -239,7 +239,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		JvmTypeReference expectedType, InteractionType interaction) {
 		val element = stepContent.componentElement
 		val locator = '''"«element.locator»"'''
-		if (interaction.defaultMethod.locatorStrategyParameters.size>0) {
+		if (interaction.defaultMethod.locatorStrategyParameters.size > 0) {
 			// use element locator strategy if present, else use default of interaction
 			val locatorStrategy = element.locatorStrategy ?: interaction.locatorStrategy
 			return #[locator, locatorStrategy.qualifiedName] // locatorStrategy is the parameter right after locator (convention)

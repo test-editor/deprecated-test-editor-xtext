@@ -12,19 +12,13 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.tests.parser.validation
 
-import java.util.UUID
-import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EObject
 import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
 
 abstract class AbstractValidationTest extends AbstractParserTest {
 	
-	protected def <T extends EObject> T register(T model, String fileExtension) {
-		val uri = URI.createURI(UUID.randomUUID.toString + "." + fileExtension)
-
-		val newResource = resourceSet.createResource(uri)
-		newResource.contents.add(model)
-		return model
+	protected def <T extends EObject> T addToResourceSet(T model, String fileExtension) {
+		return model.addToResourceSet(resourceSet, fileExtension)
 	}
 
 }

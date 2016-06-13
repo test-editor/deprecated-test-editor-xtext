@@ -15,7 +15,10 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.testing.xtext.XtextAssertionHelper
 
-import static extension org.testeditor.dsl.common.util.CollectionUtils.putIfAbsent
+import org.eclipse.emf.ecore.resource.ResourceSet
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.common.util.URI
+import java.util.UUID
 
 /**
  * Abstract dependency-injection aware test class for Xtext tests.
@@ -69,4 +72,17 @@ abstract class AbstractTest {
 		return current
 	}
 
+	/**
+	 * add the given model to the resource set (allows resolving links within same set)
+	 * @param model to add
+	 * @param resoureSet to add to
+	 * @param fileExtension to be used (e.g. aml, tcl, tml, tsl depending on the model type)
+	 */
+	protected def <T extends EObject> T addToResourceSet(T model, ResourceSet resourceSet, String fileExtension) {
+		val uri = URI.createURI(UUID.randomUUID.toString + "." + fileExtension)
+
+		val newResource = resourceSet.createResource(uri)
+		newResource.contents.add(model)
+		return model
+	}
 }

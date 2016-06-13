@@ -14,6 +14,7 @@ package org.testeditor.tcl.dsl.jvmmodel
 
 import javax.inject.Inject
 import javax.inject.Provider
+import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.generator.IFileSystemAccess
 import org.eclipse.xtext.generator.IGenerator
 import org.eclipse.xtext.generator.InMemoryFileSystemAccess
@@ -26,9 +27,6 @@ import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
 import org.testeditor.tml.TmlModel
 import org.testeditor.tml.dsl.TmlStandaloneSetup
-import org.eclipse.emf.ecore.EObject
-import org.eclipse.emf.common.util.URI
-import java.util.UUID
 
 abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 
@@ -77,16 +75,8 @@ abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 		return fsa.allFiles.get(key)
 	}
 
-	/**
-	 * register the given model with the resource set (allows resolving links within same set)
-	 * @param fileExtension to be used (e.g. aml, tcl, tml, tsl)
-	 */
-	protected def <T extends EObject> T register(T model, String fileExtension) {
-		val uri = URI.createURI(UUID.randomUUID.toString + "." + fileExtension)
-
-		val newResource = resourceSet.createResource(uri)
-		newResource.contents.add(model)
-		return model
+	protected def <T extends EObject> T addToResourceSet(T model, String fileExtension) {
+		return model.addToResourceSet(resourceSet, fileExtension)
 	}
 
 }

@@ -92,7 +92,7 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 	def void testDefaultLocatorStrategyGeneration() {
 		// given
 		val amlModel = amlWithDummyButtonAndLocatorStrategies(DummyLocatorStrategy.LABEL.name, "ok", null)
-		amlModel.register("aml")
+		amlModel.addToResourceSet("aml")
 
 		val tcl = tclClickOnDummyButton(amlModel.components.head)
 
@@ -109,7 +109,7 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 		// given
 		val amlModel = amlWithDummyButtonAndLocatorStrategies(DummyLocatorStrategy.SINGLE.name, "OK_BUTTON_ID",
 			DummyLocatorStrategy.ID.name)
-		amlModel.register("aml")
+		amlModel.addToResourceSet("aml")
 
 		val tcl = tclClickOnDummyButton(amlModel.components.head)
 
@@ -125,7 +125,7 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 	def void testWithoutDefaultLocatorStrategyGeneration() {
 		// given
 		val amlModel = amlWithDummyButtonAndLocatorStrategies(null, "OK_BUTTON_ID", DummyLocatorStrategy.ID.name)
-		amlModel.register("aml")
+		amlModel.addToResourceSet("aml")
 
 		val tcl = tclClickOnDummyButton(amlModel.components.head)
 
