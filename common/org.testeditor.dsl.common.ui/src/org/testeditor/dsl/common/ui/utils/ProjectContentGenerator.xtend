@@ -329,7 +329,8 @@ class ProjectContentGenerator {
 			
 					<xtext.version>2.9.0</xtext.version>
 					<xtend.version>${xtext.version}</xtend.version>
-					<project.version>1.0.0-SNAPSHOT</project.version>
+			
+					<testeditor.version>1.0.0-SNAPSHOT</testeditor.version>
 				</properties>
 			
 				<repositories>
@@ -459,47 +460,47 @@ class ProjectContentGenerator {
 									<dependency>
 										<groupId>org.testeditor</groupId>
 										<artifactId>org.testeditor.dsl.common</artifactId>
-										<version>${project.version}</version>
+										<version>${testeditor.version}</version>
 									</dependency>
 									<dependency>
 										<groupId>org.testeditor</groupId>
 										<artifactId>org.testeditor.tml.model</artifactId>
-										<version>${project.version}</version>
+										<version>${testeditor.version}</version>
 									</dependency>
 									<dependency>
 										<groupId>org.testeditor</groupId>
 										<artifactId>org.testeditor.tsl.model</artifactId>
-										<version>${project.version}</version>
+										<version>${testeditor.version}</version>
 									</dependency>
 									<dependency>
 										<groupId>org.testeditor</groupId>
 										<artifactId>org.testeditor.tsl.dsl</artifactId>
-										<version>${project.version}</version>
+										<version>${testeditor.version}</version>
 									</dependency>
 									<dependency>
 										<groupId>org.testeditor</groupId>
 										<artifactId>org.testeditor.tcl.model</artifactId>
-										<version>${project.version}</version>
+										<version>${testeditor.version}</version>
 									</dependency>
 									<dependency>
 										<groupId>org.testeditor</groupId>
 										<artifactId>org.testeditor.tml.dsl</artifactId>
-										<version>${project.version}</version>
+										<version>${testeditor.version}</version>
 									</dependency>
 									<dependency>
 										<groupId>org.testeditor</groupId>
 										<artifactId>org.testeditor.tcl.dsl</artifactId>
-										<version>${project.version}</version>
+										<version>${testeditor.version}</version>
 									</dependency>
 									<dependency>
 										<groupId>org.testeditor</groupId>
 										<artifactId>org.testeditor.aml.model</artifactId>
-										<version>${project.version}</version>
+										<version>${testeditor.version}</version>
 									</dependency>
 									<dependency>
 										<groupId>org.testeditor</groupId>
 										<artifactId>org.testeditor.aml.dsl</artifactId>
-										<version>${project.version}</version>
+										<version>${testeditor.version}</version>
 									</dependency>
 								</dependencies>
 							</plugin>
