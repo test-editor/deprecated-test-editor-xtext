@@ -1,8 +1,8 @@
 package org.testeditor.tcl.dsl.ui.testlaunch
 
+import java.util.HashMap
 import java.util.Set
 import javax.inject.Inject
-import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.IConfigurationElement
 import org.eclipse.core.runtime.Platform
@@ -11,7 +11,6 @@ import org.eclipse.jface.viewers.IStructuredSelection
 import org.eclipse.jface.viewers.StructuredSelection
 import org.eclipse.ui.IEditorPart
 import org.slf4j.LoggerFactory
-import java.util.HashMap
 
 /**
  * Launch shortcut that is specifically crafted to execute Tests based on TCL files
@@ -23,7 +22,7 @@ class JUnitLaunchShortcut extends org.eclipse.jdt.junit.launcher.JUnitLaunchShor
 	public val EXTENSION_POINT_LAUNCHER_ID = "org.testeditor.tcl.dsl.ui.tcl_launcher"
 	public val EXTENSION_POINT_CLASS_ATTRIBUTE = "class"
 
-	val launcherMap = new HashMap<Launcher,IConfigurationElement>
+	val launcherMap = new HashMap<Launcher, IConfigurationElement>
 
 	@Inject extension LaunchShortcutUtil
 
@@ -38,12 +37,17 @@ class JUnitLaunchShortcut extends org.eclipse.jdt.junit.launcher.JUnitLaunchShor
 	}
 
 	protected def launch(IResource res, String mode, boolean parameterize) {
-		if (res.isValidForTestrun) {
-			val javaElement = res.javaElementForResource
-			val selection = new StructuredSelection(javaElement)
+		if (!res.isValidForTestrun) {
+			logger.warn("resource='{}' seems to be invalid for test run (e.g. has error markers)", res.fullPath)
+		}
+		val selection = new StructuredSelection(res)
+		val qualifiedName = res.getQualifiedNameForTestInTcl
+		if (qualifiedName == null) {
+			logger.error("resource='{}' seems not to export any test.", res.fullPath)
+		} else {
 			val successfulLauncher = registeredLaunchers.findFirst [ registeredLauncher | // firstThat would be more fitting in this case
-				val result = registeredLauncher.launch(selection, javaElement.javaProject.getAdapter(IProject),
-					javaElement.toElementId, mode, parameterize)
+				val result = registeredLauncher.launch(selection, res.project, qualifiedName.toString, mode,
+					parameterize)
 				if (result) {
 					logger.debug("executed registeredLauncher='{}' for tcl test launch.",
 						launcherMap.get(registeredLauncher).toLoggingString)
@@ -57,8 +61,6 @@ class JUnitLaunchShortcut extends org.eclipse.jdt.junit.launcher.JUnitLaunchShor
 				super.launch(selection, mode)
 				logger.debug("executed junit launcher for tcl test launch")
 			}
-		} else {
-			logger.warn("resource='{}' is not valid for test run (e.g. missing generated file)", res.fullPath)
 		}
 	}
 
