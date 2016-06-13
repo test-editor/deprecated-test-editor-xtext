@@ -329,6 +329,7 @@ class ProjectContentGenerator {
 			
 					<xtext.version>2.9.0</xtext.version>
 					<xtend.version>${xtext.version}</xtend.version>
+					<project.version>1.0.0-SNAPSHOT</project.version>
 				</properties>
 			
 				<repositories>
@@ -435,6 +436,9 @@ class ProjectContentGenerator {
 									<sourceRoot>«SRC_FOLDER»</sourceRoot>
 								</sourceRoots>
 									<languages>
+										<language>
+											<setup>org.testeditor.tml.dsl.TmlStandaloneSetup</setup>
+										</language>
 										<language>
 											<setup>org.testeditor.tsl.dsl.TslStandaloneSetup</setup>
 										</language>
