@@ -46,13 +46,13 @@ class LaunchShortcutUtil {
 	def boolean hasNoMarkersPreventingTestExecution(IResource res) {
 		return !res.findMarkers(PROBLEM, true, DEPTH_ONE).exists[markerIndicatesNonExecutableTest]
 	}
-	
+
 	/** get the qualified name of the test residing in the tcl resource. if none is found return null */
-	def QualifiedName getQualifiedNameForTestInTcl(IResource ressource){
-		val uri = storageToUriMapper.getUri(ressource.getAdapter(IStorage))
+	def QualifiedName getQualifiedNameForTestInTcl(IResource resource) {
+		val uri = storageToUriMapper.getUri(resource.getAdapter(IStorage))
 		val resourceDescription = resourceDescriptions.getResourceDescription(uri)
-		val resNameWOExtension = ressource.name.replace(ressource.fileExtension, '').replaceAll('\\.$', '')
-		val qualifiedName = resourceDescription.exportedObjects.map[name].findFirst[lastSegment == resNameWOExtension]
+		val resNameWOExtension = resource.name.replace(resource.fileExtension, '').replaceAll('\\.$', '')
+		val qualifiedName = resourceDescription?.exportedObjects.map[name].findFirst[lastSegment == resNameWOExtension]
 		return qualifiedName
 	}
 
