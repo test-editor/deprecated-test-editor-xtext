@@ -54,11 +54,11 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 	override getNextPage(IWizardPage page) {
 		return configPage
 	}
-	
-	override canFinish(){
-		val projectName=(pages.head as WizardNewProjectCreationPage).projectName
-		val nameOk=projectName.matches("^[a-zA-Z\\._0-9]+$")
-		if(!nameOk && !projectName.empty){
+
+	override canFinish() {
+		val projectName = (pages.head as WizardNewProjectCreationPage).projectName
+		val nameOk = projectName.matches("^[a-zA-Z\\._0-9]+$")
+		if (!nameOk && !projectName.empty) {
 			(pages.head as WizardPage).errorMessage = "project name may contain A-Z, 0-9, dots and underscore only"
 		}
 		return super.canFinish && nameOk
@@ -76,8 +76,8 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 					withDemoCode, monitor)
 			]
 		}
-		if(withDemoCode) {
-			IDE.openEditor(PlatformUI.workbench.activeWorkbenchWindow.activePage,projectContentGenerator.demoTclFile)
+		if (withDemoCode) {
+			IDE.openEditor(PlatformUI.workbench.activeWorkbenchWindow.activePage, projectContentGenerator.demoTclFile)
 		}
 		return result
 	}
