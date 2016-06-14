@@ -21,6 +21,8 @@ import org.testeditor.dsl.common.ui.utils.ProgressMonitorRunner
 import org.testeditor.dsl.common.ui.utils.ProjectContentGenerator
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage
 import org.eclipse.jface.wizard.WizardPage
+import org.eclipse.ui.ide.IDE
+import org.eclipse.ui.PlatformUI
 
 /** 
  * Wizard to create a new test project. 
@@ -73,6 +75,9 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 				projectContentGenerator.createProjectContent(newProject, selectedFixtures, buildSystemName,
 					withDemoCode, monitor)
 			]
+		}
+		if(withDemoCode) {
+			IDE.openEditor(PlatformUI.workbench.activeWorkbenchWindow.activePage,projectContentGenerator.demoTclFile)
 		}
 		return result
 	}

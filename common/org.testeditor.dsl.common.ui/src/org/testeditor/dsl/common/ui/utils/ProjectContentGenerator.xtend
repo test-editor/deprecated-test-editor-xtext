@@ -51,6 +51,8 @@ class ProjectContentGenerator {
 
 	@Inject FileLocatorService fileLocatorService
 	@Inject extension ProjectUtils
+	
+	IFile demoTclFile
 
 	def void createProjectContent(IProject project, String[] fixtures, String buildsystem, boolean demo,
 		IProgressMonitor monitor) throws CoreException{
@@ -183,8 +185,8 @@ class ProjectContentGenerator {
 	protected def void createDemoTestCase(String fixture, IProject project, String srcFolder,
 		IProgressMonitor monitor) {
 		if (fixture == WEBFIXTURE) {
-			val tclFile = project.getFile(srcFolder + "/" + project.name + "/GoogleTest.tcl")
-			tclFile.create(new StringInputStream(getGoogleTestCase(project.name)), false, monitor)
+			demoTclFile = project.getFile(srcFolder + "/" + project.name + "/GoogleTest.tcl")
+			demoTclFile.create(new StringInputStream(getGoogleTestCase(project.name)), false, monitor)
 		}
 	}
 
@@ -193,6 +195,15 @@ class ProjectContentGenerator {
 		package «packageName»
 		
 		import org.testeditor.fixture.web.*
+		
+		/**
+		* This is a  demo Testcase. It is executable and uses the test-editor webfixture to automate a google search.
+		* The google search mask is modelled in an AML file. You can navigate to the aml definitions of fixture code,
+		* by ctrl + mouse click or F3 on the elment.
+		* Some examples: 
+		* - access the google.aml by F3 on 'Component: Searchsite'
+		* - access the webfixture aml by F3 on 'Component: WebBrowser' 
+		*/
 		
 		#GoogleTest 
 		
@@ -228,6 +239,10 @@ class ProjectContentGenerator {
 	def String getDemoAMLComponentsContent(String fixture) {
 		if (fixture == WEBFIXTURE) {
 			return '''
+				/**
+				* Application model for the google search site. It contains only the search field and 
+				* binds it to the test-editor web fixture field element.
+				*/
 				component Searchsite is Page {
 					element Searchfield is field {
 						label = "Search field"
@@ -560,6 +575,10 @@ class ProjectContentGenerator {
 				</dependency>
 			'''
 		}
+	}
+	
+	def IFile getDemoTclFile() {
+		return demoTclFile
 	}
 
 	def List<String> getAvailableBuildSystems() {
