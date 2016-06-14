@@ -42,6 +42,7 @@
 			</activation>
 			<properties>
 				<os-jvm-flags>-XstartOnFirstThread</os-jvm-flags>
+				<os-use-uithread>true</os-use-uithread>
 			</properties>
 		</profile>
 	</profiles>
