@@ -2,7 +2,7 @@
 <feature
       id="org.testeditor.rcp4.platform.feature"
       label="Platform Feature"
-      version="1.0.0.qualifier">
+      version="1.0.1.qualifier">
 
    <copyright>
       Copyright (c) 2012 - 2016 Signal Iduna Corporation and others.
