@@ -119,9 +119,9 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		Iterable<EnvironmentVariableReference> EnvironmentVariableReferences) {
 		output.newLine
 		val macro = context.findMacroDefinition
-		if (macro==null) {
+		if (macro == null) {
 			output.append('''// TODO Macro could not be resolved from «context.macroModel.name»''').newLine
-		}else{
+		} else {
 			output.append('''// Macro start: «context.macroModel.name» - «macro.template.normalize»''').newLine
 			macro.contexts.forEach [
 				generateContext(output.trace(it), #[context] + macroUseStack, EnvironmentVariableReferences)
