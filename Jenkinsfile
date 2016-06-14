@@ -43,9 +43,9 @@ nodeWithProperWorkspace {
     }
 
     stage (isMaster() ? 'Build and deploy' : 'Build')
+    // workaround for now to speed-up the build: only build the product on develop and master
+    def buildProduct = env.BRANCH_NAME == 'develop' || isMaster() ? '-Pproduct' : ''
     withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g"]) {
-        // workaround for now to speed-up the build: only build the product on develop and master
-        def buildProduct = env.BRANCH_NAME == 'develop' || isMaster() ? '-Pproduct' : ''
         def goal = isMaster() ? 'deploy' : 'install'
         withXvfb {
             mvn "clean $goal $buildProduct -Dmaven.test.failure.ignore -Dsurefire.useFile=false -Dtycho.localArtifacts=ignore"
@@ -56,7 +56,10 @@ nodeWithProperWorkspace {
         postRelease(preReleaseVersion)
     }
 
-    stage 'Collect test results'
+    stage 'Archive results'
+    if (buildProduct) {
+        archive '**/target/products/*.zip'
+    }
     step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
     codecov('codecov_test-editor-xtext')
 }
