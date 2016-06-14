@@ -36,12 +36,16 @@
 
 	<profiles>
 		<profile>
-			<id>macosx-jvm-flags</id>
+			<id>macosx-properties</id>
 			<activation>
 				<os><family>mac</family></os>
 			</activation>
 			<properties>
+				<!-- cacao restrictions in combination with swtbot                        -->
+				<!-- https://wiki.eclipse.org/Tycho/FAQ#How_do_I_add_OS-specific_flags.3F -->
 				<os-jvm-flags>-XstartOnFirstThread</os-jvm-flags>
+				<!-- this flag is used in some ui tests (not swtbot)             -->
+				<!-- on non mac os this is empty and thus not passed to surefire -->
 				<os-use-uithread>true</os-use-uithread>
 			</properties>
 		</profile>
