@@ -27,6 +27,7 @@ import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
 import org.testeditor.tml.TmlModel
 import org.testeditor.tml.dsl.TmlStandaloneSetup
+import org.testeditor.tsl.TslModel
 
 abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 
@@ -75,8 +76,13 @@ abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 		return fsa.allFiles.get(key)
 	}
 
-	protected def <T extends EObject> T addToResourceSet(T model, String fileExtension) {
-		return model.addToResourceSet(resourceSet, fileExtension)
+	protected def <T extends EObject> T addToResourceSet(T model){
+		switch(model) {
+			case AmlModel: return model.addToResourceSet(resourceSet, "aml")
+			case TmlModel: return model.addToResourceSet(resourceSet, "tml")
+			case TslModel: return model.addToResourceSet(resourceSet, "tsl")
+			default: return  model.addToResourceSet(resourceSet, "tcl")
+		}
 	}
 
 }

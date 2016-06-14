@@ -33,7 +33,7 @@ class ValidationTest extends AbstractValidationTest {
 	@Test
 	def void validateComponentType() {
 		// Given
-		val component = component("MyComponent").addToResourceSet("aml")
+		val component = component("MyComponent").addToResourceSet
 
 		// Expect
 		component.assertError(COMPONENT, COMPONENT__TYPE__MISSING, Validation_Component_Type_Missing)
@@ -42,7 +42,7 @@ class ValidationTest extends AbstractValidationTest {
 	@Test
 	def void regExValueSpace() {
 		// Given
-		val valueSpace = regExValueSpace("${").addToResourceSet("aml")
+		val valueSpace = regExValueSpace("${").addToResourceSet
 
 		// Expect
 		valueSpace.assertError(
@@ -67,7 +67,7 @@ class ValidationTest extends AbstractValidationTest {
 				locatorStrategy = locatorStrategy(resourceSet, DummyLocatorStrategy, "SINGLE")
 			]
 		]
-		amlModel.addToResourceSet("aml")
+		amlModel.addToResourceSet
 		val interactionType = amlModel.interactionTypes.head
 
 		// expect
@@ -103,7 +103,7 @@ class ValidationTest extends AbstractValidationTest {
 				]
 			]
 		]
-		amlModel.addToResourceSet("aml")
+		amlModel.addToResourceSet
 		val elementNewButton = amlModel.components.head.elements.head
 
 		// expect
@@ -137,7 +137,7 @@ class ValidationTest extends AbstractValidationTest {
 				]
 			]
 		]
-		amlModel.addToResourceSet("aml")
+		amlModel.addToResourceSet
 
 		// expect
 		amlModel.assertError(
@@ -171,7 +171,7 @@ class ValidationTest extends AbstractValidationTest {
 				]
 			]
 		]
-		amlModel.addToResourceSet("aml")
+		amlModel.addToResourceSet
 
 		// expect
 		amlModel.assertNoErrors
