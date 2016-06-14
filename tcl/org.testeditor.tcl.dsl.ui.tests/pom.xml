@@ -24,7 +24,6 @@
 				<artifactId>tycho-surefire-plugin</artifactId>
 				<configuration>
 					<useUIHarness>true</useUIHarness> <!-- https://bugs.eclipse.org/bugs/show_bug.cgi?id=437425 -->
-					<useUIThread>${os-use-uithread}</useUIThread>
 					<argLine>${os-jvm-flags}</argLine>
 				</configuration>
 			</plugin>
