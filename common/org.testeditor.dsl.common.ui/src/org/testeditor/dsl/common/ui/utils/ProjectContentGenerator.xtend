@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.ui.utils
 
+import static org.eclipse.xtext.xbase.lib.StringExtensions.isNullOrEmpty;
+
 import java.io.File
 import java.util.List
 import javax.inject.Inject
@@ -29,6 +31,7 @@ import org.eclipse.xtext.util.StringInputStream
 import org.osgi.framework.FrameworkUtil
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ide.util.FileUtils
+import java.util.Properties
 
 /**
  * Generator to generate content to a new test project.
@@ -123,6 +126,7 @@ class ProjectContentGenerator {
 
 	protected def void setupGradleProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
 		var IFile buildFile = project.getFile("build.gradle")
+		createGradleSettings(project, monitor);
 		buildFile.create(new StringInputStream(getBuildGradleContent(fixtures)), IResource.NONE, monitor)
 		val name = FrameworkUtil.getBundle(ProjectContentGenerator).symbolicName
 		val bundleLocation = fileLocatorService.findBundleFileLocationAsString(name)
@@ -140,6 +144,25 @@ class ProjectContentGenerator {
 				logger.warn("could not make file='{}' in dest='{}' executable", it, dest)
 			}
 		]
+	}
+
+	def createGradleSettings(IProject project, IProgressMonitor monitor) {
+		var Properties props = System.getProperties();
+		if (!isNullOrEmpty(props.getProperty("http.proxyHost"))) {
+			var IFile gradleProperties = project.getFile("gradle.properties")
+			gradleProperties.create(new StringInputStream(getProxyProperties()), IResource.NONE, monitor)
+		}
+	}
+
+	def String getProxyProperties() {
+		'''
+		systemProp.http.proxyHost=«System.getProperties().getProperty("http.proxyHost")»
+		systemProp.http.proxyPort=«System.getProperties().getProperty("http.proxyPort")»
+		systemProp.http.proxyUser=«System.getProperties().getProperty("http.proxyUser")»
+		systemProp.http.proxyPassword=«System.getProperties().getProperty("http.proxyPassword")»
+		systemProp.https.proxyHost=«System.getProperties().getProperty("https.proxyHost")»
+		systemProp.https.proxyPort=«System.getProperties().getProperty("https.proxyPort")»
+		'''
 	}
 
 	protected def void setupMavenProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
@@ -297,7 +320,7 @@ class ProjectContentGenerator {
 			
 				<properties>
 					<!-- Version definitions below -->
-					<java.version>1.7</java.version>
+					<java.version>1.8</java.version>
 					<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 			
 					<maven-clean-plugin.version>2.5</maven-clean-plugin.version>
@@ -431,9 +454,15 @@ class ProjectContentGenerator {
 								<dependencies>
 									<dependency>
 										<groupId>org.testeditor</groupId>
+										<artifactId>org.testeditor.dsl.common</artifactId>
+										<version>${project.version}</version>
+									</dependency>
+									<dependency>
+										<groupId>org.testeditor</groupId>
 										<artifactId>org.testeditor.tml.model</artifactId>
 										<version>${project.version}</version>
-									</dependency>									<dependency>
+									</dependency>
+									<dependency>
 										<groupId>org.testeditor</groupId>
 										<artifactId>org.testeditor.tsl.model</artifactId>
 										<version>${project.version}</version>
@@ -452,7 +481,8 @@ class ProjectContentGenerator {
 										<groupId>org.testeditor</groupId>
 										<artifactId>org.testeditor.tml.dsl</artifactId>
 										<version>${project.version}</version>
-									</dependency>									<dependency>
+									</dependency>
+									<dependency>
 										<groupId>org.testeditor</groupId>
 										<artifactId>org.testeditor.tcl.dsl</artifactId>
 										<version>${project.version}</version>

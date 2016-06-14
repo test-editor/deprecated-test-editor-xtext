@@ -18,8 +18,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.maven.cli.MavenCli;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.m2e.core.internal.Bundles;
 import org.eclipse.m2e.core.internal.MavenPluginActivator;
 import org.osgi.framework.Bundle;
@@ -73,11 +75,14 @@ public class MavenExecutor {
 	 *            path to the folder where the pom.xml is located.
 	 * @param testParam
 	 *            pvm parameter to identify the test case to be executed.
+	 * @param monitor
+	 *            Progress monitor to handle cancel events.
 	 * @return int with exit code
 	 * @throws IOException
 	 *             on failure
 	 */
-	public int executeInNewJvm(String parameters, String pathToPom, String testParam) throws IOException {
+	public int executeInNewJvm(String parameters, String pathToPom, String testParam, IProgressMonitor monitor)
+			throws IOException {
 		int result = 1; // unspecified error code != 0
 		String jvm = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
 		List<String> command = new ArrayList<String>();
@@ -94,6 +99,9 @@ public class MavenExecutor {
 		command.add(parameters);
 		command.add(pathToPom);
 		command.add(testParam);
+		if (Boolean.getBoolean("te.workOffline")) {
+			command.add("-o");
+		}
 		ProcessBuilder processBuilder = new ProcessBuilder();
 		processBuilder.inheritIO();
 		processBuilder.directory(new File(pathToPom));
@@ -102,7 +110,12 @@ public class MavenExecutor {
 		processBuilder.command(command);
 		Process process = processBuilder.start();
 		try {
-			result = process.waitFor();
+			while (!process.waitFor(100, TimeUnit.MILLISECONDS)) {
+				if (monitor.isCanceled()) {
+					process.destroy();
+				}
+			}
+			result = process.exitValue();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -119,6 +132,8 @@ public class MavenExecutor {
 		List<String> cp = new ArrayList<String>();
 		cp.addAll(Bundles.getClasspathEntries(Bundles
 				.findDependencyBundle(MavenPluginActivator.getDefault().getBundle(), "org.eclipse.m2e.maven.runtime")));
+		cp.addAll(Bundles.getClasspathEntries(Bundles
+				.findDependencyBundle(MavenPluginActivator.getDefault().getBundle(), "org.eclipse.equinox.common")));
 		Bundle bundle = FrameworkUtil.getBundle(this.getClass());
 		cp.addAll(Bundles.getClasspathEntries(bundle));
 		Bundle[] bundles = bundle.getBundleContext().getBundles();
