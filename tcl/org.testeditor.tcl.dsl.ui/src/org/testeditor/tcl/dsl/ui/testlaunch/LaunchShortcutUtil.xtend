@@ -50,10 +50,16 @@ class LaunchShortcutUtil {
 	/** get the qualified name of the test residing in the tcl resource. if none is found return null */
 	def QualifiedName getQualifiedNameForTestInTcl(IResource resource) {
 		val uri = storageToUriMapper.getUri(resource.getAdapter(IStorage))
-		val resourceDescription = resourceDescriptions.getResourceDescription(uri)
 		val resNameWOExtension = resource.name.replace(resource.fileExtension, '').replaceAll('\\.$', '')
-		val qualifiedName = resourceDescription?.exportedObjects.map[name].findFirst[lastSegment == resNameWOExtension]
-		return qualifiedName
+		val resourceDescription = resourceDescriptions.getResourceDescription(uri)
+		if (resourceDescription !== null) {
+			val qualifiedName = resourceDescription.exportedObjects.map[name].findFirst [
+				lastSegment == resNameWOExtension
+			]
+			return qualifiedName
+		} else {
+			return null
+		}
 	}
 
 	/**
