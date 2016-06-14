@@ -264,7 +264,7 @@ class ProjectContentGenerator {
 	def String getBuildGradleContent(String[] fixtureNames) {
 		'''
 			plugins {
-			    id 'org.testeditor.gradle-plugin' version '0.1'
+			    id 'org.testeditor.gradle-plugin' version '0.2'
 			    id 'maven'
 			    id 'eclipse'
 			}
@@ -276,7 +276,7 @@ class ProjectContentGenerator {
 			repositories {
 			    jcenter()
 			    maven { url "http://dl.bintray.com/test-editor/Fixtures" }
-			    maven { url "http://dl.bintray.com/test-editor/test-dsls" }
+			    maven { url "http://dl.bintray.com/test-editor/test-editor-maven/" }
 			}
 			
 			// Configure the testeditor plugin
