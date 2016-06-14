@@ -4,23 +4,23 @@ import javax.inject.Inject
 import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IMarker
 import org.eclipse.core.resources.IResource
+import org.eclipse.core.resources.IStorage
 import org.eclipse.core.runtime.CoreException
 import org.eclipse.emf.common.util.URI
 import org.eclipse.jdt.core.IJavaElement
 import org.eclipse.jdt.core.IPackageFragment
 import org.eclipse.jdt.core.JavaCore
+import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.xtext.resource.FileExtensionProvider
+import org.eclipse.xtext.resource.IResourceDescriptions
 import org.eclipse.xtext.ui.generator.IDerivedResourceMarkers
+import org.eclipse.xtext.ui.resource.IStorage2UriMapper
 import org.slf4j.LoggerFactory
 
 import static org.eclipse.core.resources.IMarker.PROBLEM
 import static org.eclipse.core.resources.IMarker.SEVERITY
 import static org.eclipse.core.resources.IMarker.SEVERITY_ERROR
 import static org.eclipse.core.resources.IResource.DEPTH_ONE
-import org.eclipse.xtext.naming.QualifiedName
-import org.eclipse.xtext.ui.resource.IStorage2UriMapper
-import org.eclipse.xtext.resource.IResourceDescriptions
-import org.eclipse.core.resources.IStorage
 
 class LaunchShortcutUtil {
 
