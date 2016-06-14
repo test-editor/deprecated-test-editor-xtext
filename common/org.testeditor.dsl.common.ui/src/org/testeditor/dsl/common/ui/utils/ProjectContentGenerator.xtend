@@ -32,6 +32,7 @@ import org.osgi.framework.FrameworkUtil
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ide.util.FileUtils
 import java.util.Properties
+import org.eclipse.xtend.lib.annotations.Accessors
 
 /**
  * Generator to generate content to a new test project.
@@ -52,6 +53,7 @@ class ProjectContentGenerator {
 	@Inject FileLocatorService fileLocatorService
 	@Inject extension ProjectUtils
 	
+	@Accessors(PUBLIC_GETTER) 
 	IFile demoTclFile
 
 	def void createProjectContent(IProject project, String[] fixtures, String buildsystem, boolean demo,
@@ -577,10 +579,6 @@ class ProjectContentGenerator {
 		}
 	}
 	
-	def IFile getDemoTclFile() {
-		return demoTclFile
-	}
-
 	def List<String> getAvailableBuildSystems() {
 		return #[GRADLE, MAVEN]
 	}
