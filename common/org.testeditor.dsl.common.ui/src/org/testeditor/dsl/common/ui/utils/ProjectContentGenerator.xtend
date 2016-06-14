@@ -330,7 +330,7 @@ class ProjectContentGenerator {
 					<xtext.version>2.9.0</xtext.version>
 					<xtend.version>${xtext.version}</xtend.version>
 			
-					<testeditor.version>1.0.0-SNAPSHOT</testeditor.version>
+					<testeditor.version>1.0.0</testeditor.version>
 				</properties>
 			
 				<repositories>
