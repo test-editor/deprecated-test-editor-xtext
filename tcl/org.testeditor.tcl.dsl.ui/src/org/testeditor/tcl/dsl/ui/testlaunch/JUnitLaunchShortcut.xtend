@@ -41,7 +41,7 @@ class JUnitLaunchShortcut extends org.eclipse.jdt.junit.launcher.JUnitLaunchShor
 			logger.warn("resource='{}' seems to be invalid for test run (e.g. has error markers)", res.fullPath)
 		}
 		val selection = new StructuredSelection(res)
-		val qualifiedName = res.getQualifiedNameForTestInTcl
+		val qualifiedName = res.qualifiedNameForTestInTcl
 		if (qualifiedName == null) {
 			logger.error("resource='{}' seems not to export any test.", res.fullPath)
 		} else {
