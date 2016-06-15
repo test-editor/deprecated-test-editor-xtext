@@ -21,6 +21,8 @@ import org.testeditor.dsl.common.ui.utils.ProgressMonitorRunner
 import org.testeditor.dsl.common.ui.utils.ProjectContentGenerator
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage
 import org.eclipse.jface.wizard.WizardPage
+import org.eclipse.ui.ide.IDE
+import org.eclipse.ui.PlatformUI
 
 /** 
  * Wizard to create a new test project. 
@@ -52,11 +54,11 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 	override getNextPage(IWizardPage page) {
 		return configPage
 	}
-	
-	override canFinish(){
-		val projectName=(pages.head as WizardNewProjectCreationPage).projectName
-		val nameOk=projectName.matches("^[a-zA-Z\\._0-9]+$")
-		if(!nameOk && !projectName.empty){
+
+	override canFinish() {
+		val projectName = (pages.head as WizardNewProjectCreationPage).projectName
+		val nameOk = projectName.matches("^[a-zA-Z\\._0-9]+$")
+		if (!nameOk && !projectName.empty) {
 			(pages.head as WizardPage).errorMessage = "project name may contain A-Z, 0-9, dots and underscore only"
 		}
 		return super.canFinish && nameOk
@@ -73,6 +75,9 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 				projectContentGenerator.createProjectContent(newProject, selectedFixtures, buildSystemName,
 					withDemoCode, monitor)
 			]
+		}
+		if (withDemoCode) {
+			IDE.openEditor(PlatformUI.workbench.activeWorkbenchWindow.activePage, projectContentGenerator.demoTclFile)
 		}
 		return result
 	}
