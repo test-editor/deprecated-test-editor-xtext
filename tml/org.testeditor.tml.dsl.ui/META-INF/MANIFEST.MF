@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.testeditor.tml.dsl.ui
 Bundle-Vendor: Signal Iduna Corporation
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.1.qualifier
 Bundle-SymbolicName: org.testeditor.tml.dsl.ui; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.testeditor.tml.dsl,
@@ -22,7 +22,7 @@ Require-Bundle: org.testeditor.tml.dsl,
  org.eclipse.xtext.builder,
  org.testeditor.dsl.common
 Import-Package: org.apache.log4j
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.testeditor.tml.dsl.ui.contentassist,
  org.testeditor.tml.dsl.ui.highlighting,
  org.testeditor.tml.dsl.ui.internal,

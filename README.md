@@ -10,7 +10,7 @@ An Xtext based editor to specify domain-driven acceptance tests.
 
 The latest released version can be found on [bintray](https://bintray.com/test-editor/test-editor/testeditor-app).
 
-The latest development version can be downloaded [here](https://ci.testeditor.org/job/test-editor-xtext_develop/lastSuccessfulBuild/artifact/rcp/org.testeditor.rcp4.product/target/products/).
+The latest development version can be downloaded [here](https://ci.testeditor.org/job/test-editor-xtext/job/develop/lastSuccessfulBuild/artifact/rcp/org.testeditor.rcp4.product/target/products/).
 
 ## Developers
 

@@ -267,8 +267,8 @@ class TmlValidator extends AbstractTmlValidator {
 
 	@Check
 	def checkValueInValueSpace(StepContentVariable stepContentVariable) {
-		var valueSpace = stepContentVariable.valueSpaceAssignment.valueSpace
-		if (!valueSpace.isValidValue(stepContentVariable.value)) {
+		val valueSpace = stepContentVariable.valueSpaceAssignment?.valueSpace
+		if (valueSpace !== null && !valueSpace.isValidValue(stepContentVariable.value)) {
 			val message = '''Value is not allowed in this step. Allowed values: '«valueSpace»'.'''
 			warning(message, TslPackage.Literals.STEP_CONTENT_VALUE__VALUE, UNALLOWED_VALUE);
 		}
