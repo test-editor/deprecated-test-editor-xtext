@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -20,13 +20,13 @@ import org.testeditor.tcl.TclPackage
 import org.testeditor.tcl.TestCase
 import org.testeditor.tml.ComponentTestStepContext
 import org.testeditor.tml.MacroTestStepContext
+import org.testeditor.tml.StepContentElement
 import org.testeditor.tml.StepContentVariableReference
 import org.testeditor.tml.TestStep
 import org.testeditor.tml.TmlPackage
 import org.testeditor.tsl.StepContentText
-import org.testeditor.tsl.TslPackage
 import org.testeditor.tsl.StepContentVariable
-import org.testeditor.tml.StepContentElement
+import org.testeditor.tsl.TslPackage
 
 class TclFormatter extends XbaseFormatter {
 
@@ -39,18 +39,19 @@ class TclFormatter extends XbaseFormatter {
 	}
 
 	def dispatch void format(TestCase testCase, extension IFormattableDocument document) {
-		testCase.regionFor.keyword("#").prepend[newLines = 2]
+		testCase.regionFor.keyword("#").prepend[newLines = 2].append[oneSpace]
 		testCase.regionFor.feature(TclPackage.Literals.TEST_CASE__NAME).append[newLines = 2]
+		// testCase.interior[indent] // configurable
 		testCase.steps.forEach[format]
 	}
 
 	def dispatch void format(SpecificationStepImplementation step, extension IFormattableDocument document) {
-		step.regionFor.keyword("*").prepend[newLines = 2]
+		step.regionFor.keyword("*").prepend[newLines = 2] // count configurable?
 		step.contents.forEach[format]
 		step.regionFor.keyword(".").prepend[noSpace]
 
 		step.regionFor.feature(TclPackage.Literals.SPECIFICATION_STEP_IMPLEMENTATION__TEST).append[newLine]
-		step.interior[indent]
+		// step.interior[indent] // configurable
 		step.contexts.forEach[format]
 	}
 
@@ -60,7 +61,7 @@ class TclFormatter extends XbaseFormatter {
 		componentTestStepContext.regionFor.feature(TmlPackage.Literals.COMPONENT_TEST_STEP_CONTEXT__COMPONENT).prepend [
 			oneSpace
 		].append[newLine]
-		componentTestStepContext.interior[indent]
+		// componentTestStepContext.interior[indent] // configurable
 		componentTestStepContext.steps.forEach[format]
 	}
 
