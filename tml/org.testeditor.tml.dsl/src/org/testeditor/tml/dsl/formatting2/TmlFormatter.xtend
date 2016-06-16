@@ -13,7 +13,6 @@
 package org.testeditor.tml.dsl.formatting2
 
 import org.eclipse.xtext.formatting2.IFormattableDocument
-import org.eclipse.xtext.formatting2.IHiddenRegionFormatter
 import org.eclipse.xtext.xbase.formatting2.XbaseFormatter
 import org.testeditor.aml.Template
 import org.testeditor.tml.ComponentTestStepContext
@@ -23,24 +22,26 @@ import org.testeditor.tml.StepContentElement
 import org.testeditor.tml.StepContentVariableReference
 import org.testeditor.tml.TestStep
 import org.testeditor.tml.TmlModel
-import org.testeditor.tml.TmlPackage
 import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
 
+import static org.eclipse.xtext.formatting2.IHiddenRegionFormatter.LOW_PRIORITY
+import static org.testeditor.tml.TmlPackage.Literals.*
+
 class TmlFormatter extends XbaseFormatter {
 
 	def dispatch void format(TmlModel tmlModel, extension IFormattableDocument document) {
-		tmlModel.regionFor.feature(TmlPackage.Literals.TML_MODEL__PACKAGE).append[newLines = 2]
+		tmlModel.regionFor.feature(TML_MODEL__PACKAGE).append[newLines = 2]
 		// import section is not formatted (yet), should be done by organize imports
 		tmlModel.regionFor.keyword("#").prepend[newLines = 2].append[oneSpace]
-		tmlModel.regionFor.feature(TmlPackage.Literals.TML_MODEL__NAME).append[newLines = 2]
+		tmlModel.regionFor.feature(TML_MODEL__NAME).append[newLines = 2]
 		tmlModel.macros.forEach[format]
 	}
 
 	def dispatch void format(Macro macro, extension IFormattableDocument document) {
 		macro.regionFor.keyword("##").prepend[newLines = 2].append[oneSpace]
-		macro.regionFor.feature(TmlPackage.Literals.MACRO__NAME).append[newLine]
+		macro.regionFor.feature(MACRO__NAME).append[newLine]
 		macro.regionFor.keyword("template").append[oneSpace]
 		macro.regionFor.keyword("=").append[oneSpace]
 		macro.template.format
@@ -49,20 +50,19 @@ class TmlFormatter extends XbaseFormatter {
 
 	def dispatch void format(ComponentTestStepContext componentTestStepContext,
 		extension IFormattableDocument document) {
-		componentTestStepContext.regionFor.keyword("Component").prepend[newLine].append[noSpace]
-		componentTestStepContext.regionFor.keyword("Mask").prepend[newLine].append[noSpace]
-		componentTestStepContext.regionFor.feature(TmlPackage.Literals.COMPONENT_TEST_STEP_CONTEXT__COMPONENT).prepend [
-			oneSpace
-		].append[newLine; priority = IHiddenRegionFormatter.LOW_PRIORITY]
+		componentTestStepContext.regionFor.keywords("Component", "Mask").forEach[prepend[newLine].append[noSpace]]
+		componentTestStepContext.regionFor.feature(COMPONENT_TEST_STEP_CONTEXT__COMPONENT) //
+		.prepend[oneSpace] //
+		.append[newLine; priority = LOW_PRIORITY]
 		// componentTestStepContext.interior[indent] // configurable?
 		componentTestStepContext.steps.forEach[format]
 	}
 
 	def dispatch void format(MacroTestStepContext macroTestStepContext, extension IFormattableDocument document) {
 		macroTestStepContext.regionFor.keyword("Macro").prepend[newLine].append[noSpace]
-		macroTestStepContext.regionFor.feature(TmlPackage.Literals.MACRO_TEST_STEP_CONTEXT__MACRO_MODEL).prepend [
-			oneSpace
-		].append[newLine; priority = IHiddenRegionFormatter.LOW_PRIORITY]
+		macroTestStepContext.regionFor.feature(MACRO_TEST_STEP_CONTEXT__MACRO_MODEL) //
+		.prepend[oneSpace] //
+		.append[newLine; priority = LOW_PRIORITY]
 		// macroTestStepContext.interior[indent] // configurable?
 		macroTestStepContext.step.format
 	}
@@ -82,15 +82,13 @@ class TmlFormatter extends XbaseFormatter {
 	}
 
 	def dispatch void format(StepContentElement stepContentElement, extension IFormattableDocument document) {
-		stepContentElement.regionFor.keyword("<").prepend[oneSpace]
-		stepContentElement.regionFor.keyword("<>").prepend[oneSpace]
+		stepContentElement.regionFor.keywords("<", "<>").forEach[prepend[oneSpace]]
 	}
 
 	def dispatch void format(StepContentVariableReference stepContentVariableReference,
 		extension IFormattableDocument document) {
 		stepContentVariableReference.regionFor.keyword('@').prepend[oneSpace]
-		stepContentVariableReference.regionFor.feature(TmlPackage.Literals.STEP_CONTENT_VARIABLE_REFERENCE__VARIABLE).
-			prepend[noSpace]
+		stepContentVariableReference.regionFor.feature(STEP_CONTENT_VARIABLE_REFERENCE__VARIABLE).prepend[noSpace]
 	}
 
 	def dispatch void format(Template template, extension IFormattableDocument document) {
