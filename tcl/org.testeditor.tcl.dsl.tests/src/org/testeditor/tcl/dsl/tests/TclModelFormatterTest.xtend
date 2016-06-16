@@ -20,11 +20,14 @@ class TclModelFormatterTest extends AbstractTclTest {
 				import a.b.c
 				import c.d.e
 
+				require freq, breq
+
 				# testCase
 
 				* specification
 				Component: some
 				- step withspaces "string" with <ele> and @some.
+				- next step
 
 				* next spec
 				Mask: oh
@@ -34,6 +37,10 @@ class TclModelFormatterTest extends AbstractTclTest {
 			toBeFormatted = '''
 				package com.example	import a.b.c
 				import c.d.e
+				require
+				freq
+				,
+				breq
 				#
 				testCase
 				*
@@ -51,6 +58,9 @@ class TclModelFormatterTest extends AbstractTclTest {
 				@
 				some
 				.
+				-
+				next
+				step
 				*
 				next
 				spec
@@ -72,11 +82,14 @@ class TclModelFormatterTest extends AbstractTclTest {
 				import a.b.c
 				import c.d.e
 
+				require freq, breq
+
 				# testCase
 
 				* specification
 				Component: some
 				- step withspaces "string" with <ele> and @some.
+				- next step
 
 				* next spec
 				Mask: oh
@@ -86,10 +99,11 @@ class TclModelFormatterTest extends AbstractTclTest {
 			toBeFormatted = '''
 				package com.example	import a.b.c
 				import c.d.e 
-				# 				testCase				*				specification				Component				:				some				-
-				step				withspaces				"string"				with				<ele>				and
+				         require            freq          ,            breq            #
+				testCase   			*   			specification				Component				:				some				-
+				step    			withspaces		    	"string"				with				<ele>				and
 				@
-				some				.				*				next				spec				Mask
+				some				.				-  next    step     *				next				spec				Mask
 				:				oh				-				step
 			'''
 		]
