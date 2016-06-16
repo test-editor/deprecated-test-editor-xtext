@@ -6,7 +6,7 @@ class TmlModelFormatterTest extends AbstractTmlFormatterTest {
 
 	@Test
 	def void formatLineBreaks() {
-		formatterTester.assertFormatted [
+		assertFormatted [
 			expectation = '''
 				package com.example
 				
@@ -28,7 +28,7 @@ class TmlModelFormatterTest extends AbstractTmlFormatterTest {
 
 	@Test
 	def void formatWhitespaces() {
-		formatterTester.assertFormatted [
+		assertFormatted [
 			expectation = '''
 				package com.example
 				

@@ -16,7 +16,7 @@ class MacroFormatterTest extends AbstractTmlFormatterTest {
 
 	@Test
 	def void formatLineBreaks() {
-		formatterTester.assertFormatted [
+		assertFormatted [
 			expectation = prefix + '''
 				## SomeMacro
 				template = "do this" ${element} "and that" ${var}
@@ -65,7 +65,7 @@ class MacroFormatterTest extends AbstractTmlFormatterTest {
 
 	@Test
 	def void formatWhitespaces() {
-		formatterTester.assertFormatted [
+		assertFormatted [
 			expectation = prefix + '''
 				## SomeMacro
 				template = "do this" ${element} "and that" ${var}

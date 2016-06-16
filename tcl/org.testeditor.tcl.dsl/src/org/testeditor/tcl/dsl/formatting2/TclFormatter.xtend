@@ -13,6 +13,7 @@
 package org.testeditor.tcl.dsl.formatting2;
 
 import org.eclipse.xtext.formatting2.IFormattableDocument
+import org.eclipse.xtext.formatting2.IHiddenRegionFormatter
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
@@ -33,7 +34,9 @@ class TclFormatter extends TmlFormatter {
 
 	def dispatch void format(TestCase testCase, extension IFormattableDocument document) {
 		testCase.regionFor.keyword("#").prepend[newLines = 2].append[oneSpace]
-		testCase.regionFor.feature(TEST_CASE__NAME).append[newLines = 2]
+		testCase.regionFor.feature(TEST_CASE__NAME).append[newLines = 2; priority = IHiddenRegionFormatter.LOW_PRIORITY]
+		testCase.regionFor.keyword("implements").prepend[newLines=0; oneSpace]
+		testCase.regionFor.feature(TEST_CASE__SPECIFICATION).prepend[oneSpace].append[newLines = 2]
 		// testCase.interior[indent] // configurable?
 		testCase.steps.forEach[format]
 	}
@@ -44,7 +47,7 @@ class TclFormatter extends TmlFormatter {
 		step.regionFor.keyword(".").prepend[noSpace]
 
 		step.regionFor.feature(SPECIFICATION_STEP_IMPLEMENTATION__TEST).append[newLine]
-		// step.interior[indent] // configurable
+		step.interior[indent] // configurable?
 		step.contexts.forEach[format]
 	}
 

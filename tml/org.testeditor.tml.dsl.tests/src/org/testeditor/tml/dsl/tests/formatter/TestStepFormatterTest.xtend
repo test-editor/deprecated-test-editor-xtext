@@ -16,7 +16,7 @@ class TestStepFormatterTest extends AbstractTmlFormatterTest {
 
 	@Test
 	def void formatLineBreaks() {
-		formatterTester.assertFormatted [
+		assertFormatted [
 			expectation = prefix + '''
 				- step withspaces "string" with <ele> and @some.
 				- next step
@@ -42,7 +42,7 @@ class TestStepFormatterTest extends AbstractTmlFormatterTest {
 
 	@Test
 	def void formatWhitespaces() {
-		formatterTester.assertFormatted [
+		assertFormatted [
 			expectation = prefix + '''
 				- step withspaces "string" with <ele> and @some.
 				- next step

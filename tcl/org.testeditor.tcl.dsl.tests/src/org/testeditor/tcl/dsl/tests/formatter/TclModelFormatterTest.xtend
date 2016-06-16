@@ -6,7 +6,7 @@ class TclModelFormatterTest extends AbstractTclFormatterTest {
 
 	@Test
 	def void formatLineBreaks() {
-		formatterTester.assertFormatted [
+		assertFormatted [
 			expectation = '''
 				package com.example
 				
@@ -17,10 +17,6 @@ class TclModelFormatterTest extends AbstractTclFormatterTest {
 				
 				# testCase
 				
-				* specification
-				Component: some
-				
-				* next spec
 			'''
 
 			toBeFormatted = '''
@@ -32,21 +28,13 @@ class TclModelFormatterTest extends AbstractTclFormatterTest {
 				breq
 				#
 				testCase
-				*
-				specification
-				Component
-				:
-				some
-				*
-				next
-				spec
 			'''
 		]
 	}
 
 	@Test
-	def void formatWhitespaces() {
-		formatterTester.assertFormatted [
+	def void formatLineBreaksWithImplements() {
+		assertFormatted [
 			expectation = '''
 				package com.example
 				
@@ -55,21 +43,46 @@ class TclModelFormatterTest extends AbstractTclFormatterTest {
 				
 				require freq, breq
 				
-				# testCase
+				# testCase implements SomeSpec
 				
-				* specification
-				Component: some
+			'''
+
+			toBeFormatted = '''
+				package com.example	import a.b.c
+				import c.d.e
+				require
+				freq
+				,
+				breq
+				#
+				testCase
+				implements
+				SomeSpec
+			'''
+		]
+	}
+
+	@Test
+	def void formatWhitespaces() {
+		assertFormatted [
+			expectation = '''
+				package com.example
 				
-				* next spec
+				import a.b.c
+				import c.d.e
+				
+				require freq, breq
+				
+				# testCase implements SomeSpec
+				
 			'''
 
 			toBeFormatted = '''
 				package com.example	import a.b.c
 				import c.d.e 
 				         require            freq          ,            breq            #
-				testCase   			*   			specification				Component				:				some			
-				   *				next				spec
-			'''
+				testCase   	implements      SomeSpec
+				'''
 		]
 	}
 }
