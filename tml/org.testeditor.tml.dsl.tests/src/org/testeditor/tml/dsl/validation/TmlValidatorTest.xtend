@@ -90,6 +90,7 @@ class TmlValidatorTest extends AbstractParserTest {
 			
 			# «macroCollectionName»
 			
+			## DoSomething
 			template = "do something"
 			Component: ProjectExplorer
 			- execute menu item  "«value»"  in tree <ProjektBaum>

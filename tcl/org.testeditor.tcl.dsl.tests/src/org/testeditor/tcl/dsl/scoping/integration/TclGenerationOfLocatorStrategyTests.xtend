@@ -32,15 +32,6 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 		when(outputStub.append(any(CharSequence))).thenReturn(outputStub)
 	}
 
-	private def parseAmlModel(String aml) {
-		val amlModel = amlParseHelper.parse(aml, resourceSet).assertNoSyntaxErrors
-		return amlModel
-	}
-
-	private def parseTclModel(String tcl) {
-		return tclParseHelper.parse(tcl, resourceSet).assertNoSyntaxErrors
-	}
-
 	@Test
 	def void testDefaultLocatorStrategyGeneration() {
 		// given

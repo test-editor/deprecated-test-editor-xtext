@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tcltestrun
 Bundle-SymbolicName: org.testeditor.rcp4.tcltestrun;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.1.qualifier
 Bundle-Vendor: Signal Iduna Corporation
 Require-Bundle: org.eclipse.xtend.lib,
  org.eclipse.xtext.ui,
@@ -10,7 +10,8 @@ Require-Bundle: org.eclipse.xtend.lib,
  org.testeditor.logging,
  org.testeditor.dsl.common.ui;bundle-version="1.0.0",
  org.eclipse.m2e.maven.runtime;bundle-version="1.6.2",
- org.eclipse.m2e.core;bundle-version="1.6.2"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+ org.eclipse.m2e.core;bundle-version="1.6.2",
+ org.eclipse.e4.core.contexts;bundle-version="1.4.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.testeditor.rcp4.tcltestrun
 Bundle-ActivationPolicy: lazy

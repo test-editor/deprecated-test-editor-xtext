@@ -28,6 +28,7 @@ MacroCollection:
 	(macros+=Macro)*;
 
 Macro:
+	'##' name=ID
 	'template' '=' template=Template
 	contexts+=TestStepContext*		
 ;
@@ -134,7 +135,7 @@ TestStepWithAssignment:
 	'-' variableName=ID '=' contents+=StepContent* '.'?;
 
 StepContent returns tsl::StepContent:
-	StepContentText | StepContentElement | StepContentVariable | StepContentDereferencedVariable;
+	StepContentText | StepContentElement | StepContentVariable | StepContentVariableReference;
 
 StepContentText returns tsl::StepContentText:
 	value=ID | value=StepContentTextOperator;
@@ -149,7 +150,7 @@ StepContentVariable returns tsl::StepContentVariable:
 StepContentElement hidden():
 	('<' value=ID '>') |
 	{StepContentElement} ('<>' | '<' WS+ '>');
-	
-StepContentDereferencedVariable:
-	{StepContentDereferencedVariable}
-	'@' value=ID;	
+
+StepContentVariableReference:
+	{StepContentVariableReference}
+	'@' variable=[aml::VariableReference];	

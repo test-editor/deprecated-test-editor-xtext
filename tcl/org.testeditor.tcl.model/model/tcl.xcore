@@ -21,11 +21,12 @@ import org.eclipse.xtext.xtype.XImportSection
 import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.TestSpecification
 import org.testeditor.tml.TestStepContext
+import org.testeditor.aml.VariableReference
 
 class TclModel {
 	String ^package
 	contains XImportSection importSection
-	contains RequiredEnvParams requiredEnvParams
+	contains EnvironmentVariableReference [0..*] environmentVariableReferences
 	contains TestCase test opposite model
 }
 
@@ -41,12 +42,7 @@ class SpecificationStepImplementation extends SpecificationStep {
 	contains TestStepContext[0..*] contexts
 }
 
-class RequiredEnvParams {
-	contains EnvParam[0..*] envParams
-}
-
-class EnvParam {
-	String name
+class EnvironmentVariableReference extends VariableReference {
 }
 
 

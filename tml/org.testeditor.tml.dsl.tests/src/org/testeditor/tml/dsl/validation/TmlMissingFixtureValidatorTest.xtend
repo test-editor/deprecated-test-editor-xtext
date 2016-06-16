@@ -59,6 +59,7 @@ class TmlMissingFixtureValidatorTest extends AbstractParserTest {
 			package pa
 			# MacroCollection
 
+			## UnnamedMacro
 			template = "hello"
 			Component: some_fantasy_component
 			- test step that maps
@@ -78,7 +79,8 @@ class TmlMissingFixtureValidatorTest extends AbstractParserTest {
 		val tmlFix = parse('''
 			package pa
 			# MacroCollection
-			
+
+			## UnnamedMacro
 			template = "hello"
 			Component: some_fantasy_component
 			- test step that does not map
@@ -101,6 +103,7 @@ class TmlMissingFixtureValidatorTest extends AbstractParserTest {
 			package pa
 			# MacroCollection
 			
+			## UnnamedMacro
 			template = "hello"
 			Component: some_fantasy_component
 			- assert variable = "Hello"

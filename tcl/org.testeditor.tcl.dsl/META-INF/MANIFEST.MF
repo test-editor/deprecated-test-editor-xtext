@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.testeditor.tcl.dsl
 Bundle-Vendor: Signal Iduna Corporation
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.1.qualifier
 Bundle-SymbolicName: org.testeditor.tcl.dsl; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtext,
@@ -23,7 +23,7 @@ Require-Bundle: org.eclipse.xtext,
  org.testeditor.tml.dsl
 Import-Package: org.apache.log4j,
  javax.inject
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.testeditor.tcl.dsl,
  org.testeditor.tcl.dsl.formatting2,
  org.testeditor.tcl.dsl.jvmmodel,

@@ -45,7 +45,7 @@ public class AmlModelsProvider {
 			return emptySet
 		}
 		val amlDescriptions = resourceDescriptions.getExportedObjectsByType(AML_MODEL)
-		return amlDescriptions.map[ EObjectOrProxy ].map[ EcoreUtil2.resolve(it, rs) as AmlModel]
+		return amlDescriptions.map[EObjectOrProxy].map[EcoreUtil2.resolve(it, rs) as AmlModel]
 	}
 
 }

@@ -27,8 +27,8 @@ import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tml.ComponentTestStepContext
 import org.testeditor.tml.MacroTestStepContext
-import org.testeditor.tml.StepContentDereferencedVariable
 import org.testeditor.tml.StepContentElement
+import org.testeditor.tml.StepContentVariableReference
 import org.testeditor.tml.TestStep
 import org.testeditor.tml.TestStepContext
 import org.testeditor.tsl.SpecificationStep
@@ -48,7 +48,7 @@ class TclValidator extends AbstractTclValidator {
 	}
 
 	@Check
-	def checkSpec(TestCase testCase) {
+	def void checkSpec(TestCase testCase) {
 		val specification = testCase.specification
 		if (specification != null) {
 			if (!specification.steps.matches(testCase.steps)) {
@@ -58,7 +58,8 @@ class TclValidator extends AbstractTclValidator {
 		}
 	}
 
-	private def boolean matches(List<SpecificationStep> specSteps, List<SpecificationStepImplementation> specImplSteps) {
+	private def boolean matches(List<SpecificationStep> specSteps,
+		List<SpecificationStepImplementation> specImplSteps) {
 		if (specSteps.size > specImplSteps.size) {
 			return false
 		}
@@ -66,7 +67,7 @@ class TclValidator extends AbstractTclValidator {
 	}
 
 	@Check
-	def checkTestName(TestCase testCase) {
+	def void checkTestName(TestCase testCase) {
 		if (!getExpectedName(testCase).equals(testCase.name)) {
 			val message = '''Test case name does not match '«testCase.eResource.URI.lastSegment»'.'''
 			error(message, TclPackage.Literals.TEST_CASE__NAME, INVALID_NAME)
@@ -74,7 +75,7 @@ class TclValidator extends AbstractTclValidator {
 	}
 
 	@Check
-	def checkVariableDerefUsage(TclModel tclModel) {
+	def void checkVariableReferenceUsage(TclModel tclModel) {
 		val stringTypeReference = typeReferences.getTypeForName(String, tclModel)
 		val environmentParams = tclModel.envParams.map[name].toSet
 		val actualTypeMap = newHashMap
@@ -82,19 +83,20 @@ class TclValidator extends AbstractTclValidator {
 			actualTypeMap.put(it, #{stringTypeReference})
 		]
 		tclModel.test.steps.map[contexts].flatten.forEach [
-			checkAllDerefVariableAreKnownParmeters(environmentParams, "Dereferenced variable must be a required environment variable")
-			checkAllDerefVariableTypeEquality(actualTypeMap)
+			checkAllVariableReferencesAreKnownParameters(environmentParams,
+				"Dereferenced variable must be a required environment variable")
+			checkAllVariableReferencesOnTypeEquality(actualTypeMap)
 		]
 	}
 
 	/**
 	 * check that all deref variables are used according to their actual type (transitively in their fixture)
 	 */
-	private def void checkAllDerefVariableTypeEquality(TestStepContext ctx,
+	private def void checkAllVariableReferencesOnTypeEquality(TestStepContext ctx,
 		Map<String, Set<JvmTypeReference>> actualTypeMap) {
 		switch ctx {
-			ComponentTestStepContext: ctx.steps.forEach [ checkAllDerefVariableTypeEquality(actualTypeMap, ctx) ]
-			MacroTestStepContext: ctx.step.checkAllDerefVariableTypeEquality(actualTypeMap, ctx)
+			ComponentTestStepContext: ctx.steps.forEach[checkAllVariableReferencesOnTypeEquality(actualTypeMap, ctx)]
+			MacroTestStepContext: ctx.step.checkAllVariableReferencesOnTypeEquality(actualTypeMap, ctx)
 			default: throw new RuntimeException('''Unknown TestStepContextType '«ctx.class.canonicalName»'.''')
 		}
 	}
@@ -102,27 +104,32 @@ class TclValidator extends AbstractTclValidator {
 	/**
 	 * check that all deref variables are used according to their actual type (transitively in their fixture)
 	 */
-	private def void checkAllDerefVariableTypeEquality(TestStep step, Map<String, Set<JvmTypeReference>> actualTypeMap, TestStepContext context) {
+	private def void checkAllVariableReferencesOnTypeEquality(TestStep step, Map<String, Set<JvmTypeReference>> actualTypeMap,
+		TestStepContext context) {
 		val indexedVariables = step.contents.indexed.filter [
-			value instanceof StepContentDereferencedVariable || value instanceof StepContentVariable ||
+			value instanceof StepContentVariableReference || value instanceof StepContentVariable ||
 				value instanceof StepContentElement
 		]
-		val derefVariables = indexedVariables.filter[value instanceof StepContentDereferencedVariable]
+		val derefVariables = indexedVariables.filter[value instanceof StepContentVariableReference]
 		derefVariables.forEach [
-			val expectedTypeSet = getTypeUsagesOfVariable(context, value.value)
-			val actualTypeSet = actualTypeMap.get(value.value)
-			if (!expectedTypeSet.identicalSingleTypeInSet(actualTypeSet)) {
-				error('''Environment variables can only be used for parameters of type '«expectedTypeSet.map[qualifiedName].join(", ")»' (actual type expected = '«expectedTypeSet.map[qualifiedName].join(", ")»')''',
-					value.eContainer, value.eContainingFeature, key, INVALID_TYPED_VAR_DEREF)
-			}
-		]
-	}
+			val varName=(value as StepContentVariableReference).variable.name
+			val expectedTypeSet = context.getAllTypeUsagesOfVariable(varName)
+			val actualTypeSet = actualTypeMap.get(varName)
+			if (!expectedTypeSet.
+				identicalSingleTypeInSet(
+					actualTypeSet)) {
+					error('''Environment variables can only be used for parameters of type '«actualTypeSet.map[qualifiedName].join(", ")»' (type expected = '«expectedTypeSet.map[qualifiedName].join(", ")»')''',
+						value.eContainer, value.eContainingFeature, key, INVALID_TYPED_VAR_DEREF)
+				}
+			]
+		}
 
-	/**
-	 * both sets hold only one type and this type is equal
-	 */
-	private def boolean identicalSingleTypeInSet(Set<JvmTypeReference> setA, Set<JvmTypeReference> setB) {
-		setA.size == 1 && setB.size == 1 && setA.head.qualifiedName == setB.head.qualifiedName
-	}
+		/**
+		 * both sets hold only one type and this type is equal
+		 */
+		private def boolean identicalSingleTypeInSet(Set<JvmTypeReference> setA, Set<JvmTypeReference> setB) {
+			setA.size == 1 && setB.size == 1 && setA.head.qualifiedName == setB.head.qualifiedName
+		}
 
-}
+	}
+	

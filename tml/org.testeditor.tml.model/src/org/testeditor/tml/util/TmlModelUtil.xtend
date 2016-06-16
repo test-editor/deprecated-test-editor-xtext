@@ -5,6 +5,7 @@ import java.util.Map
 import java.util.Set
 import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.xtext.common.types.JvmTypeReference
 import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.InteractionType
@@ -16,11 +17,12 @@ import org.testeditor.aml.ValueSpaceAssignment
 import org.testeditor.tml.ComponentTestStepContext
 import org.testeditor.tml.Macro
 import org.testeditor.tml.MacroTestStepContext
-import org.testeditor.tml.StepContentDereferencedVariable
 import org.testeditor.tml.StepContentElement
+import org.testeditor.tml.StepContentVariableReference
 import org.testeditor.tml.TestStep
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentText
+import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
 
@@ -32,9 +34,11 @@ class TmlModelUtil extends TslModelUtil {
 			switch (it) {
 				StepContentVariable: '''"«value»"'''
 				StepContentElement: '''<«value»>'''
-				StepContentDereferencedVariable: '''@«value»'''
-				default:
+				StepContentVariableReference: '''@«variable?.name»'''
+				StepContentValue:
 					value
+				default:
+					'?'
 			}
 		].join(' ')
 	}
@@ -72,7 +76,7 @@ class TmlModelUtil extends TslModelUtil {
 			switch (it) {
 				StepContentElement: '<>'
 				StepContentVariable: '""'
-				StepContentDereferencedVariable: '""'
+				StepContentVariableReference: '""'
 				StepContentText: value.trim
 			}
 		].join(' ')
@@ -89,7 +93,7 @@ class TmlModelUtil extends TslModelUtil {
 		val templateVariables = template.contents.filter(TemplateVariable).toList
 		val stepContentVariables = step.contents.filter [
 			it instanceof StepContentElement || it instanceof StepContentVariable ||
-				it instanceof StepContentDereferencedVariable
+				it instanceof StepContentVariableReference
 		].toList
 		if (templateVariables.size !== stepContentVariables.size) {
 			val message = '''Variables for '«step.contents.restoreString»' did not match the parameters of template '«template.normalize»' (normalized).'''
@@ -172,7 +176,7 @@ class TmlModelUtil extends TslModelUtil {
 		return foo.findFirst[variable.template.interactionType.name == container.interaction?.name]
 	}
 
-	def Set<TemplateVariable> getMacroParameters(EObject object) {
+	def Set<TemplateVariable> getEnclosingMacroParameters(EObject object) {
 		var curObject = object
 		while (curObject != null) {
 			if (curObject instanceof Macro) {
@@ -181,6 +185,29 @@ class TmlModelUtil extends TslModelUtil {
 			curObject = curObject.eContainer
 		}
 		return #{}
+	}
+
+	/**
+	 * provide an iterable with all step content variables as key and their respective fixture parameter type as value
+	 */
+	def Iterable<Pair<StepContent, JvmTypeReference>> getStepVariableFixtureParameterTypePairs(TestStep step) {
+		val parameters = step.stepContentVariables
+		val result = newLinkedList
+		parameters.forEach [ stepContent, index |
+			result.add(new Pair(stepContent, step.interaction?.getTypeOfFixtureParameter(index)))
+		]
+		return result
+
+	}
+
+	/** 
+	 * get all variables, variable references and elements that are used as parameters in this test step
+	 */
+	def Iterable<StepContent> getStepContentVariables(TestStep step) {
+		return step.contents.filter [
+			it instanceof StepContentVariable || it instanceof StepContentVariableReference ||
+				it instanceof StepContentElement
+		]
 	}
 
 }

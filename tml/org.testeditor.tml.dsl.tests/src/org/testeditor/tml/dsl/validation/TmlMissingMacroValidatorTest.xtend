@@ -56,6 +56,7 @@ class TmlMissingMacroValidatorTest extends AbstractParserTest {
 			package pa
 			# MacroCollection
 
+			## HelloMacro
 			template = "hello"
 			Macro: some_fantasy_macro
 			- macro call that maps
@@ -76,7 +77,8 @@ class TmlMissingMacroValidatorTest extends AbstractParserTest {
 		val tmlModel = parse('''
 			package pa
 			# MacroCollection
-			
+
+			## HelloMacro
 			template = "hello"
 			Macro: some_fantasy_macro
 			- macro call that does not maps

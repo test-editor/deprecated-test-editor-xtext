@@ -27,8 +27,9 @@
       </children>
     </children>
     <mainMenu xmi:id="_VlyXEOFQEeWWe9PhIDRxcQ" elementId="org.testeditor.rcp4.menu.0">
-      <children xsi:type="menu:Menu" xmi:id="_W2z6EOFQEeWWe9PhIDRxcQ" elementId="org.testeditor.rcp4.menu.configuration" label="Configuration">
-        <children xsi:type="menu:DirectMenuItem" xmi:id="_bPgYoOFQEeWWe9PhIDRxcQ" elementId="org.testeditor.rcp4.directmenuitem.resetui" label="Reset UI"/>
+      <children xsi:type="menu:Menu" xmi:id="_W2z6EOFQEeWWe9PhIDRxcQ" elementId="org.testeditor.rcp4.menu.configuration" label="&amp;Configuration">
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_bPgYoOFQEeWWe9PhIDRxcQ" elementId="org.testeditor.rcp4.directmenuitem.resetui" label="Reset UI" contributionURI="bundleclass://org.testeditor.rcp4/org.testeditor.rcp4.handlers.RestartAndResetUIHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_JBbKsCDiEeaGROnl_j-36A" elementId="org.testeditor.rcp4.directmenuitem.networkconfiguration" label="Network configuration" contributionURI="bundleclass://org.testeditor.rcp4/org.testeditor.rcp4.handlers.OpenNetworkConfigurationHandler"/>
       </children>
     </mainMenu>
     <sharedElements xsi:type="advanced:Area" xmi:id="_Hmg4kNSjEeGwXp2p959l3w" elementId="org.eclipse.ui.editorss">

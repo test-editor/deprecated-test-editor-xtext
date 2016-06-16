@@ -27,10 +27,10 @@ import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
-import org.testeditor.tml.TestStep
-import org.testeditor.tml.util.TmlModelUtil
 import org.testeditor.tml.Macro
 import org.testeditor.tml.MacroTestStepContext
+import org.testeditor.tml.TestStep
+import org.testeditor.tml.util.TmlModelUtil
 
 class TmlTemplateProposalProvider extends DefaultTemplateProposalProvider {
 
@@ -103,7 +103,7 @@ class TmlTemplateProposalProvider extends DefaultTemplateProposalProvider {
 	private def Template createTemplate(Macro macro, MacroTestStepContext context) {
 		val proposalDescription = macro.template.restoreString(false)
 		val proposalTemplate = macro.template.restoreString(true)
-		val templateId = nameProvider.getFullyQualifiedName(context.macroCollection)?.toString+"."+proposalDescription// .replaceAll('[\\<\\>\\" ]','')
+		val templateId = nameProvider.getFullyQualifiedName(context.macroCollection)?.toString+"."+proposalDescription
 		return new Template(proposalDescription, 'test step', templateId, proposalTemplate, false)
 	}
 
