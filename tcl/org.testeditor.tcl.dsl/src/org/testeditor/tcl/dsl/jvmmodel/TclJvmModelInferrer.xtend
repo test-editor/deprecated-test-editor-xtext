@@ -231,7 +231,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		val typedValues = newArrayList
 		stepContents.forEach [ stepContent, i |
 			val jvmParameter = interaction.getTypeOfFixtureParameter(i)
-			typedValues += generateCallParameter(stepContent, jvmParameter)
+			typedValues += stepContent.generateCallParameters(jvmParameter, interaction)
 		]
 		return typedValues.join(', ')
 	}
@@ -239,26 +239,40 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	/**
 	 * generate the parameter-code passed to the fixture call depending on the type of the step content
 	 */
-	private def String generateCallParameter(StepContent stepContent,
-		JvmTypeReference expectedType) {
-		switch stepContent {
-			StepContentElement:
-				return '''"«stepContent.componentElement.locator»"'''
-			StepContentVariableReference:
-				if (expectedType.qualifiedName != String.name) {
-					throw new RuntimeException('''Environment variable '«stepContent.variable.name»' (always of type String) is used where type '«expectedType.qualifiedName»' is expected.''')
-				} else {
-					return stepContent.variable.variableReferenceToVarName
-				}
-			StepContentValue:
-				if (expectedType.qualifiedName == String.name) {
-					return '''"«stepContent.value»"'''
-				} else {
-					return stepContent.
-						value
-				}
-			default:
-				throw new RuntimeException('''StepContent type ('«stepContent.class.canonicalName»') unknown.''')
+	private def dispatch Iterable<String> generateCallParameters(StepContentElement stepContent,
+		JvmTypeReference expectedType, InteractionType interaction) {
+		val element = stepContent.componentElement
+		val locator = '''"«element.locator»"'''
+		if (interaction.defaultMethod.locatorStrategyParameters.size > 0) {
+			// use element locator strategy if present, else use default of interaction
+			val locatorStrategy = element.locatorStrategy ?: interaction.locatorStrategy
+			return #[locator, locatorStrategy.qualifiedName] // locatorStrategy is the parameter right after locator (convention)
+		} else {
+			return #[locator]
+		}
+	}
+
+	/**
+	 * generate the parameter-code passed to the fixture call depending on the type of the step content
+	 */
+	private def dispatch Iterable<String> generateCallParameters(StepContentValue stepContentValue, JvmTypeReference expectedType,
+		InteractionType interaction) {
+		if (expectedType.qualifiedName == String.name) {
+			return #['''"«stepContentValue.value»"''']
+		} else {
+			return #[stepContentValue.value]
+		}
+	}
+
+	/**
+	 * generate the parameter-code passed to the fixture call depending on the type of the step content
+	 */
+	private def dispatch Iterable<String> generateCallParameters(StepContentVariableReference stepContent,
+		JvmTypeReference expectedType, InteractionType interaction) {
+		if (expectedType.qualifiedName.equals(String.name)) {
+			return #[stepContent.variable.variableReferenceToVarName]
+		} else {
+			throw new RuntimeException('''Environment variable '«stepContent.variable.name»' (always of type String) is used where type '«expectedType.qualifiedName»' is expected.''')
 		}
 	}
 

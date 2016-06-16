@@ -122,4 +122,22 @@ class InteractionTypeParserTest extends AbstractParserTest {
 		interactionType.assertNoSyntaxErrors
 	}
 
+	@Test
+	def void parseWithLocatorStrategy() {
+		// Given
+		val input = '''
+			interaction type MyAddition {
+				template = "Add" ${x} "and" ${y} "and write into" ${element} "."
+				method = MyFixture.addAndWrite(x, y, element)
+				locatorStrategy = ID
+			}
+		'''
+
+		// When
+		val interactionType = input.parse(InteractionType)
+
+		// Then
+		interactionType.assertNoSyntaxErrors
+	}
+
 }

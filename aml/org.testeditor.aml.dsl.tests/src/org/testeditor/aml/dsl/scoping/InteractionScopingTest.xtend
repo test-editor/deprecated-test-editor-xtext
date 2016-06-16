@@ -56,8 +56,8 @@ class InteractionScopingTest extends AbstractParserTest {
 		'''
 
 		// When
-		val model1 = parser.parse(file1)
-		val model2 = parser.parse(file2, model1.eResource.resourceSet)
+		val model1 = parse(file1)
+		val model2 = parse(file2)
 
 		// Then
 		model1.assertNoErrors
@@ -85,7 +85,7 @@ class InteractionScopingTest extends AbstractParserTest {
 		val file = resizeInteraction('someFixtureMethod')
 
 		// When
-		val model = parser.parse(file)
+		val model = parse(file)
 
 		// Then
 		model.assertNoErrors
@@ -103,7 +103,7 @@ class InteractionScopingTest extends AbstractParserTest {
 		val file = resizeInteraction('someUnrelatedMethod')
 
 		// When
-		val model = parser.parse(file)
+		val model = parse(file)
 
 		// Then
 		val issue = model.validate.assertSingleElement
@@ -119,7 +119,7 @@ class InteractionScopingTest extends AbstractParserTest {
 		val file = resizeInteraction('someFixtureMethod()')
 
 		// When
-		val model = parser.parse(file)
+		val model = parse(file)
 
 		// Then
 		model.assertNoErrors
@@ -131,7 +131,7 @@ class InteractionScopingTest extends AbstractParserTest {
 		val file = resizeInteraction('someFixtureMethod(size)')
 
 		// When
-		val model = parser.parse(file)
+		val model = parse(file)
 
 		// Then
 		val issue = model.validate.assertSingleElement
@@ -154,7 +154,7 @@ class InteractionScopingTest extends AbstractParserTest {
 		'''
 
 		// When
-		val model = parser.parse(file)
+		val model = parse(file)
 
 		// Then
 		model.assertNoErrors
@@ -178,7 +178,7 @@ class InteractionScopingTest extends AbstractParserTest {
 		'''
 
 		// When
-		val model = parser.parse(file)
+		val model = parse(file)
 
 		// Then
 		model.assertNoErrors

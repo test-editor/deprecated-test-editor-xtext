@@ -18,7 +18,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.testeditor.aml.dsl.tests,
  org.eclipse.xtext.junit4,
  org.eclipse.jface,
- org.testeditor.rcp4.views.teststepselector;bundle-version="1.0.0"
+ org.testeditor.rcp4.views.teststepselector
 Import-Package: com.google.inject,
  org.apache.log4j,
  org.eclipse.xtext.diagnostics,

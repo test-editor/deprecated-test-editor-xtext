@@ -43,8 +43,8 @@ class SimpleImportScopingTest extends AbstractParserTest {
 		'''
 
 		// When
-		val model1 = parser.parse(file1)
-		val model2 = parser.parse(file2, model1.eResource.resourceSet)
+		val model1 = parse(file1)
+		val model2 = parse(file2)
 
 		// Then
 		model1.assertNoErrors
@@ -134,8 +134,8 @@ class SimpleImportScopingTest extends AbstractParserTest {
 	}
 
 	private def void parseAndVerifyLinking(String file1, String file2) {
-		val model1 = parser.parse(file1)
-		val model2 = parser.parse(file2, model1.eResource.resourceSet)
+		val model1 = parse(file1)
+		val model2 = parse(file2)
 
 		// Then
 		model1.assertNoErrors
