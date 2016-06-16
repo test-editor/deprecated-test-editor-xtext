@@ -125,7 +125,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			macro.contexts.forEach [
 				generateContext(output.trace(it), #[context] + macroUseStack, envParams)
 			]
-			output.newLine.append('''// Macro end: «context.macroCollection.name» - «macro.template.normalize»''').newLine
+			output.newLine
+			output.append('''// Macro end: «context.macroCollection.name» - «macro.template.normalize»''').newLine
 		}
 	}
 
