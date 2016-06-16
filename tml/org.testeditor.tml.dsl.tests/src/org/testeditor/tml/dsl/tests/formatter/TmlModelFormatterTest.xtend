@@ -15,16 +15,6 @@ class TmlModelFormatterTest extends AbstractTmlFormatterTest {
 				
 				# MacroCollection
 				
-				## SomeMacro
-				template = "do this" ${element} "and that" ${var}
-				Component: some
-				- step withspaces "string" with <ele> and @some.
-				- next step
-				
-				## OtherMacro
-				template = "ok" ${element}
-				Macro: MacroCollection
-				- dos this @element and "some" that @element
 			'''
 
 			toBeFormatted = '''
@@ -32,49 +22,6 @@ class TmlModelFormatterTest extends AbstractTmlFormatterTest {
 				import c.d.e
 				#
 				MacroCollection
-				##
-				SomeMacro
-				template
-				=
-				"do this"
-				${element}
-				"and that"
-				${var}
-				Component
-				:
-				some
-				-
-				step
-				withspaces
-				"string"
-				with
-				<ele>
-				and
-				@
-				some
-				.
-				-
-				next
-				step
-				##
-				OtherMacro
-				template
-				=
-				"ok"
-				${element}
-				Macro
-				:
-				MacroCollection
-				-
-				dos
-				this
-				@
-				element
-				and
-				"some"
-				that
-				@
-				element
 			'''
 		]
 	}
@@ -90,28 +37,12 @@ class TmlModelFormatterTest extends AbstractTmlFormatterTest {
 				
 				# MacroCollection
 				
-				## SomeMacro
-				template = "do this" ${element} "and that" ${var}
-				Component: some
-				- step withspaces "string" with <ele> and @some.
-				- next step
-				
-				## OtherMacro
-				template = "ok" ${element}
-				Macro: MacroCollection
-				- dos this @element and "some" that @element
 			'''
 
 			toBeFormatted = '''
 				package com.example	import a.b.c
 				import c.d.e 
-				    #    MacroCollection   ##    SomeMacro   template 	= 	  "do this" 
-				    ${element} 	  "and that" 	  ${var}	  	Component      :     some    -
-				     step     withspaces        "string"       with
-				      <ele>    and    @  some          .			-next     
-				         step 	 ##OtherMacro		template = "ok" ${element}    Macro   
-				         :   MacroCollection  	- dos
-				   this    @    element     and    "some"    that    @element
+				    #    MacroCollection
 			'''
 		]
 	}
