@@ -27,6 +27,7 @@ import org.testeditor.tml.TmlPackage
 import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
+import org.testeditor.aml.AmlPackage
 
 class TclFormatter extends XbaseFormatter {
 
@@ -58,6 +59,7 @@ class TclFormatter extends XbaseFormatter {
 	def dispatch void format(ComponentTestStepContext componentTestStepContext,
 		extension IFormattableDocument document) {
 		componentTestStepContext.regionFor.keyword("Component").prepend[newLine].append[noSpace]
+		componentTestStepContext.regionFor.keyword("Mask").prepend[newLine].append[noSpace]
 		componentTestStepContext.regionFor.feature(TmlPackage.Literals.COMPONENT_TEST_STEP_CONTEXT__COMPONENT).prepend [
 			oneSpace
 		].append[newLine]
@@ -95,6 +97,8 @@ class TclFormatter extends XbaseFormatter {
 
 	def dispatch void format(StepContentVariableReference stepContentVariableReference,
 		extension IFormattableDocument document) {
+		stepContentVariableReference.regionFor.keyword('@').prepend[oneSpace]
+		stepContentVariableReference.regionFor.feature(TmlPackage.Literals.STEP_CONTENT_VARIABLE_REFERENCE__VARIABLE).prepend[noSpace]
 	}
 
 }
