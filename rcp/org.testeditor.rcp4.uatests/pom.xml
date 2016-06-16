@@ -231,7 +231,6 @@
 				<configuration>
 					<useUIHarness>true</useUIHarness>
 					<useUIThread>false</useUIThread>
-					<argLine>${argLine} ${os-jvm-flags}</argLine>
 					<product>org.testeditor.rcp4.testeditor_rcp</product>
 				</configuration>
 			</plugin>

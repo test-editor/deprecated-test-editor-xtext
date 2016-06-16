@@ -162,6 +162,9 @@
 					<groupId>org.eclipse.tycho</groupId>
 					<artifactId>tycho-surefire-plugin</artifactId>
 					<version>${tycho-version}</version>
+					<configuration>
+						<argLine>${argLine} ${os-jvm-flags}</argLine>
+					</configuration>
 				</plugin>
                 <plugin>
 					<artifactId>maven-deploy-plugin</artifactId>
