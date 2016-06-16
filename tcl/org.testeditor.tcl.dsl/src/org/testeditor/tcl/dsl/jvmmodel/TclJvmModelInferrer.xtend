@@ -119,12 +119,16 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		Iterable<EnvironmentVariableReference> envParams) {
 		output.newLine
 		val macro = context.findMacroDefinition
-		output.append('''// Macro start: «context.macroCollection.name» - «macro.template.normalize»''').newLine
-		macro.contexts.forEach [
-			generateContext(output.trace(it), #[context] + macroUseStack, envParams)
-		]
-		output.newLine
-		output.append('''// Macro end: «context.macroCollection.name» - «macro.template.normalize»''').newLine
+		if (macro == null) {
+			output.append('''// TODO Macro could not be resolved from «context.macroModel.name»''').newLine
+		} else {
+			output.append('''// Macro start: «context.macroModel.name» - «macro.template.normalize»''').newLine
+			macro.contexts.forEach [
+				generateContext(output.trace(it), #[context] + macroUseStack, EnvironmentVariableReferences)
+			]
+			output.newLine
+			output.append('''// Macro end: «context.macroModel.name» - «macro.template.normalize»''').newLine
+		}
 	}
 
 	private def dispatch void generateContext(ComponentTestStepContext context, ITreeAppendable output,
@@ -239,7 +243,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		JvmTypeReference expectedType, InteractionType interaction) {
 		val element = stepContent.componentElement
 		val locator = '''"«element.locator»"'''
-		if (interaction.defaultMethod.locatorStrategyParameters.size>0) {
+		if (interaction.defaultMethod.locatorStrategyParameters.size > 0) {
 			// use element locator strategy if present, else use default of interaction
 			val locatorStrategy = element.locatorStrategy ?: interaction.locatorStrategy
 			return #[locator, locatorStrategy.qualifiedName] // locatorStrategy is the parameter right after locator (convention)
@@ -251,12 +255,12 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	/**
 	 * generate the parameter-code passed to the fixture call depending on the type of the step content
 	 */
-	private def dispatch Iterable<String> generateCallParameters(StepContentValue stepContent, JvmTypeReference expectedType,
+	private def dispatch Iterable<String> generateCallParameters(StepContentValue stepContentValue, JvmTypeReference expectedType,
 		InteractionType interaction) {
 		if (expectedType.qualifiedName == String.name) {
-			return #['''"«stepContent.value»"''']
+			return #['''"«stepContentValue.value»"''']
 		} else {
-			return #[stepContent.value]
+			return #[stepContentValue.value]
 		}
 	}
 
@@ -268,7 +272,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		if (expectedType.qualifiedName.equals(String.name)) {
 			return #[stepContent.variable.variableReferenceToVarName]
 		} else {
-			throw new RuntimeException('''Environment variable '«stepContent.variable»' (always of type String) is used where type '«expectedType.qualifiedName»' is expected.''')
+			throw new RuntimeException('''Environment variable '«stepContent.variable.name»' (always of type String) is used where type '«expectedType.qualifiedName»' is expected.''')
 		}
 	}
 

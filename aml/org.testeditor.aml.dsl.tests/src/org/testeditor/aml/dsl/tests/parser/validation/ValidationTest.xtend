@@ -12,10 +12,12 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.tests.parser.validation
 
+import javax.inject.Inject
 import org.junit.Test
-import org.testeditor.aml.Component
-import org.testeditor.aml.ValueSpace
+import org.testeditor.aml.dsl.tests.AmlModelGenerator
 import org.testeditor.aml.dsl.validation.AmlValidator
+import org.testeditor.dsl.common.testing.DummyFixture
+import org.testeditor.dsl.common.testing.DummyLocatorStrategy
 
 import static org.testeditor.aml.AmlPackage.Literals.*
 import static org.testeditor.aml.dsl.Messages.*
@@ -26,29 +28,24 @@ import static org.testeditor.aml.dsl.validation.AmlValidator.*
  */
 class ValidationTest extends AbstractValidationTest {
 
+	@Inject extension AmlModelGenerator
+
 	@Test
 	def void validateComponentType() {
 		// Given
-		val input = '''
-			component MyComponent
-		'''
+		val component = component("MyComponent").addToResourceSet
 
-		// When
-		val component = input.parse(Component)
-
-		// Then
+		// Expect
 		component.assertError(COMPONENT, COMPONENT__TYPE__MISSING, Validation_Component_Type_Missing)
 	}
 
 	@Test
 	def void regExValueSpace() {
 		// Given
-		val input = '''
-			value-space invalid="${"
-		'''
+		val valueSpace = regExValueSpace("${").addToResourceSet
 
 		// Expect
-		input.parse(ValueSpace).assertError(
+		valueSpace.assertError(
 			REG_EX_VALUE_SPACE,
 			REG_EX_VALUE_SPACE__EXPRESSION__INVALID,
 			"The given expression is not a valid regular expression in Java:",
@@ -61,26 +58,20 @@ class ValidationTest extends AbstractValidationTest {
 	@Test
 	def void testUsageOfDefaultLocatorStrategy() {
 		// given
-		val input = '''
-			package org.test
-
-			import org.testeditor.dsl.common.testing.DummyLocatorStrategy
-			import org.testeditor.dsl.common.testing.DummyFixture
-
-			interaction type click {
-				label = "Click on"
-				template = "click on" ${element}
-				method = DummyFixture.clickOn(element, locatorStrategy)
-				locatorStrategy = SINGLE
-			}
-		'''
-
-		// when
-		val amlModel = input.parse
-		amlModel.assertNoErrors
+		val amlModel = amlModel.withTypeImport(resourceSet, "org.testeditor.dsl.common.testing.DummyLocatorStrategy").
+			withTypeImport(resourceSet, "org.testeditor.dsl.common.testing.DummyFixture") => [
+			interactionTypes += interactionType("click") => [
+				label = "Clickon"
+				defaultMethod = methodReference(resourceSet, DummyFixture, "clickOn", "element").withLocatorStrategy
+				template = template("click", "on").withParameter(defaultMethod.parameters.head)
+				locatorStrategy = locatorStrategy(resourceSet, DummyLocatorStrategy, "SINGLE")
+			]
+		]
+		amlModel.addToResourceSet
 		val interactionType = amlModel.interactionTypes.head
 
-		// then
+		// expect
+		amlModel.assertNoErrors
 		interactionType.locatorStrategy.qualifiedName.assertEquals(
 			"org.testeditor.dsl.common.testing.DummyLocatorStrategy.SINGLE")
 	}
@@ -88,39 +79,35 @@ class ValidationTest extends AbstractValidationTest {
 	@Test
 	def void testUsageOfElementOverDefaultLocatorStrategy() {
 		// given
-		val input = '''
-			package org.test
-
-			import org.testeditor.dsl.common.testing.DummyLocatorStrategy
-			import org.testeditor.dsl.common.testing.DummyFixture
-
-			interaction type click {
-				label = "Click on"
-				template = "click on" ${element}
-				method = DummyFixture.clickOn(element, locatorStrategy)
-				locatorStrategy = SINGLE
-			}
-
-			element type Button {
-				interactions = click
-			}
-
-			component type Dialog { }
-
-			component NewDialog is Dialog {
-				element NewButton is Button {
+		val amlModel = amlModel.withTypeImport(resourceSet, "org.testeditor.dsl.common.testing.DummyLocatorStrategy").
+			withTypeImport(resourceSet, "org.testeditor.dsl.common.testing.DummyFixture") => [
+			val clickInteractionType = interactionType("click") => [
+				label = "Clickon"
+				defaultMethod = methodReference(resourceSet, DummyFixture, "clickOn", "element").withLocatorStrategy
+				template = template("click", "on").withParameter(defaultMethod.parameters.head)
+				locatorStrategy = locatorStrategy(resourceSet, DummyLocatorStrategy, "SINGLE")
+			]
+			interactionTypes += clickInteractionType
+			val buttonType = componentElementType("Button") => [
+				interactionTypes += clickInteractionType
+			]
+			componentElementTypes += buttonType
+			val dialogType = componentType("Dialog")
+			componentTypes += dialogType
+			components += component("NewDialog") => [
+				type = dialogType
+				elements += componentElement("NewButton") => [
+					type = buttonType
 					locator = "ok"
-					locatorStrategy = ID
-				}
-			}
-		'''
-
-		// when
-		val amlModel = input.parse
-		amlModel.assertNoErrors
+					locatorStrategy = locatorStrategy(resourceSet, DummyLocatorStrategy, "ID")
+				]
+			]
+		]
+		amlModel.addToResourceSet
 		val elementNewButton = amlModel.components.head.elements.head
 
-		// then
+		// expect
+		amlModel.assertNoErrors
 		elementNewButton.locatorStrategy.qualifiedName.assertEquals(
 			"org.testeditor.dsl.common.testing.DummyLocatorStrategy.ID")
 	}
@@ -128,35 +115,31 @@ class ValidationTest extends AbstractValidationTest {
 	@Test
 	def void testMissingLocatorStrategy() {
 		// given
-		val input = '''
-			package org.test
-
-			import org.testeditor.dsl.common.testing.DummyLocatorStrategy
-			import org.testeditor.dsl.common.testing.DummyFixture
-
-			interaction type click {
-				label = "Click on"
-				template = "click on" ${element}
-				method = DummyFixture.clickOn(element, locatorStrategy)
-			}
-
-			element type Button {
-				interactions = click
-			}
-
-			component type Dialog { }
-
-			component NewDialog is Dialog {
-				element NewButton is Button {
+		val amlModel = amlModel.withTypeImport(resourceSet, "org.testeditor.dsl.common.testing.DummyLocatorStrategy").
+			withTypeImport(resourceSet, "org.testeditor.dsl.common.testing.DummyFixture") => [
+			val clickInteractionType = interactionType("click") => [
+				label = "Clickon"
+				defaultMethod = methodReference(resourceSet, DummyFixture, "clickOn", "element").withLocatorStrategy
+				template = template("click", "on").withParameter(defaultMethod.parameters.head)
+			]
+			interactionTypes += clickInteractionType
+			val buttonType = componentElementType("Button") => [
+				interactionTypes += clickInteractionType
+			]
+			componentElementTypes += buttonType
+			val dialogType = componentType("Dialog")
+			componentTypes += dialogType
+			components += component("NewDialog") => [
+				type = dialogType
+				elements += componentElement("NewButton") => [
+					type = buttonType
 					locator = "ok"
-				}
-			}
-		'''
+				]
+			]
+		]
+		amlModel.addToResourceSet
 
-		// when
-		val amlModel = input.parse
-
-		// then
+		// expect
 		amlModel.assertError(
 			COMPONENT_ELEMENT,
 			COMPONENT_ELEMENT__LOCATOR_STRATEGY__MISSING
@@ -164,7 +147,10 @@ class ValidationTest extends AbstractValidationTest {
 	}
 
 	@Test
+
+
 	def void testForDuplicateInteractionNames() {
+	
 		// given
 		val input = '''
 			package com.example
@@ -176,6 +162,7 @@ class ValidationTest extends AbstractValidationTest {
 		val startOfFirstAbc = input.indexOf("interaction type abc")
 		val startOfSecondAbc = input.indexOf("interaction type abc", startOfFirstAbc + 1)
 		val lengthOfinteractionType = 24
+
 
 		// when
 		val amlModel = input.parse
@@ -201,6 +188,36 @@ class ValidationTest extends AbstractValidationTest {
 		val amlModel = input.parse
 
 		// then
+		amlModel.assertNoErrors
+	}
+
+	def void testMissingLocatorStrategyNotNeeded() {
+		//given		
+		val amlModel = amlModel.withTypeImport(resourceSet, "org.testeditor.dsl.common.testing.DummyLocatorStrategy").
+			withTypeImport(resourceSet, "org.testeditor.dsl.common.testing.DummyFixture") => [
+			val getValueInteractionType = interactionType("getValue") => [
+				label = "StartApplication"
+				defaultMethod = methodReference(resourceSet, DummyFixture, "getValue", "element")
+				template = template("get", "value", "from").withParameter(defaultMethod.parameters.head)
+			]
+			interactionTypes += getValueInteractionType
+			val buttonType = componentElementType("Button") => [
+				interactionTypes += getValueInteractionType
+			]
+			componentElementTypes += buttonType
+			val dialogType = componentType("Dialog")
+			componentTypes += dialogType
+			components += component("NewDialog") => [
+				type = dialogType
+				elements += componentElement("NewButton") => [
+					type = buttonType
+					locator = "ok"
+				]
+			]
+		]
+		amlModel.addToResourceSet
+
+		// expect
 		amlModel.assertNoErrors
 	}
 

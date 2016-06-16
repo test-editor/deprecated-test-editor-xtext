@@ -24,7 +24,6 @@ import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.MethodReference
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.RegExValueSpace
-import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.ValueSpaceAssignment
 import org.testeditor.aml.VariableReference
 

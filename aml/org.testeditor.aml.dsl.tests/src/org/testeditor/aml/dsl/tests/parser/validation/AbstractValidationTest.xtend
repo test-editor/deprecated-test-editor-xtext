@@ -12,8 +12,13 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.tests.parser.validation
 
+import org.eclipse.emf.ecore.EObject
 import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
 
 abstract class AbstractValidationTest extends AbstractParserTest {
 	
+	protected def <T extends EObject> T addToResourceSet(T model) {
+		return model.addToResourceSet(resourceSet, "aml") // only aml model (and children) known here
+	}
+
 }
