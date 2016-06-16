@@ -27,8 +27,9 @@ import org.testeditor.tml.TmlPackage
 import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
+import org.testeditor.tml.dsl.formatting2.TmlFormatter
 
-class TclFormatter extends XbaseFormatter {
+class TclFormatter extends TmlFormatter {
 
 	def dispatch void format(TclModel tclModel, extension IFormattableDocument document) {
 		tclModel.regionFor.feature(TclPackage.Literals.TCL_MODEL__PACKAGE).append[newLines = 2]
@@ -54,52 +55,6 @@ class TclFormatter extends XbaseFormatter {
 		step.regionFor.feature(TclPackage.Literals.SPECIFICATION_STEP_IMPLEMENTATION__TEST).append[newLine]
 		// step.interior[indent] // configurable
 		step.contexts.forEach[format]
-	}
-
-	def dispatch void format(ComponentTestStepContext componentTestStepContext,
-		extension IFormattableDocument document) {
-		componentTestStepContext.regionFor.keyword("Component").prepend[newLine].append[noSpace]
-		componentTestStepContext.regionFor.keyword("Mask").prepend[newLine].append[noSpace]
-		componentTestStepContext.regionFor.feature(TmlPackage.Literals.COMPONENT_TEST_STEP_CONTEXT__COMPONENT).prepend [
-			oneSpace
-		].append[newLine]
-		// componentTestStepContext.interior[indent] // configurable
-		componentTestStepContext.steps.forEach[format]
-	}
-
-	def dispatch void format(MacroTestStepContext macroTestStepContext, extension IFormattableDocument document) {
-		macroTestStepContext.regionFor.keyword("Macro").prepend[newLine].append[noSpace]
-		macroTestStepContext.regionFor.feature(TmlPackage.Literals.MACRO_TEST_STEP_CONTEXT__MACRO_MODEL).prepend [
-			oneSpace
-		]
-		macroTestStepContext.interior[indent]
-		macroTestStepContext.step.format
-	}
-
-	def dispatch void format(TestStep testStep, extension IFormattableDocument document) {
-		testStep.regionFor.keyword("-").prepend[newLine]
-		testStep.contents.forEach[format]
-		testStep.regionFor.keyword(".").prepend[noSpace]
-	}
-
-	def dispatch void format(StepContentText stepContentText, extension IFormattableDocument document) {
-		stepContentText.regionFor.feature(TslPackage.Literals.STEP_CONTENT_VALUE__VALUE).prepend[oneSpace]
-	}
-
-	def dispatch void format(StepContentVariable stepContentVariable, extension IFormattableDocument document) {
-		stepContentVariable.regionFor.feature(TslPackage.Literals.STEP_CONTENT_VALUE__VALUE).prepend[oneSpace]
-	}
-
-	def dispatch void format(StepContentElement stepContentElement, extension IFormattableDocument document) {
-		stepContentElement.regionFor.keyword("<").prepend[oneSpace]
-		stepContentElement.regionFor.keyword("<>").prepend[oneSpace]
-	}
-
-	def dispatch void format(StepContentVariableReference stepContentVariableReference,
-		extension IFormattableDocument document) {
-		stepContentVariableReference.regionFor.keyword('@').prepend[oneSpace]
-		stepContentVariableReference.regionFor.feature(TmlPackage.Literals.STEP_CONTENT_VARIABLE_REFERENCE__VARIABLE).
-			prepend[noSpace]
 	}
 
 }
