@@ -115,25 +115,22 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	private def dispatch void generateContext(MacroTestStepContext context, ITreeAppendable output,
-		Iterable<MacroTestStepContext> macroUseStack,
-		Iterable<EnvironmentVariableReference> envParams) {
+		Iterable<MacroTestStepContext> macroUseStack, Iterable<EnvironmentVariableReference> envParams) {
 		output.newLine
 		val macro = context.findMacroDefinition
 		if (macro == null) {
-			output.append('''// TODO Macro could not be resolved from «context.macroModel.name»''').newLine
+			output.append('''// TODO Macro could not be resolved from «context.macroCollection.name»''').newLine
 		} else {
-			output.append('''// Macro start: «context.macroModel.name» - «macro.template.normalize»''').newLine
+			output.append('''// Macro start: «context.macroCollection.name» - «macro.template.normalize»''').newLine
 			macro.contexts.forEach [
-				generateContext(output.trace(it), #[context] + macroUseStack, EnvironmentVariableReferences)
+				generateContext(output.trace(it), #[context] + macroUseStack, envParams)
 			]
-			output.newLine
-			output.append('''// Macro end: «context.macroModel.name» - «macro.template.normalize»''').newLine
+			output.newLine.append('''// Macro end: «context.macroCollection.name» - «macro.template.normalize»''').newLine
 		}
 	}
 
 	private def dispatch void generateContext(ComponentTestStepContext context, ITreeAppendable output,
-		Iterable<MacroTestStepContext> macroUseStack,
-		Iterable<EnvironmentVariableReference> EnvironmentVariableReferences) {
+		Iterable<MacroTestStepContext> macroUseStack, Iterable<EnvironmentVariableReference> EnvironmentVariableReferences) {
 		output.newLine
 		output.append('''// Component: «context.component.name»''').newLine
 		context.steps.forEach[generate(output.trace(it), macroUseStack, EnvironmentVariableReferences)]
