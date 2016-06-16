@@ -29,6 +29,7 @@ import org.testeditor.aml.VariableReference
 
 import static org.testeditor.aml.AmlPackage.Literals.*
 import static org.testeditor.aml.dsl.Messages.*
+import java.util.Set
 
 class AmlValidator extends AbstractAmlValidator {
 
@@ -146,7 +147,7 @@ class AmlValidator extends AbstractAmlValidator {
 		val interactionsExpectingButWithoutStrategy = componentElement.componentElementInteractionTypes.filter [
 			!defaultMethod.locatorStrategyParameters.empty && locatorStrategy == null
 		]
-		if (elementHasNoStrategy &&	!interactionsExpectingButWithoutStrategy.empty) {
+		if (elementHasNoStrategy && !interactionsExpectingButWithoutStrategy.empty) {
 			val message = '''Element has interactions ('«interactionsExpectingButWithoutStrategy.map[name].join(', ')»') that require a locator strategy, but none is given.'''
 			error(message, COMPONENT_ELEMENT__LOCATOR_STRATEGY, COMPONENT_ELEMENT__LOCATOR_STRATEGY__MISSING)
 		}
@@ -156,22 +157,26 @@ class AmlValidator extends AbstractAmlValidator {
 		// ignore for now
 	}
 
+	/** get a set of strings that occur more than once in the list passed */
+	private def Set<String> getStringsOccuringMoreThanOnce(Iterable<String> list){
+		val stringsUnusedYet=list.toSet
+		val stringsOccuringMoreThanOnce = list.dropWhile [
+			val stringWasUnusedUpToNow = stringsUnusedYet.contains(it)
+			if (stringWasUnusedUpToNow) {
+				stringsUnusedYet.remove(it) // now used, remove from unused => if used a second time it is not dropped
+			}
+			return stringWasUnusedUpToNow
+		]
+		return stringsOccuringMoreThanOnce.toSet
+	}
+
 	@Check
 	def void checkInteractionNameIsUnique(AmlModel amlModel) {
-		val uniqueNames = amlModel.interactionTypes.map[name].toSet
-		val doubleUsedInteractionNames = amlModel.interactionTypes.dropWhile [
-			val result = uniqueNames.contains(name)
-			if (result) {
-				uniqueNames.remove(name)
-			}
-			return result
-		].map[name]
-		doubleUsedInteractionNames.forEach [doubleUsedInteractionName|
-			val message = '''Interaction has name ('«doubleUsedInteractionName»') which is used at least twice.'''
-			amlModel.interactionTypes.forEach[interaction,idx|
-				if(interaction.name==doubleUsedInteractionName){
-					error(message, interaction.eContainer, interaction.eContainingFeature, idx, INTERACTION_NAME_DUPLICATION)
-				}
+		amlModel.interactionTypes => [
+			val doubleUsedInteractionNames = map[name].getStringsOccuringMoreThanOnce
+			indexed.filter[doubleUsedInteractionNames.contains(value.name)].forEach[
+				val message = '''Interaction has name ('«value.name»') which is used at least twice.'''
+				error(message, value.eContainer, value.eContainingFeature, key, INTERACTION_NAME_DUPLICATION)
 			]
 		]
 	}
