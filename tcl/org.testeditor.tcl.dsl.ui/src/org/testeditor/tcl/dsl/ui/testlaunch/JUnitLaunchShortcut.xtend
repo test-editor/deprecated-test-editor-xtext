@@ -28,19 +28,23 @@ class JUnitLaunchShortcut extends org.eclipse.jdt.junit.launcher.JUnitLaunchShor
 
 	override void launch(ISelection selection, String mode) {
 		if (selection instanceof IStructuredSelection) {
-			launch(selection.firstElement as IResource, mode, false)
+			launch(selection, mode, false)
 		}
 	}
 
 	override void launch(IEditorPart editor, String mode) {
-		launch(editor.editorInput.getAdapter(IResource), mode, false)
+		launch(new StructuredSelection(editor.editorInput.getAdapter(IResource)), mode, false)
 	}
 
-	protected def launch(IResource res, String mode, boolean parameterize) {
-		if (!res.isValidForTestrun) {
-			logger.warn("resource='{}' seems to be invalid for test run (e.g. has error markers)", res.fullPath)
+	protected def launch(IStructuredSelection selection, String mode, boolean parameterize) {
+		for (element : selection.toList) {
+			val selRes = element as IResource
+			if (!selRes.isValidForTestrun) {
+				logger.warn("resource='{}' seems to be invalid for test run (e.g. has error markers)", selRes.fullPath)
+			}
 		}
-		val selection = new StructuredSelection(res)
+		//val selection = new StructuredSelection(res)
+		val res = selection.firstElement as IResource
 		val qualifiedName = res.qualifiedNameForTestInTcl
 		if (qualifiedName == null) {
 			logger.error("resource='{}' seems not to export any test.", res.fullPath)

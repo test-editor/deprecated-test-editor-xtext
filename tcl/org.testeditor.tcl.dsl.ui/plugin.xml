@@ -621,10 +621,10 @@
             <enablement>
                <with
                      variable="selection">
-                  <count
+<!--                  <count
                         value="1">
                   </count>
-                  <iterate>
+ -->                 <iterate>
                      <and>
                         <not>
                            <adapt
