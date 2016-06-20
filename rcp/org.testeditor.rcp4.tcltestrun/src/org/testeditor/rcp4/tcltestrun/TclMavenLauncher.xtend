@@ -18,11 +18,12 @@ import java.nio.file.Files
 import java.util.Map
 import javax.inject.Inject
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.IProgressMonitor
+import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
-import org.eclipse.core.runtime.NullProgressMonitor
 import org.testeditor.tcl.dsl.ui.testlaunch.LaunchShortcutUtil
 
 public class TclMavenLauncher implements TclLauncher {
@@ -33,7 +34,9 @@ public class TclMavenLauncher implements TclLauncher {
 	static val MVN_TEST_RESULT_FOLDER = "target/surefire-reports"
 	static val PROFILE_TXT_PATH = "target/profiles.txt"
 
-	@Inject extension LaunchShortcutUtil
+	@Inject TclInjectorProvider tclInjectorProvider
+	var LaunchShortcutUtil launchShortcutUtil // since this class itself is instanciated by e4, this attribute has to be injected manually
+
 	@Inject extension ProjectUtils
 	@Inject MavenExecutor mavenExecutor
 
@@ -61,10 +64,13 @@ public class TclMavenLauncher implements TclLauncher {
 	}
 
 	def String createTestCasesCommaList(IStructuredSelection selection, String elementId) {
+		if (launchShortcutUtil == null) {
+			launchShortcutUtil = tclInjectorProvider.get.getInstance(LaunchShortcutUtil)
+		}
 		if (selection.size > 1) {
 			val sb = new StringBuffer()
 			sb.append("test=")
-			sb.append(selection.toList.map[it.qualifiedNameForTestInTcl.toString].join(","))
+			sb.append(selection.toList.map[launchShortcutUtil.getQualifiedNameForTestInTcl(it as IResource).toString].join(","))
 			return sb.toString
 		} else {
 			return "test=" + elementId
@@ -72,11 +78,13 @@ public class TclMavenLauncher implements TclLauncher {
 	}
 
 	def Iterable<String> getProfiles(IProject project) {
-		mavenExecutor.executeInNewJvm("help:all-profiles", project.location.toOSString, '''output=«PROFILE_TXT_PATH»''',
-			new NullProgressMonitor)
+		mavenExecutor.executeInNewJvm("help:all-profiles",
+			project.location.toOSString, '''output=«PROFILE_TXT_PATH»''', new NullProgressMonitor)
 		val file = new File('''«project.location.toOSString»/«PROFILE_TXT_PATH»''')
 		val profileOutput = Files.readAllLines(file.toPath, StandardCharsets.UTF_8)
-		return profileOutput.filter[contains("Profile Id:")].map[substring(indexOf("Id:") + 3, indexOf("(")).trim].toSet
+		return profileOutput.filter[contains("Profile Id:")].map [
+			substring(indexOf("Id:") + 3, indexOf("(")).trim
+		].toSet
 	}
 
 }
