@@ -1,29 +1,3 @@
-<<<<<<< Updated upstream
-define(["ace/lib/oop", "ace/mode/text", "ace/mode/text_highlight_rules"], function(oop, mText, mTextHighlightRules) {
-	var HighlightRules = function() {
-		var keywords = "package";
-		this.$rules = {
-			"start": [
-				{token: "keyword", regex: "\\b(?:" + keywords + ")\\b"}
-			]
-		};
-	};
-	oop.inherits(HighlightRules, mTextHighlightRules.TextHighlightRules);
-	
-	var Mode = function() {
-		this.HighlightRules = HighlightRules;
-	};
-	oop.inherits(Mode, mText.Mode);
-	Mode.prototype.$id = "xtext/tsl";
-	Mode.prototype.getCompletions = function(state, session, pos, prefix) {
-		return [];
-	}
-	
-	return {
-		Mode: Mode
-	};
-});
-=======
 define(["ace/lib/oop", "ace/mode/text", "ace/mode/text_highlight_rules"], function(oop, mText, mTextHighlightRules) {
 	var HighlightRules = function() {
     // available tokens: tag, type, keyword, text, string, selection, comment, function, constant.buildin, constant.library, comment, comment.doc, comment.doc.tag, xml-pe, meta.tag, entity.other.attribute-name
@@ -74,4 +48,3 @@ define(["ace/lib/oop", "ace/mode/text", "ace/mode/text_highlight_rules"], functi
 	};
 });
 
->>>>>>> Stashed changes
