@@ -55,7 +55,7 @@ nodeWithProperWorkspace {
     if (buildProduct) {
         stage 'Build product'
         withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g"]) {
-            mvn 'clean package -Pproduct -Dtycho.localArtifacts=ignore'
+            mvn 'clean package -Pproduct -DskipTests -Dtycho.localArtifacts=ignore'
         }
     }
 
