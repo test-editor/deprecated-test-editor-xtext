@@ -53,13 +53,13 @@ class TmlSemanticHighlightingCalculator extends DefaultSemanticHighlightingCalcu
 	private def doProvideHighlightingFor(TmlModel model, IHighlightedPositionAcceptor acceptor,
 		CancelIndicator cancelIndicator) {
 		// Provide highlighting for the name
-		val region = model.findNodesRegionForFeature(TML_MODEL__NAME)
+		val region = model.findNodesRegionForFeature(MACRO_COLLECTION__NAME)
 		if (region !== null) {
 			acceptor.addPosition(region.offset, region.length, MACRO_NAME)
 		}
 
 		// Provide highlighting for all component element references
-		model.macros.map[contexts].flatten.forEach [provideHighlightingForTestStepContext(acceptor)]
+		model.macroCollection.macros.map[contexts].flatten.forEach [provideHighlightingForTestStepContext(acceptor)]
 	}
 
 	protected def dispatch void provideHighlightingForTestStepContext(ComponentTestStepContext context, IHighlightedPositionAcceptor acceptor){

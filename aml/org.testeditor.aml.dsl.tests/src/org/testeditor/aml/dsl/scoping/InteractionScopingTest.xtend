@@ -24,7 +24,6 @@ import org.junit.Ignore
 /**
  * Tests scoping for interactions / template variables.
  */
- @Ignore
 class InteractionScopingTest extends AbstractParserTest {
 
 	@Inject extension ModelUtil

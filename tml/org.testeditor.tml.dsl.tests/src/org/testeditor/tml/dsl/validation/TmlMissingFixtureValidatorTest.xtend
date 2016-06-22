@@ -64,7 +64,7 @@ class TmlMissingFixtureValidatorTest extends AbstractParserTest {
 			Component: some_fantasy_component
 			- test step that maps
 		''')
-		val testStepThatMaps = tmlFix.macros.head.contexts.head.assertInstanceOf(ComponentTestStepContext).steps.head
+		val testStepThatMaps = tmlFix.macroCollection.macros.head.contexts.head.assertInstanceOf(ComponentTestStepContext).steps.head
 
 		// when
 		tmlValidator.checkFixtureMethodForExistence(testStepThatMaps)
@@ -85,7 +85,7 @@ class TmlMissingFixtureValidatorTest extends AbstractParserTest {
 			Component: some_fantasy_component
 			- test step that does not map
 		''')
-		val testStepThatDoesNotMap = tmlFix.macros.head.contexts.head.assertInstanceOf(ComponentTestStepContext).steps.head
+		val testStepThatDoesNotMap = tmlFix.macroCollection.macros.head.contexts.head.assertInstanceOf(ComponentTestStepContext).steps.head
 		when(typeReferenceMock.type).thenReturn(null)
 
 		// when
@@ -108,7 +108,7 @@ class TmlMissingFixtureValidatorTest extends AbstractParserTest {
 			Component: some_fantasy_component
 			- assert variable = "Hello"
 		''')
-		val testStepThatDoesNotMap = tmlFix.macros.head.contexts.head.assertInstanceOf(ComponentTestStepContext).steps.head
+		val testStepThatDoesNotMap = tmlFix.macroCollection.macros.head.contexts.head.assertInstanceOf(ComponentTestStepContext).steps.head
 		when(typeReferenceMock.type).thenReturn(null)
 
 		// when

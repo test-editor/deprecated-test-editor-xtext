@@ -115,25 +115,23 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	private def dispatch void generateContext(MacroTestStepContext context, ITreeAppendable output,
-		Iterable<MacroTestStepContext> macroUseStack,
-		Iterable<EnvironmentVariableReference> EnvironmentVariableReferences) {
+		Iterable<MacroTestStepContext> macroUseStack, Iterable<EnvironmentVariableReference> envParams) {
 		output.newLine
 		val macro = context.findMacroDefinition
 		if (macro == null) {
-			output.append('''// TODO Macro could not be resolved from «context.macroModel.name»''').newLine
+			output.append('''// TODO Macro could not be resolved from «context.macroCollection.name»''').newLine
 		} else {
-			output.append('''// Macro start: «context.macroModel.name» - «macro.template.normalize»''').newLine
+			output.append('''// Macro start: «context.macroCollection.name» - «macro.template.normalize»''').newLine
 			macro.contexts.forEach [
-				generateContext(output.trace(it), #[context] + macroUseStack, EnvironmentVariableReferences)
+				generateContext(output.trace(it), #[context] + macroUseStack, envParams)
 			]
 			output.newLine
-			output.append('''// Macro end: «context.macroModel.name» - «macro.template.normalize»''').newLine
+			output.append('''// Macro end: «context.macroCollection.name» - «macro.template.normalize»''').newLine
 		}
 	}
 
 	private def dispatch void generateContext(ComponentTestStepContext context, ITreeAppendable output,
-		Iterable<MacroTestStepContext> macroUseStack,
-		Iterable<EnvironmentVariableReference> EnvironmentVariableReferences) {
+		Iterable<MacroTestStepContext> macroUseStack, Iterable<EnvironmentVariableReference> EnvironmentVariableReferences) {
 		output.newLine
 		output.append('''// Component: «context.component.name»''').newLine
 		context.steps.forEach[generate(output.trace(it), macroUseStack, EnvironmentVariableReferences)]
@@ -182,7 +180,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output,
 		Iterable<MacroTestStepContext> macroUseStack,
-		Iterable<EnvironmentVariableReference> EnvironmentVariableReferences) {
+		Iterable<EnvironmentVariableReference> envParams) {
 		val interaction = step.interaction
 		if (interaction !== null) {
 			val fixtureField = interaction.defaultMethod?.typeReference?.type?.fixtureFieldName
@@ -190,7 +188,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			if (fixtureField !== null && operation !== null) {
 				step.maybeCreateAssignment(operation, output)
 				output.trace(interaction.defaultMethod) => [
-					val codeLine = '''«fixtureField».«operation.simpleName»(«getParameterList(step, interaction, macroUseStack, EnvironmentVariableReferences)»);'''
+					val codeLine = '''«fixtureField».«operation.simpleName»(«getParameterList(step, interaction, macroUseStack, envParams)»);'''
 					append(codeLine) // please call with string, since tests checks against expected string which fails for passing ''' directly
 				]
 			} else {

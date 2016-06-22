@@ -13,6 +13,7 @@ import org.testeditor.tml.TestStep
 import org.testeditor.tml.TmlModel
 import org.testeditor.tml.impl.TmlFactoryImpl
 import org.testeditor.tsl.impl.TslFactoryImpl
+import org.testeditor.tml.MacroCollection
 
 class TmlModelGenerator {
 	@Inject TmlFactoryImpl tmlFactory
@@ -20,9 +21,9 @@ class TmlModelGenerator {
 	@Inject protected TslFactoryImpl tslFactory
 	@Inject protected XtypeFactory xtypeFactory
 
-	def TmlModel tmlModel(String macroCollection) {
+	def TmlModel tmlModel(String macroCollectionName) {
 		return tmlFactory.createTmlModel => [
-			name = macroCollection
+			macroCollection = tmlFactory.createMacroCollection => [name = macroCollectionName]
 			^package = "com.example"
 		]
 	}
@@ -72,8 +73,8 @@ class TmlModelGenerator {
 		]
 	}
 
-	def MacroTestStepContext macroTestStepContext(TmlModel model) {
-		return tmlFactory.createMacroTestStepContext => [macroModel = model]
+	def MacroTestStepContext macroTestStepContext(MacroCollection macroCollection) {
+		return tmlFactory.createMacroTestStepContext => [it.macroCollection = macroCollection]
 	}
 
 	def ComponentTestStepContext componentTestStepContext(Component referencedComponent) {

@@ -44,7 +44,9 @@ class TmlModelUtil extends TslModelUtil {
 	}
 
 	def Macro findMacroDefinition(MacroTestStepContext macroCallSite) {
-		macroCallSite.macroModel.macros?.findFirst[template.normalize == macroCallSite.step.normalize]
+		macroCallSite.macroCollection?.macros?.findFirst[
+			template.normalize == macroCallSite.step.normalize
+		]
 	}
 
 	def InteractionType getInteraction(TestStep step) {

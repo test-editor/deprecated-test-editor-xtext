@@ -18,6 +18,7 @@ import java.util.regex.PatternSyntaxException
 import javax.inject.Inject
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.xtype.XImportSection
+import org.testeditor.aml.AmlModel
 import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.MethodReference
@@ -28,6 +29,7 @@ import org.testeditor.aml.VariableReference
 
 import static org.testeditor.aml.AmlPackage.Literals.*
 import static org.testeditor.aml.dsl.Messages.*
+import java.util.Set
 
 class AmlValidator extends AbstractAmlValidator {
 
@@ -37,6 +39,7 @@ class AmlValidator extends AbstractAmlValidator {
 	public static val VALUE_SPACE_ASSIGNMENT__VARIABLE__NON_UNIQUE = 'valueSpaceAssignment.variable.nonUnique'
 	public static val REG_EX_VALUE_SPACE__EXPRESSION__INVALID = "RegExValueSpace.expression.invalid"
 	public static val COMPONENT_ELEMENT__LOCATOR_STRATEGY__MISSING = "componentElement.locatorStrategy.missing"
+	public static val INTERACTION_NAME_DUPLICATION = "interactionType.name.duplication"
 
 	@Inject
 	private extension ModelUtil
@@ -152,6 +155,30 @@ class AmlValidator extends AbstractAmlValidator {
 
 	override checkImports(XImportSection importSection) {
 		// ignore for now
+	}
+
+	/** get a set of strings that occur more than once in the list passed */
+	private def Set<String> getStringsOccuringMoreThanOnce(Iterable<String> list){
+		val stringsUnusedYet=list.toSet
+		val stringsOccuringMoreThanOnce = list.dropWhile [
+			val stringWasUnusedUpToNow = stringsUnusedYet.contains(it)
+			if (stringWasUnusedUpToNow) {
+				stringsUnusedYet.remove(it) // now used, remove from unused => if used a second time it is not dropped
+			}
+			return stringWasUnusedUpToNow
+		]
+		return stringsOccuringMoreThanOnce.toSet
+	}
+
+	@Check
+	def void checkInteractionNameIsUnique(AmlModel amlModel) {
+		amlModel.interactionTypes => [
+			val doubleUsedInteractionNames = map[name].getStringsOccuringMoreThanOnce
+			indexed.filter[doubleUsedInteractionNames.contains(value.name)].forEach[
+				val message = '''Interaction has name ('«value.name»') which is used at least twice.'''
+				error(message, value.eContainer, value.eContainingFeature, key, INTERACTION_NAME_DUPLICATION)
+			]
+		]
 	}
 
 }
