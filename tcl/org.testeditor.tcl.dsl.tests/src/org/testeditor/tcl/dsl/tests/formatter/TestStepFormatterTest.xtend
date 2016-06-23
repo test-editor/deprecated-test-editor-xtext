@@ -21,7 +21,9 @@ class TestStepFormatterTest extends AbstractTclFormatterTest {
 		assertFormatted [
 			expectation = prefix + '''
 				* specification
+				
 					Component: some
+				
 					Mask: other
 				
 				* next spec
@@ -48,7 +50,9 @@ class TestStepFormatterTest extends AbstractTclFormatterTest {
 		assertFormatted [
 			expectation = prefix + '''
 				* specification
+				
 					Component: some
+				
 					Mask: other
 				
 				* next spec
