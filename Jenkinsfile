@@ -123,7 +123,7 @@ void postRelease(String preReleaseVersion) {
         def developVersion = getCurrentVersion()
         if (developVersion == preReleaseVersion) {
             sh "git merge origin/master"
-            def nextSnapshotVersion = '\\${parsedVersion.majorVersion}.\\${parsedVersion.minorVersion}.\\${parsedVersion.nextIncrementalVersion}-SNAPSHOT'
+            def nextSnapshotVersion = '\\${parsedVersion.majorVersion}.\\${parsedVersion.nextMinorVersion}.0-SNAPSHOT'
             setVersion(nextSnapshotVersion, 'releng/org.testeditor.releng.target/pom.xml', 'org.testeditor.releng.target.parent')
             setVersion(nextSnapshotVersion, 'pom.xml', 'org.testeditor.releng.parent')
             sh "git add *"
