@@ -13,6 +13,7 @@ import org.testeditor.tml.TestStep
 import org.testeditor.tml.TmlModel
 import org.testeditor.tml.impl.TmlFactoryImpl
 import org.testeditor.tsl.impl.TslFactoryImpl
+import org.testeditor.tml.MacroCollection
 
 class TmlModelGenerator {
 	@Inject TmlFactoryImpl tmlFactory
@@ -20,9 +21,9 @@ class TmlModelGenerator {
 	@Inject protected TslFactoryImpl tslFactory
 	@Inject protected XtypeFactory xtypeFactory
 
-	def TmlModel tmlModel(String macroCollection) {
+	def TmlModel tmlModel(String macroCollectionName) {
 		return tmlFactory.createTmlModel => [
-			name = macroCollection
+			macroCollection = tmlFactory.createMacroCollection => [name = macroCollectionName]
 			^package = "com.example"
 		]
 	}
@@ -41,28 +42,15 @@ class TmlModelGenerator {
 		return tmlFactory.createMacro => [name = macroName]
 	}
 
-	def Template template(String ... texts) {
-		return amlFactory.createTemplate.withText(texts)
-	}
-
-	def Template withParameter(Template me, TemplateVariable variable) {
-		me.contents += variable
-		return me
-	}
-
-	def Template withParameter(Template me, String variable) {
-		me.contents += amlFactory.createTemplateVariable => [name = variable]
-		return me
-	}
-
-	def Template withText(Template me, String ... texts) {
-		return me => [
-			texts.forEach[text|contents += amlFactory.createTemplateText => [value = text]]
-		]
-	}
-
 	def TestStep testStep(String ... texts) {
 		return tmlFactory.createTestStep.withText(texts)
+	}
+
+	def TestStep withElement(TestStep me, String elementName) {
+		me.contents+=tmlFactory.createStepContentElement => [
+			value = elementName
+		]
+		return me
 	}
 
 	def TestStep withVariableReference(TestStep me, String variableReferenceName) {
@@ -85,8 +73,8 @@ class TmlModelGenerator {
 		]
 	}
 
-	def MacroTestStepContext macroTestStepContext(TmlModel model) {
-		return tmlFactory.createMacroTestStepContext => [macroModel = model]
+	def MacroTestStepContext macroTestStepContext(MacroCollection macroCollection) {
+		return tmlFactory.createMacroTestStepContext => [it.macroCollection = macroCollection]
 	}
 
 	def ComponentTestStepContext componentTestStepContext(Component referencedComponent) {

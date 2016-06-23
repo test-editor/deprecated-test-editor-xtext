@@ -20,9 +20,12 @@ import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 TmlModel:
 	'package' package=QualifiedName
 	(importSection=XImportSection)?
-	'#' name=ID
-	(macros+=Macro)*
+	macroCollection=MacroCollection
 ;
+
+MacroCollection:
+	'#' name=ID
+	(macros+=Macro)*;
 
 Macro:
 	'##' name=ID
@@ -55,12 +58,12 @@ TestStepContext:
 
 ComponentTestStepContext returns TestStepContext:
 	{ComponentTestStepContext}
-	('Mask' | 'Component') ':' component=[aml::Component]
+	('Mask' | 'Component') ':' component=[aml::Component|QualifiedName]
 	steps+=(TestStep | TestStepWithAssignment | AssertionTestStep)*;
 
 MacroTestStepContext returns TestStepContext:
 	{MacroTestStepContext}
-	'Macro' ':' macroModel=[TmlModel]
+	'Macro' ':' macroCollection=[MacroCollection|QualifiedName]
 	step=TestStep;
 
 TestStep:

@@ -56,6 +56,7 @@ ComponentElement returns ComponentElement:
 	'element' name=ID 'is' type=[ComponentElementType|QualifiedName] ('{'
 		('label' '=' label=STRING)?
 		('locator' '=' locator=STRING)?
+		('locatorStrategy' '=' locatorStrategy=[types::JvmEnumerationLiteral|ID])?
 		(valueSpaceAssignments+=ValueSpaceAssignment)*
 	'}')?
 ;
@@ -72,6 +73,7 @@ InteractionType returns InteractionType:
 		('label' '=' label=STRING)?
 		('template' '=' template=Template)?
 		('method' '=' defaultMethod=MethodReference)?
+		('locatorStrategy' '=' locatorStrategy=[types::JvmEnumerationLiteral|ID])?
 	'}')?
 ;
 
@@ -79,7 +81,7 @@ MethodReference:
 	typeReference=SimpleTypeReference '.'
 	operation=[types::JvmOperation|QualifiedName]
 	( '('
-		(parameters+=[TemplateVariable|TemplateVariableId] (',' parameters+=[TemplateVariable|TemplateVariableId])*)?
+		(parameters+=[TemplateVariable|TemplateVariableId] (',' ( parameters+=[TemplateVariable|TemplateVariableId] | locatorStrategyParameters+='locatorStrategy'))*)?
 	')' )?
 ;
 

@@ -44,11 +44,18 @@ nodeWithProperWorkspace {
 
     stage (isMaster() ? 'Build and deploy' : 'Build')
     withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g"]) {
-        // workaround for now to speed-up the build: only build the product on develop and master
-        def buildProduct = env.BRANCH_NAME == 'develop' || isMaster() ? '-Pproduct' : ''
         def goal = isMaster() ? 'deploy' : 'install'
         withXvfb {
-            mvn "clean $goal $buildProduct -Dmaven.test.failure.ignore -Dsurefire.useFile=false -Dtycho.localArtifacts=ignore"
+            mvn "clean $goal -Dmaven.test.failure.ignore -Dsurefire.useFile=false -Dtycho.localArtifacts=ignore"
+        }
+    }
+    
+    // workaround for now to speed-up the build: only build the product on develop and master
+    def buildProduct = env.BRANCH_NAME == 'develop' || isMaster()
+    if (buildProduct) {
+        stage 'Build product'
+        withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g"]) {
+            mvn 'package -Pproduct -DskipTests -Dtycho.localArtifacts=ignore'
         }
     }
 
@@ -56,7 +63,10 @@ nodeWithProperWorkspace {
         postRelease(preReleaseVersion)
     }
 
-    stage 'Collect test results'
+    stage 'Archive results'
+    if (buildProduct) {
+        archive '**/target/products/*.zip'
+    }
     step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
     codecov('codecov_test-editor-xtext')
 }
@@ -162,7 +172,7 @@ void codecov(String codecovCredentialsId) {
 
 void withXvfb(def body) {
     // TODO why do we have more than one installation on our Jenkins? If we had one we wouldn't need to specify the installationName
-    wrap([$class: 'Xvfb', installationName: 'System', timeout: 0, screen: '1024x768x24'], body)
+    wrap([$class: 'Xvfb', installationName: 'System', timeout: 2, screen: '1024x768x24', displayNameOffset: 1, autoDisplayName: true], body)
 }
 
 void withMavenEnv(List envVars = [], def body) {

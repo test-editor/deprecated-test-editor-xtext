@@ -25,6 +25,10 @@ import org.testeditor.aml.VariableReference
 class TmlModel {
 	String ^package
 	contains XImportSection importSection
+	contains MacroCollection macroCollection
+}
+
+class MacroCollection {
 	String name
 	contains Macro[0..*] macros
 }
@@ -44,7 +48,7 @@ class ComponentTestStepContext extends TestStepContext{
 }
 
 class MacroTestStepContext extends TestStepContext{
-	refers TmlModel macroModel
+	refers MacroCollection macroCollection
 	contains TestStep step
 }
 

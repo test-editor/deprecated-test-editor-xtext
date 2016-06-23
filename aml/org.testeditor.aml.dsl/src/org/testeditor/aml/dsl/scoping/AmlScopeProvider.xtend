@@ -28,14 +28,16 @@ import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.ValueSpaceAssignment
 
 import static org.testeditor.aml.AmlPackage.Literals.*
+import org.testeditor.aml.ComponentElement
 
 class AmlScopeProvider extends XbaseBatchScopeProvider {
-	
+
 	@Inject extension ModelUtil
 	@Inject extension IQualifiedNameConverter
-	
+
 	@Inject MethodReferenceScopes methodReferenceScopes
-	
+	@Inject LocatorStrategyScopes locatorStrategyScopes
+
 	override getScope(EObject context, EReference reference) {
 		if (reference == VALUE_SPACE_ASSIGNMENT__VARIABLE) {
 			if (context instanceof ElementWithInteractions<?>) {
@@ -50,9 +52,22 @@ class AmlScopeProvider extends XbaseBatchScopeProvider {
 				return methodReferenceScopes.getMethodReferenceScope(context, reference)
 			} // else: TODO provide scope only for imported element
 		}
+
+		if (context instanceof InteractionType) {
+			if (reference == INTERACTION_TYPE__LOCATOR_STRATEGY) {
+				return locatorStrategyScopes.getLocatorStrategyScope(context, reference)
+			}
+		}
+
+		if(context instanceof ComponentElement) {
+			if (reference == COMPONENT_ELEMENT__LOCATOR_STRATEGY) {
+				return locatorStrategyScopes.getLocatorStrategyScope(context, reference)
+			}
+		}
+
 		super.getScope(context, reference)
 	}
-	
+
 	/**
 	 * Provides the proper scope for template variables.
 	 */
@@ -70,7 +85,7 @@ class AmlScopeProvider extends XbaseBatchScopeProvider {
 			return null
 		], IScope.NULLSCOPE)
 	}
-	
+
 	/**
 	 * @return the {@link TemplateVariable variables} that can be referenced from the passed type
 	 */
@@ -79,5 +94,5 @@ class AmlScopeProvider extends XbaseBatchScopeProvider {
 		val variables = templates.map[referenceableVariables].flatten
 		return variables
 	}
-	
+
 }

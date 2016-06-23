@@ -93,8 +93,8 @@ class TmlValidator extends AbstractTmlValidator {
 	def checkMacroCall(TestStep testStep) {
 		if (testStep.hasMacroContext) {
 			val normalizedTeststep = testStep.normalize
-			val macroModel = testStep.macroContext.macroModel
-			if (!macroModel.macros.exists[template.normalize == normalizedTeststep]) {
+			val macroCollection = testStep.macroContext.macroCollection
+			if (!macroCollection.macros.exists[template.normalize == normalizedTeststep]) {
 				warning("test step could not resolve macro usage", TmlPackage.Literals.TEST_STEP__CONTENTS,
 					MISSING_MACRO)
 			}
@@ -267,8 +267,8 @@ class TmlValidator extends AbstractTmlValidator {
 
 	@Check
 	def checkValueInValueSpace(StepContentVariable stepContentVariable) {
-		var valueSpace = stepContentVariable.valueSpaceAssignment.valueSpace
-		if (!valueSpace.isValidValue(stepContentVariable.value)) {
+		val valueSpace = stepContentVariable.valueSpaceAssignment?.valueSpace
+		if (valueSpace !== null && !valueSpace.isValidValue(stepContentVariable.value)) {
 			val message = '''Value is not allowed in this step. Allowed values: '«valueSpace»'.'''
 			warning(message, TslPackage.Literals.STEP_CONTENT_VALUE__VALUE, UNALLOWED_VALUE);
 		}
