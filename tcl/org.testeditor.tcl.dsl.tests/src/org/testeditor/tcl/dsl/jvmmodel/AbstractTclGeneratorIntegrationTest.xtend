@@ -78,10 +78,10 @@ abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 
 	protected def <T extends EObject> T addToResourceSet(T model) {
 		switch (model) {
-			case AmlModel: return model.addToResourceSet(resourceSet, "aml")
-			case TmlModel: return model.addToResourceSet(resourceSet, "tml")
-			case TslModel: return model.addToResourceSet(resourceSet, "tsl")
-			case TclModel: return model.addToResourceSet(resourceSet, "tcl")
+			TclModel: return model.addToResourceSet(resourceSet, "tcl")
+			TmlModel: return model.addToResourceSet(resourceSet, "tml")
+			AmlModel: return model.addToResourceSet(resourceSet, "aml")
+			TslModel: return model.addToResourceSet(resourceSet, "tsl")
 			default: throw new RuntimeException('''unknown model='«model.class.name»'.''')
 		}
 	}

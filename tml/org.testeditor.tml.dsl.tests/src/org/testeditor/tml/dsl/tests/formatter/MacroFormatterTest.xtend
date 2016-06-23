@@ -20,12 +20,14 @@ class MacroFormatterTest extends AbstractTmlFormatterTest {
 			expectation = prefix + '''
 				## SomeMacro
 				template = "do this" ${element} "and that" ${var}
-				Component: some
+				
+					Component: some
 				
 				## OtherMacro
 				template = "ok" ${element}
-				Macro: MacroCollection
-				- dos this @element and "some" that @element
+				
+					Macro: MacroCollection
+					- dos this @element and "some" that @element
 			'''
 
 			toBeFormatted = prefix + '''
@@ -69,12 +71,14 @@ class MacroFormatterTest extends AbstractTmlFormatterTest {
 			expectation = prefix + '''
 				## SomeMacro
 				template = "do this" ${element} "and that" ${var}
-				Component: some
+				
+					Component: some
 				
 				## OtherMacro
 				template = "ok" ${element}
-				Macro: MacroCollection
-				- dos this @element and "some" that @element
+				
+					Macro: MacroCollection
+					- dos this @element and "some" that @element
 			'''
 
 			toBeFormatted = prefix + '''

@@ -28,29 +28,35 @@ import org.testeditor.tsl.TslPackage
 
 import static org.eclipse.xtext.formatting2.IHiddenRegionFormatter.LOW_PRIORITY
 import static org.testeditor.tml.TmlPackage.Literals.*
+import org.testeditor.tml.MacroCollection
 
 class TmlFormatter extends XbaseFormatter {
 
 	def dispatch void format(TmlModel tmlModel, extension IFormattableDocument document) {
 		tmlModel.regionFor.feature(TML_MODEL__PACKAGE).append[newLines = 2]
 		// import section is not formatted (yet), should be done by organize imports
-		tmlModel.regionFor.keyword("#").prepend[newLines = 2].append[oneSpace]
-		tmlModel.regionFor.feature(TML_MODEL__NAME).append[newLines = 2]
-		tmlModel.macros.forEach[format]
+		tmlModel.macroCollection.format
+	}
+	
+	def dispatch void format(MacroCollection macroCollection, extension IFormattableDocument document) {
+		macroCollection.regionFor.keyword("#").prepend[newLines = 2].append[oneSpace]
+		macroCollection.regionFor.feature(MACRO_COLLECTION__NAME).append[newLines = 2]
+		macroCollection.macros.forEach[format]
 	}
 
 	def dispatch void format(Macro macro, extension IFormattableDocument document) {
 		macro.regionFor.keyword("##").prepend[newLines = 2].append[oneSpace]
 		macro.regionFor.feature(MACRO__NAME).append[newLine]
-		macro.regionFor.keyword("template").append[oneSpace]
+		macro.regionFor.keyword("template").prepend[noIndentation].append[oneSpace]
 		macro.regionFor.keyword("=").append[oneSpace]
 		macro.template.format
+		macro.interior[indent]
 		macro.contexts.forEach[format]
 	}
 
 	def dispatch void format(ComponentTestStepContext componentTestStepContext,
 		extension IFormattableDocument document) {
-		componentTestStepContext.regionFor.keywords("Component", "Mask").forEach[prepend[newLine].append[noSpace]]
+		componentTestStepContext.regionFor.keywords("Component", "Mask").forEach[prepend[newLines=2].append[noSpace]]
 		componentTestStepContext.regionFor.feature(COMPONENT_TEST_STEP_CONTEXT__COMPONENT) //
 		.prepend[oneSpace] //
 		.append[newLine; priority = LOW_PRIORITY]
@@ -59,8 +65,8 @@ class TmlFormatter extends XbaseFormatter {
 	}
 
 	def dispatch void format(MacroTestStepContext macroTestStepContext, extension IFormattableDocument document) {
-		macroTestStepContext.regionFor.keyword("Macro").prepend[newLine].append[noSpace]
-		macroTestStepContext.regionFor.feature(MACRO_TEST_STEP_CONTEXT__MACRO_MODEL) //
+		macroTestStepContext.regionFor.keyword("Macro").prepend[newLines=2].append[noSpace]
+		macroTestStepContext.regionFor.feature(MACRO_TEST_STEP_CONTEXT__MACRO_COLLECTION) //
 		.prepend[oneSpace] //
 		.append[newLine; priority = LOW_PRIORITY]
 		// macroTestStepContext.interior[indent] // configurable?
@@ -93,7 +99,6 @@ class TmlFormatter extends XbaseFormatter {
 
 	def dispatch void format(Template template, extension IFormattableDocument document) {
 		template.contents.forEach[it.prepend[oneSpace]]
-		template.append[newLine]
 	}
 
 }
