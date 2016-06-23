@@ -11,15 +11,16 @@ class TestStepFormatterTest extends AbstractTmlFormatterTest {
 		
 		## Some
 		template = "aha"
-		Component: some
-	'''
+		
+			Component: some
+		'''
 
 	@Test
 	def void formatLineBreaks() {
 		assertFormatted [
 			expectation = prefix + '''
-				- step withspaces "string" with <ele> and @some.
-				- next step
+				«''»	- step withspaces "string" with <ele> and @some.
+				«''»	- next step
 			'''
 
 			toBeFormatted = prefix + '''
@@ -44,12 +45,12 @@ class TestStepFormatterTest extends AbstractTmlFormatterTest {
 	def void formatWhitespaces() {
 		assertFormatted [
 			expectation = prefix + '''
-				- step withspaces "string" with <ele> and @some.
-				- next step
+				«''»	- step withspaces "string" with <ele> and @some.
+				«''»	- next step
 			'''
 
 			toBeFormatted = prefix + '''
-				            -
+				   -
 				step    			withspaces		    	"string"				with				<ele>				and
 				@
 				some				.				-  next    step
