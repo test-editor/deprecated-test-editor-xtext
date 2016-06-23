@@ -14,6 +14,15 @@ import org.testeditor.tml.TmlModel
 import org.testeditor.tml.impl.TmlFactoryImpl
 import org.testeditor.tsl.impl.TslFactoryImpl
 import org.testeditor.tml.MacroCollection
+import org.testeditor.tml.TestStepWithAssignment
+import org.testeditor.tml.AssertionExpression
+import org.testeditor.tml.AssertionTestStep
+import org.testeditor.tml.AEComparison
+import org.testeditor.tml.AEStringConstant
+import org.testeditor.tml.AEVariableReference
+import org.testeditor.tml.ComparatorEquals
+import org.testeditor.tml.AENullOrBoolCheck
+import org.testeditor.tml.ComparatorMatches
 
 class TmlModelGenerator {
 	@Inject TmlFactoryImpl tmlFactory
@@ -46,8 +55,51 @@ class TmlModelGenerator {
 		return tmlFactory.createTestStep.withText(texts)
 	}
 
+	def TestStepWithAssignment testStepWithAssignment(String variable, String ... texts) {
+		tmlFactory.createTestStepWithAssignment => [
+			withText(texts)
+			name = variable
+		]
+	}
+
+	def AssertionTestStep assertionTestStep() {
+		tmlFactory.createAssertionTestStep
+	}
+
+	def AEStringConstant aeStringConstant() {
+		tmlFactory.createAEStringConstant 
+	}
+	
+	def AEComparison aeComparison(){
+		tmlFactory.createAEComparison
+	}
+	
+	def AEVariableReference aeVariableReference(){
+		tmlFactory.createAEVariableReference
+	}
+	
+	def ComparatorEquals comparatorEquals() {
+		tmlFactory.createComparatorEquals
+	}
+
+	def ComparatorEquals comparatorNotEquals() {
+		tmlFactory.createComparatorEquals => [ negated = true ]
+	}
+	
+	def ComparatorMatches comparatorMatches() {
+		tmlFactory.createComparatorMatches
+	}
+
+	def ComparatorMatches comparatorDoesNotMatch() {
+		tmlFactory.createComparatorMatches => [ negated = true ]
+	}
+
+	def AENullOrBoolCheck aeNullOrBoolCheck() {
+		tmlFactory.createAENullOrBoolCheck
+	}
+	
 	def TestStep withElement(TestStep me, String elementName) {
-		me.contents+=tmlFactory.createStepContentElement => [
+		me.contents += tmlFactory.createStepContentElement => [
 			value = elementName
 		]
 		return me

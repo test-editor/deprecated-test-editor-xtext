@@ -220,12 +220,12 @@ class TmlValidator extends AbstractTmlValidator {
 		tsContext.steps.forEach [ it, index |
 			if (it instanceof TestStepWithAssignment) {
 				// check "in order" (to prevent variable usage before assignment)
-				if (varTypeMap.containsKey(variableName)) {
-					val message = '''Variable '«variableName»' is assigned more than once.'''
+				if (varTypeMap.containsKey(name)) {
+					val message = '''Variable '«name»' is assigned more than once.'''
 					warning(message, TmlPackage.Literals.COMPONENT_TEST_STEP_CONTEXT__STEPS, index,
 						VARIABLE_ASSIGNED_MORE_THAN_ONCE);
 				} else {
-					varTypeMap.put(variableName, interaction.defaultMethod.operation.returnType.identifier)
+					varTypeMap.put(name, interaction.defaultMethod.operation.returnType.identifier)
 				}
 			} else if (it instanceof AssertionTestStepImpl) {
 				executeCheckVariableUsageWithinAssertionExpressions(varTypeMap, index)
@@ -236,14 +236,14 @@ class TmlValidator extends AbstractTmlValidator {
 	private def executeCheckVariableUsageWithinAssertionExpressions(AssertionTestStep step,
 		Map<String, String> varTypeMap, int index) {
 		step.expression.collectVariableUsage.forEach [
-			if (varTypeMap.get(name) == null) { // regular variable dereference
-				val message = '''Variable '«name»' is unknown here.'''
+			if (varTypeMap.get(testStepWithAssignment.name) == null) { // regular variable dereference
+				val message = '''Variable '«testStepWithAssignment.name»' is unknown here.'''
 				error(message, eContainer, eContainingFeature, VARIABLE_UNKNOWN_HERE)
 			} else if (key != null) { // dereference map with a key
-				val typeIdentifier = varTypeMap.get(name).replaceFirst("<.*", "")
+				val typeIdentifier = varTypeMap.get(testStepWithAssignment.name).replaceFirst("<.*", "")
 				if (typeIdentifier.
 					isNotAssignableToMap) {
-					val message = '''Variable '«name»' of type '«typeIdentifier»' does not implement '«Map.canonicalName»'. It cannot be used with key '«key»'.'''
+					val message = '''Variable '«testStepWithAssignment.name»' of type '«typeIdentifier»' does not implement '«Map.canonicalName»'. It cannot be used with key '«key»'.'''
 					error(message, eContainer, eContainingFeature, INVALID_MAP_REF)
 				}
 			}

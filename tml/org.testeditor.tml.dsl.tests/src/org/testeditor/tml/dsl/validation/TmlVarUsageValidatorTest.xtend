@@ -1,6 +1,7 @@
 package org.testeditor.tml.dsl.validation
 
 import java.util.Map
+import javax.inject.Inject
 import org.eclipse.xtext.common.types.JvmOperation
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.validation.ValidationMessageAcceptor
@@ -10,10 +11,10 @@ import org.mockito.ArgumentCaptor
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.testeditor.aml.AmlFactory
+import org.testeditor.tml.ComponentTestStepContext
+import org.testeditor.tml.dsl.tests.TmlModelGenerator
 import org.testeditor.tml.dsl.tests.parser.AbstractParserTest
 import org.testeditor.tml.util.TmlModelUtil
-import org.testeditor.tml.ComponentTestStepContext
-import org.testeditor.tml.TestStepContext
 
 import static org.mockito.Matchers.*
 
@@ -25,6 +26,8 @@ class TmlVarUsageValidatorTest extends AbstractParserTest {
 	@InjectMocks TmlValidator tclValidator // class under test
 	@Mock JvmTypeReference typeRefMock
 	@Mock ValidationMessageAcceptor messageAcceptor
+
+	@Inject extension TmlModelGenerator
 
 	val message = ArgumentCaptor.forClass(String)
 
@@ -47,31 +50,13 @@ class TmlVarUsageValidatorTest extends AbstractParserTest {
 	}
 
 	@Test
-	def void errorForUnknownVar() {
-		// given
-		val testStepContext = parseTestStepContext('''
-			Component: some_fantasy_component
-			- assert unknownVar = "get some map"
-		''')
-		val componentTestStepContext=testStepContext.assertInstanceOf(ComponentTestStepContext)
-
-		// when
-		tclValidator.checkVariableUsageWithinAssertionExpressions(componentTestStepContext)
-
-		// then
-		messageAcceptor.verify.acceptError(message.capture, anyObject, anyObject, anyInt, anyString)
-		message.value.assertMatches("Variable 'unknownVar' is unknown.*")
-	}
-
-	@Test
 	def void warningForMultipleAssignments() {
 		// given
-		val testStepContext = parseTestStepContext('''
-			Component: some_fantasy_component
-			- value = get some map
-			- value = execute second assignment
-		''')
-		val componentTestStepContext=testStepContext.assertInstanceOf(ComponentTestStepContext)
+		val testStepContext = componentTestStepContext(null) => [
+			steps += testStepWithAssignment("variable", "some")
+			steps += testStepWithAssignment("variable", "other")
+		]
+		val componentTestStepContext = testStepContext.assertInstanceOf(ComponentTestStepContext)
 
 		when(typeRefMock.identifier).thenReturn(String.canonicalName)
 
@@ -80,18 +65,24 @@ class TmlVarUsageValidatorTest extends AbstractParserTest {
 
 		// then
 		messageAcceptor.verify.acceptWarning(message.capture, anyObject, anyObject, anyInt, anyString)
-		message.value.assertMatches("Variable 'value' is assigned more than once\\.")
+		message.value.assertMatches("Variable 'variable' is assigned more than once\\.")
 	}
 
 	@Test
 	def void mapVariableUsage() {
 		// given
-		val testStepContext = parseTestStepContext('''
-			Component: some_fantasy_component
-			- value = get some map
-			- assert value.key == "fixed value"
-		''')
-		val componentTestStepContext=testStepContext.assertInstanceOf(ComponentTestStepContext)
+		val testStepContext = componentTestStepContext(null) => [
+			val twa = testStepWithAssignment("variable", "some")
+			steps += twa
+			steps += assertionTestStep => [
+				expression = aeComparison => [
+					left = aeVariableReference => [testStepWithAssignment = twa key = "key"]
+					comparator = comparatorEquals
+					right = aeStringConstant => [string = "fixed value"]
+				]
+			]
+		]
+		val componentTestStepContext = testStepContext.assertInstanceOf(ComponentTestStepContext)
 
 		when(typeRefMock.identifier).thenReturn(Map.canonicalName)
 
@@ -105,12 +96,18 @@ class TmlVarUsageValidatorTest extends AbstractParserTest {
 	@Test
 	def void variableUsage() {
 		// given
-		val testStepContext = parseTestStepContext('''
-			Component: some_fantasy_component
-			- value = get some map
-			- assert value == "fixed value"
-		''')
-		val componentTestStepContext=testStepContext.assertInstanceOf(ComponentTestStepContext)
+		val testStepContext = componentTestStepContext(null) => [
+			val twa = testStepWithAssignment("variable", "some")
+			steps += twa
+			steps += assertionTestStep => [
+				expression = aeComparison => [
+					left = aeVariableReference => [testStepWithAssignment = twa]
+					comparator = comparatorEquals
+					right = aeStringConstant => [string = "fixed value"]
+				]
+			]
+		]
+		val componentTestStepContext = testStepContext.assertInstanceOf(ComponentTestStepContext)
 
 		when(typeRefMock.identifier).thenReturn(String.canonicalName)
 
@@ -124,12 +121,18 @@ class TmlVarUsageValidatorTest extends AbstractParserTest {
 	@Test
 	def void illegalMapVariableUsage() {
 		// given
-		val testStepContext = parseTestStepContext('''
-			Component: some_fantasy_component
-			- value = get some that is not a map
-			- assert value.key == "fixed value"
-		''')
-		val componentTestStepContext=testStepContext.assertInstanceOf(ComponentTestStepContext)
+		val testStepContext = componentTestStepContext(null) => [
+			val twa = testStepWithAssignment("variable", "some")
+			steps += twa
+			steps += assertionTestStep => [
+				expression = aeComparison => [
+					left = aeVariableReference => [testStepWithAssignment = twa key = "key"]
+					comparator = comparatorEquals
+					right = aeStringConstant => [string = "fixed value"]
+				]
+			]
+		]
+		val componentTestStepContext = testStepContext.assertInstanceOf(ComponentTestStepContext)
 
 		when(typeRefMock.identifier).thenReturn(Integer.canonicalName)
 
@@ -138,11 +141,7 @@ class TmlVarUsageValidatorTest extends AbstractParserTest {
 
 		// then
 		messageAcceptor.verify.acceptError(message.capture, anyObject, anyObject, anyInt, anyString)
-		message.value.assertMatches("Variable 'value'.*does not implement.*")
-	}
-
-	private def TestStepContext parseTestStepContext(CharSequence seq) {
-		return seq.parse(grammarAccess.testStepContextRule, TestStepContext)
+		message.value.assertMatches("Variable 'variable'.*does not implement.*")
 	}
 
 }

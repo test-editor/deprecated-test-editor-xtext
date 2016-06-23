@@ -106,9 +106,10 @@ class TmlMissingFixtureValidatorTest extends AbstractParserTest {
 			## UnnamedMacro
 			template = "hello"
 			Component: some_fantasy_component
+			- variable = get some
 			- assert variable = "Hello"
 		''')
-		val testStepThatDoesNotMap = tmlFix.macroCollection.macros.head.contexts.head.assertInstanceOf(ComponentTestStepContext).steps.head
+		val testStepThatDoesNotMap = tmlFix.macroCollection.macros.head.contexts.head.assertInstanceOf(ComponentTestStepContext).steps.get(1)
 		when(typeReferenceMock.type).thenReturn(null)
 
 		// when

@@ -72,13 +72,13 @@ class AEComparison extends BinaryAssertionExpression {
 	contains Comparator comparator
 }
 
-class AENullCheck extends AssertionExpression {
+class AENullOrBoolCheck extends AssertionExpression {
 	contains AEVariableReference varReference
 	boolean negated = "false"
 }
 
 class AEVariableReference extends AssertionExpression {
-	String name
+	refers TestStepWithAssignment testStepWithAssignment
 	String key // only != null if: map.key
 }
 
@@ -87,7 +87,7 @@ class AEStringConstant extends AssertionExpression {
 }
 
 class TestStepWithAssignment extends TestStep {
-	String variableName
+	String name
 }
 
 class StepContentVariableReference extends StepContent{
