@@ -39,8 +39,8 @@ class TclValidatorTest extends AbstractParserTest {
 		var tclError = getTCLWithValue("Test2", "Save")
 		
 		//when
-		var model = parser.parse(tcl, URI.createURI("Test.tcl"), resourceSet)
-		var modelError = parser.parse(tclError, URI.createURI("Test2.tcl"), resourceSet)
+		var model = parseHelper.parse(tcl, URI.createURI("Test.tcl"), resourceSet)
+		var modelError = parseHelper.parse(tclError, URI.createURI("Test2.tcl"), resourceSet)
 		
 		//then
 		validator.assertNoIssues(model)
@@ -58,8 +58,8 @@ class TclValidatorTest extends AbstractParserTest {
 		var tclError = getTCLWithValue("Test2", "1")
 		
 		//when
-		var model = parser.parse(tcl, URI.createURI("Test.tcl"), resourceSet)
-		var modelError = parser.parse(tclError, URI.createURI("Test2.tcl"), resourceSet)
+		var model = parseHelper.parse(tcl, URI.createURI("Test.tcl"), resourceSet)
+		var modelError = parseHelper.parse(tclError, URI.createURI("Test2.tcl"), resourceSet)
 
 		//then
 		validator.assertNoIssues(model)
@@ -77,8 +77,8 @@ class TclValidatorTest extends AbstractParserTest {
 		var tclError = getTCLWithValue("Test2", "!!hello")
 
 		//when
-		var model = parser.parse(tcl, URI.createURI("Test.tcl"), resourceSet)
-		var modelError = parser.parse(tclError, URI.createURI("Test2.tcl"), resourceSet)
+		var model = parseHelper.parse(tcl, URI.createURI("Test.tcl"), resourceSet)
+		var modelError = parseHelper.parse(tclError, URI.createURI("Test2.tcl"), resourceSet)
 
 		//then
 		validator.assertNoIssues(model)
