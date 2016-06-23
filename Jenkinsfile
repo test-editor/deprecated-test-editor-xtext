@@ -118,6 +118,7 @@ void postRelease(String preReleaseVersion) {
 
     stage 'Increment develop version'
         sh "git checkout develop"
+        sh "git fetch origin"
         sh "git reset --hard origin/develop"
         def developVersion = getCurrentVersion()
         if (developVersion == preReleaseVersion) {
