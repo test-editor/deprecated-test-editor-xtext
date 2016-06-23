@@ -108,7 +108,7 @@ class TclModelParserTest extends AbstractParserTest {
 		test.steps.assertSingleElement => [
 			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
 				val componentNode = findNodesForFeature(TmlPackage.Literals.COMPONENT_TEST_STEP_CONTEXT__COMPONENT).assertSingleElement
-				componentNode.text.assertEquals('GreetingsApplication')
+				componentNode.text.trim.assertEquals('GreetingsApplication')
 				steps.assertSize(2)
 				steps.get(0) => [
 					contents.restoreString.assertEquals('starte Anwendung "org.testeditor.swing.exammple.Greetings"')	
@@ -140,8 +140,9 @@ class TclModelParserTest extends AbstractParserTest {
 		test.steps.assertSingleElement.contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
 			val emptyReferences = steps.assertSingleElement.contents.assertSize(3)
 			emptyReferences.forEach[
-				assertInstanceOf(StepContentElement)
-				value.assertNull
+				assertInstanceOf(StepContentElement) => [
+					value.assertNull
+				]
 			]
 		]
 	}

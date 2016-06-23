@@ -56,12 +56,13 @@ class TmlMissingMacroValidatorTest extends AbstractParserTest {
 			package pa
 			# MacroCollection
 
+			## HelloMacro
 			template = "hello"
 			Macro: some_fantasy_macro
 			- macro call that maps
 		''')
-		val testStepThatMaps = tmlModel.macros.head.contexts.head.assertInstanceOf(MacroTestStepContext).step
-		when(macroTestStepContextMock.macroModel).thenReturn(tmlModel)
+		val testStepThatMaps = tmlModel.macroCollection.macros.head.contexts.head.assertInstanceOf(MacroTestStepContext).step
+		when(macroTestStepContextMock.macroCollection).thenReturn(tmlModel.macroCollection)
 
 		// when
 		tmlValidator.checkMacroCall(testStepThatMaps)
@@ -76,14 +77,15 @@ class TmlMissingMacroValidatorTest extends AbstractParserTest {
 		val tmlModel = parse('''
 			package pa
 			# MacroCollection
-			
+
+			## HelloMacro
 			template = "hello"
 			Macro: some_fantasy_macro
 			- macro call that does not maps
 			''')
-		val testStepThatDoesNotMap = tmlModel.macros.head.contexts.head.assertInstanceOf(MacroTestStepContext).step
+		val testStepThatDoesNotMap = tmlModel.macroCollection.macros.head.contexts.head.assertInstanceOf(MacroTestStepContext).step
 		when(tmlModelUtil.normalize(any(Template))).thenReturn("cba")
-		when(macroTestStepContextMock.macroModel).thenReturn(tmlModel)
+		when(macroTestStepContextMock.macroCollection).thenReturn(tmlModel.macroCollection)
 
 		// when
 		tmlValidator.checkMacroCall(testStepThatDoesNotMap)

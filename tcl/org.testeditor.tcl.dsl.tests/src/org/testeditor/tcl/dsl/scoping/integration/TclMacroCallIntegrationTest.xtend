@@ -3,6 +3,7 @@ package org.testeditor.tcl.dsl.scoping.integration
 import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable
+import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
 import org.testeditor.tcl.dsl.jvmmodel.AbstractTclGeneratorIntegrationTest
@@ -11,32 +12,15 @@ import org.testeditor.tcl.dsl.jvmmodel.TclJvmModelInferrer
 import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
 
-import static extension org.eclipse.emf.common.util.URI.createFileURI
-
 class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 
 	@Inject TclJvmModelInferrer jvmModelInferrer // class under test
-
 	@Mock ITreeAppendable outputStub
 
-	override void setup() {
-		super.setup
+	@Before
+	def void initMocks() {
 		when(outputStub.trace(any(EObject))).thenReturn(outputStub)
 		when(outputStub.append(any(CharSequence))).thenReturn(outputStub)
-	}
-
-	private def parseAmlModel(String aml) {
-		val amlModel = amlParseHelper.parse(aml, /*'DummySpec.aml'.createFileURI, */resourceSet).assertNoSyntaxErrors
-		return amlModel
-	}
-
-	private def parseTmlModel(String tml) {
-		val tmlModel = tmlParseHelper.parse(tml, /*'DummySpec.tml'.createFileURI, */resourceSet).assertNoSyntaxErrors
-		return tmlModel
-	}
-
-	private def parseTclModel(String tcl) {
-		return tclParseHelper.parse(tcl, resourceSet).assertNoSyntaxErrors
 	}
 
 	@Test
@@ -46,7 +30,7 @@ class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 		parseAmlModel('''
 			package org.test
 			
-			import org.testeditor.tcl.dsl.jvmmodel.*
+			import org.testeditor.dsl.common.testing.*
 			
 			interaction type start {
 				template = "start" ${appname}
@@ -57,7 +41,7 @@ class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 				interactions = start
 			}
 			
-			component Dummy is DummyCT {}						
+			component Dummy is DummyCT {}
 		''')
 
 		// macro definitions such that "other" is a macro again which uses "something" which uses an aml component
@@ -68,10 +52,12 @@ class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 			
 			# MacroCollection
 			
+			## MacroOther
 			template = "other" ${op}
 			Macro: MacroCollection
 			- something @op
 			
+			## MacroSomething
 			template = "something" ${param}
 			Component: Dummy
 			- start @param
@@ -89,7 +75,7 @@ class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 		''')
 
 		// when
-		jvmModelInferrer.generateMethodBody(tcl.test, outputStub)
+		jvmModelInferrer.generateMethodBody(tcl.test, outputStub, #{})
 
 		// then
 		// expectation is tcl: calls macro other("MyApp"), which again calls macro start("MyApp"), which again calls aml start("MyApp"), which again calls aml-method startApplication("MyApp")

@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.testeditor.rcp4.views.teststepselector.tests
 Bundle-SymbolicName: org.testeditor.rcp4.views.teststepselector.tests;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.1.qualifier
 Bundle-Vendor: Signal Iduna Corporation
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.xtext.xbase.lib,
@@ -18,7 +18,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.testeditor.aml.dsl.tests,
  org.eclipse.xtext.junit4,
  org.eclipse.jface,
- org.testeditor.rcp4.views.teststepselector;bundle-version="1.0.0"
+ org.testeditor.rcp4.views.teststepselector
 Import-Package: com.google.inject,
  org.apache.log4j,
  org.eclipse.xtext.diagnostics,

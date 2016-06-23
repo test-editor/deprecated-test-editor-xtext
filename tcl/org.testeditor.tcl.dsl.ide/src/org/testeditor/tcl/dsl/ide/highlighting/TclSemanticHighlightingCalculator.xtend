@@ -63,7 +63,12 @@ class TclSemanticHighlightingCalculator extends TmlSemanticHighlightingCalculato
 			specificationStep.contents.forEach[provideHighlightingFor(acceptor)]
 			val testSteps = specificationStep.contexts.map[testSteps].flatten
 			val stepContents = testSteps.map[contents]
-			stepContents.filter(StepContentElement).forEach[provideHighlightingFor(acceptor)]
+			stepContents.filter(StepContentElement).forEach[
+				if (cancelIndicator.canceled) {
+					return
+				}
+				provideHighlightingFor(acceptor)
+			]
 		}
 	}
 

@@ -18,17 +18,17 @@ import org.eclipse.xtext.junit4.validation.ValidationTestHelper
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.ModelElement
 import org.testeditor.aml.dsl.tests.AbstractAmlTest
-import com.google.inject.Provider
 import org.eclipse.xtext.resource.XtextResourceSet
+import com.google.inject.Provider
 import org.junit.Before
 
 abstract class AbstractParserTest extends AbstractAmlTest {
 
 	@Inject protected extension ValidationTestHelper
 	@Inject protected ParseHelper<AmlModel> parseHelper
-
 	@Inject protected Provider<XtextResourceSet> resourceSetProvider
-	protected XtextResourceSet resourceSet
+	@Inject protected XtextResourceSet resourceSet
+
 
 	@Before
 	def void setup() {

@@ -12,23 +12,47 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.testing
 
+import java.util.List
+import java.util.Map
 import org.testeditor.fixture.core.interaction.FixtureMethod
 
 public class DummyFixture {
 
-    @FixtureMethod
-    def void someFixtureMethod() {
-    }
+	@FixtureMethod
+	def void someFixtureMethod() {
+	}
 
-    def void someUnrelatedMethod() {
-    }
+	def void someUnrelatedMethod() {
+	}
 
 	@FixtureMethod
 	def void startApplication(String name) {
 	}
 
 	@FixtureMethod
+	def void waitSeconds(long secs) {
+	}
+
+	@FixtureMethod
 	def void setValue(String locator, String value) {
 	}
 
+	@FixtureMethod
+	def String getValue(String locator) {
+		return ""
+	}
+
+	@FixtureMethod
+	def List<?> getList(String locator) {
+		return newArrayList
+	}
+
+	@FixtureMethod
+	def Map<?, ?> getMap(String locator) {
+		return newHashMap
+	}
+
+	@FixtureMethod
+	def void clickOn(String locator, DummyLocatorStrategy locatorStragety) {
+	}
 }

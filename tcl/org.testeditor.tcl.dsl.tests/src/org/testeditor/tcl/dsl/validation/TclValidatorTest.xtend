@@ -15,12 +15,12 @@ import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 class TclValidatorTest extends AbstractParserTest {
 
 	@Inject
-	private Provider<XtextResourceSet> resourceSetProvider;
+	private Provider<XtextResourceSet> resourceSetProvider
 
 	protected ParseHelper<AmlModel> amlParser
 
 	@Inject
-	ValidationTestHelper validator;
+	ValidationTestHelper validator
 
 	@Before
 	def void initializeAmlParseHelper() {
