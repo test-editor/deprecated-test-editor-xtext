@@ -2,33 +2,29 @@ package org.testeditor.tcl.dsl.jvmmodel
 
 import com.google.inject.Provider
 import javax.inject.Inject
-import org.eclipse.xtext.common.types.TypesFactory
 import org.eclipse.xtext.resource.XtextResourceSet
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypeReferenceBuilder
 import org.junit.Test
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.testeditor.aml.dsl.tests.AmlModelGenerator
-import org.testeditor.aml.impl.AmlFactoryImpl
+import org.testeditor.aml.ModelUtil
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 import org.testeditor.tml.AENullOrBoolCheck
 import org.testeditor.tml.AEVariableReference
-import org.testeditor.tml.util.TmlModelUtil
 
 import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
+import org.testeditor.tml.util.TmlModelUtil
 
 class TclAssertCallBuilderTest extends AbstractParserTest {
 
 	@InjectMocks TclAssertCallBuilder assertCallBuilder // class under test
+	@Mock ModelUtil amlModelUtil // injected into class under test
 	@Mock TmlModelUtil tmlModelUtil // injected into class under test
 	@Inject extension TclModelGenerator tclModelGenerator
 
 	@Inject Provider<XtextResourceSet> resourceSetProvider
-	@Inject AmlModelGenerator amlModelGenerator
-	@Inject AmlFactoryImpl amlFactory
-	@Inject TypesFactory typesFactory
 	@Inject JvmTypeReferenceBuilder.Factory jvmTypeReferenceBuilderFactory
 
 	@Test
@@ -50,7 +46,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 		// given
 		val expression = aeComparison => [
 			left = flatVarRef("variable")
-			comparator = comparatorNotEquals
+			comparator = comparatorEquals => [negated = true]
 			right = aeStringConstant => [string = "test"]
 		]
 		// when
@@ -120,7 +116,8 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
 		// then
-		assertCodeLine('org.junit.Assert.assertFalse("", (variable != null) && variable.booleanValue());', generatedCode)
+		assertCodeLine('org.junit.Assert.assertFalse("", (variable != null) && variable.booleanValue());',
+			generatedCode)
 	}
 
 	@Test
@@ -142,7 +139,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 		// given
 		val expression = aeComparison => [
 			left = flatVarRef("variable")
-			comparator = comparatorDoesNotMatch
+			comparator = comparatorMatches => [negated = true]
 			right = aeStringConstant => [string = "ohoh"]
 		]
 		// when
@@ -184,16 +181,8 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 		val jvmTypeReferenceBuilder = jvmTypeReferenceBuilderFactory.create(resourceSetProvider.get)
 		val jvmType = jvmTypeReferenceBuilder.typeRef(clazz)
 
-		when(tmlModelUtil.getInteraction(any)).thenReturn(
-			amlModelGenerator.interactionType("myinteraction") => [
-				template = amlModelGenerator.template("some")
-				defaultMethod = amlFactory.createMethodReference => [
-					operation = typesFactory.createJvmOperation => [
-						returnType = jvmType
-					]
-				]
-			]
-		)
+		when(amlModelUtil.getReturnType(any)).thenReturn(jvmType)
+		when(amlModelUtil.isAssignableWithoutWidening(clazz, jvmType)).thenReturn(true)
 	}
 
 	private def AEVariableReference flatVarRef(String variable) {

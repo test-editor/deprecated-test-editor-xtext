@@ -72,11 +72,14 @@ class TmlVarUsageValidatorTest extends AbstractParserTest {
 	def void mapVariableUsage() {
 		// given
 		val testStepContext = componentTestStepContext(null) => [
-			val twa = testStepWithAssignment("variable", "some")
-			steps += twa
+			val assignment = testStepWithAssignment("variable", "some")
+			steps += assignment
 			steps += assertionTestStep => [
 				expression = aeComparison => [
-					left = aeVariableReference => [testStepWithAssignment = twa key = "key"]
+					left = aeVariableReference => [
+						testStepWithAssignment = assignment
+						key = "key"
+					]
 					comparator = comparatorEquals
 					right = aeStringConstant => [string = "fixed value"]
 				]
@@ -97,11 +100,11 @@ class TmlVarUsageValidatorTest extends AbstractParserTest {
 	def void variableUsage() {
 		// given
 		val testStepContext = componentTestStepContext(null) => [
-			val twa = testStepWithAssignment("variable", "some")
-			steps += twa
+			val assignment = testStepWithAssignment("variable", "some")
+			steps += assignment
 			steps += assertionTestStep => [
 				expression = aeComparison => [
-					left = aeVariableReference => [testStepWithAssignment = twa]
+					left = aeVariableReference => [testStepWithAssignment = assignment]
 					comparator = comparatorEquals
 					right = aeStringConstant => [string = "fixed value"]
 				]
@@ -122,11 +125,14 @@ class TmlVarUsageValidatorTest extends AbstractParserTest {
 	def void illegalMapVariableUsage() {
 		// given
 		val testStepContext = componentTestStepContext(null) => [
-			val twa = testStepWithAssignment("variable", "some")
-			steps += twa
+			val assignment = testStepWithAssignment("variable", "some")
+			steps += assignment
 			steps += assertionTestStep => [
 				expression = aeComparison => [
-					left = aeVariableReference => [testStepWithAssignment = twa key = "key"]
+					left = aeVariableReference => [
+						testStepWithAssignment = assignment
+						key = "key"
+					]
 					comparator = comparatorEquals
 					right = aeStringConstant => [string = "fixed value"]
 				]

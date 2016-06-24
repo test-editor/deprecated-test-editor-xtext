@@ -2,6 +2,7 @@ package org.testeditor.tcl.dsl.jvmmodel
 
 import javax.inject.Inject
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
+import org.testeditor.aml.ModelUtil
 import org.testeditor.tml.AEComparison
 import org.testeditor.tml.AENullOrBoolCheck
 import org.testeditor.tml.AEStringConstant
@@ -15,7 +16,8 @@ import org.testeditor.tml.ComparatorMatches
 import org.testeditor.tml.util.TmlModelUtil
 
 class TclAssertCallBuilder {
-	@Inject extension TmlModelUtil tmlModelUtil
+	@Inject extension TmlModelUtil
+	@Inject extension ModelUtil
 
 	/** assert method calls used, toString must yield the actual method name! */
 	enum AssertMethod {
@@ -49,8 +51,8 @@ class TclAssertCallBuilder {
 		if (assertionMethod == null) {
 			return '''// TODO no assertion method implementation for expression with type "«expression.class»"'''
 		} else {
-			val assertionText = NodeModelUtils.getNode(expression)?.text?.
-				trim
+			val assertionText = NodeModelUtils.getNode(expression)?.text?.trim ?:
+				""
 			return '''
 				// - assert «assertionText»
 				org.junit.Assert.«expression.assertionMethod»("«assertionText.replaceAll('"','\\\\"')»", «expression.buildExpression»);
@@ -59,11 +61,11 @@ class TclAssertCallBuilder {
 	}
 
 	private def AssertMethod assertionMethodForNullOrBoolCheck(AENullOrBoolCheck expression) {
-		val interaction = tmlModelUtil.getInteraction(expression.varReference.testStepWithAssignment)
-		val returnTypeName = interaction?.defaultMethod?.operation?.returnType?.simpleName ?: ""
-		switch ( returnTypeName ) {
-			case boolean.simpleName,
-			case Boolean.simpleName: return adjustedAssertMethod(AssertMethod.assertTrue, expression.isNegated)
+		val interaction = getInteraction(expression.varReference.testStepWithAssignment)
+		val returnTypeName = getReturnType(interaction)?.qualifiedName ?: ""
+		switch (returnTypeName) {
+			case boolean.name,
+			case Boolean.name: return adjustedAssertMethod(AssertMethod.assertTrue, expression.isNegated)
 			default: return adjustedAssertMethod(AssertMethod.assertNotNull, expression.isNegated)
 		}
 	}
@@ -97,10 +99,10 @@ class TclAssertCallBuilder {
 	}
 
 	private def dispatch String buildExpression(AENullOrBoolCheck nullCheck) {
-		val expression = nullCheck.getVarReference.buildExpression
-		val interaction = tmlModelUtil.getInteraction(nullCheck.varReference.testStepWithAssignment)
-		val returnTypeName = interaction?.defaultMethod?.operation?.returnType?.simpleName ?: ""
-		if (returnTypeName == Boolean.simpleName) {
+		val expression = nullCheck.varReference.buildExpression
+		val interaction = nullCheck.varReference.testStepWithAssignment.interaction
+		val returnType = interaction.returnType
+		if (Boolean.isAssignableWithoutWidening(returnType)) {
 			return '''(«expression» != null) && «expression».booleanValue()'''
 		} else {
 			return expression
