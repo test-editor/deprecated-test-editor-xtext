@@ -22,8 +22,8 @@ import static extension org.mockito.Mockito.*
 
 class TmlVarUsageValidatorTest extends AbstractParserTest {
 
-	@Mock TmlModelUtil tclModelUtil // injected into class under test
-	@InjectMocks TmlValidator tclValidator // class under test
+	@Mock TmlModelUtil tmlModelUtil // injected into class under test
+	@InjectMocks TmlValidator tmlValidator // class under test
 	@Mock JvmTypeReference typeRefMock
 	@Mock ValidationMessageAcceptor messageAcceptor
 
@@ -38,14 +38,14 @@ class TmlVarUsageValidatorTest extends AbstractParserTest {
 		// always assume that the return type of the operation used in any step is of typeRefMock
 		// => setting typeRefMock to return some type will affect all assignment steps!
 		val operationMock = mock(JvmOperation)
-		when(tclModelUtil.getInteraction(anyObject)).thenReturn(amlFactory.createInteractionType => [
+		when(tmlModelUtil.getInteraction(anyObject)).thenReturn(amlFactory.createInteractionType => [
 			defaultMethod = amlFactory.createMethodReference => [
 				operation = operationMock
 			]
 		])
 		when(operationMock.getReturnType).thenReturn(typeRefMock)
 
-		val state = tclValidator.setMessageAcceptor(messageAcceptor)
+		val state = tmlValidator.setMessageAcceptor(messageAcceptor)
 		state.state // needs to be called in order for internal state to be initialized. this again is necessary to allow messages to be issued on the "currentObject" of the validation
 	}
 
@@ -61,7 +61,7 @@ class TmlVarUsageValidatorTest extends AbstractParserTest {
 		when(typeRefMock.identifier).thenReturn(String.canonicalName)
 
 		// when
-		tclValidator.checkVariableUsageWithinAssertionExpressions(componentTestStepContext)
+		tmlValidator.executeCheckVariableUsageWithinAssertionExpressions(componentTestStepContext, newHashMap)
 
 		// then
 		messageAcceptor.verify.acceptWarning(message.capture, anyObject, anyObject, anyInt, anyString)
@@ -90,7 +90,7 @@ class TmlVarUsageValidatorTest extends AbstractParserTest {
 		when(typeRefMock.identifier).thenReturn(Map.canonicalName)
 
 		// when
-		tclValidator.checkVariableUsageWithinAssertionExpressions(componentTestStepContext)
+		tmlValidator.executeCheckVariableUsageWithinAssertionExpressions(componentTestStepContext, newHashMap)
 
 		// then
 		messageAcceptor.verify(never).acceptError(anyString, anyObject, anyObject, anyInt, anyString)
@@ -115,7 +115,35 @@ class TmlVarUsageValidatorTest extends AbstractParserTest {
 		when(typeRefMock.identifier).thenReturn(String.canonicalName)
 
 		// when
-		tclValidator.checkVariableUsageWithinAssertionExpressions(componentTestStepContext)
+		tmlValidator.executeCheckVariableUsageWithinAssertionExpressions(componentTestStepContext, newHashMap)
+
+		// then
+		messageAcceptor.verify(never).acceptError(anyString, anyObject, anyObject, anyInt, anyString)
+	}
+
+	@Test
+	def void usageFromOtherContext() {
+		// given
+		val assignment = testStepWithAssignment("variable", "some")
+		val macro = macro("some") => [
+			contexts += componentTestStepContext(null) => [
+				steps += assignment
+			]
+			contexts += componentTestStepContext(null) => [
+				steps += assertionTestStep => [
+					expression = aeComparison => [
+						left = aeVariableReference => [
+							testStepWithAssignment = assignment
+						]
+						comparator = comparatorEquals
+						right = aeStringConstant => [string = "fixed value"]
+					]
+				]
+			]
+		]
+		
+		// when
+		tmlValidator.checkVariableUsageWithinAssertionExpressions(macro)
 
 		// then
 		messageAcceptor.verify(never).acceptError(anyString, anyObject, anyObject, anyInt, anyString)
@@ -143,7 +171,7 @@ class TmlVarUsageValidatorTest extends AbstractParserTest {
 		when(typeRefMock.identifier).thenReturn(Integer.canonicalName)
 
 		// when
-		tclValidator.checkVariableUsageWithinAssertionExpressions(componentTestStepContext)
+		tmlValidator.executeCheckVariableUsageWithinAssertionExpressions(componentTestStepContext, newHashMap)
 
 		// then
 		messageAcceptor.verify.acceptError(message.capture, anyObject, anyObject, anyInt, anyString)
