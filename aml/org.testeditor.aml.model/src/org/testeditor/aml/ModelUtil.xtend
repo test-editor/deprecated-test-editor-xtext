@@ -119,7 +119,7 @@ class ModelUtil {
 	 * @return whether the given jvmTypeReference is assignable to clazz (without widening primitive types)
 	 */
 	def boolean isAssignableWithoutWidening(Class<?> clazz, JvmTypeReference jvmTypeReference) {
-		val jvmTypeEClass = jvmTypeReference?.type?.eClass
+		val jvmTypeEClass = jvmTypeReference.type.eClass
 		if (jvmTypeEClass == null) {
 			return false
 		} else {
