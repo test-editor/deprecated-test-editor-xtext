@@ -129,4 +129,69 @@ class TmlModelGenerator {
 		]
 	}
 
+	// ===================================================================== extended 
+
+	def AEComparison compareNotMatching(AEVariableReference variableReference, String string) {
+		return aeComparison => [
+			left = variableReference
+			comparator = comparatorMatches => [negated = true]
+			right = aeStringConstant(string)
+		]
+	}
+
+	def AEComparison compareMatching(AEVariableReference variableReference, String string) {
+		return aeComparison => [
+			left = variableReference
+			comparator = comparatorMatches
+			right = aeStringConstant(string)
+		]
+	}
+
+	def AEComparison compareNotEqual(AEVariableReference variableReference, String string) {
+		return aeComparison => [
+			left = variableReference
+			comparator = comparatorEquals => [negated=true]
+			right = aeStringConstant(string)
+		]
+	}
+	def AEComparison compareOnEquality(AEVariableReference variableReference, String string) {
+		return aeComparison => [
+			left = variableReference
+			comparator = comparatorEquals
+			right = aeStringConstant(string)
+		]
+	}
+
+	def AEVariableReference flatReference(AssignmentVariable assignmentVariable) {
+		return aeVariableReference => [
+			variable = assignmentVariable
+		]
+	}
+
+	def AEVariableReference mappedReference(AssignmentVariable assignmentVariable) {
+		return aeVariableReference => [
+			variable = assignmentVariable
+			key = "key"
+		]
+	}
+
+	def AEVariableReference flatReference(String variableName) {
+		aeVariableReference => [variable = assignmentVariable(variableName)]
+	}
+
+	def AEVariableReference mappedReference(String variableName, String myKey) {
+		aeVariableReference => [
+			variable = assignmentVariable(variableName)
+			key = myKey
+		]
+	}
+
+	def AENullOrBoolCheck nullOrBoolCheck(String variableName) {
+		aeNullOrBoolCheck => [
+			varReference = aeVariableReference => [
+				variable = assignmentVariable(variableName)
+			]
+		]
+	}
+
 }

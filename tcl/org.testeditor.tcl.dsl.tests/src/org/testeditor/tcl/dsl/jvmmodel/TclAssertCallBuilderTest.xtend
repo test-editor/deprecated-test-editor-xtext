@@ -8,10 +8,8 @@ import org.junit.Test
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.testeditor.aml.ModelUtil
-import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
-import org.testeditor.tml.AENullOrBoolCheck
-import org.testeditor.tml.AEVariableReference
+import org.testeditor.tml.dsl.tests.TmlModelGenerator
 import org.testeditor.tml.util.TmlModelUtil
 
 import static org.mockito.Matchers.*
@@ -22,7 +20,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 	@InjectMocks TclAssertCallBuilder assertCallBuilder // class under test
 	@Mock ModelUtil amlModelUtil // injected into class under test
 	@Mock TmlModelUtil tmlModelUtil // injected into class under test
-	@Inject extension TclModelGenerator tclModelGenerator
+	@Inject extension TmlModelGenerator
 
 	@Inject Provider<XtextResourceSet> resourceSetProvider
 	@Inject JvmTypeReferenceBuilder.Factory jvmTypeReferenceBuilderFactory
@@ -30,11 +28,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 	@Test
 	def void testEqualsGen() {
 		// given
-		val expression = aeComparison => [
-			left = flatVarRef("variable")
-			comparator = comparatorEquals
-			right = aeStringConstant("test")
-		]
+		val expression = flatReference("variable").compareOnEquality("test")
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
 		// then
@@ -44,11 +38,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 	@Test
 	def void testNotEqualsGen() {
 		// given
-		val expression = aeComparison => [
-			left = flatVarRef("variable")
-			comparator = comparatorEquals => [negated = true]
-			right = aeStringConstant("test")
-		]
+		val expression = flatReference("variable").compareNotEqual("test")
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
 		// then
@@ -123,11 +113,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 	@Test
 	def void testMatches() {
 		// given
-		val expression = aeComparison => [
-			left = flatVarRef("variable")
-			comparator = comparatorMatches
-			right = aeStringConstant("ohoh")
-		]
+		val expression = flatReference("variable").compareMatching("ohoh")
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
 		// then
@@ -137,11 +123,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 	@Test
 	def void testDoesNotMatch() {
 		// given
-		val expression = aeComparison => [
-			left = flatVarRef("variable")
-			comparator = comparatorMatches => [negated = true]
-			right = aeStringConstant("ohoh")
-		]
+		val expression = flatReference("variable").compareNotMatching("ohoh")
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
 		// then
@@ -151,11 +133,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 	@Test
 	def void testWithMapDereference() {
 		// given
-		val expression = aeComparison => [
-			left = mapVarRef("variable", "key")
-			comparator = comparatorEquals
-			right = aeStringConstant("test")
-		]
+		val expression = mappedReference("variable", "key").compareOnEquality("test")
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
 		// then
@@ -165,11 +143,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 	@Test
 	def void testWithMapKeyAsString() {
 		// given
-		val expression = aeComparison => [
-			left = mapVarRef("variable", "key with spaces")
-			comparator = comparatorEquals
-			right = aeStringConstant("test")
-		]
+		val expression = mappedReference("variable", "key with spaces").compareOnEquality("test")
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
 		// then
@@ -183,25 +157,6 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 
 		when(amlModelUtil.getReturnType(any)).thenReturn(jvmType)
 		when(amlModelUtil.isAssignableWithoutWidening(clazz, jvmType)).thenReturn(true)
-	}
-
-	private def AEVariableReference flatVarRef(String variableName) {
-		aeVariableReference => [variable = assignmentVariable(variableName)]
-	}
-
-	private def AEVariableReference mapVarRef(String variableName, String myKey) {
-		aeVariableReference => [
-			variable = assignmentVariable(variableName)
-			key = myKey
-		]
-	}
-
-	private def AENullOrBoolCheck nullOrBoolCheck(String variableName) {
-		aeNullOrBoolCheck => [
-			varReference = aeVariableReference => [
-				variable = assignmentVariable(variableName)
-			]
-		]
 	}
 
 	// assert that the generated code holds 2 lines of which the second is identical to expectedCode

@@ -58,11 +58,7 @@ class TmlVarUsageValidatorTest extends AbstractTmlValidatorTest {
 			val assignment = testStepWithAssignment("variable", "some")
 			steps += assignment
 			steps += assertionTestStep => [
-				expression = aeComparison => [
-					left = mappedReference(assignment.assignmentVariable)
-					comparator = comparatorEquals
-					right = aeStringConstant("fixed value")
-				]
+				expression = assignment.assignmentVariable.mappedReference.compareOnEquality("fixed value")
 			]
 		]
 		val componentTestStepContext = testStepContext.assertInstanceOf(ComponentTestStepContext)

@@ -19,7 +19,6 @@ abstract class AbstractTmlValidatorTest extends AbstractParserTest {
 	@Captor protected ArgumentCaptor<String> message
 
 	@Inject protected extension TmlModelGenerator
-	@Inject protected extension TmlModelGeneratorForValidation
 
 	@Before
 	def void initMessageAcceptor() {
