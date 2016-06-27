@@ -12,6 +12,7 @@ import org.testeditor.aml.AmlFactory
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.tml.dsl.validation.TmlModelGeneratorForValidation
 
 import static org.mockito.Matchers.*
 
@@ -25,6 +26,7 @@ class TclVarUsageValidatorTest extends AbstractParserTest {
 	@Mock ValidationMessageAcceptor messageAcceptor
 
 	@Inject extension TclModelGenerator
+	@Inject extension TmlModelGeneratorForValidation
 
 	@Before
 	def void initMocks() {
@@ -58,13 +60,7 @@ class TclVarUsageValidatorTest extends AbstractParserTest {
 				steps += specificationStep("second") => [
 					contexts += componentTestStepContext(null) => [
 						steps += assertionTestStep => [
-							expression = aeComparison => [
-								left = aeVariableReference => [
-									testStepWithAssignment = assignment
-								]
-								comparator = comparatorEquals
-								right = aeStringConstant => [string = "fixed value"]
-							]
+							expression = assignment.assignmentVariable.flatReference.compareOnEquality("fixed value")
 						]
 					]
 				]

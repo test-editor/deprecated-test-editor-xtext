@@ -166,7 +166,7 @@ class TclModelParserTest extends AbstractParserTest {
 		test.steps.assertSingleElement => [
 			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
 				steps.assertSingleElement.assertInstanceOf(TestStepWithAssignment) => [
-					name.assertEquals('hello')
+					assignmentVariable.name.assertEquals('hello')
 					contents.restoreString.assertEquals('Lese den Text von <Input>')
 				]
 			]
@@ -195,7 +195,7 @@ class TclModelParserTest extends AbstractParserTest {
 				steps.assertSize(2).get(1).assertInstanceOf(AssertionTestStep) => [
 					expression.assertInstanceOf(AENullOrBoolCheck) => [
 						isNegated.assertFalse
-						getVarReference.testStepWithAssignment.name.assertEquals("hello")
+						getVarReference.variable.name.assertEquals("hello")
 					]
 				]
 			]
@@ -223,7 +223,7 @@ class TclModelParserTest extends AbstractParserTest {
 			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
 				steps.assertSize(2).get(1).assertInstanceOf(AssertionTestStep) => [
 					expression.assertInstanceOf(AEComparison) => [
-						left.assertInstanceOf(AEVariableReference) => [testStepWithAssignment.name.assertEquals("hello")]
+						left.assertInstanceOf(AEVariableReference) => [variable.name.assertEquals("hello")]
 						comparator.assertInstanceOf(ComparatorMatches) => [negated.assertTrue]
 						right.assertInstanceOf(AEComparison) => [
 							left.assertInstanceOf(AEStringConstant) => [string.assertEquals(".*AAABBB.*")]

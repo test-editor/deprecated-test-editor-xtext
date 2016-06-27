@@ -105,7 +105,7 @@ AEComparison:
 	right=AssertionInnerExpression)?;
 
 AEVariableReference:
-	testStepWithAssignment=[TestStepWithAssignment] ( '.' ( key=ID | key=STRING ) )?;
+	variable=[AssignmentVariable] ( '.' ( key=ID | key=STRING ) )?;
 
 AEStringConstant:
 	string=STRING;
@@ -132,8 +132,11 @@ ComparatorGreaterThen:
 	{ComparatorGreaterThen} ('>' | negated?='<=');
 
 TestStepWithAssignment:
-	'-' name=ID '=' contents+=StepContent* '.'?;
+	'-' assignmentVariable=AssignmentVariable '=' contents+=StepContent* '.'?;
 
+AssignmentVariable:
+	name=ID
+;
 StepContent returns tsl::StepContent:
 	StepContentText | StepContentElement | StepContentVariable | StepContentVariableReference;
 

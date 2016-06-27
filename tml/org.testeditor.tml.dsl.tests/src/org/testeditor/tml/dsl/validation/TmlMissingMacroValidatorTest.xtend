@@ -12,28 +12,21 @@
  *******************************************************************************/
 package org.testeditor.tml.dsl.validation
 
-import org.eclipse.xtext.validation.ValidationMessageAcceptor
-import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.Captor
-import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.testeditor.aml.Template
 import org.testeditor.tml.MacroTestStepContext
-import org.testeditor.tml.dsl.tests.parser.AbstractParserTest
-import org.testeditor.tml.util.TmlModelUtil
+import org.testeditor.tml.TestStep
 
 import static org.mockito.Matchers.*
 
 import static extension org.mockito.Mockito.*
-import org.testeditor.tml.TestStep
+import org.junit.Before
 
-class TmlMissingMacroValidatorTest extends AbstractParserTest {
+class TmlMissingMacroValidatorTest extends AbstractTmlValidatorTest {
 
-	@InjectMocks TmlValidator tmlValidator // class under test
-	@Mock TmlModelUtil tmlModelUtil // injected into class under test
-	@Mock ValidationMessageAcceptor messageAcceptor
 	@Mock MacroTestStepContext macroTestStepContextMock
 
 	@Captor ArgumentCaptor<String> message
@@ -45,8 +38,6 @@ class TmlMissingMacroValidatorTest extends AbstractParserTest {
 		when(tmlModelUtil.hasMacroContext(anyObject)).thenReturn(true)
 		when(tmlModelUtil.normalize(any(TestStep))).thenReturn("abc")
 		when(tmlModelUtil.normalize(any(Template))).thenReturn("abc")
-		val state = tmlValidator.setMessageAcceptor(messageAcceptor)
-		state.state // needs to be called in order for internal state to be initialized. this again is necessary to allow messages to be issued on the "currentObject" of the validation
 	}
 
 	@Test
@@ -55,13 +46,14 @@ class TmlMissingMacroValidatorTest extends AbstractParserTest {
 		val tmlModel = parse('''
 			package pa
 			# MacroCollection
-
+			
 			## HelloMacro
 			template = "hello"
 			Macro: some_fantasy_macro
 			- macro call that maps
 		''')
-		val testStepThatMaps = tmlModel.macroCollection.macros.head.contexts.head.assertInstanceOf(MacroTestStepContext).step
+		val testStepThatMaps = tmlModel.macroCollection.macros.head.contexts.head.assertInstanceOf(
+			MacroTestStepContext).step
 		when(macroTestStepContextMock.macroCollection).thenReturn(tmlModel.macroCollection)
 
 		// when
@@ -77,13 +69,14 @@ class TmlMissingMacroValidatorTest extends AbstractParserTest {
 		val tmlModel = parse('''
 			package pa
 			# MacroCollection
-
+			
 			## HelloMacro
 			template = "hello"
 			Macro: some_fantasy_macro
 			- macro call that does not maps
-			''')
-		val testStepThatDoesNotMap = tmlModel.macroCollection.macros.head.contexts.head.assertInstanceOf(MacroTestStepContext).step
+		''')
+		val testStepThatDoesNotMap = tmlModel.macroCollection.macros.head.contexts.head.assertInstanceOf(
+			MacroTestStepContext).step
 		when(tmlModelUtil.normalize(any(Template))).thenReturn("cba")
 		when(macroTestStepContextMock.macroCollection).thenReturn(tmlModel.macroCollection)
 

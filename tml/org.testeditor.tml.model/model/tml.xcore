@@ -78,7 +78,7 @@ class AENullOrBoolCheck extends AssertionExpression {
 }
 
 class AEVariableReference extends AssertionExpression {
-	refers TestStepWithAssignment testStepWithAssignment
+	refers AssignmentVariable variable
 	String key // only != null if: map.key
 }
 
@@ -87,6 +87,11 @@ class AEStringConstant extends AssertionExpression {
 }
 
 class TestStepWithAssignment extends TestStep {
+	contains AssignmentVariable assignmentVariable opposite testStepWithAssignment
+}
+
+class AssignmentVariable {
+	container TestStepWithAssignment testStepWithAssignment opposite assignmentVariable
 	String name
 }
 

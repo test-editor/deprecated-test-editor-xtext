@@ -234,12 +234,12 @@ class TmlValidator extends AbstractTmlValidator {
 		steps.forEach [ it, index |
 			if (it instanceof TestStepWithAssignment) {
 				// check "in order" (to prevent variable usage before assignment)
-				if (varTypeMap.containsKey(name)) {
-					val message = '''Variable '«name»' is assigned more than once.'''
-					warning(message, TmlPackage.Literals.COMPONENT_TEST_STEP_CONTEXT__STEPS, index,
+				if (varTypeMap.containsKey(assignmentVariable.name)) {
+					val message = '''Variable '«assignmentVariable.name»' is assigned more than once.'''
+					error(message, it, TmlPackage.Literals.TEST_STEP_WITH_ASSIGNMENT__ASSIGNMENT_VARIABLE, index,
 						VARIABLE_ASSIGNED_MORE_THAN_ONCE);
 				} else {
-					varTypeMap.put(name, interaction.defaultMethod.operation.returnType.identifier)
+					varTypeMap.put(assignmentVariable.name, interaction.defaultMethod.operation.returnType.identifier)
 				}
 			} else if (it instanceof AssertionTestStepImpl) {
 				executeCheckVariableUsageWithinAssertionExpressions(varTypeMap, index)
@@ -250,14 +250,14 @@ class TmlValidator extends AbstractTmlValidator {
 	private def executeCheckVariableUsageWithinAssertionExpressions(AssertionTestStep step,
 		Map<String, String> varTypeMap, int index) {
 		step.expression.collectVariableUsage.forEach [
-			if (!varTypeMap.containsKey(testStepWithAssignment.name)) { // regular variable dereference
-				val message = '''Variable «if(testStepWithAssignment.name!=null){ '\''+testStepWithAssignment.name+'\''}» is unknown here.'''
+			if (!varTypeMap.containsKey(variable.name)) { // regular variable dereference
+				val message = '''Variable «if(variable.name!=null){ '\''+variable.name+'\''}» is unknown here.'''
 				error(message, eContainer, eContainingFeature, VARIABLE_UNKNOWN_HERE)
 			} else if (key != null) { // dereference map with a key
-				val typeIdentifier = varTypeMap.get(testStepWithAssignment.name).replaceFirst("<.*", "")
+				val typeIdentifier = varTypeMap.get(variable.name).replaceFirst("<.*", "")
 				if (typeIdentifier.
 					isNotAssignableToMap) {
-					val message = '''Variable '«testStepWithAssignment.name»' of type '«typeIdentifier»' does not implement '«Map.canonicalName»'. It cannot be used with key '«key»'.'''
+					val message = '''Variable '«variable.name»' of type '«typeIdentifier»' does not implement '«Map.canonicalName»'. It cannot be used with key '«key»'.'''
 					error(message, eContainer, eContainingFeature, INVALID_MAP_REF)
 				}
 			}

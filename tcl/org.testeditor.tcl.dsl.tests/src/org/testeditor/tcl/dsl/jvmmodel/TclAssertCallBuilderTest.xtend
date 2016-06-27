@@ -12,10 +12,10 @@ import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 import org.testeditor.tml.AENullOrBoolCheck
 import org.testeditor.tml.AEVariableReference
+import org.testeditor.tml.util.TmlModelUtil
 
 import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
-import org.testeditor.tml.util.TmlModelUtil
 
 class TclAssertCallBuilderTest extends AbstractParserTest {
 
@@ -33,7 +33,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 		val expression = aeComparison => [
 			left = flatVarRef("variable")
 			comparator = comparatorEquals
-			right = aeStringConstant => [string = "test"]
+			right = aeStringConstant("test")
 		]
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
@@ -47,7 +47,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 		val expression = aeComparison => [
 			left = flatVarRef("variable")
 			comparator = comparatorEquals => [negated = true]
-			right = aeStringConstant => [string = "test"]
+			right = aeStringConstant("test")
 		]
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
@@ -126,7 +126,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 		val expression = aeComparison => [
 			left = flatVarRef("variable")
 			comparator = comparatorMatches
-			right = aeStringConstant => [string = "ohoh"]
+			right = aeStringConstant("ohoh")
 		]
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
@@ -140,7 +140,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 		val expression = aeComparison => [
 			left = flatVarRef("variable")
 			comparator = comparatorMatches => [negated = true]
-			right = aeStringConstant => [string = "ohoh"]
+			right = aeStringConstant("ohoh")
 		]
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
@@ -154,7 +154,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 		val expression = aeComparison => [
 			left = mapVarRef("variable", "key")
 			comparator = comparatorEquals
-			right = aeStringConstant => [string = "test"]
+			right = aeStringConstant("test")
 		]
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
@@ -168,7 +168,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 		val expression = aeComparison => [
 			left = mapVarRef("variable", "key with spaces")
 			comparator = comparatorEquals
-			right = aeStringConstant => [string = "test"]
+			right = aeStringConstant("test")
 		]
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
@@ -185,21 +185,21 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 		when(amlModelUtil.isAssignableWithoutWidening(clazz, jvmType)).thenReturn(true)
 	}
 
-	private def AEVariableReference flatVarRef(String variable) {
-		aeVariableReference => [testStepWithAssignment = testStepWithAssignment(variable, "some")]
+	private def AEVariableReference flatVarRef(String variableName) {
+		aeVariableReference => [variable = assignmentVariable(variableName)]
 	}
 
-	private def AEVariableReference mapVarRef(String variable, String myKey) {
+	private def AEVariableReference mapVarRef(String variableName, String myKey) {
 		aeVariableReference => [
-			testStepWithAssignment = testStepWithAssignment(variable, "some")
+			variable = assignmentVariable(variableName)
 			key = myKey
 		]
 	}
 
-	private def AENullOrBoolCheck nullOrBoolCheck(String variable) {
+	private def AENullOrBoolCheck nullOrBoolCheck(String variableName) {
 		aeNullOrBoolCheck => [
 			varReference = aeVariableReference => [
-				testStepWithAssignment = testStepWithAssignment(variable, "some")
+				variable = assignmentVariable(variableName)
 			]
 		]
 	}

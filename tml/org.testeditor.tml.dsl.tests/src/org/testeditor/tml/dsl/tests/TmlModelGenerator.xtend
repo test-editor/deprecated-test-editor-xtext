@@ -20,6 +20,7 @@ import org.testeditor.tml.TestStepWithAssignment
 import org.testeditor.tml.TmlModel
 import org.testeditor.tml.impl.TmlFactoryImpl
 import org.testeditor.tsl.impl.TslFactoryImpl
+import org.testeditor.tml.AssignmentVariable
 
 class TmlModelGenerator {
 	@Inject TmlFactoryImpl tmlFactory
@@ -52,10 +53,10 @@ class TmlModelGenerator {
 		return tmlFactory.createTestStep.withText(texts)
 	}
 
-	def TestStepWithAssignment testStepWithAssignment(String variable, String ... texts) {
+	def TestStepWithAssignment testStepWithAssignment(String variableName, String ... texts) {
 		tmlFactory.createTestStepWithAssignment => [
 			withText(texts)
-			name = variable
+			assignmentVariable = tmlFactory.createAssignmentVariable => [ name=variableName ]
 		]
 	}
 
@@ -63,12 +64,16 @@ class TmlModelGenerator {
 		tmlFactory.createAssertionTestStep
 	}
 
-	def AEStringConstant aeStringConstant() {
-		tmlFactory.createAEStringConstant
+	def AEStringConstant aeStringConstant(String string) {
+		tmlFactory.createAEStringConstant => [ it.string = string]
 	}
 
 	def AEComparison aeComparison() {
 		tmlFactory.createAEComparison
+	}
+	
+	def AssignmentVariable assignmentVariable(String variableName){
+		tmlFactory.createAssignmentVariable => [ name = variableName ]
 	}
 
 	def AEVariableReference aeVariableReference() {

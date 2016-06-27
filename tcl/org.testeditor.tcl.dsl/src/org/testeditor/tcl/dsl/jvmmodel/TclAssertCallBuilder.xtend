@@ -61,7 +61,7 @@ class TclAssertCallBuilder {
 	}
 
 	private def AssertMethod assertionMethodForNullOrBoolCheck(AENullOrBoolCheck expression) {
-		val interaction = getInteraction(expression.varReference.testStepWithAssignment)
+		val interaction = getInteraction(expression.varReference.variable.testStepWithAssignment)
 		val returnTypeName = getReturnType(interaction)?.qualifiedName ?: ""
 		switch (returnTypeName) {
 			case boolean.name,
@@ -100,7 +100,7 @@ class TclAssertCallBuilder {
 
 	private def dispatch String buildExpression(AENullOrBoolCheck nullCheck) {
 		val expression = nullCheck.varReference.buildExpression
-		val interaction = nullCheck.varReference.testStepWithAssignment.interaction
+		val interaction = nullCheck.varReference.variable.testStepWithAssignment.interaction
 		val returnType = interaction.returnType
 		if (Boolean.isAssignableWithoutWidening(returnType)) {
 			return '''(«expression» != null) && «expression».booleanValue()'''
@@ -126,9 +126,9 @@ class TclAssertCallBuilder {
 
 	private def dispatch String buildExpression(AEVariableReference varRef) {
 		if (varRef.key == null) {
-			return varRef.testStepWithAssignment.name
+			return varRef.variable.name
 		} else {
-			return '''«varRef.testStepWithAssignment.name».get("«varRef.key»")'''
+			return '''«varRef.variable.name».get("«varRef.key»")'''
 		}
 	}
 
