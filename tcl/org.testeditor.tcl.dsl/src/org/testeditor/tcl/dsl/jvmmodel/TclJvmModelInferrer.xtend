@@ -203,10 +203,10 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	def void maybeCreateAssignment(TestStep step, JvmOperation operation, ITreeAppendable output) {
 		if (step instanceof TestStepWithAssignment) {
-			output.trace(step, TEST_STEP_WITH_ASSIGNMENT__VARIABLE_NAME, 0) => [
+			output.trace(step, TEST_STEP_WITH_ASSIGNMENT__VARIABLE, 0) => [
 				// TODO should we use output.declareVariable here?
 				// val variableName = output.declareVariable(step.variableName, step.variableName)
-				output.append('''«operation.returnType.identifier» «step.variableName» = ''')
+				output.append('''«operation.returnType.identifier» «step.variable.name» = ''')
 			]
 		}
 	}

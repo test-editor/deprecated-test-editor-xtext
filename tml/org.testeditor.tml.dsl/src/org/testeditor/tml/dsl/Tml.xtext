@@ -78,14 +78,14 @@ AssertionTestStep:
  *  or an inner expression in parenthesis (no more null checks allowed in here!) 
  */
 AssertionExpression:
-	AENullCheck | AEFullComparison | '(' AssertionInnerExpression ')';
+	AENullOrBoolCheck | AEFullComparison | '(' AssertionInnerExpression ')';
 
 /** Assertion expression that does not allow null checks */
 AssertionInnerExpression returns AssertionExpression:
 	AEComparison |
 	'(' AssertionInnerExpression ')';
 
-AENullCheck:
+AENullOrBoolCheck:
 	(negated?='!')? varReference=AEVariableReference;
 
 /** expression order: AEComparison -> (AEAddition -> AEMultiplication ->) AEValue
@@ -105,7 +105,7 @@ AEComparison:
 	right=AssertionInnerExpression)?;
 
 AEVariableReference:
-	name=ID ( '.' ( key=ID | key=STRING ) )?;
+	variable=[AssignmentVariable] ( '.' ( key=ID | key=STRING ) )?;
 
 AEStringConstant:
 	string=STRING;
@@ -132,8 +132,11 @@ ComparatorGreaterThen:
 	{ComparatorGreaterThen} ('>' | negated?='<=');
 
 TestStepWithAssignment:
-	'-' variableName=ID '=' contents+=StepContent* '.'?;
+	'-' variable=AssignmentVariable '=' contents+=StepContent* '.'?;
 
+AssignmentVariable:
+	name=ID
+;
 StepContent returns tsl::StepContent:
 	StepContentText | StepContentElement | StepContentVariable | StepContentVariableReference;
 
