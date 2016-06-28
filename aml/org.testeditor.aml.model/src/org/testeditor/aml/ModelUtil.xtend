@@ -116,9 +116,9 @@ class ModelUtil {
 	}
 
 	/**
-	 * @return whether the given jvmTypeReference is assignable to clazz (without widening primitive types)
+	 * @return whether the given jvmTypeReference is assignable to clazz (without conversion)
 	 */
-	def boolean isAssignableWithoutWidening(Class<?> clazz, JvmTypeReference jvmTypeReference) {
+	def boolean isAssignableWithoutConversion(Class<?> clazz, JvmTypeReference jvmTypeReference) {
 		val jvmTypeEClass = jvmTypeReference.type.eClass
 		if (jvmTypeEClass != TypesPackage.Literals.JVM_PRIMITIVE_TYPE) {
 			return (clazz.isAssignableFrom(Class.forName(jvmTypeReference.qualifiedName)))

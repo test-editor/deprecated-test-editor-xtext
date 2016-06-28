@@ -156,7 +156,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 		val jvmType = jvmTypeReferenceBuilder.typeRef(clazz)
 
 		when(amlModelUtil.getReturnType(any)).thenReturn(jvmType)
-		when(amlModelUtil.isAssignableWithoutWidening(clazz, jvmType)).thenReturn(true)
+		when(amlModelUtil.isAssignableWithoutConversion(clazz, jvmType)).thenReturn(true)
 	}
 
 	// assert that the generated code holds 2 lines of which the second is identical to expectedCode

@@ -59,7 +59,7 @@ class ModelUtilTest extends AbstractAmlTest {
 		val typeRef = jvmTypeReferenceBuilder.typeRef(classString)
 
 		// when
-		val result = classUnderTest.isAssignableWithoutWidening(clazz, typeRef)
+		val result = classUnderTest.isAssignableWithoutConversion(clazz, typeRef)
 
 		// then
 		Assert.assertTrue(positive == result)

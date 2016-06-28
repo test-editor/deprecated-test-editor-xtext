@@ -102,7 +102,7 @@ class TclAssertCallBuilder {
 		val expression = nullCheck.varReference.buildExpression
 		val interaction = nullCheck.varReference.variable.testStep.interaction
 		val returnType = interaction.returnType
-		if (Boolean.isAssignableWithoutWidening(returnType)) {
+		if (Boolean.isAssignableWithoutConversion(returnType)) {
 			return '''(«expression» != null) && «expression».booleanValue()'''
 		} else {
 			return expression
