@@ -56,7 +56,7 @@ class TmlModelGenerator {
 	def TestStepWithAssignment testStepWithAssignment(String variableName, String ... texts) {
 		tmlFactory.createTestStepWithAssignment => [
 			withText(texts)
-			assignmentVariable = tmlFactory.createAssignmentVariable => [ name=variableName ]
+			variable = tmlFactory.createAssignmentVariable => [ name=variableName ]
 		]
 	}
 

@@ -58,7 +58,7 @@ class TclVarUsageValidatorTest extends AbstractParserTest {
 				steps += specificationStep("second") => [
 					contexts += componentTestStepContext(null) => [
 						steps += assertionTestStep => [
-							expression = assignment.assignmentVariable.flatReference.compareOnEquality("fixed value")
+							expression = assignment.variable.flatReference.compareOnEquality("fixed value")
 						]
 					]
 				]

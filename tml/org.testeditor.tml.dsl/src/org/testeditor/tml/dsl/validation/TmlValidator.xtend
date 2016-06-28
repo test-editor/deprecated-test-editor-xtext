@@ -234,12 +234,12 @@ class TmlValidator extends AbstractTmlValidator {
 		steps.forEach [ it, index |
 			if (it instanceof TestStepWithAssignment) {
 				// check "in order" (to prevent variable usage before assignment)
-				if (varTypeMap.containsKey(assignmentVariable.name)) {
-					val message = '''Variable '«assignmentVariable.name»' is assigned more than once.'''
-					error(message, it, TmlPackage.Literals.TEST_STEP_WITH_ASSIGNMENT__ASSIGNMENT_VARIABLE, index,
+				if (varTypeMap.containsKey(variable.name)) {
+					val message = '''Variable '«variable.name»' is assigned more than once.'''
+					error(message, it, TmlPackage.Literals.TEST_STEP_WITH_ASSIGNMENT__VARIABLE, index,
 						VARIABLE_ASSIGNED_MORE_THAN_ONCE);
 				} else {
-					varTypeMap.put(assignmentVariable.name, interaction.defaultMethod.operation.returnType.identifier)
+					varTypeMap.put(variable.name, interaction.defaultMethod.operation.returnType.identifier)
 				}
 			} else if (it instanceof AssertionTestStepImpl) {
 				executeCheckVariableUsageWithinAssertionExpressions(varTypeMap, index)

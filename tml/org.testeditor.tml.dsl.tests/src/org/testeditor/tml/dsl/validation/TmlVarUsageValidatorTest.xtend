@@ -58,7 +58,7 @@ class TmlVarUsageValidatorTest extends AbstractTmlValidatorTest {
 			val assignment = testStepWithAssignment("variable", "some")
 			steps += assignment
 			steps += assertionTestStep => [
-				expression = assignment.assignmentVariable.mappedReference.compareOnEquality("fixed value")
+				expression = assignment.variable.mappedReference.compareOnEquality("fixed value")
 			]
 		]
 		val componentTestStepContext = testStepContext.assertInstanceOf(ComponentTestStepContext)
@@ -79,7 +79,7 @@ class TmlVarUsageValidatorTest extends AbstractTmlValidatorTest {
 			val assignment = testStepWithAssignment("variable", "some")
 			steps += assignment
 			steps += assertionTestStep => [
-				expression = assignment.assignmentVariable.flatReference.compareOnEquality("fixed value")
+				expression = assignment.variable.flatReference.compareOnEquality("fixed value")
 			]
 		]
 		val componentTestStepContext = testStepContext.assertInstanceOf(ComponentTestStepContext)
@@ -103,7 +103,7 @@ class TmlVarUsageValidatorTest extends AbstractTmlValidatorTest {
 			]
 			contexts += componentTestStepContext(null) => [
 				steps += assertionTestStep => [
-					expression = assignment.assignmentVariable.flatReference.compareOnEquality("fixed value")
+					expression = assignment.variable.flatReference.compareOnEquality("fixed value")
 				]
 			]
 		]
@@ -122,7 +122,7 @@ class TmlVarUsageValidatorTest extends AbstractTmlValidatorTest {
 			val assignment = testStepWithAssignment("variable", "some")
 			steps += assignment
 			steps += assertionTestStep => [
-				expression = assignment.assignmentVariable.mappedReference.compareOnEquality("fixed value")
+				expression = assignment.variable.mappedReference.compareOnEquality("fixed value")
 			]
 		]
 		val componentTestStepContext = testStepContext.assertInstanceOf(ComponentTestStepContext)

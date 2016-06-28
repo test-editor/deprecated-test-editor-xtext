@@ -87,11 +87,11 @@ class AEStringConstant extends AssertionExpression {
 }
 
 class TestStepWithAssignment extends TestStep {
-	contains AssignmentVariable assignmentVariable opposite testStepWithAssignment
+	contains AssignmentVariable variable opposite testStep
 }
 
 class AssignmentVariable {
-	container TestStepWithAssignment testStepWithAssignment opposite assignmentVariable
+	container TestStepWithAssignment testStep opposite variable
 	String name
 }
 

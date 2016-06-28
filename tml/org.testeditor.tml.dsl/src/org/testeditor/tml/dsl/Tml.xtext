@@ -132,7 +132,7 @@ ComparatorGreaterThen:
 	{ComparatorGreaterThen} ('>' | negated?='<=');
 
 TestStepWithAssignment:
-	'-' assignmentVariable=AssignmentVariable '=' contents+=StepContent* '.'?;
+	'-' variable=AssignmentVariable '=' contents+=StepContent* '.'?;
 
 AssignmentVariable:
 	name=ID
