@@ -58,7 +58,7 @@ class AmlFormatter extends XbaseFormatter {
 	
 	private def void formatBrackets(EObject element, extension IFormattableDocument document) {
 		element.regionFor.keyword("{").prepend[oneSpace].append[setNewLines(1, 2, 2)]
-		element.interior[indent] 
+		element.regionFor.keywordPairs("{", "}").forEach[interior[indent]]
 		element.regionFor.keyword("}").prepend[setNewLines(1, 2, 2)]
 	}
 	
