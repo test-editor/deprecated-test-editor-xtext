@@ -40,4 +40,55 @@ class ComponentFormatterTest extends AbstractFormatterTest {
 		]
 	}
 	
+	@Test
+	def void formatComponent() {
+		// if there is a single line between elements leave as it is
+		assertFormatted[
+			expectation = '''
+				component LoginPage is WebPage {
+				
+					element User is Text {
+
+					}
+				
+				}
+			'''
+			toBeFormatted = expectation
+		]
+		// if the uses chooses to not put in empty lines, leave as it is
+		assertFormatted[
+			expectation = '''
+				component LoginPage is WebPage {
+					element User is Text {
+					}
+				}
+			'''
+			toBeFormatted = expectation
+		]
+		// if there is more than one empty line, format as just one empty line in-between
+		assertFormatted[
+			expectation = '''
+				component LoginPage is WebPage {
+				
+					element User is Text {
+
+					}
+				
+				}
+			'''
+			toBeFormatted = '''
+				component LoginPage is WebPage {
+					
+					
+					element User is Text {
+						
+						
+					}
+					
+					
+				}
+			'''
+		]
+	}
+	
 }

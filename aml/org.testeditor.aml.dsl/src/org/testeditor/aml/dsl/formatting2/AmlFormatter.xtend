@@ -31,7 +31,7 @@ class AmlFormatter extends XbaseFormatter {
 	
 	def dispatch void format(AmlModel model, extension IFormattableDocument document) {
 		model.eContents.forEach[
-			prepend[setNewLines(2, 2, 3)] // at least one empty line between elements
+			prepend[setNewLines(2, 2, 2)] // at least one empty line between elements
 			formatBrackets(document)
 			formatKeywords(document)
 			format
@@ -57,9 +57,9 @@ class AmlFormatter extends XbaseFormatter {
 	}
 	
 	private def void formatBrackets(EObject element, extension IFormattableDocument document) {
-		element.regionFor.keyword("{").prepend[oneSpace].append[newLine]
+		element.regionFor.keyword("{").prepend[oneSpace].append[setNewLines(1, 2, 2)]
 		element.interior[indent] 
-		element.regionFor.keyword("}").prepend[newLine]
+		element.regionFor.keyword("}").prepend[setNewLines(1, 2, 2)]
 	}
 	
 	private def void formatKeywords(EObject element, extension IFormattableDocument document) {
@@ -67,7 +67,7 @@ class AmlFormatter extends XbaseFormatter {
 		element.regionFor.keyword("type").surround[oneSpace]
 		element.regionFor.keyword("is").surround[oneSpace]
 		element.regionFor.keyword("=").surround[oneSpace]
-		element.regionFor.keywords("label", "template").forEach[prepend[newLine]]
+		element.regionFor.keywords("label", "template").forEach[prepend[setNewLines(1, 2, 2)]]
 	}
 	
 }
