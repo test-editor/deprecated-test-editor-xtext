@@ -55,7 +55,7 @@ class ComponentFormatterTest extends AbstractFormatterTest {
 			'''
 			toBeFormatted = expectation
 		]
-		// if the uses chooses to not put in empty lines, leave as it is
+		// if the user chooses to not put in empty lines, leave as it is
 		assertFormatted[
 			expectation = '''
 				component LoginPage is WebPage {
