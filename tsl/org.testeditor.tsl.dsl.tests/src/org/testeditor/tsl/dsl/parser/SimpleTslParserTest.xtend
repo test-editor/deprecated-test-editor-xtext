@@ -13,6 +13,7 @@
 package org.testeditor.tsl.dsl.parser
 
 import javax.inject.Inject
+import org.junit.Ignore
 import org.junit.Test
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
@@ -51,12 +52,84 @@ class SimpleTslParserTest extends AbstractParserTest {
 	}
 
 	@Test
-	def void parseSpecificationWithVariable() {
+	def void parseSimpleSpecificationStep() {
 		// given
 		val tsl = '''
 			package com.example
 			
 			# Test
+			* Simple spec
+		'''
+
+		// expect
+		tsl.parse [
+			specification.steps.assertSingleElement => [
+				contents.restoreString.assertEquals('Simple spec')
+			]
+		]
+	}
+	
+	@Test @Ignore // TODO
+	def void parseSpecificationStepWithStar() {
+		// given
+		val tsl = '''
+			package com.example
+			
+			# Test
+			* The result of 5 * 3 is 15
+		'''
+
+		// expect
+		tsl.parse [
+			assertNoSyntaxErrors
+			specification.steps.assertSingleElement => [
+				contents.restoreString.assertEquals('The result of 5 * 3 is 15')
+			]
+		]
+	}
+
+	@Test
+	def void parseMultipleSpecificationSteps() {
+		// given
+		val tsl = '''
+			package com.example
+			
+			# Test
+			
+			* First step
+			
+			
+			* Second step
+			* Third step
+			
+				* Fourth step
+				 * Fifth step
+				 	* Sixt step
+		'''
+
+		// expect
+		tsl.parse [
+			assertNoSyntaxErrors
+			specification.steps => [
+				assertSize(6)
+				get(0).contents.restoreString.assertEquals('First step')
+				get(1).contents.restoreString.assertEquals('Second step')
+				get(2).contents.restoreString.assertEquals('Third step')
+				get(3).contents.restoreString.assertEquals('Fourth step')
+				get(4).contents.restoreString.assertEquals('Fifth step')
+				get(5).contents.restoreString.assertEquals('Sixt step')
+			]
+		]
+	}
+
+	@Test
+	def void parseSpecificationStepWithVariable() {
+		// given
+		val tsl = '''
+			package com.example
+			
+			# Test
+			
 			* Send greetings "Hello World" to the world.
 		'''
 
@@ -74,29 +147,10 @@ class SimpleTslParserTest extends AbstractParserTest {
 	@Test
 	def void missingPackage() {
 		// given
-		val tsl = '''
-			// package packageA
-		'''
+		val tsl = ""
 
 		// expect nothing parsed
 		tsl.parse.assertNull
-	}
-
-	@Test
-	def void packageWithComments() {
-		// given
-		val tsl = '''
-			// comment
-			/* comment
-			     */package/* ohoh */packageA// tata
-			     /*
-			*/
-		'''
-
-		// expect
-		tsl.parse [
-			package.assertEquals("packageA")
-		]
 	}
 
 }

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -12,9 +12,12 @@
  *******************************************************************************/
 package org.testeditor.tsl.dsl
 
+import org.testeditor.tsl.dsl.conversion.TslValueConverterService
 
-/**
- * Use this class to register components to be used at runtime / without the Equinox extension registry.
- */
 class TslRuntimeModule extends AbstractTslRuntimeModule {
+
+	override bindIValueConverterService() {
+		return TslValueConverterService
+	}
+
 }
