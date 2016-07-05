@@ -18,7 +18,9 @@ import javax.inject.Inject
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.xtype.XImportSection
+import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateVariable
+import org.testeditor.dsl.common.util.CollectionUtils
 import org.testeditor.tml.AEVariableReference
 import org.testeditor.tml.AssertionExpression
 import org.testeditor.tml.AssertionTestStep
@@ -37,8 +39,6 @@ import org.testeditor.tml.util.TmlModelUtil
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
-import org.testeditor.dsl.common.util.CollectionUtils
-import org.testeditor.aml.Template
 
 /**
  * This class contains custom validation rules. 
@@ -93,8 +93,8 @@ class TmlValidator extends AbstractTmlValidator {
 	def checkMacroCall(TestStep testStep) {
 		if (testStep.hasMacroContext) {
 			val normalizedTeststep = testStep.normalize
-			val macroModel = testStep.macroContext.macroModel
-			if (!macroModel.macros.exists[template.normalize == normalizedTeststep]) {
+			val macroCollection = testStep.macroContext.macroCollection
+			if (!macroCollection.macros.exists[template.normalize == normalizedTeststep]) {
 				warning("test step could not resolve macro usage", TmlPackage.Literals.TEST_STEP__CONTENTS,
 					MISSING_MACRO)
 			}
@@ -214,18 +214,32 @@ class TmlValidator extends AbstractTmlValidator {
 	}
 
 	@Check
-	def checkVariableUsageWithinAssertionExpressions(ComponentTestStepContext tsContext) {
-		val varTypeMap = newHashMap
-		// collect all var assignments
-		tsContext.steps.forEach [ it, index |
+	def void checkVariableUsageWithinAssertionExpressions(Macro macro) {
+		val Map<String, String> varTypeMap = newHashMap
+		macro.contexts.forEach[it.executeCheckVariableUsageWithinAssertionExpressions(varTypeMap)]
+	}
+
+	def dispatch void executeCheckVariableUsageWithinAssertionExpressions(
+		ComponentTestStepContext componentTestStepContext, Map<String, String> varTypeMap) {
+		executeTestStepCheckVariableUsageWithinAssertionExpressions(componentTestStepContext.steps, varTypeMap)
+	}
+
+	def dispatch void executeCheckVariableUsageWithinAssertionExpressions(MacroTestStepContext macroTestStepContext,
+		Map<String, String> varTypeMap) {
+		executeTestStepCheckVariableUsageWithinAssertionExpressions(#[macroTestStepContext.step], varTypeMap)
+	}
+
+	private def void executeTestStepCheckVariableUsageWithinAssertionExpressions(Iterable<TestStep> steps,
+		Map<String, String> varTypeMap) {
+		steps.forEach [ it, index |
 			if (it instanceof TestStepWithAssignment) {
 				// check "in order" (to prevent variable usage before assignment)
-				if (varTypeMap.containsKey(variableName)) {
-					val message = '''Variable '«variableName»' is assigned more than once.'''
-					warning(message, TmlPackage.Literals.COMPONENT_TEST_STEP_CONTEXT__STEPS, index,
+				if (varTypeMap.containsKey(variable.name)) {
+					val message = '''Variable '«variable.name»' is assigned more than once.'''
+					error(message, it, TmlPackage.Literals.TEST_STEP_WITH_ASSIGNMENT__VARIABLE, index,
 						VARIABLE_ASSIGNED_MORE_THAN_ONCE);
 				} else {
-					varTypeMap.put(variableName, interaction.defaultMethod.operation.returnType.identifier)
+					varTypeMap.put(variable.name, interaction.defaultMethod.operation.returnType.identifier)
 				}
 			} else if (it instanceof AssertionTestStepImpl) {
 				executeCheckVariableUsageWithinAssertionExpressions(varTypeMap, index)
@@ -236,14 +250,14 @@ class TmlValidator extends AbstractTmlValidator {
 	private def executeCheckVariableUsageWithinAssertionExpressions(AssertionTestStep step,
 		Map<String, String> varTypeMap, int index) {
 		step.expression.collectVariableUsage.forEach [
-			if (varTypeMap.get(name) == null) { // regular variable dereference
-				val message = '''Variable '«name»' is unknown here.'''
+			if (!varTypeMap.containsKey(variable.name)) { // regular variable dereference
+				val message = '''Variable «if(variable.name!=null){ '\''+variable.name+'\''}» is unknown here.'''
 				error(message, eContainer, eContainingFeature, VARIABLE_UNKNOWN_HERE)
 			} else if (key != null) { // dereference map with a key
-				val typeIdentifier = varTypeMap.get(name).replaceFirst("<.*", "")
+				val typeIdentifier = varTypeMap.get(variable.name).replaceFirst("<.*", "")
 				if (typeIdentifier.
 					isNotAssignableToMap) {
-					val message = '''Variable '«name»' of type '«typeIdentifier»' does not implement '«Map.canonicalName»'. It cannot be used with key '«key»'.'''
+					val message = '''Variable '«variable.name»' of type '«typeIdentifier»' does not implement '«Map.canonicalName»'. It cannot be used with key '«key»'.'''
 					error(message, eContainer, eContainingFeature, INVALID_MAP_REF)
 				}
 			}
@@ -267,8 +281,8 @@ class TmlValidator extends AbstractTmlValidator {
 
 	@Check
 	def checkValueInValueSpace(StepContentVariable stepContentVariable) {
-		var valueSpace = stepContentVariable.valueSpaceAssignment.valueSpace
-		if (!valueSpace.isValidValue(stepContentVariable.value)) {
+		val valueSpace = stepContentVariable.valueSpaceAssignment?.valueSpace
+		if (valueSpace !== null && !valueSpace.isValidValue(stepContentVariable.value)) {
 			val message = '''Value is not allowed in this step. Allowed values: '«valueSpace»'.'''
 			warning(message, TslPackage.Literals.STEP_CONTENT_VALUE__VALUE, UNALLOWED_VALUE);
 		}

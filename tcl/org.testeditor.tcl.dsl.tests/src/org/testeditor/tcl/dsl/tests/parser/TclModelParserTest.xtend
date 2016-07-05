@@ -14,7 +14,6 @@ package org.testeditor.tcl.dsl.tests.parser
 
 import org.junit.Test
 import org.testeditor.tml.AEComparison
-import org.testeditor.tml.AENullCheck
 import org.testeditor.tml.AEStringConstant
 import org.testeditor.tml.AEVariableReference
 import org.testeditor.tml.AssertionTestStep
@@ -28,6 +27,7 @@ import org.testeditor.tml.TmlPackage
 import org.testeditor.tsl.StepContentVariable
 
 import static extension org.eclipse.xtext.nodemodel.util.NodeModelUtils.*
+import org.testeditor.tml.AENullOrBoolCheck
 
 class TclModelParserTest extends AbstractParserTest {
 	
@@ -39,7 +39,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 		
 		// when
-		val model = parser.parse(input)
+		val model = parseHelper.parse(input)
 		
 		// then
 		model.package.assertEquals('com.example')
@@ -108,7 +108,7 @@ class TclModelParserTest extends AbstractParserTest {
 		test.steps.assertSingleElement => [
 			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
 				val componentNode = findNodesForFeature(TmlPackage.Literals.COMPONENT_TEST_STEP_CONTEXT__COMPONENT).assertSingleElement
-				componentNode.text.assertEquals('GreetingsApplication')
+				componentNode.text.trim.assertEquals('GreetingsApplication')
 				steps.assertSize(2)
 				steps.get(0) => [
 					contents.restoreString.assertEquals('starte Anwendung "org.testeditor.swing.exammple.Greetings"')	
@@ -166,7 +166,7 @@ class TclModelParserTest extends AbstractParserTest {
 		test.steps.assertSingleElement => [
 			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
 				steps.assertSingleElement.assertInstanceOf(TestStepWithAssignment) => [
-					variableName.assertEquals('hello')
+					variable.name.assertEquals('hello')
 					contents.restoreString.assertEquals('Lese den Text von <Input>')
 				]
 			]
@@ -182,6 +182,7 @@ class TclModelParserTest extends AbstractParserTest {
 			# Test
 			* Start using some keywords like is matches does not match
 			  Mask: Demo
+			  - hello = some
 			  - assert hello
 		'''
 
@@ -191,10 +192,10 @@ class TclModelParserTest extends AbstractParserTest {
 		// then
 		test.steps.assertSingleElement => [
 			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
-				steps.assertSingleElement.assertInstanceOf(AssertionTestStep) => [
-					expression.assertInstanceOf(AENullCheck) => [
-						negated.assertFalse
-						varReference.name.assertEquals("hello")
+				steps.assertSize(2).get(1).assertInstanceOf(AssertionTestStep) => [
+					expression.assertInstanceOf(AENullOrBoolCheck) => [
+						isNegated.assertFalse
+						varReference.variable.name.assertEquals("hello")
 					]
 				]
 			]
@@ -210,6 +211,7 @@ class TclModelParserTest extends AbstractParserTest {
 			# Test
 			* Start using some keywords like is matches does not match
 			  Mask: Demo
+			  - hello = some
 			  - assert hello does    not match ".*AAABBB.*"
 		'''
 
@@ -219,9 +221,9 @@ class TclModelParserTest extends AbstractParserTest {
 		// then
 		test.steps.assertSingleElement => [
 			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
-				steps.assertSingleElement.assertInstanceOf(AssertionTestStep) => [
+				steps.assertSize(2).get(1).assertInstanceOf(AssertionTestStep) => [
 					expression.assertInstanceOf(AEComparison) => [
-						left.assertInstanceOf(AEVariableReference) => [name.assertEquals("hello")]
+						left.assertInstanceOf(AEVariableReference) => [variable.name.assertEquals("hello")]
 						comparator.assertInstanceOf(ComparatorMatches) => [negated.assertTrue]
 						right.assertInstanceOf(AEComparison) => [
 							left.assertInstanceOf(AEStringConstant) => [string.assertEquals(".*AAABBB.*")]

@@ -40,7 +40,7 @@ class AmlModelTreeAdapterTest extends AbstractParserTest {
 			component MyApp { }
 			component MyApp2 { }
 		'''
-		val model = parser.parse(input)
+		val model = parse(input)
 
 		// when
 		val children = model.package.getChildren(model)
@@ -68,7 +68,7 @@ class AmlModelTreeAdapterTest extends AbstractParserTest {
 			
 			interaction type release { }
 		'''
-		val model = parser.parse(input)
+		val model = parse(input)
 		val app = model.components.findFirst[name == "MyApp"].assertNotNull
 		val button = app.elements.findFirst[name == "MyButton"].assertNotNull
 
@@ -116,7 +116,7 @@ class AmlModelTreeAdapterTest extends AbstractParserTest {
 			
 			interaction type release { }
 		'''
-		val model = parser.parse(input)
+		val model = parse(input)
 		val myApp = model.components.findFirst[name == "MyApp"].assertNotNull
 
 		// when

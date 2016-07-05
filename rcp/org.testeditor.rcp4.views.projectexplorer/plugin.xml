@@ -124,9 +124,7 @@
 					wizardId="org.testeditor.dsl.common.ui.wizards.NewProjectWizard">
 				<enablement>
 					<or>
-						<adapt type="org.eclipse.core.resources.IFolder" />
-	         			<adapt type="org.eclipse.core.resources.IProject" /> 
-	               		<adapt type="org.eclipse.core.resources.IWorkspaceRoot" />	
+						<adapt type="java.lang.Object" />
 					</or>
 		         </enablement>
   	     </commonWizard>   

@@ -41,7 +41,7 @@ class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 				interactions = start
 			}
 			
-			component Dummy is DummyCT {}						
+			component Dummy is DummyCT {}
 		''')
 
 		// macro definitions such that "other" is a macro again which uses "something" which uses an aml component

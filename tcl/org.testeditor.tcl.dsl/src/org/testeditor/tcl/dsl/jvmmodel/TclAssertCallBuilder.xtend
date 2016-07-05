@@ -1,7 +1,10 @@
 package org.testeditor.tcl.dsl.jvmmodel
 
+import javax.inject.Inject
+import org.eclipse.xtext.nodemodel.util.NodeModelUtils
+import org.testeditor.aml.ModelUtil
 import org.testeditor.tml.AEComparison
-import org.testeditor.tml.AENullCheck
+import org.testeditor.tml.AENullOrBoolCheck
 import org.testeditor.tml.AEStringConstant
 import org.testeditor.tml.AEVariableReference
 import org.testeditor.tml.AssertionExpression
@@ -10,9 +13,12 @@ import org.testeditor.tml.ComparatorEquals
 import org.testeditor.tml.ComparatorGreaterThen
 import org.testeditor.tml.ComparatorLessThen
 import org.testeditor.tml.ComparatorMatches
-import org.eclipse.xtext.nodemodel.util.NodeModelUtils
+import org.testeditor.tml.util.TmlModelUtil
 
 class TclAssertCallBuilder {
+	@Inject extension TmlModelUtil
+	@Inject extension ModelUtil
+
 	/** assert method calls used, toString must yield the actual method name! */
 	enum AssertMethod {
 		assertNull,
@@ -45,16 +51,28 @@ class TclAssertCallBuilder {
 		if (assertionMethod == null) {
 			return '''// TODO no assertion method implementation for expression with type "«expression.class»"'''
 		} else {
+			val assertionText = NodeModelUtils.getNode(expression)?.text?.trim ?:
+				""
 			return '''
-				// - assert «NodeModelUtils.getNode(expression).text.trim»
-				org.junit.Assert.«assertionMethod(expression)»(«expression.buildExpression»);
-				'''
+				// - assert «assertionText»
+				org.junit.Assert.«expression.assertionMethod»("«assertionText.replaceAll('"','\\\\"')»", «expression.buildExpression»);
+			'''
+		}
+	}
+
+	private def AssertMethod assertionMethodForNullOrBoolCheck(AENullOrBoolCheck expression) {
+		val interaction = getInteraction(expression.varReference.variable.testStep)
+		val returnTypeName = getReturnType(interaction)?.qualifiedName ?: ""
+		switch (returnTypeName) {
+			case boolean.name,
+			case Boolean.name: return adjustedAssertMethod(AssertMethod.assertTrue, expression.isNegated)
+			default: return adjustedAssertMethod(AssertMethod.assertNotNull, expression.isNegated)
 		}
 	}
 
 	private def AssertMethod assertionMethod(AssertionExpression expression) {
 		return switch (expression) {
-			AENullCheck: adjustedAssertMethod(AssertMethod.assertNotNull, expression.negated)
+			AENullOrBoolCheck: assertionMethodForNullOrBoolCheck(expression)
 			AEVariableReference: AssertMethod.assertNotNull
 			AEComparison: assertionMethod(expression.comparator)
 			AEStringConstant: AssertMethod.assertNotNull
@@ -80,8 +98,15 @@ class TclAssertCallBuilder {
 		throw new RuntimeException('''no builder found for type «expression.class»''')
 	}
 
-	private def dispatch String buildExpression(AENullCheck nullCheck) {
-		return nullCheck.varReference.buildExpression
+	private def dispatch String buildExpression(AENullOrBoolCheck nullCheck) {
+		val expression = nullCheck.varReference.buildExpression
+		val interaction = nullCheck.varReference.variable.testStep.interaction
+		val returnType = interaction.returnType
+		if (Boolean.isAssignableWithoutConversion(returnType)) {
+			return '''(«expression» != null) && «expression».booleanValue()'''
+		} else {
+			return expression
+		}
 	}
 
 	private def dispatch String buildExpression(AEComparison comparison) {
@@ -101,9 +126,9 @@ class TclAssertCallBuilder {
 
 	private def dispatch String buildExpression(AEVariableReference varRef) {
 		if (varRef.key == null) {
-			return varRef.name
+			return varRef.variable.name
 		} else {
-			return '''«varRef.name».get("«varRef.key»")'''
+			return '''«varRef.variable.name».get("«varRef.key»")'''
 		}
 	}
 

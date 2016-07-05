@@ -3,16 +3,24 @@ package org.testeditor.tml.dsl.tests
 import javax.inject.Inject
 import org.eclipse.xtext.xtype.XtypeFactory
 import org.testeditor.aml.Component
-import org.testeditor.aml.Template
-import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.impl.AmlFactoryImpl
+import org.testeditor.tml.AEComparison
+import org.testeditor.tml.AENullOrBoolCheck
+import org.testeditor.tml.AEStringConstant
+import org.testeditor.tml.AEVariableReference
+import org.testeditor.tml.AssertionTestStep
+import org.testeditor.tml.ComparatorEquals
+import org.testeditor.tml.ComparatorMatches
 import org.testeditor.tml.ComponentTestStepContext
 import org.testeditor.tml.Macro
+import org.testeditor.tml.MacroCollection
 import org.testeditor.tml.MacroTestStepContext
 import org.testeditor.tml.TestStep
+import org.testeditor.tml.TestStepWithAssignment
 import org.testeditor.tml.TmlModel
 import org.testeditor.tml.impl.TmlFactoryImpl
 import org.testeditor.tsl.impl.TslFactoryImpl
+import org.testeditor.tml.AssignmentVariable
 
 class TmlModelGenerator {
 	@Inject TmlFactoryImpl tmlFactory
@@ -20,9 +28,9 @@ class TmlModelGenerator {
 	@Inject protected TslFactoryImpl tslFactory
 	@Inject protected XtypeFactory xtypeFactory
 
-	def TmlModel tmlModel(String macroCollection) {
+	def TmlModel tmlModel(String macroCollectionName) {
 		return tmlFactory.createTmlModel => [
-			name = macroCollection
+			macroCollection = tmlFactory.createMacroCollection => [name = macroCollectionName]
 			^package = "com.example"
 		]
 	}
@@ -41,28 +49,54 @@ class TmlModelGenerator {
 		return tmlFactory.createMacro => [name = macroName]
 	}
 
-	def Template template(String ... texts) {
-		return amlFactory.createTemplate.withText(texts)
+	def TestStep testStep(String ... texts) {
+		return tmlFactory.createTestStep.withText(texts)
 	}
 
-	def Template withParameter(Template me, TemplateVariable variable) {
-		me.contents += variable
-		return me
-	}
-
-	def Template withParameter(Template me, String variable) {
-		me.contents += amlFactory.createTemplateVariable => [name = variable]
-		return me
-	}
-
-	def Template withText(Template me, String ... texts) {
-		return me => [
-			texts.forEach[text|contents += amlFactory.createTemplateText => [value = text]]
+	def TestStepWithAssignment testStepWithAssignment(String variableName, String ... texts) {
+		tmlFactory.createTestStepWithAssignment => [
+			withText(texts)
+			variable = tmlFactory.createAssignmentVariable => [ name=variableName ]
 		]
 	}
 
-	def TestStep testStep(String ... texts) {
-		return tmlFactory.createTestStep.withText(texts)
+	def AssertionTestStep assertionTestStep() {
+		tmlFactory.createAssertionTestStep
+	}
+
+	def AEStringConstant aeStringConstant(String string) {
+		tmlFactory.createAEStringConstant => [ it.string = string]
+	}
+
+	def AEComparison aeComparison() {
+		tmlFactory.createAEComparison
+	}
+	
+	def AssignmentVariable assignmentVariable(String variableName){
+		tmlFactory.createAssignmentVariable => [ name = variableName ]
+	}
+
+	def AEVariableReference aeVariableReference() {
+		tmlFactory.createAEVariableReference
+	}
+
+	def ComparatorEquals comparatorEquals() {
+		tmlFactory.createComparatorEquals
+	}
+
+	def ComparatorMatches comparatorMatches() {
+		tmlFactory.createComparatorMatches
+	}
+
+	def AENullOrBoolCheck aeNullOrBoolCheck() {
+		tmlFactory.createAENullOrBoolCheck
+	}
+
+	def TestStep withElement(TestStep me, String elementName) {
+		me.contents += tmlFactory.createStepContentElement => [
+			value = elementName
+		]
+		return me
 	}
 
 	def TestStep withVariableReference(TestStep me, String variableReferenceName) {
@@ -85,13 +119,78 @@ class TmlModelGenerator {
 		]
 	}
 
-	def MacroTestStepContext macroTestStepContext(TmlModel model) {
-		return tmlFactory.createMacroTestStepContext => [macroModel = model]
+	def MacroTestStepContext macroTestStepContext(MacroCollection macroCollection) {
+		return tmlFactory.createMacroTestStepContext => [it.macroCollection = macroCollection]
 	}
 
 	def ComponentTestStepContext componentTestStepContext(Component referencedComponent) {
 		return tmlFactory.createComponentTestStepContext => [
 			component = referencedComponent
+		]
+	}
+
+	// ===================================================================== extended 
+
+	def AEComparison compareNotMatching(AEVariableReference variableReference, String string) {
+		return aeComparison => [
+			left = variableReference
+			comparator = comparatorMatches => [negated = true]
+			right = aeStringConstant(string)
+		]
+	}
+
+	def AEComparison compareMatching(AEVariableReference variableReference, String string) {
+		return aeComparison => [
+			left = variableReference
+			comparator = comparatorMatches
+			right = aeStringConstant(string)
+		]
+	}
+
+	def AEComparison compareNotEqual(AEVariableReference variableReference, String string) {
+		return aeComparison => [
+			left = variableReference
+			comparator = comparatorEquals => [negated=true]
+			right = aeStringConstant(string)
+		]
+	}
+	def AEComparison compareOnEquality(AEVariableReference variableReference, String string) {
+		return aeComparison => [
+			left = variableReference
+			comparator = comparatorEquals
+			right = aeStringConstant(string)
+		]
+	}
+
+	def AEVariableReference flatReference(AssignmentVariable assignmentVariable) {
+		return aeVariableReference => [
+			variable = assignmentVariable
+		]
+	}
+
+	def AEVariableReference mappedReference(AssignmentVariable assignmentVariable) {
+		return aeVariableReference => [
+			variable = assignmentVariable
+			key = "key"
+		]
+	}
+
+	def AEVariableReference flatReference(String variableName) {
+		aeVariableReference => [variable = assignmentVariable(variableName)]
+	}
+
+	def AEVariableReference mappedReference(String variableName, String myKey) {
+		aeVariableReference => [
+			variable = assignmentVariable(variableName)
+			key = myKey
+		]
+	}
+
+	def AENullOrBoolCheck nullOrBoolCheck(String variableName) {
+		aeNullOrBoolCheck => [
+			varReference = aeVariableReference => [
+				variable = assignmentVariable(variableName)
+			]
 		]
 	}
 
