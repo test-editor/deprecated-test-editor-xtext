@@ -20,6 +20,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 	@InjectMocks TclAssertCallBuilder assertCallBuilder // class under test
 	@Mock ModelUtil amlModelUtil // injected into class under test
 	@Mock protected TmlModelUtil tmlModelUtil // injected into class under test
+
 	@Inject extension TmlModelGenerator
 
 	@Inject Provider<XtextResourceSet> resourceSetProvider
@@ -29,8 +30,10 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 	def void testEqualsGen() {
 		// given
 		val expression = flatReference("variable").compareOnEquality("test")
+
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
+
 		// then
 		assertCodeLine('org.junit.Assert.assertEquals("", "test", variable);', generatedCode)
 	}
@@ -39,8 +42,10 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 	def void testNotEqualsGen() {
 		// given
 		val expression = flatReference("variable").compareNotEqual("test")
+
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
+
 		// then
 		assertCodeLine('org.junit.Assert.assertNotEquals("", "test", variable);', generatedCode)
 	}
@@ -49,8 +54,10 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 	def void testNotNullGen() {
 		// given
 		val expression = nullOrBoolCheck("variable")
+
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
+
 		// then
 		assertCodeLine('org.junit.Assert.assertNotNull("", variable);', generatedCode)
 	}
@@ -59,8 +66,10 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 	def void testNullGen() {
 		// given
 		val expression = nullOrBoolCheck("variable") => [negated = true]
+
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
+
 		// then
 		assertCodeLine('org.junit.Assert.assertNull("", variable);', generatedCode)
 	}
@@ -70,8 +79,10 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 		// given
 		variableType = boolean
 		val expression = nullOrBoolCheck("variable")
+
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
+
 		// then
 		assertCodeLine('org.junit.Assert.assertTrue("", variable);', generatedCode)
 	}
@@ -81,8 +92,10 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 		// given
 		variableType = boolean
 		val expression = nullOrBoolCheck("variable") => [negated = true]
+
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
+
 		// then
 		assertCodeLine('org.junit.Assert.assertFalse("", variable);', generatedCode)
 	}
@@ -92,8 +105,10 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 		// given
 		variableType = Boolean
 		val expression = nullOrBoolCheck("variable")
+
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
+
 		// then
 		assertCodeLine('org.junit.Assert.assertTrue("", (variable != null) && variable.booleanValue());', generatedCode)
 	}
@@ -103,8 +118,10 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 		// given
 		variableType = Boolean
 		val expression = nullOrBoolCheck("variable") => [negated = true]
+
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
+
 		// then
 		assertCodeLine('org.junit.Assert.assertFalse("", (variable != null) && variable.booleanValue());',
 			generatedCode)
@@ -114,8 +131,10 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 	def void testMatches() {
 		// given
 		val expression = flatReference("variable").compareMatching("ohoh")
+
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
+
 		// then
 		assertCodeLine('org.junit.Assert.assertTrue("", variable.matches("ohoh"));', generatedCode)
 	}
@@ -124,8 +143,10 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 	def void testDoesNotMatch() {
 		// given
 		val expression = flatReference("variable").compareNotMatching("ohoh")
+
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
+
 		// then
 		assertCodeLine('org.junit.Assert.assertFalse("", variable.matches("ohoh"));', generatedCode)
 	}
@@ -134,8 +155,10 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 	def void testWithMapDereference() {
 		// given
 		val expression = mappedReference("variable", "key").compareOnEquality("test")
+
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
+
 		// then
 		assertCodeLine('org.junit.Assert.assertEquals("", "test", variable.get("key"));', generatedCode)
 	}
@@ -144,8 +167,10 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 	def void testWithMapKeyAsString() {
 		// given
 		val expression = mappedReference("variable", "key with spaces").compareOnEquality("test")
+
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
+
 		// then
 		assertCodeLine('org.junit.Assert.assertEquals("", "test", variable.get("key with spaces"));', generatedCode)
 	}
