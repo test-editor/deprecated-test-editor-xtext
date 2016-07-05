@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -14,6 +14,7 @@ package org.testeditor.tsl.dsl.parser
 
 import javax.inject.Inject
 import org.junit.Test
+import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
 
 class SimpleTslParserTest extends AbstractParserTest {
@@ -62,6 +63,9 @@ class SimpleTslParserTest extends AbstractParserTest {
 		// expect
 		tsl.parse [
 			specification.steps.assertSingleElement => [
+				contents.filter(StepContentVariable).assertSingleElement => [
+					value.assertEquals('Hello World')
+				]
 				contents.restoreString.assertEquals('Send greetings "Hello World" to the world')
 			]
 		]
@@ -75,9 +79,7 @@ class SimpleTslParserTest extends AbstractParserTest {
 		'''
 
 		// expect nothing parsed
-		tsl.parse [
-			assertNull
-		]
+		tsl.parse.assertNull
 	}
 
 	@Test
