@@ -10,7 +10,7 @@ class CollectionUtils {
 	public def <A, B, C> Iterable<Pair<C, A>> filterValue(Iterable<Pair<C, B>> unfiltered, Class<A> clazz) {
 		return Iterables.filter(unfiltered, [clazz.isAssignableFrom(value.class)]).map [
 			new Pair<C, A>(key, value as A)
-		];
+		]
 	}
 
 	/**
@@ -19,7 +19,7 @@ class CollectionUtils {
 	public def <A, B, C> Iterable<Pair<B, A>> filterKey(Iterable<Pair<C, A>> unfiltered, Class<B> clazz) {
 		return Iterables.filter(unfiltered, [clazz.isAssignableFrom(key.class)]).map [
 			new Pair<B, A>(key as B, value)
-		];
+		]
 	}
 
 }
