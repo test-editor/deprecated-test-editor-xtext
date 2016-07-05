@@ -1,37 +1,50 @@
 package org.testeditor.dsl.common.util
 
+import java.math.BigInteger
+import javax.inject.Inject
 import org.junit.Test
+import org.testeditor.dsl.common.testing.AbstractTest
 
-import static org.junit.Assert.*
+class CollectionUtilsTest extends AbstractTest {
 
-import static extension org.testeditor.dsl.common.util.CollectionUtils.*
-
-class CollectionUtilsTest {
+	@Inject extension CollectionUtils
 
 	@Test
-	def void testNoAddIfExisting() {
+	def void testFilterKey() {
 		// given
-		val map = newHashMap("existing" -> "value")
+		val Iterable<Pair<Object, String>> iterable = #[
+			"x" -> "y",
+			1bi -> "one",
+			2bi -> "two"
+		]
 
 		// when
-		map.putIfAbsent("existing", "othervalue")
+		val filtered = iterable.filterKey(BigInteger)
 
 		// then
-		assertEquals("value", map.get("existing"))
-		assertEquals(1, map.size)
+		filtered.assertSize(2) => [
+			get(0).assertEquals(iterable.get(1))
+			get(1).assertEquals(iterable.get(2))
+		]
 	}
 
 	@Test
-	def void testAddIfNotExisting() {
+	def void testFilterValue() {
 		// given
-		val map = newHashMap
+		val Iterable<Pair<String, Object>> iterable = #[
+			"x" -> "y",
+			"one" -> 1bi,
+			"two" -> 2bi
+		]
 
 		// when
-		map.putIfAbsent("notexisting", "othervalue")
+		val filtered = iterable.filterValue(BigInteger)
 
 		// then
-		assertEquals("othervalue", map.get("notexisting"))
-		assertEquals(1, map.size)
+		filtered.assertSize(2) => [
+			get(0).assertEquals(iterable.get(1))
+			get(1).assertEquals(iterable.get(2))
+		]
 	}
 
 }

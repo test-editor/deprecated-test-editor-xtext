@@ -71,6 +71,9 @@ Workflow {
 				framework = "Ace"
 				generateJsHighlighting = true
 			}
+			generator = {
+				generateStub = false
+			}
 		}
 	}
 }
