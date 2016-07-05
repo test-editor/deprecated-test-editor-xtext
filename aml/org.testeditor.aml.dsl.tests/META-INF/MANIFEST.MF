@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.testeditor.aml.dsl.tests
 Bundle-Vendor: Signal Iduna Corporation
-Bundle-Version: 1.0.1.qualifier
+Bundle-Version: 1.1.0.qualifier
 Bundle-SymbolicName: org.testeditor.aml.dsl.tests;singleton:=true
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -15,6 +15,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.testeditor.aml.dsl,
  com.google.inject,
  org.testeditor.aml.model,
+ org.eclipse.xtext,
  org.testeditor.tsl.model
 Import-Package: com.google.inject,
  org.apache.log4j,

@@ -14,6 +14,7 @@ package org.testeditor.tcl.dsl.jvmmodel
 
 import javax.inject.Inject
 import javax.inject.Provider
+import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.generator.IFileSystemAccess
 import org.eclipse.xtext.generator.IGenerator
 import org.eclipse.xtext.generator.InMemoryFileSystemAccess
@@ -26,6 +27,7 @@ import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
 import org.testeditor.tml.TmlModel
 import org.testeditor.tml.dsl.TmlStandaloneSetup
+import org.testeditor.tsl.TslModel
 
 abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 
@@ -72,6 +74,16 @@ abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 	protected def Object getJavaFile(InMemoryFileSystemAccess fsa, String ^package, String name) {
 		val key = '''«IFileSystemAccess.DEFAULT_OUTPUT»«package.replaceAll('\\.', '/')»/«name».java'''
 		return fsa.allFiles.get(key)
+	}
+
+	protected def <T extends EObject> T addToResourceSet(T model) {
+		switch (model) {
+			TclModel: return model.addToResourceSet(resourceSet, "tcl")
+			TmlModel: return model.addToResourceSet(resourceSet, "tml")
+			AmlModel: return model.addToResourceSet(resourceSet, "aml")
+			TslModel: return model.addToResourceSet(resourceSet, "tsl")
+			default: throw new RuntimeException('''unknown model='«model.class.name»'.''')
+		}
 	}
 
 }

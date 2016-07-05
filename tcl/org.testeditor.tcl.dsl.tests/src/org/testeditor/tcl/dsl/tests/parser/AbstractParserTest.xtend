@@ -26,13 +26,13 @@ import org.testeditor.tcl.util.TclModelUtil
 
 abstract class AbstractParserTest extends AbstractTclTest {
 
-	@Inject protected ParseHelper<TclModel> parser
+	@Inject protected ParseHelper<TclModel> parseHelper
 	@Inject protected IParser iparser
 	@Inject protected extension TclModelUtil modelUtil
 	@Inject protected TclGrammarAccess grammarAccess
 
 	protected def TestCase parse(CharSequence input) {
-		return parser.parse(input).test
+		return parseHelper.parse(input).test
 	}
 
 	protected def <T> T parse(CharSequence input, ParserRule rule, Class<T> ruleClass) {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="org.testeditor.releng.target.thirdparty"
-      version="1.0.1.qualifier">
+      version="1.1.0.qualifier">
 
    <copyright>
       Copyright (c) 2012 - 2015 Signal Iduna Corporation and others.

@@ -14,12 +14,7 @@ package org.testeditor.tml.dsl.validation
 
 import org.eclipse.xtext.common.types.JvmParameterizedTypeReference
 import org.eclipse.xtext.common.types.JvmType
-import org.eclipse.xtext.validation.ValidationMessageAcceptor
-import org.junit.Before
 import org.junit.Test
-import org.mockito.ArgumentCaptor
-import org.mockito.Captor
-import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.testeditor.aml.InteractionType
 import org.testeditor.tml.ComponentTestStepContext
@@ -27,17 +22,11 @@ import org.testeditor.tml.ComponentTestStepContext
 import static org.mockito.Matchers.*
 
 import static extension org.mockito.Mockito.*
-import org.testeditor.tml.dsl.tests.parser.AbstractParserTest
-import org.testeditor.tml.util.TmlModelUtil
+import org.junit.Before
 
-class TmlMissingFixtureValidatorTest extends AbstractParserTest {
+class TmlMissingFixtureValidatorTest extends AbstractTmlValidatorTest {
 
-	@InjectMocks TmlValidator tmlValidator // class under test
-	@Mock TmlModelUtil tmlModelUtil // injected into class under test
 	@Mock JvmParameterizedTypeReference typeReferenceMock
-	@Mock ValidationMessageAcceptor messageAcceptor
-
-	@Captor ArgumentCaptor<String> message
 
 	@Before
 	def void initMocks() {
@@ -48,8 +37,6 @@ class TmlMissingFixtureValidatorTest extends AbstractParserTest {
 		when(tmlModelUtil.hasComponentContext(anyObject)).thenReturn(true)
 		when(interactionTypeMock.defaultMethod.typeReference).thenReturn(typeReferenceMock)
 		when(typeReferenceMock.type).thenReturn(jvmTypeMock) // default is != null => fixture exists
-		val state = tmlValidator.setMessageAcceptor(messageAcceptor)
-		state.state // needs to be called in order for internal state to be initialized. this again is necessary to allow messages to be issued on the "currentObject" of the validation
 	}
 
 	@Test
@@ -58,13 +45,14 @@ class TmlMissingFixtureValidatorTest extends AbstractParserTest {
 		val tmlFix = parse('''
 			package pa
 			# MacroCollection
-
+			
 			## UnnamedMacro
 			template = "hello"
 			Component: some_fantasy_component
 			- test step that maps
 		''')
-		val testStepThatMaps = tmlFix.macros.head.contexts.head.assertInstanceOf(ComponentTestStepContext).steps.head
+		val testStepThatMaps = tmlFix.macroCollection.macros.head.contexts.head.assertInstanceOf(
+			ComponentTestStepContext).steps.head
 
 		// when
 		tmlValidator.checkFixtureMethodForExistence(testStepThatMaps)
@@ -79,13 +67,14 @@ class TmlMissingFixtureValidatorTest extends AbstractParserTest {
 		val tmlFix = parse('''
 			package pa
 			# MacroCollection
-
+			
 			## UnnamedMacro
 			template = "hello"
 			Component: some_fantasy_component
 			- test step that does not map
 		''')
-		val testStepThatDoesNotMap = tmlFix.macros.head.contexts.head.assertInstanceOf(ComponentTestStepContext).steps.head
+		val testStepThatDoesNotMap = tmlFix.macroCollection.macros.head.contexts.head.assertInstanceOf(
+			ComponentTestStepContext).steps.head
 		when(typeReferenceMock.type).thenReturn(null)
 
 		// when
@@ -106,9 +95,11 @@ class TmlMissingFixtureValidatorTest extends AbstractParserTest {
 			## UnnamedMacro
 			template = "hello"
 			Component: some_fantasy_component
+			- variable = get some
 			- assert variable = "Hello"
 		''')
-		val testStepThatDoesNotMap = tmlFix.macros.head.contexts.head.assertInstanceOf(ComponentTestStepContext).steps.head
+		val testStepThatDoesNotMap = tmlFix.macroCollection.macros.head.contexts.head.assertInstanceOf(
+			ComponentTestStepContext).steps.get(1)
 		when(typeReferenceMock.type).thenReturn(null)
 
 		// when

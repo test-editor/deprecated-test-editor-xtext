@@ -52,4 +52,7 @@ public class DummyFixture {
 		return newHashMap
 	}
 
+	@FixtureMethod
+	def void clickOn(String locator, DummyLocatorStrategy locatorStragety) {
+	}
 }

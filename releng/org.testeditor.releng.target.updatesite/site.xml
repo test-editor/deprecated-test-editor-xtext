@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/org.testeditor.releng.target.thirdparty_1.0.1.qualifier.qualifier.jar" id="org.testeditor.releng.target.thirdparty" version="1.0.1.qualifier"/>
+   <feature url="features/org.testeditor.releng.target.thirdparty_1.1.0.qualifier.qualifier.jar" id="org.testeditor.releng.target.thirdparty" version="1.1.0.qualifier"/>
    <feature url="features/org.eclipse.emf.sdk_2.11.1.v20150806-0404.jar" id="org.eclipse.emf.sdk" version="2.11.1.v20150806-0404"/>
    <feature url="features/org.eclipse.emf.ecore.xcore.sdk_1.3.1.v20150806-0546.jar" id="org.eclipse.emf.ecore.xcore.sdk" version="1.3.1.v20150806-0546"/>
    <feature url="features/org.eclipse.emf.mwe2.language.sdk_2.8.1.v201508030411.jar" id="org.eclipse.emf.mwe2.language.sdk" version="2.8.1.v201508030411"/>

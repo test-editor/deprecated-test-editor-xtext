@@ -58,6 +58,12 @@ class TclValidator extends AbstractTclValidator {
 		}
 	}
 
+	@Check
+	def void checkVariableUsageWithinAssertionExpressions(TclModel tclModel) {
+		val Map<String,String> varTypeMap = newHashMap
+		tclModel.test.steps.map[contexts].flatten.forEach[executeCheckVariableUsageWithinAssertionExpressions(varTypeMap)]
+	}
+
 	private def boolean matches(List<SpecificationStep> specSteps,
 		List<SpecificationStepImplementation> specImplSteps) {
 		if (specSteps.size > specImplSteps.size) {
