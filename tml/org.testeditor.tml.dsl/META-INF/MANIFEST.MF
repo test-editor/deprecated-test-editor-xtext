@@ -25,7 +25,6 @@ Import-Package: org.apache.log4j,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.testeditor.tml.dsl,
  org.testeditor.tml.dsl.formatting2,
- org.testeditor.tml.dsl.jvmmodel,
  org.testeditor.tml.dsl.parser.antlr,
  org.testeditor.tml.dsl.parser.antlr.internal,
  org.testeditor.tml.dsl.scoping,
