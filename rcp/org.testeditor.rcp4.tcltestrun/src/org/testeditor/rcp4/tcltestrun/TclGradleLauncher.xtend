@@ -13,10 +13,10 @@
 package org.testeditor.rcp4.tcltestrun
 
 import java.util.Map
+import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.IProgressMonitor
-import org.eclipse.jface.viewers.IStructuredSelection
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProjectConnection
@@ -24,7 +24,6 @@ import org.gradle.tooling.ResultHandler
 import org.gradle.tooling.events.OperationType
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
-import java.util.concurrent.atomic.AtomicReference
 
 public class TclGradleLauncher implements TclLauncher {
 
@@ -37,11 +36,13 @@ public class TclGradleLauncher implements TclLauncher {
 		'''TEST-«elementId».xml'''
 	}
 
-	override launchTest(IStructuredSelection selection, IProject project, String elementId, IProgressMonitor monitor,
+	override launchTest(String testCasesCommaList, IProject project, IProgressMonitor monitor,
 		Map<String, Object> options) {
+		val tests = testCasesCommaList.split(",")
+		val elementId = tests.get(0)
 		monitor.beginTask("Test execution: " + elementId, IProgressMonitor.UNKNOWN)
 		val testResultFile = project.createOrGetDeepFolder(GRADLE_TEST_RESULT_FOLDER).getFile(
-			elementId.elementIdToFileName).location.toFile
+			elementId.elementIdToFileName).location.toFile.parentFile
 		val GradleConnector connector = GradleConnector.newConnector
 		var ProjectConnection connection = null
 		val result = new AtomicReference<LaunchResult>
@@ -55,7 +56,7 @@ public class TclGradleLauncher implements TclLauncher {
 					addProgressListener([event|logger.info("Gradle build event='{}'", event.displayName)],
 						OperationType.values)
 					// .forTasks("test") // does not work, see issue below
-					withArguments(task, "--tests", elementId) // https://issues.gradle.org/browse/GRADLE-2972
+					withArguments("clean", task, "--tests", elementId) // https://issues.gradle.org/browse/GRADLE-2972
 					// .setStandardOutput(System.out) // alternatively get a separate console output stream (see http://wiki.eclipse.org/FAQ_How_do_I_write_to_the_console_from_a_plug-in%3F)
 					run(new ResultHandler {
 

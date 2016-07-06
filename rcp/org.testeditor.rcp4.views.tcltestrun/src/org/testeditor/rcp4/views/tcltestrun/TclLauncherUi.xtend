@@ -33,6 +33,16 @@ import org.testeditor.rcp4.tcltestrun.TclGradleLauncher
 import org.testeditor.rcp4.tcltestrun.TclLauncher
 import org.testeditor.rcp4.tcltestrun.TclMavenLauncher
 import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
+import java.io.FileFilter
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.transform.TransformerFactory
+import javax.xml.transform.dom.DOMSource
+import javax.xml.transform.stream.StreamResult
+import org.w3c.dom.Attr
+import org.w3c.dom.Document
+import org.testeditor.rcp4.tcltestrun.TclInjectorProvider
+import org.testeditor.tcl.dsl.ui.testlaunch.LaunchShortcutUtil
+import org.eclipse.core.resources.IResource
 
 class TclLauncherUi implements Launcher {
 	static val logger = LoggerFactory.getLogger(TclLauncherUi)
@@ -40,6 +50,8 @@ class TclLauncherUi implements Launcher {
 	@Inject ProgressMonitorRunner progressRunner
 	@Inject TclMavenLauncher mavenLauncher
 	@Inject TclGradleLauncher gradleLauncher
+	@Inject TclInjectorProvider tclInjectorProvider
+	var LaunchShortcutUtil launchShortcutUtil // since this class itself is instanciated by e4, this attribute has to be injected manually
 
 	override boolean launch(IStructuredSelection selection, IProject project, String elementId, String mode,
 		boolean parameterize) {
@@ -92,45 +104,96 @@ class TclLauncherUi implements Launcher {
 			launcher.class.simpleName, elementId, project)
 		progressRunner.run([ monitor |
 			monitor.beginTask("Test execution: " + elementId, IProgressMonitor.UNKNOWN)
-			val result = launcher.launchTest(selection, project, elementId, monitor, options)
+			val testCasesCommaList = createTestCasesCommaList(selection)
+			val result = launcher.launchTest(testCasesCommaList, project, monitor, options)
 			project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
-			if (result.expectedFile == null) {
+			if (result.expectedFileRoot == null) {
 				logger.error("resulting expectedFile must not be null")
 			} else {
-				safeUpdateJunitTestView(elementId, result.expectedFile)
+				safeUpdateJunitTestView(elementId, result.expectedFileRoot, project.name)
 			}
 			monitor.done
 		])
 		return true
 	}
 
+	def String createTestCasesCommaList(IStructuredSelection selection) {
+		if (launchShortcutUtil == null) {
+			launchShortcutUtil = tclInjectorProvider.get.getInstance(LaunchShortcutUtil)
+		}
+		if (selection.size > 1) {
+			return selection.toList.map[launchShortcutUtil.getQualifiedNameForTestInTcl(it as IResource).toString].
+				join(",")
+		} else {
+			return launchShortcutUtil.getQualifiedNameForTestInTcl(selection.firstElement as IResource).toString
+		}
+	}
+
 	/** 
 	 * provide test result file (either the one created by the test run, or, if absent/on error 
 	 * a default error file) that is imported into junit (and thus displayed) 
 	 * */
-	private def void safeUpdateJunitTestView(String elementId, File expectedFile) {
-		val parentFolder = new File(expectedFile.parent)
-		if (!parentFolder.exists && !parentFolder.mkdirs) {
-			logger.error("failed to change into parentFolder='{}'", parentFolder.absolutePath)
-		} else {
-			val newFile = File.createTempFile(expectedFile.name, ".xml", parentFolder)
-			if (expectedFile.exists) {
-				try {
-					Files.move(expectedFile, newFile)
-				} catch (IOException e) {
-					logger.error('''error during storage of test run result expectedFile='«expectedFile.path»' ''', e)
-					writeErrorFile(elementId, newFile)
-				}
-			} else {
-				writeErrorFile(elementId, newFile)
+	private def void safeUpdateJunitTestView(String elementId, File expectedFile, String projectName) {
+		logger.debug("Test result parent dir {}", expectedFile)
+		val xmlResults = expectedFile.listFiles(new FileFilter() {
+
+			override accept(File pathname) {
+				return pathname.isFile && pathname.name.endsWith(".xml")
 			}
-			JUnitCore.importTestRunSession(newFile)
-			try {
-				java.nio.file.Files.delete(newFile.toPath)
-			} catch (IOException e) {
-				logger.warn("error during removal of obsolete test result newFile='{}'", newFile.path)
+
+		})
+		val resultFile = new File(expectedFile, "te-testCompose.xml")
+		if (xmlResults.length > 0) {
+			writeTestResultFile(projectName, resultFile, xmlResults)
+		} else {
+			writeErrorFile(elementId, resultFile)
+		}
+		JUnitCore.importTestRunSession(resultFile)
+	}
+
+	def void writeTestResultFile(String projectName, File resultFile, File[] xmlResults) {
+		val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder
+		val resultDoc = docBuilder.newDocument
+		val testRun = resultDoc.createElement("testrun")
+		resultDoc.appendChild(testRun)
+		var testCount = 0;
+		var failureCount = 0;
+		var errorsCount = 0;
+		var ignoreCount = 0;
+		for (file : xmlResults) {
+			val suiteDoc = docBuilder.parse(file)
+			val noteList = suiteDoc.childNodes
+			for (var i = 0; i < noteList.length; i++) {
+				if (noteList.item(i).nodeName.equals("testsuite")) {
+					testRun.appendChild(resultDoc.importNode(noteList.item(i), true))
+					testCount = testCount +
+						Integer.parseInt(noteList.item(i).attributes.getNamedItem("tests").nodeValue)
+					failureCount = failureCount +
+						Integer.parseInt(noteList.item(i).attributes.getNamedItem("failures").nodeValue)
+					errorsCount = errorsCount +
+						Integer.parseInt(noteList.item(i).attributes.getNamedItem("errors").nodeValue)
+					ignoreCount = ignoreCount +
+						Integer.parseInt(noteList.item(i).attributes.getNamedItem("skipped").nodeValue)
+				}
 			}
 		}
+		testRun.attributeNode = createAttribute("name", resultDoc, "java")
+		testRun.attributeNode = createAttribute("project", resultDoc, projectName)
+		testRun.attributeNode = createAttribute("tests", resultDoc, Integer.toString(testCount))
+		testRun.attributeNode = createAttribute("started", resultDoc, Integer.toString(testCount))
+		testRun.attributeNode = createAttribute("failures", resultDoc, Integer.toString(failureCount))
+		testRun.attributeNode = createAttribute("errors", resultDoc, Integer.toString(errorsCount))
+		testRun.attributeNode = createAttribute("ignored", resultDoc, Integer.toString(ignoreCount))
+		val transformerFactory = TransformerFactory.newInstance();
+		val transformer = transformerFactory.newTransformer();
+		val source = new DOMSource(resultDoc);
+		transformer.transform(source, new StreamResult(resultFile));
+	}
+
+	def Attr createAttribute(String attributeName, Document doc, String attributeValue) {
+		var result = doc.createAttribute(attributeName)
+		result.value = attributeValue
+		return result
 	}
 
 	/**
