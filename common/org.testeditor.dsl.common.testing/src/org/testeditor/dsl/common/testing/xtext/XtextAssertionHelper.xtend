@@ -12,15 +12,19 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.testing.xtext
 
+import java.util.ArrayList
 import javax.inject.Singleton
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.resource.Resource
+import org.eclipse.xtext.parser.IParseResult
 import org.eclipse.xtext.resource.XtextResource
 import org.junit.Assert
-import org.eclipse.xtext.parser.IParseResult
+import org.slf4j.LoggerFactory
 
 @Singleton
 class XtextAssertionHelper {
+
+	static val logger = LoggerFactory.getLogger(XtextAssertionHelper)
 
 	def <T extends EObject> T assertNoSyntaxErrors(T element) {
 		element.eResource.assertNoSyntaxErrors
@@ -42,9 +46,23 @@ class XtextAssertionHelper {
 					line «error.startLine»: «error.syntaxErrorMessage»
 				«ENDFOR»
 			'''
+			logger.error('''
+				«message»
+				
+				Input:
+				«parseResult.textWithLineNumbers»
+			''')
 			Assert.fail(message)
 		}
 		return parseResult
+	}
+
+	private def String getTextWithLineNumbers(IParseResult parseResult) {
+		val text = parseResult.rootNode.text
+		val split = text.split('\r?\n')
+		val result = new ArrayList(split.size)
+		split.forEach[line, number|result += '''«number+1» | «line»''']
+		return result.join(System.lineSeparator)
 	}
 
 }
