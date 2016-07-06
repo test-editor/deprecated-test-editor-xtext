@@ -19,7 +19,8 @@ class DescriptionParserTest extends AbstractParserTest {
 		val description = '''
 			Feature: Sample feature
 				As a developer I want the sample feature in order
-				to be able to do awesome stuff.
+				to be able to do awesome stuff. See more on http://www.example.org - or
+				at <a href="http://www.example.com">example.com</a>.
 		'''.toString.trim
 
 		// expect

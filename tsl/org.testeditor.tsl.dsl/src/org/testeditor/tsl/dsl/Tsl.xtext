@@ -17,36 +17,37 @@ import "http://www.testeditor.org/tsl"
 
 TslModel:
 	'package' package=QualifiedName
-	(specification=TestSpecification | NL*)
-;
+	(specification=TestSpecification | NL*);
 
 TestSpecification:
 	NL+ '#' name=ID
-	->NL*
 	(description=Text)?
-	(steps+=SpecificationStep NL*)*
-;
+	(steps+=SpecificationStep NL*)*;
 
 SpecificationStep:
-	->'*' (contents+=StepContent)+ ('.')?;
+	=> (NL '*') (contents+=StepContent)+ '.'?;
 
 StepContent:
 	StepContentText | StepContentVariable;
 
 StepContentText:
-	value=ID;
+	value=Word;
 
 StepContentVariable:
 	value=STRING;
 
+Word returns ecore::EString:
+	ID | INT | ANY_OTHER | '*'
+;
+
+Text returns ecore::EString hidden():
+	(SPACES | ID | INT | STRING | NL | ANY_OTHER | '.')+;
+
 QualifiedName:
 	ID (=> '.' ID)*;
 
-Text returns ecore::EString hidden():
-	(SPACES | ID | INT | STRING | NL | ANY_OTHER | '.')+
-;
-
-terminal NL:  '\r'? '\n';
+terminal NL:
+	'\r'? '\n';
 
 terminal ID:
 	'^'? ('a'..'z' | 'A'..'Z' | '_') ('a'..'z' | 'A'..'Z' | '_' | '0'..'9')*;
@@ -61,4 +62,5 @@ terminal STRING:
 terminal SPACES:
 	(' ' | '\t');
 
-terminal ANY_OTHER: .;
+terminal ANY_OTHER:
+	.;

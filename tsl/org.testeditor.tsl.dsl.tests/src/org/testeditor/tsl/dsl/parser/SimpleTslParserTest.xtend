@@ -13,7 +13,6 @@
 package org.testeditor.tsl.dsl.parser
 
 import javax.inject.Inject
-import org.junit.Ignore
 import org.junit.Test
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
@@ -68,22 +67,25 @@ class SimpleTslParserTest extends AbstractParserTest {
 			]
 		]
 	}
-	
-	@Test @Ignore // TODO
+
+	@Test
 	def void parseSpecificationStepWithStar() {
 		// given
 		val tsl = '''
-			package com.example
+			package testeditor.rest
 			
-			# Test
-			* The result of 5 * 3 is 15
+			# JobCreation
+			
+			* Simple spec with a * in it
+			* The result of 5 * 3 is 15.
 		'''
 
 		// expect
 		tsl.parse [
 			assertNoSyntaxErrors
-			specification.steps.assertSingleElement => [
-				contents.restoreString.assertEquals('The result of 5 * 3 is 15')
+			specification.steps.assertSize(2) => [
+				get(0).contents.restoreString.assertEquals('Simple spec with a * in it')
+				get(1).contents.restoreString.assertEquals('The result of 5 * 3 is 15')
 			]
 		]
 	}
@@ -140,6 +142,55 @@ class SimpleTslParserTest extends AbstractParserTest {
 					value.assertEquals('Hello World')
 				]
 				contents.restoreString.assertEquals('Send greetings "Hello World" to the world')
+			]
+		]
+	}
+
+	@Test
+	def void parseDescriptionAndSpecificationStep() {
+		// given
+		val tslWithoutNewLines = '''
+			package com.example
+			
+			# Test
+			This is a sample description.
+			* Step 1
+			* Step 2
+		'''
+		val tslWithSingleNewLines = '''
+			package com.example
+						
+			# Test
+			
+			This is a sample description.
+			
+			* Step 1
+			* Step 2
+		'''
+		val tslWithMultipleNewLines = '''
+			package com.example
+			
+			# Test
+			
+			
+			
+			This is a sample description.
+			
+			
+			* Step 1
+			* Step 2
+				
+		'''
+
+		// expect
+		#[tslWithoutNewLines, tslWithSingleNewLines, tslWithMultipleNewLines].forEach [
+			parse [
+				specification.description.assertEquals('This is a sample description.')
+				specification.steps => [
+					assertSize(2)
+					get(0).contents.restoreString.assertEquals('Step 1')
+					get(1).contents.restoreString.assertEquals('Step 2')
+				]
 			]
 		]
 	}
