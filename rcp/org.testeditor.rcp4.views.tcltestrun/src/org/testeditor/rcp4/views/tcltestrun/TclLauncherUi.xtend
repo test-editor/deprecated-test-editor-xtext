@@ -167,20 +167,20 @@ class TclLauncherUi implements Launcher {
 			for (var i = 0; i < nodeList.length; i++) {
 				if (nodeList.item(i).nodeName.equals("testsuite")) {
 					testRun.appendChild(resultDoc.importNode(nodeList.item(i), true))
-					testCount += getIntFromAttribute(nodeList.item(i),"tests")
-					failureCount += getIntFromAttribute(nodeList.item(i),"failures")
-					errorsCount += getIntFromAttribute(nodeList.item(i),"errors")
-					ignoreCount += getIntFromAttribute(nodeList.item(i),"skipped")
+					testCount += getIntFromAttribute(nodeList.item(i), "tests")
+					failureCount += getIntFromAttribute(nodeList.item(i), "failures")
+					errorsCount += getIntFromAttribute(nodeList.item(i), "errors")
+					ignoreCount += getIntFromAttribute(nodeList.item(i), "skipped")
 				}
 			}
 		}
-		testRun.attributeNode = createAttribute("name", resultDoc, "java")
-		testRun.attributeNode = createAttribute("project", resultDoc, projectName)
-		testRun.attributeNode = createAttribute("tests", resultDoc, Integer.toString(testCount))
-		testRun.attributeNode = createAttribute("started", resultDoc, Integer.toString(testCount))
-		testRun.attributeNode = createAttribute("failures", resultDoc, Integer.toString(failureCount))
-		testRun.attributeNode = createAttribute("errors", resultDoc, Integer.toString(errorsCount))
-		testRun.attributeNode = createAttribute("ignored", resultDoc, Integer.toString(ignoreCount))
+		testRun.attributeNode = resultDoc.createAttribute("name", "java")
+		testRun.attributeNode = resultDoc.createAttribute("project", projectName)
+		testRun.attributeNode = resultDoc.createAttribute("tests", Integer.toString(testCount))
+		testRun.attributeNode = resultDoc.createAttribute("started", Integer.toString(testCount))
+		testRun.attributeNode = resultDoc.createAttribute("failures", Integer.toString(failureCount))
+		testRun.attributeNode = resultDoc.createAttribute("errors", Integer.toString(errorsCount))
+		testRun.attributeNode = resultDoc.createAttribute("ignored", Integer.toString(ignoreCount))
 		val transformerFactory = TransformerFactory.newInstance();
 		val transformer = transformerFactory.newTransformer();
 		val source = new DOMSource(resultDoc);
@@ -191,7 +191,7 @@ class TclLauncherUi implements Launcher {
 		Integer.parseInt(node.attributes.getNamedItem(attributeName).nodeValue)
 	}
 
-	def Attr createAttribute(String attributeName, Document doc, String attributeValue) {
+	def Attr createAttribute(Document doc, String attributeName, String attributeValue) {
 		var result = doc.createAttribute(attributeName)
 		result.value = attributeValue
 		return result
