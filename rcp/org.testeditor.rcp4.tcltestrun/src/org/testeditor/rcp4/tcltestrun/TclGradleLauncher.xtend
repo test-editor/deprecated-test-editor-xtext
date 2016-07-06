@@ -24,6 +24,7 @@ import org.gradle.tooling.ResultHandler
 import org.gradle.tooling.events.OperationType
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
+import java.util.List
 
 public class TclGradleLauncher implements TclLauncher {
 
@@ -36,10 +37,9 @@ public class TclGradleLauncher implements TclLauncher {
 		'''TEST-«elementId».xml'''
 	}
 
-	override launchTest(String testCasesCommaList, IProject project, IProgressMonitor monitor,
+	override launchTest(List<String> testCasesList, IProject project, IProgressMonitor monitor,
 		Map<String, Object> options) {
-		val tests = testCasesCommaList.split(",")
-		val elementId = tests.get(0)
+		val elementId = testCasesList.get(0)
 		monitor.beginTask("Test execution: " + elementId, IProgressMonitor.UNKNOWN)
 		val testResultFile = project.createOrGetDeepFolder(GRADLE_TEST_RESULT_FOLDER).getFile(
 			elementId.elementIdToFileName).location.toFile.parentFile

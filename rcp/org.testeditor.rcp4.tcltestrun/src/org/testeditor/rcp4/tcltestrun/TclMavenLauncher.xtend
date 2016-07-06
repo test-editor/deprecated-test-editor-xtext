@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
+import java.util.List
 
 public class TclMavenLauncher implements TclLauncher {
 
@@ -34,7 +35,7 @@ public class TclMavenLauncher implements TclLauncher {
 	@Inject extension ProjectUtils
 	@Inject MavenExecutor mavenExecutor
 
-	override launchTest(String testCasesCommaList, IProject project, IProgressMonitor monitor,
+	override launchTest(List<String> testCasesList, IProject project, IProgressMonitor monitor,
 		Map<String, Object> options) {
 		val parameters = if (options.containsKey(
 				PROFILE)) {
@@ -45,11 +46,11 @@ public class TclMavenLauncher implements TclLauncher {
 			}
 		// val testCases = createTestCasesCommaList(selection)
 		val result = mavenExecutor.executeInNewJvm(parameters, project.location.toOSString,
-			"test=" + testCasesCommaList, monitor)
+			"test=" + testCasesList.join(","), monitor)
 		val testResultFile = project.createOrGetDeepFolder(MVN_TEST_RESULT_FOLDER).location.toFile
 		if (result != 0) {
 			logger.
-				error('''Error during maven build using parameters='«parameters»' and element='«testCasesCommaList»' ''')
+				error('''Error during maven build using parameters='«parameters»' and element='«testCasesList»' ''')
 		}
 		return new LaunchResult(testResultFile, result, null)
 	}

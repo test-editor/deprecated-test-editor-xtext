@@ -43,6 +43,8 @@ import org.w3c.dom.Document
 import org.testeditor.rcp4.tcltestrun.TclInjectorProvider
 import org.testeditor.tcl.dsl.ui.testlaunch.LaunchShortcutUtil
 import org.eclipse.core.resources.IResource
+import java.util.List
+import org.w3c.dom.Node
 
 class TclLauncherUi implements Launcher {
 	static val logger = LoggerFactory.getLogger(TclLauncherUi)
@@ -104,7 +106,7 @@ class TclLauncherUi implements Launcher {
 			launcher.class.simpleName, elementId, project)
 		progressRunner.run([ monitor |
 			monitor.beginTask("Test execution: " + elementId, IProgressMonitor.UNKNOWN)
-			val testCasesCommaList = createTestCasesCommaList(selection)
+			val testCasesCommaList = createTestCasesList(selection)
 			val result = launcher.launchTest(testCasesCommaList, project, monitor, options)
 			project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
 			if (result.expectedFileRoot == null) {
@@ -117,15 +119,14 @@ class TclLauncherUi implements Launcher {
 		return true
 	}
 
-	def String createTestCasesCommaList(IStructuredSelection selection) {
+	def List<String> createTestCasesList(IStructuredSelection selection) {
 		if (launchShortcutUtil == null) {
 			launchShortcutUtil = tclInjectorProvider.get.getInstance(LaunchShortcutUtil)
 		}
 		if (selection.size > 1) {
-			return selection.toList.map[launchShortcutUtil.getQualifiedNameForTestInTcl(it as IResource).toString].
-				join(",")
+			return selection.toList.map[launchShortcutUtil.getQualifiedNameForTestInTcl(it as IResource).toString]
 		} else {
-			return launchShortcutUtil.getQualifiedNameForTestInTcl(selection.firstElement as IResource).toString
+			return #[launchShortcutUtil.getQualifiedNameForTestInTcl(selection.firstElement as IResource).toString]
 		}
 	}
 
@@ -133,16 +134,16 @@ class TclLauncherUi implements Launcher {
 	 * provide test result file (either the one created by the test run, or, if absent/on error 
 	 * a default error file) that is imported into junit (and thus displayed) 
 	 * */
-	private def void safeUpdateJunitTestView(String elementId, File expectedFile, String projectName) {
-		logger.debug("Test result parent dir {}", expectedFile)
-		val xmlResults = expectedFile.listFiles(new FileFilter() {
+	private def void safeUpdateJunitTestView(String elementId, File expectedFileRoot, String projectName) {
+		logger.debug("Test result parentPir={}", expectedFileRoot)
+		val xmlResults = expectedFileRoot.listFiles(new FileFilter() {
 
 			override accept(File pathname) {
 				return pathname.isFile && pathname.name.endsWith(".xml")
 			}
 
 		})
-		val resultFile = new File(expectedFile, "te-testCompose.xml")
+		val resultFile = new File(expectedFileRoot, "te-testCompose.xml")
 		if (xmlResults.length > 0) {
 			writeTestResultFile(projectName, resultFile, xmlResults)
 		} else {
@@ -162,18 +163,14 @@ class TclLauncherUi implements Launcher {
 		var ignoreCount = 0;
 		for (file : xmlResults) {
 			val suiteDoc = docBuilder.parse(file)
-			val noteList = suiteDoc.childNodes
-			for (var i = 0; i < noteList.length; i++) {
-				if (noteList.item(i).nodeName.equals("testsuite")) {
-					testRun.appendChild(resultDoc.importNode(noteList.item(i), true))
-					testCount = testCount +
-						Integer.parseInt(noteList.item(i).attributes.getNamedItem("tests").nodeValue)
-					failureCount = failureCount +
-						Integer.parseInt(noteList.item(i).attributes.getNamedItem("failures").nodeValue)
-					errorsCount = errorsCount +
-						Integer.parseInt(noteList.item(i).attributes.getNamedItem("errors").nodeValue)
-					ignoreCount = ignoreCount +
-						Integer.parseInt(noteList.item(i).attributes.getNamedItem("skipped").nodeValue)
+			val nodeList = suiteDoc.childNodes
+			for (var i = 0; i < nodeList.length; i++) {
+				if (nodeList.item(i).nodeName.equals("testsuite")) {
+					testRun.appendChild(resultDoc.importNode(nodeList.item(i), true))
+					testCount += getIntFromAttribute(nodeList.item(i),"tests")
+					failureCount += getIntFromAttribute(nodeList.item(i),"failures")
+					errorsCount += getIntFromAttribute(nodeList.item(i),"errors")
+					ignoreCount += getIntFromAttribute(nodeList.item(i),"skipped")
 				}
 			}
 		}
@@ -188,6 +185,10 @@ class TclLauncherUi implements Launcher {
 		val transformer = transformerFactory.newTransformer();
 		val source = new DOMSource(resultDoc);
 		transformer.transform(source, new StreamResult(resultFile));
+	}
+
+	def int getIntFromAttribute(Node node, String attributeName) {
+		Integer.parseInt(node.attributes.getNamedItem(attributeName).nodeValue)
 	}
 
 	def Attr createAttribute(String attributeName, Document doc, String attributeValue) {
