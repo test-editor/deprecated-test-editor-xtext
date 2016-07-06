@@ -41,6 +41,8 @@
 				<os><family>mac</family></os>
 			</activation>
 			<properties>
+				<!-- cacao restrictions in combination with swtbot                        -->
+				<!-- https://wiki.eclipse.org/Tycho/FAQ#How_do_I_add_OS-specific_flags.3F -->
 				<os-jvm-flags>-XstartOnFirstThread</os-jvm-flags>
 			</properties>
 		</profile>
@@ -160,6 +162,9 @@
 					<groupId>org.eclipse.tycho</groupId>
 					<artifactId>tycho-surefire-plugin</artifactId>
 					<version>${tycho-version}</version>
+					<configuration>
+						<argLine>${argLine}</argLine>
+					</configuration>
 				</plugin>
                 <plugin>
 					<artifactId>maven-deploy-plugin</artifactId>
