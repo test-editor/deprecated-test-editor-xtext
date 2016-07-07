@@ -14,7 +14,7 @@ package org.testeditor.tcl.dsl.jvmmodel
 
 import com.google.inject.Inject
 import java.util.Set
-import org.apache.commons.lang.StringEscapeUtils
+import org.apache.commons.lang3.StringEscapeUtils
 import org.eclipse.xtext.common.types.JvmOperation
 import org.eclipse.xtext.common.types.JvmType
 import org.eclipse.xtext.common.types.JvmTypeReference

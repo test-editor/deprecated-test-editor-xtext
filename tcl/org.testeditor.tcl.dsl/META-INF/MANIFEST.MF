@@ -22,8 +22,7 @@ Require-Bundle: org.eclipse.xtext,
  org.testeditor.tsl.dsl,
  org.testeditor.tml.dsl
 Import-Package: org.apache.log4j,
- javax.inject,
- org.apache.commons.lang
+ javax.inject
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.testeditor.tcl.dsl,
  org.testeditor.tcl.dsl.formatting2,

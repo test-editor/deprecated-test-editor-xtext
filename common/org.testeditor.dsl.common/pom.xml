@@ -13,13 +13,58 @@
 	<artifactId>org.testeditor.dsl.common</artifactId>
 	<packaging>eclipse-plugin</packaging>
 
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.4</version>
+		</dependency>
+	</dependencies>
 	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-clean-plugin</artifactId>
+					<configuration>
+						<filesets combine.children="append">
+							<fileset>
+								<directory>${basedir}/lib/</directory>
+								<includes>
+									<include>**</include>
+								</includes>
+								<excludes>
+									<exclude>.gitignore</exclude>
+								</excludes>
+							</fileset>
+						</filesets>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 		<plugins>
+			<plugin>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>process-sources</phase>
+
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>lib</outputDirectory>
+							<includeArtifactIds>commons-lang3</includeArtifactIds>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.eclipse.xtend</groupId>
 				<artifactId>xtend-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>
+
 
 </project>
