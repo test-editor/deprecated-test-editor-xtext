@@ -14,6 +14,7 @@ package org.testeditor.tcl.dsl.jvmmodel
 
 import com.google.inject.Inject
 import java.util.Set
+import org.apache.commons.lang.StringEscapeUtils
 import org.eclipse.xtext.common.types.JvmOperation
 import org.eclipse.xtext.common.types.JvmType
 import org.eclipse.xtext.common.types.JvmTypeReference
@@ -256,7 +257,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	private def dispatch Iterable<String> generateCallParameters(StepContentValue stepContentValue, JvmTypeReference expectedType,
 		InteractionType interaction) {
 		if (expectedType.qualifiedName == String.name) {
-			return #['''"«stepContentValue.value»"''']
+			return #['''"«StringEscapeUtils.escapeJava(stepContentValue.value)»"''']
 		} else {
 			return #[stepContentValue.value]
 		}
