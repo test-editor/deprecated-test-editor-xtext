@@ -52,8 +52,12 @@ class TclLauncherUi implements Launcher {
 	@Inject ProgressMonitorRunner progressRunner
 	@Inject TclMavenLauncher mavenLauncher
 	@Inject TclGradleLauncher gradleLauncher
-	@Inject TclInjectorProvider tclInjectorProvider
 	var LaunchShortcutUtil launchShortcutUtil // since this class itself is instanciated by e4, this attribute has to be injected manually
+
+	@Inject
+	new(TclInjectorProvider tclInjectorProvider) {
+		launchShortcutUtil = tclInjectorProvider.get.getInstance(LaunchShortcutUtil)
+	}
 
 	override boolean launch(IStructuredSelection selection, IProject project, String elementId, String mode,
 		boolean parameterize) {
@@ -120,9 +124,6 @@ class TclLauncherUi implements Launcher {
 	}
 
 	def List<String> createTestCasesList(IStructuredSelection selection) {
-		if (launchShortcutUtil == null) {
-			launchShortcutUtil = tclInjectorProvider.get.getInstance(LaunchShortcutUtil)
-		}
 		if (selection.size > 1) {
 			return selection.toList.map[launchShortcutUtil.getQualifiedNameForTestInTcl(it as IResource).toString]
 		} else {
