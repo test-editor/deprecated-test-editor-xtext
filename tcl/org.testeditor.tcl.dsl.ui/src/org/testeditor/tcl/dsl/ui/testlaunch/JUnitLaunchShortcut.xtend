@@ -50,7 +50,7 @@ class JUnitLaunchShortcut extends org.eclipse.jdt.junit.launcher.JUnitLaunchShor
 			logger.error("resource='{}' seems not to export any test.", res.fullPath)
 		} else {
 			val successfulLauncher = registeredLaunchers.findFirst [ registeredLauncher | // firstThat would be more fitting in this case
-				val result = registeredLauncher.launch(selection, res.project, qualifiedName.toString, mode,
+				val result = registeredLauncher.launch(selection, res.project, mode,
 					parameterize)
 				if (result) {
 					logger.debug("executed registeredLauncher='{}' for tcl test launch.",

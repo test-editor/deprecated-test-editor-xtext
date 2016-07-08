@@ -59,11 +59,10 @@ class TclLauncherUi implements Launcher {
 		launchShortcutUtil = tclInjectorProvider.get.getInstance(LaunchShortcutUtil)
 	}
 
-	override boolean launch(IStructuredSelection selection, IProject project, String elementId, String mode,
-		boolean parameterize) {
+	override boolean launch(IStructuredSelection selection, IProject project, String mode, boolean parameterize) {
 		val options = newHashMap
 		if (project.getFile("build.gradle").exists) {
-			return launchTest(selection, project, elementId, gradleLauncher, options)
+			return launchTest(selection, project, gradleLauncher, options)
 		}
 		if (project.getFile("pom.xml").exists) {
 			if (parameterize) {
@@ -73,12 +72,10 @@ class TclLauncherUi implements Launcher {
 				}
 				options.put(TclMavenLauncher.PROFILE, profile)
 			}
-			return launchTest(selection, project, elementId, mavenLauncher, options)
+			return launchTest(selection, project, mavenLauncher, options)
 		}
 		logger.warn("gradle based launching test for tcl element='{}' failed, since file='build.gradle' was not found.",
-			elementId)
-		logger.warn("maven based launching test for tcl element='{}' failed, since file='pom.xml' was not found.",
-			elementId)
+			selection.firstElement)
 		return false
 	}
 
@@ -104,19 +101,19 @@ class TclLauncherUi implements Launcher {
 		return result.get
 	}
 
-	private def boolean launchTest(IStructuredSelection selection, IProject project, String elementId,
-		TclLauncher launcher, Map<String, Object> options) {
+	private def boolean launchTest(IStructuredSelection selection, IProject project, TclLauncher launcher,
+		Map<String, Object> options) {
 		logger.info("Trying to launch launcherClass='{}' test execution for elementId='{}' in project='{}'",
-			launcher.class.simpleName, elementId, project)
+			launcher.class.simpleName, selection.firstElement, project)
 		progressRunner.run([ monitor |
-			monitor.beginTask("Test execution: " + elementId, IProgressMonitor.UNKNOWN)
+			monitor.beginTask("Test execution: " + selection.firstElement, IProgressMonitor.UNKNOWN)
 			val testCasesCommaList = createTestCasesList(selection)
 			val result = launcher.launchTest(testCasesCommaList, project, monitor, options)
 			project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
 			if (result.expectedFileRoot == null) {
 				logger.error("resulting expectedFile must not be null")
 			} else {
-				safeUpdateJunitTestView(elementId, result.expectedFileRoot, project.name)
+				safeUpdateJunitTestView(result.expectedFileRoot, project.name)
 			}
 			monitor.done
 		])
@@ -135,7 +132,7 @@ class TclLauncherUi implements Launcher {
 	 * provide test result file (either the one created by the test run, or, if absent/on error 
 	 * a default error file) that is imported into junit (and thus displayed) 
 	 * */
-	private def void safeUpdateJunitTestView(String elementId, File expectedFileRoot, String projectName) {
+	private def void safeUpdateJunitTestView(File expectedFileRoot, String projectName) {
 		logger.debug("Test result parentPir={}", expectedFileRoot)
 		val xmlResults = expectedFileRoot.listFiles(new FileFilter() {
 
@@ -148,7 +145,7 @@ class TclLauncherUi implements Launcher {
 		if (xmlResults.length > 0) {
 			writeTestResultFile(projectName, resultFile, xmlResults)
 		} else {
-			writeErrorFile(elementId, resultFile)
+			writeErrorFile(projectName, resultFile)
 		}
 		JUnitCore.importTestRunSession(resultFile)
 	}
