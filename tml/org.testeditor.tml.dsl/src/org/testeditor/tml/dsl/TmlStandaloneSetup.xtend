@@ -12,12 +12,10 @@
 *******************************************************************************/
 package org.testeditor.tml.dsl
 
-import org.testeditor.tml.TmlPackage
 import org.eclipse.emf.ecore.EPackage
-import org.testeditor.tsl.TslPackage
 import org.testeditor.aml.AmlPackage
-
-import static extension org.testeditor.dsl.common.util.CollectionUtils.putIfAbsent
+import org.testeditor.tml.TmlPackage
+import org.testeditor.tsl.TslPackage
 
 /**
  * Initialization support for running Xtext languages without Equinox extension registry.

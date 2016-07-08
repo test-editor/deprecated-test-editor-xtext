@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -24,7 +24,7 @@ class AmlModelFormatterTest extends AbstractFormatterTest {
 
 	@Test
 	def void formatElementsAndBrackets() {
-		formatterTester.assertFormatted[
+		formatterTester.assertFormatted [
 			expectation = '''
 				package com.example
 				
@@ -45,7 +45,7 @@ class AmlModelFormatterTest extends AbstractFormatterTest {
 			'''
 		]
 	}
-	
+
 	@Test
 	def void formatSpaces() {
 		assertFormatted[
@@ -64,7 +64,34 @@ class AmlModelFormatterTest extends AbstractFormatterTest {
 				 interaction 	type  MyInteractionType   { }
 				component MyDialog    is	Dialog {  label  = 	"myLabel" }
 			'''
-		]		
+		]
+	}
+
+	@Test
+	def void formatImports() {
+		assertFormatted[
+			expectation = '''
+				import selenide.*
+				import selenide.LocatorStrategy
+				
+				component type Test
+			'''
+			toBeFormatted = expectation
+		]
+		assertFormatted[
+			expectation = '''
+				import selenide.*
+				import selenide.LocatorStrategy
+				
+				component type Test
+			'''
+			toBeFormatted = '''
+				import selenide.*
+					import selenide.LocatorStrategy
+					
+				component type Test
+			'''
+		]
 	}
 
 }

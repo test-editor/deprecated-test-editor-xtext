@@ -1,16 +1,8 @@
 package org.testeditor.dsl.common.util
 
-import java.util.Map
 import com.google.common.collect.Iterables
 
 class CollectionUtils {
-
-	public static def <K,V> Map<K,V> putIfAbsent(Map<K,V> map, K key, V value){
-		if(!map.containsKey(key)){
-			map.put(key, value)
-		}
-		return map
-	}
 
 	/**
 	 * filter from the given list of pairs all the ones where the value is (assignable to class) clazz
@@ -18,7 +10,7 @@ class CollectionUtils {
 	public def <A, B, C> Iterable<Pair<C, A>> filterValue(Iterable<Pair<C, B>> unfiltered, Class<A> clazz) {
 		return Iterables.filter(unfiltered, [clazz.isAssignableFrom(value.class)]).map [
 			new Pair<C, A>(key, value as A)
-		];
+		]
 	}
 
 	/**
@@ -27,7 +19,7 @@ class CollectionUtils {
 	public def <A, B, C> Iterable<Pair<B, A>> filterKey(Iterable<Pair<C, A>> unfiltered, Class<B> clazz) {
 		return Iterables.filter(unfiltered, [clazz.isAssignableFrom(key.class)]).map [
 			new Pair<B, A>(key as B, value)
-		];
+		]
 	}
 
 }

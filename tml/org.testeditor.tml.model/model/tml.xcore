@@ -25,6 +25,10 @@ import org.testeditor.aml.VariableReference
 class TmlModel {
 	String ^package
 	contains XImportSection importSection
+	contains MacroCollection macroCollection
+}
+
+class MacroCollection {
 	String name
 	contains Macro[0..*] macros
 }
@@ -44,7 +48,7 @@ class ComponentTestStepContext extends TestStepContext{
 }
 
 class MacroTestStepContext extends TestStepContext{
-	refers TmlModel macroModel
+	refers MacroCollection macroCollection
 	contains TestStep step
 }
 
@@ -68,13 +72,13 @@ class AEComparison extends BinaryAssertionExpression {
 	contains Comparator comparator
 }
 
-class AENullCheck extends AssertionExpression {
+class AENullOrBoolCheck extends AssertionExpression {
 	contains AEVariableReference varReference
 	boolean negated = "false"
 }
 
 class AEVariableReference extends AssertionExpression {
-	String name
+	refers AssignmentVariable variable
 	String key // only != null if: map.key
 }
 
@@ -83,7 +87,12 @@ class AEStringConstant extends AssertionExpression {
 }
 
 class TestStepWithAssignment extends TestStep {
-	String variableName
+	contains AssignmentVariable variable opposite testStep
+}
+
+class AssignmentVariable {
+	container TestStepWithAssignment testStep opposite variable
+	String name
 }
 
 class StepContentVariableReference extends StepContent{

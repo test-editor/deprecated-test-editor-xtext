@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.testeditor.dsl.common.testing
-Bundle-Version: 1.0.1.qualifier
+Bundle-Version: 1.2.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.testeditor.dsl.common,
  org.eclipse.core.runtime,
@@ -35,3 +35,4 @@ Bundle-Vendor: Signal Iduna Corporation
 Bundle-Name: org.testeditor.dsl.common.testing
 Bundle-ClassPath: lib/mockito-all-1.10.19.jar,
  .
+

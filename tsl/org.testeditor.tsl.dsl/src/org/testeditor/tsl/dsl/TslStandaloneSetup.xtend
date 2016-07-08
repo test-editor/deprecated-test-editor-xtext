@@ -15,8 +15,6 @@ package org.testeditor.tsl.dsl
 import org.eclipse.emf.ecore.EPackage
 import org.testeditor.tsl.TslPackage
 
-import static extension org.testeditor.dsl.common.util.CollectionUtils.putIfAbsent
-
 /**
  * Initialization support for running Xtext languages without Equinox extension registry.
  */

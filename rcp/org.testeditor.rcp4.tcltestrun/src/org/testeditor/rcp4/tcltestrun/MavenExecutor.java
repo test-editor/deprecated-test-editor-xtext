@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
  * embedder api allows a maven build without a m2 variable configuration.
  *
  */
+@SuppressWarnings("restriction")
 public class MavenExecutor {
 
 	private static Logger logger = LoggerFactory.getLogger(MavenExecutor.class);
@@ -136,7 +137,7 @@ public class MavenExecutor {
 				.findDependencyBundle(MavenPluginActivator.getDefault().getBundle(), "org.eclipse.equinox.common")));
 		Bundle bundle = FrameworkUtil.getBundle(this.getClass());
 		cp.addAll(Bundles.getClasspathEntries(bundle));
-		Bundle[] bundles = bundle.getBundleContext().getBundles();
+//		Bundle[] bundles = bundle.getBundleContext().getBundles();
 		for (String sname : new String[] { "org.slf4j.api", "org.eclipse.m2e.maven.runtime.slf4j.simple",
 				"javax.inject" }) {
 			Bundle dependency = Bundles.findDependencyBundle(Bundles.findDependencyBundle(

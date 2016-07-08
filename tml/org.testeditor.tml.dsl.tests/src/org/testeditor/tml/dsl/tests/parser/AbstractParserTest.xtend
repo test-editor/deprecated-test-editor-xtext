@@ -25,13 +25,13 @@ import org.testeditor.tml.util.TmlModelUtil
 
 abstract class AbstractParserTest extends AbstractTmlTest {
 
-	@Inject protected ParseHelper<TmlModel> parser
+	@Inject protected ParseHelper<TmlModel> parseHelper
 	@Inject protected IParser iparser
 	@Inject protected extension TmlModelUtil modelUtil
 	@Inject protected TmlGrammarAccess grammarAccess
 
 	protected def TmlModel parse(CharSequence input) {
-		return parser.parse(input)
+		return parseHelper.parse(input)
 	}
 
 	protected def <T> T parse(CharSequence input, ParserRule rule, Class<T> ruleClass) {

@@ -20,9 +20,12 @@ import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 TmlModel:
 	'package' package=QualifiedName
 	(importSection=XImportSection)?
-	'#' name=ID
-	(macros+=Macro)*
+	macroCollection=MacroCollection
 ;
+
+MacroCollection:
+	'#' name=ID
+	(macros+=Macro)*;
 
 Macro:
 	'##' name=ID
@@ -55,12 +58,12 @@ TestStepContext:
 
 ComponentTestStepContext returns TestStepContext:
 	{ComponentTestStepContext}
-	('Mask' | 'Component') ':' component=[aml::Component]
+	('Mask' | 'Component') ':' component=[aml::Component|QualifiedName]
 	steps+=(TestStep | TestStepWithAssignment | AssertionTestStep)*;
 
 MacroTestStepContext returns TestStepContext:
 	{MacroTestStepContext}
-	'Macro' ':' macroModel=[TmlModel]
+	'Macro' ':' macroCollection=[MacroCollection|QualifiedName]
 	step=TestStep;
 
 TestStep:
@@ -75,14 +78,14 @@ AssertionTestStep:
  *  or an inner expression in parenthesis (no more null checks allowed in here!) 
  */
 AssertionExpression:
-	AENullCheck | AEFullComparison | '(' AssertionInnerExpression ')';
+	AENullOrBoolCheck | AEFullComparison | '(' AssertionInnerExpression ')';
 
 /** Assertion expression that does not allow null checks */
 AssertionInnerExpression returns AssertionExpression:
 	AEComparison |
 	'(' AssertionInnerExpression ')';
 
-AENullCheck:
+AENullOrBoolCheck:
 	(negated?='!')? varReference=AEVariableReference;
 
 /** expression order: AEComparison -> (AEAddition -> AEMultiplication ->) AEValue
@@ -102,7 +105,7 @@ AEComparison:
 	right=AssertionInnerExpression)?;
 
 AEVariableReference:
-	name=ID ( '.' ( key=ID | key=STRING ) )?;
+	variable=[AssignmentVariable] ( '.' ( key=ID | key=STRING ) )?;
 
 AEStringConstant:
 	string=STRING;
@@ -129,8 +132,11 @@ ComparatorGreaterThen:
 	{ComparatorGreaterThen} ('>' | negated?='<=');
 
 TestStepWithAssignment:
-	'-' variableName=ID '=' contents+=StepContent* '.'?;
+	'-' variable=AssignmentVariable '=' contents+=StepContent* '.'?;
 
+AssignmentVariable:
+	name=ID
+;
 StepContent returns tsl::StepContent:
 	StepContentText | StepContentElement | StepContentVariable | StepContentVariableReference;
 

@@ -92,14 +92,14 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 	def void testDirectCallVariableTypeChecks() {
 		val tmlModel = tmlModel("MacroCollection") => [
 			// macro calls (directly) the aml interaction "start" (which expects the parameter to be of type String)
-			macros += macro("MyCallMacro") => [
+			macroCollection.macros += macro("MyCallMacro") => [
 				template = template("mycall").withParameter("appname")
 				contexts += componentTestStepContext(dummyComponent) => [
 					steps += testStep("start").withVariableReference("appname")
 				]
 			]
 			// macro calls (directly) the aml interaction "wait" (which expects the parameter to be of type long)
-			macros += macro("OtherCallMacro") => [
+			macroCollection.macros += macro("OtherCallMacro") => [
 				template = template("othercall").withParameter("secs")
 				contexts += componentTestStepContext(dummyComponent) => [
 					steps += testStep("wait").withVariableReference("secs")
@@ -113,13 +113,13 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 			test = testCase("MyTest") => [
 				// use macro "mycall" using env param (no error, since type String is provided and String is expected)
 				steps += specificationStep("test", "something") => [
-					contexts += macroTestStepContext(tmlModel) => [
+					contexts += macroTestStepContext(tmlModel.macroCollection) => [
 						step = testStep("mycall").withVariableReference("myEnvString")
 					]
 				]
 				// use macro "othercall" using env param (error expected, since type String is provided and long is expected)
 				steps += specificationStep("test", "other") => [
-					contexts += macroTestStepContext(tmlModel) => [
+					contexts += macroTestStepContext(tmlModel.macroCollection) => [
 						step = testStep("othercall").withVariableReference("envVar")
 					]
 				]
@@ -150,13 +150,13 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 		val tmlModel = tmlModel("MacroCollection")
 		tmlModel => [
 			// calls macro "othercall" with one parameter "unknown" (which is expected to be of type long)
-			macros += macro("MyCallMacro") => [
+			macroCollection.macros += macro("MyCallMacro") => [
 				template = template("mycall").withParameter("unknown")
-				contexts += macroTestStepContext(tmlModel) => [
+				contexts += macroTestStepContext(tmlModel.macroCollection) => [
 					step = testStep("othercall").withVariableReference("unknown")
 				]
 			]
-			macros += macro("OtherCallMacro") => [
+			macroCollection.macros += macro("OtherCallMacro") => [
 				template = template("othercall").withParameter("secs")
 				contexts += componentTestStepContext(dummyComponent) => [
 					steps += testStep("wait").withVariableReference("secs") // secs are expected to be of type long in aml fixture
@@ -184,11 +184,11 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 		// given
 		val tmlModel = tmlModel("MacroCollection")
 		tmlModel => [
-			macros += otherCallMacroWithTwoParamsWithTypeLongAndStringRespectively
+			macroCollection.macros += otherCallMacroWithTwoParamsWithTypeLongAndStringRespectively
 			// calls macro "othercall" with parameter "unknown" as first and second parameter (which are expected to be of type long and String)
-			macros += macro("MyCallMacro") => [
+			macroCollection.macros += macro("MyCallMacro") => [
 				template = template("mycall").withParameter("unknown")
-				contexts += macroTestStepContext(tmlModel) => [
+				contexts += macroTestStepContext(tmlModel.macroCollection) => [
 					step = testStep("othercall").withVariableReference("unknown").withText("with").
 						withVariableReference("unknown")
 				]
@@ -219,11 +219,11 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 		// given + when
 		val tmlModel = tmlModel("MacroCollection")
 		tmlModel => [
-			macros += otherCallMacroWithTwoParamsWithTypeLongAndStringRespectively
+			macroCollection.macros += otherCallMacroWithTwoParamsWithTypeLongAndStringRespectively
 			// calls macro "othercall" with parameter "3" and "unknown" (which will satisfy the expected types long and String)
-			macros += macro("MyCallMacro") => [
+			macroCollection.macros += macro("MyCallMacro") => [
 				template = template("mycall").withParameter("unknown")
-				contexts += macroTestStepContext(tmlModel) => [
+				contexts += macroTestStepContext(tmlModel.macroCollection) => [
 					step = testStep("othercall").withParameter("3").withText("with").withVariableReference("unknown")
 				]
 			]
@@ -253,7 +253,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 			environmentVariableReferences += envVariables(envVar)
 			test = testCase("MyTest") => [
 				steps += specificationStep("test", "something") => [
-					contexts += macroTestStepContext(tmlModel) => [
+					contexts += macroTestStepContext(tmlModel.macroCollection) => [
 						step = testStep("mycall").withVariableReference(envVar)
 					]
 				]

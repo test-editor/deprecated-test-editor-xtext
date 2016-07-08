@@ -43,12 +43,19 @@ nodeWithProperWorkspace {
     }
 
     stage (isMaster() ? 'Build and deploy' : 'Build')
-    // workaround for now to speed-up the build: only build the product on develop and master
-    def buildProduct = env.BRANCH_NAME == 'develop' || isMaster() ? '-Pproduct' : ''
     withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g"]) {
         def goal = isMaster() ? 'deploy' : 'install'
         withXvfb {
-            mvn "clean $goal $buildProduct -Dmaven.test.failure.ignore -Dsurefire.useFile=false -Dtycho.localArtifacts=ignore"
+            mvn "clean $goal -Dmaven.test.failure.ignore -Dsurefire.useFile=false -Dtycho.localArtifacts=ignore"
+        }
+    }
+    
+    // workaround for now to speed-up the build: only build the product on develop and master
+    def buildProduct = env.BRANCH_NAME == 'develop' || isMaster()
+    if (buildProduct) {
+        stage 'Build product'
+        withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g"]) {
+            mvn 'package -Pproduct -DskipTests -Dtycho.localArtifacts=ignore'
         }
     }
 
@@ -111,11 +118,12 @@ void postRelease(String preReleaseVersion) {
 
     stage 'Increment develop version'
         sh "git checkout develop"
+        sh "git fetch origin"
         sh "git reset --hard origin/develop"
         def developVersion = getCurrentVersion()
         if (developVersion == preReleaseVersion) {
             sh "git merge origin/master"
-            def nextSnapshotVersion = '\\${parsedVersion.majorVersion}.\\${parsedVersion.minorVersion}.\\${parsedVersion.nextIncrementalVersion}-SNAPSHOT'
+            def nextSnapshotVersion = '\\${parsedVersion.majorVersion}.\\${parsedVersion.nextMinorVersion}.0-SNAPSHOT'
             setVersion(nextSnapshotVersion, 'releng/org.testeditor.releng.target/pom.xml', 'org.testeditor.releng.target.parent')
             setVersion(nextSnapshotVersion, 'pom.xml', 'org.testeditor.releng.parent')
             sh "git add *"
