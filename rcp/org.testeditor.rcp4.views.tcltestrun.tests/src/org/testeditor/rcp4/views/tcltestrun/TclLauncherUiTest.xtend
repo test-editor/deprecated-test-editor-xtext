@@ -8,7 +8,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.MockitoAnnotations
 import org.mockito.runners.MockitoJUnitRunner
 import org.testeditor.rcp4.tcltestrun.TclInjectorProvider
 import org.testeditor.tcl.dsl.ui.testlaunch.LaunchShortcutUtil
@@ -38,7 +37,6 @@ class TclLauncherUiTest {
 		when(tclInjectorProvider.get).thenReturn(injector)
 		when(injector.getInstance(LaunchShortcutUtil)).thenReturn(launchUtil)
 		launcherUi = new TclLauncherUi(tclInjectorProvider)
-		MockitoAnnotations.initMocks(launcherUi)
 	}
 
 	@Test
@@ -74,4 +72,5 @@ class TclLauncherUiTest {
 		assertTrue(testCases.exists[it == "mypackage.myTest"])
 		assertTrue(testCases.exists[it == "mypackage.mySecondTest"])
 	}
+
 }
