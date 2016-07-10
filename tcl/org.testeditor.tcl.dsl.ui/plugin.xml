@@ -636,6 +636,11 @@
                            </test>
                         </adapt>
                      </and>
+                     <or>
+                           <adapt
+                                 type="org.eclipse.jdt.core.IJavaPackage">
+                           </adapt>                     	
+                     </or>
                   </iterate>
                </with>
             </enablement>
