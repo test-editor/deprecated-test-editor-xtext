@@ -186,25 +186,20 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 	def void testIndirectCallVariableWithMultipleUsageTypeChecks() {
 		// given
 		val macroModel = tclModel("MacroCollection")
-		macroModel =>
-			[
-				modelContent = macroCollection; // is referenced => assignment must take place beforehand
-				(modelContent as MacroCollection) =>
-					[
-						macros += otherCallMacroWithTwoParamsWithTypeLongAndStringRespectively
-						// calls macro "othercall" with parameter "unknown" as first and second parameter (which are expected to be of type long and String)
-						macros += macro("MyCallMacro") =>
-							[
-								template = template("mycall").withParameter("unknown")
-								contexts += macroTestStepContext(macroModel.macroCollection) =>
-									[
-										step = testStep("othercall").withVariableReference("unknown").withText("with").
-											withVariableReference("unknown")
-									]
-							]
-
+		macroModel => [
+			modelContent = macroCollection; // is referenced => assignment must take place beforehand
+			(modelContent as MacroCollection) => [
+				macros += otherCallMacroWithTwoParamsWithTypeLongAndStringRespectively
+				// calls macro "othercall" with parameter "unknown" as first and second parameter (which are expected to be of type long and String)
+				macros += macro("MyCallMacro") => [
+					template = template("mycall").withParameter("unknown")
+					contexts += macroTestStepContext(macroModel.macroCollection) => [
+						step = testStep("othercall").withVariableReference("unknown").withText("with").
+							withVariableReference("unknown")
 					]
+				]
 			]
+		]
 		macroModel.register("tml")
 
 		// since tcl calls mycall Macro with environment variable (which always has type String)
@@ -229,25 +224,20 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 	def void testIndirectCallValidation() {
 		// given + when
 		val macroModel = tclModel("MacroCollection")
-		macroModel =>
-			[
-				modelContent = macroCollection; // is referenced => assignment must take place beforehand
-				(modelContent as MacroCollection) =>
-					[
-						macros += otherCallMacroWithTwoParamsWithTypeLongAndStringRespectively
-						// calls macro "othercall" with parameter "3" and "unknown" (which will satisfy the expected types long and String)
-						macros += macro("MyCallMacro") =>
-							[
-								template = template("mycall").withParameter("unknown")
-								contexts += macroTestStepContext(macroModel.macroCollection) =>
-									[
-										step = testStep("othercall").withParameter("3").withText("with").
-											withVariableReference("unknown")
-									]
-							]
-
+		macroModel => [
+			modelContent = macroCollection; // is referenced => assignment must take place beforehand
+			(modelContent as MacroCollection) => [
+				macros += otherCallMacroWithTwoParamsWithTypeLongAndStringRespectively
+				// calls macro "othercall" with parameter "3" and "unknown" (which will satisfy the expected types long and String)
+				macros += macro("MyCallMacro") => [
+					template = template("mycall").withParameter("unknown")
+					contexts += macroTestStepContext(macroModel.macroCollection) => [
+						step = testStep("othercall").withParameter("3").withText("with").
+							withVariableReference("unknown")
 					]
+				]
 			]
+		]
 		macroModel.register("tml")
 		// since tcl calls mycall Macro with environment variable (which always has type String)
 		// and this parameter is transitively used for calls expecting type String ... (no errors expected)
