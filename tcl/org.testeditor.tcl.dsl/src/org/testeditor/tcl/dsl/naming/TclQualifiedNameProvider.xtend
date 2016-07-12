@@ -18,6 +18,7 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider
 import org.eclipse.xtext.naming.IQualifiedNameConverter
 import org.testeditor.tcl.TclModel
+import org.testeditor.tcl.ModelContent
 
 @Singleton
 class TclQualifiedNameProvider extends DefaultDeclarativeQualifiedNameProvider {
@@ -28,6 +29,8 @@ class TclQualifiedNameProvider extends DefaultDeclarativeQualifiedNameProvider {
 		val result = switch (obj) {
 			TclModel:
 				obj.package.toQualifiedName
+			ModelContent:
+				(obj.model.package + "." + obj.model.name).toQualifiedName
 			default:
 				super.getFullyQualifiedName(obj)
 		}

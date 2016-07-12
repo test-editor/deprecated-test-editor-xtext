@@ -12,8 +12,6 @@ Require-Bundle: org.eclipse.xtext,
  org.testeditor.aml.dsl,
  org.testeditor.tsl.dsl,
  org.testeditor.tcl.dsl,
- org.testeditor.tml.dsl,
- org.testeditor.tml.dsl.tests,
  org.testeditor.aml.dsl.tests
 Import-Package: org.apache.log4j,
  org.junit,

@@ -19,8 +19,7 @@ Require-Bundle: org.eclipse.xtext,
  org.eclipse.xtext.util,
  org.eclipse.xtend.lib,
  org.testeditor.aml.dsl,
- org.testeditor.tsl.dsl,
- org.testeditor.tml.dsl
+ org.testeditor.tsl.dsl
 Import-Package: org.apache.log4j,
  javax.inject
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -14,8 +14,6 @@ package org.testeditor.tcl.dsl.validation
 
 import org.eclipse.xtext.common.types.JvmParameterizedTypeReference
 import org.eclipse.xtext.common.types.JvmType
-import org.eclipse.xtext.validation.ValidationMessageAcceptor
-import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
 import org.testeditor.aml.InteractionType
@@ -24,14 +22,11 @@ import org.testeditor.tcl.ComponentTestStepContext
 import static org.mockito.Matchers.*
 
 import static extension org.mockito.Mockito.*
-import javax.inject.Inject
-import org.testeditor.tcl.util.TclModelUtil
-import org.testeditor.tcl.dsl.tests.TclModelGenerator
+import org.junit.Before
 
-class TclMissingFixtureValidatorTest extends AbstractTclValidatorTest {
+class TclMacroMissingFixtureValidatorTest extends AbstractTclValidatorTest {
 
 	@Mock JvmParameterizedTypeReference typeReferenceMock
-	@Mock ValidationMessageAcceptor messageAcceptor
 
 	@Before
 	def void initMocks() {
@@ -41,24 +36,23 @@ class TclMissingFixtureValidatorTest extends AbstractTclValidatorTest {
 		when(tclModelUtil.getInteraction(anyObject)).thenReturn(interactionTypeMock)
 		when(tclModelUtil.hasComponentContext(anyObject)).thenReturn(true)
 		when(interactionTypeMock.defaultMethod.typeReference).thenReturn(typeReferenceMock)
-		when(typeReferenceMock.type).thenReturn(jvmTypeMock) // default is != null => fixture exists 
-		val state = tclValidator.setMessageAcceptor(messageAcceptor)
-		state.state // needs to be called in order for internal state to be initialized. this again is necessary to allow messages to be issued on the "currentObject" of the validation
+		when(typeReferenceMock.type).thenReturn(jvmTypeMock) // default is != null => fixture exists
 	}
 
 	@Test
 	def void noInfoOnExistingFixture() {
 		// given
-		val tclFix = parse('''
+		val tmlFix = parse('''
 			package pa
-			# Test
+			# MacroCollection
 			
-			* first
+			## UnnamedMacro
+			template = "hello"
 			Component: some_fantasy_component
 			- test step that maps
 		''')
-		val testStepThatMaps = tclFix.testCase.steps.head.contexts.head.assertInstanceOf(ComponentTestStepContext).
-			steps.head
+		val testStepThatMaps = tmlFix.macroCollection.macros.head.contexts.head.assertInstanceOf(
+			ComponentTestStepContext).steps.head
 
 		// when
 		tclValidator.checkFixtureMethodForExistence(testStepThatMaps)
@@ -70,15 +64,16 @@ class TclMissingFixtureValidatorTest extends AbstractTclValidatorTest {
 	@Test
 	def void infoOnMissingFixture() {
 		// given
-		val tclFix = parse('''
+		val tmlFix = parse('''
 			package pa
-			# Test
+			# MacroCollection
 			
-			* first
+			## UnnamedMacro
+			template = "hello"
 			Component: some_fantasy_component
 			- test step that does not map
 		''')
-		val testStepThatDoesNotMap = tclFix.testCase.steps.head.contexts.head.assertInstanceOf(
+		val testStepThatDoesNotMap = tmlFix.macroCollection.macros.head.contexts.head.assertInstanceOf(
 			ComponentTestStepContext).steps.head
 		when(typeReferenceMock.type).thenReturn(null)
 
@@ -93,16 +88,18 @@ class TclMissingFixtureValidatorTest extends AbstractTclValidatorTest {
 	@Test
 	def void noInfoOnAssertion() {
 		// given
-		val tclFix = parse('''
+		val tmlFix = parse('''
 			package pa
-			# Test
+			# MacroCollection
 			
-			* first
+			## UnnamedMacro
+			template = "hello"
 			Component: some_fantasy_component
+			- variable = get some
 			- assert variable = "Hello"
 		''')
-		val testStepThatDoesNotMap = tclFix.testCase.steps.head.contexts.head.assertInstanceOf(
-			ComponentTestStepContext).steps.head
+		val testStepThatDoesNotMap = tmlFix.macroCollection.macros.head.contexts.head.assertInstanceOf(
+			ComponentTestStepContext).steps.get(1)
 		when(typeReferenceMock.type).thenReturn(null)
 
 		// when

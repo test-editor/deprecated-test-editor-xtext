@@ -114,9 +114,6 @@
 							<language>
 								<setup>org.testeditor.aml.dsl.AmlStandaloneSetup</setup>
 							</language>
-							<language>
-								<setup>org.testeditor.tml.dsl.TmlStandaloneSetup</setup>
-							</language>
 						</languages>
 					</configuration>
 					<dependencies>
@@ -153,16 +150,6 @@
 						<dependency>
 							<groupId>org.testeditor</groupId>
 							<artifactId>org.testeditor.aml.dsl</artifactId>
-							<version>${project.version}</version>
-						</dependency>
-						<dependency>
-							<groupId>org.testeditor</groupId>
-							<artifactId>org.testeditor.tml.model</artifactId>
-							<version>${project.version}</version>
-						</dependency>
-						<dependency>
-							<groupId>org.testeditor</groupId>
-							<artifactId>org.testeditor.tml.dsl</artifactId>
 							<version>${project.version}</version>
 						</dependency>
 					</dependencies>

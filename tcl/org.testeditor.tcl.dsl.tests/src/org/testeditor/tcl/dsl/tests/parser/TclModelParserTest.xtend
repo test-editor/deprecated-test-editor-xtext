@@ -13,21 +13,21 @@
 package org.testeditor.tcl.dsl.tests.parser
 
 import org.junit.Test
-import org.testeditor.tml.AEComparison
-import org.testeditor.tml.AEStringConstant
-import org.testeditor.tml.AEVariableReference
-import org.testeditor.tml.AssertionTestStep
-import org.testeditor.tml.ComparatorMatches
-import org.testeditor.tml.ComponentTestStepContext
-import org.testeditor.tml.MacroTestStepContext
-import org.testeditor.tml.StepContentElement
-import org.testeditor.tml.TestStep
-import org.testeditor.tml.TestStepWithAssignment
-import org.testeditor.tml.TmlPackage
+import org.testeditor.tcl.AEComparison
+import org.testeditor.tcl.AENullOrBoolCheck
+import org.testeditor.tcl.AEStringConstant
+import org.testeditor.tcl.AEVariableReference
+import org.testeditor.tcl.AssertionTestStep
+import org.testeditor.tcl.ComparatorMatches
+import org.testeditor.tcl.ComponentTestStepContext
+import org.testeditor.tcl.MacroTestStepContext
+import org.testeditor.tcl.StepContentElement
+import org.testeditor.tcl.TclPackage
+import org.testeditor.tcl.TestStep
+import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tsl.StepContentVariable
 
 import static extension org.eclipse.xtext.nodemodel.util.NodeModelUtils.*
-import org.testeditor.tml.AENullOrBoolCheck
 
 class TclModelParserTest extends AbstractParserTest {
 	
@@ -57,11 +57,11 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 		
 		// when
-		val test = parse(input)
+		val tcl = parse(input)
 		
 		// then
-		test.name.assertEquals('MyTest')
-		test.steps.assertSingleElement => [
+		tcl.name.assertEquals('MyTest')
+		tcl.testCase.steps.assertSingleElement => [
 			contents.restoreString.assertEquals('Start the famous greetings application')
 		]
 	}
@@ -77,7 +77,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 		
 		// when
-		val test = parse(input)
+		val test = parse(input).testCase
 		
 		// then
 		test.steps.assertSingleElement => [
@@ -102,12 +102,12 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 		
 		// when
-		val test = parse(input)
+		val test = parse(input).testCase
 		
 		// then
 		test.steps.assertSingleElement => [
 			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
-				val componentNode = findNodesForFeature(TmlPackage.Literals.COMPONENT_TEST_STEP_CONTEXT__COMPONENT).assertSingleElement
+				val componentNode = findNodesForFeature(TclPackage.Literals.COMPONENT_TEST_STEP_CONTEXT__COMPONENT).assertSingleElement
 				componentNode.text.trim.assertEquals('GreetingsApplication')
 				steps.assertSize(2)
 				steps.get(0) => [
@@ -134,7 +134,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 		
 		// when
-		val test = parse(input)
+		val test = parse(input).testCase
 		
 		// then
 		test.steps.assertSingleElement.contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
@@ -160,7 +160,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 		
 		// when
-		val test = parse(input)
+		val test = parse(input).testCase
 		
 		// then
 		test.steps.assertSingleElement => [
@@ -187,7 +187,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val test = parse(input)
+		val test = parse(input).testCase
 
 		// then
 		test.steps.assertSingleElement => [
@@ -216,7 +216,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val test = parse(input)
+		val test = parse(input).testCase
 
 		// then
 		test.steps.assertSingleElement => [
@@ -248,7 +248,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val test = parse(input)
+		val test = parse(input).testCase
 
 		// then
 		test.steps.assertSingleElement => [
@@ -260,4 +260,30 @@ class TclModelParserTest extends AbstractParserTest {
 		]
 	}
 
+	@Test
+	def void parseWithMultiVariableDereference() {
+		// given
+		val input = '''
+			package com.example
+
+			# MyMacroCollection
+
+			## MacroStartWith
+			template = "start with" ${startparam}
+			Component: MyComponent
+			- put @startparam into <other>
+
+			// uses macro defined above
+			## MacroUseWith
+			template = "use macro with" ${useparam}
+			Macro: MyMacroCollection
+			- start with @useparam
+		'''
+
+		// when
+		val model = parse(input).assertNoSyntaxErrors
+
+		// then
+		model.package.assertEquals('com.example')
+	}
 }
