@@ -35,6 +35,10 @@ import org.testeditor.rcp4.tcltestrun.TclLauncher
 import org.testeditor.rcp4.tcltestrun.TclMavenLauncher
 import org.testeditor.tcl.dsl.ui.testlaunch.LaunchShortcutUtil
 import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
+import org.eclipse.core.resources.IFolder
+import java.util.ArrayList
+import org.eclipse.emf.mwe2.runtime.IFactory
+import org.eclipse.core.resources.IFile
 
 class TclLauncherUi implements Launcher {
 	static val logger = LoggerFactory.getLogger(TclLauncherUi)
@@ -53,7 +57,7 @@ class TclLauncherUi implements Launcher {
 	override boolean launch(IStructuredSelection selection, IProject project, String mode, boolean parameterize) {
 		val options = newHashMap
 		if (project.getFile("build.gradle").exists) {
-			return launchTest(selection, project, gradleLauncher, options)
+			return launchTest(createGradleTestCasesList(selection), project, gradleLauncher, options)
 		}
 		if (project.getFile("pom.xml").exists) {
 			if (parameterize) {
@@ -63,7 +67,8 @@ class TclLauncherUi implements Launcher {
 				}
 				options.put(TclMavenLauncher.PROFILE, profile)
 			}
-			return launchTest(selection, project, mavenLauncher, options)
+			val testCasesCommaList = createTestCasesList(selection)
+			return launchTest(testCasesCommaList, project, mavenLauncher, options)
 		}
 		logger.warn("gradle based launching test for tcl element='{}' failed, since file='build.gradle' was not found.",
 			selection.firstElement)
@@ -92,13 +97,13 @@ class TclLauncherUi implements Launcher {
 		return result.get
 	}
 
-	private def boolean launchTest(IStructuredSelection selection, IProject project, TclLauncher launcher,
+	private def boolean launchTest(List<String> testCasesCommaList, IProject project, TclLauncher launcher,
 		Map<String, Object> options) {
 		logger.info("Trying to launch launcherClass='{}' test execution for elementId='{}' in project='{}'",
-			launcher.class.simpleName, selection.firstElement, project)
+			launcher.class.simpleName, testCasesCommaList.get(0), project)
 		progressRunner.run([ monitor |
-			monitor.beginTask("Test execution: " + selection.firstElement, IProgressMonitor.UNKNOWN)
-			val testCasesCommaList = createTestCasesList(selection)
+			monitor.beginTask("Test execution: " + testCasesCommaList.get(0), IProgressMonitor.UNKNOWN)
+
 			val result = launcher.launchTest(testCasesCommaList, project, monitor, options)
 			project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
 			if (result.expectedFileRoot == null) {
@@ -111,12 +116,52 @@ class TclLauncherUi implements Launcher {
 		return true
 	}
 
+	def List<String> createGradleTestCasesList(IStructuredSelection selection) {
+		val result = new ArrayList<String>()
+		for (element : selection.toList) {
+			val res = element as IResource
+			if (res instanceof IFolder) {
+				result.add(launchShortcutUtil.getQualifiedNameForTestInTcl(res).toString + "*")
+			} else {
+				result.add(launchShortcutUtil.getQualifiedNameForTestInTcl(res).toString)
+			}
+		}
+		return result
+
+	}
+
 	def List<String> createTestCasesList(IStructuredSelection selection) {
 		if (selection.size > 1) {
-			return selection.toList.map[launchShortcutUtil.getQualifiedNameForTestInTcl(it as IResource).toString]
+			return selection.toList.map[testCaseListFromSelection].flatten.toList
 		} else {
+			if (selection.firstElement instanceof IFolder) {
+				return selection.firstElement.testCaseListFromSelection.toList
+			}
 			return #[launchShortcutUtil.getQualifiedNameForTestInTcl(selection.firstElement as IResource).toString]
 		}
+	}
+
+	def Iterable<String> getTestCaseListFromSelection(Object sel) {
+		if (sel instanceof IFolder) {
+			sel.testCasesFromFolder
+		} else {
+			#[launchShortcutUtil.getQualifiedNameForTestInTcl(sel as IResource).toString]
+		}
+	}
+
+	def List<String> getTestCasesFromFolder(IFolder folder) {
+		val result = newArrayList()
+		for (IResource res : folder.members) {
+			if (res instanceof IFile) {
+				if (res.fileExtension.equalsIgnoreCase("tcl")) {
+					result.add(launchShortcutUtil.getQualifiedNameForTestInTcl(res).toString)
+				}
+			}
+			if (res instanceof IFolder) {
+				result.addAll(res.testCasesFromFolder)
+			}
+		}
+		return result
 	}
 
 	/** 

@@ -622,24 +622,24 @@
                <with
                      variable="selection">
                  <iterate>
-                     <and>
-                        <not>
-                           <adapt
-                                 type="org.eclipse.jdt.core.IJavaElement">
-                           </adapt>
-                        </not>
-                        <adapt
-                              type=" org.eclipse.core.resources.IResource">
-                           <test
-                                 property="org.eclipse.core.resources.name"
-                                 value="*.tcl">
-                           </test>
-                        </adapt>
-                     </and>
                      <or>
-                           <adapt
-                                 type="org.eclipse.jdt.core.IJavaPackage">
-                           </adapt>                     	
+	                     <and>
+	                        <not>
+	                           <adapt
+	                                 type="org.eclipse.jdt.core.IJavaElement">
+	                           </adapt>
+	                        </not>
+		                        <adapt
+		                              type=" org.eclipse.core.resources.IResource">
+		                           <test
+		                                 property="org.eclipse.core.resources.name"
+		                                 value="*.tcl">
+		                           </test>
+		                        </adapt>
+	                     </and>
+                       <adapt
+                             type="org.eclipse.core.resources.IFolder">
+                       </adapt>                     	
                      </or>
                   </iterate>
                </with>
@@ -668,9 +668,6 @@
             <enablement>
                <with
                      variable="selection">
-                  <count
-                        value="1">
-                  </count>
                   <iterate>
                      <and>
                         <not>

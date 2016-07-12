@@ -15,6 +15,8 @@ import org.testeditor.tcl.dsl.ui.testlaunch.LaunchShortcutUtil
 import static org.junit.Assert.*
 import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
+import org.eclipse.core.resources.IFolder
+import org.eclipse.core.resources.IFile
 
 @RunWith(MockitoJUnitRunner)
 class TclLauncherUiTest {
@@ -71,6 +73,34 @@ class TclLauncherUiTest {
 		assertEquals(2, testCases.size)
 		assertTrue(testCases.exists[it == "mypackage.myTest"])
 		assertTrue(testCases.exists[it == "mypackage.mySecondTest"])
+	}
+
+	@Test
+	def void testGetTestCaseListOnFolderSelection() {
+		// given
+		val folder = mock(IFolder)
+		val tc1 = mock(IFile)
+		val tc2 = mock(IFile)
+		val tc3 = mock(IFile)
+		val otherFile = mock(IFile)
+		val subFolder = mock(IFolder)
+		when(selection.firstElement).thenReturn(folder)
+		when(tc1.fileExtension).thenReturn("tcl")
+		when(tc2.fileExtension).thenReturn("tcl")
+		when(tc3.fileExtension).thenReturn("tcl")
+		when(otherFile.fileExtension).thenReturn("tsl")
+		when(folder.members).thenReturn(#[tc1,tc2,otherFile,subFolder]);
+		when(subFolder.members).thenReturn(#[tc3])
+		when(launchUtil.getQualifiedNameForTestInTcl(tc1)).thenReturn(QualifiedName.create("mypackage", "myTest1"))
+		when(launchUtil.getQualifiedNameForTestInTcl(tc2)).thenReturn(QualifiedName.create("mypackage", "myTest2"))
+		when(launchUtil.getQualifiedNameForTestInTcl(tc3)).thenReturn(QualifiedName.create("mysubpackage", "myTest3"))
+		// when
+		val testCases = launcherUi.createTestCasesList(selection)
+		// then
+		assertEquals(3, testCases.size)
+		assertTrue(testCases.exists[it == "mypackage.myTest1"])
+		assertTrue(testCases.exists[it == "mypackage.myTest2"])
+		assertTrue(testCases.exists[it == "mysubpackage.myTest3"])
 	}
 
 }
