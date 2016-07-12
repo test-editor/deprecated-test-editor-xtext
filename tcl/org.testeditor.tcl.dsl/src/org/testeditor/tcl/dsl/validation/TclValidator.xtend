@@ -20,33 +20,32 @@ import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.common.types.util.TypeReferences
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.xtype.XImportSection
+import org.testeditor.aml.Template
+import org.testeditor.aml.TemplateVariable
+import org.testeditor.dsl.common.util.CollectionUtils
+import org.testeditor.tcl.AEVariableReference
+import org.testeditor.tcl.AssertionExpression
+import org.testeditor.tcl.AssertionTestStep
+import org.testeditor.tcl.BinaryAssertionExpression
+import org.testeditor.tcl.ComponentTestStepContext
+import org.testeditor.tcl.Macro
+import org.testeditor.tcl.MacroCollection
+import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
+import org.testeditor.tcl.StepContentElement
+import org.testeditor.tcl.StepContentVariableReference
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TclPackage
 import org.testeditor.tcl.TestCase
-import org.testeditor.tcl.util.TclModelUtil
-import org.testeditor.tcl.ComponentTestStepContext
-import org.testeditor.tcl.MacroTestStepContext
-import org.testeditor.tcl.StepContentElement
-import org.testeditor.tcl.StepContentVariableReference
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepContext
-import org.testeditor.tsl.SpecificationStep
-import org.testeditor.tsl.StepContentVariable
-import org.testeditor.dsl.common.util.CollectionUtils
-import org.testeditor.tsl.TslPackage
-import org.testeditor.tcl.AEVariableReference
-import org.testeditor.tcl.AssertionExpression
-import org.testeditor.tcl.BinaryAssertionExpression
-import org.testeditor.tcl.AssertionTestStep
-import org.testeditor.tcl.Macro
-import org.testeditor.aml.TemplateVariable
-import org.testeditor.tsl.StepContent
-import org.testeditor.aml.Template
 import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.impl.AssertionTestStepImpl
-import org.testeditor.tcl.MacroCollection
-import static org.testeditor.tcl.TclPackage.Literals.*
+import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.tsl.SpecificationStep
+import org.testeditor.tsl.StepContent
+import org.testeditor.tsl.StepContentVariable
+import org.testeditor.tsl.TslPackage
 
 class TclValidator extends AbstractTclValidator {
 
