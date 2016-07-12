@@ -45,6 +45,9 @@ import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
+import java.util.UUID
+import org.eclipse.emf.common.util.URI
+import org.eclipse.xtext.resource.XtextResourceSet
 
 @Singleton
 class TclModelUtil extends TslModelUtil {
@@ -282,6 +285,23 @@ class TclModelUtil extends TslModelUtil {
 			return root.environmentVariableReferences
 		}
 		return #{}
+	}
+
+	/** 
+	 * register the given model with the resource set (for cross linking)
+	 */
+	def <T extends EObject> T register(T model, XtextResourceSet resourceSet, String fileName, String fileExtension) {
+		val uri = URI.createURI(fileName+"."+fileExtension)
+		register(model, resourceSet, uri)
+	}
+	def <T extends EObject> T register(T model, XtextResourceSet resourceSet, String fileExtension) {
+		val uri = URI.createURI(UUID.randomUUID.toString + "." + fileExtension)
+		register(model, resourceSet, uri)
+	}
+	def <T extends EObject> T register(T model, XtextResourceSet resourceSet, URI uri) {
+		val newResource = resourceSet.createResource(uri)
+		newResource.contents.add(model)
+		return model
 	}
 
 }

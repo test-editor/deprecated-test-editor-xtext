@@ -13,16 +13,12 @@
 package org.testeditor.tcl.dsl.validation
 
 import com.google.inject.Provider
-import java.util.UUID
 import javax.inject.Inject
-import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EObject
-import org.eclipse.xtext.junit4.util.ParseHelper
 import org.eclipse.xtext.junit4.validation.ValidationTestHelper
 import org.eclipse.xtext.resource.XtextResourceSet
 import org.junit.Before
 import org.junit.Test
-import org.testeditor.aml.AmlModel
 import org.testeditor.aml.Component
 import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.aml.dsl.tests.AmlModelGenerator
@@ -41,8 +37,6 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 	@Inject protected XtextResourceSet resourceSet
 	@Inject ValidationTestHelper validator
 
-	protected ParseHelper<AmlModel> amlParseHelper
-
 	var Component dummyComponent
 	@Inject protected TclValidator tclValidator // class under test (not mocked)
 	@Inject extension AmlModelGenerator amlModelGenerator
@@ -52,8 +46,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 	def void setup() {
 		resourceSet = resourceSetProvider.get
 		resourceSet.classpathURIContext = this
-		val injector = (new AmlStandaloneSetup).createInjectorAndDoEMFRegistration
-		amlParseHelper = injector.getInstance(ParseHelper)
+		new AmlStandaloneSetup().createInjectorAndDoEMFRegistration // needs to be registered to register aml models
 
 		// build component "Dummy" with two interactions, "start" with a string parameter, "wait" with a long parameter
 		val amlModel = amlModel => [
@@ -277,11 +270,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 	 * register the given model with the resource set (for cross linking)
 	 */
 	private def <T extends EObject> T register(T model, String fileExtension) {
-		val uri = URI.createURI(UUID.randomUUID.toString + "." + fileExtension)
-
-		val newResource = resourceSet.createResource(uri)
-		newResource.getContents().add(model)
-		return model
+		model.register(resourceSet, fileExtension)
 	}
 
 }

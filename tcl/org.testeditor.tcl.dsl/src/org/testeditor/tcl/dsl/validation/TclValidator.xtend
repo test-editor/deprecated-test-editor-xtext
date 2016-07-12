@@ -45,6 +45,8 @@ import org.testeditor.tsl.StepContent
 import org.testeditor.aml.Template
 import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.impl.AssertionTestStepImpl
+import org.testeditor.tcl.MacroCollection
+import static org.testeditor.tcl.TclPackage.Literals.*
 
 class TclValidator extends AbstractTclValidator {
 
@@ -60,10 +62,30 @@ class TclValidator extends AbstractTclValidator {
 	public static val MISSING_FIXTURE = 'missingFixture'
 	public static val MISSING_MACRO = 'missingMacro'
 	public static val INVALID_VAR_DEREF = "invalidVariableDereference"
+	public static val INVALID_MODEL_CONTENT = "invalidModelContent"
 
 	@Inject extension TclModelUtil
 	@Inject TypeReferences typeReferences
 	@Inject extension CollectionUtils
+
+	@Check
+	def void tclHasOnlyTestCases(TclModel tclModel) {
+		val fileExtension = tclModel.eResource.URI.fileExtension
+		switch (fileExtension) {
+			case "tcl":
+				if (tclModel.modelContent != null && tclModel.modelContent instanceof MacroCollection) {
+					error("this file type may only contain test cases but it contains macro definitions",
+						tclModel.modelContent, null)
+				}
+			case "tml":
+				if (tclModel.modelContent != null && tclModel.modelContent instanceof TestCase) {
+					error("this file type may only contain macro definitions but it contains test cases",
+						tclModel.modelContent, null)
+				}
+			default:
+				throw new RuntimeException('''unknown file extension (fileExtensions='«fileExtension»')''')
+		}
+	}
 
 	@Check
 	def void referencesComponentElement(StepContentElement contentElement) {
