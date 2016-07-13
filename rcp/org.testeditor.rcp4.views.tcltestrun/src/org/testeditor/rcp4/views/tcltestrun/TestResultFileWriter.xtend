@@ -55,9 +55,9 @@ class TestResultFileWriter {
 		Integer.parseInt(node.attributes.getNamedItem(attributeName).nodeValue)
 	}
 
-	def Attr createAttribute(Document doc, String attributeName, String attributeValue) {
-		var result = doc.createAttribute(attributeName)
-		result.value = attributeValue
+	def Attr createAttribute(Document doc, String name, Object value) {
+		var result = doc.createAttribute(name)
+		result.value = String.valueOf(value)
 		return result
 	}
 
@@ -66,7 +66,7 @@ class TestResultFileWriter {
 	 */
 	def void writeErrorFile(String elementId, File file) {
 		try {
-			Files.write('''
+			val content = '''
 			<?xml version="1.0" encoding="UTF-8"?>
 			<testsuite name="«elementId»" tests="1" skipped="0" failures="0" errors="1" time="0.000">
 			  <properties/>
@@ -75,9 +75,10 @@ class TestResultFileWriter {
 			      failed to execute test, please check your technical test setup 
 			    </error>
 			  </testcase>
-			</testsuite>''', file, StandardCharsets.UTF_8);
+			</testsuite>'''
+			Files.write(content, file, StandardCharsets.UTF_8);
 		} catch (IOException e) {
-			logger.error('''could not write test result error file='«file.path»' ''', e)
+			logger.error('''could not write test result error file='«file.path»'.''', e)
 		}
 	}
 

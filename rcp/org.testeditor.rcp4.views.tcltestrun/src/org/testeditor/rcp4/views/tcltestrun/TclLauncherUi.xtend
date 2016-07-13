@@ -47,7 +47,7 @@ class TclLauncherUi implements Launcher {
 	@Inject TclMavenLauncher mavenLauncher
 	@Inject TclGradleLauncher gradleLauncher
 	@Inject TestResultFileWriter testResultFileWriter
-	var LaunchShortcutUtil launchShortcutUtil // since this class itself is instanciated by e4, this attribute has to be injected manually
+	LaunchShortcutUtil launchShortcutUtil // since this class itself is instanciated by e4, this attribute has to be injected manually
 
 	@Inject
 	new(TclInjectorProvider tclInjectorProvider) {
@@ -67,8 +67,7 @@ class TclLauncherUi implements Launcher {
 				}
 				options.put(TclMavenLauncher.PROFILE, profile)
 			}
-			val testCasesCommaList = createTestCasesList(selection)
-			return launchTest(testCasesCommaList, project, mavenLauncher, options)
+			return launchTest(createTestCasesList(selection), project, mavenLauncher, options)
 		}
 		logger.warn("gradle based launching test for tcl element='{}' failed, since file='build.gradle' was not found.",
 			selection.firstElement)
@@ -118,19 +117,21 @@ class TclLauncherUi implements Launcher {
 
 	def List<String> createGradleTestCasesList(IStructuredSelection selection) {
 		val result = new ArrayList<String>()
-		for (element : selection.toList) {
-			val res = element as IResource
-			if (res instanceof IFolder) {
-				val javaElement = res.getAdapter(IJavaElement) as IJavaElement
+		result += selection.toList.filter(IResource).map [ resource |
+			if (resource instanceof IFolder) {
+				val javaElement = resource.getAdapter(IJavaElement) as IJavaElement
 				if (javaElement != null) {
-					result.add(javaElement.elementName + "*")
+					return (javaElement.elementName + "*")
 				} else {
-					logger.warn("selected element {} is not a test exeutuable", res.name)
+					logger.warn("selected element {} is not a test exeutuable", resource.name)
+					return null
 				}
+
 			} else {
-				result.add(launchShortcutUtil.getQualifiedNameForTestInTcl(res).toString)
+				return launchShortcutUtil.getQualifiedNameForTestInTcl(resource).toString
 			}
-		}
+		].filterNull
+
 		return result
 
 	}
