@@ -7,7 +7,7 @@ import java.util.List
 
 interface TclLauncher {
 
-	public def LaunchResult launchTest(List<String> testCasesList, IProject project, 
+	public def LaunchResult launchTest(List<String> testCases, IProject project, 
 		IProgressMonitor monitor, Map<String, Object> options)
 
 }

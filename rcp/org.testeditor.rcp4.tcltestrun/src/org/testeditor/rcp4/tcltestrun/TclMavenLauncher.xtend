@@ -35,7 +35,7 @@ public class TclMavenLauncher implements TclLauncher {
 	@Inject extension ProjectUtils
 	@Inject MavenExecutor mavenExecutor
 
-	override launchTest(List<String> testCasesList, IProject project, IProgressMonitor monitor,
+	override launchTest(List<String> testCases, IProject project, IProgressMonitor monitor,
 		Map<String, Object> options) {
 		val parameters = if (options.containsKey(
 				PROFILE)) {
@@ -46,11 +46,11 @@ public class TclMavenLauncher implements TclLauncher {
 			}
 		// val testCases = createTestCasesCommaList(selection)
 		val result = mavenExecutor.executeInNewJvm(parameters, project.location.toOSString,
-			"test=" + testCasesList.join(","), monitor)
+			"test=" + testCases.join(","), monitor)
 		val testResultFile = project.createOrGetDeepFolder(MVN_TEST_RESULT_FOLDER).location.toFile
 		if (result != 0) {
 			logger.
-				error('''Error during maven build using parameters='«parameters»' and element='«testCasesList»' ''')
+				error('''Error during maven build using parameters='«parameters»' and element='«testCases»'.''')
 		}
 		return new LaunchResult(testResultFile, result, null)
 	}

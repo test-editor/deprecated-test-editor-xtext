@@ -14,13 +14,17 @@ package org.testeditor.rcp4.views.tcltestrun
 
 import java.io.File
 import java.io.FileFilter
+import java.util.ArrayList
 import java.util.List
 import java.util.Map
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
+import org.eclipse.core.resources.IFile
+import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.IProgressMonitor
+import org.eclipse.jdt.core.IJavaElement
 import org.eclipse.jdt.junit.JUnitCore
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.eclipse.jface.viewers.LabelProvider
@@ -35,11 +39,6 @@ import org.testeditor.rcp4.tcltestrun.TclLauncher
 import org.testeditor.rcp4.tcltestrun.TclMavenLauncher
 import org.testeditor.tcl.dsl.ui.testlaunch.LaunchShortcutUtil
 import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
-import org.eclipse.core.resources.IFolder
-import java.util.ArrayList
-import org.eclipse.emf.mwe2.runtime.IFactory
-import org.eclipse.core.resources.IFile
-import org.eclipse.jdt.core.IJavaElement
 
 class TclLauncherUi implements Launcher {
 	static val logger = LoggerFactory.getLogger(TclLauncherUi)

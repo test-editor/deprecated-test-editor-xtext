@@ -37,9 +37,9 @@ public class TclGradleLauncher implements TclLauncher {
 		'''TEST-«elementId».xml'''
 	}
 
-	override launchTest(List<String> testCasesList, IProject project, IProgressMonitor monitor,
+	override launchTest(List<String> testCases, IProject project, IProgressMonitor monitor,
 		Map<String, Object> options) {
-		val elementId = testCasesList.get(0)
+		val elementId = testCases.get(0)
 		monitor.beginTask("Test execution: " + elementId, IProgressMonitor.UNKNOWN)
 		val testResultFile = project.createOrGetDeepFolder(GRADLE_TEST_RESULT_FOLDER).getFile(
 			elementId.elementIdToFileName).location.toFile.parentFile

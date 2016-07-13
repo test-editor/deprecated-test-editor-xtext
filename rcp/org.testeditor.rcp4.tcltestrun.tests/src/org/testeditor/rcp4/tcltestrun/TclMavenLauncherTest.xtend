@@ -5,41 +5,38 @@ import java.nio.file.Files
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.IPath
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.runners.MockitoJUnitRunner
+import org.testeditor.dsl.common.testing.AbstractTest
 
-import static org.junit.Assert.*
-import static org.mockito.Mockito.*
+import static extension org.mockito.Mockito.*
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
 
-@RunWith(MockitoJUnitRunner)
-class TclMavenLauncherTest {
+class TclMavenLauncherTest extends AbstractTest {
 
-	@Mock
-	MavenExecutor executor
-
-	@InjectMocks
-	TclMavenLauncher launcher
+	@InjectMocks TclMavenLauncher launcher
+	@Mock MavenExecutor executor
+	@Rule public TemporaryFolder tempFolder = new TemporaryFolder();
 
 	@Test
 	def void testGetProfiles() {
-		//given
-		val targetDir = new File(System.getProperty("java.io.tmpdir"),"target")
-		if(!targetDir.exists) {
+		// given
+		val targetDir = tempFolder.newFolder("target")
+		if (!targetDir.exists) {
 			targetDir.mkdir
 		}
-		Files.write(new File(targetDir,"profiles.txt").toPath,'''Profile Id: foo (Active: true)
+		Files.write(new File(targetDir, "profiles.txt").toPath, '''Profile Id: foo (Active: true)
 		Profile Id: bar (Active: false)'''.toString.bytes)
-		val project = mock(IProject)
-		val path = mock(IPath);
-		when(path.toOSString).thenReturn(System.getProperty("java.io.tmpdir"))
+		val project = IProject.mock
+		val path = IPath.mock
+		when(path.toOSString).thenReturn(tempFolder.root.absolutePath)
 		when(project.location).thenReturn(path)
-		
-		//when
+
+		// when
 		val profiles = launcher.getProfiles(project)
-		
-		//then findFirst[name == "MyApp"].assertNotNull
+
+		// then 
 		assertTrue(profiles.exists[it == "foo"])
 		assertTrue(profiles.exists[it == "bar"])
 		assertFalse(profiles.exists[it == "test"])
