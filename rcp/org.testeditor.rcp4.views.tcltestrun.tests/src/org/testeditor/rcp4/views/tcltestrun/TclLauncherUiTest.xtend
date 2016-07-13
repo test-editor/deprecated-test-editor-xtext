@@ -17,6 +17,7 @@ import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IFile
+import org.eclipse.jdt.core.IJavaElement
 
 @RunWith(MockitoJUnitRunner)
 class TclLauncherUiTest {
@@ -103,4 +104,19 @@ class TclLauncherUiTest {
 		assertTrue(testCases.exists[it == "mysubpackage.myTest3"])
 	}
 
+	@Test
+	def void testCreateGradleTestCasesList() {
+		// given
+		val folder = mock(IFolder)
+		val javaElement = mock(IJavaElement)
+		when(selection.toList).thenReturn(#[folder])
+		when(folder.getAdapter(IJavaElement)).thenReturn(javaElement)
+		when(javaElement.elementName).thenReturn("mypackage")
+		// when
+		val testCases = launcherUi.createGradleTestCasesList(selection)
+		// then		
+		assertEquals(1, testCases.size)
+		assertTrue(testCases.exists[it == "mypackage*"])
+	}
+	
 }

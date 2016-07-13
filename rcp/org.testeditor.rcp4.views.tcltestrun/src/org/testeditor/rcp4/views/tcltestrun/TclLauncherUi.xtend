@@ -39,6 +39,7 @@ import org.eclipse.core.resources.IFolder
 import java.util.ArrayList
 import org.eclipse.emf.mwe2.runtime.IFactory
 import org.eclipse.core.resources.IFile
+import org.eclipse.jdt.core.IJavaElement
 
 class TclLauncherUi implements Launcher {
 	static val logger = LoggerFactory.getLogger(TclLauncherUi)
@@ -121,7 +122,12 @@ class TclLauncherUi implements Launcher {
 		for (element : selection.toList) {
 			val res = element as IResource
 			if (res instanceof IFolder) {
-				result.add(launchShortcutUtil.getQualifiedNameForTestInTcl(res).toString + "*")
+				val javaElement = res.getAdapter(IJavaElement) as IJavaElement
+				if (javaElement != null) {
+					result.add(javaElement.elementName + "*")
+				} else {
+					logger.warn("selected element {} is not a test exeutuable", res.name)
+				}
 			} else {
 				result.add(launchShortcutUtil.getQualifiedNameForTestInTcl(res).toString)
 			}
