@@ -26,11 +26,8 @@ import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
 import org.testeditor.tsl.TslModel
-import org.testeditor.tcl.util.TclModelUtil
 
 abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
-
-	@Inject extension TclModelUtil
 
 	@Inject protected Provider<XtextResourceSet> resourceSetProvider
 	@Inject protected XtextResourceSet resourceSet
@@ -73,7 +70,7 @@ abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 	protected def <T extends EObject> T addToResourceSet(T model) {
 		switch (model) {
 			TclModel: {
-				if (model.macroCollection?.macros?.size > 0) {
+				if (model.macroCollection !== null && model.macroCollection.macros.size > 0) {
 					return model.addToResourceSet(resourceSet, "tml")
 				} else {
 					return model.addToResourceSet(resourceSet, "tcl")

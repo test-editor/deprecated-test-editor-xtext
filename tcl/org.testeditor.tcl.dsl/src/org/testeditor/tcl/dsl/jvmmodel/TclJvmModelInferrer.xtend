@@ -51,7 +51,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	@Inject IQualifiedNameProvider nameProvider
 
 	def dispatch void infer(TclModel model, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
-		model.modelContent?.infer(acceptor, isPreIndexingPhase)
+		model.test?.infer(acceptor, isPreIndexingPhase)
 	}
 
 	private def String variableReferenceToVarName(VariableReference varRef) {
@@ -118,14 +118,14 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		output.newLine
 		val macro = context.findMacroDefinition
 		if (macro == null) {
-			output.append('''// TODO Macro could not be resolved from «context.macroCollection.model.name»''').newLine
+			output.append('''// TODO Macro could not be resolved from «context.macroCollection.name»''').newLine
 		} else {
-			output.append('''// Macro start: «context.macroCollection.model.name» - «macro.template.normalize»''').newLine
+			output.append('''// Macro start: «context.macroCollection.name» - «macro.template.normalize»''').newLine
 			macro.contexts.forEach [
 				generateContext(output.trace(it), #[context] + macroUseStack, envParams)
 			]
 			output.newLine
-			output.append('''// Macro end: «context.macroCollection.model.name» - «macro.template.normalize»''').newLine
+			output.append('''// Macro end: «context.macroCollection.name» - «macro.template.normalize»''').newLine
 		}
 	}
 

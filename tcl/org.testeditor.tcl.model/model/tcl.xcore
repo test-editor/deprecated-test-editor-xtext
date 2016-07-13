@@ -29,17 +29,14 @@ import org.testeditor.tsl.StepContentValue
 class TclModel {
 	String ^package
 	contains XImportSection importSection
-	// tcl can contain these (checked via validator)
-	contains EnvironmentVariableReference [0..*] environmentVariableReferences
-	contains ModelContent modelContent opposite model
+	contains EnvironmentVariableReference[0..*] environmentVariableReferences
 	String name
-	}
-
-abstract class ModelContent {
-	container derived TclModel model opposite modelContent
+	contains TestCase test opposite model
+	contains MacroCollection macroCollection opposite model
 }
 
-class TestCase extends ModelContent {
+class TestCase {
+	container derived TclModel model opposite test
 	refers TestSpecification specification
 	contains SpecificationStepImplementation[0..*] steps opposite test
 }
@@ -52,7 +49,9 @@ class SpecificationStepImplementation extends SpecificationStep {
 class EnvironmentVariableReference extends VariableReference {
 }
 
-class MacroCollection extends ModelContent {
+class MacroCollection {
+	String name
+	container derived TclModel model opposite macroCollection
 	contains Macro[0..*] macros
 }
 

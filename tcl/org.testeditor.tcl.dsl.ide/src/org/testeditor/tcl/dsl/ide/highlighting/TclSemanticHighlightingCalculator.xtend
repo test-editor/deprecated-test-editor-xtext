@@ -32,9 +32,8 @@ import static extension org.eclipse.xtext.nodemodel.util.NodeModelUtils.getNode
 
 class TclSemanticHighlightingCalculator extends DefaultSemanticHighlightingCalculator {
 
-	public static val String MACRO_NAME = "tml.name"
 	public static val String STEP_CONTENT_ELEMENT = "tsl.step_content"
-	public static val String TEST_CASE_NAME = "tcl.testname"
+	public static val String TCL_MODEL_NAME = "tcl.modelname"
 	public static val String COMPONENT_ELEMENT_REFERENCE = "tcl.componentElementReference"
 
 	@Inject extension NodeRegionUtil
@@ -59,15 +58,16 @@ class TclSemanticHighlightingCalculator extends DefaultSemanticHighlightingCalcu
 		// Provide highlighting for the name
 		val region = model.findNodesRegionForFeature(TCL_MODEL__NAME)
 		if (region !== null) {
-			acceptor.addPosition(region.offset, region.length, MACRO_NAME)
+			acceptor.addPosition(region.offset, region.length, TCL_MODEL_NAME)
 		}
 
+
 		// Provide highlighting for all component element references
-		if (model.macroCollection != null) {
+		if (model.macroCollection !== null) {
 			model.macroCollection.macros.map[contexts].flatten.forEach[provideHighlightingForTestStepContext(acceptor)]
 		}
-		if (model.testCase != null) {
-			model.testCase.steps.map[contexts].flatten.forEach[provideHighlightingForTestStepContext(acceptor)]
+		if (model.test !== null) {
+			model.test.doProvideHighlightingFor(acceptor, cancelIndicator)
 		}
 	}
 
@@ -78,7 +78,7 @@ class TclSemanticHighlightingCalculator extends DefaultSemanticHighlightingCalcu
 
 	protected def dispatch void provideHighlightingForTestStepContext(MacroTestStepContext context,
 		IHighlightedPositionAcceptor acceptor) {
-		context.step.contents.forEach[provideHighlightingFor(acceptor)]
+		context.step?.contents?.forEach[provideHighlightingFor(acceptor)]
 	}
 
 	/**
@@ -102,11 +102,6 @@ class TclSemanticHighlightingCalculator extends DefaultSemanticHighlightingCalcu
 	private def doProvideHighlightingFor(TestCase test, IHighlightedPositionAcceptor acceptor,
 		CancelIndicator cancelIndicator) {
 		// Provide highlighting for the name
-		val region = test.findNodesRegionForFeature(TCL_MODEL__NAME)
-		if (region !== null) {
-			acceptor.addPosition(region.offset, region.length, TEST_CASE_NAME)
-		}
-
 		// Provide highlighting for all component element references
 		for (specificationStep : test.steps) {
 			specificationStep.contents.forEach[provideHighlightingFor(acceptor)]

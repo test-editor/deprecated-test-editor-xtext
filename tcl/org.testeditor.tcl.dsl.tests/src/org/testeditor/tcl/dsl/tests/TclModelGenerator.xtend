@@ -33,7 +33,7 @@ class TclModelGenerator {
 
 
 	def TclModel tclModel(String name) {
-		return tclFactory.createTclModel => [^package = "com.example" it.name=name]
+		return tclFactory.createTclModel => [^package = "com.example" it.name = name]
 	}
 
 	def TestCase testCase() {
@@ -71,8 +71,8 @@ class TclModelGenerator {
 		]
 		return me
 	}
-	
-	def MacroCollection macroCollection(){
+
+	def MacroCollection macroCollection() {
 		return tclFactory.createMacroCollection
 	}
 

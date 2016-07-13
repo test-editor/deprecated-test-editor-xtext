@@ -17,7 +17,6 @@ import org.testeditor.tcl.dsl.tests.TclModelGenerator
 
 import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
-import org.testeditor.tcl.util.TclModelUtil
 
 class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegrationTest {
 
@@ -27,8 +26,6 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 	@Inject extension TclModelGenerator
 	@Inject extension AmlModelGenerator
 	
-	@Inject extension TclModelUtil modelUtil
-
 	override void setup() {
 		super.setup
 		when(outputStub.trace(any(EObject))).thenReturn(outputStub)
@@ -37,7 +34,7 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 
 	def TclModel tclClickOnDummyButton(Component dummyComponent) {
 		return tclModel("Test") => [
-			modelContent = testCase => [
+			test = testCase => [
 				steps += specificationStep("my", "test") => [
 					contexts += componentTestStepContext(dummyComponent) => [
 						steps += testStep("click", "on").withElement("DummyButton")
@@ -100,7 +97,7 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 		val tcl = tclClickOnDummyButton(amlModel.components.head)
 
 		// when
-		jvmModelInferrer.generateMethodBody(tcl.testCase, outputStub, #{})
+		jvmModelInferrer.generateMethodBody(tcl.test, outputStub, #{})
 
 		// then
 		verify(outputStub).append(
@@ -117,7 +114,7 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 		val tcl = tclClickOnDummyButton(amlModel.components.head)
 
 		// when
-		jvmModelInferrer.generateMethodBody(tcl.testCase, outputStub, #{})
+		jvmModelInferrer.generateMethodBody(tcl.test, outputStub, #{})
 
 		// then
 		verify(outputStub).append(
@@ -133,7 +130,7 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 		val tcl = tclClickOnDummyButton(amlModel.components.head)
 
 		// when
-		jvmModelInferrer.generateMethodBody(tcl.testCase, outputStub, #{})
+		jvmModelInferrer.generateMethodBody(tcl.test, outputStub, #{})
 
 		// then
 		verify(outputStub).append(

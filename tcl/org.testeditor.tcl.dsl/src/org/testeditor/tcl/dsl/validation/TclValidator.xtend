@@ -72,14 +72,14 @@ class TclValidator extends AbstractTclValidator {
 		val fileExtension = tclModel.eResource.URI.fileExtension
 		switch (fileExtension) {
 			case "tcl":
-				if (tclModel.modelContent != null && tclModel.modelContent instanceof MacroCollection) {
+				if (tclModel.macroCollection != null) {
 					error("this file type may only contain test cases but it contains macro definitions",
-						tclModel.modelContent, null)
+						tclModel.macroCollection, null)
 				}
 			case "tml":
-				if (tclModel.modelContent != null && tclModel.modelContent instanceof TestCase) {
+				if (tclModel.test != null) {
 					error("this file type may only contain macro definitions but it contains test cases",
-						tclModel.modelContent, null)
+						tclModel.test, null)
 				}
 			default:
 				throw new RuntimeException('''unknown file extension (fileExtensions='«fileExtension»')''')
@@ -329,7 +329,7 @@ class TclValidator extends AbstractTclValidator {
 	@Check
 	def void checkVariableUsageWithinAssertionExpressions(TclModel tclModel) {
 		val Map<String,String> varTypeMap = newHashMap
-		tclModel.testCase.steps.map[contexts].flatten.forEach[executeCheckVariableUsageWithinAssertionExpressions(varTypeMap)]
+		tclModel.test.steps.map[contexts].flatten.forEach[executeCheckVariableUsageWithinAssertionExpressions(varTypeMap)]
 	}
 
 	private def boolean matches(List<SpecificationStep> specSteps,
@@ -342,8 +342,12 @@ class TclValidator extends AbstractTclValidator {
 
 	@Check
 	def void checkTestName(TclModel tclModel) {
-		if (!getExpectedName(tclModel).equals(tclModel.name)) {
+		if (tclModel.test!=null && !getExpectedName(tclModel).equals(tclModel.name)) {
 			val message = '''Test case name does not match '«tclModel.eResource.URI.lastSegment»'.'''
+			error(message, TclPackage.Literals.TCL_MODEL__NAME, INVALID_NAME)
+		}
+		if (tclModel.macroCollection!=null && !getExpectedName(tclModel).equals(tclModel.name)) {
+			val message = '''Macro collection does not match '«tclModel.eResource.URI.lastSegment»'.'''
 			error(message, TclPackage.Literals.TCL_MODEL__NAME, INVALID_NAME)
 		}
 	}
@@ -356,7 +360,7 @@ class TclValidator extends AbstractTclValidator {
 		environmentParams.forEach [
 			actualTypeMap.put(it, #{stringTypeReference})
 		]
-		tclModel.testCase.steps.map[contexts].flatten.forEach [
+		tclModel.test.steps.map[contexts].flatten.forEach [
 			checkAllVariableReferencesAreKnownParameters(environmentParams,
 				"Dereferenced variable must be a required environment variable")
 			checkAllVariableReferencesOnTypeEquality(actualTypeMap)

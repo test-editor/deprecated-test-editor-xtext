@@ -61,7 +61,7 @@ class TclModelParserTest extends AbstractParserTest {
 		
 		// then
 		tcl.name.assertEquals('MyTest')
-		tcl.testCase.steps.assertSingleElement => [
+		tcl.test.steps.assertSingleElement => [
 			contents.restoreString.assertEquals('Start the famous greetings application')
 		]
 	}
@@ -77,7 +77,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 		
 		// when
-		val test = parse(input).testCase
+		val test = parse(input).test
 		
 		// then
 		test.steps.assertSingleElement => [
@@ -102,7 +102,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 		
 		// when
-		val test = parse(input).testCase
+		val test = parse(input).test
 		
 		// then
 		test.steps.assertSingleElement => [
@@ -134,7 +134,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 		
 		// when
-		val test = parse(input).testCase
+		val test = parse(input).test
 		
 		// then
 		test.steps.assertSingleElement.contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
@@ -160,7 +160,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 		
 		// when
-		val test = parse(input).testCase
+		val test = parse(input).test
 		
 		// then
 		test.steps.assertSingleElement => [
@@ -187,7 +187,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val test = parse(input).testCase
+		val test = parse(input).test
 
 		// then
 		test.steps.assertSingleElement => [
@@ -216,7 +216,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val test = parse(input).testCase
+		val test = parse(input).test
 
 		// then
 		test.steps.assertSingleElement => [
@@ -248,7 +248,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val test = parse(input).testCase
+		val test = parse(input).test
 
 		// then
 		test.steps.assertSingleElement => [

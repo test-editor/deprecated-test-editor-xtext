@@ -23,7 +23,7 @@ class TclModelContentValidator extends AbstractTclValidatorTest {
 	@Test
 	def void testModelContentTml() {
 		val model = tclModel("Test") => [
-			modelContent = macroCollection
+			macroCollection = macroCollection()
 		]
 		model.register(resourceSet, "Test", "tml")
 
@@ -33,27 +33,27 @@ class TclModelContentValidator extends AbstractTclValidatorTest {
 	@Test
 	def void testModelContentMacroInTcl() {
 		val model = tclModel("Test") => [
-			modelContent = macroCollection
+			macroCollection = macroCollection()
 		]
 		model.register(resourceSet, "Test", "tcl")
 
-		validator.assertError(model, MODEL_CONTENT, null)
+		validator.assertError(model, MACRO_COLLECTION, null)
 	}
 
 	@Test
 	def void testModelContentTestCaseInTml() {
 		val model = tclModel("Test") => [
-			modelContent = testCase
+			test = testCase
 		]
 		model.register(resourceSet, "Test", "tml")
 
-		validator.assertError(model, MODEL_CONTENT, null)
+		validator.assertError(model, TEST_CASE, null)
 	}
 
 	@Test
 	def void testModelContentTcl() {
 		val model = tclModel("Test") => [
-			modelContent = testCase
+			test = testCase
 		]
 		model.register(resourceSet, "Test", "tcl")
 

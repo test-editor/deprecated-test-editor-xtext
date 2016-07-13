@@ -21,9 +21,9 @@ TclModel:
 	'package' package=QualifiedName
 	(importSection=XImportSection)?
 	('require' environmentVariableReferences+=EnvironmentVariableReference
-		(',' environmentVariableReferences+=EnvironmentVariableReference)*)?
+	      (',' environmentVariableReferences+=EnvironmentVariableReference)*)?
 	'#' name=ID
-	modelContent=(TestCase | MacroCollection)?;
+	(test=TestCase | macroCollection=MacroCollection)?;
 
 TestCase:
 	('implements' specification=[tsl::TestSpecification|QualifiedName])?
@@ -38,12 +38,12 @@ EnvironmentVariableReference:
 	name=ID;
 
 MacroCollection:
-	(macros+=Macro)+;
+	macros+=Macro+;
 
 Macro:
 	'##' name=ID
 	'template' '=' template=Template
-	contexts+=TestStepContext*		
+	contexts+=TestStepContext*
 ;
 
 Template returns aml::Template:

@@ -42,7 +42,8 @@ class TclFormatter extends XbaseFormatter {
 		tclModel.environmentVariableReferences.forEach[prepend[oneSpace]]
 		tclModel.regionFor.keyword("#").prepend[newLines = 2].append[oneSpace]
 		tclModel.regionFor.feature(TCL_MODEL__NAME).append[newLines = 2; priority = LOW_PRIORITY]
-		tclModel.modelContent.format
+		tclModel.test?.format
+		tclModel.macroCollection?.format
 	}
 
 	def dispatch void format(TestCase testCase, extension IFormattableDocument document) {

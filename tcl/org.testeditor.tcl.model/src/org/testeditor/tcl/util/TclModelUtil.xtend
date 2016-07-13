@@ -15,11 +15,14 @@ package org.testeditor.tcl.util
 import java.util.List
 import java.util.Map
 import java.util.Set
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
+import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.common.types.JvmTypeReference
+import org.eclipse.xtext.resource.XtextResourceSet
 import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.InteractionType
@@ -31,7 +34,6 @@ import org.testeditor.aml.ValueSpaceAssignment
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariableReference
 import org.testeditor.tcl.Macro
-import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
@@ -45,9 +47,6 @@ import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
-import java.util.UUID
-import org.eclipse.emf.common.util.URI
-import org.eclipse.xtext.resource.XtextResourceSet
 
 @Singleton
 class TclModelUtil extends TslModelUtil {
@@ -232,20 +231,6 @@ class TclModelUtil extends TslModelUtil {
 			it instanceof StepContentVariable || it instanceof StepContentVariableReference ||
 				it instanceof StepContentElement
 		]
-	}
-
-	def TestCase getTestCase(TclModel tclModel) {
-		if ((tclModel.modelContent != null) && (tclModel.modelContent instanceof TestCase)) {
-			return tclModel.modelContent as TestCase
-		}
-		return null
-	}
-
-	def MacroCollection getMacroCollection(TclModel tclModel) {
-		if ((tclModel.modelContent != null) && (tclModel.modelContent instanceof MacroCollection)) {
-			return tclModel.modelContent as MacroCollection
-		}
-		return null
 	}
 
 	def SpecificationStep getSpecificationStep(SpecificationStepImplementation stepImplementation) {

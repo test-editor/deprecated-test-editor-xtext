@@ -3,6 +3,7 @@ package org.testeditor.tcl.dsl.validation
 import java.util.Map
 import org.eclipse.xtext.common.types.JvmOperation
 import org.eclipse.xtext.common.types.JvmTypeReference
+import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
 import org.testeditor.aml.AmlFactory
@@ -11,8 +12,6 @@ import org.testeditor.tcl.ComponentTestStepContext
 import static org.mockito.Matchers.*
 
 import static extension org.mockito.Mockito.*
-import org.junit.Before
-import org.testeditor.tcl.TestCase
 
 class TclVarUsageValidatorTest extends AbstractTclValidatorTest {
 
@@ -143,7 +142,7 @@ class TclVarUsageValidatorTest extends AbstractTclValidatorTest {
 		// given
 		val assignment = testStepWithAssignment("variable", "some")
 		val tclModel = tclModel("test") => [
-			modelContent = testCase => [
+			test = testCase => [
 				steps += specificationStep("first") => [
 					contexts += componentTestStepContext(null) => [
 						steps += assignment
@@ -158,8 +157,7 @@ class TclVarUsageValidatorTest extends AbstractTclValidatorTest {
 				]
 			]
 		]
-		when(tclModelUtil.getTestCase(any)).thenReturn(tclModel.modelContent as TestCase)
-		
+
 		// when
 		tclValidator.checkVariableUsageWithinAssertionExpressions(tclModel)
 

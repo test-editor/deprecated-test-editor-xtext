@@ -6,7 +6,6 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.nodemodel.SyntaxErrorMessage
 import org.eclipse.xtext.parser.antlr.SyntaxErrorMessageProvider
 import org.testeditor.tcl.TclModel
-import org.testeditor.tcl.TestCase
 
 class TclSyntaxErrorMessageProvider extends SyntaxErrorMessageProvider {
 
@@ -39,8 +38,8 @@ class TclSyntaxErrorMessageProvider extends SyntaxErrorMessageProvider {
 	 */
 	private def boolean isTestModelWithoutTestStepsYet(EObject context) {
 		if (context instanceof TclModel) {
-			if ((context.modelContent !== null) && (context.modelContent instanceof TestCase)) {
-				return (context.modelContent as TestCase).steps.empty
+			if (context.test !== null){
+				return context.test.steps.empty
 			}
 		}
 		return false

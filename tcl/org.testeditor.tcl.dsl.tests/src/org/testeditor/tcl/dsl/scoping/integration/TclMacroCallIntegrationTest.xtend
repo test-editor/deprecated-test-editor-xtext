@@ -11,14 +11,11 @@ import org.testeditor.tcl.dsl.jvmmodel.TclJvmModelInferrer
 
 import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
-import org.testeditor.tcl.util.TclModelUtil
 
 class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 
 	@Inject TclJvmModelInferrer jvmModelInferrer // class under test
 	@Mock ITreeAppendable outputStub
-	
-	@Inject extension TclModelUtil
 
 	@Before
 	def void initMocks() {
@@ -78,7 +75,7 @@ class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 		''')
 
 		// when
-		jvmModelInferrer.generateMethodBody(tcl.testCase, outputStub, #{})
+		jvmModelInferrer.generateMethodBody(tcl.test, outputStub, #{})
 
 		// then
 		// expectation is tcl: calls macro other("MyApp"), which again calls macro start("MyApp"), which again calls aml start("MyApp"), which again calls aml-method startApplication("MyApp")
