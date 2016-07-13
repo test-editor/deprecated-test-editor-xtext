@@ -22,7 +22,7 @@ class TestResultFileWriterTest {
 	@Test
 	def void testErrorFile() {
 		// given
-		val errorFile = File.createTempFile("mFile", "tmp")
+		val errorFile = tempFolder.newFile("mFile.tmp")
 
 		// when
 		testResultWriter.writeErrorFile("MyPrj.package.MyTest", errorFile)
