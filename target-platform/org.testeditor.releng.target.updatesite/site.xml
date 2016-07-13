@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
    <feature url="features/org.testeditor.releng.target.thirdparty_1.2.0.qualifier.qualifier.jar" id="org.testeditor.releng.target.thirdparty" version="1.2.0.qualifier"/>
-   <feature url="features/org.eclipse.equinox.executable_3.6.200.v20150602-1417.jar" id="org.eclipse.equinox.executable" version="3.6.200.v20150602-1417">
-      <category name="eclipse-platform"/>
-   </feature>
    <feature url="features/org.testeditor.releng.target.platform_1.2.0.qualifier.jar" id="org.testeditor.releng.target.platform" version="1.2.0.qualifier"/>
    <feature url="features/org.testeditor.releng.target.xtext_1.2.0.qualifier.jar" id="org.testeditor.releng.target.xtext" version="1.2.0.qualifier"/>
-   <category-def name="eclipse-platform" label="eclipse-platform"/>
 </site>

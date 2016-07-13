@@ -9,7 +9,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<tycho-version>0.24.0</tycho-version>
+		<tycho-version>0.25.0</tycho-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
@@ -19,14 +19,26 @@
 
 		<!-- Platform -->
 		<repository>
-			<id>mars</id>
+			<id>neon</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/releases/mars/</url>
+			<url>http://download.eclipse.org/releases/neon/</url>
 		</repository>
 		<repository>
-			<id>eclipse mars additionals</id>
+			<id>neon-additional</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/eclipse/updates/4.5/R-4.5.1-201509040015/</url>
+			<url>http://download.eclipse.org/eclipse/updates/4.6/R-4.6-201606061100</url>
+		</repository>
+
+		<!-- Thirdparty -->
+		<repository>
+			<id>orbit-neon</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/tools/orbit/downloads/drops/R20160520211859/repository/</url>
+		</repository>
+		<repository>
+			<id>swtbot</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/technology/swtbot/releases/2.4.0/</url>
 		</repository>
 
 		<!-- Xtext -->
@@ -52,28 +64,16 @@
 			<url>http://download.eclipse.org/modeling/emft/mwe/updates/releases/2.8.1/</url>
 		</repository>
 
-		<!-- Thirdparty -->
-		<repository>
-			<id>orbit-neon</id>
-			<layout>p2</layout>
-			<url>http://download.eclipse.org/tools/orbit/downloads/drops/R20160520211859/repository/</url>
-		</repository>
-		<repository>
-			<id>swtbot</id>
-			<layout>p2</layout>
-			<url>http://download.eclipse.org/technology/swtbot/releases/2.4.0/</url>
-		</repository>
-
 		<!-- Gradle / Maven -->
 		<repository>
 			<id>buildship</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/buildship/updates/e45/releases/1.0/1.0.12.v20160330-1501/</url>
+			<url>http://download.eclipse.org/buildship/updates/e45/releases/1.0/1.0.17.v20160713-0853</url>
 		</repository>
 		<repository>
 			<id>m2e</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/technology/m2e/milestones/1.7</url>
+			<url>http://download.eclipse.org/technology/m2e/releases/1.7</url>
 		</repository>
 	</repositories>
 
