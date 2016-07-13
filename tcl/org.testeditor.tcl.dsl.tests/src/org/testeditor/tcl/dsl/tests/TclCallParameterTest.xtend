@@ -6,8 +6,7 @@ import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
-import org.testeditor.aml.dsl.tests.AmlModelGenerator
-import org.testeditor.dsl.common.testing.DummyFixture
+import org.testeditor.aml.dsl.tests.common.AmlTestModels
 import org.testeditor.tcl.dsl.jvmmodel.AbstractTclGeneratorIntegrationTest
 import org.testeditor.tcl.dsl.jvmmodel.TclJvmModelInferrer
 
@@ -19,8 +18,8 @@ class TclCallParameterTest extends AbstractTclGeneratorIntegrationTest {
 	@Inject TclJvmModelInferrer jvmModelInferrer // class under test
 	@Mock ITreeAppendable outputStub
 
-	@Inject extension AmlModelGenerator
 	@Inject extension TclModelGenerator
+	@Inject AmlTestModels amlTestModels
 
 	@Before
 	def void initMocks() {
@@ -31,21 +30,7 @@ class TclCallParameterTest extends AbstractTclGeneratorIntegrationTest {
 	@Test
 	def void testCallParameterEscaping() {
 		// given
-		val amlModel = amlModel => [
-			withNamespaceImport('org.testeditor.dsl.common.testing.*')
-			val startInteraction = interactionType("start") => [
-				defaultMethod = methodReference(resourceSet, DummyFixture, "startApplication", "appname")
-				template = template("start").withParameter(defaultMethod.parameters.head)
-			]
-			interactionTypes += startInteraction
-
-			val dummyComponentType = componentType("DummyCT") => [
-				interactionTypes += startInteraction
-			]
-			componentTypes += dummyComponentType
-
-			components += component("Dummy") => [type = dummyComponentType]
-		]
+		val amlModel = amlTestModels.dummyComponent(resourceSet)
 		amlModel.addToResourceSet
 		val dummyComponent = amlModel.components.head
 		val tclModel = tclModel => [
