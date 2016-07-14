@@ -4,14 +4,14 @@ import java.io.File
 import java.nio.file.Files
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.IPath
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.testeditor.dsl.common.testing.AbstractTest
 
 import static extension org.mockito.Mockito.*
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 
 class TclMavenLauncherTest extends AbstractTest {
 
@@ -23,9 +23,6 @@ class TclMavenLauncherTest extends AbstractTest {
 	def void testGetProfiles() {
 		// given
 		val targetDir = tempFolder.newFolder("target")
-		if (!targetDir.exists) {
-			targetDir.mkdir
-		}
 		Files.write(new File(targetDir, "profiles.txt").toPath, '''Profile Id: foo (Active: true)
 		Profile Id: bar (Active: false)'''.toString.bytes)
 		val project = IProject.mock
