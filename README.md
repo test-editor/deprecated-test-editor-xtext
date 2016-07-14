@@ -23,7 +23,7 @@ Prerequisites:
 
 After checking out the source code we first need to build the Eclipse target platform:
 
-    mvn clean install -f "target-platform/org.testeditor.releng.target/pom.xml" 
+    mvn clean install -f "target-platform/pom.xml"
     
 This will take some time for the first run but should be fast afterwards.
 

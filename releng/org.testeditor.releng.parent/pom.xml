@@ -26,7 +26,7 @@
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 
 		<!-- point to te.target -->
-		<xtext-target>file:///${basedir}/../../target-platform/org.testeditor.releng.target/p2-local</xtext-target>
+		<xtext-target>file:///${basedir}/../../target-platform/org.testeditor.releng.target.updatesite/target/site</xtext-target>
 
 		<!-- other properties -->
 		<tycho-surefire-argline>-Xms40m -Xmx1G</tycho-surefire-argline>

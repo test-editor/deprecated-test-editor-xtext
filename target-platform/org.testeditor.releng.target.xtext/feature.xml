@@ -16,10 +16,6 @@ akquinet AG
 itemis AG
    </copyright>
 
-   <license url="">
-      
-   </license>
-
    <includes
          id="org.eclipse.emf.sdk"
          version="0.0.0"/>
