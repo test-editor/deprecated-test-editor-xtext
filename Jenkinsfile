@@ -50,8 +50,8 @@ nodeWithProperWorkspace {
         }
     }
     
-    // workaround for now to speed-up the build: only build the product on develop and master
-    def buildProduct = env.BRANCH_NAME == 'develop' || isMaster()
+    // workaround for now to speed-up the build: only build the product on develop, master and branches that end with -with-product
+    def buildProduct = env.BRANCH_NAME ==~ "develop|.*-with-product" || isMaster()
     if (buildProduct) {
         stage 'Build product'
         withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g"]) {
