@@ -9,6 +9,7 @@ Require-Bundle: org.testeditor.tcl.dsl.ui,
  org.eclipse.jdt.junit,
  org.eclipse.xtext.ui,
  org.testeditor.logging,
- org.testeditor.dsl.common.ui
+ org.testeditor.dsl.common.ui,
+ org.eclipse.jdt.core;bundle-version="3.11.1"
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.testeditor.rcp4.views.tcltestrun.Activator

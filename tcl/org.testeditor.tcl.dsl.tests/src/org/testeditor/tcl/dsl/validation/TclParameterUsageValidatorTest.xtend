@@ -22,6 +22,7 @@ import org.junit.Test
 import org.testeditor.aml.Component
 import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.aml.dsl.tests.AmlModelGenerator
+import org.testeditor.aml.dsl.tests.common.AmlTestModels
 import org.testeditor.dsl.common.testing.DummyFixture
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroTestStepContext
@@ -32,14 +33,18 @@ import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 import static org.testeditor.tcl.TclPackage.Literals.*
 
 class TclParameterUsageValidatorTest extends AbstractParserTest {
-	@Inject protected Provider<XtextResourceSet> resourceSetProvider
-	@Inject protected XtextResourceSet resourceSet
+	
+	@Inject TclValidator tclValidator // class under test (not mocked)
+
+	@Inject Provider<XtextResourceSet> resourceSetProvider
+	@Inject XtextResourceSet resourceSet
 	@Inject ValidationTestHelper validator
 
-	var Component dummyComponent
-	@Inject protected TclValidator tclValidator // class under test (not mocked)
-	@Inject extension AmlModelGenerator amlModelGenerator
-	@Inject protected extension TclModelGenerator tclModelGenerator
+	@Inject extension AmlModelGenerator
+	@Inject extension TclModelGenerator
+	@Inject AmlTestModels amlTestModels
+
+	private var Component dummyComponent
 
 	@Before
 	def void setup() {
@@ -48,32 +53,18 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 		new AmlStandaloneSetup().createInjectorAndDoEMFRegistration // needs to be registered to register aml models
 
 		// build component "Dummy" with two interactions, "start" with a string parameter, "wait" with a long parameter
-		val amlModel = amlModel => [
-			withNamespaceImport("org.testeditor.dsl.common.testing")
+		val amlModel = amlTestModels.dummyComponent(resourceSet) => [
 			interactionTypes += interactionType("wait") => [
-				template = template("wait").withParameter("secs")
 				defaultMethod = methodReference(resourceSet, DummyFixture, "waitSeconds", "secs")
-			]
-			interactionTypes += interactionType("start") => [
-				template = template("start").withParameter("appname")
-				defaultMethod = methodReference(resourceSet, DummyFixture, "startApplication", "appname")
+				template = template("wait").withParameter(defaultMethod.parameters.head)
 			]
 		]
-		val startInteraction = amlModel.interactionTypes.last
-		val waitInteraction = amlModel.interactionTypes.head
-		amlModel => [
-			componentTypes += componentType("DummyCT") => [
-				interactionTypes += startInteraction
-				interactionTypes += waitInteraction
-			]
+		amlModel.componentTypes.findFirst[name == amlTestModels.COMPONENT_TYPE_NAME] => [
+			interactionTypes += amlModel.interactionTypes.findFirst[name == "wait"]
 		]
-
-		val dummyCT = amlModel.componentTypes.head
-		amlModel => [components += component("Dummy") => [type = dummyCT]]
-
 		amlModel.register("aml")
 
-		dummyComponent = amlModel.components.head
+		dummyComponent = amlModel.components.findFirst[name == amlTestModels.COMPONENT_NAME]
 	}
 
 	@Test

@@ -1,13 +1,13 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: org.testeditor.tcl.dsl
+Bundle-Name: org.testeditor.tml.dsl
 Bundle-Vendor: Signal Iduna Corporation
 Bundle-Version: 1.2.0.qualifier
-Bundle-SymbolicName: org.testeditor.tcl.dsl; singleton:=true
+Bundle-SymbolicName: org.testeditor.tml.dsl; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtext,
  org.eclipse.equinox.common,
- org.testeditor.tcl.model;visibility:=reexport,
+ org.testeditor.tml.model;visibility:=reexport,
  org.testeditor.dsl.common,
  org.eclipse.xtext.xbase,
  org.eclipse.emf.ecore.xcore,
@@ -21,17 +21,14 @@ Require-Bundle: org.eclipse.xtext,
  org.testeditor.aml.dsl,
  org.testeditor.tsl.dsl
 Import-Package: org.apache.log4j,
- javax.inject,
- org.apache.commons.lang3
+ javax.inject
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: org.testeditor.tcl.dsl,
- org.testeditor.tcl.dsl.formatting2,
- org.testeditor.tcl.dsl.jvmmodel,
- org.testeditor.tcl.dsl.messages,
- org.testeditor.tcl.dsl.naming,
- org.testeditor.tcl.dsl.parser.antlr,
- org.testeditor.tcl.dsl.parser.antlr.internal,
- org.testeditor.tcl.dsl.scoping,
- org.testeditor.tcl.dsl.serializer,
- org.testeditor.tcl.dsl.services,
- org.testeditor.tcl.dsl.validation
+Export-Package: org.testeditor.tml.dsl,
+ org.testeditor.tml.dsl.formatting2,
+ org.testeditor.tml.dsl.parser.antlr,
+ org.testeditor.tml.dsl.parser.antlr.internal,
+ org.testeditor.tml.dsl.scoping,
+ org.testeditor.tml.dsl.serializer,
+ org.testeditor.tml.dsl.services,
+ org.testeditor.tml.dsl.validation,
+ org.testeditor.tml.dsl.jvmmodel
