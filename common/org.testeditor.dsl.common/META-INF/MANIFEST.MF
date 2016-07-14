@@ -9,7 +9,6 @@ Require-Bundle: org.eclipse.xtend.lib.macro,
  org.eclipse.xtext,
  org.testeditor.logging
 Export-Package: org.testeditor.dsl.common.ide.util,
- org.testeditor.dsl.common.util,
- org.apache.commons.lang3
+ org.testeditor.dsl.common.util
 Eclipse-BundleShape: dir
 Bundle-ActivationPolicy: lazy
