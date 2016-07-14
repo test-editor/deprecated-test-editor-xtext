@@ -12,15 +12,19 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.tcltestrun
 
-import com.google.common.io.Files
 import java.io.File
-import java.io.IOException
-import java.nio.charset.StandardCharsets
+import java.io.FileFilter
+import java.util.ArrayList
+import java.util.List
 import java.util.Map
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
+import org.eclipse.core.resources.IFile
+import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.IProgressMonitor
+import org.eclipse.jdt.core.IJavaElement
 import org.eclipse.jdt.junit.JUnitCore
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.eclipse.jface.viewers.LabelProvider
@@ -30,8 +34,10 @@ import org.eclipse.ui.dialogs.ElementListSelectionDialog
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.ProgressMonitorRunner
 import org.testeditor.rcp4.tcltestrun.TclGradleLauncher
+import org.testeditor.rcp4.tcltestrun.TclInjectorProvider
 import org.testeditor.rcp4.tcltestrun.TclLauncher
 import org.testeditor.rcp4.tcltestrun.TclMavenLauncher
+import org.testeditor.tcl.dsl.ui.testlaunch.LaunchShortcutUtil
 import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
 
 class TclLauncherUi implements Launcher {
@@ -40,12 +46,18 @@ class TclLauncherUi implements Launcher {
 	@Inject ProgressMonitorRunner progressRunner
 	@Inject TclMavenLauncher mavenLauncher
 	@Inject TclGradleLauncher gradleLauncher
+	@Inject TestResultFileWriter testResultFileWriter
+	LaunchShortcutUtil launchShortcutUtil // since this class itself is instanciated by e4, this attribute has to be injected manually
 
-	override boolean launch(IStructuredSelection selection, IProject project, String elementId, String mode,
-		boolean parameterize) {
+	@Inject
+	new(TclInjectorProvider tclInjectorProvider) {
+		launchShortcutUtil = tclInjectorProvider.get.getInstance(LaunchShortcutUtil)
+	}
+
+	override boolean launch(IStructuredSelection selection, IProject project, String mode, boolean parameterize) {
 		val options = newHashMap
 		if (project.getFile("build.gradle").exists) {
-			return launchTest(selection, project, elementId, gradleLauncher, options)
+			return launchTest(createGradleTestCasesList(selection), project, gradleLauncher, options)
 		}
 		if (project.getFile("pom.xml").exists) {
 			if (parameterize) {
@@ -55,12 +67,10 @@ class TclLauncherUi implements Launcher {
 				}
 				options.put(TclMavenLauncher.PROFILE, profile)
 			}
-			return launchTest(selection, project, elementId, mavenLauncher, options)
+			return launchTest(createTestCasesList(selection), project, mavenLauncher, options)
 		}
 		logger.warn("gradle based launching test for tcl element='{}' failed, since file='build.gradle' was not found.",
-			elementId)
-		logger.warn("maven based launching test for tcl element='{}' failed, since file='pom.xml' was not found.",
-			elementId)
+			selection.firstElement)
 		return false
 	}
 
@@ -86,71 +96,100 @@ class TclLauncherUi implements Launcher {
 		return result.get
 	}
 
-	private def boolean launchTest(IStructuredSelection selection, IProject project, String elementId,
-		TclLauncher launcher, Map<String, Object> options) {
+	private def boolean launchTest(List<String> testCasesCommaList, IProject project, TclLauncher launcher,
+		Map<String, Object> options) {
 		logger.info("Trying to launch launcherClass='{}' test execution for elementId='{}' in project='{}'",
-			launcher.class.simpleName, elementId, project)
+			launcher.class.simpleName, testCasesCommaList.get(0), project)
 		progressRunner.run([ monitor |
-			monitor.beginTask("Test execution: " + elementId, IProgressMonitor.UNKNOWN)
-			val result = launcher.launchTest(selection, project, elementId, monitor, options)
+			monitor.beginTask("Test execution: " + testCasesCommaList.get(0), IProgressMonitor.UNKNOWN)
+
+			val result = launcher.launchTest(testCasesCommaList, project, monitor, options)
 			project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
-			if (result.expectedFile == null) {
+			if (result.expectedFileRoot == null) {
 				logger.error("resulting expectedFile must not be null")
 			} else {
-				safeUpdateJunitTestView(elementId, result.expectedFile)
+				safeUpdateJunitTestView(result.expectedFileRoot, project.name)
 			}
 			monitor.done
 		])
 		return true
 	}
 
+	def List<String> createGradleTestCasesList(IStructuredSelection selection) {
+		val result = new ArrayList<String>()
+		result += selection.toList.filter(IResource).map [ resource |
+			if (resource instanceof IFolder) {
+				val javaElement = resource.getAdapter(IJavaElement) as IJavaElement
+				if (javaElement != null) {
+					return javaElement.elementName + "*"
+				} else {
+					logger.warn("selected element = {} is not a test exeutuable", resource.name)
+					return null
+				}
+
+			} else {
+				return launchShortcutUtil.getQualifiedNameForTestInTcl(resource).toString
+			}
+		].filterNull
+
+		return result
+
+	}
+
+	def List<String> createTestCasesList(IStructuredSelection selection) {
+		if (selection.size > 1) {
+			return selection.toList.map[testCaseListFromSelection].flatten.toList
+		} else {
+			if (selection.firstElement instanceof IFolder) {
+				return selection.firstElement.testCaseListFromSelection.toList
+			}
+			return #[launchShortcutUtil.getQualifiedNameForTestInTcl(selection.firstElement as IResource).toString]
+		}
+	}
+
+	def Iterable<String> getTestCaseListFromSelection(Object sel) {
+		if (sel instanceof IFolder) {
+			sel.testCasesFromFolder
+		} else {
+			#[launchShortcutUtil.getQualifiedNameForTestInTcl(sel as IResource).toString]
+		}
+	}
+
+	def List<String> getTestCasesFromFolder(IFolder folder) {
+		val result = newArrayList()
+		for (IResource res : folder.members) {
+			if (res instanceof IFile) {
+				if (res.fileExtension.equalsIgnoreCase("tcl")) {
+					result.add(launchShortcutUtil.getQualifiedNameForTestInTcl(res).toString)
+				}
+			}
+			if (res instanceof IFolder) {
+				result.addAll(res.testCasesFromFolder)
+			}
+		}
+		return result
+	}
+
 	/** 
 	 * provide test result file (either the one created by the test run, or, if absent/on error 
 	 * a default error file) that is imported into junit (and thus displayed) 
 	 * */
-	private def void safeUpdateJunitTestView(String elementId, File expectedFile) {
-		val parentFolder = new File(expectedFile.parent)
-		if (!parentFolder.exists && !parentFolder.mkdirs) {
-			logger.error("failed to change into parentFolder='{}'", parentFolder.absolutePath)
-		} else {
-			val newFile = File.createTempFile(expectedFile.name, ".xml", parentFolder)
-			if (expectedFile.exists) {
-				try {
-					Files.move(expectedFile, newFile)
-				} catch (IOException e) {
-					logger.error('''error during storage of test run result expectedFile='«expectedFile.path»' ''', e)
-					writeErrorFile(elementId, newFile)
-				}
-			} else {
-				writeErrorFile(elementId, newFile)
-			}
-			JUnitCore.importTestRunSession(newFile)
-			try {
-				java.nio.file.Files.delete(newFile.toPath)
-			} catch (IOException e) {
-				logger.warn("error during removal of obsolete test result newFile='{}'", newFile.path)
-			}
-		}
-	}
+	private def void safeUpdateJunitTestView(File expectedFileRoot, String projectName) {
+		logger.debug("Test result parentPir={}", expectedFileRoot)
+		val xmlResults = expectedFileRoot.listFiles(new FileFilter() {
 
-	/**
-	 * write a default error file for junit
-	 */
-	private def void writeErrorFile(String elementId, File file) {
-		try {
-			Files.write('''
-			<?xml version="1.0" encoding="UTF-8"?>
-			<testsuite name="«elementId»" tests="1" skipped="0" failures="0" errors="1" time="0.000">
-			  <properties/>
-			  <testcase name="execute" classname="«elementId»" time="0.000">
-			    <error>
-			      failed to execute test, please check your technical test setup 
-			    </error>
-			  </testcase>
-			</testsuite>''', file, StandardCharsets.UTF_8);
-		} catch (IOException e) {
-			logger.error('''could not write test result error file='«file.path»' ''', e)
+			override accept(File pathname) {
+				return pathname.isFile && pathname.name.endsWith(".xml")
+			}
+
+		})
+		val resultFile = new File(expectedFileRoot, "te-testCompose.xml")
+		if (xmlResults.length > 0) {
+			testResultFileWriter.writeTestResultFile(projectName, resultFile, xmlResults)
+		} else {
+			testResultFileWriter.writeErrorFile(projectName, resultFile)
 		}
+		JUnitCore.importTestRunSession(resultFile)
 	}
 
 }

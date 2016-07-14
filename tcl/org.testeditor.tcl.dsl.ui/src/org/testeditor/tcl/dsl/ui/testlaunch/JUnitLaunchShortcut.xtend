@@ -28,39 +28,42 @@ class JUnitLaunchShortcut extends org.eclipse.jdt.junit.launcher.JUnitLaunchShor
 
 	override void launch(ISelection selection, String mode) {
 		if (selection instanceof IStructuredSelection) {
-			launch(selection.firstElement as IResource, mode, false)
+			launch(selection, mode, false)
 		}
 	}
 
 	override void launch(IEditorPart editor, String mode) {
-		launch(editor.editorInput.getAdapter(IResource), mode, false)
+		launch(new StructuredSelection(editor.editorInput.getAdapter(IResource)), mode, false)
 	}
 
-	protected def launch(IResource res, String mode, boolean parameterize) {
-		if (!res.isValidForTestrun) {
-			logger.warn("resource='{}' seems to be invalid for test run (e.g. has error markers)", res.fullPath)
-		}
-		val selection = new StructuredSelection(res)
-		val qualifiedName = res.qualifiedNameForTestInTcl
-		if (qualifiedName == null) {
-			logger.error("resource='{}' seems not to export any test.", res.fullPath)
-		} else {
-			val successfulLauncher = registeredLaunchers.findFirst [ registeredLauncher | // firstThat would be more fitting in this case
-				val result = registeredLauncher.launch(selection, res.project, qualifiedName.toString, mode,
-					parameterize)
-				if (result) {
-					logger.debug("executed registeredLauncher='{}' for tcl test launch.",
-						launcherMap.get(registeredLauncher).toLoggingString)
-				} else {
-					logger.warn("execution fo registeredLauncher='{}' failed",
-						launcherMap.get(registeredLauncher).toLoggingString)
-				}
-				return result
-			]
-			if (successfulLauncher == null) { // fallback
-				super.launch(selection, mode)
-				logger.debug("executed junit launcher for tcl test launch")
+	protected def launch(IStructuredSelection selection, String mode, boolean parameterize) {
+		val projectName = (selection.firstElement as IResource).project.name
+		for (element : selection.toList) {
+			val selRes = element as IResource
+			if (!selRes.isValidForTestrun) {
+				logger.warn("resource='{}' seems to be invalid for test run (e.g. has error markers)", selRes.fullPath)
 			}
+			if (selRes.project.name != projectName) {
+				logger.warn(
+					"resource='{}' seems to be in different project='{}'. currently executing tests from project='{}'",
+					selRes.name, selRes.project.name, projectName)
+			}
+		}
+		val res = selection.firstElement as IResource
+		val successfulLauncher = registeredLaunchers.findFirst [ registeredLauncher | // firstThat would be more fitting in this case
+			val result = registeredLauncher.launch(selection, res.project, mode, parameterize)
+			if (result) {
+				logger.debug("executed registeredLauncher='{}' for tcl test launch.",
+					launcherMap.get(registeredLauncher).toLoggingString)
+			} else {
+				logger.warn("execution for registeredLauncher='{}' failed",
+					launcherMap.get(registeredLauncher).toLoggingString)
+			}
+			return result
+		]
+		if (successfulLauncher == null) { // fallback
+			super.launch(selection, mode)
+			logger.debug("executed junit launcher for tcl test launch")
 		}
 	}
 
