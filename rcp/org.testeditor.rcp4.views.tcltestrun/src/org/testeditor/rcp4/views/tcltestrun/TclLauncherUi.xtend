@@ -121,9 +121,9 @@ class TclLauncherUi implements Launcher {
 			if (resource instanceof IFolder) {
 				val javaElement = resource.getAdapter(IJavaElement) as IJavaElement
 				if (javaElement != null) {
-					return (javaElement.elementName + "*")
+					return javaElement.elementName + "*"
 				} else {
-					logger.warn("selected element {} is not a test exeutuable", resource.name)
+					logger.warn("selected element = {} is not a test exeutuable", resource.name)
 					return null
 				}
 

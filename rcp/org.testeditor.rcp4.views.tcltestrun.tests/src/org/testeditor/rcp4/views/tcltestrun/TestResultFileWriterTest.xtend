@@ -1,17 +1,17 @@
 package org.testeditor.rcp4.views.tcltestrun
 
 import com.google.common.io.Files
-import java.io.File
 import java.nio.charset.StandardCharsets
 import javax.xml.parsers.DocumentBuilderFactory
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.mockito.InjectMocks
 import org.mockito.runners.MockitoJUnitRunner
 
+import static java.nio.charset.StandardCharsets.*
 import static org.junit.Assert.*
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 
 @RunWith(MockitoJUnitRunner)
 class TestResultFileWriterTest {
@@ -77,7 +77,7 @@ class TestResultFileWriterTest {
 		  <testcase name="execute" classname="InsuranceWebTest" time="32.736">
 		  </testcase>
 		</testsuite>'''
-		Files.write(test1Content, test1, StandardCharsets.UTF_8)
+		Files.write(test1Content, test1, UTF_8)
 		val test2 = tempFolder.newFile("result2.xml")
 		val test2Content = '''
 		<?xml version="1.0" encoding="UTF-8"?>
@@ -86,7 +86,7 @@ class TestResultFileWriterTest {
 		  <testcase name="execute" classname="UserInformationWebTest" time="4.164">
 		  </testcase>
 		</testsuite>'''
-		Files.write(test2Content, test2, StandardCharsets.UTF_8)
+		Files.write(test2Content, test2, UTF_8)
 		val resultFile = tempFolder.newFile("composedResult.xml")
 
 		// when
