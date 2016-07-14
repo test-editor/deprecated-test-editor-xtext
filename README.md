@@ -12,7 +12,14 @@ The latest released version can be found on [bintray](https://bintray.com/test-e
 
 The latest development version can be downloaded [here](https://ci.testeditor.org/job/test-editor-xtext/job/develop/lastSuccessfulBuild/artifact/rcp/org.testeditor.rcp4.product/target/products/).
 
+
+
 ## Developers
+
+## PREREQUISITES for Installation
+
+- Maven up to 3.2
+- JDK 1.8
 
 After checking out the source code we first need to build the Eclipse target platform:
 
