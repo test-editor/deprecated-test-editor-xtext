@@ -45,23 +45,17 @@
 		<repository>
 			<id>xtext</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.9.0/</url>
+			<url>http://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.10.0/</url>
 		</repository>
 		<repository>
 			<id>emf</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/modeling/emf/emf/updates/2.11/</url>
+			<url>http://download.eclipse.org/modeling/emf/emf/updates/2.12/</url>
 		</repository>
 		<repository>
-			<id>xpand</id>
+			<id>mwe2</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/modeling/m2t/xpand/updates/releases/R201406030414/</url>
-		</repository>
-		<repository>
-			<!-- Required for org.eclipse.emf.mwe.sdk.feature.group [org.eclipse.emf.mwe.ui_1.3.11.v201508030321.jar] -->
-			<id>mwe2-2.8.1</id>
-			<layout>p2</layout>
-			<url>http://download.eclipse.org/modeling/emft/mwe/updates/releases/2.8.1/</url>
+			<url>http://download.eclipse.org/modeling/emft/mwe/updates/releases/2.9.0/</url>
 		</repository>
 
 		<!-- Gradle / Maven -->
