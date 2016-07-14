@@ -3,20 +3,20 @@ package org.testeditor.tcl.dsl.jvmmodel
 import javax.inject.Inject
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.testeditor.aml.ModelUtil
-import org.testeditor.tml.AEComparison
-import org.testeditor.tml.AENullOrBoolCheck
-import org.testeditor.tml.AEStringConstant
-import org.testeditor.tml.AEVariableReference
-import org.testeditor.tml.AssertionExpression
-import org.testeditor.tml.Comparator
-import org.testeditor.tml.ComparatorEquals
-import org.testeditor.tml.ComparatorGreaterThen
-import org.testeditor.tml.ComparatorLessThen
-import org.testeditor.tml.ComparatorMatches
-import org.testeditor.tml.util.TmlModelUtil
+import org.testeditor.tcl.AEComparison
+import org.testeditor.tcl.AENullOrBoolCheck
+import org.testeditor.tcl.AEStringConstant
+import org.testeditor.tcl.AEVariableReference
+import org.testeditor.tcl.AssertionExpression
+import org.testeditor.tcl.Comparator
+import org.testeditor.tcl.ComparatorEquals
+import org.testeditor.tcl.ComparatorGreaterThen
+import org.testeditor.tcl.ComparatorLessThen
+import org.testeditor.tcl.ComparatorMatches
+import org.testeditor.tcl.util.TclModelUtil
 
 class TclAssertCallBuilder {
-	@Inject extension TmlModelUtil
+	@Inject extension TclModelUtil
 	@Inject extension ModelUtil
 
 	/** assert method calls used, toString must yield the actual method name! */
