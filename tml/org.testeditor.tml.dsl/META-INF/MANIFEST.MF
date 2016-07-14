@@ -30,4 +30,5 @@ Export-Package: org.testeditor.tml.dsl,
  org.testeditor.tml.dsl.scoping,
  org.testeditor.tml.dsl.serializer,
  org.testeditor.tml.dsl.services,
- org.testeditor.tml.dsl.validation
+ org.testeditor.tml.dsl.validation,
+ org.testeditor.tml.dsl.jvmmodel

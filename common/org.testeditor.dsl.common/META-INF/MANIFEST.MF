@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.testeditor.dsl.common
 Bundle-Version: 1.2.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ClassPath: .
 Require-Bundle: org.eclipse.xtend.lib.macro,
  org.eclipse.xtext,
  org.testeditor.logging
