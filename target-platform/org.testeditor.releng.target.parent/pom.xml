@@ -2,74 +2,72 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<groupId>org.testeditor</groupId>
 	<artifactId>org.testeditor.releng.target.parent</artifactId>
 	<version>1.2.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<properties>
-		<tycho-version>0.24.0</tycho-version>
+		<tycho-version>0.25.0</tycho-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
-	
+
 	<repositories>
-		<!-- Use specific p2-repositories instead of composite ones to speed up the build -->
+		<!-- Use specific p2-repositories instead of composite ones to speed up 
+			the build -->
+
+		<!-- Platform -->
 		<repository>
-			<id>mars</id>
+			<id>neon</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/releases/mars/</url>
+			<url>http://download.eclipse.org/releases/neon/</url>
 		</repository>
 		<repository>
-			<id>egit</id>
+			<id>neon-additional</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/egit/updates-4.0.3</url>
+			<url>http://download.eclipse.org/eclipse/updates/4.6/R-4.6-201606061100</url>
+		</repository>
+
+		<!-- Thirdparty -->
+		<repository>
+			<id>orbit-neon</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/tools/orbit/downloads/drops/R20160520211859/repository/</url>
 		</repository>
 		<repository>
-			<id>eclipse mars additionals</id>
+			<id>swtbot</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/eclipse/updates/4.5/R-4.5.1-201509040015/</url>
+			<url>http://download.eclipse.org/technology/swtbot/releases/2.4.0/</url>
 		</repository>
-		<repository>
-			<id>orbit</id>
-			<layout>p2</layout>
-			<url>http://download.eclipse.org/tools/orbit/downloads/drops/R20150124073747/repository/</url>
-		</repository>
+
+		<!-- Xtext -->
 		<repository>
 			<id>xtext</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.9.0/</url>
+			<url>http://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.10.0/</url>
 		</repository>
 		<repository>
 			<id>emf</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/modeling/emf/emf/updates/2.11/</url>
+			<url>http://download.eclipse.org/modeling/emf/emf/updates/2.12/</url>
 		</repository>
 		<repository>
-		   <id>xpand</id>
-		   <layout>p2</layout>
-		   <url>http://download.eclipse.org/modeling/m2t/xpand/updates/releases/R201406030414/</url>
-		</repository>
-		<repository>
-			<!-- Required for org.eclipse.emf.mwe.sdk.feature.group [org.eclipse.emf.mwe.ui_1.3.11.v201508030321.jar] -->
-			<id>mwe2-2.8.1</id>
+			<id>mwe2</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/modeling/emft/mwe/updates/releases/2.8.1/</url>
+			<url>http://download.eclipse.org/modeling/emft/mwe/updates/releases/2.9.0/</url>
 		</repository>
+
+		<!-- Gradle / Maven -->
 		<repository>
-		   <id>swtbot</id>
-		   <layout>p2</layout>
-		   <url>http://download.eclipse.org/technology/swtbot/releases/2.4.0/</url>
-		</repository>
-		<repository>
-		  <id>buildship</id>
-		  <layout>p2</layout>
-		  <url>http://download.eclipse.org/buildship/updates/e45/releases/1.0/1.0.12.v20160330-1501/</url>
+			<id>buildship</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/buildship/updates/e45/releases/1.0/1.0.17.v20160713-0853</url>
 		</repository>
 		<repository>
 			<id>m2e</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/technology/m2e/milestones/1.7</url>
+			<url>http://download.eclipse.org/technology/m2e/releases/1.7</url>
 		</repository>
 	</repositories>
 

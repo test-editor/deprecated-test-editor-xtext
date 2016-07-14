@@ -16,14 +16,14 @@ The latest development version can be downloaded [here](https://ci.testeditor.or
 
 ## Developers
 
-## PREREQUISITES for Installation
+Prerequisites:
 
-- Maven up to 3.2
+- Maven 3.2.5
 - JDK 1.8
 
 After checking out the source code we first need to build the Eclipse target platform:
 
-    mvn clean install -f "releng/org.testeditor.releng.target/pom.xml" 
+    mvn clean install -f "target-platform/pom.xml"
     
 This will take some time for the first run but should be fast afterwards.
 

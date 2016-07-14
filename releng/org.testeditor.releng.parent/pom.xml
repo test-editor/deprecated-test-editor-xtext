@@ -11,7 +11,7 @@
 	<properties>
 		<!-- Version definitions below -->
 		<java.version>1.8</java.version>
-		<xtext.version>2.9.0</xtext.version>
+		<xtext.version>2.10.0</xtext.version>
 		<xtend.version>${xtext.version}</xtend.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -26,7 +26,7 @@
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 
 		<!-- point to te.target -->
-		<xtext-target>file:///${basedir}/../../releng/org.testeditor.releng.target/p2-local</xtext-target>
+		<xtext-target>file:///${basedir}/../../target-platform/org.testeditor.releng.target.updatesite/target/site</xtext-target>
 
 		<!-- other properties -->
 		<tycho-surefire-argline>-Xms40m -Xmx1G</tycho-surefire-argline>
