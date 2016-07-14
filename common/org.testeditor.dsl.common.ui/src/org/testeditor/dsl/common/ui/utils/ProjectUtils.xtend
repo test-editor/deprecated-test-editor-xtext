@@ -17,6 +17,7 @@ import org.eclipse.core.resources.IProject
 
 class ProjectUtils {
 
+
 	public static val String BASIC_PATH_PATTERN = "[^/]+(/[^/]+)*"
 
 	/**
