@@ -35,6 +35,7 @@ import org.testeditor.tml.TmlModel
 import org.testeditor.tml.dsl.TmlStandaloneSetup
 
 import static org.testeditor.tml.TmlPackage.Literals.*
+import org.testeditor.aml.dsl.tests.common.AmlTestModels
 
 class TclParameterUsageValidatorTest extends AbstractParserTest {
 	@Inject TclValidator tclValidator // class under test
@@ -49,6 +50,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 
 	@Inject extension TclModelGenerator
 	@Inject extension AmlModelGenerator
+	@Inject AmlTestModels amlTestModels
 
 	@Before
 	def void setup() {
@@ -60,32 +62,18 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 		tmlParseHelper = tmlInjector.getInstance(ParseHelper)
 
 		// build component "Dummy" with two interactions, "start" with a string parameter, "wait" with a long parameter
-		val amlModel = amlModel => [
-			withNamespaceImport("org.testeditor.dsl.common.testing")
+		val amlModel = amlTestModels.dummyComponent(resourceSet) => [
 			interactionTypes += interactionType("wait") => [
-				template = template("wait").withParameter("secs")
 				defaultMethod = methodReference(resourceSet, DummyFixture, "waitSeconds", "secs")
-			]
-			interactionTypes += interactionType("start") => [
-				template = template("start").withParameter("appname")
-				defaultMethod = methodReference(resourceSet, DummyFixture, "startApplication", "appname")
+				template = template("wait").withParameter(defaultMethod.parameters.head)
 			]
 		]
-		val startInteraction = amlModel.interactionTypes.last
-		val waitInteraction = amlModel.interactionTypes.head
-		amlModel => [
-			componentTypes += componentType("DummyCT") => [
-				interactionTypes += startInteraction
-				interactionTypes += waitInteraction
-			]
+		amlModel.componentTypes.findFirst[name == amlTestModels.COMPONENT_TYPE_NAME] => [
+			interactionTypes += amlModel.interactionTypes.findFirst[name == "wait"]
 		]
-
-		val dummyCT = amlModel.componentTypes.head
-		amlModel => [components += component("Dummy") => [type = dummyCT]]
-
 		amlModel.register("aml")
 
-		dummyComponent = amlModel.components.head
+		dummyComponent = amlModel.components.findFirst[name == amlTestModels.COMPONENT_NAME]
 	}
 
 	@Test
@@ -190,7 +178,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 				template = template("mycall").withParameter("unknown")
 				contexts += macroTestStepContext(tmlModel.macroCollection) => [
 					step = testStep("othercall").withVariableReference("unknown").withText("with").
-						withVariableReference("unknown")
+											withVariableReference("unknown")
 				]
 			]
 		]
