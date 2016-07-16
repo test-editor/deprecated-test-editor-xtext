@@ -82,6 +82,7 @@ class NetworkConnectionSettingDialogTest extends AbstractTest {
 	@Test def void testExtractProxySettingsFromMavenFile() throws Exception {
 		// Given
 		initContextWithProxyMock()
+		System.setProperty("http.proxyHost","")
 		val NetworkConnectionSettingDialog dialog = new NetworkConnectionSettingDialog(parentShell, prefs, context)
 		val File mavenSettingsFile = tempFolder.newFile("settings.xml")
 		val content = '''
@@ -111,6 +112,29 @@ class NetworkConnectionSettingDialogTest extends AbstractTest {
 		
 		// then
 		assertEquals("proxy.somewhere.com", System.getProperty("http.proxyHost"))
+	}
+
+	@Test def void testnOProxySettingsiNMavenFile() throws Exception {
+		// Given
+		System.setProperty("http.proxyHost","")
+		initContextWithProxyMock()
+		val NetworkConnectionSettingDialog dialog = new NetworkConnectionSettingDialog(parentShell, prefs, context)
+		val File mavenSettingsFile = tempFolder.newFile("settings.xml")
+		val content = '''
+			<?xml version="1.0" encoding="UTF-8"?>
+			<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+				xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+				https://maven.apache.org/xsd/settings-1.0.0.xsd">
+			</settings>'''
+		Files.write(content, mavenSettingsFile, UTF_8);
+
+		// when
+		dialog.extractProxyFromMavenSettings(mavenSettingsFile)
+		dialog.isInternetAvailable(true)
+		
+		// then
+		assertEquals("", System.getProperty("http.proxyHost"))
 	}
 	
 	def initContextWithProxyMock() {

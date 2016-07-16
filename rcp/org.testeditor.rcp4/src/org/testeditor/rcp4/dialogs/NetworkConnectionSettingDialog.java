@@ -241,23 +241,25 @@ public class NetworkConnectionSettingDialog extends Dialog {
 		try {
 			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mavenSettingsFile);
 			NodeList nodeList = doc.getElementsByTagName("proxy");
-			Node item = nodeList.item(0);
-			NodeList childNodes = item.getChildNodes();
-			for (int i = 0; i < childNodes.getLength(); i++) {
-				if (childNodes.item(i).getNodeName().equalsIgnoreCase("host")) {
-					proxyHostSetting = childNodes.item(i).getTextContent();
-				}
-				if (childNodes.item(i).getNodeName().equalsIgnoreCase("nonProxyHosts")) {
-					noProxyHostsSetting = childNodes.item(i).getTextContent();
-				}
-				if (childNodes.item(i).getNodeName().equalsIgnoreCase("port")) {
-					proxyPortSetting = childNodes.item(i).getTextContent();
-				}
-				if (childNodes.item(i).getNodeName().equalsIgnoreCase("username")) {
-					proxyUserSetting = childNodes.item(i).getTextContent();
-				}
-				if (childNodes.item(i).getNodeName().equalsIgnoreCase("password")) {
-					proxyPwdSetting = childNodes.item(i).getTextContent();
+			if (nodeList.getLength() > 0) {
+				Node item = nodeList.item(0);
+				NodeList childNodes = item.getChildNodes();
+				for (int i = 0; i < childNodes.getLength(); i++) {
+					if (childNodes.item(i).getNodeName().equalsIgnoreCase("host")) {
+						proxyHostSetting = childNodes.item(i).getTextContent();
+					}
+					if (childNodes.item(i).getNodeName().equalsIgnoreCase("nonProxyHosts")) {
+						noProxyHostsSetting = childNodes.item(i).getTextContent();
+					}
+					if (childNodes.item(i).getNodeName().equalsIgnoreCase("port")) {
+						proxyPortSetting = childNodes.item(i).getTextContent();
+					}
+					if (childNodes.item(i).getNodeName().equalsIgnoreCase("username")) {
+						proxyUserSetting = childNodes.item(i).getTextContent();
+					}
+					if (childNodes.item(i).getNodeName().equalsIgnoreCase("password")) {
+						proxyPwdSetting = childNodes.item(i).getTextContent();
+					}
 				}
 			}
 		} catch (SAXException | IOException | ParserConfigurationException e) {
@@ -349,7 +351,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 			return true;
 		}
 		if (System.getProperty(PROXY_HOST) == null | updateSessings) {
-			if (proxyHostSetting.length() > 0) {
+			if (proxyHostSetting != null && proxyHostSetting.length() > 0) {
 				IProxyService proxyService = context.get(IProxyService.class);
 				proxyService.setProxiesEnabled(true);
 				proxyService.setSystemProxiesEnabled(true);
