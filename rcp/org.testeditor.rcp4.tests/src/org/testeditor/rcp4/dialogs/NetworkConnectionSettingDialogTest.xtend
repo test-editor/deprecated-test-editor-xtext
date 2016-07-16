@@ -82,61 +82,77 @@ class NetworkConnectionSettingDialogTest extends AbstractTest {
 	@Test def void testExtractProxySettingsFromMavenFile() throws Exception {
 		// Given
 		initContextWithProxyMock()
-		System.setProperty("http.proxyHost","")
+		System.setProperty("http.proxyHost", "")
 		val NetworkConnectionSettingDialog dialog = new NetworkConnectionSettingDialog(parentShell, prefs, context)
 		val File mavenSettingsFile = tempFolder.newFile("settings.xml")
 		val content = '''
-			<?xml version="1.0" encoding="UTF-8"?>
-			<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-				xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
-				https://maven.apache.org/xsd/settings-1.0.0.xsd">
-				<proxies>
-					<proxy>
-						<id>myproxy</id>
-						<active>true</active>
-						<protocol>http</protocol>
-						<host>proxy.somewhere.com</host>
-						<port>8080</port>
-						<username>proxyuser</username>
-						<password>somepassword</password>
-						<nonProxyHosts>*.google.com|ibiblio.org</nonProxyHosts>
-					</proxy>
-				</proxies>
-			</settings>'''
+		<?xml version="1.0" encoding="UTF-8"?>
+		<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+			https://maven.apache.org/xsd/settings-1.0.0.xsd">
+			<proxies>
+				<proxy>
+					<id>myproxy</id>
+					<active>true</active>
+					<protocol>http</protocol>
+					<host>proxy.somewhere.com</host>
+					<port>8080</port>
+					<username>proxyuser</username>
+					<password>somepassword</password>
+					<nonProxyHosts>*.google.com|ibiblio.org</nonProxyHosts>
+				</proxy>
+			</proxies>
+		</settings>'''
 		Files.write(content, mavenSettingsFile, UTF_8);
 
 		// when
 		dialog.extractProxyFromMavenSettings(mavenSettingsFile)
 		dialog.isInternetAvailable(true)
-		
+
 		// then
 		assertEquals("proxy.somewhere.com", System.getProperty("http.proxyHost"))
 	}
 
-	@Test def void testnOProxySettingsiNMavenFile() throws Exception {
+	@Test def void testNoProxySettingsiNMavenFile() throws Exception {
 		// Given
-		System.setProperty("http.proxyHost","")
+		System.setProperty("http.proxyHost", "")
 		initContextWithProxyMock()
 		val NetworkConnectionSettingDialog dialog = new NetworkConnectionSettingDialog(parentShell, prefs, context)
 		val File mavenSettingsFile = tempFolder.newFile("settings.xml")
 		val content = '''
-			<?xml version="1.0" encoding="UTF-8"?>
-			<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-				xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
-				https://maven.apache.org/xsd/settings-1.0.0.xsd">
-			</settings>'''
+		<?xml version="1.0" encoding="UTF-8"?>
+		<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+			https://maven.apache.org/xsd/settings-1.0.0.xsd">
+		</settings>'''
 		Files.write(content, mavenSettingsFile, UTF_8);
 
 		// when
 		dialog.extractProxyFromMavenSettings(mavenSettingsFile)
 		dialog.isInternetAvailable(true)
-		
+
 		// then
 		assertEquals("", System.getProperty("http.proxyHost"))
 	}
-	
+
+	@Test def void testnOProxySettingsiNMavenFile() throws Exception {
+		// Given
+		val NetworkConnectionSettingDialog dialog = new NetworkConnectionSettingDialog(parentShell, prefs, context)
+		val mavenSettingsFile = mock(File);
+		when(mavenSettingsFile.exists).thenReturn(false);
+
+		// when
+		try {
+			dialog.extractProxyFromMavenSettings(mavenSettingsFile)
+		} catch (Exception e) {
+			fail(e.message)
+		}
+	// then
+	// settings file doesn't exists doesn't throws any exception.
+	}
+
 	def initContextWithProxyMock() {
 		var IProxyService proxyService = mock(IProxyService)
 		var IProxyData proxyData = mock(IProxyData)
@@ -144,5 +160,5 @@ class NetworkConnectionSettingDialogTest extends AbstractTest {
 		when(proxyService.getProxyData(IProxyData.HTTPS_PROXY_TYPE)).thenReturn(proxyData)
 		when(context.get(IProxyService)).thenReturn(proxyService)
 	}
-	
+
 }

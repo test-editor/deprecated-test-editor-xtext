@@ -126,6 +126,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 				updateNetworkState();
 			}
 		});
+		checkForUserMavenSettings();
 		return container;
 	}
 
@@ -221,7 +222,6 @@ public class NetworkConnectionSettingDialog extends Dialog {
 				updateNetworkState();
 			}
 		});
-		checkForUserMavenSettings();
 		Button fileSelection = new Button(mavenPathControl, SWT.BORDER);
 		fileSelection.setText("...");
 		fileSelection.addSelectionListener(new SelectionAdapter() {
@@ -239,31 +239,44 @@ public class NetworkConnectionSettingDialog extends Dialog {
 
 	protected void extractProxyFromMavenSettings(File mavenSettingsFile) {
 		try {
-			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mavenSettingsFile);
-			NodeList nodeList = doc.getElementsByTagName("proxy");
-			if (nodeList.getLength() > 0) {
-				Node item = nodeList.item(0);
-				NodeList childNodes = item.getChildNodes();
-				for (int i = 0; i < childNodes.getLength(); i++) {
-					if (childNodes.item(i).getNodeName().equalsIgnoreCase("host")) {
-						proxyHostSetting = childNodes.item(i).getTextContent();
-					}
-					if (childNodes.item(i).getNodeName().equalsIgnoreCase("nonProxyHosts")) {
-						noProxyHostsSetting = childNodes.item(i).getTextContent();
-					}
-					if (childNodes.item(i).getNodeName().equalsIgnoreCase("port")) {
-						proxyPortSetting = childNodes.item(i).getTextContent();
-					}
-					if (childNodes.item(i).getNodeName().equalsIgnoreCase("username")) {
-						proxyUserSetting = childNodes.item(i).getTextContent();
-					}
-					if (childNodes.item(i).getNodeName().equalsIgnoreCase("password")) {
-						proxyPwdSetting = childNodes.item(i).getTextContent();
+			if (mavenSettingsFile.exists()) {
+				Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mavenSettingsFile);
+				NodeList nodeList = doc.getElementsByTagName("proxy");
+				if (nodeList.getLength() > 0) {
+					Node item = nodeList.item(0);
+					NodeList childNodes = item.getChildNodes();
+					for (int i = 0; i < childNodes.getLength(); i++) {
+						if (childNodes.item(i).getNodeName().equalsIgnoreCase("host")) {
+							proxyHostSetting = childNodes.item(i).getTextContent();
+							updateModelAndUIFrom(proxyHost, proxyHostSetting);
+						}
+						if (childNodes.item(i).getNodeName().equalsIgnoreCase("nonProxyHosts")) {
+							noProxyHostsSetting = childNodes.item(i).getTextContent();
+							updateModelAndUIFrom(noProxyHosts, noProxyHostsSetting);
+						}
+						if (childNodes.item(i).getNodeName().equalsIgnoreCase("port")) {
+							proxyPortSetting = childNodes.item(i).getTextContent();
+							updateModelAndUIFrom(proxyPort, proxyPortSetting);
+						}
+						if (childNodes.item(i).getNodeName().equalsIgnoreCase("username")) {
+							proxyUserSetting = childNodes.item(i).getTextContent();
+							updateModelAndUIFrom(proxyUser, proxyUserSetting);
+						}
+						if (childNodes.item(i).getNodeName().equalsIgnoreCase("password")) {
+							proxyPwdSetting = childNodes.item(i).getTextContent();
+							updateModelAndUIFrom(proxyPwd, proxyPwdSetting);
+						}
 					}
 				}
 			}
 		} catch (SAXException | IOException | ParserConfigurationException e) {
 			logger.error("Error reading maven settings.", e);
+		}
+	}
+
+	protected void updateModelAndUIFrom(Text text, String textContent) {
+		if (text != null) {
+			text.setText(textContent);
 		}
 	}
 
