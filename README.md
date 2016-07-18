@@ -34,3 +34,16 @@ After building the target platform, we can simply build the test editor with:
 For building the full RCP product we simply add the Maven profile "`product`":
 
     mvn clean install -Pproduct
+
+## Troubleshooting
+
+### The downloaded application won't start
+
+ The editor requires a JDK 1.8 in order to start. If you default system JVM is different, you can set the path to the JDK by opening the `eclipse.ini` file and placing the following at the end:
+ 
+    -vm
+    <pathToYourJDK8>
+    
+The path depends on your operating system as described [here](https://wiki.eclipse.org/index.php?title=Eclipse.ini&redirect=no#Specifying_the_JVM). For example (Windows):
+
+    C:\tools\jdk1.8.0_92\bin\javaw.exe
