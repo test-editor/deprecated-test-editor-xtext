@@ -26,6 +26,7 @@ import org.mockito.Mock
 import com.google.common.io.Files
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import org.junit.Before
 
 /** 
  * Modultest for NetworkConnectionSettingDialog.
@@ -37,23 +38,30 @@ class NetworkConnectionSettingDialogTest extends AbstractTest {
 	@Mock Shell parentShell
 	@Mock IEclipsePreferences prefs
 	@Mock IEclipseContext context
+	NetworkConnectionSettingDialog dialog
 
-	@Test def void testWorkOfflineSetting() throws Exception {
+	@Before
+	def void setupOut() {
+		dialog = new NetworkConnectionSettingDialog(parentShell, prefs, context)
+	}
+
+	@Test 
+	def void testWorkOfflineSetting() throws Exception {
 		// Given
 		when(prefs.getBoolean("workOffline", false)).thenReturn(true)
-		var NetworkConnectionSettingDialog dialog = new NetworkConnectionSettingDialog(parentShell, prefs, null)
 		// when & then
 		assertTrue(dialog.isInternetAvailable(false))
 	}
 
-	@Test def void testNonOverrideExistingSetting() throws Exception {
+	@Test 
+	def void testNonOverrideExistingSetting() throws Exception {
 		// given
 		initPrefsMockWithProxy()
 		System.setProperty("http.proxyHost", "myProxy")
-		var NetworkConnectionSettingDialog dialog = new NetworkConnectionSettingDialog(parentShell, prefs, null)
 		// when
-		assertTrue(dialog.isInternetAvailable(false))
+		val isInternetAvailable = dialog.isInternetAvailable(false)
 		// then
+		assertTrue(isInternetAvailable)
 		assertEquals("myProxy", System.getProperty("http.proxyHost"))
 	}
 
@@ -66,24 +74,24 @@ class NetworkConnectionSettingDialogTest extends AbstractTest {
 		when(prefs.get("TE.MAVENSETTINGSPATH", "")).thenReturn("")
 	}
 
-	@Test def void testForceUpdate() throws Exception {
+	@Test 
+	def void testForceUpdate() throws Exception {
 		// given
 		initPrefsMockWithProxy()
 		when(prefs.get("http.proxyHost", "")).thenReturn("proxy")
 		System.setProperty("http.proxyHost", "myProxy")
 		initContextWithProxyMock()
-		var NetworkConnectionSettingDialog dialog = new NetworkConnectionSettingDialog(parentShell, prefs, context)
 		// when
 		assertTrue(dialog.isInternetAvailable(true))
 		// then
 		assertEquals("proxy", System.getProperty("http.proxyHost"))
 	}
 
-	@Test def void testExtractProxySettingsFromMavenFile() throws Exception {
+	@Test 
+	def void testExtractProxySettingsFromMavenFile() throws Exception {
 		// Given
 		initContextWithProxyMock()
 		System.setProperty("http.proxyHost", "")
-		val NetworkConnectionSettingDialog dialog = new NetworkConnectionSettingDialog(parentShell, prefs, context)
 		val File mavenSettingsFile = tempFolder.newFile("settings.xml")
 		val content = '''
 		<?xml version="1.0" encoding="UTF-8"?>
@@ -114,11 +122,11 @@ class NetworkConnectionSettingDialogTest extends AbstractTest {
 		assertEquals("proxy.somewhere.com", System.getProperty("http.proxyHost"))
 	}
 
-	@Test def void testNoProxySettingsiNMavenFile() throws Exception {
+	@Test 
+	def void testNoProxySettingsiNMavenFile() throws Exception {
 		// Given
 		System.setProperty("http.proxyHost", "")
 		initContextWithProxyMock()
-		val NetworkConnectionSettingDialog dialog = new NetworkConnectionSettingDialog(parentShell, prefs, context)
 		val File mavenSettingsFile = tempFolder.newFile("settings.xml")
 		val content = '''
 		<?xml version="1.0" encoding="UTF-8"?>
@@ -137,9 +145,9 @@ class NetworkConnectionSettingDialogTest extends AbstractTest {
 		assertEquals("", System.getProperty("http.proxyHost"))
 	}
 
-	@Test def void testnOProxySettingsiNMavenFile() throws Exception {
+	@Test 
+	def void testnOProxySettingsiNMavenFile() throws Exception {
 		// Given
-		val NetworkConnectionSettingDialog dialog = new NetworkConnectionSettingDialog(parentShell, prefs, context)
 		val mavenSettingsFile = mock(File);
 		when(mavenSettingsFile.exists).thenReturn(false);
 
@@ -147,7 +155,7 @@ class NetworkConnectionSettingDialogTest extends AbstractTest {
 		try {
 			dialog.extractProxyFromMavenSettings(mavenSettingsFile)
 		} catch (Exception e) {
-			fail(e.message)
+			fail("The method should be check, if there is an existing settings file, and don't throw an exception.")
 		}
 	// then
 	// settings file doesn't exists doesn't throws any exception.

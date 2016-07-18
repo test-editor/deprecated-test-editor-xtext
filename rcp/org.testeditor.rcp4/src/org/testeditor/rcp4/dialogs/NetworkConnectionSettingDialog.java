@@ -136,8 +136,8 @@ public class NetworkConnectionSettingDialog extends Dialog {
 		gd.horizontalSpan = 2;
 		welcome.setLayoutData(gd);
 		welcome.setText(
-				"The Test-Editor cannot connect to the Internet. Usally a\ntest-project downloads additional stuff from the internet.\n"
-						+ "This dialog allows you to specifiy either to work offline\nor specify a proxy.");
+				"The Test-Editor cannot connect to the internet. Usually a\ntest-project downloads additional dependencies from the\ninternet."
+						+ "This dialog allows you to specify either to work offline\nor specify a proxy.");
 		welcome.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
 	}
 
@@ -248,23 +248,23 @@ public class NetworkConnectionSettingDialog extends Dialog {
 					for (int i = 0; i < childNodes.getLength(); i++) {
 						if (childNodes.item(i).getNodeName().equalsIgnoreCase("host")) {
 							proxyHostSetting = childNodes.item(i).getTextContent();
-							updateModelAndUIFrom(proxyHost, proxyHostSetting);
+							updateUIField(proxyHost, proxyHostSetting);
 						}
 						if (childNodes.item(i).getNodeName().equalsIgnoreCase("nonProxyHosts")) {
 							noProxyHostsSetting = childNodes.item(i).getTextContent();
-							updateModelAndUIFrom(noProxyHosts, noProxyHostsSetting);
+							updateUIField(noProxyHosts, noProxyHostsSetting);
 						}
 						if (childNodes.item(i).getNodeName().equalsIgnoreCase("port")) {
 							proxyPortSetting = childNodes.item(i).getTextContent();
-							updateModelAndUIFrom(proxyPort, proxyPortSetting);
+							updateUIField(proxyPort, proxyPortSetting);
 						}
 						if (childNodes.item(i).getNodeName().equalsIgnoreCase("username")) {
 							proxyUserSetting = childNodes.item(i).getTextContent();
-							updateModelAndUIFrom(proxyUser, proxyUserSetting);
+							updateUIField(proxyUser, proxyUserSetting);
 						}
 						if (childNodes.item(i).getNodeName().equalsIgnoreCase("password")) {
 							proxyPwdSetting = childNodes.item(i).getTextContent();
-							updateModelAndUIFrom(proxyPwd, proxyPwdSetting);
+							updateUIField(proxyPwd, proxyPwdSetting);
 						}
 					}
 				}
@@ -274,7 +274,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 		}
 	}
 
-	protected void updateModelAndUIFrom(Text text, String textContent) {
+	protected void updateUIField(Text text, String textContent) {
 		if (text != null) {
 			text.setText(textContent);
 		}
