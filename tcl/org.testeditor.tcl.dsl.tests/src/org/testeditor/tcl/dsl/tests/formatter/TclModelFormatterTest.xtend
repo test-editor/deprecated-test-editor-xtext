@@ -45,6 +45,7 @@ class TclModelFormatterTest extends AbstractTclFormatterTest {
 				
 				# testCase implements SomeSpec
 				
+				* spec step
 			'''
 
 			toBeFormatted = '''
@@ -58,6 +59,9 @@ class TclModelFormatterTest extends AbstractTclFormatterTest {
 				testCase
 				implements
 				SomeSpec
+				*
+				spec
+				step
 			'''
 		]
 	}
@@ -75,14 +79,58 @@ class TclModelFormatterTest extends AbstractTclFormatterTest {
 				
 				# testCase implements SomeSpec
 				
+				* spec step
 			'''
 
 			toBeFormatted = '''
 				package com.example	import a.b.c
 				import c.d.e 
 				         require            freq          ,            breq            #
-				testCase   	implements      SomeSpec
+				testCase   	implements      SomeSpec	*    spec	step
 				'''
 		]
 	}
+	
+	@Test
+	def void formatLineBreaksTml() {
+		assertFormatted [
+			expectation = '''
+				package com.example
+				
+				import a.b.c
+				import c.d.e
+				
+				# MacroCollection
+				
+			'''
+
+			toBeFormatted = '''
+				package com.example	import a.b.c
+				import c.d.e
+				#
+				MacroCollection
+			'''
+		]
+	}
+
+	@Test
+	def void formatWhitespacesTml() {
+		assertFormatted [
+			expectation = '''
+				package com.example
+				
+				import a.b.c
+				import c.d.e
+				
+				# MacroCollection
+				
+			'''
+
+			toBeFormatted = '''
+				package com.example	import a.b.c
+				import c.d.e 
+				    #    MacroCollection
+			'''
+		]
+	}	
 }

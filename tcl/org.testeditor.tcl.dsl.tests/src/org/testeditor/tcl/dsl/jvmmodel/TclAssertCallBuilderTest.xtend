@@ -8,9 +8,9 @@ import org.junit.Test
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.testeditor.aml.ModelUtil
+import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
-import org.testeditor.tml.dsl.tests.TmlModelGenerator
-import org.testeditor.tml.util.TmlModelUtil
+import org.testeditor.tcl.util.TclModelUtil
 
 import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
@@ -19,9 +19,8 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 
 	@InjectMocks TclAssertCallBuilder assertCallBuilder // class under test
 	@Mock ModelUtil amlModelUtil // injected into class under test
-	@Mock protected TmlModelUtil tmlModelUtil // injected into class under test
-
-	@Inject extension TmlModelGenerator
+	@Mock protected TclModelUtil tclModelUtil // injected into class under test
+	@Inject extension TclModelGenerator
 
 	@Inject Provider<XtextResourceSet> resourceSetProvider
 	@Inject JvmTypeReferenceBuilder.Factory jvmTypeReferenceBuilderFactory

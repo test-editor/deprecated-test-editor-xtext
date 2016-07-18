@@ -12,17 +12,19 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.ui.contentassist
 
+import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.Assignment
 import org.eclipse.xtext.RuleCall
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
-import org.testeditor.tml.TestStep
+import org.testeditor.aml.ModelUtil
+import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.util.TclModelUtil
-import javax.inject.Inject
 
 class TclProposalProvider extends AbstractTclProposalProvider {
 	@Inject extension TclModelUtil
+	@Inject extension ModelUtil
 
 	override completeTestCase_Steps(EObject model, Assignment assignment, ContentAssistContext context,
 		ICompletionProposalAcceptor acceptor) {
@@ -32,13 +34,46 @@ class TclProposalProvider extends AbstractTclProposalProvider {
 		acceptor.accept(createCompletionProposal('* ', '* test description', null, context))
 	}
 
+	override complete_TestStepContext(EObject model, RuleCall ruleCall, ContentAssistContext context,
+		ICompletionProposalAcceptor acceptor) {
+		// TODO this should be done using an auto-editing feature
+		acceptor.accept(createCompletionProposal('Mask: ', 'Mask:', getImage(model), context))
+		acceptor.accept(createCompletionProposal('Component: ', 'Component:', getImage(model), context))
+	}
+
+	override complete_TestStep(EObject model, RuleCall ruleCall, ContentAssistContext context,
+		ICompletionProposalAcceptor acceptor) {
+		acceptor.accept(createCompletionProposal('- ', '- test step', null, context))
+	}
+
 	override complete_StepContentElement(EObject model, RuleCall ruleCall, ContentAssistContext context,
 		ICompletionProposalAcceptor acceptor) {
 		super.complete_StepContentElement(model, ruleCall, context, acceptor)
 		if (model instanceof TestStep) {
-			model.envParams.forEach[
-				acceptor.accept(createCompletionProposal("@" + name, "@" + name + " // environment variable", null, context))
+			model.envParams.forEach [
+				acceptor.accept(
+					createCompletionProposal("@" + name, "@" + name + " // environment variable", null, context))
 			]
+			model.enclosingMacroParameters.forEach [
+				acceptor.accept(createCompletionProposal("@" + name, "@" + name + " // macro parameter", null, context))
+			]
+			val interaction = model.interaction
+			val component = model.componentContext?.component
+			if (component != null) {
+				val possibleElements = component.elements.filter [
+					val interactionTypes = componentElementInteractionTypes
+					return interactionTypes.contains(interaction)
+				]
+				// need to consider whether the completion should contain the '>' as well
+				val currentNode = context.currentNode
+				val includeClosingBracket = !currentNode.text.contains('>') &&
+					!currentNode.nextSibling.text.contains('>')
+				possibleElements.forEach [
+					val displayString = '''«name»«IF !label.nullOrEmpty» - "«label»"«ENDIF» (type: «type.name»)'''
+					val proposal = '''<«name»«IF includeClosingBracket»>«ENDIF»'''
+					acceptor.accept(createCompletionProposal(proposal, displayString, image, context))
+				]
+			}
 		}
 	}
 

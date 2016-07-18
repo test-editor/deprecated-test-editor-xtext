@@ -29,7 +29,8 @@ class TclSyntaxErrorMessageProvider extends SyntaxErrorMessageProvider {
 	 * exception is a MismatchedTokenException raised because EOF is expected
 	 */
 	private def boolean isMismatchedTokenExceptionExpectingEOF(RecognitionException exception) {
-		return (exception instanceof MismatchedTokenException) && (exception as MismatchedTokenException).expecting == -1
+		return (exception instanceof MismatchedTokenException) &&
+			(exception as MismatchedTokenException).expecting == -1
 	}
 
 	/**
@@ -37,7 +38,7 @@ class TclSyntaxErrorMessageProvider extends SyntaxErrorMessageProvider {
 	 */
 	private def boolean isTestModelWithoutTestStepsYet(EObject context) {
 		if (context instanceof TclModel) {
-			if (context.test !== null) {
+			if (context.test !== null){
 				return context.test.steps.empty
 			}
 		}
