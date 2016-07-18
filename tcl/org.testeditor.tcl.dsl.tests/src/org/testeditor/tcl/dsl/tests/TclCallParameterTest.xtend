@@ -33,8 +33,8 @@ class TclCallParameterTest extends AbstractTclGeneratorIntegrationTest {
 		val amlModel = amlTestModels.dummyComponent(resourceSet)
 		amlModel.addToResourceSet
 		val dummyComponent = amlModel.components.head
-		val tclModel = tclModel => [
-			it.test = testCase("Test") => [
+		val tclModel = tclModel("Test") => [
+			it.test = testCase => [
 				it.steps += specificationStep("my", "test") => [
 					contexts += componentTestStepContext(dummyComponent) => [
 						steps += testStep('start').withParameter('te\\st\'')

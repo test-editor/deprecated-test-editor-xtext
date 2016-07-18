@@ -35,16 +35,6 @@
 					</dependency>
 					<dependency>
 						<groupId>org.testeditor</groupId>
-						<artifactId>org.testeditor.tml.model</artifactId>
-						<version>${project.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.testeditor</groupId>
-						<artifactId>org.testeditor.tml.dsl</artifactId>
-						<version>${project.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>org.testeditor</groupId>
 						<artifactId>org.testeditor.aml.model</artifactId>
 						<version>${project.version}</version>
 					</dependency>

@@ -495,9 +495,6 @@ class ProjectContentGenerator {
 											<setup>org.testeditor.tsl.dsl.TslStandaloneSetup</setup>
 										</language>
 										<language>
-											<setup>org.testeditor.tml.dsl.TmlStandaloneSetup</setup>
-										</language>
-										<language>
 											<setup>org.testeditor.tcl.dsl.TclStandaloneSetup</setup>
 											<outputConfigurations>
 												<outputConfiguration>
@@ -524,16 +521,6 @@ class ProjectContentGenerator {
 									<dependency>
 										<groupId>org.testeditor</groupId>
 										<artifactId>org.testeditor.tsl.dsl</artifactId>
-										<version>${testeditor.version}</version>
-									</dependency>
-									<dependency>
-										<groupId>org.testeditor</groupId>
-										<artifactId>org.testeditor.tml.model</artifactId>
-										<version>${testeditor.version}</version>
-									</dependency>
-									<dependency>
-										<groupId>org.testeditor</groupId>
-										<artifactId>org.testeditor.tml.dsl</artifactId>
 										<version>${testeditor.version}</version>
 									</dependency>
 									<dependency>
