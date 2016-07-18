@@ -25,7 +25,7 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 
 	@Inject extension TclModelGenerator
 	@Inject extension AmlModelGenerator
-
+	
 	override void setup() {
 		super.setup
 		when(outputStub.trace(any(EObject))).thenReturn(outputStub)
@@ -33,8 +33,8 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 	}
 
 	def TclModel tclClickOnDummyButton(Component dummyComponent) {
-		return tclModel => [
-			test = testCase("Test") => [
+		return tclModel("Test") => [
+			test = testCase => [
 				steps += specificationStep("my", "test") => [
 					contexts += componentTestStepContext(dummyComponent) => [
 						steps += testStep("click", "on").withElement("DummyButton")

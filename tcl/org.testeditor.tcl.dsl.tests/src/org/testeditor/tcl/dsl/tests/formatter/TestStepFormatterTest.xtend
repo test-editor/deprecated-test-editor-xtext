@@ -13,7 +13,7 @@ class TestStepFormatterTest extends AbstractTclFormatterTest {
 		require freq, breq
 		
 		# testCase
-		
+
 	'''
 
 	@Test
@@ -61,6 +61,59 @@ class TestStepFormatterTest extends AbstractTclFormatterTest {
 			toBeFormatted = prefix + '''
 				*   			specification				Component				:				some			
 				  Mask     :      other   *				next				spec
+			'''
+		]
+	}
+	@Test
+	def void formatLineBreaksTml() {
+		assertFormatted [
+			expectation = prefix + '''
+				* spec
+				
+					Component: dummyComponent
+					- step withspaces "string" with <ele> and @some.
+					- next step
+				'''
+
+			toBeFormatted = prefix + '''
+				*
+				spec
+				Component
+				:
+				dummyComponent
+				-
+				step
+				withspaces
+				"string"
+				with
+				<ele>
+				and
+				@
+				some
+				.
+				-
+				next
+				step
+			'''
+		]
+	}
+
+	@Test
+	def void formatWhitespacesTml() {
+		assertFormatted [
+			expectation = prefix + '''
+				* spec
+
+					Component: component
+					- step withspaces "string" with <ele> and @some.
+					- next step
+			'''
+
+			toBeFormatted = prefix + '''
+				   *      	spec      Component :    	component   - 
+				step    			withspaces		    	"string"				with				<ele>				and
+				@
+				some				.				-  next    step
 			'''
 		]
 	}

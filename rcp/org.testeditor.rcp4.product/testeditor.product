@@ -318,10 +318,6 @@
       <plugin id="org.testeditor.tcl.dsl.ide"/>
       <plugin id="org.testeditor.tcl.dsl.ui"/>
       <plugin id="org.testeditor.tcl.model"/>
-      <plugin id="org.testeditor.tml.dsl"/>
-      <plugin id="org.testeditor.tml.dsl.ide"/>
-      <plugin id="org.testeditor.tml.dsl.ui"/>
-      <plugin id="org.testeditor.tml.model"/>
       <plugin id="org.testeditor.tsl.dsl"/>
       <plugin id="org.testeditor.tsl.dsl.ide"/>
       <plugin id="org.testeditor.tsl.dsl.ui"/>

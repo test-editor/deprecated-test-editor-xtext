@@ -25,17 +25,14 @@ import org.testeditor.aml.AmlModel
 import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
-import org.testeditor.tml.TmlModel
-import org.testeditor.tml.dsl.TmlStandaloneSetup
 import org.testeditor.tsl.TslModel
 
 abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 
 	@Inject protected Provider<XtextResourceSet> resourceSetProvider
 	@Inject protected XtextResourceSet resourceSet
-	
+
 	protected ParseHelper<AmlModel> amlParseHelper
-	protected ParseHelper<TmlModel> tmlParseHelper
 
 	@Inject protected ParseHelper<TclModel> tclParseHelper
 	@Inject protected IGenerator generator
@@ -48,17 +45,11 @@ abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 		resourceSet.classpathURIContext = this
 		val injector = (new AmlStandaloneSetup).createInjectorAndDoEMFRegistration
 		amlParseHelper = injector.getInstance(ParseHelper)
-		val tmlInjector = (new TmlStandaloneSetup).createInjectorAndDoEMFRegistration
-		tmlParseHelper = tmlInjector.getInstance(ParseHelper)
 		fsa = new InMemoryFileSystemAccess
 	}
 
 	protected def AmlModel parseAmlModel(String aml) {
 		return amlParseHelper.parse(aml, resourceSet).assertNoSyntaxErrors
-	}
-
-	protected def TmlModel parseTmlModel(String tml) {
-		return tmlParseHelper.parse(tml, resourceSet).assertNoSyntaxErrors
 	}
 
 	protected def TclModel parseTclModel(String tcl) {
@@ -67,7 +58,7 @@ abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 
 	protected def String generate(TclModel model) {
 		generator.doGenerate(model.eResource, fsa)
-		val file = fsa.getJavaFile(model.package, model.test.name)
+		val file = fsa.getJavaFile(model.package, model.name)
 		return file.toString
 	}
 
@@ -78,11 +69,19 @@ abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 
 	protected def <T extends EObject> T addToResourceSet(T model) {
 		switch (model) {
-			TclModel: return model.addToResourceSet(resourceSet, "tcl")
-			TmlModel: return model.addToResourceSet(resourceSet, "tml")
-			AmlModel: return model.addToResourceSet(resourceSet, "aml")
-			TslModel: return model.addToResourceSet(resourceSet, "tsl")
-			default: throw new RuntimeException('''unknown model='«model.class.name»'.''')
+			TclModel: {
+				if (model.macroCollection !== null && model.macroCollection.macros.size > 0) {
+					return model.addToResourceSet(resourceSet, "tml")
+				} else {
+					return model.addToResourceSet(resourceSet, "tcl")
+				}
+			}
+			AmlModel:
+				return model.addToResourceSet(resourceSet, "aml")
+			TslModel:
+				return model.addToResourceSet(resourceSet, "tsl")
+			default:
+				throw new RuntimeException('''unknown model='«model.class.name»'.''')
 		}
 	}
 

@@ -10,7 +10,7 @@
             class="org.testeditor.tcl.dsl.ui.TclExecutableExtensionFactory:org.eclipse.xtext.ui.editor.XtextEditor"
             contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
             default="true"
-            extensions="tcl"
+            extensions="tcl,tml"
             id="org.testeditor.tcl.dsl.Tcl"
             matchingStrategy="org.testeditor.tcl.dsl.ui.TclExecutableExtensionFactory:org.eclipse.xtext.xbase.ui.editor.JavaEditorInputMatcher"
             name="Tcl Editor">
@@ -224,6 +224,19 @@
             uriExtension="tcl">
         </resourceServiceProvider>
     </extension>
+	<extension
+		point="org.eclipse.emf.ecore.extension_parser">
+		<parser
+			class="org.testeditor.tcl.dsl.ui.TclExecutableExtensionFactory:org.eclipse.xtext.resource.IResourceFactory"
+			type="tml">
+		</parser>
+	</extension>
+	<extension point="org.eclipse.xtext.extension_resourceServiceProvider">
+	    <resourceServiceProvider
+	        class="org.testeditor.tcl.dsl.ui.TclExecutableExtensionFactory:org.eclipse.xtext.ui.resource.IResourceUIServiceProvider"
+	        uriExtension="tml">
+	    </resourceServiceProvider>
+	</extension>
 
 
 	<!-- marker definitions for org.testeditor.tcl.dsl.Tcl -->
@@ -253,7 +266,7 @@
          point="org.eclipse.xtext.builder.participant">
       <participant
             class="org.testeditor.tcl.dsl.ui.TclExecutableExtensionFactory:org.eclipse.xtext.builder.IXtextBuilderParticipant"
-            fileExtensions="tcl"
+            fileExtensions="tcl,tml"
             >
       </participant>
    </extension>
@@ -587,24 +600,28 @@
   <extension point="org.eclipse.compare.contentViewers">
     <viewer id="org.testeditor.tcl.dsl.Tcl.compare.contentViewers"
             class="org.testeditor.tcl.dsl.ui.TclExecutableExtensionFactory:org.eclipse.xtext.ui.compare.InjectableViewerCreator"
-            extensions="tcl">
+            extensions="tcl,tml">
     </viewer>
   </extension>
   <extension point="org.eclipse.compare.contentMergeViewers">
     <viewer id="org.testeditor.tcl.dsl.Tcl.compare.contentMergeViewers"
             class="org.testeditor.tcl.dsl.ui.TclExecutableExtensionFactory:org.eclipse.xtext.ui.compare.InjectableViewerCreator"
-            extensions="tcl" label="Tcl Compare">
+            extensions="tcl,tml" label="Tcl Compare">
      </viewer>
   </extension>
   <extension point="org.eclipse.ui.editors.documentProviders">
     <provider id="org.testeditor.tcl.dsl.Tcl.editors.documentProviders"
             class="org.testeditor.tcl.dsl.ui.TclExecutableExtensionFactory:org.eclipse.xtext.ui.editor.model.XtextDocumentProvider"
-            extensions="tcl">
+            extensions="tcl,tml">
     </provider>
   </extension>
   <extension point="org.eclipse.team.core.fileTypes">
     <fileTypes
             extension="tcl"
+            type="text">
+    </fileTypes>
+    <fileTypes
+            extension="tml"
             type="text">
     </fileTypes>
   </extension>

@@ -45,7 +45,7 @@ class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 		''')
 
 		// macro definitions such that "other" is a macro again which uses "something" which uses an aml component
-		parseTmlModel('''
+		parseTclModel('''
 			package org.test
 			
 			import org.test.*

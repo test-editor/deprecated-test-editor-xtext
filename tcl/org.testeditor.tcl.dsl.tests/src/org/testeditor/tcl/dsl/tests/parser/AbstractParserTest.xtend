@@ -19,7 +19,6 @@ import org.eclipse.xtext.junit4.util.ParseHelper
 import org.eclipse.xtext.parser.IParseResult
 import org.eclipse.xtext.parser.IParser
 import org.testeditor.tcl.TclModel
-import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.dsl.services.TclGrammarAccess
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
 import org.testeditor.tcl.util.TclModelUtil
@@ -31,8 +30,8 @@ abstract class AbstractParserTest extends AbstractTclTest {
 	@Inject protected extension TclModelUtil modelUtil
 	@Inject protected TclGrammarAccess grammarAccess
 
-	protected def TestCase parse(CharSequence input) {
-		return parseHelper.parse(input).test
+	protected def TclModel parse(CharSequence input) {
+		return parseHelper.parse(input)
 	}
 
 	protected def <T> T parse(CharSequence input, ParserRule rule, Class<T> ruleClass) {
