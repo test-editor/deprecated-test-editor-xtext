@@ -81,6 +81,7 @@ class NetworkConnectionSettingDialogTest extends AbstractTest {
 		when(prefs.get("http.proxyHost", "")).thenReturn("proxy")
 		System.setProperty("http.proxyHost", "myProxy")
 		initContextWithProxyMock()
+		dialog = new NetworkConnectionSettingDialog(parentShell, prefs, context)
 		// when
 		assertTrue(dialog.isInternetAvailable(true))
 		// then
