@@ -39,6 +39,7 @@ import org.testeditor.rcp4.tcltestrun.TclLauncher
 import org.testeditor.rcp4.tcltestrun.TclMavenLauncher
 import org.testeditor.tcl.dsl.ui.testlaunch.LaunchShortcutUtil
 import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
+import org.testeditor.tsl.TslModel
 
 class TclLauncherUi implements Launcher {
 	static val logger = LoggerFactory.getLogger(TclLauncherUi)
@@ -151,7 +152,14 @@ class TclLauncherUi implements Launcher {
 		if (sel instanceof IFolder) {
 			sel.testCasesFromFolder
 		} else {
-			#[launchShortcutUtil.getQualifiedNameForTestInTcl(sel as IResource).toString]
+			if (sel instanceof IResource) {
+				if (sel.fileExtension.equalsIgnoreCase("tsl")) {
+					System.err.println(sel.getAdapter(TslModel))
+					#[]
+				} else {
+					#[launchShortcutUtil.getQualifiedNameForTestInTcl(sel).toString]
+				}
+			}
 		}
 	}
 
