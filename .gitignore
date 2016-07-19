@@ -46,3 +46,6 @@ tmp/
 local.properties
 Eclipse.app
 .recommenders
+aml/org.testeditor.aml.model/text/
+tcl/org.testeditor.tcl.model/text/
+tsl/org.testeditor.tsl.model/text/
