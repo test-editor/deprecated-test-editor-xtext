@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -45,12 +45,12 @@ class AmlRuntimeModule extends AbstractAmlRuntimeModule {
 		return AmlQualifiedNameProvider
 	}
 
-	// TODO this was override before?
-	def Class<? extends IBatchScopeProvider> bindIBatchScopeProvider() {
+	override Class<? extends IBatchScopeProvider> bindIBatchScopeProvider() {
 		return AmlScopeProvider
 	}
 
 	override configureIScopeProviderDelegate(Binder binder) {
 		binder.bind(IScopeProvider).annotatedWith(named(NAMED_DELEGATE)).to(AmlDelegateScopeProvider)
 	}
+
 }
