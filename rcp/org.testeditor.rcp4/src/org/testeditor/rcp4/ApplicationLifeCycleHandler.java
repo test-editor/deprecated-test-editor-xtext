@@ -65,7 +65,7 @@ public class ApplicationLifeCycleHandler {
 		NetworkConnectionSettingDialog connectionSettingDialog = new NetworkConnectionSettingDialog(shell, prefs,
 				context);
 		if (!connectionSettingDialog.isInternetAvailable(false)) {
-			connectionSettingDialog.open();
+			connectionSettingDialog.open(true);
 		}
 	}
 
