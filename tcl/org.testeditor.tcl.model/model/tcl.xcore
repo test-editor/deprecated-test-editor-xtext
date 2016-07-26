@@ -30,12 +30,12 @@ class TclModel {
 	String ^package
 	contains XImportSection importSection
 	contains EnvironmentVariableReference[0..*] environmentVariableReferences
-	String name
 	contains TestCase test opposite model
 	contains MacroCollection macroCollection opposite model
 }
 
 class TestCase {
+	String name
 	container derived TclModel model opposite test
 	refers TestSpecification specification
 	contains SpecificationStepImplementation[0..*] steps opposite test

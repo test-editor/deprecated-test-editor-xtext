@@ -141,7 +141,7 @@ class TclVarUsageValidatorTest extends AbstractTclValidatorTest {
 	def void usageFromOtherContextSameTestCase() {
 		// given
 		val assignment = testStepWithAssignment("variable", "some")
-		val tclModel = tclModel("test") => [
+		val tclModel = tclModel => [
 			test = testCase => [
 				steps += specificationStep("first") => [
 					contexts += componentTestStepContext(null) => [

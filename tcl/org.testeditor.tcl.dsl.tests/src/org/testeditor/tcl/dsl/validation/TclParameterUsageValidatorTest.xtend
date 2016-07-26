@@ -69,8 +69,8 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 
 	@Test
 	def void testDirectCallVariableTypeChecks() {
-		val macroModel = tclModel("MacroCollection") => [
-			macroCollection = macroCollection() => [
+		val macroModel = tclModel => [
+			macroCollection = macroCollection("MacroCollection") => [
 				// macro calls (directly) the aml interaction "start" (which expects the parameter to be of type String)
 				macros += macro("MyCallMacro") => [
 					template = template("mycall").withParameter("appname")
@@ -89,9 +89,9 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 		]
 		macroModel.register("tml")
 
-		val tclModel = tclModel("MyTest") => [
+		val tclModel = tclModel => [
 			environmentVariableReferences += envVariables("envVar", "myEnvString")
-			test = testCase => [
+			test = testCase("MyTest") => [
 				// use macro "mycall" using env param (no error, since type String is provided and String is expected)
 				steps += specificationStep("test", "something") => [
 					contexts += macroTestStepContext(macroModel.macroCollection) => [
@@ -128,9 +128,9 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 	@Test
 	def void testIndirectCallVariableTypeChecks() {
 		// given
-		val macroModel = tclModel("MacroCollection")
+		val macroModel = tclModel
 		macroModel => [
-			macroCollection = macroCollection() // is referenced => assignment must take place beforehand
+			macroCollection = macroCollection("MacroCollection") // is referenced => assignment must take place beforehand
 			macroCollection => [
 				// calls macro "othercall" with one parameter "unknown" (which is expected to be of type long)
 				macros += macro("MyCallMacro") => [
@@ -166,9 +166,9 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 	@Test
 	def void testIndirectCallVariableWithMultipleUsageTypeChecks() {
 		// given
-		val macroModel = tclModel("MacroCollection")
+		val macroModel = tclModel
 		macroModel => [
-			macroCollection = macroCollection() // is referenced => assignment must take place beforehand
+			macroCollection = macroCollection("MacroCollection") // is referenced => assignment must take place beforehand
 			macroCollection => [
 				macros += otherCallMacroWithTwoParamsWithTypeLongAndStringRespectively
 				// calls macro "othercall" with parameter "unknown" as first and second parameter (which are expected to be of type long and String)
@@ -204,9 +204,9 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 	@Test
 	def void testIndirectCallValidation() {
 		// given + when
-		val macroModel = tclModel("MacroCollection")
+		val macroModel = tclModel
 		macroModel => [
-			macroCollection = macroCollection() // is referenced => assignment must take place beforehand
+			macroCollection = macroCollection("MacroCollection") // is referenced => assignment must take place beforehand
 			macroCollection => [
 				macros += otherCallMacroWithTwoParamsWithTypeLongAndStringRespectively
 				// calls macro "othercall" with parameter "3" and "unknown" (which will satisfy the expected types long and String)
@@ -240,9 +240,9 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 	}
 
 	private def TclModel tclCallingMyCallMacroWithOneEnvParam(String envVar, TclModel tmlModel) {
-		val tclModel = tclModel("MyTest") => [
+		val tclModel = tclModel => [
 			environmentVariableReferences += envVariables(envVar)
-			test = testCase => [
+			test = testCase("MyTest") => [
 				steps += specificationStep("test", "something") => [
 					contexts += macroTestStepContext(tmlModel.macroCollection) => [
 						step = testStep("mycall").withVariableReference(envVar)

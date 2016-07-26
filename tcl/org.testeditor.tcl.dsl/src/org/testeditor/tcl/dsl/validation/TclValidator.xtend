@@ -341,13 +341,14 @@ class TclValidator extends AbstractTclValidator {
 
 	@Check
 	def void checkTestName(TclModel tclModel) {
-		if (tclModel.test!=null && !getExpectedName(tclModel).equals(tclModel.name)) {
+		val expectedName = tclModel.expectedName
+		if (tclModel.test !== null && tclModel.test.name != expectedName) {
 			val message = '''Test case name does not match '«tclModel.eResource.URI.lastSegment»'.'''
-			error(message, TclPackage.Literals.TCL_MODEL__NAME, INVALID_NAME)
+			error(message, TclPackage.Literals.TEST_CASE__NAME, INVALID_NAME)
 		}
-		if (tclModel.macroCollection!=null && !getExpectedName(tclModel).equals(tclModel.name)) {
+		if (tclModel.macroCollection !== null && tclModel.macroCollection.name != expectedName) {
 			val message = '''Macro collection does not match '«tclModel.eResource.URI.lastSegment»'.'''
-			error(message, TclPackage.Literals.TCL_MODEL__NAME, INVALID_NAME)
+			error(message, TclPackage.Literals.MACRO_COLLECTION__NAME, INVALID_NAME)
 		}
 	}
 

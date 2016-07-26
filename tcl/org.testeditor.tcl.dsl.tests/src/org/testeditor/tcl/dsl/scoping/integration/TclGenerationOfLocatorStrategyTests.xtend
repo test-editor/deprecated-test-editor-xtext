@@ -33,7 +33,7 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 	}
 
 	def TclModel tclClickOnDummyButton(Component dummyComponent) {
-		return tclModel("Test") => [
+		return tclModel => [
 			test = testCase => [
 				steps += specificationStep("my", "test") => [
 					contexts += componentTestStepContext(dummyComponent) => [
