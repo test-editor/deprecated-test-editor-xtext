@@ -97,10 +97,10 @@ class TclModelFormatterTest extends AbstractTclFormatterTest {
 				import c.d.e 
 				         require            freq          ,            breq            #
 				testCase   	implements      SomeSpec
-				'''
+			'''
 		]
 	}
-	
+
 	@Test
 	def void formatLineBreaksTml() {
 		assertFormatted [
@@ -140,5 +140,30 @@ class TclModelFormatterTest extends AbstractTclFormatterTest {
 				    #    MacroCollection
 			'''
 		]
-	}	
+	}
+
+	@Test
+	def void formatSetupAndCleanup() {
+		val keywords = #['Setup', 'Cleanup']
+		keywords.forEach [ keyword |
+			assertFormatted [
+				expectation = '''
+					package com.example
+					
+					# Test
+					
+					«keyword»:
+					
+						Component: myComponent
+						- sample setup
+				'''
+				toBeFormatted = '''
+					package com.example
+									
+					# Test    «keyword»   :  Component: myComponent - sample setup
+				'''
+			]
+		]
+	}
+
 }

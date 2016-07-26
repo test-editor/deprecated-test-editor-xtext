@@ -10,32 +10,33 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.dsl.common.ui.wizards
+package org.testeditor.aml.dsl.ui.wizard
 
 import javax.inject.Inject
+import org.testeditor.dsl.common.ui.wizards.NewFileWizard
+import org.testeditor.dsl.common.ui.wizards.NewFileWizardPage
 
-class NewTclFileWizard extends NewFileWizard {
+class NewAmlFileWizard extends NewFileWizard {
 
-	@Inject NewFileWizardPage tclPage
+	@Inject NewFileWizardPage amlPage
 
 	override String getContainerName() {
-		tclPage.containerName
+		amlPage.containerName
 	}
 
 	override String getFileName() {
-		tclPage.fileName
+		amlPage.fileName
 	}
 
 	override void addPages() {
-		tclPage.init(selection, "New Tcl File", "This wizard creates a new file with *.tcl extension.", "tcl")
-		addPage(tclPage)
+		amlPage.init(selection, "New Aml File", "This wizard creates a new file with *.aml extension.", "aml")
+		addPage(amlPage)
 	}
 
 	override String contentString(String thePackage, String fileName) {
 		return '''
 			package «thePackage ?: "com.example"»
-			
-			# «fileName.replace(".tcl","").toFirstUpper»
 		'''
 	}
+
 }
