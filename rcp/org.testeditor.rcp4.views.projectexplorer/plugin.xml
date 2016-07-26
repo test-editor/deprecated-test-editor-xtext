@@ -130,7 +130,7 @@
   	     </commonWizard>   
        	 <commonWizard
 	        		type="new"
-					wizardId="org.testeditor.dsl.common.ui.wizards.NewAmlFileWizard">
+					wizardId="org.testeditor.aml.dsl.ui.wizard.NewAmlFileWizard">
 				<enablement>
 					<or>
 						<adapt type="org.eclipse.core.resources.IFolder" />
@@ -141,7 +141,7 @@
   	     </commonWizard>   
        	 <commonWizard
 	        		type="new"
-					wizardId="org.testeditor.dsl.common.ui.wizards.NewTclFileWizard">
+					wizardId="org.testeditor.tcl.dsl.ui.wizard.NewTclFileWizard">
 				<enablement>
 					<or>
 						<adapt type="org.eclipse.core.resources.IFolder" />
@@ -152,7 +152,7 @@
   	     </commonWizard>   
        	 <commonWizard
 	        		type="new"
-					wizardId="org.testeditor.dsl.common.ui.wizards.NewTslFileWizard">
+					wizardId="org.testeditor.tsl.dsl.ui.wizard.NewTslFileWizard">
 				<enablement>
 					<or>
 						<adapt type="org.eclipse.core.resources.IFolder" />

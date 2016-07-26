@@ -421,5 +421,15 @@
             type="text">
     </fileTypes>
   </extension>
+  <extension
+        point="org.eclipse.ui.newWizards">
+        <wizard
+            name="Test Specification"
+            class="org.testeditor.tsl.dsl.ui.TslExecutableExtensionFactory:org.testeditor.tsl.dsl.ui.wizard.NewTslFileWizard"
+            id="org.testeditor.tsl.dsl.ui.wizard.NewTslFileWizard"
+            icon="icons/new_tsl_wiz.png"
+            category="org.testeditor">
+      </wizard>
+  </extension>
 
 </plugin>
