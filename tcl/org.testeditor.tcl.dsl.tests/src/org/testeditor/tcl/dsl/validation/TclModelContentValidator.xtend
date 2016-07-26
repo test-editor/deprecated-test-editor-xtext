@@ -10,6 +10,7 @@ import static org.testeditor.tcl.TclPackage.Literals.*
 import org.junit.Before
 
 class TclModelContentValidator extends AbstractTclValidatorTest {
+
 	@Inject protected Provider<XtextResourceSet> resourceSetProvider
 	@Inject protected XtextResourceSet resourceSet
 	@Inject ValidationTestHelper validator
@@ -22,8 +23,8 @@ class TclModelContentValidator extends AbstractTclValidatorTest {
 
 	@Test
 	def void testModelContentTml() {
-		val model = tclModel("Test") => [
-			macroCollection = macroCollection()
+		val model = tclModel => [
+			macroCollection = macroCollection("Test")
 		]
 		model.register(resourceSet, "Test", "tml")
 
@@ -32,8 +33,8 @@ class TclModelContentValidator extends AbstractTclValidatorTest {
 
 	@Test
 	def void testModelContentMacroInTcl() {
-		val model = tclModel("Test") => [
-			macroCollection = macroCollection()
+		val model = tclModel => [
+			macroCollection = macroCollection("Test")
 		]
 		model.register(resourceSet, "Test", "tcl")
 
@@ -42,8 +43,8 @@ class TclModelContentValidator extends AbstractTclValidatorTest {
 
 	@Test
 	def void testModelContentTestCaseInTml() {
-		val model = tclModel("Test") => [
-			test = testCase
+		val model = tclModel => [
+			test = testCase("Test")
 		]
 		model.register(resourceSet, "Test", "tml")
 
@@ -52,8 +53,8 @@ class TclModelContentValidator extends AbstractTclValidatorTest {
 
 	@Test
 	def void testModelContentTcl() {
-		val model = tclModel("Test") => [
-			test = testCase
+		val model = tclModel => [
+			test = testCase("Test")
 		]
 		model.register(resourceSet, "Test", "tcl")
 

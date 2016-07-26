@@ -16,7 +16,6 @@ class TclModelFormatterTest extends AbstractTclFormatterTest {
 				require freq, breq
 				
 				# testCase
-				
 			'''
 
 			toBeFormatted = '''
@@ -44,8 +43,6 @@ class TclModelFormatterTest extends AbstractTclFormatterTest {
 				require freq, breq
 				
 				# testCase implements SomeSpec
-				
-				* spec step
 			'''
 
 			toBeFormatted = '''
@@ -59,9 +56,24 @@ class TclModelFormatterTest extends AbstractTclFormatterTest {
 				testCase
 				implements
 				SomeSpec
-				*
-				spec
-				step
+			'''
+		]
+	}
+
+	@Test
+	def void twoLinesBetweenNameAndSteps() {
+		assertFormatted[
+			expectation = '''
+				package com.example
+				
+				# Test
+				
+				* Step
+			'''
+			toBeFormatted = '''
+				package com.example
+								
+				# Test * Step
 			'''
 		]
 	}
@@ -78,15 +90,13 @@ class TclModelFormatterTest extends AbstractTclFormatterTest {
 				require freq, breq
 				
 				# testCase implements SomeSpec
-				
-				* spec step
 			'''
 
 			toBeFormatted = '''
 				package com.example	import a.b.c
 				import c.d.e 
 				         require            freq          ,            breq            #
-				testCase   	implements      SomeSpec	*    spec	step
+				testCase   	implements      SomeSpec
 				'''
 		]
 	}
@@ -101,7 +111,6 @@ class TclModelFormatterTest extends AbstractTclFormatterTest {
 				import c.d.e
 				
 				# MacroCollection
-				
 			'''
 
 			toBeFormatted = '''
@@ -123,7 +132,6 @@ class TclModelFormatterTest extends AbstractTclFormatterTest {
 				import c.d.e
 				
 				# MacroCollection
-				
 			'''
 
 			toBeFormatted = '''

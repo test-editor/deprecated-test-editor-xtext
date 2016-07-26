@@ -32,12 +32,20 @@ class TclModelGenerator {
 	@Inject protected XtypeFactory xtypeFactory
 
 
-	def TclModel tclModel(String name) {
-		return tclFactory.createTclModel => [^package = "com.example" it.name = name]
+	def TclModel tclModel() {
+		return tclFactory.createTclModel => [
+			package = "com.example"
+		]
 	}
 
 	def TestCase testCase() {
-		return tclFactory.createTestCase
+		return testCase("Test")
+	}
+
+	def TestCase testCase(String name) {
+		return tclFactory.createTestCase => [
+			it.name = name
+		]
 	}
 
 	def Iterable<EnvironmentVariableReference> envVariables(String ... names) {
@@ -73,7 +81,13 @@ class TclModelGenerator {
 	}
 
 	def MacroCollection macroCollection() {
-		return tclFactory.createMacroCollection
+		return macroCollection("Test")
+	}
+
+	def MacroCollection macroCollection(String name) {
+		return tclFactory.createMacroCollection => [
+			it.name = name
+		]
 	}
 
 	def Macro macro(String macroName) {

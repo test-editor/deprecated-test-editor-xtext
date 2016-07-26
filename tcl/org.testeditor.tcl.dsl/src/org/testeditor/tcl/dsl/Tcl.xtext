@@ -22,12 +22,12 @@ TclModel:
 	(importSection=XImportSection)?
 	('require' environmentVariableReferences+=EnvironmentVariableReference
 	      (',' environmentVariableReferences+=EnvironmentVariableReference)*)?
-	'#' name=ID
 	(test=TestCase | macroCollection=MacroCollection)?;
 
 TestCase:
+	'#' name=ID
 	('implements' specification=[tsl::TestSpecification|QualifiedName])?
-	steps+=SpecificationStepImplementation+;
+	steps+=SpecificationStepImplementation*;
 
 SpecificationStepImplementation:
 	{SpecificationStepImplementation}
@@ -38,6 +38,7 @@ EnvironmentVariableReference:
 	name=ID;
 
 MacroCollection:
+	'#' name=ID
 	macros+=Macro+;
 
 Macro:
