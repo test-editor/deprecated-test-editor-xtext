@@ -33,7 +33,8 @@ import static extension org.eclipse.xtext.nodemodel.util.NodeModelUtils.getNode
 class TclSemanticHighlightingCalculator extends DefaultSemanticHighlightingCalculator {
 
 	public static val String STEP_CONTENT_ELEMENT = "tsl.step_content"
-	public static val String TCL_MODEL_NAME = "tcl.modelname"
+	public static val String TEST_CASE_NAME = "testCase.name"
+	public static val String MACRO_COLLECTION_NAME = "macroCollection.name"
 	public static val String COMPONENT_ELEMENT_REFERENCE = "tcl.componentElementReference"
 
 	@Inject extension NodeRegionUtil
@@ -56,11 +57,17 @@ class TclSemanticHighlightingCalculator extends DefaultSemanticHighlightingCalcu
 	private def doProvideHighlightingFor(TclModel model, IHighlightedPositionAcceptor acceptor,
 		CancelIndicator cancelIndicator) {
 		// Provide highlighting for the name
-		val region = model.findNodesRegionForFeature(TCL_MODEL__NAME)
-		if (region !== null) {
-			acceptor.addPosition(region.offset, region.length, TCL_MODEL_NAME)
+		if (model.test !== null) {
+			val nameRegion = model.findNodesRegionForFeature(TEST_CASE__NAME)
+			if (nameRegion !== null) {
+				acceptor.addPosition(nameRegion.offset, nameRegion.length, TEST_CASE_NAME)
+			}
+		} else if (model.macroCollection !== null) {
+			val nameRegion = model.findNodesRegionForFeature(MACRO_COLLECTION__NAME)
+			if (nameRegion !== null) {
+				acceptor.addPosition(nameRegion.offset, nameRegion.length, MACRO_COLLECTION_NAME)
+			}
 		}
-
 
 		// Provide highlighting for all component element references
 		if (model.macroCollection !== null) {

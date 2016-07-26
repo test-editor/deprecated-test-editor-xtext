@@ -31,9 +31,9 @@ class TclQualifiedNameProvider extends DefaultDeclarativeQualifiedNameProvider {
 			TclModel:
 				obj.package.toQualifiedName
 			TestCase:
-				(obj.model.package + '.' + obj.model.name).toQualifiedName
+				(obj.model.package + '.' + obj.name).toQualifiedName
 			MacroCollection:
-				(obj.model.package + '.' + obj.model.name).toQualifiedName
+				(obj.model.package + '.' + obj.name).toQualifiedName
 			default:
 				super.getFullyQualifiedName(obj)
 		}

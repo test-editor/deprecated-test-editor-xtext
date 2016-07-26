@@ -60,7 +60,7 @@ class TclModelParserTest extends AbstractParserTest {
 		val tcl = parse(input)
 		
 		// then
-		tcl.name.assertEquals('MyTest')
+		tcl.test.name.assertEquals('MyTest')
 		tcl.test.steps.assertSingleElement => [
 			contents.restoreString.assertEquals('Start the famous greetings application')
 		]
