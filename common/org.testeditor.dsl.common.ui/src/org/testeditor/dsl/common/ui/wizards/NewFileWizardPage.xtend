@@ -100,7 +100,9 @@ class NewFileWizardPage extends WizardPage {
 	 */
 	def private void initialize() {
 		if (selection instanceof IStructuredSelection) {
-			if(selection.size !== 1) return
+			if (selection.size !== 1) {
+				return
+			}
 			val obj = selection.firstElement
 			switch (obj) {
 				IJavaProject: {
@@ -112,7 +114,7 @@ class NewFileWizardPage extends WizardPage {
 					setFileText(obj.name)
 				}
 				IResource: {
-					val container = if(obj instanceof IContainer) obj else obj.parent
+					val container = if (obj instanceof IContainer) obj else obj.parent
 					containerText.text = container.fullPath.toString
 					setFileText(container.name)
 				}
@@ -141,7 +143,7 @@ class NewFileWizardPage extends WizardPage {
 	}
 
 	def private getSourceFolderPath(IProject project) {
-		val srcFolder = project.getDeepFolder(ProjectContentGenerator.SRC_FOLDER)
+		val srcFolder = project.getDeepFolder(ProjectContentGenerator.SRC_TEST_FOLDER)
 		return srcFolder?.fullPathString
 	}
 
