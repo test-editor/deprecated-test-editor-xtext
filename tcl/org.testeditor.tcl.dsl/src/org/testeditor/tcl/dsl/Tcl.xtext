@@ -27,7 +27,23 @@ TclModel:
 TestCase:
 	'#' name=ID
 	('implements' specification=[tsl::TestSpecification|QualifiedName])?
-	steps+=SpecificationStepImplementation*;
+	( // allow user to define setup and cleanup either at the beginning or end
+		(setup=TestSetup)?
+	 &  (cleanup=TestCleanup)?
+	 &  steps+=SpecificationStepImplementation*
+	);
+
+TestSetup: 
+	{TestSetup}
+	'Setup' ':'
+	contexts+=TestStepContext*
+;
+
+TestCleanup: 
+	{TestCleanup}
+	'Cleanup' ':'
+	contexts+=TestStepContext*
+;
 
 SpecificationStepImplementation:
 	{SpecificationStepImplementation}
