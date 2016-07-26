@@ -228,6 +228,43 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 		validator.assertNoError(tclModel, TclValidator.INVALID_TYPED_VAR_DEREF)
 		validator.assertNoError(tclModel, TclValidator.INVALID_VAR_DEREF)
 	}
+	
+	@Test
+	def void useAssignedVariableInParameterPosition() {
+		// given
+
+		val amlModel = amlTestModels.dummyComponent(resourceSet)
+		amlModel.register(resourceSet, 'aml')
+		val dummyComponent = amlModel.components.head
+//		val tmlModel = tclModel("macro") => [
+//			macroCollection = macroCollection()
+//			macroCollection => [
+//				macros += macro("callable") => [
+//					val macroContext=macroTestStepContext(macroCollection) => [
+//						step = testStep("call").withVariableReference("unknown")
+//					]
+//					contexts+=macroContext
+//					template = template("mycall").withParameter(((macroContext.step.contents.last) as StepContentVariableReference).variable as TemplateVariable)
+//				]
+//			]
+//		]
+//		tmlModel.register(resourceSet, 'tml')
+		val tclModel = tclModel("Test") => [
+			test = testCase => [
+				steps += specificationStep("spec") => [
+					contexts += componentTestStepContext(dummyComponent) => [
+						val assignment = testStepWithAssignment("variable", "some")
+						steps += assignment
+						steps += testStep('mycall').withReferenceToAssignmentVariable(assignment.variable)
+					]
+				]
+			]
+		]
+		tclModel.register(resourceSet, 'test', 'tcl')
+
+		validator.assertNoErrors(tclModel)
+	}
+	
 
 	private def Macro otherCallMacroWithTwoParamsWithTypeLongAndStringRespectively() {
 		return macro("OtherCallMacro") => [

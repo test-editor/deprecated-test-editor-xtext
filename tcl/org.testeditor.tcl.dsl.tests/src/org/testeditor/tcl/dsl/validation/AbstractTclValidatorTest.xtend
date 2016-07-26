@@ -10,6 +10,7 @@ import org.mockito.Mock
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.aml.dsl.tests.AmlModelGenerator
 
 abstract class AbstractTclValidatorTest extends AbstractParserTest {
 	@InjectMocks protected TclValidator tclValidator // class under test
@@ -19,6 +20,7 @@ abstract class AbstractTclValidatorTest extends AbstractParserTest {
 	@Captor protected ArgumentCaptor<String> message
 
 	@Inject protected extension TclModelGenerator tclModelGenerator
+	@Inject protected extension AmlModelGenerator amlModelGenerator
 
 	@Before
 	def void initMessageAcceptor() {

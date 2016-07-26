@@ -23,6 +23,7 @@ import org.testeditor.tsl.TestSpecification
 import org.testeditor.aml.VariableReference
 import org.testeditor.aml.Template
 import org.testeditor.aml.Component
+import org.testeditor.aml.VariableReference
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentValue
 
@@ -112,9 +113,8 @@ class TestStepWithAssignment extends TestStep {
 	contains AssignmentVariable variable opposite testStep
 }
 
-class AssignmentVariable {
+class AssignmentVariable extends VariableReference{
 	container TestStepWithAssignment testStep opposite variable
-	String name
 }
 
 class StepContentVariableReference extends StepContent{

@@ -31,7 +31,6 @@ class TclModelGenerator {
 	@Inject protected TslFactoryImpl tslFactory
 	@Inject protected XtypeFactory xtypeFactory
 
-
 	def TclModel tclModel(String name) {
 		return tclFactory.createTclModel => [^package = "com.example" it.name = name]
 	}
@@ -87,7 +86,7 @@ class TclModelGenerator {
 	def TestStepWithAssignment testStepWithAssignment(String variableName, String ... texts) {
 		tclFactory.createTestStepWithAssignment => [
 			withText(texts)
-			variable = tclFactory.createAssignmentVariable => [ name=variableName ]
+			variable = tclFactory.createAssignmentVariable => [name = variableName]
 		]
 	}
 
@@ -96,15 +95,15 @@ class TclModelGenerator {
 	}
 
 	def AEStringConstant aeStringConstant(String string) {
-		tclFactory.createAEStringConstant => [ it.string = string]
+		tclFactory.createAEStringConstant => [it.string = string]
 	}
 
 	def AEComparison aeComparison() {
 		tclFactory.createAEComparison
 	}
-	
-	def AssignmentVariable assignmentVariable(String variableName){
-		tclFactory.createAssignmentVariable => [ name = variableName ]
+
+	def AssignmentVariable assignmentVariable(String variableName) {
+		tclFactory.createAssignmentVariable => [name = variableName]
 	}
 
 	def AEVariableReference aeVariableReference() {
@@ -139,6 +138,13 @@ class TclModelGenerator {
 		return me
 	}
 
+	def TestStep withReferenceToAssignmentVariable(TestStep me, AssignmentVariable assignmentVariable) {
+		me.contents += tclFactory.createStepContentVariableReference => [
+			variable = assignmentVariable
+		]
+		return me
+	}
+
 	def TestStep withParameter(TestStep me, String parameter) {
 		me.contents += tslFactory.createStepContentVariable => [value = parameter]
 		return me
@@ -161,7 +167,6 @@ class TclModelGenerator {
 	}
 
 	// ===================================================================== extended 
-
 	def AEComparison compareNotMatching(AEVariableReference variableReference, String string) {
 		return aeComparison => [
 			left = variableReference
@@ -181,10 +186,11 @@ class TclModelGenerator {
 	def AEComparison compareNotEqual(AEVariableReference variableReference, String string) {
 		return aeComparison => [
 			left = variableReference
-			comparator = comparatorEquals => [negated=true]
+			comparator = comparatorEquals => [negated = true]
 			right = aeStringConstant(string)
 		]
 	}
+
 	def AEComparison compareOnEquality(AEVariableReference variableReference, String string) {
 		return aeComparison => [
 			left = variableReference

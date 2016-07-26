@@ -29,7 +29,6 @@ import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.BinaryAssertionExpression
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.Macro
-import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
@@ -343,7 +342,7 @@ class TclValidator extends AbstractTclValidator {
 	@Check
 	def void checkTestName(TclModel tclModel) {
 		if (tclModel.test!=null && !getExpectedName(tclModel).equals(tclModel.name)) {
-			val message = '''Test case name does not match '«tclModel.eResource.URI.lastSegment»'.'''
+			val message = '''Test case name='«tclModel.name»' does not match expected name='«getExpectedName(tclModel)»' based on  filename='«tclModel.eResource.URI.lastSegment»'.'''
 			error(message, TclPackage.Literals.TCL_MODEL__NAME, INVALID_NAME)
 		}
 		if (tclModel.macroCollection!=null && !getExpectedName(tclModel).equals(tclModel.name)) {
@@ -352,7 +351,7 @@ class TclValidator extends AbstractTclValidator {
 		}
 	}
 
-	@Check
+	// @Check
 	def void checkVariableReferenceUsage(TclModel tclModel) {
 		val stringTypeReference = typeReferences.getTypeForName(String, tclModel)
 		val environmentParams = tclModel.envParams.map[name].toSet

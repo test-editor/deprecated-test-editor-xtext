@@ -42,6 +42,8 @@ import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentValue
 
 import static org.testeditor.tcl.TclPackage.Literals.*
+import org.testeditor.tcl.AssignmentVariableReference
+import org.testeditor.tcl.AssignmentVariable
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -56,6 +58,9 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	private def String variableReferenceToVarName(VariableReference varRef) {
+		if( varRef instanceof AssignmentVariable){
+			return varRef.name
+		}
 		return "env_" + varRef.name
 	}
 
@@ -305,6 +310,10 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 		if (macroUseStack.empty &&
 			environmentVariableReferences.map[name].toList.contains(referencedVariable.variable.name)) {
+			return referencedVariable
+		}
+
+		if (macroUseStack.empty) {
 			return referencedVariable
 		}
 
