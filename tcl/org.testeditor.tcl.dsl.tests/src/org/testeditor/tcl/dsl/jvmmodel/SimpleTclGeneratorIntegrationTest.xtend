@@ -35,7 +35,7 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 		}
 		interaction type stop {
 			template = "Stoppe Anwendung"
-			method = «DummyFixture.simpleName».stopApplication
+			method = «DummyFixture.simpleName».stopApplication()
 		}
 		 
 		interaction type getValue {
@@ -53,7 +53,7 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			method = «DummyFixture.simpleName».getList(element)
 		}
 		
-		element type Label{
+		element type Label {
 			interactions = getList
 		}
 					
@@ -114,7 +114,7 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			    // - Lese Liste von <bar>
 			    java.util.List<? extends java.lang.Object> foo = dummyFixture.getList("label.greet");
 			    // - Stoppe Anwendung
-			    dummyFixture.();
+			    dummyFixture.stopApplication();
 			    /* Do something different */
 			    
 			  }
@@ -136,7 +136,7 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			
 			Cleanup:
 				Component: GreetingApplication
-				- Starte Anwendung "org.testeditor.swing.exammple.Greetings"
+				- Stoppe Anwendung
 			
 			* Test Step
 				Mask: GreetingApplication
@@ -180,8 +180,8 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			    
 			    // Component: GreetingApplication
 			    
-			    // - Starte Anwendung "org.testeditor.swing.exammple.Greetings"
-			    dummyFixture.startApplication("org.testeditor.swing.exammple.Greetings");
+			    // - Stoppe Anwendung
+			    dummyFixture.stopApplication();
 			  }
 			  
 			  @Test
