@@ -717,5 +717,15 @@
          </description>
       </shortcut>
    </extension>
+  <extension
+        point="org.eclipse.ui.newWizards">
+        <wizard
+            name="Test Case"
+            class="org.testeditor.tcl.dsl.ui.TclExecutableExtensionFactory:org.testeditor.tcl.dsl.ui.wizard.NewTclFileWizard"
+            id="org.testeditor.tcl.dsl.ui.wizard.NewTclFileWizard"
+            icon="icons/new_tcl_wiz.png"
+            category="org.testeditor">
+      </wizard>
+  </extension>
 
 </plugin>

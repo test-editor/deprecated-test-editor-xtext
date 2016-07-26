@@ -20,6 +20,7 @@ import org.eclipse.core.resources.ResourcesPlugin
 import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.IJavaElement
 import org.eclipse.jdt.core.IJavaProject
+import org.eclipse.jdt.core.IPackageFragmentRoot
 import org.eclipse.jface.viewers.ISelection
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.eclipse.jface.wizard.WizardPage
@@ -33,8 +34,8 @@ import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Label
 import org.eclipse.swt.widgets.Text
 import org.eclipse.ui.dialogs.ContainerSelectionDialog
-import org.testeditor.dsl.common.ui.utils.ProjectUtils
 import org.testeditor.dsl.common.ui.utils.ProjectContentGenerator
+import org.testeditor.dsl.common.ui.utils.ProjectUtils
 
 /** 
  * The "New" wizard page allows setting the container for the new file as well
@@ -100,7 +101,9 @@ class NewFileWizardPage extends WizardPage {
 	 */
 	def private void initialize() {
 		if (selection instanceof IStructuredSelection) {
-			if(selection.size !== 1) return
+			if (selection.size !== 1) {
+				return
+			}
 			val obj = selection.firstElement
 			switch (obj) {
 				IJavaProject: {
@@ -112,9 +115,14 @@ class NewFileWizardPage extends WizardPage {
 					setFileText(obj.name)
 				}
 				IResource: {
-					val container = if(obj instanceof IContainer) obj else obj.parent
+					val container = if (obj instanceof IContainer) obj else obj.parent
 					containerText.text = container.fullPath.toString
 					setFileText(container.name)
+				}
+				IPackageFragmentRoot: {
+					// when the user clicks on a source folder, e.g. src/main/java or src/test/java
+					containerText.text = obj.resource.fullPathString
+					setFileText(obj.javaProject?.elementName)
 				}
 				IJavaElement: {
 					val parentPackage = obj.getAncestor(IJavaElement.PACKAGE_FRAGMENT)
@@ -141,7 +149,7 @@ class NewFileWizardPage extends WizardPage {
 	}
 
 	def private getSourceFolderPath(IProject project) {
-		val srcFolder = project.getDeepFolder(ProjectContentGenerator.SRC_FOLDER)
+		val srcFolder = project.getDeepFolder(ProjectContentGenerator.SRC_TEST_FOLDER)
 		return srcFolder?.fullPathString
 	}
 
