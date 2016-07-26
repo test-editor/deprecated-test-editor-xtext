@@ -29,6 +29,7 @@ import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.BinaryAssertionExpression
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.Macro
+import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
@@ -45,7 +46,6 @@ import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
-import org.testeditor.tcl.MacroCollection
 
 class TclValidator extends AbstractTclValidator {
 
@@ -143,10 +143,14 @@ class TclValidator extends AbstractTclValidator {
 	def void checkAllVariableReferencesAreKnownParameters(TestStepContext context, Set<String> parameterNames,
 		String errorMessage) {
 		switch context {
-			ComponentTestStepContext:
+			ComponentTestStepContext: {
+				val completedAvailableParameterNames = newHashSet
+				completedAvailableParameterNames.addAll(parameterNames)
 				context.steps.forEach [
-					checkAllVariableReferencesAreKnownParameters(parameterNames, errorMessage)
+					checkAllVariableReferencesAreKnownParameters(completedAvailableParameterNames, errorMessage)
+					completedAvailableParameterNames.addAll(collectAssignmentVariables.keySet)
 				]
+			}
 			MacroTestStepContext:
 				context.step.checkAllVariableReferencesAreKnownParameters(parameterNames, errorMessage)
 			default:
@@ -290,6 +294,25 @@ class TclValidator extends AbstractTclValidator {
 			}
 		]
 	}
+	
+	private def Map<String, Set<JvmTypeReference>> collectAssignmentVariables(TestStepContext context){
+		switch(context){
+			ComponentTestStepContext: {
+				val result=newHashMap
+				context.steps.map[collectAssignmentVariables].forEach[result.putAll(it)]
+				return result
+				}
+			MacroTestStepContext: return context.step.collectAssignmentVariables
+			default: throw new RuntimeException('''unknown test step context «context.class.canonicalName»''')
+		}
+	}
+	private def Map<String, Set<JvmTypeReference>> collectAssignmentVariables(TestStep testStep) {
+		if(testStep instanceof TestStepWithAssignment){
+			val typeReference = testStep.interaction?.defaultMethod?.operation?.returnType			
+			return #{ testStep.variable.name -> #{typeReference}}
+		}
+		return emptyMap
+	}
 
 	private def isNotAssignableToMap(String typeIdentifier) {
 		return !typeof(Map).isAssignableFrom(Class.forName(typeIdentifier))
@@ -358,18 +381,19 @@ class TclValidator extends AbstractTclValidator {
 		}
 	}
 
-	// @Check
+	@Check
 	def void checkVariableReferenceUsage(TclModel tclModel) {
 		val stringTypeReference = typeReferences.getTypeForName(String, tclModel)
-		val environmentParams = tclModel.envParams.map[name].toSet
-		val actualTypeMap = newHashMap
-		environmentParams.forEach [
-			actualTypeMap.put(it, #{stringTypeReference})
+		val availableParamNames = tclModel.envParams.map[name].toSet
+		val availableParamNamesTypeMap = newHashMap
+		availableParamNames.forEach [
+			availableParamNamesTypeMap.put(it, #{stringTypeReference})
 		]
 		tclModel.test.steps.map[contexts].flatten.forEach [
-			checkAllVariableReferencesAreKnownParameters(environmentParams,
-				"Dereferenced variable must be a required environment variable")
-			checkAllVariableReferencesOnTypeEquality(actualTypeMap)
+			checkAllVariableReferencesAreKnownParameters(availableParamNamesTypeMap.keySet,
+				"Dereferenced variable must be a required environment variable or a previously assigned variable")
+			availableParamNamesTypeMap.putAll(collectAssignmentVariables)
+			checkAllVariableReferencesOnTypeEquality(availableParamNamesTypeMap)
 		]
 	}
 
@@ -397,23 +421,20 @@ class TclValidator extends AbstractTclValidator {
 		val derefVariables = indexedVariables.filter[value instanceof StepContentVariableReference]
 		derefVariables.forEach [
 			val varName=(value as StepContentVariableReference).variable.name
-			val expectedTypeSet = context.getAllTypeUsagesOfVariable(varName)
-			val actualTypeSet = actualTypeMap.get(varName)
-			if (!expectedTypeSet.
-				identicalSingleTypeInSet(
-					actualTypeSet)) {
-					error('''Environment variables can only be used for parameters of type '«actualTypeSet.map[qualifiedName].join(", ")»' (type expected = '«expectedTypeSet.map[qualifiedName].join(", ")»')''',
-						value.eContainer, value.eContainingFeature, key, INVALID_TYPED_VAR_DEREF)
-				}
-			]
-		}
-
-		/**
-		 * both sets hold only one type and this type is equal
-		 */
-		private def boolean identicalSingleTypeInSet(Set<JvmTypeReference> setA, Set<JvmTypeReference> setB) {
-			setA.size == 1 && setB.size == 1 && setA.head.qualifiedName == setB.head.qualifiedName
-		}
-
+			val expectedTypeSet = context.getAllTypeUsagesOfVariable(varName).filterNull.toSet
+			val actualTypeSet = actualTypeMap.get(varName).filterNull.toSet
+			if (!expectedTypeSet.identicalSingleTypeInSet(actualTypeSet)) {
+				error('''Environment variables can only be used for parameters of type '«actualTypeSet.map[qualifiedName].join(", ")»' (type expected = '«expectedTypeSet.map[qualifiedName].join(", ")»')''',
+					value.eContainer, value.eContainingFeature, key, INVALID_TYPED_VAR_DEREF)
+			}
+		]
 	}
-	
+
+	/**
+	 * both sets hold only one type and this type is equal
+	 */
+	private def boolean identicalSingleTypeInSet(Set<JvmTypeReference> setA, Set<JvmTypeReference> setB) {
+		setA.size == 1 && setB.size == 1 && setA.head.qualifiedName == setB.head.qualifiedName
+	}
+
+}

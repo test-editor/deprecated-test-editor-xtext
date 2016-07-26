@@ -160,6 +160,13 @@ class TclModelGenerator {
 		return me
 	}
 
+	def TestStep withReferenceToEnvironmentVariable(TestStep me, EnvironmentVariableReference envVariable) {
+		me.contents += tclFactory.createStepContentVariableReference => [
+			variable = envVariable
+		]
+		return me
+	}
+
 	def TestStep withParameter(TestStep me, String parameter) {
 		me.contents += tslFactory.createStepContentVariable => [value = parameter]
 		return me

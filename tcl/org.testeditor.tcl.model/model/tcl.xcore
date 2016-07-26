@@ -18,14 +18,13 @@
 package org.testeditor.tcl
 
 import org.eclipse.xtext.xtype.XImportSection
-import org.testeditor.tsl.SpecificationStep
-import org.testeditor.tsl.TestSpecification
-import org.testeditor.aml.VariableReference
-import org.testeditor.aml.Template
 import org.testeditor.aml.Component
+import org.testeditor.aml.Template
 import org.testeditor.aml.VariableReference
+import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentValue
+import org.testeditor.tsl.TestSpecification
 
 class TclModel {
 	String ^package
