@@ -29,6 +29,7 @@ import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.BinaryAssertionExpression
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.Macro
+import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
@@ -340,15 +341,20 @@ class TclValidator extends AbstractTclValidator {
 	}
 
 	@Check
-	def void checkTestName(TclModel tclModel) {
-		val expectedName = tclModel.expectedName
-		if (tclModel.test !== null && tclModel.test.name != expectedName) {
-			val message = '''Test case name does not match '«tclModel.eResource.URI.lastSegment»'.'''
+	def void checkName(TestCase testCase) {
+		val expectedName = testCase.expectedName
+		if (testCase.name != expectedName) {
+			val message = '''Test case name does not match '«expectedName»'.'''
 			error(message, TclPackage.Literals.TEST_CASE__NAME, INVALID_NAME)
 		}
-		if (tclModel.macroCollection !== null && tclModel.macroCollection.name != expectedName) {
-			val message = '''Macro collection does not match '«tclModel.eResource.URI.lastSegment»'.'''
-			error(message, TclPackage.Literals.MACRO_COLLECTION__NAME, INVALID_NAME)
+	}
+
+	@Check
+	def void checkName(MacroCollection macroCollection) {
+		val expectedName = macroCollection.expectedName
+		if (macroCollection.name != expectedName) {
+			val message = '''Test case name does not match '«expectedName»'.'''
+			error(message, TclPackage.Literals.TEST_CASE__NAME, INVALID_NAME)
 		}
 	}
 
