@@ -29,7 +29,6 @@ import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.BinaryAssertionExpression
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.Macro
-import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
