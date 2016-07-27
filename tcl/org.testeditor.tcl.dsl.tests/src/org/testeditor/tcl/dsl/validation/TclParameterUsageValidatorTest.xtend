@@ -13,6 +13,7 @@
 package org.testeditor.tcl.dsl.validation
 
 import com.google.inject.Provider
+import java.util.UUID
 import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.junit4.validation.ValidationTestHelper
@@ -258,7 +259,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 	 * register the given model with the resource set (for cross linking)
 	 */
 	private def <T extends EObject> T register(T model, String fileExtension) {
-		model.register(resourceSet, fileExtension)
+		model.register(resourceSet, UUID.randomUUID.toString + '.' + fileExtension)
 	}
 
 }

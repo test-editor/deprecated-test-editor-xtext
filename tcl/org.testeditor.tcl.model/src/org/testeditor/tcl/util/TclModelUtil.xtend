@@ -15,14 +15,11 @@ package org.testeditor.tcl.util
 import java.util.List
 import java.util.Map
 import java.util.Set
-import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
-import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.common.types.JvmTypeReference
-import org.eclipse.xtext.resource.XtextResourceSet
 import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.InteractionType
@@ -270,23 +267,6 @@ class TclModelUtil extends TslModelUtil {
 			return root.environmentVariableReferences
 		}
 		return #{}
-	}
-
-	/** 
-	 * register the given model with the resource set (for cross linking)
-	 */
-	def <T extends EObject> T register(T model, XtextResourceSet resourceSet, String fileName, String fileExtension) {
-		val uri = URI.createURI(fileName+"."+fileExtension)
-		register(model, resourceSet, uri)
-	}
-	def <T extends EObject> T register(T model, XtextResourceSet resourceSet, String fileExtension) {
-		val uri = URI.createURI(UUID.randomUUID.toString + "." + fileExtension)
-		register(model, resourceSet, uri)
-	}
-	def <T extends EObject> T register(T model, XtextResourceSet resourceSet, URI uri) {
-		val newResource = resourceSet.createResource(uri)
-		newResource.contents.add(model)
-		return model
 	}
 
 }

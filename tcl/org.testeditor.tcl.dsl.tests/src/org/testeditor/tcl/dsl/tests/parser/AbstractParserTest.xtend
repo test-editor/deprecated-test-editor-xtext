@@ -14,10 +14,13 @@ package org.testeditor.tcl.dsl.tests.parser
 
 import java.io.StringReader
 import javax.inject.Inject
+import org.eclipse.emf.common.util.URI
+import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.ParserRule
 import org.eclipse.xtext.junit4.util.ParseHelper
 import org.eclipse.xtext.parser.IParseResult
 import org.eclipse.xtext.parser.IParser
+import org.eclipse.xtext.resource.XtextResourceSet
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.dsl.services.TclGrammarAccess
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
@@ -44,6 +47,16 @@ abstract class AbstractParserTest extends AbstractTclTest {
 
 	protected def <T> T getParsedRule(IParseResult parseResult, Class<T> rule) {
 		return rule.cast(parseResult.rootASTElement)
+	}
+
+	/** 
+	 * register the given model with the resource set (for cross linking)
+	 */
+	protected def <T extends EObject> T register(T model, XtextResourceSet resourceSet, String fileName) {
+		val uri = URI.createURI(fileName)
+		val newResource = resourceSet.createResource(uri)
+		newResource.contents.add(model)
+		return model
 	}
 
 }
