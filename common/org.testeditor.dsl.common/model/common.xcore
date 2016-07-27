@@ -7,5 +7,6 @@
 package org.testeditor.dsl.common
 
 abstract class NamedElement {
+	/* The identifying name (id) of the element. */
 	String name
 }

@@ -18,13 +18,14 @@
 
 package org.testeditor.tsl
 
+import org.testeditor.dsl.common.NamedElement
+
 class TslModel {
 	String ^package
 	contains TestSpecification specification 
 }
 
-class TestSpecification {
-	String name
+class TestSpecification extends NamedElement {
 	String description
 	contains SpecificationStep[0..*] steps
 }
