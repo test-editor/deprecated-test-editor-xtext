@@ -174,16 +174,16 @@ class TclLauncherUi implements Launcher {
 
 	def Iterable<String> getTestCaseListFromSelection(Object sel) {
 		if (sel instanceof IFolder) {
-			sel.testCasesFromFolder
+			return sel.testCasesFromFolder
 		} else {
 			if (sel instanceof IResource) {
 				if (sel.fileExtension.equalsIgnoreCase("tsl")) {
 					val uri = URI.createPlatformResourceURI(sel.locationURI.toString, true).deresolve(
 						URI.createPlatformResourceURI(sel.project.locationURI.toString, true))
 					val secondURI = URI.createPlatformResourceURI(uri.toString, true)
-					tslIndex.get(secondURI).map[toString]
+					return tslIndex.get(secondURI).map[toString]
 				} else {
-					#[launchShortcutUtil.getQualifiedNameForTestInTcl(sel).toString]
+					return #[launchShortcutUtil.getQualifiedNameForTestInTcl(sel).toString]
 				}
 			}
 		}
