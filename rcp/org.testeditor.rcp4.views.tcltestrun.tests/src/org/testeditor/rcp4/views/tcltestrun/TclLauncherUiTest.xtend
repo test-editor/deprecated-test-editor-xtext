@@ -44,6 +44,7 @@ class TclLauncherUiTest extends AbstractTest {
 		// given
 		val resource = IResource.mock
 		when(selection.firstElement).thenReturn(resource)
+		when(resource.fileExtension).thenReturn("tcl")
 		when(launchUtil.getQualifiedNameForTestInTcl(any)).thenReturn(QualifiedName.create("mypackage", "myTest"))
 		
 		// when
@@ -64,6 +65,8 @@ class TclLauncherUiTest extends AbstractTest {
 			QualifiedName.create("mypackage", "mySecondTest"))
 		when(selection.size).thenReturn(2)
 		when(selection.toList).thenReturn(#[resource1, resource2])
+		when(resource1.fileExtension).thenReturn("tcl")
+		when(resource2.fileExtension).thenReturn("tcl")
 		
 		// when
 		val testCases = launcherUi.createTestCasesList(selection)
