@@ -36,6 +36,8 @@ import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.StepContentVariableReference
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
+import org.testeditor.tcl.TestCleanup
+import org.testeditor.tcl.TestSetup
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.util.TclModelUtil
@@ -81,7 +83,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 					initializer = '''System.getenv("«environmentVariableReference.name»")'''
 				]
 			]
-			if (! envParams.empty) {
+			if (!envParams.empty) {
 				members += test.toMethod('checkEnvironmentVariablesOnExistence', typeRef(Void.TYPE)) [
 					exceptions += typeRef(Exception)
 					annotations += annotationRef('org.junit.Before') // make sure that junit is in the classpath of the workspace containing the dsl
@@ -91,11 +93,43 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 					]
 				]
 			}
+
+			// Create @Before method if relevant
+			if (test.setup !== null) {
+				members += test.setup.createSetupMethod(envParams)
+			}
+			// Create @After method if relevant
+			if (test.cleanup !== null) {
+				members += test.cleanup.createCleanupMethod(envParams)
+			}
+
 			// Create test method
 			members += test.toMethod('execute', typeRef(Void.TYPE)) [
 				exceptions += typeRef(Exception)
 				annotations += annotationRef('org.junit.Test') // make sure that junit is in the classpath of the workspace containing the dsl
 				body = [test.generateMethodBody(trace(test, true), envParams)]
+			]
+		]
+	}
+	
+	private def JvmOperation createSetupMethod(TestSetup setup, Iterable<EnvironmentVariableReference> envParams) {
+		return setup.toMethod('setup', typeRef(Void.TYPE)) [
+			exceptions += typeRef(Exception)
+			annotations += annotationRef('org.junit.Before')
+			body = [
+				val output = trace(setup, true)
+				setup.contexts.forEach[generateContext(output.trace(it), #[], envParams)]
+			]
+		]
+	}
+
+	private def JvmOperation createCleanupMethod(TestCleanup cleanup, Iterable<EnvironmentVariableReference> envParams) {
+		return cleanup.toMethod('cleanup', typeRef(Void.TYPE)) [
+			exceptions += typeRef(Exception)
+			annotations += annotationRef('org.junit.After')
+			body = [
+				val output = trace(cleanup, true)
+				cleanup.contexts.forEach[generateContext(output.trace(it), #[], envParams)]
 			]
 		]
 	}

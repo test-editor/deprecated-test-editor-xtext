@@ -24,6 +24,8 @@ import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.StepContentVariableReference
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
+import org.testeditor.tcl.TestCleanup
+import org.testeditor.tcl.TestSetup
 import org.testeditor.tcl.TestStep
 import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentVariable
@@ -49,7 +51,23 @@ class TclFormatter extends XbaseFormatter {
 		testCase.regionFor.keyword("implements").prepend[oneSpace]
 		testCase.regionFor.feature(TEST_CASE__SPECIFICATION).prepend[oneSpace]
 		// testCase.interior[indent] // configurable?
+		testCase.setup?.format
+		testCase.cleanup?.format
 		testCase.steps.forEach[format]
+	}
+
+	def dispatch void format(TestSetup element, extension IFormattableDocument document) {
+		element.regionFor.keyword("Setup").prepend[newLines = 2]
+		element.regionFor.keyword(":").prepend[noSpace]
+		element.interior[indent]
+		element.contexts.forEach[format]
+	}
+
+	def dispatch void format(TestCleanup element, extension IFormattableDocument document) {
+		element.regionFor.keyword("Cleanup").prepend[newLines = 2]
+		element.regionFor.keyword(":").prepend[noSpace]
+		element.interior[indent]
+		element.contexts.forEach[format]
 	}
 
 	def dispatch void format(SpecificationStepImplementation step, extension IFormattableDocument document) {

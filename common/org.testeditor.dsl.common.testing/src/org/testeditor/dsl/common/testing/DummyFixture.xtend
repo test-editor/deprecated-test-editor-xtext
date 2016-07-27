@@ -30,6 +30,10 @@ public class DummyFixture {
 	}
 
 	@FixtureMethod
+	def void stopApplication() {
+	}
+
+	@FixtureMethod
 	def void waitSeconds(long secs) {
 	}
 

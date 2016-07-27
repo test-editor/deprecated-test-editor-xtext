@@ -550,5 +550,15 @@
             type="text">
     </fileTypes>
   </extension>
+  <extension
+        point="org.eclipse.ui.newWizards">
+        <wizard
+            name="Application Mapping"
+            class="org.testeditor.aml.dsl.ui.AmlExecutableExtensionFactory:org.testeditor.aml.dsl.ui.wizard.NewAmlFileWizard"
+            id="org.testeditor.aml.dsl.ui.wizard.NewAmlFileWizard"
+            icon="icons/new_aml_wiz.png"
+            category="org.testeditor">
+      </wizard>
+  </extension>
 
 </plugin>
