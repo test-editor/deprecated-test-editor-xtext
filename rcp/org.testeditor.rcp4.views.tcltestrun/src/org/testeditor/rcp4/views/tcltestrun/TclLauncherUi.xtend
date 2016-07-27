@@ -24,6 +24,8 @@ import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.IProgressMonitor
+import org.eclipse.emf.common.util.URI
+import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.jdt.core.IJavaElement
 import org.eclipse.jdt.junit.JUnitCore
 import org.eclipse.jface.viewers.IStructuredSelection
@@ -31,15 +33,19 @@ import org.eclipse.jface.viewers.LabelProvider
 import org.eclipse.jface.window.Window
 import org.eclipse.ui.PlatformUI
 import org.eclipse.ui.dialogs.ElementListSelectionDialog
+import org.eclipse.xtext.EcoreUtil2
+import org.eclipse.xtext.resource.IResourceDescriptions
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.ProgressMonitorRunner
 import org.testeditor.rcp4.tcltestrun.TclGradleLauncher
 import org.testeditor.rcp4.tcltestrun.TclInjectorProvider
 import org.testeditor.rcp4.tcltestrun.TclLauncher
 import org.testeditor.rcp4.tcltestrun.TclMavenLauncher
+import org.testeditor.tcl.TclModel
+import org.testeditor.tcl.TclPackage
+import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.dsl.ui.testlaunch.LaunchShortcutUtil
 import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
-import org.testeditor.tsl.TslModel
 
 class TclLauncherUi implements Launcher {
 	static val logger = LoggerFactory.getLogger(TclLauncherUi)
@@ -48,7 +54,9 @@ class TclLauncherUi implements Launcher {
 	@Inject TclMavenLauncher mavenLauncher
 	@Inject TclGradleLauncher gradleLauncher
 	@Inject TestResultFileWriter testResultFileWriter
+	@Inject TclInjectorProvider tclInjectorProvider
 	LaunchShortcutUtil launchShortcutUtil // since this class itself is instanciated by e4, this attribute has to be injected manually
+	Map<URI, List<TestCase>> tslIndex
 
 	@Inject
 	new(TclInjectorProvider tclInjectorProvider) {
@@ -57,6 +65,7 @@ class TclLauncherUi implements Launcher {
 
 	override boolean launch(IStructuredSelection selection, IProject project, String mode, boolean parameterize) {
 		val options = newHashMap
+		createTestCaseIndex(project)
 		if (project.getFile("build.gradle").exists) {
 			return launchTest(createGradleTestCasesList(selection), project, gradleLauncher, options)
 		}
@@ -73,6 +82,24 @@ class TclLauncherUi implements Launcher {
 		logger.warn("gradle based launching test for tcl element='{}' failed, since file='build.gradle' was not found.",
 			selection.firstElement)
 		return false
+	}
+
+	def createTestCaseIndex(IProject project) {
+		var resourceDescriptions = tclInjectorProvider.get.getInstance(IResourceDescriptions)
+		val rs = tclInjectorProvider.get.getInstance(ResourceSet)
+		val modells = resourceDescriptions.getExportedObjectsByType(TclPackage.Literals.TCL_MODEL)
+		val tclModells = modells.map[EObjectOrProxy].map[EcoreUtil2.resolve(it, rs) as TclModel]
+		val testcases = tclModells.map[test].filterNull
+		tslIndex = newHashMap
+		testcases.forEach [
+			if (it.specification != null) {
+				val tslKey = it.specification.eContainer.eResource.URI
+				if (!tslIndex.keySet.contains(tslKey)) {
+					tslIndex.put(tslKey, newArrayList)
+				}
+				tslIndex.get(tslKey).add(it)
+			}
+		]
 	}
 
 	private def String selectMavenProfile(IProject project) {
@@ -141,10 +168,7 @@ class TclLauncherUi implements Launcher {
 		if (selection.size > 1) {
 			return selection.toList.map[testCaseListFromSelection].flatten.toList
 		} else {
-			if (selection.firstElement instanceof IFolder) {
-				return selection.firstElement.testCaseListFromSelection.toList
-			}
-			return #[launchShortcutUtil.getQualifiedNameForTestInTcl(selection.firstElement as IResource).toString]
+			return selection.firstElement.testCaseListFromSelection.toList
 		}
 	}
 
@@ -154,8 +178,10 @@ class TclLauncherUi implements Launcher {
 		} else {
 			if (sel instanceof IResource) {
 				if (sel.fileExtension.equalsIgnoreCase("tsl")) {
-					System.err.println(sel.getAdapter(TslModel))
-					#[]
+					val uri = URI.createPlatformResourceURI(sel.locationURI.toString, true).deresolve(
+						URI.createPlatformResourceURI(sel.project.locationURI.toString, true))
+					val secondURI = URI.createPlatformResourceURI(uri.toString, true)
+					tslIndex.get(secondURI).map[toString]
 				} else {
 					#[launchShortcutUtil.getQualifiedNameForTestInTcl(sel).toString]
 				}
