@@ -10,31 +10,34 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.dsl.common.ui.wizards
+package org.testeditor.tsl.dsl.ui.wizard
 
 import javax.inject.Inject
+import org.testeditor.dsl.common.ui.wizards.NewFileWizard
+import org.testeditor.dsl.common.ui.wizards.NewFileWizardPage
 
-class NewAmlFileWizard extends NewFileWizard {
+class NewTslFileWizard extends NewFileWizard {
 
-	@Inject NewFileWizardPage amlPage
+	@Inject NewFileWizardPage tslPage
 
 	override String getContainerName() {
-		amlPage.containerName
+		tslPage.containerName
 	}
 
 	override String getFileName() {
-		amlPage.fileName
+		tslPage.fileName
 	}
 
 	override void addPages() {
-		amlPage.init(selection, "New Aml File", "This wizard creates a new file with *.aml extension.", "aml")
-		addPage(amlPage)
+		tslPage.init(selection, "New Tsl File", "This wizard creates a new file with *.tsl extension.", "tsl")
+		addPage(tslPage)
 	}
 
 	override String contentString(String thePackage, String fileName) {
 		return '''
 			package «thePackage ?: "com.example"»
+			
+			# «fileName.replace(".tsl","").toFirstUpper»
 		'''
 	}
-
 }

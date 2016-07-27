@@ -25,7 +25,8 @@ class TclHighlightingConfiguration extends DefaultHighlightingConfiguration {
 
 	override configure(IHighlightingConfigurationAcceptor acceptor) {
 		super.configure(acceptor)
-		acceptor.acceptDefaultHighlighting(TCL_MODEL_NAME, "TestModel Name", testModelName)
+		acceptor.acceptDefaultHighlighting(TEST_CASE_NAME, "Test Case Name", testModelName)
+		acceptor.acceptDefaultHighlighting(MACRO_COLLECTION_NAME, "Macro Collection Name", testModelName)
 //		acceptor.acceptDefaultHighlighting(STEP_CONTENT_ELEMENT, "Step content element", stepContentElement)
 		acceptor.acceptDefaultHighlighting(COMPONENT_ELEMENT_REFERENCE, "Component Element Reference",
 			componentElementReference)

@@ -39,7 +39,7 @@ nodeWithProperWorkspace {
 
     stage 'Build target platform'
     withMavenEnv {
-        mvn 'clean install -f "releng/org.testeditor.releng.target/pom.xml"'
+        mvn 'clean install -f "target-platform/pom.xml"'
     }
 
     stage (isMaster() ? 'Build and deploy' : 'Build')

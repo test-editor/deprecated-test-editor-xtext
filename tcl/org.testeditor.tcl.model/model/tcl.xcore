@@ -30,23 +30,40 @@ class TclModel {
 	String ^package
 	contains XImportSection importSection
 	contains EnvironmentVariableReference[0..*] environmentVariableReferences
-	String name
 	contains TestCase test opposite model
 	contains MacroCollection macroCollection opposite model
 }
 
 class TestCase {
+	String name
 	container derived TclModel model opposite test
 	refers TestSpecification specification
+	contains TestSetup setup
+	contains TestCleanup cleanup
 	contains SpecificationStepImplementation[0..*] steps opposite test
 }
 
-class SpecificationStepImplementation extends SpecificationStep {
+class SpecificationStepImplementation extends SpecificationStep, StepContainer {
 	container derived TestCase test opposite steps
-	contains TestStepContext[0..*] contexts
 }
 
 class EnvironmentVariableReference extends VariableReference {
+}
+
+/*
+ * Defines the steps that shall be executed before each test execution.
+ */
+class TestSetup extends StepContainer {
+}
+
+/*
+ * Defines the steps that shall be executed after each test execution.
+ */
+class TestCleanup extends StepContainer {
+}
+
+abstract class StepContainer {
+	contains TestStepContext[0..*] contexts
 }
 
 class MacroCollection {
@@ -55,10 +72,9 @@ class MacroCollection {
 	contains Macro[0..*] macros
 }
 
-class Macro {
+class Macro extends StepContainer {
 	String name
 	contains Template template
-	contains TestStepContext[0..*] contexts
 }
 
 abstract class TestStepContext {

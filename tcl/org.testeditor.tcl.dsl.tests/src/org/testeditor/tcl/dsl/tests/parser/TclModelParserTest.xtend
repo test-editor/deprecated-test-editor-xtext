@@ -60,7 +60,7 @@ class TclModelParserTest extends AbstractParserTest {
 		val tcl = parse(input)
 		
 		// then
-		tcl.name.assertEquals('MyTest')
+		tcl.test.name.assertEquals('MyTest')
 		tcl.test.steps.assertSingleElement => [
 			contents.restoreString.assertEquals('Start the famous greetings application')
 		]
@@ -236,7 +236,7 @@ class TclModelParserTest extends AbstractParserTest {
 	}
 
 	@Test
-	def void parseMacroTestStep(){
+	def void parseMacroTestStep() {
 		// given
 		val input = '''
 			package com.example
@@ -286,4 +286,101 @@ class TclModelParserTest extends AbstractParserTest {
 		// then
 		model.package.assertEquals('com.example')
 	}
+
+	@Test
+	def void parseSetup() {
+		// given
+		val input = '''
+			package com.example
+			
+			# Test
+			
+			Setup:
+				Component: Demo
+		'''
+
+		// when
+		val test = parse(input).test
+
+		// then
+		test.assertNoSyntaxErrors
+		test.setup.assertNotNull
+		test.setup.contexts.assertSingleElement
+	}
+
+	@Test
+	def void parseCleanup() {
+		// given
+		val input = '''
+			package com.example
+			
+			# Test
+			
+			Cleanup:
+				Component: Demo
+		'''
+
+		// when
+		val test = parse(input).test
+
+		// then
+		test.assertNoSyntaxErrors
+		test.cleanup.assertNotNull
+		test.cleanup.contexts.assertSingleElement
+	}
+
+	@Test
+	def void parseSetupAndCleanupBeforeSpecificationSteps() {
+		// given
+		val input = '''
+			package com.example
+			
+			# Test
+			
+			Setup:
+				Component: MySetupComponent
+			
+			Cleanup:
+				Component: MyCleanupComponent
+			
+			* step1
+		'''
+
+		// when
+		val test = parse(input).test
+
+		// then
+		test.assertNoSyntaxErrors
+		test.setup.assertNotNull
+		test.cleanup.assertNotNull
+		test.steps.assertSingleElement
+	}
+
+	@Test
+	def void parseSetupAndCleanupAfterSpecificationSteps() {
+		// given
+		val input = '''
+			package com.example
+			
+			# Test
+			
+			* step1
+			
+			Cleanup:
+				Component: MyCleanupComponent
+			
+			Setup:
+				Component: MySetupComponent
+		'''
+
+		// when
+		val test = parse(input).test
+
+		// then
+		test.assertNoSyntaxErrors
+		test.setup.assertNotNull
+		test.cleanup.assertNotNull
+		test.steps.assertSingleElement
+	}
+
 }

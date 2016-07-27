@@ -58,7 +58,7 @@ abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 
 	protected def String generate(TclModel model) {
 		generator.doGenerate(model.eResource, fsa)
-		val file = fsa.getJavaFile(model.package, model.name)
+		val file = fsa.getJavaFile(model.package, model.test.name)
 		return file.toString
 	}
 
