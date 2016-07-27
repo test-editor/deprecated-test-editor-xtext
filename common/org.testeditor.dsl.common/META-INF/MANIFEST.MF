@@ -1,13 +1,19 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-SymbolicName: org.testeditor.dsl.common
+Bundle-SymbolicName: org.testeditor.dsl.common;singleton:=true
 Bundle-Version: 1.2.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
 Require-Bundle: org.eclipse.xtend.lib.macro,
  org.eclipse.xtext,
- org.testeditor.logging
+ org.testeditor.logging,
+ org.eclipse.core.runtime,
+ org.eclipse.emf.ecore;visibility:=reexport,
+ org.eclipse.xtext.xbase.lib,
+ org.eclipse.emf.ecore.xcore.lib
 Export-Package: org.testeditor.dsl.common.ide.util,
+ org.testeditor.dsl.common,
+ org.testeditor.dsl.common.impl,
  org.testeditor.dsl.common.util
 Eclipse-BundleShape: dir
 Bundle-ActivationPolicy: lazy

@@ -1,0 +1,11 @@
+@Ecore(nsURI="http://www.testeditor.org/model")
+@GenModel(
+	modelDirectory="org.testeditor.dsl.common/src-gen", 
+	complianceLevel="7.0",
+	updateClasspath="true"
+)
+package org.testeditor.dsl.common
+
+abstract class NamedElement {
+	String name
+}
