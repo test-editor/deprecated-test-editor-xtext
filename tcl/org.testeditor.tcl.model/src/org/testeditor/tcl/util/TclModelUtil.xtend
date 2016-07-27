@@ -212,13 +212,13 @@ class TclModelUtil extends TslModelUtil {
 		return #{}
 	}
 	
-	def Map<String, Set<JvmTypeReference>> getEnvironmentVariablesTypeMap(
+	def Map<String, JvmTypeReference> getEnvironmentVariablesTypeMap(
 		Iterable<EnvironmentVariableReference> envParams) {
 		val envParameterVariablesNames = envParams.map[name]
 		val envParameterVariablesTypeMap = newHashMap
 		if (!envParams.empty) {
 			val stringTypeReference = typeReferences.getTypeForName(String, envParams.head)
-			envParameterVariablesNames.forEach[envParameterVariablesTypeMap.put(it, #{stringTypeReference})]
+			envParameterVariablesNames.forEach[envParameterVariablesTypeMap.put(it, stringTypeReference)]
 		}
 		return envParameterVariablesTypeMap
 	}
@@ -279,7 +279,7 @@ class TclModelUtil extends TslModelUtil {
 
 	def Iterable<EnvironmentVariableReference> getEnvParams(EObject object) {
 		val root = EcoreUtil2.getContainerOfType(object, TclModel)
-		if (root !== null) {
+		if (root !== null && root.environmentVariableReferences!=null ){
 			return root.environmentVariableReferences
 		}
 		return #{}
