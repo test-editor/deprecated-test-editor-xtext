@@ -22,6 +22,7 @@ import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.common.types.JvmTypeReference
+import org.eclipse.xtext.common.types.util.TypeReferences
 import org.eclipse.xtext.resource.XtextResourceSet
 import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
@@ -51,6 +52,7 @@ import org.testeditor.tsl.util.TslModelUtil
 @Singleton
 class TclModelUtil extends TslModelUtil {
 	@Inject extension ModelUtil
+	@Inject TypeReferences typeReferences
 
 	override String restoreString(List<StepContent> contents) {
 		return contents.map [
@@ -208,6 +210,17 @@ class TclModelUtil extends TslModelUtil {
 			curObject = curObject.eContainer
 		}
 		return #{}
+	}
+	
+	def Map<String, Set<JvmTypeReference>> getEnvironmentVariablesTypeMap(
+		Iterable<EnvironmentVariableReference> envParams) {
+		val envParameterVariablesNames = envParams.map[name]
+		val envParameterVariablesTypeMap = newHashMap
+		if (!envParams.empty) {
+			val stringTypeReference = typeReferences.getTypeForName(String, envParams.head)
+			envParameterVariablesNames.forEach[envParameterVariablesTypeMap.put(it, #{stringTypeReference})]
+		}
+		return envParameterVariablesTypeMap
 	}
 
 	/**

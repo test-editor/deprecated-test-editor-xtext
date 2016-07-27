@@ -305,8 +305,8 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 		tclModel.register('MyTest', 'tcl')
 		return tclModel
 	}
-
-	/** 
+	
+    /** 
 	 * register the given model with the resource set (for cross linking)
 	 */
 	private def <T extends EObject> T register(T model, String fileExtension) {
