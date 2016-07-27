@@ -33,6 +33,7 @@ import org.testeditor.tsl.TslPackage
 
 import static org.eclipse.xtext.formatting2.IHiddenRegionFormatter.LOW_PRIORITY
 import static org.testeditor.tcl.TclPackage.Literals.*
+import org.testeditor.tcl.ComplexVariableReference
 
 class TclFormatter extends XbaseFormatter {
 
@@ -134,8 +135,15 @@ class TclFormatter extends XbaseFormatter {
 
 	def dispatch void format(StepContentVariableReference stepContentVariableReference,
 		extension IFormattableDocument document) {
-		stepContentVariableReference.regionFor.keyword('@').prepend[oneSpace]
-		stepContentVariableReference.regionFor.feature(STEP_CONTENT_VARIABLE_REFERENCE__VARIABLE).prepend[noSpace]
+		stepContentVariableReference.regionFor.keyword('@').prepend[oneSpace].append[noSpace]
+		stepContentVariableReference.variable.format
+	}
+	
+	def dispatch void format(ComplexVariableReference complexVariableReference,
+		extension IFormattableDocument document) {
+		complexVariableReference.regionFor.keyword('.').prepend[noSpace].append[noSpace]
+		complexVariableReference.simpleVariable.append[noSpace]
+		complexVariableReference.regionFor.feature(COMPLEX_VARIABLE_REFERENCE__KEY).prepend[noSpace]
 	}
 
 	def dispatch void format(Template template, extension IFormattableDocument document) {

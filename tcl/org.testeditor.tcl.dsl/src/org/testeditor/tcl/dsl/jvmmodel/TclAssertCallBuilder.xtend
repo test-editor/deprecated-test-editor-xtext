@@ -6,13 +6,13 @@ import org.testeditor.aml.ModelUtil
 import org.testeditor.tcl.AEComparison
 import org.testeditor.tcl.AENullOrBoolCheck
 import org.testeditor.tcl.AEStringConstant
-import org.testeditor.tcl.AEVariableReference
 import org.testeditor.tcl.AssertionExpression
 import org.testeditor.tcl.Comparator
 import org.testeditor.tcl.ComparatorEquals
 import org.testeditor.tcl.ComparatorGreaterThen
 import org.testeditor.tcl.ComparatorLessThen
 import org.testeditor.tcl.ComparatorMatches
+import org.testeditor.tcl.ComplexVariableReference
 import org.testeditor.tcl.util.TclModelUtil
 
 class TclAssertCallBuilder {
@@ -61,8 +61,8 @@ class TclAssertCallBuilder {
 	}
 
 	private def AssertMethod assertionMethodForNullOrBoolCheck(AENullOrBoolCheck expression) {
-		val interaction = getInteraction(expression.varReference.variable.testStep)
-		val returnTypeName = getReturnType(interaction)?.qualifiedName ?: ""
+		val interaction = expression.testStep.interaction
+		val returnTypeName = interaction.returnType?.qualifiedName ?: ""
 		switch (returnTypeName) {
 			case boolean.name,
 			case Boolean.name: return adjustedAssertMethod(AssertMethod.assertTrue, expression.isNegated)
@@ -73,7 +73,7 @@ class TclAssertCallBuilder {
 	private def AssertMethod assertionMethod(AssertionExpression expression) {
 		return switch (expression) {
 			AENullOrBoolCheck: assertionMethodForNullOrBoolCheck(expression)
-			AEVariableReference: AssertMethod.assertNotNull
+			ComplexVariableReference: AssertMethod.assertNotNull
 			AEComparison: assertionMethod(expression.comparator)
 			AEStringConstant: AssertMethod.assertNotNull
 			default: throw new RuntimeException('''unknown expression type «expression.class»''')
@@ -100,7 +100,7 @@ class TclAssertCallBuilder {
 
 	private def dispatch String buildExpression(AENullOrBoolCheck nullCheck) {
 		val expression = nullCheck.varReference.buildExpression
-		val interaction = nullCheck.varReference.variable.testStep.interaction
+		val interaction = nullCheck.testStep.interaction
 		val returnType = interaction.returnType
 		if (Boolean.isAssignableWithoutConversion(returnType)) {
 			return '''(«expression» != null) && «expression».booleanValue()'''
@@ -124,11 +124,11 @@ class TclAssertCallBuilder {
 		}
 	}
 
-	private def dispatch String buildExpression(AEVariableReference varRef) {
+	private def dispatch String buildExpression(ComplexVariableReference varRef) {
 		if (varRef.key == null) {
-			return varRef.variable.name
+			return varRef.simpleVariable.name
 		} else {
-			return '''«varRef.variable.name».get("«varRef.key»")'''
+			return '''«varRef.simpleVariable.name».get("«varRef.key»")'''
 		}
 	}
 

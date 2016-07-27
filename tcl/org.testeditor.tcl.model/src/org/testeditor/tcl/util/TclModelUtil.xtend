@@ -48,6 +48,7 @@ import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
+import org.testeditor.tcl.AssertionExpression
 
 @Singleton
 class TclModelUtil extends TslModelUtil {
@@ -59,7 +60,7 @@ class TclModelUtil extends TslModelUtil {
 			switch (it) {
 				StepContentVariable: '''"«value»"'''
 				StepContentElement: '''<«value»>'''
-				StepContentVariableReference: '''@«variable?.name»'''
+				StepContentVariableReference: '''@«variable?.simpleVariable?.name»'''
 				StepContentValue:
 					value
 				default:
@@ -72,6 +73,15 @@ class TclModelUtil extends TslModelUtil {
 		macroCallSite.macroCollection?.macros?.findFirst [
 			template.normalize == macroCallSite.step.normalize
 		]
+	}
+	
+	// get the test step that holds this expression
+	def TestStep getTestStep(AssertionExpression expression) {
+		var parent = expression.eContainer
+		while (parent != null && !(parent instanceof TestStep)) {
+			parent = parent.eContainer
+		}
+		return parent as TestStep
 	}
 
 	def InteractionType getInteraction(TestStep step) {

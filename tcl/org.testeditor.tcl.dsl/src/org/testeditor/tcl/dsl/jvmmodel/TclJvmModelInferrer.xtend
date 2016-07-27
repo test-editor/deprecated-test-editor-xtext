@@ -25,7 +25,7 @@ import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
 import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
-import org.testeditor.aml.VariableReference
+import org.testeditor.aml.Variable
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.ComponentTestStepContext
@@ -58,7 +58,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		model.test?.infer(acceptor, isPreIndexingPhase)
 	}
 
-	private def String variableReferenceToVarName(VariableReference varRef) {
+	private def String variableReferenceToVarName(Variable varRef) {
 		switch (varRef) {
 			AssignmentVariable: return varRef.name
 			EnvironmentVariableReference: return "env_" + varRef.name
@@ -308,9 +308,9 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	private def dispatch Iterable<String> generateCallParameters(StepContentVariableReference stepContent,
 		JvmTypeReference expectedType, InteractionType interaction) {
 		if (expectedType.qualifiedName.equals(String.name)) {
-			return #[stepContent.variable.variableReferenceToVarName]
+			return #[stepContent.variable.simpleVariable.variableReferenceToVarName]
 		} else {
-			throw new RuntimeException('''Environment variable '«stepContent.variable.name»' (always of type String) is used where type '«expectedType.qualifiedName»' is expected.''')
+			throw new RuntimeException('''Environment variable '«stepContent.variable.simpleVariable.name»' (always of type String) is used where type '«expectedType.qualifiedName»' is expected.''')
 		}
 	}
 
@@ -352,7 +352,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 		val varValMap = getVariableToValueMapping(callSiteMacroContext.step, macroCalled.template)
 		val varKey = varValMap.keySet.findFirst [
-			name.equals(referencedVariable.variable.name)
+			name.equals(referencedVariable.variable.simpleVariable.name)
 		]
 		val callSiteParameter = varValMap.get(varKey)
 

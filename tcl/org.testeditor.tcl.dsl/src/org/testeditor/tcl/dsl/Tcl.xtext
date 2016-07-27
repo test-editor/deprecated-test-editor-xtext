@@ -116,7 +116,7 @@ AssertionInnerExpression returns AssertionExpression:
 	'(' AssertionInnerExpression ')';
 
 AENullOrBoolCheck:
-	(negated?='!')? varReference=AEVariableReference;
+	(negated?='!')? varReference=ComplexVariableReference;
 
 /** expression order: AEComparison -> (AEAddition -> AEMultiplication ->) AEValue
  *  which is reflecting the order of operator binding.
@@ -134,14 +134,14 @@ AEComparison:
 	(comparator=Comparator
 	right=AssertionInnerExpression)?;
 
-AEVariableReference:
-	variable=[AssignmentVariable] ( '.' ( key=ID | key=STRING ) )?;
+ComplexVariableReference:
+	simpleVariable=[aml::Variable] ( '.' ( key=ID | key=STRING ) )?;
 
 AEStringConstant:
 	string=STRING;
 
 AEValue returns AssertionExpression:
-	AEVariableReference | AEStringConstant;
+	ComplexVariableReference | AEStringConstant;
 
 Comparator:
 	ComparatorEquals |
@@ -186,4 +186,4 @@ StepContentElement hidden():
 
 StepContentVariableReference:
 	{StepContentVariableReference}
-	'@' variable=[aml::VariableReference];	
+	'@' variable=ComplexVariableReference;

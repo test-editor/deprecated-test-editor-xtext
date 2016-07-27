@@ -23,10 +23,10 @@ import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.dsl.common.util.CollectionUtils
-import org.testeditor.tcl.AEVariableReference
 import org.testeditor.tcl.AssertionExpression
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.BinaryAssertionExpression
+import org.testeditor.tcl.ComplexVariableReference
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroCollection
@@ -160,7 +160,7 @@ class TclValidator extends AbstractTclValidator {
 		String errorMessage) {
 		// contents are indexed so that errors can be set to the precise location (index within the contents)
 		val erroneousIndexedStepContents = step.contents.indexed.filterValue(StepContentVariableReference).filter [
-			!knownVariableNames.contains(value.variable.name)
+			!knownVariableNames.contains(value.variable.simpleVariable.name)
 		]
 		erroneousIndexedStepContents.forEach [
 			error(errorMessage, value.eContainer, value.eContainingFeature, key, INVALID_VAR_DEREF)
@@ -210,11 +210,11 @@ class TclValidator extends AbstractTclValidator {
 	def dispatch Set<JvmTypeReference> getAllTypeUsagesOfVariable(ComponentTestStepContext componentTestStepContext,
 		String variableName) {
 		val stepsUsingThisVariable = componentTestStepContext.steps.filter [
-			contents.filter(StepContentVariableReference).exists[variable.name == variableName]
+			contents.filter(StepContentVariableReference).exists[variable.simpleVariable.name == variableName]
 		]
 		val typesUsages = stepsUsingThisVariable.map [ step |
 			step.stepVariableFixtureParameterTypePairs.filterKey(StepContentVariableReference).filter [
-				key.variable.name == variableName
+				key.variable.simpleVariable.name == variableName
 			].map[value]
 		].flatten.filterNull.toSet
 		return typesUsages
@@ -236,7 +236,7 @@ class TclValidator extends AbstractTclValidator {
 	 */
 	private def boolean makesUseOfVariablesViaReference(StepContent stepContent, Set<String> variables) {
 		if (stepContent instanceof StepContentVariableReference) {
-			return variables.contains(stepContent.variable.name)
+			return variables.contains(stepContent.variable.simpleVariable.name)
 		}
 		return false
 	}
@@ -278,13 +278,13 @@ class TclValidator extends AbstractTclValidator {
 	private def executeCheckVariableUsageWithinAssertionExpressions(AssertionTestStep step,
 		Map<String, String> declaredVariablesTypeMap, int index) {
 		step.expression.collectVariableUsage.forEach [
-			if (!declaredVariablesTypeMap.containsKey(variable.name)) { // regular variable dereference
-				val message = '''Variable «if(variable.name!=null){ '\''+variable.name+'\''}» is unknown here.'''
+			if (!declaredVariablesTypeMap.containsKey(simpleVariable.name)) { // regular variable dereference
+				val message = '''Variable «if(simpleVariable.name!=null){ '\''+simpleVariable.name+'\''}» is unknown here.'''
 				error(message, eContainer, eContainingFeature, VARIABLE_UNKNOWN_HERE)
 			} else if (key != null) { // dereference map with a key
-				val typeIdentifier = declaredVariablesTypeMap.get(variable.name).replaceFirst("<.*", "") // remove generics
+				val typeIdentifier = declaredVariablesTypeMap.get(simpleVariable.name).replaceFirst("<.*", "") // remove generics
 				if (typeIdentifier.isNotAssignableToMap) {
-					val message = '''Variable '«variable.name»' of type '«typeIdentifier»' does not implement '«Map.canonicalName»'. It cannot be used with key '«key»'.'''
+					val message = '''Variable '«simpleVariable.name»' of type '«typeIdentifier»' does not implement '«Map.canonicalName»'. It cannot be used with key '«key»'.'''
 					error(message, eContainer, eContainingFeature, INVALID_MAP_REF)
 				}
 			}
@@ -314,11 +314,11 @@ class TclValidator extends AbstractTclValidator {
 		return !typeof(Map).isAssignableFrom(Class.forName(typeIdentifier))
 	}
 
-	private def Iterable<AEVariableReference> collectVariableUsage(AssertionExpression expression) {
+	private def Iterable<ComplexVariableReference> collectVariableUsage(AssertionExpression expression) {
 		switch (expression) {
 			BinaryAssertionExpression:
 				return expression.left.collectVariableUsage + expression.right.collectVariableUsage
-			AEVariableReference:
+			ComplexVariableReference:
 				return #[expression]
 			default:
 				return #[]
@@ -471,10 +471,10 @@ class TclValidator extends AbstractTclValidator {
 				value instanceof StepContentElement
 		]
 		val variableReferences = variablesIndexed.filterValue(StepContentVariableReference).filter [
-			!excludedVariableNames.contains(value.variable.name)
+			!excludedVariableNames.contains(value.variable.simpleVariable.name)
 		]
 		variableReferences.forEach [
-			val varName = value.variable.name
+			val varName = value.variable.simpleVariable.name
 			val typeUsageSet = context.getAllTypeUsagesOfVariable(varName).filterNull.toSet
 			val typeDeclared = declaredVariablesTypeMap.get(varName)
 			// currently this is a naiive check, expecting the types

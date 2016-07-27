@@ -71,7 +71,7 @@ class TestStepFormatterTest extends AbstractTclFormatterTest {
 				* spec
 				
 					Component: dummyComponent
-					- step withspaces "string" with <ele> and @some.
+					- step withspaces "string" with <ele> and @some."key".
 					- next step
 				'''
 
@@ -91,6 +91,8 @@ class TestStepFormatterTest extends AbstractTclFormatterTest {
 				@
 				some
 				.
+				"key"
+				.
 				-
 				next
 				step
@@ -105,7 +107,7 @@ class TestStepFormatterTest extends AbstractTclFormatterTest {
 				* spec
 
 					Component: component
-					- step withspaces "string" with <ele> and @some.
+					- step withspaces "string" with <ele> and @some."key".
 					- next step
 			'''
 
@@ -113,7 +115,7 @@ class TestStepFormatterTest extends AbstractTclFormatterTest {
 				   *      	spec      Component :    	component   - 
 				step    			withspaces		    	"string"				with				<ele>				and
 				@
-				some				.				-  next    step
+				some				.		"key"    .		-  next    step
 			'''
 		]
 	}

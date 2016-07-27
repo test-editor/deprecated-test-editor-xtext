@@ -181,7 +181,7 @@ class TemplateText extends TemplateContent {
 	String value
 }
 
-abstract class VariableReference {
+abstract class Variable {
 	String name
 }
 
@@ -189,7 +189,7 @@ abstract class VariableReference {
  * Represents a variable within a {@link Template}.
  * </p>
  */
-class TemplateVariable extends TemplateContent, VariableReference {
+class TemplateVariable extends TemplateContent, Variable {
 }
 
 class InteractionValueSpace {
