@@ -363,7 +363,7 @@ class TclValidator extends AbstractTclValidator {
 	def void checkName(TestCase testCase) {
 		val expectedName = testCase.expectedName
 		if (testCase.name != expectedName) {
-			val message = '''Test case name='«testCase.name»' does not match expected name='«expectedName»' based on  filename='«testCase.model.eResource.URI.lastSegment»'.'''
+			val message = '''Test case name='«testCase.name»' does not match expected name='«expectedName»' based on filename='«testCase.model.eResource.URI.lastSegment»'.'''
 			error(message, TclPackage.Literals.TEST_CASE__NAME, INVALID_NAME)
 		}
 	}

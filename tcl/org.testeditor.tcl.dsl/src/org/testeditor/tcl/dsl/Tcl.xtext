@@ -135,7 +135,7 @@ AEComparison:
 	right=AssertionInnerExpression)?;
 
 AEVariableReference:
-	'@'? variable=[AssignmentVariable] ( '.' ( key=ID | key=STRING ) )?;
+	variable=[AssignmentVariable] ( '.' ( key=ID | key=STRING ) )?;
 
 AEStringConstant:
 	string=STRING;
