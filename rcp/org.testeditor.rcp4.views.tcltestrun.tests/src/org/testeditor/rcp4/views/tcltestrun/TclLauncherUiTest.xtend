@@ -11,10 +11,11 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
 import org.testeditor.dsl.common.testing.AbstractTest
-import org.testeditor.rcp4.tcltestrun.TclInjectorProvider
 import org.testeditor.tcl.dsl.ui.testlaunch.LaunchShortcutUtil
+import org.testeditor.tcl.dsl.ui.util.TclInjectorProvider
 
 import static org.mockito.Matchers.*
+
 import static extension org.mockito.Mockito.*
 
 class TclLauncherUiTest extends AbstractTest {
