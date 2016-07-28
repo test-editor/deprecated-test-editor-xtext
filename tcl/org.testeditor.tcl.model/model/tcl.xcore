@@ -36,18 +36,23 @@ class TclModel {
 	contains TestConfiguration config
 }
 
-class TestCase extends NamedElement {
+/*
+ * Super class for {@link TestCase} and {@link TestConfiguration} since both may
+ * contain a setup and cleanup.
+ */
+abstract class SetupAndCleanupProvider extends NamedElement {
+	contains TestSetup setup
+	contains TestCleanup cleanup
+}
+
+class TestCase extends SetupAndCleanupProvider {
 	container derived TclModel model opposite test
 	refers TestSpecification specification
 	refers TestConfiguration config
-	contains TestSetup setup
-	contains TestCleanup cleanup
 	contains SpecificationStepImplementation[0..*] steps opposite test
 }
 
-class TestConfiguration extends NamedElement {
-	contains TestSetup setup
-	contains TestCleanup cleanup
+class TestConfiguration extends SetupAndCleanupProvider {
 }
 
 class SpecificationStepImplementation extends SpecificationStep, StepContainer {

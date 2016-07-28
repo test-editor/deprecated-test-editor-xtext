@@ -44,10 +44,26 @@ import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
+import org.testeditor.tcl.TestConfiguration
+import org.testeditor.tcl.MacroCollection
 
 @Singleton
 class TclModelUtil extends TslModelUtil {
+
 	@Inject extension ModelUtil
+
+	/**
+	 * Gets the name of the included element. Order of this operation:
+	 * <ol>
+	 * 	<li>Return the name of the {@link TestCase} if set</li>
+	 * 	<li>Return the name of the {@link TestConfiguration} if set</li>
+	 * 	<li>Return the name of the {@link MacroCollection} if set</li>
+	 * 
+	 * </ol>
+	 */
+	def String getName(TclModel model) {
+		return model.test?.name ?: model.config?.name ?: model.macroCollection?.name
+	}
 
 	override String restoreString(List<StepContent> contents) {
 		return contents.map [

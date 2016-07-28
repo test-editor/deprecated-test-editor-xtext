@@ -181,9 +181,9 @@ StepContentText returns tsl::StepContentText:
 
 /** hold all keywords that are allowed as step content text (to prevent parser to fail on keyword usage) */
 StepContentTextOperator returns ecore::EString:
-	// TODO generate this (all keywords minus assert)
+	// TODO generate this (all keywords minus assert - consider Xbase keywords as well)
 	'Cleanup' | 'Component' | 'Macro' | 'Mask' | 'Setup' | 'as' | 'config' | 'does' | 'implements' | 'is' |
-	'match' | 'matches' | 'not' | 'package' | 'require' | 'template';
+	'match' | 'matches' | 'not' | 'package' | 'require' | 'template' | 'for' | 'do' | 'if' | 'while';
 
 StepContentVariable returns tsl::StepContentVariable:
 	value=STRING;

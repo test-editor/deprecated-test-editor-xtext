@@ -67,7 +67,7 @@ public class DummyFixture {
 		import «DummyFixture.name»
 		
 		component type Application {
-			interactions = start, stop
+			interactions = start, stop, wait
 		}
 		 
 		interaction type start {
