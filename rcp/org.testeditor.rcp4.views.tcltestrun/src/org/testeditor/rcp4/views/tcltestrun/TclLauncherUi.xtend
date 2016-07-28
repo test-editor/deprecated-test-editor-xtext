@@ -15,7 +15,6 @@ package org.testeditor.rcp4.views.tcltestrun
 import java.io.File
 import java.io.FileFilter
 import java.util.ArrayList
-import java.util.HashMap
 import java.util.List
 import java.util.Map
 import java.util.concurrent.atomic.AtomicReference
@@ -53,7 +52,7 @@ class TclLauncherUi implements Launcher {
 	@Inject TestResultFileWriter testResultFileWriter
 	@Inject TclIndexHelper indexHelper
 	LaunchShortcutUtil launchShortcutUtil // since this class itself is instanciated by e4, this attribute has to be injected manually
-	HashMap<URI, ArrayList<TestCase>> tslIndex
+	Map<URI, ArrayList<TestCase>> tslIndex
 
 	@Inject
 	new(TclInjectorProvider tclInjectorProvider) {

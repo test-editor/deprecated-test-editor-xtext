@@ -1,7 +1,7 @@
 package org.testeditor.tcl.dsl.ui.util
 
 import java.util.ArrayList
-import java.util.HashMap
+import java.util.Map
 import javax.inject.Inject
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.resource.ResourceSet
@@ -15,7 +15,7 @@ class TclIndexHelper {
 	
 	@Inject TclInjectorProvider tclInjectorProvider
 
-	def HashMap<URI, ArrayList<TestCase>> createTestCaseIndex() {
+	def Map<URI, ArrayList<TestCase>> createTestCaseIndex() {
 		var resourceDescriptions = tclInjectorProvider.get.getInstance(IResourceDescriptions)
 		val rs = tclInjectorProvider.get.getInstance(ResourceSet)
 		val modells = resourceDescriptions.getExportedObjectsByType(TclPackage.Literals.TCL_MODEL)
