@@ -3,18 +3,18 @@ package org.testeditor.tcl.dsl.jvmmodel
 import javax.inject.Inject
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.testeditor.aml.ModelUtil
-import org.testeditor.tcl.AEComparison
-import org.testeditor.tcl.AENullOrBoolCheck
-import org.testeditor.tcl.AEStringConstant
-import org.testeditor.tcl.AssertionExpression
 import org.testeditor.tcl.Comparator
 import org.testeditor.tcl.ComparatorEquals
 import org.testeditor.tcl.ComparatorGreaterThen
 import org.testeditor.tcl.ComparatorLessThen
 import org.testeditor.tcl.ComparatorMatches
+import org.testeditor.tcl.Expression
 import org.testeditor.tcl.VariableReference
-import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tcl.VariableReferenceMapAccess
+import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.tcl.NullOrBoolCheck
+import org.testeditor.tcl.Comparison
+import org.testeditor.tcl.StringConstant
 
 class TclAssertCallBuilder {
 	@Inject extension TclModelUtil
@@ -47,7 +47,7 @@ class TclAssertCallBuilder {
 		}
 	}
 
-	def String build(AssertionExpression expression) {
+	def String build(Expression expression) {
 		val assertionMethod = assertionMethod(expression)
 		if (assertionMethod == null) {
 			return '''// TODO no assertion method implementation for expression with type "«expression.class»"'''
@@ -61,7 +61,7 @@ class TclAssertCallBuilder {
 		}
 	}
 
-	private def AssertMethod assertionMethodForNullOrBoolCheck(AENullOrBoolCheck expression) {
+	private def AssertMethod assertionMethodForNullOrBoolCheck(NullOrBoolCheck expression) {
 		val interaction = expression.testStep.interaction
 		val returnTypeName = interaction.returnType?.qualifiedName ?: ""
 		switch (returnTypeName) {
@@ -71,12 +71,12 @@ class TclAssertCallBuilder {
 		}
 	}
 
-	private def AssertMethod assertionMethod(AssertionExpression expression) {
+	private def AssertMethod assertionMethod(Expression expression) {
 		return switch (expression) {
-			AENullOrBoolCheck: assertionMethodForNullOrBoolCheck(expression)
+			NullOrBoolCheck: assertionMethodForNullOrBoolCheck(expression)
 			VariableReference: AssertMethod.assertNotNull
-			AEComparison: assertionMethod(expression.comparator)
-			AEStringConstant: AssertMethod.assertNotNull
+			Comparison: assertionMethod(expression.comparator)
+			StringConstant: AssertMethod.assertNotNull
 			default: throw new RuntimeException('''unknown expression type «expression.class»''')
 		}
 	}
@@ -95,11 +95,11 @@ class TclAssertCallBuilder {
 
 	}
 
-	private def dispatch String buildExpression(AssertionExpression expression) {
+	private def dispatch String buildExpression(Expression expression) {
 		throw new RuntimeException('''no builder found for type «expression.class»''')
 	}
 
-	private def dispatch String buildExpression(AENullOrBoolCheck nullCheck) {
+	private def dispatch String buildExpression(NullOrBoolCheck nullCheck) {
 		val expression = nullCheck.variableReference.buildExpression
 		val interaction = nullCheck.testStep.interaction
 		val returnType = interaction.returnType
@@ -110,7 +110,7 @@ class TclAssertCallBuilder {
 		}
 	}
 
-	private def dispatch String buildExpression(AEComparison comparison) {
+	private def dispatch String buildExpression(Comparison comparison) {
 		if (comparison.comparator == null) {
 			return comparison.left.
 				buildExpression
@@ -133,7 +133,7 @@ class TclAssertCallBuilder {
 		return varRef.variable.name
 	}
 
-	private def dispatch String buildExpression(AEStringConstant string) {
+	private def dispatch String buildExpression(StringConstant string) {
 		return '''"«string.string»"'''
 	}
 

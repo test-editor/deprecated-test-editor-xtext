@@ -32,9 +32,9 @@ import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.ValueSpaceAssignment
-import org.testeditor.tcl.AssertionExpression
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariableReference
+import org.testeditor.tcl.Expression
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
@@ -43,13 +43,13 @@ import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.VariableReference
+import org.testeditor.tcl.VariableReferenceMapAccess
 import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
-import org.testeditor.tcl.VariableReferenceMapAccess
 
 @Singleton
 class TclModelUtil extends TslModelUtil {
@@ -78,7 +78,7 @@ class TclModelUtil extends TslModelUtil {
 	}
 	
 	// get the test step that holds this expression
-	def TestStep getTestStep(AssertionExpression expression) {
+	def TestStep getTestStep(Expression expression) {
 		var parent = expression.eContainer
 		while (parent != null && !(parent instanceof TestStep)) {
 			parent = parent.eContainer

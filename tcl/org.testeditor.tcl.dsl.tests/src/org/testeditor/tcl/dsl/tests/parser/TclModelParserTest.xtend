@@ -13,9 +13,6 @@
 package org.testeditor.tcl.dsl.tests.parser
 
 import org.junit.Test
-import org.testeditor.tcl.AEComparison
-import org.testeditor.tcl.AENullOrBoolCheck
-import org.testeditor.tcl.AEStringConstant
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.ComparatorMatches
 import org.testeditor.tcl.ComponentTestStepContext
@@ -28,6 +25,9 @@ import org.testeditor.tcl.VariableReference
 import org.testeditor.tsl.StepContentVariable
 
 import static extension org.eclipse.xtext.nodemodel.util.NodeModelUtils.*
+import org.testeditor.tcl.NullOrBoolCheck
+import org.testeditor.tcl.Comparison
+import org.testeditor.tcl.StringConstant
 
 class TclModelParserTest extends AbstractParserTest {
 	
@@ -193,7 +193,7 @@ class TclModelParserTest extends AbstractParserTest {
 		test.steps.assertSingleElement => [
 			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
 				steps.assertSize(2).get(1).assertInstanceOf(AssertionTestStep) => [
-					expression.assertInstanceOf(AENullOrBoolCheck) => [
+					assertExpression.assertInstanceOf(NullOrBoolCheck) => [
 						isNegated.assertFalse
 						variableReference.variable.name.assertEquals("hello")
 					]
@@ -222,11 +222,11 @@ class TclModelParserTest extends AbstractParserTest {
 		test.steps.assertSingleElement => [
 			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
 				steps.assertSize(2).get(1).assertInstanceOf(AssertionTestStep) => [
-					expression.assertInstanceOf(AEComparison) => [
+					assertExpression.assertInstanceOf(Comparison) => [
 						left.assertInstanceOf(VariableReference) => [variable.name.assertEquals("hello")]
 						comparator.assertInstanceOf(ComparatorMatches) => [negated.assertTrue]
-						right.assertInstanceOf(AEComparison) => [
-							left.assertInstanceOf(AEStringConstant) => [string.assertEquals(".*AAABBB.*")]
+						right.assertInstanceOf(Comparison) => [
+							left.assertInstanceOf(StringConstant) => [string.assertEquals(".*AAABBB.*")]
 							comparator.assertNull
 						]
 					]

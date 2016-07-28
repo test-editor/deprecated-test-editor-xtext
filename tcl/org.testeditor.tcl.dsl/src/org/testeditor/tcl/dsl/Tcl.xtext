@@ -101,38 +101,29 @@ TestStep:
 	'-' contents+=StepContent* '.'?;
 
 AssertionTestStep:
-	'-' 'assert' expression=AssertionExpression '.'?;
+	'-' 'assert' assertExpression=(NullOrBoolCheck | FullComparison) '.'?;
 
-/** Assertion Exression is either a null check, 
- *  or a full comparison that requires a comparator and a right expression (in order to have no ambiguity with the null check), 
- *  or an inner expression in parenthesis (no more null checks allowed in here!) 
- */
-AssertionExpression:
-	AENullOrBoolCheck | AEFullComparison | '(' AssertionInnerExpression ')';
-
-/** Assertion expression that does not allow null checks */
-AssertionInnerExpression returns AssertionExpression:
-	AEComparison |
-	'(' AssertionInnerExpression ')';
-
-AENullOrBoolCheck:
-	(negated?='!')? variableReference=(VariableReference | VariableReferenceMapAccess);
-
-/** expression order: AEComparison -> (AEAddition -> AEMultiplication ->) AEValue
+/** expression order: Comparison -> (Addition -> Multiplication ->) Value
  *  which is reflecting the order of operator binding.
  * 
  *  for binary expression: left is always referencing the rule with higher operator binding, 
- *  right is referencing the AEInnerExpression 
+ *  right is referencing the Expression 
  */
-AEFullComparison returns AEComparison:
-	left=AEValue
-	comparator=Comparator
-	right=AssertionInnerExpression;
+Expression:
+	Comparison;
 
-AEComparison:
-	left=AEValue
+NullOrBoolCheck:
+	(negated?='!')? variableReference=(VariableReference | VariableReferenceMapAccess);
+
+FullComparison returns Comparison:
+	left=Value
+	comparator=Comparator
+	right=Expression;
+
+Comparison:
+	left=Value
 	(comparator=Comparator
-	right=AssertionInnerExpression)?;
+	right=Expression)?;
 
 VariableReference:
 	variable=[aml::Variable];
@@ -140,11 +131,11 @@ VariableReference:
 VariableReferenceMapAccess:
 	variable=[aml::Variable] '.' (key=ID | key=STRING);
 
-AEStringConstant:
+StringConstant:
 	string=STRING;
 
-AEValue returns AssertionExpression:
-	VariableReference | VariableReferenceMapAccess | AEStringConstant;
+Value returns Expression:
+	VariableReference | VariableReferenceMapAccess | StringConstant | '(' Expression ')';
 
 Comparator:
 	ComparatorEquals |

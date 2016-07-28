@@ -4,18 +4,17 @@ import javax.inject.Inject
 import org.eclipse.xtext.xtype.XtypeFactory
 import org.testeditor.aml.Component
 import org.testeditor.aml.impl.AmlFactoryImpl
-import org.testeditor.tcl.AEComparison
-import org.testeditor.tcl.AENullOrBoolCheck
-import org.testeditor.tcl.AEStringConstant
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.ComparatorEquals
 import org.testeditor.tcl.ComparatorMatches
+import org.testeditor.tcl.Comparison
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariableReference
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
+import org.testeditor.tcl.NullOrBoolCheck
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
@@ -25,6 +24,7 @@ import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferenceMapAccess
 import org.testeditor.tcl.impl.TclFactoryImpl
 import org.testeditor.tsl.impl.TslFactoryImpl
+import org.testeditor.tcl.StringConstant
 
 class TclModelGenerator {
 	@Inject TclFactoryImpl tclFactory
@@ -110,12 +110,12 @@ class TclModelGenerator {
 		tclFactory.createAssertionTestStep
 	}
 
-	def AEStringConstant aeStringConstant(String string) {
-		tclFactory.createAEStringConstant => [it.string = string]
+	def StringConstant stringConstant(String string) {
+		tclFactory.createStringConstant => [it.string = string]
 	}
 
-	def AEComparison aeComparison() {
-		tclFactory.createAEComparison
+	def Comparison comparison() {
+		tclFactory.createComparison
 	}
 
 	def AssignmentVariable assignmentVariable(String variableName) {
@@ -138,8 +138,8 @@ class TclModelGenerator {
 		tclFactory.createComparatorMatches
 	}
 
-	def AENullOrBoolCheck aeNullOrBoolCheck() {
-		tclFactory.createAENullOrBoolCheck
+	def NullOrBoolCheck nullOrBoolCheck() {
+		tclFactory.createNullOrBoolCheck
 	}
 
 	def TestStep withElement(TestStep me, String elementName) {
@@ -194,35 +194,35 @@ class TclModelGenerator {
 	}
 
 	// ===================================================================== extended 
-	def AEComparison compareNotMatching(VariableReference variableReference, String string) {
-		return aeComparison => [
+	def Comparison compareNotMatching(VariableReference variableReference, String string) {
+		return comparison => [
 			left = variableReference
 			comparator = comparatorMatches => [negated = true]
-			right = aeStringConstant(string)
+			right = stringConstant(string)
 		]
 	}
 
-	def AEComparison compareMatching(VariableReference variableReference, String string) {
-		return aeComparison => [
+	def Comparison compareMatching(VariableReference variableReference, String string) {
+		return comparison => [
 			left = variableReference
 			comparator = comparatorMatches
-			right = aeStringConstant(string)
+			right = stringConstant(string)
 		]
 	}
 
-	def AEComparison compareNotEqual(VariableReference variableReference, String string) {
-		return aeComparison => [
+	def Comparison compareNotEqual(VariableReference variableReference, String string) {
+		return comparison => [
 			left = variableReference
 			comparator = comparatorEquals => [negated = true]
-			right = aeStringConstant(string)
+			right = stringConstant(string)
 		]
 	}
 
-	def AEComparison compareOnEquality(VariableReference variableReference, String string) {
-		return aeComparison => [
+	def Comparison compareOnEquality(VariableReference variableReference, String string) {
+		return comparison => [
 			left = variableReference
 			comparator = comparatorEquals
-			right = aeStringConstant(string)
+			right = stringConstant(string)
 		]
 	}
 
@@ -250,8 +250,8 @@ class TclModelGenerator {
 		]
 	}
 
-	def AENullOrBoolCheck nullOrBoolCheck(String variableName) {
-		aeNullOrBoolCheck => [
+	def NullOrBoolCheck nullOrBoolCheck(String variableName) {
+		nullOrBoolCheck => [
 			variableReference = variableReference() => [
 				variable = assignmentVariable(variableName)
 			]

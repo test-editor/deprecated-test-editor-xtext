@@ -23,10 +23,10 @@ import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.dsl.common.util.CollectionUtils
-import org.testeditor.tcl.AssertionExpression
 import org.testeditor.tcl.AssertionTestStep
-import org.testeditor.tcl.BinaryAssertionExpression
+import org.testeditor.tcl.BinaryExpression
 import org.testeditor.tcl.ComponentTestStepContext
+import org.testeditor.tcl.Expression
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
@@ -279,7 +279,7 @@ class TclValidator extends AbstractTclValidator {
 
 	private def executeCheckVariableUsageWithinAssertionExpressions(AssertionTestStep step,
 		Map<String, String> declaredVariablesTypeMap, int index) {
-		step.expression.collectVariableUsage.forEach [
+		step.assertExpression.collectVariableUsage.forEach [
 			if (!declaredVariablesTypeMap.containsKey(variable.name)) { // regular variable dereference
 				val message = '''Variable «if(variable.name!=null){ '\''+variable.name+'\''}» is unknown here.'''
 				error(message, eContainer, eContainingFeature, VARIABLE_UNKNOWN_HERE)
@@ -319,9 +319,9 @@ class TclValidator extends AbstractTclValidator {
 		return !typeof(Map).isAssignableFrom(Class.forName(typeIdentifier))
 	}
 
-	private def Iterable<VariableReference> collectVariableUsage(AssertionExpression expression) {
+	private def Iterable<VariableReference> collectVariableUsage(Expression expression) {
 		switch (expression) {
-			BinaryAssertionExpression:
+			BinaryExpression:
 				return expression.left.collectVariableUsage + expression.right.collectVariableUsage
 			VariableReference:
 				return #[expression]

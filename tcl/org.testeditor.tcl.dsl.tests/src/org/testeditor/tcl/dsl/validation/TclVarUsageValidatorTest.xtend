@@ -58,7 +58,7 @@ class TclVarUsageValidatorTest extends AbstractTclValidatorTest {
 			val assignment = testStepWithAssignment("variable", "some")
 			steps += assignment
 			steps += assertionTestStep => [
-				expression = assignment.variable.mappedReference.compareOnEquality("fixed value")
+				assertExpression = assignment.variable.mappedReference.compareOnEquality("fixed value")
 			]
 		]
 		val componentTestStepContext = testStepContext.assertInstanceOf(ComponentTestStepContext)
@@ -79,7 +79,7 @@ class TclVarUsageValidatorTest extends AbstractTclValidatorTest {
 			val assignment = testStepWithAssignment("variable", "some")
 			steps += assignment
 			steps += assertionTestStep => [
-				expression = assignment.variable.flatReference.compareOnEquality("fixed value")
+				assertExpression = assignment.variable.flatReference.compareOnEquality("fixed value")
 			]
 		]
 		val componentTestStepContext = testStepContext.assertInstanceOf(ComponentTestStepContext)
@@ -103,7 +103,7 @@ class TclVarUsageValidatorTest extends AbstractTclValidatorTest {
 			]
 			contexts += componentTestStepContext(null) => [
 				steps += assertionTestStep => [
-					expression = assignment.variable.flatReference.compareOnEquality("fixed value")
+					assertExpression = assignment.variable.flatReference.compareOnEquality("fixed value")
 				]
 			]
 		]
@@ -122,7 +122,7 @@ class TclVarUsageValidatorTest extends AbstractTclValidatorTest {
 			val assignment = testStepWithAssignment("variable", "some")
 			steps += assignment
 			steps += assertionTestStep => [
-				expression = assignment.variable.mappedReference.compareOnEquality("fixed value")
+				assertExpression = assignment.variable.mappedReference.compareOnEquality("fixed value")
 			]
 		]
 		val componentTestStepContext = testStepContext.assertInstanceOf(ComponentTestStepContext)
@@ -151,7 +151,7 @@ class TclVarUsageValidatorTest extends AbstractTclValidatorTest {
 				steps += specificationStep("second") => [
 					contexts += componentTestStepContext(null) => [
 						steps += assertionTestStep => [
-							expression = assignment.variable.flatReference.compareOnEquality("fixed value")
+							assertExpression = assignment.variable.flatReference.compareOnEquality("fixed value")
 						]
 					]
 				]

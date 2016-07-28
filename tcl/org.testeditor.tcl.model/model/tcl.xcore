@@ -93,27 +93,27 @@ class TestStep {
 }
 
 class AssertionTestStep extends TestStep {
-	contains AssertionExpression expression
+	contains Expression assertExpression
 }
 
-abstract class AssertionExpression {
+abstract class Expression {
 }
 
-class BinaryAssertionExpression extends AssertionExpression {
-	contains AssertionExpression left
-	contains AssertionExpression right
+abstract class BinaryExpression extends Expression {
+	contains Expression left
+	contains Expression right
 }
 
-class AEComparison extends BinaryAssertionExpression {
+class Comparison extends BinaryExpression {
 	contains Comparator comparator
 }
 
-class AENullOrBoolCheck extends AssertionExpression {
+class NullOrBoolCheck extends Expression {
 	contains VariableReference variableReference
 	boolean negated = "false"
 }
 
-class VariableReference extends AssertionExpression, StepContent {
+class VariableReference extends Expression, StepContent {
 	refers Variable variable
 }
 
@@ -121,22 +121,21 @@ class VariableReferenceMapAccess extends VariableReference {
 	String key
 }
 
-class AEStringConstant extends AssertionExpression {
+class StringConstant extends Expression {
 	String string
 }
 
 class TestStepWithAssignment extends TestStep {
-	contains AssignmentVariable variable opposite testStep
+	contains AssignmentVariable variable
 }
 
 class AssignmentVariable extends Variable {
-	container TestStepWithAssignment testStep opposite variable
 }
 
 class StepContentElement extends StepContentValue {
 }
 
-class Comparator {
+abstract class Comparator {
 	boolean negated = "false"
 }
 
