@@ -113,7 +113,7 @@ class AENullOrBoolCheck extends AssertionExpression {
 	boolean negated = "false"
 }
 
-class VariableReference extends AssertionExpression {
+class VariableReference extends AssertionExpression, StepContent {
 	refers Variable variable
 }
 
@@ -129,12 +129,8 @@ class TestStepWithAssignment extends TestStep {
 	contains AssignmentVariable variable opposite testStep
 }
 
-class AssignmentVariable extends Variable{
+class AssignmentVariable extends Variable {
 	container TestStepWithAssignment testStep opposite variable
-}
-
-class StepContentVariableReference extends StepContent{
-	contains VariableReference variableReference
 }
 
 class StepContentElement extends StepContentValue {

@@ -168,10 +168,10 @@ TestStepWithAssignment:
 	'-' variable=AssignmentVariable '=' contents+=StepContent* '.'?;
 
 AssignmentVariable:
-	name=ID
-;
+	name=ID;
+	
 StepContent returns tsl::StepContent:
-	StepContentText | StepContentElement | StepContentVariable | StepContentVariableReference;
+	StepContentText | StepContentElement | StepContentVariable | '@' VariableReference | '@' VariableReferenceMapAccess;
 
 StepContentText returns tsl::StepContentText:
 	value=ID | value=StepContentTextOperator;
@@ -186,7 +186,3 @@ StepContentVariable returns tsl::StepContentVariable:
 StepContentElement hidden():
 	('<' value=ID '>') |
 	{StepContentElement} ('<>' | '<' WS+ '>');
-
-StepContentVariableReference:
-	{StepContentVariableReference}
-	'@' variableReference=(VariableReference | VariableReferenceMapAccess);

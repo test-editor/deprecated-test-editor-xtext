@@ -33,20 +33,19 @@ import org.testeditor.tcl.EnvironmentVariableReference
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
-import org.testeditor.tcl.StepContentVariableReference
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestCleanup
 import org.testeditor.tcl.TestSetup
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepWithAssignment
+import org.testeditor.tcl.VariableReference
+import org.testeditor.tcl.VariableReferenceMapAccess
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentValue
 
 import static org.testeditor.tcl.TclPackage.Literals.*
-import org.testeditor.tcl.VariableReference
-import org.testeditor.tcl.VariableReferenceMapAccess
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -261,7 +260,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		val mapping = getVariableToValueMapping(step, interaction.template)
 		val stepContents = interaction.defaultMethod.parameters.map [ templateVariable |
 			val stepContent = mapping.get(templateVariable)
-			val stepContentResolved = if (stepContent instanceof StepContentVariableReference) {
+			val stepContentResolved = if (stepContent instanceof VariableReference) {
 					stepContent.resolveVariableReference(macroUseStack, EnvironmentVariableReferences)
 				} else {
 					stepContent
@@ -307,17 +306,17 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	/**
 	 * generate the parameter-code passed to the fixture call depending on the type of the step content
 	 */
-	private def dispatch Iterable<String> generateCallParameters(StepContentVariableReference stepContent,
+	private def dispatch Iterable<String> generateCallParameters(VariableReference variableReference,
 		JvmTypeReference expectedType, InteractionType interaction) {
 		if (expectedType.qualifiedName.equals(String.name)) {
-			switch (stepContent.variableReference){
+			switch (variableReference){
 				VariableReferenceMapAccess: throw new RuntimeException("implementation missing")
-				VariableReference: return #[stepContent.variableReference.variable.variableReferenceToVarName]
-				default: throw new RuntimeException('''Variable reference of type='«stepContent.variableReference.class.canonicalName»' is unknown.''')
+				VariableReference: return #[variableReference.variable.variableReferenceToVarName]
+				default: throw new RuntimeException('''Variable reference of type='«variableReference.class.canonicalName»' is unknown.''')
 			}
 			
 		} else {
-			throw new RuntimeException('''Environment variable '«stepContent.variableReference.variable.name»' (always of type String) is used where type '«expectedType.qualifiedName»' is expected.''')
+			throw new RuntimeException('''Environment variable '«variableReference.variable.name»' (always of type String) is used where type '«expectedType.qualifiedName»' is expected.''')
 		}
 	}
 
@@ -346,7 +345,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	 * 
 	 */
 	private def StepContent resolveVariableReference(
-		StepContentVariableReference referencedVariable,
+		VariableReference referencedVariable,
 		Iterable<MacroTestStepContext> macroUseStack,
 		Iterable<EnvironmentVariableReference> environmentVariableReferences) {
 
@@ -359,11 +358,11 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 		val varValMap = getVariableToValueMapping(callSiteMacroContext.step, macroCalled.template)
 		val varKey = varValMap.keySet.findFirst [
-			name.equals(referencedVariable.variableReference.variable.name)
+			name.equals(referencedVariable.variable.name)
 		]
 		val callSiteParameter = varValMap.get(varKey)
 
-		if (callSiteParameter instanceof StepContentVariableReference) {
+		if (callSiteParameter instanceof VariableReference) {
 			return callSiteParameter.resolveVariableReference(macroUseStack.tail, environmentVariableReferences)
 		} else {
 			return callSiteParameter

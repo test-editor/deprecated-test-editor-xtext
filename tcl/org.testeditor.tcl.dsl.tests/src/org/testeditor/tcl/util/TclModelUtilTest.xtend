@@ -3,10 +3,10 @@ package org.testeditor.tcl.util
 import javax.inject.Inject
 import org.junit.Test
 import org.testeditor.aml.Template
-import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 import org.testeditor.tcl.MacroTestStepContext
-import org.testeditor.tcl.StepContentVariableReference
 import org.testeditor.tcl.TestStep
+import org.testeditor.tcl.VariableReference
+import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 import org.testeditor.tsl.StepContentVariable
 
 class TclModelUtilTest extends AbstractParserTest {
@@ -17,7 +17,7 @@ class TclModelUtilTest extends AbstractParserTest {
 	def void testRestoreString() {
 		// given
 		val testStep = parse('-  <hello>     world "ohoh"   @xyz', grammarAccess.testStepRule, TestStep)
-		testStep.contents.get(3).assertInstanceOf(StepContentVariableReference)
+		testStep.contents.get(3).assertInstanceOf(VariableReference)
 
 		// when
 		val result = tclModelUtil.restoreString(testStep.contents)
@@ -102,7 +102,7 @@ class TclModelUtilTest extends AbstractParserTest {
 		// then
 		varValueMap.keySet.assertSize(2)
 		varValueMap.get(somevar).assertInstanceOf(StepContentVariable).value.assertEquals("some")
-		varValueMap.get(othervar).assertInstanceOf(StepContentVariableReference)
+		varValueMap.get(othervar).assertInstanceOf(VariableReference)
 	}
 
 }

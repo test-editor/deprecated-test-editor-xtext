@@ -75,14 +75,14 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 				macros += macro("MyCallMacro") => [
 					template = template("mycall").withParameter("appname")
 					contexts += componentTestStepContext(dummyComponent) => [
-						steps += testStep("start").withVariableReference("appname")
+						steps += testStep("start").withReferenceToTemplateVariable("appname")
 					]
 				]
 				// macro calls (directly) the aml interaction "wait" (which expects the parameter to be of type long)
 				macros += macro("OtherCallMacro") => [
 					template = template("othercall").withParameter("secs")
 					contexts += componentTestStepContext(dummyComponent) => [
-						steps += testStep("wait").withVariableReference("secs")
+						steps += testStep("wait").withReferenceToTemplateVariable("secs")
 					]
 				]
 			]
@@ -139,13 +139,13 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 				macros += macro("MyCallMacro") => [
 					template = template("mycall").withParameter("unknown")
 					contexts += macroTestStepContext(macroModel.macroCollection) => [
-						step = testStep("othercall").withVariableReference("unknown")
+						step = testStep("othercall").withReferenceToTemplateVariable("unknown")
 					]
 				]
 				macros += macro("OtherCallMacro") => [
 					template = template("othercall").withParameter("secs")
 					contexts += componentTestStepContext(dummyComponent) => [
-						steps += testStep("wait").withVariableReference("secs") // secs are expected to be of type long in aml fixture
+						steps += testStep("wait").withReferenceToTemplateVariable("secs") // secs are expected to be of type long in aml fixture
 					]
 				]
 			]
@@ -178,8 +178,8 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 				macros += macro("MyCallMacro") => [
 					template = template("mycall").withParameter("unknown")
 					contexts += macroTestStepContext(macroModel.macroCollection) => [
-						step = testStep("othercall").withVariableReference("unknown").withText("with").
-							withVariableReference("unknown")
+						step = testStep("othercall").withReferenceToTemplateVariable("unknown").withText("with").
+							withReferenceToTemplateVariable("unknown")
 					]
 				]
 			]
@@ -217,7 +217,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 					template = template("mycall").withParameter("unknown")
 					contexts += macroTestStepContext(macroModel.macroCollection) => [
 						step = testStep("othercall").withParameter("3").withText("with").
-							withVariableReference("unknown")
+							withReferenceToTemplateVariable("unknown")
 					]
 				]
 			]
@@ -284,8 +284,8 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 		return macro("OtherCallMacro") => [
 			template = template("othercall").withParameter("secs").withText("with").withParameter("strParam")
 			contexts += componentTestStepContext(dummyComponent) => [
-				steps += testStep("wait").withVariableReference("secs")
-				steps += testStep("start").withVariableReference("strParam")
+				steps += testStep("wait").withReferenceToTemplateVariable("secs")
+				steps += testStep("start").withReferenceToTemplateVariable("strParam")
 			]
 		]
 	}

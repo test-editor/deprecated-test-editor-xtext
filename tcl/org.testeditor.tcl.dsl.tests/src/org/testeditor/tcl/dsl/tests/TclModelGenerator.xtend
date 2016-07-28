@@ -149,31 +149,25 @@ class TclModelGenerator {
 		return me
 	}
 
-	def TestStep withVariableReference(TestStep me, String variableReferenceName) {
-		me.contents += tclFactory.createStepContentVariableReference => [
-			variableReference = variableReference() => [
-				variable = amlFactory.createTemplateVariable => [
-					name = variableReferenceName
-				]
+	def TestStep withReferenceToTemplateVariable(TestStep me, String variableReferenceName) {
+		me.contents += tclFactory.createVariableReference => [
+			variable = amlFactory.createTemplateVariable => [
+				name = variableReferenceName
 			]
 		]
 		return me
 	}
 
 	def TestStep withReferenceToAssignmentVariable(TestStep me, AssignmentVariable assignmentVariable) {
-		me.contents += tclFactory.createStepContentVariableReference => [
-			variableReference = variableReference() => [
-				variable = assignmentVariable
-			]
+		me.contents += tclFactory.createVariableReference => [
+			variable = assignmentVariable
 		]
 		return me
 	}
 
 	def TestStep withReferenceToEnvironmentVariable(TestStep me, EnvironmentVariableReference envVariable) {
-		me.contents += tclFactory.createStepContentVariableReference => [
-			variableReference = variableReference() => [
-				variable = envVariable
-			]
+		me.contents += tclFactory.createVariableReference => [
+			variable = envVariable
 		]
 		return me
 	}

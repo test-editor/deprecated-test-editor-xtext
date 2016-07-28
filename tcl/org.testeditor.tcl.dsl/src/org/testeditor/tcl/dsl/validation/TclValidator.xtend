@@ -32,7 +32,6 @@ import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
-import org.testeditor.tcl.StepContentVariableReference
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TclPackage
 import org.testeditor.tcl.TestCase
@@ -40,6 +39,7 @@ import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.VariableReference
+import org.testeditor.tcl.VariableReferenceMapAccess
 import org.testeditor.tcl.impl.AssertionTestStepImpl
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.SpecificationStep
@@ -48,7 +48,6 @@ import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
 
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
-import org.testeditor.tcl.VariableReferenceMapAccess
 
 class TclValidator extends AbstractTclValidator {
 
@@ -162,8 +161,8 @@ class TclValidator extends AbstractTclValidator {
 	private def checkAllReferencedVariablesAreKnown(TestStep step, Set<String> knownVariableNames,
 		String errorMessage) {
 		// contents are indexed so that errors can be set to the precise location (index within the contents)
-		val erroneousIndexedStepContents = step.contents.indexed.filterValue(StepContentVariableReference).filter [
-			!knownVariableNames.contains(value.variableReference.variable.name)
+		val erroneousIndexedStepContents = step.contents.indexed.filterValue(VariableReference).filter [
+			!knownVariableNames.contains(value.variable.name)
 		]
 		erroneousIndexedStepContents.forEach [
 			error(errorMessage, value.eContainer, value.eContainingFeature, key, INVALID_VAR_DEREF)
@@ -213,11 +212,11 @@ class TclValidator extends AbstractTclValidator {
 	def dispatch Set<JvmTypeReference> getAllTypeUsagesOfVariable(ComponentTestStepContext componentTestStepContext,
 		String variableName) {
 		val stepsUsingThisVariable = componentTestStepContext.steps.filter [
-			contents.filter(StepContentVariableReference).exists[variableReference.variable.name == variableName]
+			contents.filter(VariableReference).exists[variable.name == variableName]
 		]
 		val typesUsages = stepsUsingThisVariable.map [ step |
-			step.stepVariableFixtureParameterTypePairs.filterKey(StepContentVariableReference).filter [
-				key.variableReference.variable.name == variableName
+			step.stepVariableFixtureParameterTypePairs.filterKey(VariableReference).filter [
+				key.variable.name == variableName
 			].map[value]
 		].flatten.filterNull.toSet
 		return typesUsages
@@ -238,8 +237,8 @@ class TclValidator extends AbstractTclValidator {
 	 * does the given step make use of (one of the) variables passed via variable reference?
 	 */
 	private def boolean makesUseOfVariablesViaReference(StepContent stepContent, Set<String> variables) {
-		if (stepContent instanceof StepContentVariableReference) {
-			return variables.contains(stepContent.variableReference.variable.name)
+		if (stepContent instanceof VariableReference) {
+			return variables.contains(stepContent.variable.name)
 		}
 		return false
 	}
@@ -478,14 +477,14 @@ class TclValidator extends AbstractTclValidator {
 		Set<String> excludedVariableNames) {
 		// build this index to be able to correctly issue an error on the element by index
 		val variablesIndexed = step.contents.indexed.filter [
-			value instanceof StepContentVariableReference || value instanceof StepContentVariable ||
+			value instanceof VariableReference || value instanceof StepContentVariable ||
 				value instanceof StepContentElement
 		]
-		val variableReferences = variablesIndexed.filterValue(StepContentVariableReference).filter [
-			!excludedVariableNames.contains(value.variableReference.variable.name)
+		val variableReferences = variablesIndexed.filterValue(VariableReference).filter [
+			!excludedVariableNames.contains(value.variable.name)
 		]
 		variableReferences.forEach [
-			val varName = value.variableReference.variable.name
+			val varName = value.variable.name
 			val typeUsageSet = context.getAllTypeUsagesOfVariable(varName).filterNull.toSet
 			val typeDeclared = declaredVariablesTypeMap.get(varName)
 			// currently this is a naiive check, expecting the types

@@ -39,16 +39,17 @@ import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
-import org.testeditor.tcl.StepContentVariableReference
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestStep
+import org.testeditor.tcl.VariableReference
 import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
+import org.testeditor.tcl.VariableReferenceMapAccess
 
 @Singleton
 class TclModelUtil extends TslModelUtil {
@@ -60,7 +61,8 @@ class TclModelUtil extends TslModelUtil {
 			switch (it) {
 				StepContentVariable: '''"«value»"'''
 				StepContentElement: '''<«value»>'''
-				StepContentVariableReference: '''@«variableReference?.variable?.name»'''
+				VariableReferenceMapAccess: '''@«variable?.name»."«key»"'''
+				VariableReference: '''@«variable?.name»'''
 				StepContentValue:
 					value
 				default:
@@ -111,7 +113,7 @@ class TclModelUtil extends TslModelUtil {
 			switch (it) {
 				StepContentElement: '<>'
 				StepContentVariable: '""'
-				StepContentVariableReference: '""'
+				VariableReference: '""'
 				StepContentText: value.trim
 			}
 		].join(' ')
@@ -128,7 +130,7 @@ class TclModelUtil extends TslModelUtil {
 		val templateVariables = template.contents.filter(TemplateVariable).toList
 		val stepContentVariables = step.contents.filter [
 			it instanceof StepContentElement || it instanceof StepContentVariable ||
-				it instanceof StepContentVariableReference
+				it instanceof VariableReference
 		].toList
 		if (templateVariables.size !== stepContentVariables.size) {
 			val message = '''Variables for '«step.contents.restoreString»' did not match the parameters of template '«template.normalize»' (normalized).'''
@@ -250,7 +252,7 @@ class TclModelUtil extends TslModelUtil {
 	 */
 	def Iterable<StepContent> getStepContentVariables(TestStep step) {
 		return step.contents.filter [
-			it instanceof StepContentVariable || it instanceof StepContentVariableReference ||
+			it instanceof StepContentVariable || it instanceof VariableReference ||
 				it instanceof StepContentElement
 		]
 	}
