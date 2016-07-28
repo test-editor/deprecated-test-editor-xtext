@@ -11,10 +11,11 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
 import org.testeditor.dsl.common.testing.AbstractTest
-import org.testeditor.rcp4.tcltestrun.TclInjectorProvider
 import org.testeditor.tcl.dsl.ui.testlaunch.LaunchShortcutUtil
+import org.testeditor.tcl.dsl.ui.util.TclInjectorProvider
 
 import static org.mockito.Matchers.*
+
 import static extension org.mockito.Mockito.*
 
 class TclLauncherUiTest extends AbstractTest {
@@ -44,6 +45,7 @@ class TclLauncherUiTest extends AbstractTest {
 		// given
 		val resource = IResource.mock
 		when(selection.firstElement).thenReturn(resource)
+		when(resource.fileExtension).thenReturn("tcl")
 		when(launchUtil.getQualifiedNameForTestInTcl(any)).thenReturn(QualifiedName.create("mypackage", "myTest"))
 		
 		// when
@@ -64,6 +66,8 @@ class TclLauncherUiTest extends AbstractTest {
 			QualifiedName.create("mypackage", "mySecondTest"))
 		when(selection.size).thenReturn(2)
 		when(selection.toList).thenReturn(#[resource1, resource2])
+		when(resource1.fileExtension).thenReturn("tcl")
+		when(resource2.fileExtension).thenReturn("tcl")
 		
 		// when
 		val testCases = launcherUi.createTestCasesList(selection)
