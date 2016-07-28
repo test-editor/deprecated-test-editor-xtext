@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -25,12 +25,15 @@ import org.eclipse.ui.wizards.IWizardCategory
 import org.eclipse.ui.wizards.IWizardDescriptor
 
 class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
+
+	ApplicationActionBarAdvisor actionBarAdvisor
+
 	new(IWorkbenchWindowConfigurer configurer) {
 		super(configurer)
 	}
 
 	override createActionBarAdvisor(IActionBarConfigurer configurer) {
-		new ApplicationActionBarAdvisor(configurer)
+		actionBarAdvisor = new ApplicationActionBarAdvisor(configurer)
 	}
 
 	override preWindowOpen() {
@@ -47,6 +50,7 @@ class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 
 	override postWindowOpen() {
 		removeUnwantedWizards
+		actionBarAdvisor.removeUnwantedMenus
 	}
 
 	def void removeUnwantedWizards() {
