@@ -12,11 +12,9 @@
  *******************************************************************************/
 @Ecore(nsURI="http://www.testeditor.org/aml")
 @GenModel(
-	
 	modelDirectory="org.testeditor.aml.model/src-gen", 
 	complianceLevel="7.0",
 	updateClasspath="true"
-	
 )
 package org.testeditor.aml
 
@@ -35,6 +33,7 @@ import org.eclipse.xtext.xtype.XImportSection
 import org.eclipse.xtext.common.types.JvmParameterizedTypeReference
 import org.eclipse.xtext.common.types.JvmOperation
 import org.eclipse.xtext.common.types.JvmEnumerationLiteral
+import org.testeditor.dsl.common.NamedElement
 
 class AmlModel {
 	String[1] ^package
@@ -52,9 +51,7 @@ class AmlModel {
  * Abstract super-class for all elements of this model. 
  * </p>
  */
-abstract class ModelElement {
-	/* The identifying name (id) of the element. */
-	String[1] name
+abstract class ModelElement extends NamedElement {
 	/* The label of the element. */
 	String label
 }
@@ -181,8 +178,7 @@ class TemplateText extends TemplateContent {
 	String value
 }
 
-abstract class Variable {
-	String name
+abstract class Variable extends NamedElement {
 }
 
 /* <p>

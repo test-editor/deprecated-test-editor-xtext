@@ -16,6 +16,7 @@
 	<modules>
 		<module>releng/org.testeditor.releng.parent</module>
 		<module>releng/org.testeditor.releng.parent.dsl</module>
+		<module>releng/org.testeditor.releng.parent.xcore</module>
 
 		<module>common</module>
 		<module>aml</module>

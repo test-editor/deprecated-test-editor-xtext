@@ -30,6 +30,7 @@ import org.testeditor.aml.Variable
 
 import static org.testeditor.aml.AmlPackage.Literals.*
 import static org.testeditor.aml.dsl.Messages.*
+import static org.testeditor.dsl.common.CommonPackage.Literals.*
 
 class AmlValidator extends AbstractAmlValidator {
 
@@ -80,7 +81,7 @@ class AmlValidator extends AbstractAmlValidator {
 		if (variable.name.nullOrEmpty) {
 			warning(
 				Validation_VariableReference_MissingName,
-				VARIABLE__NAME,
+				NAMED_ELEMENT__NAME,
 				VARIABLE_REFERENCE_NAME__MISSING
 			)
 		}

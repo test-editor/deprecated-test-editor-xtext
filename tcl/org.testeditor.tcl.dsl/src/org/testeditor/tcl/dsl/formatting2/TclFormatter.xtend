@@ -32,6 +32,7 @@ import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
 
 import static org.eclipse.xtext.formatting2.IHiddenRegionFormatter.LOW_PRIORITY
+import static org.testeditor.dsl.common.CommonPackage.Literals.*
 import static org.testeditor.tcl.TclPackage.Literals.*
 import org.testeditor.tcl.ComplexVariableReference
 
@@ -88,7 +89,7 @@ class TclFormatter extends XbaseFormatter {
 
 	def dispatch void format(Macro macro, extension IFormattableDocument document) {
 		macro.regionFor.keyword("##").prepend[newLines = 2].append[oneSpace]
-		macro.regionFor.feature(MACRO__NAME).append[newLine]
+		macro.regionFor.feature(NAMED_ELEMENT__NAME).append[newLine]
 		macro.regionFor.keyword("template").prepend[noIndentation].append[oneSpace]
 		macro.regionFor.keyword("=").append[oneSpace]
 		macro.template.format

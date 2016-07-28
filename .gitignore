@@ -49,3 +49,4 @@ Eclipse.app
 aml/org.testeditor.aml.model/text/
 tcl/org.testeditor.tcl.model/text/
 tsl/org.testeditor.tsl.model/text/
+common/org.testeditor.dsl.common/text/

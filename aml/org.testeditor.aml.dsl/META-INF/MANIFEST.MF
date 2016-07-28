@@ -8,7 +8,7 @@ Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtext,
  org.eclipse.equinox.common,
  org.eclipse.emf.ecore.xcore,
- org.testeditor.aml.model,
+ org.testeditor.aml.model;visibility:=reexport,
  org.eclipse.osgi,
  org.eclipse.xtext,
  org.eclipse.xtext.util,
