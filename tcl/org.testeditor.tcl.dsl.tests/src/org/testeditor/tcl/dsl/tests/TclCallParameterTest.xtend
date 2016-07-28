@@ -51,5 +51,35 @@ class TclCallParameterTest extends AbstractTclGeneratorIntegrationTest {
 		// expectation is string is escaped properly
 		verify(outputStub).append('dummyFixture.startApplication("te\\\\st\'");')
 	}
+	
+	@Test
+	def void testAssignedVariableAsParameter() {
+		// given
+		val amlModel = amlTestModels.dummyComponent(resourceSet)
+		amlModel.addToResourceSet
+		val dummyComponent = amlModel.components.head
+		
+		val tclModel = tclModel => [
+			test = testCase("Test") => [
+				steps += specificationStep("spec") => [
+					contexts += componentTestStepContext(dummyComponent) => [
+						val assignment = testStepWithAssignment("variable", "getValue") // get something of type string
+						steps += assignment
+						steps += testStep('start').withReferenceToAssignmentVariable(assignment.variable) 
+					]
+				]
+			]
+		]
+		tclModel.addToResourceSet
+
+		// when
+		jvmModelInferrer.generateMethodBody(tclModel.test, outputStub, #{})
+
+		// then
+		// expectation is string is escaped properly
+		verify(outputStub).append('java.lang.String variable = ')
+		verify(outputStub).append('dummyFixture.getValue();')
+		verify(outputStub).append('dummyFixture.startApplication(variable);')
+	}
 
 }

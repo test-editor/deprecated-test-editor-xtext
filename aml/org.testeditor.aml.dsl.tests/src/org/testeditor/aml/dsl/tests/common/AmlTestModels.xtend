@@ -13,8 +13,9 @@ class AmlTestModels {
 	public val COMPONENT_TYPE_NAME = "DummyCT"
 
 	/** build an aml model with
-	 *		one interaction type "start" calling DummyFixture.startApplication,
-	 * 		one component type COMPONENT_TYPE_NAME with the "start" interaction,
+	 *		one interaction type "start" calling DummyiFxture.startApplication,
+	 *		one interaction type "getValue" calling DummyFixture.getValue,
+	 * 		one component type COMPONENT_TYPE_NAME with the "start" and "getValue" interaction,
 	 * 		one component COMPONENT_NAME which is of this component type.
 	 */
 	def AmlModel dummyComponent(ResourceSet resourceSet) {
@@ -25,9 +26,16 @@ class AmlTestModels {
 				template = template("start").withParameter(defaultMethod.parameters.head)
 			]
 			interactionTypes += startInteraction
+			
+			val interactionTypeForGetSome = interactionType("getValue") => [
+				defaultMethod = methodReference(resourceSet, DummyFixture, "getValue").withLocatorStrategy
+				template = template("getValue")
+			]
+			interactionTypes += interactionTypeForGetSome		
 
 			val dummyComponentType = componentType(COMPONENT_TYPE_NAME) => [
 				interactionTypes += startInteraction
+				interactionTypes += interactionTypeForGetSome
 			]
 			componentTypes += dummyComponentType
 

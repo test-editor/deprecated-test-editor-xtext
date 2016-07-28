@@ -78,12 +78,12 @@ class Macro extends StepContainer, NamedElement {
 abstract class TestStepContext {
 }
 
-class ComponentTestStepContext extends TestStepContext{
+class ComponentTestStepContext extends TestStepContext {
 	refers Component component
 	contains TestStep[0..*] steps
 }
 
-class MacroTestStepContext extends TestStepContext{
+class MacroTestStepContext extends TestStepContext {
 	refers MacroCollection macroCollection
 	contains TestStep step
 }
@@ -99,7 +99,7 @@ class AssertionTestStep extends TestStep {
 abstract class AssertionExpression {
 }
 
-class BinaryAssertionExpression extends AssertionExpression{
+class BinaryAssertionExpression extends AssertionExpression {
 	contains AssertionExpression left
 	contains AssertionExpression right
 }
@@ -126,12 +126,11 @@ class TestStepWithAssignment extends TestStep {
 	contains AssignmentVariable variable opposite testStep
 }
 
-class AssignmentVariable {
+class AssignmentVariable extends VariableReference {
 	container TestStepWithAssignment testStep opposite variable
-	String name
 }
 
-class StepContentVariableReference extends StepContent{
+class StepContentVariableReference extends StepContent {
 	refers VariableReference variable
 }
 

@@ -22,6 +22,7 @@ import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.common.types.JvmTypeReference
+import org.eclipse.xtext.common.types.util.TypeReferences
 import org.eclipse.xtext.resource.XtextResourceSet
 import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
@@ -31,6 +32,7 @@ import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.ValueSpaceAssignment
+import org.testeditor.tcl.AssertionExpression
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariableReference
 import org.testeditor.tcl.Macro
@@ -51,6 +53,7 @@ import org.testeditor.tsl.util.TslModelUtil
 @Singleton
 class TclModelUtil extends TslModelUtil {
 	@Inject extension ModelUtil
+	@Inject TypeReferences typeReferences
 
 	override String restoreString(List<StepContent> contents) {
 		return contents.map [
@@ -209,6 +212,16 @@ class TclModelUtil extends TslModelUtil {
 		}
 		return #{}
 	}
+	
+	def Map<String, JvmTypeReference> getEnvironmentVariablesTypeMap(Iterable<EnvironmentVariableReference> envParams) {
+		val envParameterVariablesNames = envParams.map[name]
+		val envParameterVariablesTypeMap = newHashMap
+		if (!envParams.empty) {
+			val stringTypeReference = typeReferences.getTypeForName(String, envParams.head)
+			envParameterVariablesNames.forEach[envParameterVariablesTypeMap.put(it, stringTypeReference)]
+		}
+		return envParameterVariablesTypeMap
+	}
 
 	/**
 	 * provide an iterable with all step content variables as key and their respective fixture parameter type as value
@@ -266,7 +279,7 @@ class TclModelUtil extends TslModelUtil {
 
 	def Iterable<EnvironmentVariableReference> getEnvParams(EObject object) {
 		val root = EcoreUtil2.getContainerOfType(object, TclModel)
-		if (root !== null) {
+		if (root !== null && root.environmentVariableReferences != null) {
 			return root.environmentVariableReferences
 		}
 		return #{}
@@ -279,10 +292,12 @@ class TclModelUtil extends TslModelUtil {
 		val uri = URI.createURI(fileName+"."+fileExtension)
 		register(model, resourceSet, uri)
 	}
+	
 	def <T extends EObject> T register(T model, XtextResourceSet resourceSet, String fileExtension) {
 		val uri = URI.createURI(UUID.randomUUID.toString + "." + fileExtension)
 		register(model, resourceSet, uri)
 	}
+	
 	def <T extends EObject> T register(T model, XtextResourceSet resourceSet, URI uri) {
 		val newResource = resourceSet.createResource(uri)
 		newResource.contents.add(model)
