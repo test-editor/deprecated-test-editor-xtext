@@ -59,4 +59,68 @@ public class DummyFixture {
 	@FixtureMethod
 	def void clickOn(String locator, DummyLocatorStrategy locatorStragety) {
 	}
+
+	static def String getAmlModel() '''
+		«val dummyFixture = DummyFixture.simpleName»
+		package com.example
+		
+		import «DummyFixture.name»
+		
+		component type Application {
+			interactions = start, stop
+		}
+		 
+		interaction type start {
+			template = "Start application" ${path}
+			method = «dummyFixture».startApplication(path)
+		}
+		interaction type stop {
+			template = "Stop application"
+			method = «dummyFixture».stopApplication()
+		}
+		
+		interaction type wait {
+			template = "Wait for" ${seconds} "seconds"
+			method = «dummyFixture».waitSeconds(seconds)
+		}
+		
+		interaction type setValue {
+			template = "Set value of" ${element} "to" ${value}
+			method = «dummyFixture».setValue(element, value)
+		}
+		
+		interaction type getValue {
+			template = "Read value from" ${element}
+			method = «dummyFixture».getValue(element)
+		}
+		 
+		
+		interaction type getList {
+			template = "Read list from" ${element}
+			method = «dummyFixture».getList(element)
+		}
+		
+		interaction type getMap {
+			template = "Read map from" ${element}
+			method = «dummyFixture».getMap(element)
+		}
+		
+		interaction type clickOn {
+			template = "Click on" ${element}
+			method = «dummyFixture».clickOn(element, locatorStrategy)
+		}
+		
+		element type Label {
+			interactions = getList
+		}
+					
+		component GreetingApplication is Application {
+			element bar is Label {
+				label = "Label"
+				locator = "label.greet"
+			}
+		}
+	'''
+
+
 }

@@ -15,6 +15,7 @@ package org.testeditor.tcl.dsl.jvmmodel
 import com.google.inject.Inject
 import java.util.Set
 import org.apache.commons.lang3.StringEscapeUtils
+import org.eclipse.xtext.common.types.JvmField
 import org.eclipse.xtext.common.types.JvmOperation
 import org.eclipse.xtext.common.types.JvmType
 import org.eclipse.xtext.common.types.JvmTypeReference
@@ -57,23 +58,18 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		model.test?.infer(acceptor, isPreIndexingPhase)
 	}
 
-	private def String variableReferenceToVarName(VariableReference varRef) {
-		return "env_" + varRef.name
-	}
-
 	def dispatch void infer(TestCase test, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
-		val envParams = test.model.environmentVariableReferences
 		acceptor.accept(test.toClass(nameProvider.getFullyQualifiedName(test))) [
 			documentation = '''Generated from «test.eResource.URI»'''
+
 			// Create variables for used fixture types
-			members += test.fixtureTypes.map [ fixtureType |
-				toField(test, fixtureType.fixtureFieldName, fixtureType.typeRef) [
-					initializer = '''new «fixtureType»()'''
-				]
-			]
+			members += test.createFixtureVariables
+
 			// create variables for required environment variables
+			val envParams = test.model.environmentVariableReferences
 			members += envParams.map [ environmentVariableReference |
-				environmentVariableReference.toField(environmentVariableReference.variableReferenceToVarName,
+				environmentVariableReference.toField(
+					environmentVariableReference.variableReferenceToVarName,
 					typeRef(String)) [
 					initializer = '''System.getenv("«environmentVariableReference.name»")'''
 				]
@@ -103,6 +99,14 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				exceptions += typeRef(Exception)
 				annotations += annotationRef('org.junit.Test') // make sure that junit is in the classpath of the workspace containing the dsl
 				body = [test.generateMethodBody(trace(test, true), envParams)]
+			]
+		]
+	}
+
+	private def Iterable<JvmField> createFixtureVariables(TestCase test) {
+		return test.fixtureTypes.map [ fixtureType |
+			toField(test, fixtureType.fixtureFieldName, fixtureType.typeRef) [
+				initializer = '''new «fixtureType»()'''
 			]
 		]
 	}
@@ -183,8 +187,15 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	 * @return all {@link JvmType} of all fixtures that are referenced.
 	 */
 	private def Set<JvmType> getFixtureTypes(TestCase test) {
-		val allTestStepContexts = test.steps.map[contexts].flatten.filterNull
-		return allTestStepContexts.map[testStepFixtureTypes].flatten.toSet
+		val contexts = newLinkedList
+		contexts += test.steps.map[it.contexts].flatten.filterNull
+		if (test.setup !== null) {
+			contexts += test.setup.contexts
+		}
+		if (test.cleanup !== null) {
+			contexts += test.cleanup.contexts
+		}
+		return contexts.map[testStepFixtureTypes].flatten.toSet
 	}
 
 	private def dispatch Set<JvmType> getTestStepFixtureTypes(ComponentTestStepContext context) {
@@ -306,6 +317,10 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		} else {
 			throw new RuntimeException('''Environment variable '«stepContent.variable.name»' (always of type String) is used where type '«expectedType.qualifiedName»' is expected.''')
 		}
+	}
+
+	private def String variableReferenceToVarName(VariableReference varRef) {
+		return "env_" + varRef.name
 	}
 
 	/**
