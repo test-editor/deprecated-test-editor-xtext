@@ -47,6 +47,8 @@ import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
 
+import static org.testeditor.dsl.common.CommonPackage.Literals.*
+
 class TclValidator extends AbstractTclValidator {
 
 	public static val NO_VALID_IMPLEMENTATION = 'noValidImplementation'
@@ -367,7 +369,7 @@ class TclValidator extends AbstractTclValidator {
 		val expectedName = testCase.expectedName
 		if (testCase.name != expectedName) {
 			val message = '''Test case name='«testCase.name»' does not match expected name='«expectedName»' based on filename='«testCase.model.eResource.URI.lastSegment»'.'''
-			error(message, TclPackage.Literals.TEST_CASE__NAME, INVALID_NAME)
+			error(message, NAMED_ELEMENT__NAME, INVALID_NAME)
 		}
 	}
 
@@ -376,7 +378,7 @@ class TclValidator extends AbstractTclValidator {
 		val expectedName = macroCollection.expectedName
 		if (macroCollection.name != expectedName) {
 			val message = '''Macro collection name='«macroCollection.name»' does not match expected name='«expectedName»' based on  filename='«macroCollection.model.eResource.URI.lastSegment»'.'''
-			error(message, TclPackage.Literals.MACRO_COLLECTION__NAME, INVALID_NAME)
+			error(message, NAMED_ELEMENT__NAME, INVALID_NAME)
 		}
 	}
 

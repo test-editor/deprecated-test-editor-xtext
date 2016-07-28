@@ -13,6 +13,7 @@
 package org.testeditor.aml.dsl.validation
 
 import java.text.MessageFormat
+import java.util.Set
 import java.util.regex.Pattern
 import java.util.regex.PatternSyntaxException
 import javax.inject.Inject
@@ -29,7 +30,7 @@ import org.testeditor.aml.VariableReference
 
 import static org.testeditor.aml.AmlPackage.Literals.*
 import static org.testeditor.aml.dsl.Messages.*
-import java.util.Set
+import static org.testeditor.dsl.common.CommonPackage.Literals.*
 
 class AmlValidator extends AbstractAmlValidator {
 
@@ -80,7 +81,7 @@ class AmlValidator extends AbstractAmlValidator {
 		if (variable.name.nullOrEmpty) {
 			warning(
 				Validation_VariableReference_MissingName,
-				VARIABLE_REFERENCE__NAME,
+				NAMED_ELEMENT__NAME,
 				VARIABLE_REFERENCE_NAME__MISSING
 			)
 		}

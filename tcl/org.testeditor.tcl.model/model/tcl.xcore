@@ -21,6 +21,7 @@ import org.eclipse.xtext.xtype.XImportSection
 import org.testeditor.aml.Component
 import org.testeditor.aml.Template
 import org.testeditor.aml.VariableReference
+import org.testeditor.dsl.common.NamedElement
 import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentValue
@@ -34,8 +35,7 @@ class TclModel {
 	contains MacroCollection macroCollection opposite model
 }
 
-class TestCase {
-	String name
+class TestCase extends NamedElement {
 	container derived TclModel model opposite test
 	refers TestSpecification specification
 	contains TestSetup setup
@@ -66,14 +66,12 @@ abstract class StepContainer {
 	contains TestStepContext[0..*] contexts
 }
 
-class MacroCollection {
-	String name
+class MacroCollection extends NamedElement {
 	container derived TclModel model opposite macroCollection
 	contains Macro[0..*] macros
 }
 
-class Macro extends StepContainer {
-	String name
+class Macro extends StepContainer, NamedElement {
 	contains Template template
 }
 
