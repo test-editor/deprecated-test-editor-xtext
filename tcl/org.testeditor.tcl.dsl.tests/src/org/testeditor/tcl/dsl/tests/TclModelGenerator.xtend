@@ -11,7 +11,6 @@ import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.ComparatorEquals
 import org.testeditor.tcl.ComparatorMatches
-import org.testeditor.tcl.ComplexVariableReference
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariableReference
 import org.testeditor.tcl.Macro
@@ -22,6 +21,8 @@ import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepWithAssignment
+import org.testeditor.tcl.VariableReference
+import org.testeditor.tcl.VariableReferenceMapAccess
 import org.testeditor.tcl.impl.TclFactoryImpl
 import org.testeditor.tsl.impl.TslFactoryImpl
 
@@ -121,8 +122,12 @@ class TclModelGenerator {
 		tclFactory.createAssignmentVariable => [name = variableName]
 	}
 
-	def ComplexVariableReference complexVariableReference() {
-		tclFactory.createComplexVariableReference
+	def VariableReference variableReference() {
+		tclFactory.createVariableReference
+	}
+
+	def VariableReferenceMapAccess variableReferenceMapAccess() {
+		tclFactory.createVariableReferenceMapAccess
 	}
 
 	def ComparatorEquals comparatorEquals() {
@@ -146,8 +151,8 @@ class TclModelGenerator {
 
 	def TestStep withVariableReference(TestStep me, String variableReferenceName) {
 		me.contents += tclFactory.createStepContentVariableReference => [
-			variable = complexVariableReference => [
-				simpleVariable = amlFactory.createTemplateVariable => [
+			variableReference = variableReference() => [
+				variable = amlFactory.createTemplateVariable => [
 					name = variableReferenceName
 				]
 			]
@@ -157,8 +162,8 @@ class TclModelGenerator {
 
 	def TestStep withReferenceToAssignmentVariable(TestStep me, AssignmentVariable assignmentVariable) {
 		me.contents += tclFactory.createStepContentVariableReference => [
-			variable = complexVariableReference => [
-				simpleVariable = assignmentVariable
+			variableReference = variableReference() => [
+				variable = assignmentVariable
 			]
 		]
 		return me
@@ -166,8 +171,8 @@ class TclModelGenerator {
 
 	def TestStep withReferenceToEnvironmentVariable(TestStep me, EnvironmentVariableReference envVariable) {
 		me.contents += tclFactory.createStepContentVariableReference => [
-			variable = complexVariableReference => [
-				simpleVariable = envVariable
+			variableReference = variableReference() => [
+				variable = envVariable
 			]
 		]
 		return me
@@ -195,7 +200,7 @@ class TclModelGenerator {
 	}
 
 	// ===================================================================== extended 
-	def AEComparison compareNotMatching(ComplexVariableReference variableReference, String string) {
+	def AEComparison compareNotMatching(VariableReference variableReference, String string) {
 		return aeComparison => [
 			left = variableReference
 			comparator = comparatorMatches => [negated = true]
@@ -203,7 +208,7 @@ class TclModelGenerator {
 		]
 	}
 
-	def AEComparison compareMatching(ComplexVariableReference variableReference, String string) {
+	def AEComparison compareMatching(VariableReference variableReference, String string) {
 		return aeComparison => [
 			left = variableReference
 			comparator = comparatorMatches
@@ -211,7 +216,7 @@ class TclModelGenerator {
 		]
 	}
 
-	def AEComparison compareNotEqual(ComplexVariableReference variableReference, String string) {
+	def AEComparison compareNotEqual(VariableReference variableReference, String string) {
 		return aeComparison => [
 			left = variableReference
 			comparator = comparatorEquals => [negated = true]
@@ -219,7 +224,7 @@ class TclModelGenerator {
 		]
 	}
 
-	def AEComparison compareOnEquality(ComplexVariableReference variableReference, String string) {
+	def AEComparison compareOnEquality(VariableReference variableReference, String string) {
 		return aeComparison => [
 			left = variableReference
 			comparator = comparatorEquals
@@ -227,34 +232,34 @@ class TclModelGenerator {
 		]
 	}
 
-	def ComplexVariableReference flatReference(AssignmentVariable assignmentVariable) {
-		return complexVariableReference => [
-			simpleVariable = assignmentVariable
+	def VariableReference flatReference(AssignmentVariable assignmentVariable) {
+		return variableReference => [
+			variable = assignmentVariable
 		]
 	}
 
-	def ComplexVariableReference mappedReference(AssignmentVariable assignmentVariable) {
-		return complexVariableReference => [
-			simpleVariable = assignmentVariable
+	def VariableReferenceMapAccess mappedReference(AssignmentVariable assignmentVariable) {
+		return variableReferenceMapAccess => [
+			variable = assignmentVariable
 			key = "key"
 		]
 	}
 
-	def ComplexVariableReference flatReference(String variableName) {
-		complexVariableReference => [ simpleVariable = assignmentVariable(variableName)]
+	def VariableReference flatReference(String variableName) {
+		variableReference => [ variable = assignmentVariable(variableName)]
 	}
 
-	def ComplexVariableReference mappedReference(String variableName, String myKey) {
-		complexVariableReference => [
-			simpleVariable = assignmentVariable(variableName)
+	def VariableReferenceMapAccess mappedReference(String variableName, String myKey) {
+		variableReferenceMapAccess => [
+			variable = assignmentVariable(variableName)
 			key = myKey
 		]
 	}
 
 	def AENullOrBoolCheck nullOrBoolCheck(String variableName) {
 		aeNullOrBoolCheck => [
-			varReference = complexVariableReference => [
-				simpleVariable = assignmentVariable(variableName)
+			variableReference = variableReference() => [
+				variable = assignmentVariable(variableName)
 			]
 		]
 	}

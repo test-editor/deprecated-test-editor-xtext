@@ -18,13 +18,13 @@ import org.testeditor.tcl.AENullOrBoolCheck
 import org.testeditor.tcl.AEStringConstant
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.ComparatorMatches
-import org.testeditor.tcl.ComplexVariableReference
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclPackage
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepWithAssignment
+import org.testeditor.tcl.VariableReference
 import org.testeditor.tsl.StepContentVariable
 
 import static extension org.eclipse.xtext.nodemodel.util.NodeModelUtils.*
@@ -195,7 +195,7 @@ class TclModelParserTest extends AbstractParserTest {
 				steps.assertSize(2).get(1).assertInstanceOf(AssertionTestStep) => [
 					expression.assertInstanceOf(AENullOrBoolCheck) => [
 						isNegated.assertFalse
-						varReference.simpleVariable.name.assertEquals("hello")
+						variableReference.variable.name.assertEquals("hello")
 					]
 				]
 			]
@@ -223,7 +223,7 @@ class TclModelParserTest extends AbstractParserTest {
 			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
 				steps.assertSize(2).get(1).assertInstanceOf(AssertionTestStep) => [
 					expression.assertInstanceOf(AEComparison) => [
-						left.assertInstanceOf(ComplexVariableReference) => [simpleVariable.name.assertEquals("hello")]
+						left.assertInstanceOf(VariableReference) => [variable.name.assertEquals("hello")]
 						comparator.assertInstanceOf(ComparatorMatches) => [negated.assertTrue]
 						right.assertInstanceOf(AEComparison) => [
 							left.assertInstanceOf(AEStringConstant) => [string.assertEquals(".*AAABBB.*")]

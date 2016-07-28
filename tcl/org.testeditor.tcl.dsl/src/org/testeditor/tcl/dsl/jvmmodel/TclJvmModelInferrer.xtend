@@ -45,6 +45,8 @@ import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentValue
 
 import static org.testeditor.tcl.TclPackage.Literals.*
+import org.testeditor.tcl.VariableReference
+import org.testeditor.tcl.VariableReferenceMapAccess
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -308,9 +310,14 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	private def dispatch Iterable<String> generateCallParameters(StepContentVariableReference stepContent,
 		JvmTypeReference expectedType, InteractionType interaction) {
 		if (expectedType.qualifiedName.equals(String.name)) {
-			return #[stepContent.variable.simpleVariable.variableReferenceToVarName]
+			switch (stepContent.variableReference){
+				VariableReferenceMapAccess: throw new RuntimeException("implementation missing")
+				VariableReference: return #[stepContent.variableReference.variable.variableReferenceToVarName]
+				default: throw new RuntimeException('''Variable reference of type='«stepContent.variableReference.class.canonicalName»' is unknown.''')
+			}
+			
 		} else {
-			throw new RuntimeException('''Environment variable '«stepContent.variable.simpleVariable.name»' (always of type String) is used where type '«expectedType.qualifiedName»' is expected.''')
+			throw new RuntimeException('''Environment variable '«stepContent.variableReference.variable.name»' (always of type String) is used where type '«expectedType.qualifiedName»' is expected.''')
 		}
 	}
 
@@ -352,7 +359,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 		val varValMap = getVariableToValueMapping(callSiteMacroContext.step, macroCalled.template)
 		val varKey = varValMap.keySet.findFirst [
-			name.equals(referencedVariable.variable.simpleVariable.name)
+			name.equals(referencedVariable.variableReference.variable.name)
 		]
 		val callSiteParameter = varValMap.get(varKey)
 

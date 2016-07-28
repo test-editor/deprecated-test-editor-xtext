@@ -34,7 +34,8 @@ import org.testeditor.tsl.TslPackage
 import static org.eclipse.xtext.formatting2.IHiddenRegionFormatter.LOW_PRIORITY
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
 import static org.testeditor.tcl.TclPackage.Literals.*
-import org.testeditor.tcl.ComplexVariableReference
+import org.testeditor.tcl.VariableReference
+import org.testeditor.tcl.VariableReferenceMapAccess
 
 class TclFormatter extends XbaseFormatter {
 
@@ -137,14 +138,18 @@ class TclFormatter extends XbaseFormatter {
 	def dispatch void format(StepContentVariableReference stepContentVariableReference,
 		extension IFormattableDocument document) {
 		stepContentVariableReference.regionFor.keyword('@').prepend[oneSpace].append[noSpace]
-		stepContentVariableReference.variable.format
+		stepContentVariableReference.variableReference.format
 	}
 	
-	def dispatch void format(ComplexVariableReference complexVariableReference,
+	def dispatch void format(VariableReference variableReference, extension IFormattableDocument document) {
+		variableReference.variable.append[oneSpace;priority=LOW_PRIORITY]
+	}
+
+	def dispatch void format(VariableReferenceMapAccess variableReferenceMapAccess,
 		extension IFormattableDocument document) {
-		complexVariableReference.regionFor.keyword('.').prepend[noSpace].append[noSpace]
-		complexVariableReference.simpleVariable.append[noSpace]
-		complexVariableReference.regionFor.feature(COMPLEX_VARIABLE_REFERENCE__KEY).prepend[noSpace]
+		variableReferenceMapAccess.regionFor.keyword('.').prepend[noSpace].append[noSpace]
+		variableReferenceMapAccess.variable.append[noSpace]
+		variableReferenceMapAccess.regionFor.feature(VARIABLE_REFERENCE_MAP_ACCESS__KEY).prepend[noSpace]
 	}
 
 	def dispatch void format(Template template, extension IFormattableDocument document) {

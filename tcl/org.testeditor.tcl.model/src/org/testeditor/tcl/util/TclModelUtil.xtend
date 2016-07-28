@@ -60,7 +60,7 @@ class TclModelUtil extends TslModelUtil {
 			switch (it) {
 				StepContentVariable: '''"«value»"'''
 				StepContentElement: '''<«value»>'''
-				StepContentVariableReference: '''@«variable?.simpleVariable?.name»'''
+				StepContentVariableReference: '''@«variableReference?.variable?.name»'''
 				StepContentValue:
 					value
 				default:

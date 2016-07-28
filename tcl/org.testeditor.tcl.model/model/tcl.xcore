@@ -109,13 +109,16 @@ class AEComparison extends BinaryAssertionExpression {
 }
 
 class AENullOrBoolCheck extends AssertionExpression {
-	contains ComplexVariableReference varReference
+	contains VariableReference variableReference
 	boolean negated = "false"
 }
 
-class ComplexVariableReference extends AssertionExpression {
-	refers Variable simpleVariable
-	String key // only != null if: map.key
+class VariableReference extends AssertionExpression {
+	refers Variable variable
+}
+
+class VariableReferenceMapAccess extends VariableReference {
+	String key
 }
 
 class AEStringConstant extends AssertionExpression {
@@ -131,7 +134,7 @@ class AssignmentVariable extends Variable{
 }
 
 class StepContentVariableReference extends StepContent{
-	contains ComplexVariableReference variable
+	contains VariableReference variableReference
 }
 
 class StepContentElement extends StepContentValue {
