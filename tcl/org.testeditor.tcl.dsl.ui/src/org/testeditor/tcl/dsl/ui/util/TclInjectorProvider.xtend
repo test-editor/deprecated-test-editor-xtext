@@ -10,7 +10,7 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.rcp4.tcltestrun
+package org.testeditor.tcl.dsl.ui.util
 
 import com.google.inject.Injector
 import org.eclipse.e4.core.di.annotations.Creatable
