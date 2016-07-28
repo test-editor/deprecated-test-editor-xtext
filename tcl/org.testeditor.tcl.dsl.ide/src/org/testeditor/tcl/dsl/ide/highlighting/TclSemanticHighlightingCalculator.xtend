@@ -26,7 +26,7 @@ import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.StepContent
 
-import static org.testeditor.tcl.TclPackage.Literals.*
+import static org.testeditor.dsl.common.CommonPackage.Literals.*
 
 import static extension org.eclipse.xtext.nodemodel.util.NodeModelUtils.getNode
 
@@ -57,14 +57,11 @@ class TclSemanticHighlightingCalculator extends DefaultSemanticHighlightingCalcu
 	private def doProvideHighlightingFor(TclModel model, IHighlightedPositionAcceptor acceptor,
 		CancelIndicator cancelIndicator) {
 		// Provide highlighting for the name
-		if (model.test !== null) {
-			val nameRegion = model.findNodesRegionForFeature(TEST_CASE__NAME)
-			if (nameRegion !== null) {
+		val nameRegion = model.findNodesRegionForFeature(NAMED_ELEMENT__NAME)
+		if (nameRegion !== null) {
+			if (model.test !== null) {
 				acceptor.addPosition(nameRegion.offset, nameRegion.length, TEST_CASE_NAME)
-			}
-		} else if (model.macroCollection !== null) {
-			val nameRegion = model.findNodesRegionForFeature(MACRO_COLLECTION__NAME)
-			if (nameRegion !== null) {
+			} else if (model.macroCollection !== null) {
 				acceptor.addPosition(nameRegion.offset, nameRegion.length, MACRO_COLLECTION_NAME)
 			}
 		}

@@ -61,6 +61,7 @@ Workflow {
 		language = StandardLanguage {
 			name = "org.testeditor.aml.dsl.Aml"
 			fileExtensions = "aml"
+			referencedResource = "platform:/resource/org.testeditor.dsl.common/model/common.xcore"
 			referencedResource = "platform:/resource/org.testeditor.aml.model/model/aml.xcore"
 			formatter = {
 				generateStub = true
