@@ -291,21 +291,24 @@ class TclValidator extends AbstractTclValidator {
 		]
 	}
 	
-	private def Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(TestStepContext context){
-		switch(context){
+	private def Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(TestStepContext context) {
+		switch (context) {
 			ComponentTestStepContext: {
-				val result=newHashMap
+				val result = newHashMap
 				context.steps.map[collectDeclaredVariablesTypeMap].forEach[result.putAll(it)]
 				return result
-				}
-			MacroTestStepContext: return context.step.collectDeclaredVariablesTypeMap
-			default: throw new RuntimeException('''unknown test step context «context.class.canonicalName»''')
+			}
+			MacroTestStepContext:
+				return context.step.collectDeclaredVariablesTypeMap
+			default:
+				throw new RuntimeException('''unknown test step context «context.class.canonicalName»''')
 		}
 	}
+
 	private def Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(TestStep testStep) {
-		if(testStep instanceof TestStepWithAssignment){
-			val typeReference = testStep.interaction?.defaultMethod?.operation?.returnType			
-			return #{ testStep.variable.name -> typeReference}
+		if (testStep instanceof TestStepWithAssignment) {
+			val typeReference = testStep.interaction?.defaultMethod?.operation?.returnType
+			return #{testStep.variable.name -> typeReference}
 		}
 		return emptyMap
 	}
@@ -378,30 +381,30 @@ class TclValidator extends AbstractTclValidator {
 	}
 
 	@Check
-	def void checkVariableUsage(TestCase testCase){
+	def void checkVariableUsage(TestCase testCase) {
 		val initiallyDeclaredVariableNames = testCase.model.envParams.map[name]
 		val declaredVariableNames = newHashSet
 		declaredVariableNames.addAll(initiallyDeclaredVariableNames)
 		testCase.steps.map[contexts].flatten.forEach [
 			checkAllReferencedVariablesAreKnown(declaredVariableNames, ERROR_MESSAGE_FOR_INVALID_VAR_REFERENCE)
 			// add the variables declared by this step to be known for subsequent steps
-			declaredVariableNames.addAll(collectDeclaredVariablesTypeMap.keySet) 
+			declaredVariableNames.addAll(collectDeclaredVariablesTypeMap.keySet)
 		]
 	}
 	
 	@Check
-	def void checkVariableUsage(Macro macro){
+	def void checkVariableUsage(Macro macro) {
 		// each macro opens its own scope, so the macro knows about the ones
 		// introduced by the parameters as defined by the template 
 		// and the ones introduced by assignments within the macro itself (which are successively added)
-		val macroParameterNames=amlModelUtil.getReferenceableVariables(macro.template).map[name]
+		val macroParameterNames = amlModelUtil.getReferenceableVariables(macro.template).map[name]
 		val declaredVariableNames = newHashSet
 		declaredVariableNames.addAll(macroParameterNames)
 		macro.contexts.forEach [
 			checkAllReferencedVariablesAreKnown(declaredVariableNames, ERROR_MESSAGE_FOR_INVALID_VAR_REFERENCE)
 			// add the variables declared by this step to be known for subsequent steps within this macro !! 
 			declaredVariableNames.addAll(collectDeclaredVariablesTypeMap.keySet)
-		] 
+		]
 	}
 
 	/** 
@@ -436,19 +439,23 @@ class TclValidator extends AbstractTclValidator {
 			forEach[checkAllReferencedVariablesAreUsedWellTyped(knownVariablesTypeMap)]
 		]
 	}
-	
+
 	/**
 	 * check that all (except the explicitly excluded) variables are used according to their actual type (transitively in their fixture)
 	 */
 	private def void checkReferencedVariablesAreUsedWellTypedExcluding(TestStepContext ctx,
 		Map<String, JvmTypeReference> declaredVariablesTypeMap, Set<String> excludedVariableNames) {
 		switch ctx {
-			ComponentTestStepContext: ctx.steps.forEach [
-				checkReferencedVariablesAreUsedWellTypedExcluding(declaredVariablesTypeMap, ctx, excludedVariableNames)
-			]
-			MacroTestStepContext: ctx.step.
-				checkReferencedVariablesAreUsedWellTypedExcluding(declaredVariablesTypeMap, ctx, excludedVariableNames)
-			default: throw new RuntimeException('''Unknown TestStepContextType '«ctx.class.canonicalName»'.''')
+			ComponentTestStepContext:
+				ctx.steps.forEach [
+					checkReferencedVariablesAreUsedWellTypedExcluding(declaredVariablesTypeMap, ctx,
+						excludedVariableNames)
+				]
+			MacroTestStepContext:
+				ctx.step.checkReferencedVariablesAreUsedWellTypedExcluding(declaredVariablesTypeMap, ctx,
+					excludedVariableNames)
+			default:
+				throw new RuntimeException('''Unknown TestStepContextType '«ctx.class.canonicalName»'.''')
 		}
 	}
 
@@ -464,7 +471,8 @@ class TclValidator extends AbstractTclValidator {
 	 * check that all variables are used according to their actual type (transitively in their fixture)
 	 */
 	private def void checkReferencedVariablesAreUsedWellTypedExcluding(TestStep step,
-		Map<String, JvmTypeReference> declaredVariablesTypeMap, TestStepContext context, Set<String> excludedVariableNames) {
+		Map<String, JvmTypeReference> declaredVariablesTypeMap, TestStepContext context,
+		Set<String> excludedVariableNames) {
 		// build this index to be able to correctly issue an error on the element by index
 		val variablesIndexed = step.contents.indexed.filter [
 			value instanceof StepContentVariableReference || value instanceof StepContentVariable ||
@@ -478,7 +486,7 @@ class TclValidator extends AbstractTclValidator {
 			val typeUsageSet = context.getAllTypeUsagesOfVariable(varName).filterNull.toSet
 			val typeDeclared = declaredVariablesTypeMap.get(varName)
 			// currently this is a naiive check, expecting the types
-			if (typeDeclared==null || !typeUsageSet.identicalSingleTypeInSet(typeDeclared)) {
+			if (typeDeclared == null ||	!typeUsageSet.identicalSingleTypeInSet(typeDeclared)) {
 				error('''Variable='«varName»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in a position that expects type(s)='«typeUsageSet.map[qualifiedName].join(", ")»'.''',
 					value.eContainer, value.eContainingFeature, key, INVALID_TYPED_VAR_DEREF)
 			}
