@@ -32,6 +32,7 @@ import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.ValueSpaceAssignment
+import org.testeditor.tcl.AssertionExpression
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariableReference
 import org.testeditor.tcl.Macro
@@ -48,7 +49,6 @@ import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
-import org.testeditor.tcl.AssertionExpression
 
 @Singleton
 class TclModelUtil extends TslModelUtil {
@@ -222,8 +222,7 @@ class TclModelUtil extends TslModelUtil {
 		return #{}
 	}
 	
-	def Map<String, JvmTypeReference> getEnvironmentVariablesTypeMap(
-		Iterable<EnvironmentVariableReference> envParams) {
+	def Map<String, JvmTypeReference> getEnvironmentVariablesTypeMap(Iterable<EnvironmentVariableReference> envParams) {
 		val envParameterVariablesNames = envParams.map[name]
 		val envParameterVariablesTypeMap = newHashMap
 		if (!envParams.empty) {
@@ -289,7 +288,7 @@ class TclModelUtil extends TslModelUtil {
 
 	def Iterable<EnvironmentVariableReference> getEnvParams(EObject object) {
 		val root = EcoreUtil2.getContainerOfType(object, TclModel)
-		if (root !== null && root.environmentVariableReferences!=null ){
+		if (root !== null && root.environmentVariableReferences != null) {
 			return root.environmentVariableReferences
 		}
 		return #{}
@@ -302,10 +301,12 @@ class TclModelUtil extends TslModelUtil {
 		val uri = URI.createURI(fileName+"."+fileExtension)
 		register(model, resourceSet, uri)
 	}
+	
 	def <T extends EObject> T register(T model, XtextResourceSet resourceSet, String fileExtension) {
 		val uri = URI.createURI(UUID.randomUUID.toString + "." + fileExtension)
 		register(model, resourceSet, uri)
 	}
+	
 	def <T extends EObject> T register(T model, XtextResourceSet resourceSet, URI uri) {
 		val newResource = resourceSet.createResource(uri)
 		newResource.contents.add(model)
