@@ -33,7 +33,7 @@ import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.ValueSpaceAssignment
 import org.testeditor.tcl.ComponentTestStepContext
-import org.testeditor.tcl.EnvironmentVariableReference
+import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.Expression
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroTestStepContext
@@ -50,10 +50,11 @@ import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
+import org.testeditor.tcl.AbstractTestStep
 
 @Singleton
 class TclModelUtil extends TslModelUtil {
-	@Inject extension ModelUtil
+	@Inject public extension ModelUtil amlModelUtil
 	@Inject TypeReferences typeReferences
 
 	override String restoreString(List<StepContent> contents) {
@@ -72,8 +73,9 @@ class TclModelUtil extends TslModelUtil {
 	}
 
 	def Macro findMacroDefinition(MacroTestStepContext macroCallSite) {
+		val macroCallStep = (macroCallSite.step as TestStep) // call must be a test step
 		macroCallSite.macroCollection?.macros?.findFirst [
-			template.normalize == macroCallSite.step.normalize
+			template.normalize == macroCallStep.normalize
 		]
 	}
 	
@@ -127,11 +129,8 @@ class TclModelUtil extends TslModelUtil {
 	// TODO we need a common super class for StepContentElement and StepContentVariable and StepContentDereferencedVariable
 	def Map<TemplateVariable, StepContent> getVariableToValueMapping(TestStep step, Template template) {
 		val map = newHashMap
-		val templateVariables = template.contents.filter(TemplateVariable).toList
-		val stepContentVariables = step.contents.filter [
-			it instanceof StepContentElement || it instanceof StepContentVariable ||
-				it instanceof VariableReference
-		].toList
+		val templateVariables = template.contents.filter(TemplateVariable)
+		val stepContentVariables = step.contents.filter [!(it instanceof StepContentText)]
 		if (templateVariables.size !== stepContentVariables.size) {
 			val message = '''Variables for '«step.contents.restoreString»' did not match the parameters of template '«template.normalize»' (normalized).'''
 			throw new IllegalArgumentException(message)
@@ -141,19 +140,19 @@ class TclModelUtil extends TslModelUtil {
 		}
 		return map
 	}
-
+	
 	def ComponentElement getComponentElement(StepContentElement contentElement) {
-		val container = contentElement.eContainer
-		if (container instanceof TestStep) {
+		val container = EcoreUtil2.getContainerOfType(contentElement, TestStep)
+		if (container !== null) {
 			val component = container.componentContext?.component
 			return component?.elements?.findFirst[name == contentElement.value]
 		}
 		return null
 	}
-
+	
 	def Template getMacroTemplate(StepContentElement contentElement) {
-		val container = contentElement.eContainer
-		if (container instanceof TestStep) {
+		val container = EcoreUtil2.getContainerOfType(contentElement, TestStep)
+		if (container !== null) {
 			val macro = container.macroContext?.findMacroDefinition
 			return macro?.template
 		}
@@ -161,8 +160,8 @@ class TclModelUtil extends TslModelUtil {
 	}
 
 	def ValueSpaceAssignment getValueSpaceAssignment(StepContentVariable contentElement) {
-		val container = contentElement.eContainer
-		if (container instanceof TestStep) {
+		val container = EcoreUtil2.getContainerOfType(contentElement, TestStep)
+		if (container !== null) {
 			val component = container.componentContext?.component
 			if (component != null) {
 				val valueSpace = getValueSpaceAssignment(component, container)
@@ -179,11 +178,7 @@ class TclModelUtil extends TslModelUtil {
 	}
 
 	def ComponentTestStepContext getComponentContext(TestStep step) {
-		if (step.eContainer instanceof ComponentTestStepContext) {
-			return step.eContainer as ComponentTestStepContext
-		} else {
-			return null
-		}
+		return EcoreUtil2.getContainerOfType(step, ComponentTestStepContext)
 	}
 
 	def boolean hasMacroContext(TestStep step) {
@@ -191,11 +186,7 @@ class TclModelUtil extends TslModelUtil {
 	}
 
 	def MacroTestStepContext getMacroContext(TestStep step) {
-		if (step.eContainer instanceof MacroTestStepContext) {
-			return step.eContainer as MacroTestStepContext
-		} else {
-			return null
-		}
+		return EcoreUtil2.getContainerOfType(step, MacroTestStepContext)
 	}
 
 	def ValueSpaceAssignment getValueSpaceAssignment(Component component, TestStep container) {
@@ -214,17 +205,14 @@ class TclModelUtil extends TslModelUtil {
 	}
 
 	def Set<TemplateVariable> getEnclosingMacroParameters(EObject object) {
-		var curObject = object
-		while (curObject != null) {
-			if (curObject instanceof Macro) {
-				return curObject.template.referenceableVariables
-			}
-			curObject = curObject.eContainer
+		val container = EcoreUtil2.getContainerOfType(object, Macro)
+		if (container !== null) {
+			return container.template.referenceableVariables
 		}
 		return #{}
 	}
 	
-	def Map<String, JvmTypeReference> getEnvironmentVariablesTypeMap(Iterable<EnvironmentVariableReference> envParams) {
+	def Map<String, JvmTypeReference> getEnvironmentVariablesTypeMap(Iterable<EnvironmentVariable> envParams) {
 		val envParameterVariablesNames = envParams.map[name]
 		val envParameterVariablesTypeMap = newHashMap
 		if (!envParams.empty) {
@@ -251,10 +239,7 @@ class TclModelUtil extends TslModelUtil {
 	 * get all variables, variable references and elements that are used as parameters in this test step
 	 */
 	def Iterable<StepContent> getStepContentVariables(TestStep step) {
-		return step.contents.filter [
-			it instanceof StepContentVariable || it instanceof VariableReference ||
-				it instanceof StepContentElement
-		]
+		return step.contents.filter [!(it instanceof StepContentText)]
 	}
 
 	def SpecificationStep getSpecificationStep(SpecificationStepImplementation stepImplementation) {
@@ -280,18 +265,18 @@ class TclModelUtil extends TslModelUtil {
 		]
 	}
 
-	def dispatch Iterable<TestStep> getTestSteps(ComponentTestStepContext context) {
+	def dispatch Iterable<AbstractTestStep> getTestSteps(ComponentTestStepContext context) {
 		return context.steps
 	}
 
-	def dispatch Iterable<TestStep> getTestSteps(MacroTestStepContext context) {
+	def dispatch Iterable<AbstractTestStep> getTestSteps(MacroTestStepContext context) {
 		return #[context.step]
 	}
 
-	def Iterable<EnvironmentVariableReference> getEnvParams(EObject object) {
+	def Iterable<EnvironmentVariable> getEnvParams(EObject object) {
 		val root = EcoreUtil2.getContainerOfType(object, TclModel)
-		if (root !== null && root.environmentVariableReferences != null) {
-			return root.environmentVariableReferences
+		if (root !== null && root.environmentVariables != null) {
+			return root.environmentVariables
 		}
 		return #{}
 	}

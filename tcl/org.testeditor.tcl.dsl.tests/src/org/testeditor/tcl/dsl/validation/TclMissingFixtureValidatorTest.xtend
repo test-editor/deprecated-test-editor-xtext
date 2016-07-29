@@ -24,8 +24,9 @@ import org.testeditor.tcl.ComponentTestStepContext
 import static org.mockito.Matchers.*
 
 import static extension org.mockito.Mockito.*
+import org.testeditor.tcl.TestStep
 
-class TclMissingFixtureValidatorTest extends AbstractTclValidatorTest {
+class TclMissingFixtureValidatorTest extends AbstractMockedTclValidatorTest {
 
 	@Mock JvmParameterizedTypeReference typeReferenceMock
 	@Mock ValidationMessageAcceptor messageAcceptor
@@ -55,7 +56,7 @@ class TclMissingFixtureValidatorTest extends AbstractTclValidatorTest {
 			- test step that maps
 		''')
 		val testStepThatMaps = tclFix.test.steps.head.contexts.head.assertInstanceOf(ComponentTestStepContext).
-			steps.head
+			steps.head.assertInstanceOf(TestStep)
 
 		// when
 		tclValidator.checkFixtureMethodForExistence(testStepThatMaps)
@@ -76,7 +77,7 @@ class TclMissingFixtureValidatorTest extends AbstractTclValidatorTest {
 			- test step that does not map
 		''')
 		val testStepThatDoesNotMap = tclFix.test.steps.head.contexts.head.assertInstanceOf(
-			ComponentTestStepContext).steps.head
+			ComponentTestStepContext).steps.head.assertInstanceOf(TestStep)
 		when(typeReferenceMock.type).thenReturn(null)
 
 		// when
@@ -87,25 +88,4 @@ class TclMissingFixtureValidatorTest extends AbstractTclValidatorTest {
 		assertMatches(message.value, ".*could not resolve fixture")
 	}
 
-	@Test
-	def void noInfoOnAssertion() {
-		// given
-		val tclFix = parse('''
-			package pa
-			# Test
-			
-			* first
-			Component: some_fantasy_component
-			- assert variable = "Hello"
-		''')
-		val testStepThatDoesNotMap = tclFix.test.steps.head.contexts.head.assertInstanceOf(
-			ComponentTestStepContext).steps.head
-		when(typeReferenceMock.type).thenReturn(null)
-
-		// when
-		tclValidator.checkFixtureMethodForExistence(testStepThatDoesNotMap)
-
-		// then
-		messageAcceptor.verify(never).acceptInfo(anyString, anyObject, anyObject, anyInt, anyString)
-	}
 }

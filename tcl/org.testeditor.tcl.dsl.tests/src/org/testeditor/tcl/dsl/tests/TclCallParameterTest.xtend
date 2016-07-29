@@ -63,9 +63,9 @@ class TclCallParameterTest extends AbstractTclGeneratorIntegrationTest {
 			test = testCase("Test") => [
 				steps += specificationStep("spec") => [
 					contexts += componentTestStepContext(dummyComponent) => [
-						val assignment = testStepWithAssignment("variable", "getValue") // get something of type string
+						val assignment = testStepWithAssignment("variable", "getValue").withElement("dummyElement") // get something of type string
 						steps += assignment
-						steps += testStep('start').withReferenceToAssignmentVariable(assignment.variable) 
+						steps += testStep('start').withReferenceToVariable(assignment.variable) 
 					]
 				]
 			]
@@ -78,7 +78,7 @@ class TclCallParameterTest extends AbstractTclGeneratorIntegrationTest {
 		// then
 		// expectation is string is escaped properly
 		verify(outputStub).append('java.lang.String variable = ')
-		verify(outputStub).append('dummyFixture.getValue();')
+		verify(outputStub).append('dummyFixture.getValue("dummyLocator");')
 		verify(outputStub).append('dummyFixture.startApplication(variable);')
 	}
 

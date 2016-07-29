@@ -43,7 +43,7 @@ class TclFormatter extends XbaseFormatter {
 		// import section is not formatted (yet), should be done by organize imports
 		tclModel.regionFor.keyword("require").prepend[newLines = 2]
 		tclModel.regionFor.keyword(",").prepend[noSpace]
-		tclModel.environmentVariableReferences.forEach[prepend[oneSpace]]
+		tclModel.environmentVariables.forEach[prepend[oneSpace]]
 		tclModel.test?.format
 		tclModel.macroCollection?.format
 	}

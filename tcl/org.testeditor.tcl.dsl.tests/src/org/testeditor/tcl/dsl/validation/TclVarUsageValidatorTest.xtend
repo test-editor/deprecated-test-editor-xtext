@@ -1,169 +1,229 @@
 package org.testeditor.tcl.dsl.validation
 
-import java.util.Map
-import org.eclipse.xtext.common.types.JvmOperation
-import org.eclipse.xtext.common.types.JvmTypeReference
-import org.junit.Before
+import javax.inject.Inject
+import org.eclipse.xtext.junit4.validation.ValidationTestHelper
 import org.junit.Test
-import org.mockito.Mock
-import org.testeditor.aml.AmlFactory
-import org.testeditor.tcl.ComponentTestStepContext
+import org.testeditor.tcl.dsl.tests.TclModelGenerator
 
-import static org.mockito.Matchers.*
+import static org.testeditor.tcl.TclPackage.Literals.*
 
-import static extension org.mockito.Mockito.*
-
-class TclVarUsageValidatorTest extends AbstractTclValidatorTest {
-
-	@Mock JvmTypeReference typeRefMock
-
-	@Before
-	def void initMocks() {
-		val amlFactory = AmlFactory.eINSTANCE
-
-		// always assume that the return type of the operation used in any step is of typeRefMock
-		// => setting typeRefMock to return some type will affect all assignment steps!
-		val operationMock = mock(JvmOperation)
-		when(tclModelUtil.getInteraction(anyObject)).thenReturn(amlFactory.createInteractionType => [
-			defaultMethod = amlFactory.createMethodReference => [
-				operation = operationMock
-			]
-		])
-		when(operationMock.getReturnType).thenReturn(typeRefMock)
-	}
+class TclVarUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
+	
+	@Inject extension TclModelGenerator
+	@Inject extension ValidationTestHelper
 
 	@Test
-	def void errorForMultipleAssignments() {
-		// given
-		val testStepContext = componentTestStepContext(null) => [
-			steps += testStepWithAssignment("variable", "some")
-			steps += testStepWithAssignment("variable", "other")
-		]
-		val componentTestStepContext = testStepContext.assertInstanceOf(ComponentTestStepContext)
-
-		when(typeRefMock.identifier).thenReturn(String.canonicalName)
-
-		// when
-		tclValidator.executeCheckVariableUsageWithinAssertionExpressions(componentTestStepContext, newHashMap)
-
-		// then
-		messageAcceptor.verify.acceptError(message.capture, anyObject, anyObject, anyInt, anyString)
-		message.value.assertMatches("Variable 'variable' is assigned more than once\\.")
-	}
-
-	@Test
-	def void mapVariableUsage() {
-		// given
-		val testStepContext = componentTestStepContext(null) => [
-			val assignment = testStepWithAssignment("variable", "some")
-			steps += assignment
-			steps += assertionTestStep => [
-				assertExpression = assignment.variable.mappedReference.compareOnEquality("fixed value")
-			]
-		]
-		val componentTestStepContext = testStepContext.assertInstanceOf(ComponentTestStepContext)
-
-		when(typeRefMock.identifier).thenReturn(Map.canonicalName)
-
-		// when
-		tclValidator.executeCheckVariableUsageWithinAssertionExpressions(componentTestStepContext, newHashMap)
-
-		// then
-		messageAcceptor.verify(never).acceptError(anyString, anyObject, anyObject, anyInt, anyString)
-	}
-
-	@Test
-	def void variableUsage() {
-		// given
-		val testStepContext = componentTestStepContext(null) => [
-			val assignment = testStepWithAssignment("variable", "some")
-			steps += assignment
-			steps += assertionTestStep => [
-				assertExpression = assignment.variable.flatReference.compareOnEquality("fixed value")
-			]
-		]
-		val componentTestStepContext = testStepContext.assertInstanceOf(ComponentTestStepContext)
-
-		when(typeRefMock.identifier).thenReturn(String.canonicalName)
-
-		// when
-		tclValidator.executeCheckVariableUsageWithinAssertionExpressions(componentTestStepContext, newHashMap)
-
-		// then
-		messageAcceptor.verify(never).acceptError(anyString, anyObject, anyObject, anyInt, anyString)
-	}
-
-	@Test
-	def void usageFromOtherContextSameMacro() {
-		// given
-		val assignment = testStepWithAssignment("variable", "some")
-		val macro = macro("some") => [
-			contexts += componentTestStepContext(null) => [
-				steps += assignment
-			]
-			contexts += componentTestStepContext(null) => [
-				steps += assertionTestStep => [
-					assertExpression = assignment.variable.flatReference.compareOnEquality("fixed value")
-				]
-			]
-		]
-
-		// when
-		tclValidator.checkVariableUsageWithinAssertionExpressions(macro)
-
-		// then
-		messageAcceptor.verify(never).acceptError(anyString, anyObject, anyObject, anyInt, anyString)
-	}
-
-	@Test
-	def void illegalMapVariableUsage() {
-		// given
-		val testStepContext = componentTestStepContext(null) => [
-			val assignment = testStepWithAssignment("variable", "some")
-			steps += assignment
-			steps += assertionTestStep => [
-				assertExpression = assignment.variable.mappedReference.compareOnEquality("fixed value")
-			]
-		]
-		val componentTestStepContext = testStepContext.assertInstanceOf(ComponentTestStepContext)
-
-		when(typeRefMock.identifier).thenReturn(Integer.canonicalName)
-
-		// when
-		tclValidator.executeCheckVariableUsageWithinAssertionExpressions(componentTestStepContext, newHashMap)
-
-		// then
-		messageAcceptor.verify.acceptError(message.capture, anyObject, anyObject, anyInt, anyString)
-		message.value.assertMatches("Variable 'variable'.*does not implement.*")
-	}
-
-	@Test
-	def void usageFromOtherContextSameTestCase() {
-		// given
-		val assignment = testStepWithAssignment("variable", "some")
+	def void testForMultipleAssignments() {
+		// given, when				
 		val tclModel = tclModel => [
 			test = testCase => [
-				steps += specificationStep("first") => [
-					contexts += componentTestStepContext(null) => [
-						steps += assignment
+				steps += specificationStep => [
+					contexts += componentTestStepContext(dummyComponent) => [
+						steps += testStepWithAssignment("myVar", "getValue").withElement("dummyElement")
+						// multiple declarations are illegal
+						steps += testStepWithAssignment("myVar", "getValue").withElement("dummyElement")
 					]
 				]
-				steps += specificationStep("second") => [
-					contexts += componentTestStepContext(null) => [
-						steps += assertionTestStep => [
-							assertExpression = assignment.variable.flatReference.compareOnEquality("fixed value")
+			]
+		]
+		tclModel.register('Test', 'tcl')
+
+		// then		
+		tclModel.assertError(TEST_STEP, TclValidator.VARIABLE_ASSIGNED_MORE_THAN_ONCE)
+	}
+
+	@Test
+	def void testForMultipleAssignmentsInDifferentMacros() {
+		val tclModel = tclModel => [
+			macroCollection = macroCollection() => [
+				macros += macro("macro") => [
+					contexts += componentTestStepContext(dummyComponent) => [
+						steps += testStepWithAssignment("myVar", "getValue").withElement("dummyElement")
+					]
+				]
+				macros += macro("macro2") => [
+					contexts += componentTestStepContext(dummyComponent) => [
+						// declaration is valid, since the new macro opens a new scope => different variable (same name) is declared   
+						steps += testStepWithAssignment("myVar", "getValue").withElement("dummyElement")
+					]
+				]
+			]
+		]
+		tclModel.register('Test', 'tml')
+
+		// then		
+		tclModel.assertNoErrors 
+	}
+
+	@Test
+	def void testVariableMapAccess() {		
+		// given, when				
+		val tclModel = tclModel => [
+			test = testCase => [
+				steps += specificationStep => [
+					contexts += componentTestStepContext(dummyComponent) => [
+						val assignmentStep=testStepWithAssignment("myVar", "getMap").withElement("dummyElement")
+						steps += assignmentStep
+						steps += testStep("start") => [
+							// variable map access is valid: declared first, usage within same test case, type of variable is Map
+							contents += mappedReference(assignmentStep.variable)
 						]
 					]
 				]
 			]
 		]
+		tclModel.register('Test', 'tcl')
+		
+		// then
+		tclModel.assertNoErrors
+	}
+	
+	@Test
+	def void testVariableUsage() {
+		// given, when				
+		val assignmentStep=testStepWithAssignment("myVar", "getValue").withElement("dummyElement")
+		val tclModel = tclModel => [
+			test = testCase => [
+				steps += specificationStep => [
+					contexts += componentTestStepContext(dummyComponent) => [
+						steps += assignmentStep
+						// variable access is valid: declared first, usage within same test case
+						steps += testStep("start").withReferenceToVariable(assignmentStep.variable)
+					]
+					contexts += componentTestStepContext(dummyComponent) => [
+						// variable access is valid: declared first, usage within same test case
+						steps += testStep("start").withReferenceToVariable(assignmentStep.variable)
+					]
+				]
+				steps += specificationStep => [
+					contexts += componentTestStepContext(dummyComponent) => [
+						// variable access is valid: declared first, usage within same test case
+						steps += testStep("start").withReferenceToVariable(assignmentStep.variable)
+					]
+				]
+			]
+		]
+		tclModel.register('Test', 'tcl')
+		
+		// then
+		tclModel.assertNoErrors
+	}
 
-		// when
-		tclValidator.checkVariableUsageWithinAssertionExpressions(tclModel)
+	@Test
+	def void testVarUsageFromOtherContextSameMacro() {
+		val assignmentStep = testStepWithAssignment("myVar", "getValue").withElement("dummyElement")
+		val tclModel = tclModel => [
+			macroCollection = macroCollection() => [
+				macros += macro("macro") => [
+					contexts += componentTestStepContext(dummyComponent) => [
+						steps += assignmentStep
+					]
+					contexts += componentTestStepContext(dummyComponent) => [
+						// var access is valid: declared first, used within same macro
+						steps += testStep("start").withReferenceToVariable(assignmentStep.variable)
+					]
+				]
+			]
+		]
+		tclModel.register('Test', 'tml')
 
 		// then
-		messageAcceptor.verify(never).acceptError(anyString, anyObject, anyObject, anyInt, anyString)
+		tclModel.assertNoErrors
+	}
+
+	@Test
+	def void testIllegalVarUsageFromOtherMacro() {
+		val assignmentStep = testStepWithAssignment("myVar", "getValue").withElement("dummyElement")
+		val tclModel = tclModel => [
+			macroCollection = macroCollection() => [
+				macros += macro("macro") => [
+					contexts += componentTestStepContext(dummyComponent) => [
+						steps += assignmentStep
+					]
+				]
+				macros += macro("macro2") => [
+					contexts += componentTestStepContext(dummyComponent) => [
+						// variable access is illegal, since variable is declared within different macro 
+						steps += testStep("start").withReferenceToVariable(assignmentStep.variable)
+					]
+				]
+			]
+		]
+		tclModel.register('Test', 'tml')
+
+		// then
+		tclModel.assertError(TEST_STEP, TclValidator.INVALID_VAR_DEREF)
+
+	}
+
+	@Test
+	def void testIllegalVariableMapAccessInAssertion() {		
+		// given, when				
+		val tclModel = tclModel => [
+			test = testCase => [
+				steps += specificationStep => [
+					contexts += componentTestStepContext(dummyComponent) => [
+						val assignmentStep=testStepWithAssignment("myVar", "getValue").withElement("dummyElement")
+						steps += assignmentStep
+						steps += assertionTestStep => [
+							// map access is illegal, since variable is of type String
+							assertExpression = compareOnEquality(mappedReference(assignmentStep.variable) => [ key = "some" ], "expected-value")
+						]
+					]
+				]
+			]
+		]
+		tclModel.register('Test', 'tcl')
+		
+		// then
+		tclModel.assertError(COMPARISON, TclValidator.INVALID_MAP_ACCESS)
+	}
+
+	@Test
+	def void testIllegalVariableMapAccess() {		
+		// given, when				
+		val tclModel = tclModel => [
+			test = testCase => [
+				steps += specificationStep => [
+					contexts += componentTestStepContext(dummyComponent) => [
+						val assignmentStep=testStepWithAssignment("myVar", "getValue").withElement("dummyElement")
+						steps += assignmentStep
+						steps += testStep("start") => [
+							// map access is illegal, since variable is of type String
+							contents += mappedReference(assignmentStep.variable) => [ key = "some" ]
+						]
+					]
+				]
+			]
+		]
+		tclModel.register('Test', 'tcl')
+		
+		// then
+		tclModel.assertError(TEST_STEP, TclValidator.INVALID_MAP_ACCESS)
+	}
+
+	@Test
+	def void testUsageFromOtherContextSameTestCase() {		
+		// given, when				
+		val assignmentStep=testStepWithAssignment("myVar", "getValue").withElement("dummyElement")
+		val tclModel = tclModel => [
+			test = testCase => [
+				steps += specificationStep => [
+					contexts += componentTestStepContext(dummyComponent) => [
+						steps += assignmentStep
+					]
+				]
+				steps += specificationStep => [
+					contexts += componentTestStepContext(dummyComponent) => [
+						steps += testStep("start").withReferenceToVariable(assignmentStep.variable)
+					]
+				]
+			]
+		]
+		tclModel.register('Test', 'tcl')
+		
+		// then
+		tclModel.assertNoErrors
 	}
 
 }
-

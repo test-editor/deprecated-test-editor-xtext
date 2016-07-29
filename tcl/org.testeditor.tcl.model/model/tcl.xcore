@@ -30,7 +30,7 @@ import org.testeditor.tsl.TestSpecification
 class TclModel {
 	String ^package
 	contains XImportSection importSection
-	contains EnvironmentVariableReference[0..*] environmentVariableReferences
+	contains EnvironmentVariable[0..*] environmentVariables
 	contains TestCase test opposite model
 	contains MacroCollection macroCollection opposite model
 }
@@ -47,7 +47,7 @@ class SpecificationStepImplementation extends SpecificationStep, StepContainer {
 	container derived TestCase test opposite steps
 }
 
-class EnvironmentVariableReference extends Variable {
+class EnvironmentVariable extends Variable {
 }
 
 /*
@@ -80,19 +80,22 @@ abstract class TestStepContext {
 
 class ComponentTestStepContext extends TestStepContext {
 	refers Component component
-	contains TestStep[0..*] steps
+	contains AbstractTestStep[0..*] steps
 }
 
 class MacroTestStepContext extends TestStepContext {
 	refers MacroCollection macroCollection
-	contains TestStep step
+	contains AbstractTestStep step
 }
 
-class TestStep {
+abstract class AbstractTestStep {	
+}
+
+class TestStep extends AbstractTestStep {
 	contains StepContent[0..*] contents
 }
 
-class AssertionTestStep extends TestStep {
+class AssertionTestStep extends AbstractTestStep {
 	contains Expression assertExpression
 }
 

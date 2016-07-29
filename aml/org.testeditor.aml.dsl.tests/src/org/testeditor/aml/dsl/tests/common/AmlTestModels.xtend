@@ -15,7 +15,9 @@ class AmlTestModels {
 	/** build an aml model with
 	 *		one interaction type "start" calling DummyiFxture.startApplication,
 	 *		one interaction type "getValue" calling DummyFixture.getValue,
-	 * 		one component type COMPONENT_TYPE_NAME with the "start" and "getValue" interaction,
+	 *		one interaction type "wait" calling DummyFixture.waitSeconds,
+	 *      one interaction type "getMap" calling DummyFixture.getMap
+	 * 		one component type COMPONENT_TYPE_NAME with the "start", "wait", "getMap" and "getValue" interaction,
 	 * 		one component COMPONENT_NAME which is of this component type.
 	 */
 	def AmlModel dummyComponent(ResourceSet resourceSet) {
@@ -28,18 +30,41 @@ class AmlTestModels {
 			interactionTypes += startInteraction
 			
 			val interactionTypeForGetSome = interactionType("getValue") => [
-				defaultMethod = methodReference(resourceSet, DummyFixture, "getValue").withLocatorStrategy
-				template = template("getValue")
+				defaultMethod = methodReference(resourceSet, DummyFixture, "getValue", "element")
+				template = template("getValue").withParameter(defaultMethod.parameters.head)
 			]
-			interactionTypes += interactionTypeForGetSome		
+			interactionTypes += interactionTypeForGetSome
+			
+			val interactionTypeForWait = interactionType("wait") => [
+				defaultMethod = methodReference(resourceSet, DummyFixture, "waitSeconds", "secs")
+				template = template("wait").withParameter(defaultMethod.parameters.head)
+			]					
+			interactionTypes += interactionTypeForWait
+
+			val interactionTypeForGetMap = interactionType("getMap") => [
+				defaultMethod = methodReference(resourceSet, DummyFixture, "getMap", "element")
+				template = template("getMap").withParameter(defaultMethod.parameters.head)
+			]					
+			interactionTypes += interactionTypeForGetMap
 
 			val dummyComponentType = componentType(COMPONENT_TYPE_NAME) => [
 				interactionTypes += startInteraction
 				interactionTypes += interactionTypeForGetSome
+				interactionTypes += interactionTypeForWait
+				interactionTypes += interactionTypeForGetMap
 			]
 			componentTypes += dummyComponentType
+			
+			val dummyElementType = componentElementType("dummyElementType")
+			componentElementTypes += dummyElementType
 
-			components += component(COMPONENT_NAME) => [type = dummyComponentType]
+			components += component(COMPONENT_NAME) => [
+				type = dummyComponentType
+				elements += componentElement("dummyElement") => [
+					type = dummyElementType
+					locator = "dummyLocator"
+				]
+			]
 		]
 	}
 

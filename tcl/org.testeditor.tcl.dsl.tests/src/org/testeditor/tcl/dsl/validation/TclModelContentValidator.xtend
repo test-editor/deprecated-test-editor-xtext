@@ -9,7 +9,7 @@ import org.junit.Test
 import static org.testeditor.tcl.TclPackage.Literals.*
 import org.junit.Before
 
-class TclModelContentValidator extends AbstractTclValidatorTest {
+class TclModelContentValidator extends AbstractMockedTclValidatorTest {
 
 	@Inject protected Provider<XtextResourceSet> resourceSetProvider
 	@Inject protected XtextResourceSet resourceSet

@@ -110,10 +110,10 @@ class TclModelParserTest extends AbstractParserTest {
 				val componentNode = findNodesForFeature(TclPackage.Literals.COMPONENT_TEST_STEP_CONTEXT__COMPONENT).assertSingleElement
 				componentNode.text.trim.assertEquals('GreetingsApplication')
 				steps.assertSize(2)
-				steps.get(0) => [
+				steps.get(0).assertInstanceOf(TestStep) => [
 					contents.restoreString.assertEquals('starte Anwendung "org.testeditor.swing.exammple.Greetings"')	
 				]
-				steps.get(1) => [
+				steps.get(1).assertInstanceOf(TestStep) => [
 					contents.restoreString.assertEquals('gebe in <Eingabefeld> den Wert "Hello World" ein')
 				]
 			]
@@ -138,7 +138,7 @@ class TclModelParserTest extends AbstractParserTest {
 		
 		// then
 		test.steps.assertSingleElement.contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
-			val emptyReferences = steps.assertSingleElement.contents.assertSize(3)
+			val emptyReferences = steps.assertSingleElement.assertInstanceOf(TestStep).contents.assertSize(3)
 			emptyReferences.forEach[
 				assertInstanceOf(StepContentElement) => [
 					value.assertNull

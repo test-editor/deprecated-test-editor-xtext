@@ -11,7 +11,7 @@ import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 import org.testeditor.tcl.util.TclModelUtil
 
-abstract class AbstractTclValidatorTest extends AbstractParserTest {
+abstract class AbstractMockedTclValidatorTest extends AbstractParserTest {
 	@InjectMocks protected TclValidator tclValidator // class under test
 	@Mock protected TclModelUtil tclModelUtil // injected into class under test
 	@Mock protected ValidationMessageAcceptor messageAcceptor

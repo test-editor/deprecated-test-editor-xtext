@@ -12,60 +12,20 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.validation
 
-import com.google.inject.Provider
 import javax.inject.Inject
-import org.eclipse.emf.ecore.EObject
-import org.eclipse.xtext.junit4.validation.ValidationTestHelper
-import org.eclipse.xtext.resource.XtextResourceSet
-import org.junit.Before
 import org.junit.Test
-import org.testeditor.aml.Component
-import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.aml.dsl.tests.AmlModelGenerator
-import org.testeditor.aml.dsl.tests.common.AmlTestModels
-import org.testeditor.dsl.common.testing.DummyFixture
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
-import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 
 import static org.testeditor.tcl.TclPackage.Literals.*
 
-class TclParameterUsageValidatorTest extends AbstractParserTest {
+class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 	
-	@Inject TclValidator tclValidator // class under test (not mocked)
-
-	@Inject Provider<XtextResourceSet> resourceSetProvider
-	@Inject XtextResourceSet resourceSet
-	@Inject ValidationTestHelper validator
-
 	@Inject extension AmlModelGenerator
 	@Inject extension TclModelGenerator
-	@Inject AmlTestModels amlTestModels
-
-	private var Component dummyComponent
-
-	@Before
-	def void setup() {
-		resourceSet = resourceSetProvider.get
-		resourceSet.classpathURIContext = this
-		new AmlStandaloneSetup().createInjectorAndDoEMFRegistration // needs to be registered to register aml models
-
-		// build component "Dummy" with two interactions, "start" with a string parameter, "wait" with a long parameter
-		val amlModel = amlTestModels.dummyComponent(resourceSet) => [
-			interactionTypes += interactionType("wait") => [
-				defaultMethod = methodReference(resourceSet, DummyFixture, "waitSeconds", "secs")
-				template = template("wait").withParameter(defaultMethod.parameters.head)
-			]
-		]
-		amlModel.componentTypes.findFirst[name == amlTestModels.COMPONENT_TYPE_NAME] => [
-			interactionTypes += amlModel.interactionTypes.findFirst[name == "wait"]
-		]
-		amlModel.register("aml")
-
-		dummyComponent = amlModel.components.findFirst[name == amlTestModels.COMPONENT_NAME]
-	}
 
 	@Test
 	def void testDirectCallVariableTypeChecks() {
@@ -93,18 +53,18 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 		val envVar = allEnvVars.head
 		val myEnvString = allEnvVars.last
 		val tclModel = tclModel => [
-			environmentVariableReferences.addAll(allEnvVars)
+			environmentVariables.addAll(allEnvVars)
 			test = testCase("MyTest") => [
 				// use macro "mycall" using env param (no error, since type String is provided and String is expected)
 				steps += specificationStep("test", "something") => [
 					contexts += macroTestStepContext(macroModel.macroCollection) => [
-						step = testStep("mycall").withReferenceToEnvironmentVariable(myEnvString)
+						step = testStep("mycall").withReferenceToVariable(myEnvString)
 					]
 				]
 				// use macro "othercall" using env param (error expected, since type String is provided and long is expected)
 				steps += specificationStep("test", "other") => [
 					contexts += macroTestStepContext(macroModel.macroCollection) => [
-						step = testStep("othercall").withReferenceToEnvironmentVariable(envVar)
+						step = testStep("othercall").withReferenceToVariable(envVar)
 					]
 				]
 			]
@@ -243,9 +203,9 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 			test = testCase('Test') => [
 				steps += specificationStep('spec') => [
 					contexts += componentTestStepContext(dummyComponent) => [
-						val assignment = testStepWithAssignment('variable', 'getValue') // get something of type string
+						val assignment = testStepWithAssignment('variable', 'getValue').withElement("dummyElement") // get something of type string
 						steps += assignment
-						steps += testStep('start').withReferenceToAssignmentVariable(assignment.variable) 
+						steps += testStep('start').withReferenceToVariable(assignment.variable) 
 					]
 				]
 			]
@@ -267,8 +227,8 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 			test = testCase('Test') => [
 				steps += specificationStep('spec') => [
 					contexts += componentTestStepContext(dummyComponent) => [
-						val assignment = testStepWithAssignment('variable', 'getValue') // assignment can be faulty, since checks on the type of 'variable' won't be carried out  
-						steps += testStep('start').withReferenceToAssignmentVariable(assignment.variable)
+						val assignment = testStepWithAssignment('variable', 'getValue').withElement("dummyElement") // assignment can be faulty, since checks on the type of 'variable' won't be carried out  
+						steps += testStep('start').withReferenceToVariable(assignment.variable)
 						steps += assignment
 					]
 				]
@@ -293,30 +253,16 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 	private def TclModel tclCallingMyCallMacroWithOneEnvParam(String envVarString, TclModel tmlModel) {
 		val envVar=envVariables(envVarString).head
 		val tclModel = tclModel => [
-			environmentVariableReferences += envVar
+			environmentVariables += envVar
 			test = testCase("MyTest") => [
 				steps += specificationStep("test", "something") => [
 					contexts += macroTestStepContext(tmlModel.macroCollection) => [
-						step = testStep("mycall").withReferenceToEnvironmentVariable(envVar)
+						step = testStep("mycall").withReferenceToVariable(envVar)
 					]
 				]
 			]
 		]
 		tclModel.register('MyTest', 'tcl')
 		return tclModel
-	}
-	
-	/** 
-	 * register the given model with the resource set (for cross linking)
-	 */
-	private def <T extends EObject> T register(T model, String fileExtension) {
-		model.register(resourceSet, fileExtension)
-	}
-
-	/** 
-	 * register the given model with the resource set (for cross linking)
-	 */
-	private def <T extends EObject> T register(T model, String fileName, String fileExtension) {
-		model.register(resourceSet, fileName, fileExtension)
 	}
 }

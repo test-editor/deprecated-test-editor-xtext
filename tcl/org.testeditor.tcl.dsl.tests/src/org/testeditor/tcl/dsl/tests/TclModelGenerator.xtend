@@ -3,6 +3,7 @@ package org.testeditor.tcl.dsl.tests
 import javax.inject.Inject
 import org.eclipse.xtext.xtype.XtypeFactory
 import org.testeditor.aml.Component
+import org.testeditor.aml.Variable
 import org.testeditor.aml.impl.AmlFactoryImpl
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.AssignmentVariable
@@ -10,12 +11,13 @@ import org.testeditor.tcl.ComparatorEquals
 import org.testeditor.tcl.ComparatorMatches
 import org.testeditor.tcl.Comparison
 import org.testeditor.tcl.ComponentTestStepContext
-import org.testeditor.tcl.EnvironmentVariableReference
+import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.NullOrBoolCheck
 import org.testeditor.tcl.SpecificationStepImplementation
+import org.testeditor.tcl.StringConstant
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestStep
@@ -24,7 +26,6 @@ import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferenceMapAccess
 import org.testeditor.tcl.impl.TclFactoryImpl
 import org.testeditor.tsl.impl.TslFactoryImpl
-import org.testeditor.tcl.StringConstant
 
 class TclModelGenerator {
 	@Inject TclFactoryImpl tclFactory
@@ -49,9 +50,9 @@ class TclModelGenerator {
 		]
 	}
 
-	def Iterable<EnvironmentVariableReference> envVariables(String ... names) {
+	def Iterable<EnvironmentVariable> envVariables(String ... names) {
 		return names.map [ varName |
-			tclFactory.createEnvironmentVariableReference => [name = varName]
+			tclFactory.createEnvironmentVariable => [name = varName]
 		]
 	}
 
@@ -142,7 +143,7 @@ class TclModelGenerator {
 		tclFactory.createNullOrBoolCheck
 	}
 
-	def TestStep withElement(TestStep me, String elementName) {
+	def <T extends TestStep> T withElement(T me, String elementName) {
 		me.contents += tclFactory.createStepContentElement => [
 			value = elementName
 		]
@@ -158,16 +159,9 @@ class TclModelGenerator {
 		return me
 	}
 
-	def TestStep withReferenceToAssignmentVariable(TestStep me, AssignmentVariable assignmentVariable) {
+	def TestStep withReferenceToVariable(TestStep me, Variable variable) {
 		me.contents += tclFactory.createVariableReference => [
-			variable = assignmentVariable
-		]
-		return me
-	}
-
-	def TestStep withReferenceToEnvironmentVariable(TestStep me, EnvironmentVariableReference envVariable) {
-		me.contents += tclFactory.createVariableReference => [
-			variable = envVariable
+			it.variable = variable
 		]
 		return me
 	}
