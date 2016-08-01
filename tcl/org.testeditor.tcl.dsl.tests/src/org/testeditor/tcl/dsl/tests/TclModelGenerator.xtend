@@ -241,7 +241,7 @@ class TclModelGenerator {
 	}
 
 	def VariableReference flatReference(String variableName) {
-		variableReference => [ variable = assignmentVariable(variableName)]
+		variableReference => [variable = assignmentVariable(variableName)]
 	}
 
 	def VariableReferenceMapAccess mappedReference(String variableName, String myKey) {
@@ -258,4 +258,5 @@ class TclModelGenerator {
 			]
 		]
 	}
+
 }

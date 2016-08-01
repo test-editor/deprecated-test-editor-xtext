@@ -83,7 +83,7 @@ class TclSemanticHighlightingCalculator extends DefaultSemanticHighlightingCalcu
 
 	protected def dispatch void provideHighlightingForTestStepContext(MacroTestStepContext context,
 		IHighlightedPositionAcceptor acceptor) {
-		if( context.step !== null && context.step instanceof TestStep){
+		if (context.step !== null && context.step instanceof TestStep) {
 			(context.step as TestStep).contents?.forEach[provideHighlightingFor(acceptor)]
 		}
 	}

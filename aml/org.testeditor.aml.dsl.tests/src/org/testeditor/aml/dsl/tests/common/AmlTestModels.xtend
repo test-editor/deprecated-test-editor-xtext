@@ -16,7 +16,7 @@ class AmlTestModels {
 	 *		one interaction type "start" calling DummyiFxture.startApplication,
 	 *		one interaction type "getValue" calling DummyFixture.getValue,
 	 *		one interaction type "wait" calling DummyFixture.waitSeconds,
-	 *      one interaction type "getMap" calling DummyFixture.getMap
+	 *		one interaction type "getMap" calling DummyFixture.getMap
 	 * 		one component type COMPONENT_TYPE_NAME with the "start", "wait", "getMap" and "getValue" interaction,
 	 * 		one component COMPONENT_NAME which is of this component type.
 	 */

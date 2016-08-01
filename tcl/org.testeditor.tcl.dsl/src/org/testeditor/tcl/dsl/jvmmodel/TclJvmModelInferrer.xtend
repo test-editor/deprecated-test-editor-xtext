@@ -374,12 +374,11 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	private def dispatch Iterable<String> generateCallParameters(VariableReference variableReference,
 		JvmTypeReference expectedType, InteractionType interaction) {
 		if (expectedType.qualifiedName.equals(String.name)) {
-			switch (variableReference){
+			switch (variableReference) {
 				VariableReferenceMapAccess: throw new RuntimeException("implementation missing")
 				VariableReference: return #[variableReference.variable.variableReferenceToVarName]
 				default: throw new RuntimeException('''Variable reference of type='«variableReference.class.canonicalName»' is unknown.''')
 			}
-			
 		} else {
 			throw new RuntimeException('''Environment variable '«variableReference.variable.name»' (always of type String) is used where type '«expectedType.qualifiedName»' is expected.''')
 		}
