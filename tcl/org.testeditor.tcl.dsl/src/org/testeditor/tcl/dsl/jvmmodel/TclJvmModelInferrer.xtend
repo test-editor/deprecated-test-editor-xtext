@@ -30,6 +30,7 @@ import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.VariableReference
 import org.testeditor.tcl.AssertionTestStep
+import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariableReference
 import org.testeditor.tcl.MacroTestStepContext
@@ -309,7 +310,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			output.trace(step, TEST_STEP_WITH_ASSIGNMENT__VARIABLE, 0) => [
 				// TODO should we use output.declareVariable here?
 				// val variableName = output.declareVariable(step.variableName, step.variableName)
-				output.append('''«operation.returnType.identifier» «step.variable.name» = ''')
+				val partialCodeLine = '''«operation.returnType.identifier» «step.variable.name» = '''
+				output.append(partialCodeLine) // please call with string, since tests checks against expected string which fails for passing ''' directly
 			]
 		}
 	}
@@ -377,7 +379,11 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	private def String variableReferenceToVarName(VariableReference varRef) {
-		return "env_" + varRef.name
+		switch (varRef) {
+			AssignmentVariable: return varRef.name
+			EnvironmentVariableReference: return "env_" + varRef.name
+			default: throw new RuntimeException('''unknown variable reference type='«varRef.class.canonicalName»'.''')
+		}
 	}
 
 	/**
@@ -409,8 +415,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		Iterable<MacroTestStepContext> macroUseStack,
 		Iterable<EnvironmentVariableReference> environmentVariableReferences) {
 
-		if (macroUseStack.empty &&
-			environmentVariableReferences.map[name].toList.contains(referencedVariable.variable.name)) {
+		if (macroUseStack.empty) {
 			return referencedVariable
 		}
 

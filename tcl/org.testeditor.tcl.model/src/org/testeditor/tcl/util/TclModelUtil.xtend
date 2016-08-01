@@ -20,6 +20,7 @@ import javax.inject.Singleton
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.common.types.JvmTypeReference
+import org.eclipse.xtext.common.types.util.TypeReferences
 import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.InteractionType
@@ -31,12 +32,14 @@ import org.testeditor.aml.ValueSpaceAssignment
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariableReference
 import org.testeditor.tcl.Macro
+import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.StepContentVariableReference
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
+import org.testeditor.tcl.TestConfiguration
 import org.testeditor.tcl.TestStep
 import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContent
@@ -44,13 +47,12 @@ import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
-import org.testeditor.tcl.TestConfiguration
-import org.testeditor.tcl.MacroCollection
 
 @Singleton
 class TclModelUtil extends TslModelUtil {
 
 	@Inject extension ModelUtil
+	@Inject TypeReferences typeReferences
 
 	/**
 	 * Gets the name of the included element. Order of this operation:
@@ -222,6 +224,16 @@ class TclModelUtil extends TslModelUtil {
 		}
 		return #{}
 	}
+	
+	def Map<String, JvmTypeReference> getEnvironmentVariablesTypeMap(Iterable<EnvironmentVariableReference> envParams) {
+		val envParameterVariablesNames = envParams.map[name]
+		val envParameterVariablesTypeMap = newHashMap
+		if (!envParams.empty) {
+			val stringTypeReference = typeReferences.getTypeForName(String, envParams.head)
+			envParameterVariablesNames.forEach[envParameterVariablesTypeMap.put(it, stringTypeReference)]
+		}
+		return envParameterVariablesTypeMap
+	}
 
 	/**
 	 * provide an iterable with all step content variables as key and their respective fixture parameter type as value
@@ -279,7 +291,7 @@ class TclModelUtil extends TslModelUtil {
 
 	def Iterable<EnvironmentVariableReference> getEnvParams(EObject object) {
 		val root = EcoreUtil2.getContainerOfType(object, TclModel)
-		if (root !== null) {
+		if (root !== null && root.environmentVariableReferences != null) {
 			return root.environmentVariableReferences
 		}
 		return #{}

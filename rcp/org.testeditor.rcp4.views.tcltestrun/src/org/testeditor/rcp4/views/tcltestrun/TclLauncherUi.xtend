@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.IProgressMonitor
+import org.eclipse.emf.common.util.URI
 import org.eclipse.jdt.core.IJavaElement
 import org.eclipse.jdt.junit.JUnitCore
 import org.eclipse.jface.viewers.IStructuredSelection
@@ -34,11 +35,13 @@ import org.eclipse.ui.dialogs.ElementListSelectionDialog
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.ProgressMonitorRunner
 import org.testeditor.rcp4.tcltestrun.TclGradleLauncher
-import org.testeditor.rcp4.tcltestrun.TclInjectorProvider
 import org.testeditor.rcp4.tcltestrun.TclLauncher
 import org.testeditor.rcp4.tcltestrun.TclMavenLauncher
+import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.dsl.ui.testlaunch.LaunchShortcutUtil
 import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
+import org.testeditor.tcl.dsl.ui.util.TclIndexHelper
+import org.testeditor.tcl.dsl.ui.util.TclInjectorProvider
 
 class TclLauncherUi implements Launcher {
 	static val logger = LoggerFactory.getLogger(TclLauncherUi)
@@ -47,7 +50,9 @@ class TclLauncherUi implements Launcher {
 	@Inject TclMavenLauncher mavenLauncher
 	@Inject TclGradleLauncher gradleLauncher
 	@Inject TestResultFileWriter testResultFileWriter
+	@Inject TclIndexHelper indexHelper
 	LaunchShortcutUtil launchShortcutUtil // since this class itself is instanciated by e4, this attribute has to be injected manually
+	Map<URI, ArrayList<TestCase>> tslIndex
 
 	@Inject
 	new(TclInjectorProvider tclInjectorProvider) {
@@ -56,6 +61,7 @@ class TclLauncherUi implements Launcher {
 
 	override boolean launch(IStructuredSelection selection, IProject project, String mode, boolean parameterize) {
 		val options = newHashMap
+		tslIndex = indexHelper.createTestCaseIndex()
 		if (project.getFile("build.gradle").exists) {
 			return launchTest(createGradleTestCasesList(selection), project, gradleLauncher, options)
 		}
@@ -140,18 +146,24 @@ class TclLauncherUi implements Launcher {
 		if (selection.size > 1) {
 			return selection.toList.map[testCaseListFromSelection].flatten.toList
 		} else {
-			if (selection.firstElement instanceof IFolder) {
-				return selection.firstElement.testCaseListFromSelection.toList
-			}
-			return #[launchShortcutUtil.getQualifiedNameForTestInTcl(selection.firstElement as IResource).toString]
+			return selection.firstElement.testCaseListFromSelection.toList
 		}
 	}
 
 	def Iterable<String> getTestCaseListFromSelection(Object sel) {
 		if (sel instanceof IFolder) {
-			sel.testCasesFromFolder
+			return sel.testCasesFromFolder
 		} else {
-			#[launchShortcutUtil.getQualifiedNameForTestInTcl(sel as IResource).toString]
+			if (sel instanceof IResource) {
+				if (sel.fileExtension.equalsIgnoreCase("tsl")) {
+					val uri = URI.createPlatformResourceURI(sel.locationURI.toString, true).deresolve(
+						URI.createPlatformResourceURI(sel.project.locationURI.toString, true))
+					val secondURI = URI.createPlatformResourceURI(uri.toString, true)
+					return tslIndex.get(secondURI).map[it.model.package + "." + it.name]
+				} else {
+					return #[launchShortcutUtil.getQualifiedNameForTestInTcl(sel).toString]
+				}
+			}
 		}
 	}
 
@@ -184,7 +196,7 @@ class TclLauncherUi implements Launcher {
 
 		})
 		val resultFile = new File(expectedFileRoot, "te-testCompose.xml")
-		if (xmlResults.length > 0) {
+		if (xmlResults != null && xmlResults.length > 0) {
 			testResultFileWriter.writeTestResultFile(projectName, resultFile, xmlResults)
 		} else {
 			testResultFileWriter.writeErrorFile(projectName, resultFile)
