@@ -17,8 +17,8 @@ import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
 
 abstract class AbstractValidationTest extends AbstractParserTest {
 	
-	protected def <T extends EObject> T addToResourceSet(T model) {
-		return model.addToResourceSet(resourceSet, "aml") // only aml model (and children) known here
+	protected def <T extends EObject> T addToResourceSet(T model, String fileName) {
+		return model.addToResourceSet(resourceSet, fileName) // only aml model (and children) known here
 	}
 
 }

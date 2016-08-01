@@ -25,12 +25,14 @@ import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.dsl.TclRuntimeModule
 import org.testeditor.tcl.dsl.TclStandaloneSetup
 import org.testeditor.tsl.TslModel
+import org.testeditor.tcl.util.TclModelUtil
 
 abstract class AbstractTclTest extends AbstractTest {
 
 	@Inject protected Provider<XtextResourceSet> resourceSetProvider
 	@Inject protected XtextResourceSet resourceSet
-
+	
+	@Inject extension TclModelUtil
 
 	@Before
 	def void setUpResourceSet() {
@@ -58,15 +60,19 @@ abstract class AbstractTclTest extends AbstractTest {
 		switch (model) {
 			TclModel: {
 				if (model.macroCollection !== null && model.macroCollection.macros.size > 0) {
-					return model.addToResourceSet(resourceSet, "tml")
+					return model.addToResourceSet(resourceSet, model.name+".tml")
+				} else if (model.test !== null )  {
+					return model.addToResourceSet(resourceSet, model.name+".tcl")
+				} else if (model.config !== null ) {
+					return model.addToResourceSet(resourceSet, model.name+".config")
 				} else {
-					return model.addToResourceSet(resourceSet, "tcl")
+					throw new RuntimeException('''tcl model is neither a macroCollection nor a test nor a config''')
 				}
 			}
 			AmlModel:
-				return model.addToResourceSet(resourceSet, "aml")
+				return model.addToResourceSet(resourceSet, "Dummy.aml")
 			TslModel:
-				return model.addToResourceSet(resourceSet, "tsl")
+				return model.addToResourceSet(resourceSet, "Dummy.tsl")
 			default:
 				throw new RuntimeException('''unknown model='«model.class.name»'.''')
 		}

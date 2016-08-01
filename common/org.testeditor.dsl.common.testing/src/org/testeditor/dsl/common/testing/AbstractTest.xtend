@@ -6,7 +6,10 @@ import com.google.inject.Module
 import com.google.inject.util.Modules
 import java.util.List
 import javax.inject.Inject
+import org.eclipse.emf.common.util.URI
+import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.resource.Resource
+import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.xtext.resource.impl.BinaryGrammarResourceFactoryImpl
 import org.junit.Before
 import org.junit.BeforeClass
@@ -14,11 +17,6 @@ import org.mockito.MockitoAnnotations
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.testing.xtext.XtextAssertionHelper
-
-import org.eclipse.emf.ecore.resource.ResourceSet
-import org.eclipse.emf.ecore.EObject
-import org.eclipse.emf.common.util.URI
-import java.util.UUID
 
 /**
  * Abstract dependency-injection aware test class for Xtext tests.
@@ -78,8 +76,8 @@ abstract class AbstractTest {
 	 * @param resoureSet to add to
 	 * @param fileExtension to be used (e.g. aml, tcl, tml, tsl depending on the model type)
 	 */
-	protected def <T extends EObject> T addToResourceSet(T model, ResourceSet resourceSet, String fileExtension) {
-		val uri = URI.createURI(UUID.randomUUID.toString + "." + fileExtension)
+	protected def <T extends EObject> T addToResourceSet(T model, ResourceSet resourceSet, String fileName) {
+		val uri = URI.createURI(fileName)
 
 		val newResource = resourceSet.createResource(uri)
 		newResource.contents.add(model)
