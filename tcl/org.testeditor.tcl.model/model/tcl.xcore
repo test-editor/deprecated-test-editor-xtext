@@ -33,14 +33,26 @@ class TclModel {
 	contains EnvironmentVariable[0..*] environmentVariables
 	contains TestCase test opposite model
 	contains MacroCollection macroCollection opposite model
+	contains TestConfiguration config
 }
 
-class TestCase extends NamedElement {
-	container derived TclModel model opposite test
-	refers TestSpecification specification
+/*
+ * Super class for {@link TestCase} and {@link TestConfiguration} since both may
+ * contain a setup and cleanup.
+ */
+abstract class SetupAndCleanupProvider extends NamedElement {
 	contains TestSetup setup
 	contains TestCleanup cleanup
+}
+
+class TestCase extends SetupAndCleanupProvider {
+	container derived TclModel model opposite test
+	refers TestSpecification specification
+	refers TestConfiguration config
 	contains SpecificationStepImplementation[0..*] steps opposite test
+}
+
+class TestConfiguration extends SetupAndCleanupProvider {
 }
 
 class SpecificationStepImplementation extends SpecificationStep, StepContainer {

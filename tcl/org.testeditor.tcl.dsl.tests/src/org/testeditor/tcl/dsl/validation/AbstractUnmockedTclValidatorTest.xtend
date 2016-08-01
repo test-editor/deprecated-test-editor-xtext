@@ -43,7 +43,7 @@ abstract class AbstractUnmockedTclValidatorTest extends AbstractParserTest {
 
 		// build component "Dummy" with two interactions, "start" with a string parameter, "wait" with a long parameter
 		val amlModel = amlTestModels.dummyComponent(resourceSet)
-		amlModel.register("aml")
+		amlModel.register("Test.aml")
 
 		dummyComponent = amlModel.components.findFirst[name == amlTestModels.COMPONENT_NAME]
 	}
@@ -51,14 +51,7 @@ abstract class AbstractUnmockedTclValidatorTest extends AbstractParserTest {
 	/** 
 	 * register the given model with the resource set (for cross linking)
 	 */
-	protected def <T extends EObject> T register(T model, String fileExtension) {
-		model.register(resourceSet, fileExtension)
-	}
-
-	/** 
-	 * register the given model with the resource set (for cross linking)
-	 */
-	protected def <T extends EObject> T register(T model, String fileName, String fileExtension) {
-		model.register(resourceSet, fileName, fileExtension)
+	protected def <T extends EObject> T register(T model, String fileName) {
+		model.register(resourceSet, fileName)
 	}
 }

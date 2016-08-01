@@ -22,6 +22,7 @@ import org.testeditor.aml.AmlModel
 import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
+import org.testeditor.tcl.util.TclModelUtil
 
 abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 
@@ -29,6 +30,7 @@ abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 
 	@Inject protected ParseHelper<TclModel> tclParseHelper
 	@Inject protected IGenerator generator
+	@Inject extension TclModelUtil
 
 	protected InMemoryFileSystemAccess fsa
 
@@ -49,10 +51,10 @@ abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 
 	protected def String generate(TclModel model) {
 		generator.doGenerate(model.eResource, fsa)
-		val file = fsa.getJavaFile(model.package, model.test.name)
+		val file = fsa.getJavaFile(model.package, model.name)
 		return file.toString
 	}
-
+	
 	protected def Object getJavaFile(InMemoryFileSystemAccess fsa, String ^package, String name) {
 		val key = '''«IFileSystemAccess.DEFAULT_OUTPUT»«package.replaceAll('\\.', '/')»/«name».java'''
 		return fsa.allFiles.get(key)

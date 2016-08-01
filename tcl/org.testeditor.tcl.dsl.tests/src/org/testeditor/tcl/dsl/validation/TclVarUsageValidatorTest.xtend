@@ -26,7 +26,7 @@ class TclVarUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('Test', 'tcl')
+		tclModel.register('Test.tcl')
 
 		// then		
 		tclModel.assertError(TEST_STEP, TclValidator.VARIABLE_ASSIGNED_MORE_THAN_ONCE)
@@ -49,7 +49,7 @@ class TclVarUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('Test', 'tml')
+		tclModel.register('Test.tml')
 
 		// then		
 		tclModel.assertNoErrors 
@@ -72,7 +72,7 @@ class TclVarUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('Test', 'tcl')
+		tclModel.register('Test.tcl')
 		
 		// then
 		tclModel.assertNoErrors
@@ -103,7 +103,7 @@ class TclVarUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('Test', 'tcl')
+		tclModel.register('Test.tcl')
 		
 		// then
 		tclModel.assertNoErrors
@@ -125,7 +125,7 @@ class TclVarUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('Test', 'tml')
+		tclModel.register('Test.tml')
 
 		// then
 		tclModel.assertNoErrors
@@ -149,7 +149,7 @@ class TclVarUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('Test', 'tml')
+		tclModel.register('Test.tml')
 
 		// then
 		tclModel.assertError(TEST_STEP, TclValidator.INVALID_VAR_DEREF)
@@ -173,7 +173,7 @@ class TclVarUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('Test', 'tcl')
+		tclModel.register('Test.tcl')
 		
 		// then
 		tclModel.assertError(COMPARISON, TclValidator.INVALID_MAP_ACCESS)
@@ -196,7 +196,7 @@ class TclVarUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('Test', 'tcl')
+		tclModel.register('Test.tcl')
 		
 		// then
 		tclModel.assertError(TEST_STEP, TclValidator.INVALID_MAP_ACCESS)
@@ -220,7 +220,7 @@ class TclVarUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('Test', 'tcl')
+		tclModel.register('Test.tcl')
 		
 		// then
 		tclModel.assertNoErrors

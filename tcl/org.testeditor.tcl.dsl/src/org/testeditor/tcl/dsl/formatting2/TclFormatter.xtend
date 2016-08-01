@@ -24,6 +24,7 @@ import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestCleanup
+import org.testeditor.tcl.TestConfiguration
 import org.testeditor.tcl.TestSetup
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.VariableReference
@@ -39,23 +40,32 @@ import static org.testeditor.tcl.TclPackage.Literals.*
 class TclFormatter extends XbaseFormatter {
 
 	def dispatch void format(TclModel tclModel, extension IFormattableDocument document) {
-		tclModel.regionFor.feature(TCL_MODEL__PACKAGE).append[newLines = 2]
+		tclModel.regionFor.feature(TCL_MODEL__PACKAGE).prepend[oneSpace].append[newLines = 2]
 		// import section is not formatted (yet), should be done by organize imports
 		tclModel.regionFor.keyword("require").prepend[newLines = 2]
 		tclModel.regionFor.keyword(",").prepend[noSpace]
 		tclModel.environmentVariables.forEach[prepend[oneSpace]]
 		tclModel.test?.format
 		tclModel.macroCollection?.format
+		tclModel.config?.format
 	}
 
 	def dispatch void format(TestCase testCase, extension IFormattableDocument document) {
 		testCase.regionFor.keyword("#").prepend[newLines = 2].append[oneSpace]
 		testCase.regionFor.keyword("implements").prepend[oneSpace]
 		testCase.regionFor.feature(TEST_CASE__SPECIFICATION).prepend[oneSpace]
+		testCase.regionFor.keyword("config").prepend[newLines = 2]
+		testCase.regionFor.feature(TEST_CASE__CONFIG).prepend[oneSpace]
 		// testCase.interior[indent] // configurable?
 		testCase.setup?.format
 		testCase.cleanup?.format
 		testCase.steps.forEach[format]
+	}
+
+	def dispatch void format(TestConfiguration config, extension IFormattableDocument document) {
+		config.regionFor.feature(NAMED_ELEMENT__NAME).prepend[oneSpace]
+		config.setup?.format
+		config.cleanup?.format
 	}
 
 	def dispatch void format(TestSetup element, extension IFormattableDocument document) {

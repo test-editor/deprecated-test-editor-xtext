@@ -49,7 +49,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		macroModel.register("tml")
+		macroModel.register("test.tml")
 
 		val allEnvVars=environmentVariables("envVar", "myEnvString")
 		val envVar = allEnvVars.head
@@ -71,7 +71,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('MyTest', 'tcl')
+		tclModel.register('MyTest.tcl')
 
 		val somethingContext = tclModel.test.steps.head.contexts.head as MacroTestStepContext
 		val otherContext = tclModel.test.steps.last.contexts.head as MacroTestStepContext
@@ -112,7 +112,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		macroModel.register("tml")
+		macroModel.register("test.tml")
 
 		// call "mycall" with env parameter (which is of type String, transitively expected is type long) ...
 		val tclModel = tclCallingMyCallMacroWithOneEnvParam("myEnvString", macroModel)
@@ -146,7 +146,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		macroModel.register("tml")
+		macroModel.register("test.tml")
 
 		// since tcl calls mycall Macro with environment variable (which always has type String)
 		// and this parameter is transitively used for calls in the aml expecting long and String ...
@@ -184,7 +184,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		macroModel.register("tml")
+		macroModel.register("test.tml")
 		// since tcl calls mycall Macro with environment variable (which always has type String)
 		// and this parameter is transitively used for calls expecting type String ... (no errors expected)
 		val tclModel = tclCallingMyCallMacroWithOneEnvParam("myEnvString", macroModel)
@@ -198,7 +198,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 	def void useAssignedVariableInParameterPosition() {
 		// given
 		val amlModel = amlTestModels.dummyComponent(resourceSet)
-		amlModel.register(resourceSet, 'aml')
+		amlModel.register(resourceSet, 'test.aml')
 		val dummyComponent = amlModel.components.head
 		
 		val tclModel = tclModel => [
@@ -212,7 +212,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('test', 'tcl')
+		tclModel.register('test.tcl')
 
 		// when then
 		validator.assertNoErrors(tclModel)
@@ -222,7 +222,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 	def void useAssignedVariableInParameterPositionWrongOrder() {
 		// given 
 		val amlModel = amlTestModels.dummyComponent(resourceSet)
-		amlModel.register(resourceSet, 'aml')
+		amlModel.register(resourceSet, 'test.aml')
 		val dummyComponent = amlModel.components.head
 		
 		val tclModel = tclModel => [
@@ -236,7 +236,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('test', 'tcl')
+		tclModel.register('test.tcl')
 		
 		// when then
 		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_VAR_DEREF) // since assignment must take place before usage!
@@ -264,7 +264,8 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('MyTest', 'tcl')
+		tclModel.register('MyTest.tcl')
 		return tclModel
 	}
+
 }

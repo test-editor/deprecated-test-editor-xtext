@@ -20,6 +20,7 @@ import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StringConstant
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
+import org.testeditor.tcl.TestConfiguration
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.VariableReference
@@ -28,11 +29,11 @@ import org.testeditor.tcl.impl.TclFactoryImpl
 import org.testeditor.tsl.impl.TslFactoryImpl
 
 class TclModelGenerator {
+
 	@Inject TclFactoryImpl tclFactory
 	@Inject protected AmlFactoryImpl amlFactory
 	@Inject protected TslFactoryImpl tslFactory
 	@Inject protected XtypeFactory xtypeFactory
-
 
 	def TclModel tclModel() {
 		return tclFactory.createTclModel => [
@@ -46,6 +47,12 @@ class TclModelGenerator {
 
 	def TestCase testCase(String name) {
 		return tclFactory.createTestCase => [
+			it.name = name
+		]
+	}
+
+	def TestConfiguration testConfig(String name) {
+		return tclFactory.createTestConfiguration => [
 			it.name = name
 		]
 	}
