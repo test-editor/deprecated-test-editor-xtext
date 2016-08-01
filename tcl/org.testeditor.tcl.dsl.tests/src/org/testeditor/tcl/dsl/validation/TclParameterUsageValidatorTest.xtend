@@ -237,7 +237,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 	def void useAssignedVariableInParameterPosition() {
 		// given
 		val amlModel = amlTestModels.dummyComponent(resourceSet)
-		amlModel.register(resourceSet, 'aml')
+		amlModel.register(resourceSet, 'Dummy.aml')
 		val dummyComponent = amlModel.components.head
 		
 		val tclModel = tclModel => [
@@ -261,7 +261,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 	def void useAssignedVariableInParameterPositionWrongOrder() {
 		// given 
 		val amlModel = amlTestModels.dummyComponent(resourceSet)
-		amlModel.register(resourceSet, 'aml')
+		amlModel.register(resourceSet, 'Dummy.aml')
 		val dummyComponent = amlModel.components.head
 		
 		val tclModel = tclModel => [
@@ -318,6 +318,6 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 	 * register the given model with the resource set (for cross linking)
 	 */
 	private def <T extends EObject> T register(T model, String fileName, String fileExtension) {
-		model.register(resourceSet, fileName, fileExtension)
+		model.register(resourceSet, fileName + '.' + fileExtension)
 	}
 }
