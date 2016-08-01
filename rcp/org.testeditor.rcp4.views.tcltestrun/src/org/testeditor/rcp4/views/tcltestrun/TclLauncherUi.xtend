@@ -196,7 +196,7 @@ class TclLauncherUi implements Launcher {
 
 		})
 		val resultFile = new File(expectedFileRoot, "te-testCompose.xml")
-		if (xmlResults.length > 0) {
+		if (xmlResults != null && xmlResults.length > 0) {
 			testResultFileWriter.writeTestResultFile(projectName, resultFile, xmlResults)
 		} else {
 			testResultFileWriter.writeErrorFile(projectName, resultFile)

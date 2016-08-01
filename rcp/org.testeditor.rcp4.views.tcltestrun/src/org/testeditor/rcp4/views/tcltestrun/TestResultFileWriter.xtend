@@ -76,7 +76,9 @@ class TestResultFileWriter {
 			    </error>
 			  </testcase>
 			</testsuite>'''
+			file.parentFile.mkdirs
 			Files.write(content, file, StandardCharsets.UTF_8);
+			logger.error("Error file {} written.",file.path)
 		} catch (IOException e) {
 			logger.error('''could not write test result error file='«file.path»'.''', e)
 		}
