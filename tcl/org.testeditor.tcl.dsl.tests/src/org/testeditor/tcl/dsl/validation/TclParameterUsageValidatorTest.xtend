@@ -21,11 +21,13 @@ import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
 
 import static org.testeditor.tcl.TclPackage.Literals.*
+import org.testeditor.tcl.util.TclModelUtil
 
 class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 	
 	@Inject extension AmlModelGenerator
 	@Inject extension TclModelGenerator
+	@Inject TclModelUtil tclModelUtil
 
 	@Test
 	def void testDirectCallVariableTypeChecks() {
@@ -49,7 +51,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 		]
 		macroModel.register("tml")
 
-		val allEnvVars=envVariables("envVar", "myEnvString")
+		val allEnvVars=environmentVariables("envVar", "myEnvString")
 		val envVar = allEnvVars.head
 		val myEnvString = allEnvVars.last
 		val tclModel = tclModel => [
@@ -75,8 +77,8 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 		val otherContext = tclModel.test.steps.last.contexts.head as MacroTestStepContext
 
 		// when
-		val setWithString = tclValidator.getAllTypeUsagesOfVariable(somethingContext, "myEnvString")
-		val setWithLong = tclValidator.getAllTypeUsagesOfVariable(otherContext, "envVar")
+		val setWithString = tclModelUtil.getAllTypeUsagesOfVariable(somethingContext, "myEnvString")
+		val setWithLong = tclModelUtil.getAllTypeUsagesOfVariable(otherContext, "envVar")
 
 		// then
 		setWithString.assertSize(1)
@@ -118,7 +120,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 		val myCallContext = tclModel.test.steps.head.contexts.head
 
 		// when
-		val setWithLong = tclValidator.getAllTypeUsagesOfVariable(myCallContext, "myEnvString")
+		val setWithLong = tclModelUtil.getAllTypeUsagesOfVariable(myCallContext, "myEnvString")
 
 		// then
 		setWithLong.assertSize(1)
@@ -153,7 +155,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 		val myCallContext = tclModel.test.steps.head.contexts.head
 
 		// when
-		val setWithLong = tclValidator.getAllTypeUsagesOfVariable(myCallContext, "myEnvString")
+		val setWithLong = tclModelUtil.getAllTypeUsagesOfVariable(myCallContext, "myEnvString")
 
 		// then
 		setWithLong.assertSize(2)
@@ -251,7 +253,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 	}
 
 	private def TclModel tclCallingMyCallMacroWithOneEnvParam(String envVarString, TclModel tmlModel) {
-		val envVar=envVariables(envVarString).head
+		val envVar=environmentVariables(envVarString).head
 		val tclModel = tclModel => [
 			environmentVariables += envVar
 			test = testCase("MyTest") => [

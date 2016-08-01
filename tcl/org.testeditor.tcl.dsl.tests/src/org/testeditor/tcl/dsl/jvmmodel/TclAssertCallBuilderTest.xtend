@@ -1,8 +1,6 @@
 package org.testeditor.tcl.dsl.jvmmodel
 
-import com.google.inject.Provider
 import javax.inject.Inject
-import org.eclipse.xtext.resource.XtextResourceSet
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypeReferenceBuilder
 import org.junit.Test
 import org.mockito.InjectMocks
@@ -12,7 +10,6 @@ import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 import org.testeditor.tcl.util.TclModelUtil
 
-import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
 
 class TclAssertCallBuilderTest extends AbstractParserTest {
@@ -22,7 +19,6 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 	@Mock protected TclModelUtil tclModelUtil // injected into class under test
 	@Inject extension TclModelGenerator
 
-	@Inject Provider<XtextResourceSet> resourceSetProvider
 	@Inject JvmTypeReferenceBuilder.Factory jvmTypeReferenceBuilderFactory
 
 	@Test

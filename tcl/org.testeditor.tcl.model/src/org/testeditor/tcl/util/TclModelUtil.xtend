@@ -32,6 +32,10 @@ import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.ValueSpaceAssignment
+import org.testeditor.dsl.common.util.CollectionUtils
+import org.testeditor.tcl.AbstractTestStep
+import org.testeditor.tcl.AssertionTestStep
+import org.testeditor.tcl.BinaryExpression
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.Expression
@@ -42,6 +46,8 @@ import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestStep
+import org.testeditor.tcl.TestStepContext
+import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferenceMapAccess
 import org.testeditor.tsl.SpecificationStep
@@ -50,12 +56,12 @@ import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
-import org.testeditor.tcl.AbstractTestStep
 
 @Singleton
 class TclModelUtil extends TslModelUtil {
 	@Inject public extension ModelUtil amlModelUtil
 	@Inject TypeReferences typeReferences
+	@Inject extension CollectionUtils
 
 	override String restoreString(List<StepContent> contents) {
 		return contents.map [
@@ -212,11 +218,19 @@ class TclModelUtil extends TslModelUtil {
 		return #{}
 	}
 	
+	def JvmTypeReference getJvmTypeReferenceForName(String typeName, EObject context) {
+		return typeReferences.getTypeForName(typeName, context)
+	}
+	
+	def JvmTypeReference getJvmTypeReferenceForClass(Class<?> clazz, EObject context) {
+		return typeReferences.getTypeForName(clazz, context)
+	}
+	
 	def Map<String, JvmTypeReference> getEnvironmentVariablesTypeMap(Iterable<EnvironmentVariable> envParams) {
 		val envParameterVariablesNames = envParams.map[name]
 		val envParameterVariablesTypeMap = newHashMap
 		if (!envParams.empty) {
-			val stringTypeReference = typeReferences.getTypeForName(String, envParams.head)
+			val stringTypeReference = String.getJvmTypeReferenceForClass(envParams.head)
 			envParameterVariablesNames.forEach[envParameterVariablesTypeMap.put(it, stringTypeReference)]
 		}
 		return envParameterVariablesTypeMap
@@ -299,5 +313,120 @@ class TclModelUtil extends TslModelUtil {
 		newResource.contents.add(model)
 		return model
 	}
+
+	/**
+	 * does the given context make use of (one of the) variables passed via variable reference?
+	 */
+	def dispatch boolean makesUseOfVariablesViaReference(TestStepContext context, Set<String> variables) {
+		return context.testSteps.exists [
+			switch (it) {
+				TestStep: contents.exists[makesUseOfVariablesViaReference(variables)]
+				AssertionTestStep: assertExpression.makesUseOfVariablesViaReference(variables)
+				default: throw new RuntimeException('''Unknown TestStep type='«class.canonicalName»'.''')
+			}
+		]
+	}
+
+	def dispatch boolean makesUseOfVariablesViaReference(StepContent stepContent, Set<String> variables) {
+		if (stepContent instanceof VariableReference) {
+			return variables.contains(stepContent.variable.name)
+		}
+		return false
+	}
+
+	def dispatch boolean makesUseOfVariablesViaReference(Expression expression, Set<String> variables) {
+		if( expression instanceof VariableReference) {
+			return variables.contains(expression.variable.name)
+		}
+		return expression.eAllContents.filter(VariableReference).exists [
+			variables.contains(variable.name)
+		]
+	}
+
+	/**
+	 * collect all variables declared (e.g. through assignment)
+	 */
+	def dispatch Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(TestStepContext context) {
+		val result = newHashMap
+		context.testSteps.map[collectDeclaredVariablesTypeMap].forEach[result.putAll(it)]
+		return result
+	}
+
+	def dispatch Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(TestStep testStep) {
+		if (testStep instanceof TestStepWithAssignment) {
+			val typeReference = testStep.interaction?.defaultMethod?.operation?.returnType
+			return #{testStep.variable.name -> typeReference}
+		}
+		return emptyMap
+	}
+	
+	def dispatch Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(AssertionTestStep testStep) {
+		// Assertion test steps cannot contain variable declarations
+		return emptyMap
+	}
+
+	def Iterable<VariableReference> collectVariableUsage(Expression expression) {
+		switch (expression) {
+			BinaryExpression:
+				return expression.left.collectVariableUsage + expression.right.collectVariableUsage
+			VariableReference:
+				return #[expression]
+			default:
+				return #[]
+		}
+	}
+
+	/** 
+	 * get the actual jvm types from the fixtures that are transitively used and to which this variable/parameter is passed to.
+	 * Since a parameter can be used in multiple parameter positions of subsequent fixture calls, the size of the set of types can be > 1
+	 */
+	def dispatch Set<JvmTypeReference> getAllTypeUsagesOfVariable(MacroTestStepContext callingMacroTestStepContext,
+		String variable) {
+		val macroCalled = callingMacroTestStepContext.findMacroDefinition
+		if (macroCalled != null) {
+			val callingMacroStep = callingMacroTestStepContext.step as TestStep // must be a TestStep
+			val templateParamToVarRefMap = mapCalledTemplateParamToCallingVariableReference(
+				callingMacroStep, macroCalled.template, variable)
+			val calledMacroTemplateParameters = templateParamToVarRefMap.keySet.map[name].toSet
+			val contextsUsingAnyOfTheseParameters = macroCalled.contexts.filter [
+				makesUseOfVariablesViaReference(calledMacroTemplateParameters)
+			]
+			val typesOfAllParametersUsed = contextsUsingAnyOfTheseParameters.map [ context |
+				context.getAllTypeUsagesOfVariables(calledMacroTemplateParameters)
+			].flatten.toSet
+			return typesOfAllParametersUsed
+		} else {
+			return #{}
+		}
+	}
+
+	/** 
+	 * get the actual jvm types from the fixtures that are transitively used and to which this variable/parameter is passed to
+	 */
+	def dispatch Set<JvmTypeReference> getAllTypeUsagesOfVariable(ComponentTestStepContext componentTestStepContext,
+		String variableName) {
+		// type derivation of variable usage within assertions is not implemented "yet" => filter on test steps only
+		val typesUsages = componentTestStepContext.steps.filter(TestStep).map [ step |
+			step.stepVariableFixtureParameterTypePairs.filterKey(VariableReference).filter [
+				key.variable.name == variableName
+			].map[value]
+		].flatten.filterNull.toSet
+		return typesUsages
+	}
+
+	def Iterable<JvmTypeReference> getAllTypeUsagesOfVariables(TestStepContext context, Iterable<String> variables) {
+		variables.map [ parameter |
+			context.getAllTypeUsagesOfVariable(parameter)
+		].flatten
+	}
+
+	def Map<TemplateVariable, StepContent> mapCalledTemplateParamToCallingVariableReference(TestStep callingStep,
+		Template calledMacroTemplate, String callingVariableReference) {
+		val varMap = getVariableToValueMapping(callingStep, calledMacroTemplate)
+		return varMap.filter [ key, stepContent |
+			stepContent.makesUseOfVariablesViaReference(#{callingVariableReference})
+		]
+	}
+
 
 }

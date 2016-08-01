@@ -50,7 +50,7 @@ class TclModelGenerator {
 		]
 	}
 
-	def Iterable<EnvironmentVariable> envVariables(String ... names) {
+	def Iterable<EnvironmentVariable> environmentVariables(String ... names) {
 		return names.map [ varName |
 			tclFactory.createEnvironmentVariable => [name = varName]
 		]
