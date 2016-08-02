@@ -169,10 +169,6 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 	@Test
 	def void useAssignedVariableInParameterPosition() {
 		// given
-		val amlModel = amlTestModels.dummyComponent(resourceSet)
-		amlModel.register(resourceSet, 'Dummy.aml')
-		val dummyComponent = amlModel.components.head
-		
 		val tclModel = tclModel => [
 			test = testCase('Test') => [
 				steps += specificationStep('spec') => [
@@ -192,11 +188,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 	
 	@Test
 	def void useAssignedVariableInParameterPositionWrongOrder() {
-		// given 
-		val amlModel = amlTestModels.dummyComponent(resourceSet)
-		amlModel.register(resourceSet, 'Dummy.aml')
-		val dummyComponent = amlModel.components.head
-		
+		// given 	
 		val tclModel = tclModel => [
 			test = testCase('Test') => [
 				steps += specificationStep('spec') => [

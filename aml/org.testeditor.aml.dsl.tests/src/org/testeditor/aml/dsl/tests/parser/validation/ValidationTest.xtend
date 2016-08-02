@@ -22,13 +22,22 @@ import org.testeditor.dsl.common.testing.DummyLocatorStrategy
 import static org.testeditor.aml.AmlPackage.Literals.*
 import static org.testeditor.aml.dsl.Messages.*
 import static org.testeditor.aml.dsl.validation.AmlValidator.*
+import org.testeditor.dsl.common.testing.ResourceSetHelper
+import org.junit.Before
+import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
 
 /**
  * Tests for {@link AmlValidator}.
  */
-class ValidationTest extends AbstractValidationTest {
+class ValidationTest extends AbstractParserTest {
 
 	@Inject extension AmlModelGenerator
+	@Inject extension ResourceSetHelper
+	
+	@Before
+	def void setUp() {
+		setUpResourceSet
+	}
 
 	@Test
 	def void validateComponentType() {
@@ -193,7 +202,7 @@ class ValidationTest extends AbstractValidationTest {
 
 
 		// when
-		val amlModel = input.parse
+		val amlModel = input.parse(resourceSet)
 
 		// then
 		amlModel.assertError(AML_MODEL, INTERACTION_NAME_DUPLICATION, startOfFirstAbc, lengthOfinteractionType,
@@ -213,7 +222,7 @@ class ValidationTest extends AbstractValidationTest {
 			interaction type abc { }
 		'''
 		// when
-		val amlModel = input.parse
+		val amlModel = input.parse(resourceSet)
 
 		// then
 		amlModel.assertNoErrors

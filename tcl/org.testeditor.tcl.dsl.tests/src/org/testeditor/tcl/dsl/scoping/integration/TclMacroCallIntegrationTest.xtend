@@ -11,14 +11,17 @@ import org.testeditor.tcl.dsl.jvmmodel.TclJvmModelInferrer
 
 import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
+import org.testeditor.dsl.common.testing.ResourceSetHelper
 
 class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 
 	@Inject TclJvmModelInferrer jvmModelInferrer // class under test
 	@Mock ITreeAppendable outputStub
+	@Inject extension ResourceSetHelper	
 
 	@Before
-	def void initMocks() {
+	def void setUp() {
+		setUpResourceSet
 		when(outputStub.trace(any(EObject))).thenReturn(outputStub)
 		when(outputStub.append(any(CharSequence))).thenReturn(outputStub)
 	}
@@ -42,7 +45,7 @@ class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 			}
 			
 			component Dummy is DummyCT {}
-		''')
+		''', resourceSet)
 
 		// macro definitions such that "other" is a macro again which uses "something" which uses an aml component
 		parseTclModel('''
@@ -61,7 +64,7 @@ class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 			template = "something" ${param}
 			Component: Dummy
 			- start @param
-		''')
+		''', resourceSet)
 
 		// tcl that uses the macro(template) "other" with parameter "MyApp"
 		val tcl = parseTclModel('''
@@ -72,7 +75,7 @@ class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 			* my test 
 			Macro: MacroCollection
 			- other "MyApp"
-		''')
+		''', resourceSet)
 
 		// when
 		jvmModelInferrer.generateMethodBody(tcl.test, outputStub, #{})

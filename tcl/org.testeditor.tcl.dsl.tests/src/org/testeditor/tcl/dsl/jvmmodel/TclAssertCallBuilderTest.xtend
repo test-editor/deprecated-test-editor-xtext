@@ -1,6 +1,8 @@
 package org.testeditor.tcl.dsl.jvmmodel
 
+import com.google.inject.Provider
 import javax.inject.Inject
+import org.eclipse.xtext.resource.XtextResourceSet
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypeReferenceBuilder
 import org.junit.Before
 import org.junit.Test
@@ -24,6 +26,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 	@Mock protected TclModelUtil tclModelUtil // injected into class under test
 	@Mock TclExpressionBuilder expressionBuilder
 	@Inject extension TclModelGenerator
+	@Inject protected Provider<XtextResourceSet> resourceSetProvider
 
 	@Inject JvmTypeReferenceBuilder.Factory jvmTypeReferenceBuilderFactory
 	
@@ -144,7 +147,8 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 		val generatedCode = assertCallBuilder.build(expression)
 
 		// then
-		assertCodeLine('org.junit.Assert.assertTrue("", variable.toString().matches("test".toString()));', generatedCode)
+		assertCodeLine('org.junit.Assert.assertTrue("", variable.toString().matches("test".toString()));',
+			generatedCode)
 	}
 
 	@Test
@@ -156,7 +160,8 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 		val generatedCode = assertCallBuilder.build(expression)
 
 		// then
-		assertCodeLine('org.junit.Assert.assertFalse("", variable.toString().matches("test".toString()));', generatedCode)
+		assertCodeLine('org.junit.Assert.assertFalse("", variable.toString().matches("test".toString()));',
+			generatedCode)
 	}
 
 	@Test
@@ -175,7 +180,8 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 	def void testWithMapKeyAsString() {
 		// given
 		val expression = mappedReference("variable", "key with spaces").compareOnEquality("test")
-		when(expressionBuilder.buildExpression(isA(VariableReferenceMapAccess))).thenReturn('variable.get("key with spaces")')
+		when(expressionBuilder.buildExpression(isA(VariableReferenceMapAccess))).thenReturn(
+			'variable.get("key with spaces")')
 
 		// when
 		val generatedCode = assertCallBuilder.build(expression)

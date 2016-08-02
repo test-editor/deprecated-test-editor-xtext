@@ -21,17 +21,20 @@ import org.testeditor.aml.Variable
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.AmlModel
 import org.testeditor.tcl.MacroCollection
+import org.testeditor.dsl.common.testing.ResourceSetHelper
 
 class TclModelUtilTest extends AbstractParserTest {
 
 	@Inject var TclModelUtil tclModelUtil // class under test
 	@Inject extension TclModelGenerator
 	@Inject extension AmlModelGenerator
+	@Inject extension ResourceSetHelper
 	@Inject var AmlTestModels amlTestModels
 
 	@Before
-	def void setup() {
+	def void setup() {		
 		(new AmlStandaloneSetup).createInjectorAndDoEMFRegistration
+		setUpResourceSet
 	}
 
 	@Test

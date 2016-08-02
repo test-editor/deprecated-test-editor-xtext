@@ -23,6 +23,7 @@ import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
 import org.testeditor.tcl.util.TclModelUtil
+import org.eclipse.emf.ecore.resource.ResourceSet
 
 abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 
@@ -35,17 +36,17 @@ abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
 	protected InMemoryFileSystemAccess fsa
 
 	@Before
-	def void setUp() {
+	def void setUpInjector() {
 		val injector = (new AmlStandaloneSetup).createInjectorAndDoEMFRegistration
 		amlParseHelper = injector.getInstance(ParseHelper)
 		fsa = new InMemoryFileSystemAccess
 	}
 
-	protected def AmlModel parseAmlModel(String aml) {
+	protected def AmlModel parseAmlModel(String aml, ResourceSet resourceSet) {
 		return amlParseHelper.parse(aml, resourceSet).assertNoSyntaxErrors
 	}
 
-	protected def TclModel parseTclModel(String tcl) {
+	protected def TclModel parseTclModel(String tcl, ResourceSet resourceSet) {
 		return tclParseHelper.parse(tcl, resourceSet).assertNoSyntaxErrors
 	}
 

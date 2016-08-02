@@ -7,11 +7,16 @@ import org.junit.Test
 import org.testeditor.dsl.common.testing.DummyFixture
 
 import static extension org.eclipse.emf.common.util.URI.createFileURI
+import javax.inject.Inject
+import org.testeditor.dsl.common.testing.ResourceSetHelper
 
 class TclSetupAndCleanupGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 
+	@Inject extension ResourceSetHelper	
+
 	@Before
 	def void parseAmlModel() {
+		setUpResourceSet
 		val amlModel = amlParseHelper.parse(DummyFixture.amlModel, resourceSet)
 		amlModel.assertNoSyntaxErrors
 	}

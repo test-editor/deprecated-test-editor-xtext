@@ -12,14 +12,24 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.tests.parser
 
+import javax.inject.Inject
+import org.junit.Before
 import org.junit.Test
 import org.testeditor.aml.ComponentType
+import org.testeditor.dsl.common.testing.ResourceSetHelper
 
 /**
  * Parsing tests for {@link ComponentType}.
  */
 class ComponentTypeParserTest extends AbstractParserTest {
 	
+	@Inject extension ResourceSetHelper
+	
+	@Before
+	def void setUp() {
+		setUpResourceSet
+	}
+
 	@Test
 	def void parseMinimal() {
 		// Given
@@ -32,7 +42,7 @@ class ComponentTypeParserTest extends AbstractParserTest {
 		'''
 		
 		// When + Then
-		#[withoutBrackets, withBrackets].map[parse(ComponentType)].forEach[
+		#[withoutBrackets, withBrackets].map[parse(ComponentType, resourceSet)].forEach[
 			assertNoErrors
 			name.assertEquals("MyComponentType")
 		]
@@ -48,7 +58,7 @@ class ComponentTypeParserTest extends AbstractParserTest {
 		'''
 		
 		// When
-		val componentType = input.parse(ComponentType)
+		val componentType = input.parse(ComponentType, resourceSet)
 		
 		// Then
 		componentType => [

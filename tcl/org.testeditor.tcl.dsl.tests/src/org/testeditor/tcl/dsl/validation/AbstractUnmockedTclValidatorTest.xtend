@@ -12,33 +12,28 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.validation
 
-import com.google.inject.Provider
 import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.junit4.validation.ValidationTestHelper
-import org.eclipse.xtext.resource.XtextResourceSet
 import org.junit.Before
 import org.testeditor.aml.Component
 import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.aml.dsl.tests.common.AmlTestModels
+import org.testeditor.dsl.common.testing.ResourceSetHelper
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 
 abstract class AbstractUnmockedTclValidatorTest extends AbstractParserTest {
 	
 	@Inject protected TclValidator tclValidator // class under test (not mocked)
-
-	@Inject Provider<XtextResourceSet> resourceSetProvider
-	@Inject protected XtextResourceSet resourceSet
 	@Inject protected ValidationTestHelper validator
-
 	@Inject protected AmlTestModels amlTestModels
+	
+	@Inject extension ResourceSetHelper
 
 	protected var Component dummyComponent
 
 	@Before
 	def void setup() {
-		resourceSet = resourceSetProvider.get
-		resourceSet.classpathURIContext = this
 		new AmlStandaloneSetup().createInjectorAndDoEMFRegistration // needs to be registered to register aml models
 
 		// build component "Dummy" with two interactions, "start" with a string parameter, "wait" with a long parameter

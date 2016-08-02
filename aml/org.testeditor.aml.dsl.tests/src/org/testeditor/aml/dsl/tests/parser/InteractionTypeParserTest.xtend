@@ -12,15 +12,25 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.tests.parser
 
+import javax.inject.Inject
+import org.junit.Before
 import org.junit.Test
 import org.testeditor.aml.InteractionType
 import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
+import org.testeditor.dsl.common.testing.ResourceSetHelper
 
 /**
  * Parsing tests for {@link InteractionType}.
  */
 class InteractionTypeParserTest extends AbstractParserTest {
+
+	@Inject extension ResourceSetHelper
+	
+	@Before
+	def void setUp() {
+		setUpResourceSet
+	}
 
 	@Test
 	def void parseMinimal() {
@@ -34,7 +44,7 @@ class InteractionTypeParserTest extends AbstractParserTest {
 		'''
 
 		// When + Then
-		#[withoutBrackets, withBrackets].map[parse(InteractionType)].forEach [
+		#[withoutBrackets, withBrackets].map[parse(InteractionType, resourceSet)].forEach [
 			assertNoErrors
 			name.assertEquals("MyInteractionType")
 		]
@@ -50,7 +60,7 @@ class InteractionTypeParserTest extends AbstractParserTest {
 		'''
 
 		// When
-		val interactionType = input.parse(InteractionType)
+		val interactionType = input.parse(InteractionType, resourceSet)
 
 		// Then
 		interactionType => [
@@ -70,7 +80,7 @@ class InteractionTypeParserTest extends AbstractParserTest {
 		'''
 
 		// When
-		val interactionType = input.parse(InteractionType)
+		val interactionType = input.parse(InteractionType, resourceSet)
 
 		// Then
 		interactionType => [
@@ -90,7 +100,7 @@ class InteractionTypeParserTest extends AbstractParserTest {
 		'''
 
 		// When
-		val interactionType = input.parse(InteractionType)
+		val interactionType = input.parse(InteractionType, resourceSet)
 
 		// Then
 		interactionType => [
@@ -116,7 +126,7 @@ class InteractionTypeParserTest extends AbstractParserTest {
 		'''
 
 		// When
-		val interactionType = input.parse(InteractionType)
+		val interactionType = input.parse(InteractionType, resourceSet)
 
 		// Then
 		interactionType.assertNoSyntaxErrors
@@ -134,7 +144,7 @@ class InteractionTypeParserTest extends AbstractParserTest {
 		'''
 
 		// When
-		val interactionType = input.parse(InteractionType)
+		val interactionType = input.parse(InteractionType, resourceSet)
 
 		// Then
 		interactionType.assertNoSyntaxErrors

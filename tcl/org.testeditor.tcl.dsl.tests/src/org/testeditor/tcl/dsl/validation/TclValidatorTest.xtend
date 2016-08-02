@@ -1,21 +1,19 @@
 package org.testeditor.tcl.dsl.validation
 
-import com.google.inject.Provider
 import javax.inject.Inject
 import org.eclipse.emf.common.util.URI
 import org.eclipse.xtext.junit4.util.ParseHelper
 import org.eclipse.xtext.junit4.validation.ValidationTestHelper
-import org.eclipse.xtext.resource.XtextResourceSet
 import org.junit.Before
 import org.junit.Test
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.dsl.AmlStandaloneSetup
+import org.testeditor.dsl.common.testing.ResourceSetHelper
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 
 class TclValidatorTest extends AbstractParserTest {
 
-	@Inject
-	private Provider<XtextResourceSet> resourceSetProvider
+	@Inject extension ResourceSetHelper
 
 	protected ParseHelper<AmlModel> amlParser
 
@@ -26,6 +24,7 @@ class TclValidatorTest extends AbstractParserTest {
 	def void initializeAmlParseHelper() {
 		val amlInjector = new AmlStandaloneSetup().createInjectorAndDoEMFRegistration
 		amlParser = amlInjector.getInstance(ParseHelper)
+		setUpResourceSet
 	}
 
 	@Test
@@ -34,7 +33,6 @@ class TclValidatorTest extends AbstractParserTest {
 		val aml = getAMLWithValueSpace('''#[ "New", "Open" ]''')
 		var tcl = getTCLWithValue("Test", "New")
 
-		val resourceSet = resourceSetProvider.get
 		amlParser.parse(aml, URI.createURI("swt.aml"), resourceSet)
 		var tclError = getTCLWithValue("Test2", "Save")
 		
@@ -53,7 +51,6 @@ class TclValidatorTest extends AbstractParserTest {
 		val aml = getAMLWithValueSpace("2 ... 5")
 		var tcl = getTCLWithValue("Test", "4")
 
-		val resourceSet = resourceSetProvider.get
 		amlParser.parse(aml, URI.createURI("swt.aml"), resourceSet)
 		var tclError = getTCLWithValue("Test2", "1")
 		
@@ -72,7 +69,6 @@ class TclValidatorTest extends AbstractParserTest {
 		val aml = getAMLWithValueSpace('''"^[a-zA-Z_0-9]"''')
 		var tcl = getTCLWithValue("Test", "h")
 
-		val resourceSet = resourceSetProvider.get
 		amlParser.parse(aml, URI.createURI("swt.aml"), resourceSet)
 		var tclError = getTCLWithValue("Test2", "!!hello")
 

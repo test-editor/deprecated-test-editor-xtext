@@ -13,31 +13,19 @@
 package org.testeditor.aml.dsl.tests.parser
 
 import javax.inject.Inject
+import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.xtext.junit4.util.ParseHelper
 import org.eclipse.xtext.junit4.validation.ValidationTestHelper
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.ModelElement
 import org.testeditor.aml.dsl.tests.AbstractAmlTest
-import org.eclipse.xtext.resource.XtextResourceSet
-import com.google.inject.Provider
-import org.junit.Before
 
 abstract class AbstractParserTest extends AbstractAmlTest {
 
 	@Inject protected extension ValidationTestHelper
 	@Inject protected ParseHelper<AmlModel> parseHelper
-	@Inject protected Provider<XtextResourceSet> resourceSetProvider
-	@Inject protected XtextResourceSet resourceSet
 
-
-	@Before
-	def void setup() {
-		resourceSet = resourceSetProvider.get
-		resourceSet.classpathURIContext = this
-	}
-
-
-	protected def AmlModel parse(CharSequence input) {
+	protected def AmlModel parse(CharSequence input, ResourceSet resourceSet) {
 		return parseHelper.parse(input, resourceSet)
 	}
 
@@ -53,7 +41,7 @@ abstract class AbstractParserTest extends AbstractAmlTest {
 	 * @param elementClass the expected type
 	 * @return {@code model.eAllContents.filter(elementClass).head}
 	 */
-	protected def <T extends ModelElement> T parse(CharSequence input, Class<T> elementClass) {
+	protected def <T extends ModelElement> T parse(CharSequence input, Class<T> elementClass, ResourceSet resourceSet) {
 		val newInput = '''
 			package com.example
 

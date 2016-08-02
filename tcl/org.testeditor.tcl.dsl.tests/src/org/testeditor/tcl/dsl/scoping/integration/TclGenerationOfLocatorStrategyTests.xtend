@@ -18,6 +18,7 @@ import org.testeditor.tcl.dsl.tests.TclModelGenerator
 
 import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
+import org.testeditor.dsl.common.testing.ResourceSetHelper
 
 class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegrationTest {
 
@@ -26,9 +27,11 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 
 	@Inject extension TclModelGenerator
 	@Inject extension AmlModelGenerator
+	@Inject extension ResourceSetHelper	
 
 	@Before
-	def void setUpOutputStubs() {
+	def void setUp() {
+		setUpResourceSet
 		when(outputStub.trace(any(EObject))).thenReturn(outputStub)
 		when(outputStub.append(any(CharSequence))).thenReturn(outputStub)
 	}

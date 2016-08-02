@@ -6,10 +6,7 @@ import com.google.inject.Module
 import com.google.inject.util.Modules
 import java.util.List
 import javax.inject.Inject
-import org.eclipse.emf.common.util.URI
-import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.resource.Resource
-import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.xtext.resource.impl.BinaryGrammarResourceFactoryImpl
 import org.junit.Before
 import org.junit.BeforeClass
@@ -70,17 +67,4 @@ abstract class AbstractTest {
 		return current
 	}
 
-	/**
-	 * add the given model to the resource set (allows resolving links within same set)
-	 * @param model to add
-	 * @param resoureSet to add to
-	 * @param fileExtension to be used (e.g. aml, tcl, tml, tsl depending on the model type)
-	 */
-	protected def <T extends EObject> T addToResourceSet(T model, ResourceSet resourceSet, String fileName) {
-		val uri = URI.createURI(fileName)
-
-		val newResource = resourceSet.createResource(uri)
-		newResource.contents.add(model)
-		return model
-	}
 }

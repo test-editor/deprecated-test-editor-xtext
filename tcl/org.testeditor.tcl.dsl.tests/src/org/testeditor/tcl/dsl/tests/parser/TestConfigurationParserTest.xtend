@@ -1,14 +1,19 @@
 package org.testeditor.tcl.dsl.tests.parser
 
 import com.google.inject.Inject
-import com.google.inject.Provider
-import org.eclipse.xtext.resource.XtextResourceSet
+import org.junit.Before
 import org.junit.Test
+import org.testeditor.dsl.common.testing.ResourceSetHelper
 
 class TestConfigurationParserTest extends AbstractParserTest {
 
-	@Inject
-	Provider<XtextResourceSet> resourceSetProvider
+
+	@Inject extension ResourceSetHelper
+	
+	@Before
+	def void setUp() {
+		setUpResourceSet
+	}
 
 	@Test
 	def void parseMinimal() {
@@ -109,7 +114,6 @@ class TestConfigurationParserTest extends AbstractParserTest {
 	@Test
 	def void parseReferenceToConfig() {
 		// given
-		val resourceSet = resourceSetProvider.get
 		val configSource = '''
 			package com.example
 			

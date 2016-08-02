@@ -1,20 +1,18 @@
 package org.testeditor.tcl.dsl.validation
 
-import com.google.inject.Provider
 import javax.inject.Inject
 import org.eclipse.xtext.junit4.validation.ValidationTestHelper
-import org.eclipse.xtext.resource.XtextResourceSet
 import org.junit.Before
 import org.junit.Test
+import org.testeditor.dsl.common.testing.ResourceSetHelper
 import org.testeditor.tcl.TclModel
 
 import static org.testeditor.tcl.TclPackage.Literals.*
 
 class FileExtensionValidatorTest extends AbstractMockedTclValidatorTest {
 
-	@Inject protected Provider<XtextResourceSet> resourceSetProvider
-	@Inject protected XtextResourceSet resourceSet
 	@Inject ValidationTestHelper validator
+	@Inject extension ResourceSetHelper
 
 	TclModel modelWithTestCase
 	TclModel modelWithMacroCollection
@@ -22,8 +20,7 @@ class FileExtensionValidatorTest extends AbstractMockedTclValidatorTest {
 
 	@Before
 	def void setup() {
-		resourceSet = resourceSetProvider.get
-		resourceSet.classpathURIContext = this
+		setUpResourceSet
 		modelWithTestCase = tclModel => [
 			test = testCase("Test")
 		]

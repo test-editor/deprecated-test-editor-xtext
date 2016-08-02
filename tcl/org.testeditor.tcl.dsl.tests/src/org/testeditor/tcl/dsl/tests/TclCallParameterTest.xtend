@@ -12,6 +12,7 @@ import org.testeditor.tcl.dsl.jvmmodel.TclJvmModelInferrer
 
 import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
+import org.testeditor.dsl.common.testing.ResourceSetHelper
 
 class TclCallParameterTest extends AbstractTclGeneratorIntegrationTest {
 
@@ -20,11 +21,13 @@ class TclCallParameterTest extends AbstractTclGeneratorIntegrationTest {
 
 	@Inject extension TclModelGenerator
 	@Inject AmlTestModels amlTestModels
+	@Inject extension ResourceSetHelper 
 
 	@Before
 	def void initMocks() {
 		when(outputStub.trace(any(EObject))).thenReturn(outputStub)
 		when(outputStub.append(any(CharSequence))).thenReturn(outputStub)
+		setUpResourceSet
 	}
 
 	@Test
