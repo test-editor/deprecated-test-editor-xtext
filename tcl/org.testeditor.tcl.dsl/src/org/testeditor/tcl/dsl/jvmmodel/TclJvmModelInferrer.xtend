@@ -28,7 +28,6 @@ import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
 import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
-import org.testeditor.aml.Variable
 import org.testeditor.tcl.AbstractTestStep
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.AssignmentVariable
@@ -59,6 +58,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	@Inject TclAssertCallBuilder assertCallBuilder
 	@Inject IQualifiedNameProvider nameProvider
 	@Inject JvmModelHelper jvmModelHelper
+	@Inject TclExpressionBuilder expressionBuilder
 
 	def dispatch void infer(TclModel model, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		model.test?.infer(acceptor, isPreIndexingPhase)
@@ -110,7 +110,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		// create variables for required environment variables
 		val envParams = element.model.environmentVariables
 		result.members += envParams.map [ environmentVariable |
-			environmentVariable.toField(environmentVariable.variableReferenceToVarName,
+			environmentVariable.toField(expressionBuilder.variableToVarName(environmentVariable),
 				typeRef(String)) [
 				initializer = '''System.getenv("«environmentVariable.name»")'''
 			]
@@ -196,22 +196,22 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		test.steps.forEach[generate(output.trace(it), environmentVariables)]
 	}
 
-	private def void generateEnvironmentVariableAssertion(EnvironmentVariable EnvironmentVariableReference,
+	private def void generateEnvironmentVariableAssertion(EnvironmentVariable environmentVariable,
 		ITreeAppendable output) {
-		output.append('''org.junit.Assert.assertNotNull(«EnvironmentVariableReference.variableReferenceToVarName»);''').
+		output.append('''org.junit.Assert.assertNotNull(«expressionBuilder.variableToVarName(environmentVariable)»);''').
 			newLine
 	}
 
 	private def void generate(SpecificationStepImplementation step, ITreeAppendable output,
-		Iterable<EnvironmentVariable> EnvironmentVariableReferences) {
+		Iterable<EnvironmentVariable> environmentVariables) {
 		val comment = '''/* «step.contents.restoreString» */'''
 		output.newLine
 		output.append(comment).newLine
-		step.contexts.forEach[generateContext(output.trace(it), #[], EnvironmentVariableReferences)]
+		step.contexts.forEach[generateContext(output.trace(it), #[], environmentVariables)]
 	}
 
 	private def dispatch void generateContext(MacroTestStepContext context, ITreeAppendable output,
-		Iterable<MacroTestStepContext> macroUseStack, Iterable<EnvironmentVariable> envParams) {
+		Iterable<MacroTestStepContext> macroUseStack, Iterable<EnvironmentVariable> environmentVariables) {
 		output.newLine
 		val macro = context.findMacroDefinition
 		if (macro == null) {
@@ -219,7 +219,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		} else {
 			output.append('''// Macro start: «context.macroCollection.name» - «macro.template.normalize»''').newLine
 			macro.contexts.forEach [
-				generateContext(output.trace(it), #[context] + macroUseStack, envParams)
+				generateContext(output.trace(it), #[context] + macroUseStack, environmentVariables)
 			]
 			output.newLine
 			output.append('''// Macro end: «context.macroCollection.name» - «macro.template.normalize»''').newLine
@@ -373,25 +373,14 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	 */
 	private def dispatch Iterable<String> generateCallParameters(VariableReference variableReference,
 		JvmTypeReference expectedType, InteractionType interaction) {
-		if (expectedType.qualifiedName.equals(String.name)) {
-			switch (variableReference) {
-				VariableReferenceMapAccess: throw new RuntimeException("implementation missing")
-				VariableReference: return #[variableReference.variable.variableReferenceToVarName]
-				default: throw new RuntimeException('''Variable reference of type='«variableReference.class.canonicalName»' is unknown.''')
-			}
+		val result = expressionBuilder.buildExpression(variableReference)
+		if (variableReference instanceof VariableReferenceMapAccess && expectedType.qualifiedName == String.canonicalName) {
+			return #[result+'.toString()'] // since the map is generic and thus the actual type is java.lang.Object
 		} else {
-			throw new RuntimeException('''Environment variable '«variableReference.variable.name»' (always of type String) is used where type '«expectedType.qualifiedName»' is expected.''')
+			return #[result]
 		}
 	}
-
-	private def String variableReferenceToVarName(Variable variable) {
-		switch (variable) {
-			AssignmentVariable: return variable.name
-			EnvironmentVariable: return "env_" + variable.name
-			default: throw new RuntimeException('''unknown variable reference type='«variable.class.canonicalName»'.''')
-		}
-	}
-
+	
 	/**
 	 * resolve dereferenced variable (in macro) with call site value (recursively if necessary).
 	 * 

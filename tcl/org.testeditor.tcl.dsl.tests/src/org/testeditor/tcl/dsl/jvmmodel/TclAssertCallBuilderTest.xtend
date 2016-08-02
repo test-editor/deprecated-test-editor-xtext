@@ -2,14 +2,19 @@ package org.testeditor.tcl.dsl.jvmmodel
 
 import javax.inject.Inject
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypeReferenceBuilder
+import org.junit.Before
 import org.junit.Test
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.testeditor.aml.ModelUtil
+import org.testeditor.tcl.StringConstant
+import org.testeditor.tcl.VariableReference
+import org.testeditor.tcl.VariableReferenceMapAccess
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 import org.testeditor.tcl.util.TclModelUtil
 
+import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
 
 class TclAssertCallBuilderTest extends AbstractParserTest {
@@ -17,9 +22,17 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 	@InjectMocks TclAssertCallBuilder assertCallBuilder // class under test
 	@Mock ModelUtil amlModelUtil // injected into class under test
 	@Mock protected TclModelUtil tclModelUtil // injected into class under test
+	@Mock TclExpressionBuilder expressionBuilder
 	@Inject extension TclModelGenerator
 
 	@Inject JvmTypeReferenceBuilder.Factory jvmTypeReferenceBuilderFactory
+	
+	@Before
+	def void setupExpressionBuilder() {
+		when(expressionBuilder.buildExpression(isA(StringConstant))).thenReturn('"test"')
+		when(expressionBuilder.buildExpression(isA(VariableReference))).thenReturn('variable')
+		when(expressionBuilder.buildExpression(isA(VariableReferenceMapAccess))).thenReturn('variable.get("key")')
+	}
 
 	@Test
 	def void testEqualsGen() {
@@ -125,25 +138,25 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 	@Test
 	def void testMatches() {
 		// given
-		val expression = flatReference("variable").compareMatching("ohoh")
+		val expression = flatReference("variable").compareMatching("test")
 
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
 
 		// then
-		assertCodeLine('org.junit.Assert.assertTrue("", variable.matches("ohoh"));', generatedCode)
+		assertCodeLine('org.junit.Assert.assertTrue("", variable.toString().matches("test".toString()));', generatedCode)
 	}
 
 	@Test
 	def void testDoesNotMatch() {
 		// given
-		val expression = flatReference("variable").compareNotMatching("ohoh")
+		val expression = flatReference("variable").compareNotMatching("test")
 
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
 
 		// then
-		assertCodeLine('org.junit.Assert.assertFalse("", variable.matches("ohoh"));', generatedCode)
+		assertCodeLine('org.junit.Assert.assertFalse("", variable.toString().matches("test".toString()));', generatedCode)
 	}
 
 	@Test
@@ -162,6 +175,7 @@ class TclAssertCallBuilderTest extends AbstractParserTest {
 	def void testWithMapKeyAsString() {
 		// given
 		val expression = mappedReference("variable", "key with spaces").compareOnEquality("test")
+		when(expressionBuilder.buildExpression(isA(VariableReferenceMapAccess))).thenReturn('variable.get("key with spaces")')
 
 		// when
 		val generatedCode = assertCallBuilder.build(expression)
