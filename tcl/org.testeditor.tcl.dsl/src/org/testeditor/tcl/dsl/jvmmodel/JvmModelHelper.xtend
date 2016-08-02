@@ -30,7 +30,7 @@ class JvmModelHelper {
 
 	private def boolean isAccessibleBy(JvmField field, JvmDeclaredType sourceType) {
 		if (field.visibility == JvmVisibility.PRIVATE) {
-			return true
+			return false
 		}
 		if (field.visibility == JvmVisibility.DEFAULT) {
 			return field.declaringType.packageName == sourceType.packageName
