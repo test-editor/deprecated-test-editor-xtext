@@ -34,6 +34,7 @@ abstract class AbstractUnmockedTclValidatorTest extends AbstractParserTest {
 
 	@Before
 	def void setup() {
+		setUpResourceSet
 		new AmlStandaloneSetup().createInjectorAndDoEMFRegistration // needs to be registered to register aml models
 
 		// build component "Dummy" with two interactions, "start" with a string parameter, "wait" with a long parameter
