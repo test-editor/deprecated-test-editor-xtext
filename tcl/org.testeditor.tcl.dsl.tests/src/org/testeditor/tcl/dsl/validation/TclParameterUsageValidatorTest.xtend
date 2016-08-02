@@ -16,12 +16,12 @@ import javax.inject.Inject
 import org.junit.Test
 import org.testeditor.aml.dsl.tests.AmlModelGenerator
 import org.testeditor.tcl.Macro
-import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.TclModel
+import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
+import org.testeditor.tcl.util.TclModelUtil
 
 import static org.testeditor.tcl.TclPackage.Literals.*
-import org.testeditor.tcl.util.TclModelUtil
 
 class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 	
@@ -61,35 +61,24 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				steps += specificationStep("test", "something") => [
 					contexts += macroTestStepContext(macroModel.macroCollection) => [
 						step = testStep("mycall").withReferenceToVariable(myEnvString)
+						verifyVariableTypeUsage(myEnvString.name, #[String.simpleName]) // intermediate model check
 					]
 				]
 				// use macro "othercall" using env param (error expected, since type String is provided and long is expected)
 				steps += specificationStep("test", "other") => [
 					contexts += macroTestStepContext(macroModel.macroCollection) => [
 						step = testStep("othercall").withReferenceToVariable(envVar)
+						verifyVariableTypeUsage(envVar.name, #[long.simpleName]) // intermediate model check
 					]
 				]
 			]
 		]
 		tclModel.register('MyTest.tcl')
-
-		val somethingContext = tclModel.test.steps.head.contexts.head as MacroTestStepContext
-		val otherContext = tclModel.test.steps.last.contexts.head as MacroTestStepContext
-
-		// when
-		val setWithString = tclModelUtil.getAllTypeUsagesOfVariable(somethingContext, "myEnvString")
-		val setWithLong = tclModelUtil.getAllTypeUsagesOfVariable(otherContext, "envVar")
-
-		// then
-		setWithString.assertSize(1)
-		setWithString.head.simpleName.assertEquals(String.simpleName)
-
-		setWithLong.assertSize(1)
-		setWithLong.head.simpleName.assertEquals(long.simpleName)
-
+	
+		// when validator is run, then
 		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_TYPED_VAR_DEREF)
 	}
-
+	
 	@Test
 	def void testIndirectCallVariableTypeChecks() {
 		// given
@@ -115,16 +104,9 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 		macroModel.register("test.tml")
 
 		// call "mycall" with env parameter (which is of type String, transitively expected is type long) ...
-		val tclModel = tclCallingMyCallMacroWithOneEnvParam("myEnvString", macroModel)
+		val tclModel = tclCallingMyCallMacroWithOneEnvParam("myEnvString", macroModel, #[long.simpleName])
 
-		val myCallContext = tclModel.test.steps.head.contexts.head
-
-		// when
-		val setWithLong = tclModelUtil.getAllTypeUsagesOfVariable(myCallContext, "myEnvString")
-
-		// then
-		setWithLong.assertSize(1)
-		setWithLong.head.simpleName.assertEquals(long.simpleName)
+		// when validator is run, then
 		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_TYPED_VAR_DEREF)
 	}
 
@@ -150,19 +132,9 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 
 		// since tcl calls mycall Macro with environment variable (which always has type String)
 		// and this parameter is transitively used for calls in the aml expecting long and String ...
-		val tclModel = tclCallingMyCallMacroWithOneEnvParam("myEnvString", macroModel)
+		val tclModel = tclCallingMyCallMacroWithOneEnvParam("myEnvString", macroModel, #[long.simpleName, String.simpleName])
 
-		val myCallContext = tclModel.test.steps.head.contexts.head
-
-		// when
-		val setWithLong = tclModelUtil.getAllTypeUsagesOfVariable(myCallContext, "myEnvString")
-
-		// then
-		setWithLong.assertSize(2)
-		setWithLong.map[simpleName].toList => [
-			contains(long.simpleName) // one usage expects type long
-			contains(String.simpleName) // one usage expects type String
-		]
+		// when validator is run, then
 		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_TYPED_VAR_DEREF) // since environment variables are of type String, report invalid usage
 	}
 
@@ -187,7 +159,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 		macroModel.register("test.tml")
 		// since tcl calls mycall Macro with environment variable (which always has type String)
 		// and this parameter is transitively used for calls expecting type String ... (no errors expected)
-		val tclModel = tclCallingMyCallMacroWithOneEnvParam("myEnvString", macroModel)
+		val tclModel = tclCallingMyCallMacroWithOneEnvParam("myEnvString", macroModel, #[String.simpleName])
 
 		// then
 		validator.assertNoError(tclModel, TclValidator.INVALID_TYPED_VAR_DEREF)
@@ -252,7 +224,11 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 		]
 	}
 
-	private def TclModel tclCallingMyCallMacroWithOneEnvParam(String envVarString, TclModel tmlModel) {
+	/** 
+	 * create a test that calls "mycall" macro with the reference to an environment variable, validating that
+	 * the parameter is used in positions that expect the passed types (simple names)
+	 */
+	private def TclModel tclCallingMyCallMacroWithOneEnvParam(String envVarString, TclModel tmlModel, Iterable<String> types) {
 		val envVar=environmentVariables(envVarString).head
 		val tclModel = tclModel => [
 			environmentVariables += envVar
@@ -260,12 +236,22 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				steps += specificationStep("test", "something") => [
 					contexts += macroTestStepContext(tmlModel.macroCollection) => [
 						step = testStep("mycall").withReferenceToVariable(envVar)
+						verifyVariableTypeUsage(envVar.name, types)
 					]
 				]
 			]
 		]
 		tclModel.register('MyTest.tcl')
 		return tclModel
+	}
+
+	/**
+	 * verify model to have the expected type usages when querying for a certain variable in a given context
+	 */
+	private def void verifyVariableTypeUsage(TestStepContext context, String variable, Iterable<String> types) {
+		val typeSet = tclModelUtil.getAllTypeUsagesOfVariable(context, variable).map[simpleName].toSet
+		typeSet.assertSize(types.size)
+		types.forEach[ assertTrue(typeSet.contains(it)) ]
 	}
 
 }
