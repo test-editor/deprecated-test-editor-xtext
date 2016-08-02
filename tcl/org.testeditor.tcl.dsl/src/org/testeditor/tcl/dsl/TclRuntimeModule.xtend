@@ -17,10 +17,11 @@ import com.google.inject.name.Names
 import org.eclipse.xtext.parser.antlr.ISyntaxErrorMessageProvider
 import org.eclipse.xtext.scoping.IScopeProvider
 import org.eclipse.xtext.scoping.impl.AbstractDeclarativeScopeProvider
+import org.testeditor.tcl.dsl.conversion.TclValueConverterService
 import org.testeditor.tcl.dsl.messages.TclSyntaxErrorMessageProvider
 import org.testeditor.tcl.dsl.naming.TclQualifiedNameProvider
 import org.testeditor.tcl.dsl.scoping.TclDelegateScopeProvider
-import org.testeditor.tcl.dsl.conversion.TclValueConverterService
+import org.testeditor.tcl.dsl.validation.FileExtensionValidator
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
@@ -43,4 +44,9 @@ class TclRuntimeModule extends AbstractTclRuntimeModule {
 		binder.bind(IScopeProvider).annotatedWith(Names.named(AbstractDeclarativeScopeProvider.NAMED_DELEGATE)).to(
 			TclDelegateScopeProvider)
 	}
+
+	def void configureAdditionalValidators(Binder binder) {
+		binder.bind(FileExtensionValidator).asEagerSingleton
+	}
+
 }

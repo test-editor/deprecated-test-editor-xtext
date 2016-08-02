@@ -15,9 +15,12 @@ package org.testeditor.tcl.dsl.jvmmodel
 import com.google.inject.Inject
 import java.util.Set
 import org.apache.commons.lang3.StringEscapeUtils
+import org.eclipse.xtext.common.types.JvmField
+import org.eclipse.xtext.common.types.JvmGenericType
 import org.eclipse.xtext.common.types.JvmOperation
 import org.eclipse.xtext.common.types.JvmType
 import org.eclipse.xtext.common.types.JvmTypeReference
+import org.eclipse.xtext.common.types.JvmVisibility
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable
 import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
@@ -31,13 +34,13 @@ import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariableReference
 import org.testeditor.tcl.MacroTestStepContext
+import org.testeditor.tcl.SetupAndCleanupProvider
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.StepContentVariableReference
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
-import org.testeditor.tcl.TestCleanup
-import org.testeditor.tcl.TestSetup
+import org.testeditor.tcl.TestConfiguration
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.util.TclModelUtil
@@ -53,67 +56,103 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	@Inject extension TclModelUtil
 	@Inject TclAssertCallBuilder assertCallBuilder
 	@Inject IQualifiedNameProvider nameProvider
+	@Inject JvmModelHelper jvmModelHelper
 
 	def dispatch void infer(TclModel model, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		model.test?.infer(acceptor, isPreIndexingPhase)
+		model.config?.infer(acceptor, isPreIndexingPhase)
 	}
 
-	private def String variableReferenceToVarName(VariableReference varRef) {
-		switch (varRef) {
-			AssignmentVariable: return varRef.name
-			EnvironmentVariableReference: return "env_" + varRef.name
-			default: throw new RuntimeException('''unknown variable reference type='«varRef.class.canonicalName»'.''')
-		}
-	}
+	/**
+	 * First perform common operations like variable initialization and then dispatch to subclass specific operations.
+	 */
+	def dispatch void infer(SetupAndCleanupProvider element, IJvmDeclaredTypeAcceptor acceptor,
+		boolean isPreIndexingPhase) {
+		acceptor.accept(element.toClass(nameProvider.getFullyQualifiedName(element))) [
+			documentation = '''Generated from «element.eResource.URI»'''
 
-	def dispatch void infer(TestCase test, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
-		val envParams = test.model.environmentVariableReferences
-		acceptor.accept(test.toClass(nameProvider.getFullyQualifiedName(test))) [
-			documentation = '''Generated from «test.eResource.URI»'''
+			// Add super type to the element
+			addSuperType(element)
+
 			// Create variables for used fixture types
-			members += test.fixtureTypes.map [ fixtureType |
-				toField(test, fixtureType.fixtureFieldName, fixtureType.typeRef) [
-					initializer = '''new «fixtureType»()'''
-				]
-			]
-			// create variables for required environment variables
-			members += envParams.map [ environmentVariableReference |
-				environmentVariableReference.toField(environmentVariableReference.variableReferenceToVarName,
-					typeRef(String)) [
-					initializer = '''System.getenv("«environmentVariableReference.name»")'''
-				]
-			]
-			if (!envParams.empty) {
-				members += test.toMethod('checkEnvironmentVariablesOnExistence', typeRef(Void.TYPE)) [
-					exceptions += typeRef(Exception)
-					annotations += annotationRef('org.junit.Before') // make sure that junit is in the classpath of the workspace containing the dsl
-					body = [
-						val output = trace(test, true)
-						envParams.forEach[generateEnvironmentVariableAssertion(output)]
-					]
-				]
-			}
+			members += createFixtureVariables(element)
 
 			// Create @Before method if relevant
-			if (test.setup !== null) {
-				members += test.setup.createSetupMethod(envParams)
+			if (element.setup !== null) {
+				members += element.createSetupMethod(envParams)
 			}
 			// Create @After method if relevant
-			if (test.cleanup !== null) {
-				members += test.cleanup.createCleanupMethod(envParams)
+			if (element.cleanup !== null) {
+				members += element.createCleanupMethod(envParams)
 			}
 
-			// Create test method
-			members += test.toMethod('execute', typeRef(Void.TYPE)) [
+			// subclass specific operations
+			infer(element)
+		]
+	}
+
+	private def void addSuperType(JvmGenericType result, SetupAndCleanupProvider element) {
+		if (element instanceof TestCase) {
+			// Inherit from configuration, if set - neet to be done before 
+			if (element.config !== null) {
+				result.superTypes += typeRef(nameProvider.getFullyQualifiedName(element.config).toString)
+			}
+		} // TODO allow explicit definition of super type in TestConfiguration
+	}
+
+	private def dispatch void infer(JvmGenericType result, TestConfiguration element) {
+		result.abstract = true
+	}
+
+	private def dispatch void infer(JvmGenericType result, TestCase element) {
+		// create variables for required environment variables
+		val envParams = element.model.environmentVariableReferences
+		result.members += envParams.map [ environmentVariableReference |
+			environmentVariableReference.toField(environmentVariableReference.variableReferenceToVarName,
+				typeRef(String)) [
+				initializer = '''System.getenv("«environmentVariableReference.name»")'''
+			]
+		]
+		if (!envParams.empty) {
+			result.members += element.toMethod('checkEnvironmentVariablesOnExistence', typeRef(Void.TYPE)) [
 				exceptions += typeRef(Exception)
-				annotations += annotationRef('org.junit.Test') // make sure that junit is in the classpath of the workspace containing the dsl
-				body = [test.generateMethodBody(trace(test, true), envParams)]
+				annotations += annotationRef('org.junit.Before') // make sure that junit is in the classpath of the workspace containing the dsl
+				body = [
+					val output = trace(element, true)
+					envParams.forEach[generateEnvironmentVariableAssertion(output)]
+				]
+			]
+		}
+
+		// Create test method
+		result.members += element.toMethod('execute', typeRef(Void.TYPE)) [
+			exceptions += typeRef(Exception)
+			annotations += annotationRef('org.junit.Test') // make sure that junit is in the classpath of the workspace containing the dsl
+			body = [element.generateMethodBody(trace(element, true), envParams)]
+		]
+	}
+
+	/** 
+	 * Creates variables for all used fixtures minus the ones already inherited
+	 * from the super class. 
+	 */
+	private def Iterable<JvmField> createFixtureVariables(JvmGenericType type, SetupAndCleanupProvider element) {
+		val fixtureTypes = element.fixtureTypes
+		val accessibleSuperFieldTypes = jvmModelHelper.getAllAccessibleSuperTypeFields(type).map[it.type.type]
+		val typesToInstantiate = fixtureTypes.filter[!accessibleSuperFieldTypes.contains(it)]
+		return typesToInstantiate.map [ fixtureType |
+			toField(element, fixtureType.fixtureFieldName, fixtureType.typeRef) [
+				if (element instanceof TestConfiguration) {
+					visibility = JvmVisibility.PROTECTED
+				}
+				initializer = '''new «fixtureType»()'''
 			]
 		]
 	}
 	
-	private def JvmOperation createSetupMethod(TestSetup setup, Iterable<EnvironmentVariableReference> envParams) {
-		return setup.toMethod('setup', typeRef(Void.TYPE)) [
+	private def JvmOperation createSetupMethod(SetupAndCleanupProvider container, Iterable<EnvironmentVariableReference> envParams) {
+		val setup = container.setup
+		return setup.toMethod(container.setupMethodName, typeRef(Void.TYPE)) [
 			exceptions += typeRef(Exception)
 			annotations += annotationRef('org.junit.Before')
 			body = [
@@ -123,8 +162,10 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		]
 	}
 
-	private def JvmOperation createCleanupMethod(TestCleanup cleanup, Iterable<EnvironmentVariableReference> envParams) {
-		return cleanup.toMethod('cleanup', typeRef(Void.TYPE)) [
+	private def JvmOperation createCleanupMethod(SetupAndCleanupProvider container,
+		Iterable<EnvironmentVariableReference> envParams) {
+		val cleanup = container.cleanup
+		return cleanup.toMethod(container.cleanupMethodName, typeRef(Void.TYPE)) [
 			exceptions += typeRef(Exception)
 			annotations += annotationRef('org.junit.After')
 			body = [
@@ -132,6 +173,20 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				cleanup.contexts.forEach[generateContext(output.trace(it), #[], envParams)]
 			]
 		]
+	}
+
+	private def String getSetupMethodName(SetupAndCleanupProvider container) {
+		if (container instanceof TestConfiguration) {
+			return 'setup' + container.name
+		}
+		return 'setup'
+	}
+
+	private def String getCleanupMethodName(SetupAndCleanupProvider container) {
+		if (container instanceof TestConfiguration) {
+			return 'cleanup' + container.name
+		}
+		return 'cleanup'
 	}
 
 	def void generateMethodBody(TestCase test, ITreeAppendable output,
@@ -187,9 +242,18 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	/**
 	 * @return all {@link JvmType} of all fixtures that are referenced.
 	 */
-	private def Set<JvmType> getFixtureTypes(TestCase test) {
-		val allTestStepContexts = test.steps.map[contexts].flatten.filterNull
-		return allTestStepContexts.map[testStepFixtureTypes].flatten.toSet
+	private def Set<JvmType> getFixtureTypes(SetupAndCleanupProvider element) {
+		val contexts = newLinkedList
+		if (element instanceof TestCase) {
+			contexts += element.steps.map[it.contexts].flatten.filterNull
+		}
+		if (element.setup !== null) {
+			contexts += element.setup.contexts
+		}
+		if (element.cleanup !== null) {
+			contexts += element.cleanup.contexts
+		}
+		return contexts.map[testStepFixtureTypes].flatten.toSet
 	}
 
 	private def dispatch Set<JvmType> getTestStepFixtureTypes(ComponentTestStepContext context) {
@@ -311,6 +375,14 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			return #[stepContent.variable.variableReferenceToVarName]
 		} else {
 			throw new RuntimeException('''Environment variable '«stepContent.variable.name»' (always of type String) is used where type '«expectedType.qualifiedName»' is expected.''')
+		}
+	}
+
+	private def String variableReferenceToVarName(VariableReference varRef) {
+		switch (varRef) {
+			AssignmentVariable: return varRef.name
+			EnvironmentVariableReference: return "env_" + varRef.name
+			default: throw new RuntimeException('''unknown variable reference type='«varRef.class.canonicalName»'.''')
 		}
 	}
 

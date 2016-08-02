@@ -166,4 +166,18 @@ class TclModelFormatterTest extends AbstractTclFormatterTest {
 		]
 	}
 
+	@Test
+	def void formatConfigReference() {
+		assertFormatted[
+			expectation = '''
+				package com.example
+				
+				# Test
+				
+				config MyConfig
+			'''.trim
+			toBeFormatted = expectation.toSingleLine
+		]
+	}
+
 }

@@ -72,25 +72,6 @@ class TclValidator extends AbstractTclValidator {
 	private static val ERROR_MESSAGE_FOR_INVALID_VAR_REFERENCE = "Dereferenced variable must be a required environment variable or a previously assigned variable"
 
 	@Check
-	def void tclHasOnlyTestCases(TclModel tclModel) {
-		val fileExtension = tclModel.eResource.URI.fileExtension
-		switch (fileExtension) {
-			case "tcl":
-				if (tclModel.macroCollection != null) {
-					error("this file type may only contain test cases but it contains macro definitions",
-						tclModel.macroCollection, null)
-				}
-			case "tml":
-				if (tclModel.test != null) {
-					error("this file type may only contain macro definitions but it contains test cases",
-						tclModel.test, null)
-				}
-			default:
-				throw new RuntimeException('''unknown file extension (fileExtensions='«fileExtension»')''')
-		}
-	}
-
-	@Check
 	def void referencesComponentElement(StepContentElement contentElement) {
 		val component = contentElement.componentElement
 		if (component === null) {

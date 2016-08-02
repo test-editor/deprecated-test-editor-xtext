@@ -15,15 +15,12 @@ package org.testeditor.tcl.util
 import java.util.List
 import java.util.Map
 import java.util.Set
-import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
-import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.common.types.util.TypeReferences
-import org.eclipse.xtext.resource.XtextResourceSet
 import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.InteractionType
@@ -32,16 +29,17 @@ import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.ValueSpaceAssignment
-import org.testeditor.tcl.AssertionExpression
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariableReference
 import org.testeditor.tcl.Macro
+import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.StepContentVariableReference
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
+import org.testeditor.tcl.TestConfiguration
 import org.testeditor.tcl.TestStep
 import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContent
@@ -52,8 +50,22 @@ import org.testeditor.tsl.util.TslModelUtil
 
 @Singleton
 class TclModelUtil extends TslModelUtil {
+
 	@Inject extension ModelUtil
 	@Inject TypeReferences typeReferences
+
+	/**
+	 * Gets the name of the included element. Order of this operation:
+	 * <ol>
+	 * 	<li>Return the name of the {@link TestCase} if set</li>
+	 * 	<li>Return the name of the {@link TestConfiguration} if set</li>
+	 * 	<li>Return the name of the {@link MacroCollection} if set</li>
+	 * 
+	 * </ol>
+	 */
+	def String getName(TclModel model) {
+		return model.test?.name ?: model.config?.name ?: model.macroCollection?.name
+	}
 
 	override String restoreString(List<StepContent> contents) {
 		return contents.map [
@@ -283,25 +295,6 @@ class TclModelUtil extends TslModelUtil {
 			return root.environmentVariableReferences
 		}
 		return #{}
-	}
-
-	/** 
-	 * register the given model with the resource set (for cross linking)
-	 */
-	def <T extends EObject> T register(T model, XtextResourceSet resourceSet, String fileName, String fileExtension) {
-		val uri = URI.createURI(fileName+"."+fileExtension)
-		register(model, resourceSet, uri)
-	}
-	
-	def <T extends EObject> T register(T model, XtextResourceSet resourceSet, String fileExtension) {
-		val uri = URI.createURI(UUID.randomUUID.toString + "." + fileExtension)
-		register(model, resourceSet, uri)
-	}
-	
-	def <T extends EObject> T register(T model, XtextResourceSet resourceSet, URI uri) {
-		val newResource = resourceSet.createResource(uri)
-		newResource.contents.add(model)
-		return model
 	}
 
 }
