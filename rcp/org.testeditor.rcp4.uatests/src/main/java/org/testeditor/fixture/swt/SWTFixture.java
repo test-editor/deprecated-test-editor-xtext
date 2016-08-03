@@ -124,16 +124,14 @@ public class SWTFixture {
 	}
 
 	/**
-	 * Waits for a dialog with a given title to show up and close. This method
-	 * is intended to be used for waiting for a progress dialog.
+	 * Waits for a dialog with a given title to show up.
 	 * 
 	 * @param title the title of the dialog
 	 */
 	@FixtureMethod
 	public void waitForDialog(String title) {
-		logger.info("Waiting for dialog with title='{}' to show up and close afterwards.", title);
+		logger.info("Waiting for dialog with title='{}' to open.", title);
 		bot.waitUntil(Conditions.shellIsActive(title));
-		bot.waitWhile(Conditions.shellIsActive(title));
 		logger.info("Finished waiting.");
 	}
 
