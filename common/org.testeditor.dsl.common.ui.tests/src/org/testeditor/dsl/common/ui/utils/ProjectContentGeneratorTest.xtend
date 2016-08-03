@@ -14,17 +14,24 @@ package org.testeditor.dsl.common.ui.utils
 
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.xpath.XPathFactory
+import org.eclipse.core.resources.IProject
+import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.xtext.util.StringInputStream
 import org.junit.Test
+import org.mockito.InjectMocks
+import org.mockito.Mock
 import org.testeditor.dsl.common.testing.AbstractTest
+import org.testeditor.dsl.common.ui.gradle.GradleHelper
+
+import static extension org.mockito.Mockito.*
 
 class ProjectContentGeneratorTest extends AbstractTest {
 
+	@InjectMocks ProjectContentGenerator generator
+	@Mock GradleHelper gradleHelper
+
 	@Test
 	def void testGetAvailableFixtureSelections() {
-		// given
-		val generator = new ProjectContentGenerator
-
 		// when 
 		val fixtures = generator.availableFixtureNames
 
@@ -35,9 +42,6 @@ class ProjectContentGeneratorTest extends AbstractTest {
 
 	@Test
 	def void testGetAvailableBuildSystemSelections() {
-		// given
-		val generator = new ProjectContentGenerator
-
 		// when 
 		val buildSystems = generator.availableBuildSystems
 
@@ -49,9 +53,6 @@ class ProjectContentGeneratorTest extends AbstractTest {
 
 	@Test
 	def void testGetPackgeForFixture() {
-		// given 
-		val generator = new ProjectContentGenerator
-
 		// when
 		var validPackageString = generator.getPackage(ProjectContentGenerator.WEBFIXTURE)
 		var invalidPackageString = generator.getPackage("")
@@ -64,7 +65,6 @@ class ProjectContentGeneratorTest extends AbstractTest {
 	@Test
 	def void testGetPackgeForEveryAvailableFixture() {
 		// given 
-		val generator = new ProjectContentGenerator
 		val fixtures = generator.availableFixtureNames
 		val invalidPackage = generator.getPackage("")
 		val packageSet = newHashSet
@@ -81,9 +81,6 @@ class ProjectContentGeneratorTest extends AbstractTest {
 
 	@Test
 	def void testGetMavenDependency() {
-		// given 
-		val generator = new ProjectContentGenerator
-
 		// when
 		val mavenDep = generator.getMavenDependency(ProjectContentGenerator.WEBFIXTURE)
 
@@ -95,7 +92,6 @@ class ProjectContentGeneratorTest extends AbstractTest {
 	@Test
 	def void testGetMavenDependencies() {
 		// given
-		val generator = new ProjectContentGenerator
 		val fixtures = generator.availableFixtureNames
 
 		// when
@@ -109,9 +105,6 @@ class ProjectContentGeneratorTest extends AbstractTest {
 
 	@Test
 	def void testGetInitialAMLContent() {
-		// given 
-		val generator = new ProjectContentGenerator
-
 		// when
 		val initAml = generator.getInitialAMLContent(#[ProjectContentGenerator.WEBFIXTURE], "org.example")
 
@@ -123,7 +116,6 @@ class ProjectContentGeneratorTest extends AbstractTest {
 	@Test
 	def void testGetPom() {
 		// given 
-		val generator = new ProjectContentGenerator
 		val builder = DocumentBuilderFactory.newInstance.newDocumentBuilder
 		val xpath = XPathFactory.newInstance.newXPath
 
@@ -136,6 +128,39 @@ class ProjectContentGeneratorTest extends AbstractTest {
 		assertNotNull(doc)
 		assertEquals("MyWebProject", xpath.evaluate("/project/artifactId", doc))
 		assertTrue(xpath.evaluate("/project/dependencies", doc).contains("web-fixture"))
+	}
+	
+	@Test
+	def void testSetupEclipseMetaData() {
+		// given
+		val project = IProject.mock
+		val monitor = IProgressMonitor.mock
+
+		// when
+		generator.setupEclipseMetaData(project, monitor)
+
+		// then
+		gradleHelper.verify.runTasks(project, "eclipse")
+		project.verify.refreshLocal(IProject.DEPTH_INFINITE, monitor)
+	}
+
+	/**
+	 * If an exception is thrown during the Gradle execution, we want to continue and not
+	 * propagate the exception.
+	 */
+	@Test
+	def void testSetupEclipseMetaDataWithException() {
+		// given
+		val project = IProject.mock
+		val monitor = IProgressMonitor.mock
+		doThrow(new IllegalStateException).when(gradleHelper).runTasks(project.same, any)
+
+		// when
+		generator.setupEclipseMetaData(project, monitor)
+
+		// then
+		gradleHelper.verify.runTasks(project, "eclipse")
+		project.verify.refreshLocal(IProject.DEPTH_INFINITE, monitor)
 	}
 
 }

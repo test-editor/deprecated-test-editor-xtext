@@ -12,10 +12,10 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.ui.utils
 
-import static org.eclipse.xtext.xbase.lib.StringExtensions.isNullOrEmpty;
-
+import com.google.common.annotations.VisibleForTesting
 import java.io.File
 import java.util.List
+import java.util.Properties
 import javax.inject.Inject
 import org.eclipse.core.resources.FileInfoMatcherDescription
 import org.eclipse.core.resources.IFile
@@ -26,13 +26,15 @@ import org.eclipse.core.runtime.CoreException
 import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.m2e.core.MavenPlugin
 import org.eclipse.m2e.core.project.ResolverConfiguration
+import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtext.ui.XtextProjectHelper
 import org.eclipse.xtext.util.StringInputStream
 import org.osgi.framework.FrameworkUtil
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ide.util.FileUtils
-import java.util.Properties
-import org.eclipse.xtend.lib.annotations.Accessors
+import org.testeditor.dsl.common.ui.gradle.GradleHelper
+
+import static org.eclipse.xtext.xbase.lib.StringExtensions.isNullOrEmpty
 
 /**
  * Generator to generate content to a new test project.
@@ -52,6 +54,7 @@ class ProjectContentGenerator {
 
 	@Inject FileLocatorService fileLocatorService
 	@Inject extension ProjectUtils
+	@Inject GradleHelper gradleHelper
 	
 	@Accessors(PUBLIC_GETTER) 
 	IFile demoTclFile
@@ -96,36 +99,18 @@ class ProjectContentGenerator {
 		]
 	}
 
+	@VisibleForTesting
 	protected def void setupEclipseMetaData(IProject project, IProgressMonitor monitor) {
-		val fileExtension = if (System.getProperty("os.name").toLowerCase.startsWith("win")) {
-				".bat"
-			} else {
-				""
-			}
-		val completedFileName = project.location.toOSString + File.separator + "gradlew" + fileExtension
-		if (!new File(completedFileName).canExecute) {
-			logger.warn("completedFileName='{}' is not executable for user='{}'", completedFileName,
-				System.getProperty("user.name"))
-		}
-		val command = #[completedFileName, "eclipse"]
-		val processBuilder = new ProcessBuilder => [
-			inheritIO
-			redirectErrorStream(true)
-			command(command)
-			directory(project.location.toFile)
-		]
-		logger.info("Create eclipse project with gradle command={}", command)
-
+		// Run "gradle eclipse" to create the meta-data
 		try {
-			val result = processBuilder.start.waitFor
-			if (result != 0) {
-				logger.warn("gradle command returned with result='{}'", result)
-			}
+			gradleHelper.runTasks(project, "eclipse")
 		} catch (Exception e) {
-			logger.error("error during gradle command execution", e)
+			logger.error("Execution of 'gradle eclipse' failed with an exception.", e)
 		}
-		logger.debug("Project {} refreshed", project)
+    
+		// Refresh the Eclipse project
 		project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
+		logger.debug("Refreshed project='{}'.", project)
 	}
 
 	protected def void setupGradleProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
