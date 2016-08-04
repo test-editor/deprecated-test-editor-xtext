@@ -1,62 +1,40 @@
 package org.testeditor.tcl.dsl.jvmmodel
 
-import javax.inject.Inject
 import org.junit.Before
 import org.junit.Test
-import org.testeditor.aml.AmlModel
-import org.testeditor.aml.dsl.tests.AmlModelGenerator
 import org.testeditor.dsl.common.testing.DummyFixture
-import org.testeditor.tcl.dsl.tests.TclModelGenerator
 
 class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 
-	@Inject extension AmlModelGenerator
-	@Inject extension TclModelGenerator
-
-	var AmlModel amlModel
-
 	@Before
 	def void parseAmlModel() {
-		amlModel = parseAml(DummyFixture.amlModel)
-		amlModel => [
-			val dummyComponentType = componentType("dummyComponentType") => [
-				interactionTypes += amlModel.interactionTypes.findFirst[name == "start"]
-				interactionTypes += amlModel.interactionTypes.findFirst[name == "getMap"]
-			]
-			componentTypes += dummyComponentType
-
-			components += component("dummyComponent") => [
-				type = dummyComponentType
-				elements += componentElement("dummyElement") => [
-					type = amlModel.componentElementTypes.findFirst[name=="Label"] 
+		parseAml(DummyFixture.amlModel + '''
+			component type dummyComponentType {
+				interactions = start, getMap
+			}
+			component dummyComponent is dummyComponentType {
+				element dummyElement is Label {
 					locator = "dummyLocator"
-				]
-			]
-		]
-		amlModel.assertNoSyntaxErrors
+				}
+			}
+		''').assertNoSyntaxErrors
 	}
 
 	@Test
 	def void testGeneration() {
-		val dummyComponent = amlModel.components.findFirst[name == "dummyComponent"]
-		val tclModel = tclModel => [
-			test = testCase("MyTest") => [
-				// use macro "mycall" using env param (no error, since type String is provided and String is expected)
-				steps += specificationStep("test", "something") => [
-					val assignment = testStepWithAssignment("myMap", "Read", "map", "from").withElement("dummyElement")
-					contexts += componentTestStepContext(dummyComponent) => [
-						steps += assignment
-						steps += testStep("Start", "application") => [
-							contents += variableReferenceMapAccess => [
-								variable = assignment.variable
-								key = "my key"
-							]
-						]
-					]
-				]
-			]
-		]
+		val tclModel = parseTcl('''
+			package com.example
+			
+			# MyTest
+			
+			* test something
+			
+			Component: dummyComponent
+			- myMap = Read map from <dummyElement>
+			- Start application @myMap."my key"
+		''')
 		tclModel.addToResourceSet
+		
 
 		val tclModelCode = tclModel.generate
 
