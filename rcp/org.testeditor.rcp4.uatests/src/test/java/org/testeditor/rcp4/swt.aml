@@ -1,6 +1,7 @@
 package org.testeditor.rcp4
 
 import org.testeditor.fixture.swt.*
+import org.testeditor.fixture.swt.SWTLocatorStrategy
 
 interaction type reportWidgets {
 	template = "Report current visable widgets"
@@ -54,6 +55,18 @@ interaction type click {
 	method = SWTFixture.clickOn(element)
 }
 
+interaction type check {
+	template = "Check" ${element}
+	method = SWTFixture.check(element, locatorStrategy)
+	locatorStrategy = ID
+}
+
+interaction type uncheck {
+	template = "Uncheck" ${element}
+	method = SWTFixture.uncheck(element, locatorStrategy)
+	locatorStrategy = ID
+}
+
 element type View {
 	interactions = isViewVisible
 }
@@ -72,6 +85,10 @@ element type Text {
 
 element type Button {
 	interactions = click
+}
+
+element type CheckBox {
+	interactions = check, uncheck
 }
 
 element type List {

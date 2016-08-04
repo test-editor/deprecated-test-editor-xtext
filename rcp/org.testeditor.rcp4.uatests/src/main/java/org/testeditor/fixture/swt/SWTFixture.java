@@ -29,7 +29,9 @@ import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.finders.ContextMenuHelper;
+import org.eclipse.swtbot.swt.finder.matchers.WithId;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotList;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
@@ -261,6 +263,45 @@ public class SWTFixture {
 		}
 		assertNotNull(button);
 		button.click();
+	}
+
+	/**
+	 * Checks an SWT checkbox.
+	 * 
+	 * @param locator
+	 *            to identify the checkbox
+	 * @param locatorStrategy
+	 *            the strategy to use
+	 */
+	@FixtureMethod
+	public void check(String locator, SWTLocatorStrategy locatorStrategy) {
+		SWTBotCheckBox checkBox = getCheckBox(locator, locatorStrategy);
+		checkBox.select();
+	}
+
+	/**
+	 * Unchecks an SWT checkbox.
+	 * 
+	 * @param locator
+	 *            to identify the checkbox
+	 * @param locatorStrategy
+	 *            the strategy to use
+	 */
+	@FixtureMethod
+	public void uncheck(String locator, SWTLocatorStrategy locatorStrategy) {
+		SWTBotCheckBox checkBox = getCheckBox(locator, locatorStrategy);
+		checkBox.deselect();
+	}
+
+	// TODO would be nicer to use the generic withId(...) but we need Harmcrest on the classpath for that
+	public SWTBotCheckBox getCheckBox(String locator, SWTLocatorStrategy locatorStrategy) {
+		switch (locatorStrategy) {
+		case ID:
+			return bot.checkBoxWithId(locator);
+		case LABEL: 
+			return bot.checkBoxWithLabel(locator);
+		}
+		throw new IllegalArgumentException("Unkown locatorStrategy: " + locatorStrategy);
 	}
 
 	/**

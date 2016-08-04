@@ -73,4 +73,9 @@ component NewDialog is Dialog {
 		label = "Available fixtures list"
 		locator = "[ID]NEW_DIALOG_AVAILABLE_FIXTURE_LIST"
 	}
+	
+	element GenerateWithExamples is CheckBox {
+		locator = "NEW_DIALOG_GENERATE_WITH_EXAMPLES"
+	}
+
 }
