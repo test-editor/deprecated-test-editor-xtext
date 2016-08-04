@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.testeditor.rcp4.tcltestrun
 
+import java.io.OutputStream
+import java.util.List
 import java.util.Map
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
@@ -24,7 +26,6 @@ import org.gradle.tooling.ResultHandler
 import org.gradle.tooling.events.OperationType
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
-import java.util.List
 
 public class TclGradleLauncher implements TclLauncher {
 
@@ -37,7 +38,7 @@ public class TclGradleLauncher implements TclLauncher {
 		'''TEST-«elementId».xml'''
 	}
 
-	override launchTest(List<String> testCases, IProject project, IProgressMonitor monitor,
+	override launchTest(List<String> testCases, IProject project, IProgressMonitor monitor, OutputStream out,
 		Map<String, Object> options) {
 		val elementId = testCases.get(0)
 		monitor.beginTask("Test execution: " + elementId, IProgressMonitor.UNKNOWN)

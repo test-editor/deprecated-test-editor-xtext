@@ -12,8 +12,12 @@
  *******************************************************************************/
 package org.testeditor.rcp4.tcltestrun;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -82,8 +86,8 @@ public class MavenExecutor {
 	 * @throws IOException
 	 *             on failure
 	 */
-	public int executeInNewJvm(String parameters, String pathToPom, String testParam, IProgressMonitor monitor)
-			throws IOException {
+	public int executeInNewJvm(String parameters, String pathToPom, String testParam, IProgressMonitor monitor,
+			OutputStream out) throws IOException {
 		int result = 1; // unspecified error code != 0
 		String jvm = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
 		List<String> command = new ArrayList<String>();
@@ -106,10 +110,11 @@ public class MavenExecutor {
 		ProcessBuilder processBuilder = new ProcessBuilder();
 		processBuilder.inheritIO();
 		processBuilder.directory(new File(pathToPom));
-		processBuilder.redirectErrorStream(true);
+		// processBuilder.redirectErrorStream(true);
 		logger.info("Executing maven in new jvm with command={}", command);
 		processBuilder.command(command);
 		Process process = processBuilder.start();
+		createOutputCopyThread(process.getInputStream(), out).run();
 		try {
 			while (!process.waitFor(100, TimeUnit.MILLISECONDS)) {
 				if (monitor.isCanceled()) {
@@ -121,6 +126,32 @@ public class MavenExecutor {
 			e.printStackTrace();
 		}
 		return result;
+	}
+
+	private Thread createOutputCopyThread(InputStream source, OutputStream out) {
+		return new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				BufferedReader reader = new BufferedReader(new InputStreamReader(source));
+				try {
+					System.err.println("Heyy im Thrwad");
+					// Thread.currentThread().wait(100);
+					while (reader.ready()) {
+						System.err.println("Reader ready");
+						out.write(reader.readLine().getBytes());
+						out.write("\n".getBytes());
+						out.flush();
+						// Thread.currentThread().wait(100);
+					}
+					System.err.println("And bye bye");
+				} catch (IOException e) {
+					e.printStackTrace();
+					// } catch (InterruptedException e) {
+					// e.printStackTrace();
+				}
+			}
+		});
 	}
 
 	/**
@@ -137,7 +168,7 @@ public class MavenExecutor {
 				.findDependencyBundle(MavenPluginActivator.getDefault().getBundle(), "org.eclipse.equinox.common")));
 		Bundle bundle = FrameworkUtil.getBundle(this.getClass());
 		cp.addAll(Bundles.getClasspathEntries(bundle));
-//		Bundle[] bundles = bundle.getBundleContext().getBundles();
+		// Bundle[] bundles = bundle.getBundleContext().getBundles();
 		for (String sname : new String[] { "org.slf4j.api", "org.eclipse.m2e.maven.runtime.slf4j.simple",
 				"javax.inject" }) {
 			Bundle dependency = Bundles.findDependencyBundle(Bundles.findDependencyBundle(

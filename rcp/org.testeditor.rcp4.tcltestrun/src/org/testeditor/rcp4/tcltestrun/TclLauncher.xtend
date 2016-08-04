@@ -4,10 +4,11 @@ import java.util.Map
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.IProgressMonitor
 import java.util.List
+import java.io.OutputStream
 
 interface TclLauncher {
 
-	public def LaunchResult launchTest(List<String> testCases, IProject project, 
-		IProgressMonitor monitor, Map<String, Object> options)
+	public def LaunchResult launchTest(List<String> testCases, IProject project, IProgressMonitor monitor,
+		OutputStream out, Map<String, Object> options)
 
 }
