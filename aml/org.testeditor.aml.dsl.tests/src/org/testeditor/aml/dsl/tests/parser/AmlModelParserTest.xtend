@@ -13,7 +13,6 @@
 package org.testeditor.aml.dsl.tests.parser
 
 import javax.inject.Inject
-import org.junit.Before
 import org.junit.Test
 import org.testeditor.aml.AmlModel
 import org.testeditor.dsl.common.testing.ResourceSetHelper
@@ -25,11 +24,6 @@ class AmlModelParserTest extends AbstractParserTest {
 
 	@Inject extension ResourceSetHelper
 	
-	@Before
-	def void setUp() {
-		setUpResourceSet
-	}
-
 	/**
 	 * Test parsing a minimal model with only a package definition.
 	 */

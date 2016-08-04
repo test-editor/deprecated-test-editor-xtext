@@ -16,7 +16,6 @@ class TclSetupAndCleanupGeneratorIntegrationTest extends AbstractTclGeneratorInt
 
 	@Before
 	def void parseAmlModel() {
-		setUpResourceSet
 		val amlModel = amlParseHelper.parse(DummyFixture.amlModel, resourceSet)
 		amlModel.assertNoSyntaxErrors
 	}

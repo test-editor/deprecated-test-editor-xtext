@@ -34,7 +34,6 @@ class TclModelUtilTest extends AbstractParserTest {
 	@Before
 	def void setup() {		
 		(new AmlStandaloneSetup).createInjectorAndDoEMFRegistration
-		setUpResourceSet
 	}
 
 	@Test

@@ -20,7 +20,6 @@ class FileExtensionValidatorTest extends AbstractMockedTclValidatorTest {
 
 	@Before
 	def void setup() {
-		setUpResourceSet
 		modelWithTestCase = tclModel => [
 			test = testCase("Test")
 		]

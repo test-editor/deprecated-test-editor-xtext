@@ -15,16 +15,15 @@ package org.testeditor.aml.dsl.tests.parser.validation
 import javax.inject.Inject
 import org.junit.Test
 import org.testeditor.aml.dsl.tests.AmlModelGenerator
+import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
 import org.testeditor.aml.dsl.validation.AmlValidator
 import org.testeditor.dsl.common.testing.DummyFixture
 import org.testeditor.dsl.common.testing.DummyLocatorStrategy
+import org.testeditor.dsl.common.testing.ResourceSetHelper
 
 import static org.testeditor.aml.AmlPackage.Literals.*
 import static org.testeditor.aml.dsl.Messages.*
 import static org.testeditor.aml.dsl.validation.AmlValidator.*
-import org.testeditor.dsl.common.testing.ResourceSetHelper
-import org.junit.Before
-import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
 
 /**
  * Tests for {@link AmlValidator}.
@@ -34,11 +33,6 @@ class ValidationTest extends AbstractParserTest {
 	@Inject extension AmlModelGenerator
 	@Inject extension ResourceSetHelper
 	
-	@Before
-	def void setUp() {
-		setUpResourceSet
-	}
-
 	@Test
 	def void validateComponentType() {
 		// Given

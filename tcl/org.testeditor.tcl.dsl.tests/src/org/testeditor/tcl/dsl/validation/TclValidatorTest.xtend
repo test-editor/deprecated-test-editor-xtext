@@ -24,7 +24,6 @@ class TclValidatorTest extends AbstractParserTest {
 	def void initializeAmlParseHelper() {
 		val amlInjector = new AmlStandaloneSetup().createInjectorAndDoEMFRegistration
 		amlParser = amlInjector.getInstance(ParseHelper)
-		setUpResourceSet
 	}
 
 	@Test

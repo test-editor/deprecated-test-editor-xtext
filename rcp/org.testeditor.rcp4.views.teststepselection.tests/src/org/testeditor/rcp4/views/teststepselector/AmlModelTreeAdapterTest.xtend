@@ -13,7 +13,6 @@
 package org.testeditor.rcp4.views.teststepselector
 
 import javax.inject.Inject
-import org.junit.Before
 import org.junit.Test
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
@@ -24,11 +23,6 @@ class AmlModelTreeAdapterTest extends AbstractParserTest {
 	@Inject TestStepSelectorTreeContentProvider amlModelTreeAdapter
 	@Inject extension ResourceSetHelper
 	
-	@Before
-	def void setUp() {
-		setUpResourceSet
-	}
-
 	/**
 	 * Set the input for the content provider and then call getChildren
 	 * with the passed parent element.

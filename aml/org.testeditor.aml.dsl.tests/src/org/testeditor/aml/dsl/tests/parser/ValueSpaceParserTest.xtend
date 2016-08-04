@@ -13,7 +13,6 @@
 package org.testeditor.aml.dsl.tests.parser
 
 import javax.inject.Inject
-import org.junit.Before
 import org.junit.Test
 import org.testeditor.aml.IntegerRange
 import org.testeditor.aml.RegExValueSpace
@@ -24,11 +23,6 @@ class ValueSpaceParserTest extends AbstractParserTest {
 
 	@Inject extension ResourceSetHelper
 	
-	@Before
-	def void setUp() {
-		setUpResourceSet
-	}
-
 	@Test
 	def void parseStringLiterals() {
 		// Given

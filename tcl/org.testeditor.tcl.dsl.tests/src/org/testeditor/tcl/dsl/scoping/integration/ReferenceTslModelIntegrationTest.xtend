@@ -31,7 +31,6 @@ class ReferenceTslModelIntegrationTest extends AbstractParserTest {
 
 	@Before
 	def void setup() {
-		setUpResourceSet
 		val tslInjector = (new TslStandaloneSetup).createInjectorAndDoEMFRegistration
 		tslParser = tslInjector.getInstance(ParseHelper)
 

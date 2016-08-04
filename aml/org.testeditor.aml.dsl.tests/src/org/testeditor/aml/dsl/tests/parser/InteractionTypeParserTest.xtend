@@ -13,7 +13,6 @@
 package org.testeditor.aml.dsl.tests.parser
 
 import javax.inject.Inject
-import org.junit.Before
 import org.junit.Test
 import org.testeditor.aml.InteractionType
 import org.testeditor.aml.TemplateText
@@ -27,11 +26,6 @@ class InteractionTypeParserTest extends AbstractParserTest {
 
 	@Inject extension ResourceSetHelper
 	
-	@Before
-	def void setUp() {
-		setUpResourceSet
-	}
-
 	@Test
 	def void parseMinimal() {
 		// Given

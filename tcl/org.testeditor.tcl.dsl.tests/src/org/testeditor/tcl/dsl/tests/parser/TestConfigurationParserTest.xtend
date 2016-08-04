@@ -1,7 +1,6 @@
 package org.testeditor.tcl.dsl.tests.parser
 
 import com.google.inject.Inject
-import org.junit.Before
 import org.junit.Test
 import org.testeditor.dsl.common.testing.ResourceSetHelper
 
@@ -10,11 +9,6 @@ class TestConfigurationParserTest extends AbstractParserTest {
 
 	@Inject extension ResourceSetHelper
 	
-	@Before
-	def void setUp() {
-		setUpResourceSet
-	}
-
 	@Test
 	def void parseMinimal() {
 		// given

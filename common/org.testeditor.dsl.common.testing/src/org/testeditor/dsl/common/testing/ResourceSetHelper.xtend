@@ -12,14 +12,16 @@ import org.eclipse.xtend.lib.annotations.Accessors
 
 @Accessors
 class ResourceSetHelper {
-	@Inject public Provider<XtextResourceSet> resourceSetProvider
-	@Inject public XtextResourceSet resourceSet
+	public Provider<XtextResourceSet> resourceSetProvider
+	public XtextResourceSet resourceSet
 	
-	def void setUpResourceSet(Object resourceContext) {
-		resourceSet = resourceSetProvider.get
-		resourceSet.classpathURIContext = resourceContext		
+	@Inject
+	new(Provider<XtextResourceSet> resourceSetProvider) {
+		this.resourceSetProvider = resourceSetProvider
+		this.resourceSet = resourceSetProvider.get
+	   	this.resourceSet.classpathURIContext = this
 	}
-		
+	
 	def <T extends EObject> T addToResourceSet(T model) {
 		switch (model) {
 			TclModel: {

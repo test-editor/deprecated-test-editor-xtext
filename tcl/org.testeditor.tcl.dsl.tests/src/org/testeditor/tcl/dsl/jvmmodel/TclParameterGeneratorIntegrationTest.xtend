@@ -19,7 +19,6 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 
 	@Before
 	def void parseAmlModel() {
-		setUpResourceSet
 		amlModel = amlParseHelper.parse(DummyFixture.amlModel, resourceSet)
 		amlModel => [
 			val dummyComponentType = componentType("dummyComponentType") => [

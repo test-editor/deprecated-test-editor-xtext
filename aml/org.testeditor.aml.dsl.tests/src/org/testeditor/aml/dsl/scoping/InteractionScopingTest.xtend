@@ -14,7 +14,6 @@ package org.testeditor.aml.dsl.scoping
 
 import javax.inject.Inject
 import org.eclipse.xtext.diagnostics.Severity
-import org.junit.Before
 import org.junit.Test
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.TemplateVariable
@@ -30,11 +29,6 @@ class InteractionScopingTest extends AbstractParserTest {
 	@Inject extension ModelUtil
 	@Inject extension ResourceSetHelper
 	
-	@Before
-	def void setUp() {
-		setUpResourceSet
-	}
-
 	@Test
 	def void testImportedInteractionScope() {
 		// Given

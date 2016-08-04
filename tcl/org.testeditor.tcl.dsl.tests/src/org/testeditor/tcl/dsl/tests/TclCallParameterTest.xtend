@@ -27,7 +27,6 @@ class TclCallParameterTest extends AbstractTclGeneratorIntegrationTest {
 	def void initMocks() {
 		when(outputStub.trace(any(EObject))).thenReturn(outputStub)
 		when(outputStub.append(any(CharSequence))).thenReturn(outputStub)
-		setUpResourceSet
 	}
 
 	@Test

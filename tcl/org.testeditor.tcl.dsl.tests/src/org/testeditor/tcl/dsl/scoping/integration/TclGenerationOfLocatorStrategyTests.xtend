@@ -31,7 +31,6 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 
 	@Before
 	def void setUp() {
-		setUpResourceSet
 		when(outputStub.trace(any(EObject))).thenReturn(outputStub)
 		when(outputStub.append(any(CharSequence))).thenReturn(outputStub)
 	}
