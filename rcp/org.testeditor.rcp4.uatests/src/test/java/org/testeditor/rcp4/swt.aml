@@ -9,8 +9,13 @@ interaction type reportWidgets {
 
 interaction type wait {
 	label = "wait"
-	template = "wait " ${seconds} "seconds"
+	template = "Wait" ${seconds} "seconds"
 	method = SWTFixture.wait(seconds)
+}
+
+interaction type waitForDialog {
+	template = "Wait for dialog with title" ${title}
+	method = SWTFixture.waitForDialog(title)
 }
 
 interaction type isViewVisible {
@@ -74,9 +79,9 @@ element type List {
 }
 
 component type General {
-	interactions = reportWidgets, wait
+	interactions = reportWidgets, wait, waitForDialog
 }
 
 component type Dialog {
-	interactions = reportWidgets, wait	
+	interactions = reportWidgets, wait, waitForDialog
 }
