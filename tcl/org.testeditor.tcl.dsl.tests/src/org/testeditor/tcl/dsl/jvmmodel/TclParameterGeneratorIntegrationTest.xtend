@@ -10,7 +10,7 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 	def void parseAmlModel() {
 		parseAml(DummyFixture.amlModel + '''
 			component type dummyComponentType {
-				interactions = start, getMap
+				interactions = start, getMap, getValue
 			}
 			component dummyComponent is dummyComponentType {
 				element dummyElement is Label {
@@ -31,7 +31,9 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 			
 			Component: dummyComponent
 			- myMap = Read map from <dummyElement>
+			- myVal = Read value from <dummyElement>
 			- Start application @myMap."my key"
+			- Start application @myVal
 		''')
 		tclModel.addToResourceSet
 		
@@ -60,8 +62,12 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 			    
 			    // - Read map from <dummyElement>
 			    java.util.Map<? extends java.lang.Object, ? extends java.lang.Object> myMap = dummyFixture.getMap("dummyLocator");
+			    // - Read value from <dummyElement>
+			    java.lang.String myVal = dummyFixture.getValue("dummyLocator");
 			    // - Start application @myMap."my key"
 			    dummyFixture.startApplication(myMap.get("my key").toString());
+			    // - Start application @myVal
+			    dummyFixture.startApplication(myVal);
 			  }
 			}
 		'''.toString)
