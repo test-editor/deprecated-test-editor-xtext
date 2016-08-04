@@ -53,7 +53,7 @@ class ProjectContentGeneratorTest extends AbstractTest {
 	}
 
 	@Test
-	def void testGetPackgeForKnownFixture() {
+	def void testGetPackageForKnownFixture() {
 		// when
 		val webPackage = generator.getPackage(ProjectContentGenerator.WEBFIXTURE)
 		val swingPackage = generator.getPackage(ProjectContentGenerator.SWINGFIXTURE)
@@ -64,7 +64,7 @@ class ProjectContentGeneratorTest extends AbstractTest {
 	}
 
 	@Test(expected=IllegalArgumentException)
-	def void testGetPackgeForUnkownFixture() {
+	def void testGetPackageForUnkownFixture() {
 		// when
 		generator.getPackage("unknown")
 	}
