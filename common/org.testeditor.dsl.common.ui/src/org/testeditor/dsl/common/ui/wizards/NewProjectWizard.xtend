@@ -15,14 +15,14 @@ package org.testeditor.dsl.common.ui.wizards
 import javax.inject.Inject
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.eclipse.jface.wizard.IWizardPage
+import org.eclipse.jface.wizard.WizardPage
 import org.eclipse.ui.IWorkbench
+import org.eclipse.ui.PlatformUI
+import org.eclipse.ui.dialogs.WizardNewProjectCreationPage
+import org.eclipse.ui.ide.IDE
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard
 import org.testeditor.dsl.common.ui.utils.ProgressMonitorRunner
 import org.testeditor.dsl.common.ui.utils.ProjectContentGenerator
-import org.eclipse.ui.dialogs.WizardNewProjectCreationPage
-import org.eclipse.jface.wizard.WizardPage
-import org.eclipse.ui.ide.IDE
-import org.eclipse.ui.PlatformUI
 
 /** 
  * Wizard to create a new test project. 
@@ -70,14 +70,13 @@ class NewProjectWizard extends BasicNewProjectResourceWizard {
 		val selectedFixtures = configPage.selectedFixtures
 		val buildSystemName = configPage.buildSystemName
 		val withDemoCode = configPage.withDemoCode
-		if (!configPage.selectedFixtures.isEmpty) {
-			progressMonitorRunner.run [ monitor |
-				projectContentGenerator.createProjectContent(newProject, selectedFixtures, buildSystemName,
-					withDemoCode, monitor)
-			]
-		}
-		if (withDemoCode) {
-			IDE.openEditor(PlatformUI.workbench.activeWorkbenchWindow.activePage, projectContentGenerator.demoTclFile)
+		progressMonitorRunner.run [ monitor |
+			projectContentGenerator.createProjectContent(newProject, selectedFixtures, buildSystemName, withDemoCode, monitor)
+		]
+		val demoTest = projectContentGenerator.demoTclFile
+		if (demoTest !== null) {
+			val activePage = PlatformUI.workbench.activeWorkbenchWindow.activePage
+			IDE.openEditor(activePage, demoTest)
 		}
 		return result
 	}

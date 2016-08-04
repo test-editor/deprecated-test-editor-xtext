@@ -35,7 +35,7 @@ class GradleHelper {
 				logger.debug("Gradle build event='{}'", event.displayName)
 			], OperationType.values)
 			configClosure.accept(build)
-			if(resultHandler !== null) {
+			if (resultHandler !== null) {
 				build.run(resultHandler)
 			} else {
 				build.run
