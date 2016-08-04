@@ -15,6 +15,7 @@ package org.testeditor.rcp4.tcltestrun
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
+import java.util.List
 import java.util.Map
 import javax.inject.Inject
 import org.eclipse.core.resources.IProject
@@ -22,7 +23,6 @@ import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
-import java.util.List
 
 public class TclMavenLauncher implements TclLauncher {
 
@@ -47,12 +47,12 @@ public class TclMavenLauncher implements TclLauncher {
 		// val testCases = createTestCasesCommaList(selection)
 		val result = mavenExecutor.executeInNewJvm(parameters, project.location.toOSString,
 			"test=" + testCases.join(","), monitor)
-		val testResultFile = project.createOrGetDeepFolder(MVN_TEST_RESULT_FOLDER).location.toFile
+		val testResultFolder = project.createOrGetDeepFolder(MVN_TEST_RESULT_FOLDER).location.toFile
 		if (result != 0) {
-			logger.
-				error('''Error during maven build using parameters='«parameters»' and element='«testCases»'.''')
+			logger.error('''Error during maven build using parameters='«parameters»' and element='«testCases»'.''')
+			return new LaunchResult(testResultFolder, false, null)
 		}
-		return new LaunchResult(testResultFile, result, null)
+		return new LaunchResult(testResultFolder)
 	}
 
 	def Iterable<String> getProfiles(IProject project) {
