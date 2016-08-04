@@ -23,6 +23,7 @@ import org.mockito.Mock
 import org.testeditor.dsl.common.testing.AbstractTest
 import org.testeditor.dsl.common.ui.gradle.GradleHelper
 
+import static extension org.mockito.Matchers.*
 import static extension org.mockito.Mockito.*
 
 class ProjectContentGeneratorTest extends AbstractTest {
@@ -52,31 +53,20 @@ class ProjectContentGeneratorTest extends AbstractTest {
 	}
 
 	@Test
-	def void testGetPackgeForFixture() {
+	def void testGetPackgeForKnownFixture() {
 		// when
-		var validPackageString = generator.getPackage(ProjectContentGenerator.WEBFIXTURE)
-		var invalidPackageString = generator.getPackage("")
+		val webPackage = generator.getPackage(ProjectContentGenerator.WEBFIXTURE)
+		val swingPackage = generator.getPackage(ProjectContentGenerator.SWINGFIXTURE)
 
 		// then	
-		assertEquals("org.testeditor.fixture.web.*", validPackageString)
-		assertNotEquals("org.testeditor.fixture.web.*", invalidPackageString)
+		webPackage.assertEquals("org.testeditor.fixture.web")
+		swingPackage.assertEquals("org.testeditor.fixture.swing")
 	}
 
-	@Test
-	def void testGetPackgeForEveryAvailableFixture() {
-		// given 
-		val fixtures = generator.availableFixtureNames
-		val invalidPackage = generator.getPackage("")
-		val packageSet = newHashSet
-
+	@Test(expected=IllegalArgumentException)
+	def void testGetPackgeForUnkownFixture() {
 		// when
-		for (fixture : fixtures) {
-			packageSet.add(generator.getPackage(fixture))
-		}
-
-		// then
-		packageSet.contains(invalidPackage).assertFalse("No invalid package returned for a fixture name")
-		packageSet.size.assertSame(fixtures.size, "Same amount of fixtures and packages")
+		generator.getPackage("unknown")
 	}
 
 	@Test
@@ -106,7 +96,7 @@ class ProjectContentGeneratorTest extends AbstractTest {
 	@Test
 	def void testGetInitialAMLContent() {
 		// when
-		val initAml = generator.getInitialAMLContent(#[ProjectContentGenerator.WEBFIXTURE], "org.example")
+		val initAml = generator.getInitialFileContents("org.example", ProjectContentGenerator.WEBFIXTURE)
 
 		// then
 		assertTrue(initAml.startsWith("package org.example"))
@@ -129,7 +119,7 @@ class ProjectContentGeneratorTest extends AbstractTest {
 		assertEquals("MyWebProject", xpath.evaluate("/project/artifactId", doc))
 		assertTrue(xpath.evaluate("/project/dependencies", doc).contains("web-fixture"))
 	}
-	
+
 	@Test
 	def void testSetupEclipseMetaData() {
 		// given

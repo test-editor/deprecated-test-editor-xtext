@@ -33,6 +33,7 @@ import org.osgi.framework.FrameworkUtil
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ide.util.FileUtils
 import org.testeditor.dsl.common.ui.gradle.GradleHelper
+import org.testeditor.dsl.common.ui.wizards.SwingDemoContentGenerator
 
 import static org.eclipse.xtext.xbase.lib.StringExtensions.isNullOrEmpty
 
@@ -41,48 +42,47 @@ import static org.eclipse.xtext.xbase.lib.StringExtensions.isNullOrEmpty
  */
 class ProjectContentGenerator {
 
+	static public val TEST_EDITOR_VERSION = "1.1.0" // TODO this sucks - extract to VersionHelper and use the newest version
+
 	static public val String MAVEN = "Maven"
 	static public val String GRADLE = "Gradle"
 	static public val String WEBFIXTURE = "Web Fixture"
+	static public val String SWINGFIXTURE = "Swing Fixture"
 	static public val String SRC_FOLDER = 'src/main/java'
 	static public val String SRC_TEST_FOLDER = 'src/test/java'
-
-	// NOT API yet.
-	static val SWINGFIXTURE = "Swing Fixture"
 
 	private static val logger = LoggerFactory.getLogger(ProjectContentGenerator)
 
 	@Inject FileLocatorService fileLocatorService
 	@Inject extension ProjectUtils
 	@Inject GradleHelper gradleHelper
+	@Inject SwingDemoContentGenerator swingDemoContentGenerator
 	
 	@Accessors(PUBLIC_GETTER) 
 	IFile demoTclFile
 
-	def void createProjectContent(IProject project, String[] fixtures, String buildsystem, boolean demo,
-		IProgressMonitor monitor) throws CoreException{
+	def void createProjectContent(IProject project, String[] fixtures, String buildsystem, boolean demo, IProgressMonitor monitor) throws CoreException{
 		project => [
-			val projectMain = SRC_FOLDER + "/" + name
-			val projectTest = SRC_TEST_FOLDER + "/" + name
-			var String amlContent = null
-			var IFile initAml = null
+			// setup project structure
+			val srcMain = SRC_FOLDER + "/" + name
+			val srcTest = SRC_TEST_FOLDER + "/" + name
 			if (buildsystem == MAVEN) {
-				initAml = getFile(projectMain + "/" + name + ".aml")
 				setupMavenProject(fixtures, monitor)
 			}
 			if (buildsystem == GRADLE) {
-				initAml = getFile(projectTest + "/" + name + ".aml")
 				setupGradleProject(fixtures, monitor)
 			}
-			createOrGetDeepFolder(projectMain)
-			createOrGetDeepFolder(projectTest)
+			createOrGetDeepFolder(srcMain)
+			createOrGetDeepFolder(srcTest)
+			
+			// fill project with sample code
 			if (demo) {
-				amlContent = getDemoAMLContent(fixtures, name)
-				fixtures.forEach[createDemoTestCase(project, SRC_TEST_FOLDER, monitor)]
-			} else {
-				amlContent = getInitialAMLContent(fixtures, name)
+				fixtures.forEach[createApplicationCode(project, srcMain, monitor)]
+				fixtures.forEach[createAmlCode(project, srcTest, monitor)]
+				fixtures.forEach[createDemoTestCase(project, srcTest, monitor)]
 			}
-			initAml.create(new StringInputStream(amlContent), IResource.NONE, monitor)
+			
+			// some more technical project setup
 			if (buildsystem == GRADLE) {
 				setupEclipseMetaData(monitor)
 			}
@@ -103,6 +103,7 @@ class ProjectContentGenerator {
 	protected def void setupEclipseMetaData(IProject project, IProgressMonitor monitor) {
 		// Run "gradle eclipse" to create the meta-data
 		try {
+			monitor.taskName = "Initializing Eclipse project."
 			gradleHelper.runTasks(project, "eclipse")
 		} catch (Exception e) {
 			logger.error("Execution of 'gradle eclipse' failed with an exception.", e)
@@ -115,7 +116,7 @@ class ProjectContentGenerator {
 
 	protected def void setupGradleProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
 		var IFile buildFile = project.getFile("build.gradle")
-		createGradleSettings(project, monitor);
+		createGradleSettings(project, monitor)
 		buildFile.create(new StringInputStream(getBuildGradleContent(fixtures)), IResource.NONE, monitor)
 		val name = FrameworkUtil.getBundle(ProjectContentGenerator).symbolicName
 		val bundleLocation = fileLocatorService.findBundleFileLocationAsString(name)
@@ -135,7 +136,7 @@ class ProjectContentGenerator {
 		]
 	}
 
-	def createGradleSettings(IProject project, IProgressMonitor monitor) {
+	private def void createGradleSettings(IProject project, IProgressMonitor monitor) {
 		var Properties props = System.getProperties();
 		if (!isNullOrEmpty(props.getProperty("http.proxyHost"))) {
 			var IFile gradleProperties = project.getFile("gradle.properties")
@@ -143,16 +144,14 @@ class ProjectContentGenerator {
 		}
 	}
 
-	def String getProxyProperties() {
-		'''
+	def String getProxyProperties()  '''
 		systemProp.http.proxyHost=«System.getProperties().getProperty("http.proxyHost")»
 		systemProp.http.proxyPort=«System.getProperties().getProperty("http.proxyPort")»
 		systemProp.http.proxyUser=«System.getProperties().getProperty("http.proxyUser")»
 		systemProp.http.proxyPassword=«System.getProperties().getProperty("http.proxyPassword")»
 		systemProp.https.proxyHost=«System.getProperties().getProperty("https.proxyHost")»
 		systemProp.https.proxyPort=«System.getProperties().getProperty("https.proxyPort")»
-		'''
-	}
+	'''
 
 	protected def void setupMavenProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
 		var IFile buildFile = project.getFile("pom.xml")
@@ -169,104 +168,155 @@ class ProjectContentGenerator {
 		configurationManager.enableMavenNature(project, configuration, monitor)
 	}
 
-	protected def void createDemoTestCase(String fixture, IProject project, String srcFolder,
-		IProgressMonitor monitor) {
-		if (fixture == WEBFIXTURE) {
-			demoTclFile = project.getFile(srcFolder + "/" + project.name + "/GoogleTest.tcl")
-			demoTclFile.create(new StringInputStream(getGoogleTestCase(project.name)), false, monitor)
+	private def void createApplicationCode(String fixture, IProject project, String srcFolder, IProgressMonitor monitor) {
+		if (fixture == SWINGFIXTURE) {
+			val greetingApplication = swingDemoContentGenerator.getSwingApplicationCode(project.name)
+			greetingApplication.write(project, srcFolder, "GreetingApplication.java", monitor)
 		}
 	}
 
-	def String getGoogleTestCase(String packageName) {
-		'''
-		package «packageName»
+	private def void createAmlCode(String fixture, IProject project, String srcFolder, IProgressMonitor monitor) {
+		if (fixture == WEBFIXTURE) {
+			val google = '''
+				«getInitialFileContents(project.name, fixture)»
+				
+				/**
+				 * Application model for the google search site. It contains only the search field and
+				 * binds it to the test-editor web fixture field element.
+				 */
+				component Searchsite is Page {
+					element Searchfield is field {
+						label = "Search field"
+						locator = "q"
+					}
+				}
+			'''
+			google.write(project, srcFolder, "Google.aml", monitor)
+		} else if (fixture == SWINGFIXTURE) {
+			// Write GreetingApplication.aml
+			val greetingApplication = '''
+				«getInitialFileContents(project.name, fixture)»
+				
+				«swingDemoContentGenerator.amlContents»
+			'''
+			greetingApplication.write(project, srcFolder, "GreetingApplication.aml", monitor)
+			
+			// Write Swing.aml
+			val swing = swingDemoContentGenerator.getSwingAmlContents(project.name)
+			swing.write(project, srcFolder, "Swing.aml", monitor)
+		}
+	}
 
-		import org.testeditor.fixture.web.*
-		
+	private def void createDemoTestCase(String fixture, IProject project, String srcFolder, IProgressMonitor monitor) {
+		if (fixture == WEBFIXTURE) {
+			val googleTest = '''
+				«getInitialFileContents(project.name, fixture)»
+
+				«googleTestCase»
+			'''
+			demoTclFile = googleTest.write(project, srcFolder, "GoogleTest.tcl",  monitor)
+		} else if (fixture == SWINGFIXTURE) {
+			val greetingTest = '''
+				«getInitialFileContents(project.name, fixture)»
+				
+				«swingDemoContentGenerator.getTestCase(project.name)»
+			'''
+			demoTclFile = greetingTest.write(project, srcFolder, "GreetingTest.tcl", monitor)
+		}
+	}
+
+	private def IFile write(CharSequence contents, IProject project, String srcFolder, String fileName, IProgressMonitor monitor) {
+		val file = project.getFile('''«srcFolder»/«fileName»''')
+		file.create(new StringInputStream(contents.toString), false, monitor)
+		return file
+	}
+
+	def String getGoogleTestCase() '''
 		/**
-		* This is a  demo Testcase. It is executable and uses the test-editor webfixture to automate a google search.
-		* The google search mask is modelled in an AML file. You can navigate to the aml definitions of fixture code,
-		* by ctrl + mouse click or F3 on the elment.
-		* Some examples: 
+		* This is a  demo test case. It is executable and uses the test-editor webfixture to automate a Google search.
+		* The Google search mask is modelled in an AML file. You can navigate to the aml definitions of fixture code,
+		* by ctrl + mouse click or F3 on an element.
+		*
+		* For example:
 		* - access the google.aml by F3 on 'Component: Searchsite'
-		* - access the webfixture aml by F3 on 'Component: WebBrowser' 
+		* - access the webfixture aml by F3 on 'Component: WebBrowser'
 		*/
 		
-		#GoogleTest 
+		# GoogleTest
 		
-		* Start Brwoser with google search engine.
-		Component: WebBrowser
-		- start browser <Firefox>
-		- Browse to "http://www.google.de"
+		* Start browser and navigate to Google
+		
+			Component: WebBrowser
+			- start browser <Firefox>
+			- Browse to "http://www.google.de"
+		
+		* Search ^for "testeditor"
+		
+			Component: Searchsite
+			- Type in <Searchfield> value "testeditor"
+			- press enter in <Searchfield>
+		
+		* Close browser
+		
+			Component: WebBrowser
+			- Wait "3" seconds
+			- Close browser
+	'''
 
-		* Search with google the Testeditor
-		Component: Searchsite
-		- Type in <Searchfield> value "testeditor"
-		- press enter in <Searchfield>
+	def String getDemoAMLContent(String[] fixtures, String packageName) '''
+		package «packageName»
 
-		* Close Browser
-		Component: WebBrowser
-		- Wait "3" seconds
-		- Close browser		'''
-	}
-
-	def String getDemoAMLContent(String[] fixtures, String packageName) {
-		'''
-			package «packageName»
-
-			«FOR fixture : fixtures»
-				import «getPackage(fixture)»
-			«ENDFOR»
-			«FOR fixture : fixtures»
-				«getDemoAMLComponentsContent(fixture)»
-			«ENDFOR»
-		'''
-	}
+		«FOR fixture : fixtures»
+			import «getPackage(fixture)»
+		«ENDFOR»
+		«FOR fixture : fixtures»
+			«getDemoAMLComponentsContent(fixture)»
+		«ENDFOR»
+	'''
 
 	def String getDemoAMLComponentsContent(String fixture) {
 		if (fixture == WEBFIXTURE) {
 			return '''
 				/**
-				* Application model for the google search site. It contains only the search field and 
-				* binds it to the test-editor web fixture field element.
-				*/
+				 * Application model for the google search site. It contains only the search field and
+				 * binds it to the test-editor web fixture field element.
+				 */
 				component Searchsite is Page {
 					element Searchfield is field {
 						label = "Search field"
-						locator ="q"
-
+						locator = "q"
 					}
 				}
 			'''
-
+		} else if (fixture == SWINGFIXTURE) {
+			return swingDemoContentGenerator.amlContents
 		}
 		return ""
 	}
 
-	def String getInitialAMLContent(String[] fixtures, String packageName) {
-		'''
-			package «packageName»
+	def String getInitialFileContents(String packageName, String... fixturesToImport) '''
+		package «packageName»
 
-			«FOR fixture : fixtures»
-				import «getPackage(fixture)»
-			«ENDFOR»
-		'''
-	}
+		«FOR fixture : fixturesToImport»
+			import «fixture.package».*
+		«ENDFOR»
+	'''
 
-	def String getPackage(String fixtureName) {
+	@VisibleForTesting
+	protected def String getPackage(String fixtureName) {
 		if (fixtureName == WEBFIXTURE) {
-			return "org.testeditor.fixture.web.*"
+			return "org.testeditor.fixture.web"
 		}
 		if (fixtureName == SWINGFIXTURE) {
-			return "org.testeditor.fixture.swing.*"
+			return "org.testeditor.fixture.swing"
 		}
-		return ""
+		throw new IllegalArgumentException("Unknown fixture with name: " + fixtureName)
 	}
 
 	def String getBuildGradleContent(String[] fixtureNames) {
 		'''
 			plugins {
-			    id 'org.testeditor.gradle-plugin' version '0.2'
+			    id 'org.testeditor.gradle-plugin' version '0.3'
 			    id 'maven'
 			    id 'eclipse'
 			}
@@ -283,7 +333,7 @@ class ProjectContentGenerator {
 
 			// Configure the testeditor plugin
 			testeditor {
-				version '1.0.0'
+				version '«TEST_EDITOR_VERSION»'
 			}
 
 			// In this section you declare the dependencies for your production and test code
@@ -332,7 +382,7 @@ class ProjectContentGenerator {
 					<xtext.version>2.9.1</xtext.version>
 					<xtend.version>${xtext.version}</xtend.version>
 
-					<testeditor.version>1.0.0</testeditor.version>
+					<testeditor.version>«TEST_EDITOR_VERSION»</testeditor.version>
 					<testeditor.output>src-gen/test/java</testeditor.output>
 				</properties>
 
@@ -480,6 +530,9 @@ class ProjectContentGenerator {
 											<setup>org.testeditor.tsl.dsl.TslStandaloneSetup</setup>
 										</language>
 										<language>
+											<setup>org.testeditor.tml.dsl.TmlStandaloneSetup</setup>
+										</language>
+										<language>
 											<setup>org.testeditor.tcl.dsl.TclStandaloneSetup</setup>
 											<outputConfigurations>
 												<outputConfiguration>
@@ -506,6 +559,16 @@ class ProjectContentGenerator {
 									<dependency>
 										<groupId>org.testeditor</groupId>
 										<artifactId>org.testeditor.tsl.dsl</artifactId>
+										<version>${testeditor.version}</version>
+									</dependency>
+									<dependency>
+										<groupId>org.testeditor</groupId>
+										<artifactId>org.testeditor.tml.model</artifactId>
+										<version>${testeditor.version}</version>
+									</dependency>
+									<dependency>
+										<groupId>org.testeditor</groupId>
+										<artifactId>org.testeditor.tml.dsl</artifactId>
 										<version>${testeditor.version}</version>
 									</dependency>
 									<dependency>
