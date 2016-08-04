@@ -1,7 +1,6 @@
 package org.testeditor.tcl.dsl.validation
 
 import javax.inject.Inject
-import org.eclipse.xtext.junit4.validation.ValidationTestHelper
 import org.junit.Test
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
 
@@ -10,7 +9,6 @@ import static org.testeditor.tcl.TclPackage.Literals.*
 class TclVarUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 	
 	@Inject extension TclModelGenerator
-	@Inject extension ValidationTestHelper
 
 	@Test
 	def void testForMultipleAssignments() {
@@ -26,7 +24,7 @@ class TclVarUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('Test.tcl')
+		tclModel.addToResourceSet('Test.tcl')
 
 		// then		
 		tclModel.assertError(TEST_STEP, TclValidator.VARIABLE_ASSIGNED_MORE_THAN_ONCE)
@@ -49,7 +47,7 @@ class TclVarUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('Test.tml')
+		tclModel.addToResourceSet('Test.tml')
 
 		// then		
 		tclModel.assertNoErrors 
@@ -72,7 +70,7 @@ class TclVarUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('Test.tcl')
+		tclModel.addToResourceSet('Test.tcl')
 		
 		// then
 		tclModel.assertNoErrors
@@ -103,7 +101,7 @@ class TclVarUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('Test.tcl')
+		tclModel.addToResourceSet('Test.tcl')
 		
 		// then
 		tclModel.assertNoErrors
@@ -125,7 +123,7 @@ class TclVarUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('Test.tml')
+		tclModel.addToResourceSet('Test.tml')
 
 		// then
 		tclModel.assertNoErrors
@@ -149,7 +147,7 @@ class TclVarUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('Test.tml')
+		tclModel.addToResourceSet('Test.tml')
 
 		// then
 		tclModel.assertError(TEST_STEP, TclValidator.INVALID_VAR_DEREF)
@@ -173,7 +171,7 @@ class TclVarUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('Test.tcl')
+		tclModel.addToResourceSet('Test.tcl')
 		
 		// then
 		tclModel.assertError(COMPARISON, TclValidator.INVALID_MAP_ACCESS)
@@ -196,7 +194,7 @@ class TclVarUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('Test.tcl')
+		tclModel.addToResourceSet('Test.tcl')
 		
 		// then
 		tclModel.assertError(TEST_STEP, TclValidator.INVALID_MAP_ACCESS)
@@ -220,7 +218,7 @@ class TclVarUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('Test.tcl')
+		tclModel.addToResourceSet('Test.tcl')
 		
 		// then
 		tclModel.assertNoErrors

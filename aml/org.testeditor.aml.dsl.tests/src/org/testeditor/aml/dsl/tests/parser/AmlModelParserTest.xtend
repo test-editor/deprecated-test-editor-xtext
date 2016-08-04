@@ -12,18 +12,14 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.tests.parser
 
-import javax.inject.Inject
 import org.junit.Test
 import org.testeditor.aml.AmlModel
-import org.testeditor.dsl.common.testing.ResourceSetHelper
 
 /**
  * Parsing tests for {@link AmlModel}.
  */
 class AmlModelParserTest extends AbstractParserTest {
 
-	@Inject extension ResourceSetHelper
-	
 	/**
 	 * Test parsing a minimal model with only a package definition.
 	 */
@@ -35,7 +31,7 @@ class AmlModelParserTest extends AbstractParserTest {
 		'''
 		
 		// When
-		val model = parse(input, resourceSet)
+		val model = parseAml(input)
 		
 		// Then
 		model => [
@@ -60,7 +56,7 @@ class AmlModelParserTest extends AbstractParserTest {
 		'''
 		
 		// When
-		val model = parse(input, resourceSet)
+		val model = parseAml(input)
 		
 		// Then
 		model => [

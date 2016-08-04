@@ -12,10 +12,8 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.tests.parser
 
-import javax.inject.Inject
 import org.junit.Test
 import org.testeditor.aml.Component
-import org.testeditor.dsl.common.testing.ResourceSetHelper
 
 /**
  * Parsing tests for {@link Component}.
@@ -24,8 +22,6 @@ class ComponentParserTest extends AbstractParserTest {
 	
 	val typeName = "Dialog"
 
-	@Inject extension ResourceSetHelper
-	
 	@Test
 	def void parseMinimal() {
 		// Given
@@ -38,7 +34,7 @@ class ComponentParserTest extends AbstractParserTest {
 		'''.addType
 
 		// When + Then
-		#[withoutBrackets, withBrackets].map[parse(Component, resourceSet)].forEach [
+		#[withoutBrackets, withBrackets].map[parseAmlWithStdPackage(Component)].forEach [
 			assertNoErrors
 			name.assertEquals("MyDialog")
 			type.assertNotNull.name.assertEquals(typeName)
@@ -57,7 +53,7 @@ class ComponentParserTest extends AbstractParserTest {
 		'''.addType
 		
 		// When
-		val component = input.parse(Component, resourceSet)
+		val component = input.parseAmlWithStdPackage(Component)
 		
 		// Then
 		component => [
@@ -78,7 +74,7 @@ class ComponentParserTest extends AbstractParserTest {
 		'''.addType
 		
 		// When
-		val component = input.parse(Component, resourceSet)
+		val component = input.parseAmlWithStdPackage(Component)
 		
 		// Then
 		component => [
@@ -97,7 +93,7 @@ class ComponentParserTest extends AbstractParserTest {
 		'''.addType
 		
 		// When
-		val component = input.parse(Component, resourceSet)
+		val component = input.parseAmlWithStdPackage(Component)
 		
 		// Then
 		component => [
@@ -120,7 +116,7 @@ class ComponentParserTest extends AbstractParserTest {
 		'''.addType
 		
 		// When
-		val component = input.parse(Component, resourceSet)
+		val component = input.parseAmlWithStdPackage(Component)
 		
 		// Then
 		component => [
@@ -142,7 +138,7 @@ class ComponentParserTest extends AbstractParserTest {
 		'''.addType
 		
 		// When
-		val component = input.parse(Component, resourceSet)
+		val component = input.parseAmlWithStdPackage(Component)
 		component => [
 			assertNoErrors
 			name.assertEquals(componentName)

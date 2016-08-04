@@ -13,13 +13,11 @@
 package org.testeditor.tcl.dsl.validation
 
 import javax.inject.Inject
-import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.junit4.validation.ValidationTestHelper
 import org.junit.Before
 import org.testeditor.aml.Component
 import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.aml.dsl.tests.common.AmlTestModels
-import org.testeditor.dsl.common.testing.ResourceSetHelper
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 
 abstract class AbstractUnmockedTclValidatorTest extends AbstractParserTest {
@@ -28,8 +26,6 @@ abstract class AbstractUnmockedTclValidatorTest extends AbstractParserTest {
 	@Inject protected ValidationTestHelper validator
 	@Inject protected AmlTestModels amlTestModels
 	
-	@Inject extension ResourceSetHelper
-
 	protected var Component dummyComponent
 
 	@Before
@@ -38,15 +34,9 @@ abstract class AbstractUnmockedTclValidatorTest extends AbstractParserTest {
 
 		// build component "Dummy" with two interactions, "start" with a string parameter, "wait" with a long parameter
 		val amlModel = amlTestModels.dummyComponent(resourceSet)
-		amlModel.register("Test.aml")
+		amlModel.addToResourceSet("Test.aml")
 
 		dummyComponent = amlModel.components.findFirst[name == amlTestModels.COMPONENT_NAME]
 	}
 
-	/** 
-	 * register the given model with the resource set (for cross linking)
-	 */
-	protected def <T extends EObject> T register(T model, String fileName) {
-		model.register(resourceSet, fileName)
-	}
 }

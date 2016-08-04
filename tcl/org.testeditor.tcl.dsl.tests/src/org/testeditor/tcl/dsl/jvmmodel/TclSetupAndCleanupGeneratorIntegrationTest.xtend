@@ -6,18 +6,11 @@ import org.junit.Before
 import org.junit.Test
 import org.testeditor.dsl.common.testing.DummyFixture
 
-import static extension org.eclipse.emf.common.util.URI.createFileURI
-import javax.inject.Inject
-import org.testeditor.dsl.common.testing.ResourceSetHelper
-
 class TclSetupAndCleanupGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationTest {
-
-	@Inject extension ResourceSetHelper	
-
+	
 	@Before
 	def void parseAmlModel() {
-		val amlModel = amlParseHelper.parse(DummyFixture.amlModel, resourceSet)
-		amlModel.assertNoSyntaxErrors
+		parseAml(DummyFixture.amlModel)
 	}
 
 	@Test
@@ -38,7 +31,7 @@ class TclSetupAndCleanupGeneratorIntegrationTest extends AbstractTclGeneratorInt
 			
 			* Test Step
 		'''
-		val tclModel = tclParseHelper.parse(tcl, 'SimpleTest.tcl'.createFileURI, resourceSet)
+		val tclModel = parseTcl(tcl, 'SimpleTest.tcl')
 		tclModel.assertNoSyntaxErrors
 
 		// when
@@ -85,7 +78,7 @@ class TclSetupAndCleanupGeneratorIntegrationTest extends AbstractTclGeneratorInt
 			    
 			  }
 			}
-		'''.toString.replaceAll('\r\n', '\n'))
+		'''.toString)
 	}
 
 	@Test
@@ -116,21 +109,19 @@ class TclSetupAndCleanupGeneratorIntegrationTest extends AbstractTclGeneratorInt
 				- Wait for "3" seconds
 		'''
 
-		val configModel = tclParseHelper.parse(config, 'MyConfig.config'.createFileURI, resourceSet)
-		configModel.assertNoSyntaxErrors
+		val configModel = parseTcl(config, 'MyConfig.config')
 		
 		// TODO improve this code...
 		val configCode = configModel.generate
 		val javaCompiler = new OnTheFlyJavaCompiler2(class.classLoader, JavaVersion.JAVA8)
 		val myConfigClass = javaCompiler.compileToClass('com.example.MyConfig', configCode)
-		val newResourceSet = resourceSetProvider.get
+		val newResourceSet = createNewResourceSet
 		newResourceSet.resources += configModel.eResource
-		amlParseHelper.parse(DummyFixture.amlModel, newResourceSet)
-		newResourceSet.classpathURIContext = myConfigClass.classLoader
+		parseAml(DummyFixture.amlModel, newResourceSet)
+		newResourceSet.classpathURIContext = myConfigClass.classLoader	
 		
 		// when
-		val tclModel = tclParseHelper.parse(tcl, 'SimpleTest.tcl'.createFileURI, newResourceSet)
-		tclModel.assertNoSyntaxErrors
+		val tclModel = parseTcl(tcl, 'SimpleTest.tcl', newResourceSet)
 		val testCode = tclModel.generate
 
 		// then
@@ -166,7 +157,7 @@ class TclSetupAndCleanupGeneratorIntegrationTest extends AbstractTclGeneratorInt
 			    dummyFixture.stopApplication();
 			  }
 			}
-		'''.toString.replaceAll('\r\n', '\n'))
+		'''.toString)
 		testCode.assertEquals('''
 			package com.example;
 			
@@ -189,7 +180,7 @@ class TclSetupAndCleanupGeneratorIntegrationTest extends AbstractTclGeneratorInt
 			    dummyFixture.waitSeconds(3);
 			  }
 			}
-		'''.toString.replaceAll('\r\n', '\n'))
+		'''.toString)
 	}
 
 }

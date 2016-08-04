@@ -19,7 +19,6 @@ import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
 import org.testeditor.aml.dsl.validation.AmlValidator
 import org.testeditor.dsl.common.testing.DummyFixture
 import org.testeditor.dsl.common.testing.DummyLocatorStrategy
-import org.testeditor.dsl.common.testing.ResourceSetHelper
 
 import static org.testeditor.aml.AmlPackage.Literals.*
 import static org.testeditor.aml.dsl.Messages.*
@@ -31,8 +30,7 @@ import static org.testeditor.aml.dsl.validation.AmlValidator.*
 class ValidationTest extends AbstractParserTest {
 
 	@Inject extension AmlModelGenerator
-	@Inject extension ResourceSetHelper
-	
+
 	@Test
 	def void validateComponentType() {
 		// Given
@@ -196,7 +194,7 @@ class ValidationTest extends AbstractParserTest {
 
 
 		// when
-		val amlModel = input.parse(resourceSet)
+		val amlModel = input.parseAml
 
 		// then
 		amlModel.assertError(AML_MODEL, INTERACTION_NAME_DUPLICATION, startOfFirstAbc, lengthOfinteractionType,
@@ -216,7 +214,7 @@ class ValidationTest extends AbstractParserTest {
 			interaction type abc { }
 		'''
 		// when
-		val amlModel = input.parse(resourceSet)
+		val amlModel = input.parseAml
 
 		// then
 		amlModel.assertNoErrors

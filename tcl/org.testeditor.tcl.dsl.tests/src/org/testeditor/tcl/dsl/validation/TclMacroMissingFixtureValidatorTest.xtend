@@ -28,7 +28,7 @@ import static extension org.mockito.Mockito.*
 class TclMacroMissingFixtureValidatorTest extends AbstractMockedTclValidatorTest {
 
 	@Mock JvmParameterizedTypeReference typeReferenceMock
-
+	
 	@Before
 	def void initMocks() {
 		val jvmTypeMock = JvmType.mock
@@ -43,7 +43,7 @@ class TclMacroMissingFixtureValidatorTest extends AbstractMockedTclValidatorTest
 	@Test
 	def void noInfoOnExistingFixture() {
 		// given
-		val tmlFix = parse('''
+		val tmlFix = parseTcl('''
 			package pa
 			# MacroCollection
 			
@@ -65,7 +65,7 @@ class TclMacroMissingFixtureValidatorTest extends AbstractMockedTclValidatorTest
 	@Test
 	def void infoOnMissingFixture() {
 		// given
-		val tmlFix = parse('''
+		val tmlFix = parseTcl('''
 			package pa
 			# MacroCollection
 			

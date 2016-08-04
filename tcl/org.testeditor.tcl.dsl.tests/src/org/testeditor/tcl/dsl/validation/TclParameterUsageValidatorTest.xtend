@@ -29,6 +29,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 	@Inject extension TclModelGenerator
 	@Inject TclModelUtil tclModelUtil
 
+
 	@Test
 	def void testDirectCallVariableTypeChecks() {
 		val macroModel = tclModel => [
@@ -49,7 +50,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		macroModel.register("test.tml")
+		macroModel.addToResourceSet("test.tml")
 
 		val allEnvVars=environmentVariables("envVar", "myEnvString")
 		val envVar = allEnvVars.head
@@ -73,7 +74,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('MyTest.tcl')
+		tclModel.addToResourceSet('MyTest.tcl')
 	
 		// when validator is run, then
 		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_TYPED_VAR_DEREF)
@@ -101,7 +102,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		macroModel.register("test.tml")
+		macroModel.addToResourceSet("test.tml")
 
 		// call "mycall" with env parameter (which is of type String, transitively expected is type long) ...
 		val tclModel = tclCallingMyCallMacroWithOneEnvParam("myEnvString", macroModel, #[long.simpleName])
@@ -128,7 +129,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		macroModel.register("test.tml")
+		macroModel.addToResourceSet("test.tml")
 
 		// since tcl calls mycall Macro with environment variable (which always has type String)
 		// and this parameter is transitively used for calls in the aml expecting long and String ...
@@ -156,7 +157,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		macroModel.register("test.tml")
+		macroModel.addToResourceSet("test.tml")
 		// since tcl calls mycall Macro with environment variable (which always has type String)
 		// and this parameter is transitively used for calls expecting type String ... (no errors expected)
 		val tclModel = tclCallingMyCallMacroWithOneEnvParam("myEnvString", macroModel, #[String.simpleName])
@@ -180,7 +181,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('test.tcl')
+		tclModel.addToResourceSet('test.tcl')
 
 		// when then
 		validator.assertNoErrors(tclModel)
@@ -200,7 +201,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('test.tcl')
+		tclModel.addToResourceSet('test.tcl')
 		
 		// when then
 		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_VAR_DEREF) // since assignment must take place before usage!
@@ -233,7 +234,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				]
 			]
 		]
-		tclModel.register('MyTest.tcl')
+		tclModel.addToResourceSet('MyTest.tcl')
 		return tclModel
 	}
 

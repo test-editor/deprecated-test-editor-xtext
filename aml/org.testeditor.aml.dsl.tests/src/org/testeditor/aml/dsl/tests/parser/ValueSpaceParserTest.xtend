@@ -12,17 +12,13 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.tests.parser
 
-import javax.inject.Inject
 import org.junit.Test
 import org.testeditor.aml.IntegerRange
 import org.testeditor.aml.RegExValueSpace
 import org.testeditor.aml.StringLiterals
-import org.testeditor.dsl.common.testing.ResourceSetHelper
 
 class ValueSpaceParserTest extends AbstractParserTest {
 
-	@Inject extension ResourceSetHelper
-	
 	@Test
 	def void parseStringLiterals() {
 		// Given
@@ -31,7 +27,7 @@ class ValueSpaceParserTest extends AbstractParserTest {
 		'''
 
 		// When + Then
-		stringLiterals.parse(StringLiterals, resourceSet) => [
+		stringLiterals.parseAmlWithStdPackage(StringLiterals) => [
 			assertNoErrors
 			values.assertSize(3)
 			values.get(0).assertEquals("Red")
@@ -48,7 +44,7 @@ class ValueSpaceParserTest extends AbstractParserTest {
 		'''
 
 		// When + Then
-		input.parse(IntegerRange, resourceSet) => [
+		input.parseAmlWithStdPackage(IntegerRange) => [
 			assertNoErrors
 			from.assertEquals(1)
 			to.assertEquals(31)
@@ -63,7 +59,7 @@ class ValueSpaceParserTest extends AbstractParserTest {
 		'''
 
 		// When + Then
-		input.parse(RegExValueSpace, resourceSet) => [
+		input.parseAmlWithStdPackage(RegExValueSpace) => [
 			expression.assertEquals('.*')
 		]
 	}

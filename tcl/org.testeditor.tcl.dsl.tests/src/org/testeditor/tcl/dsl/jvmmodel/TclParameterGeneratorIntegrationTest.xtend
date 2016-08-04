@@ -7,19 +7,17 @@ import org.testeditor.aml.AmlModel
 import org.testeditor.aml.dsl.tests.AmlModelGenerator
 import org.testeditor.dsl.common.testing.DummyFixture
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
-import org.testeditor.dsl.common.testing.ResourceSetHelper
 
 class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 
 	@Inject extension AmlModelGenerator
 	@Inject extension TclModelGenerator
-	@Inject extension ResourceSetHelper	
 
 	var AmlModel amlModel
 
 	@Before
 	def void parseAmlModel() {
-		amlModel = amlParseHelper.parse(DummyFixture.amlModel, resourceSet)
+		amlModel = parseAml(DummyFixture.amlModel)
 		amlModel => [
 			val dummyComponentType = componentType("dummyComponentType") => [
 				interactionTypes += amlModel.interactionTypes.findFirst[name == "start"]
@@ -88,7 +86,7 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 			    dummyFixture.startApplication(myMap.get("my key").toString());
 			  }
 			}
-		'''.toString.replaceAll('\r\n', '\n'))
+		'''.toString)
 	}
 
 }

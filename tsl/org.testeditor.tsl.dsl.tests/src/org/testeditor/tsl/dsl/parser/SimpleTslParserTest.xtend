@@ -29,7 +29,7 @@ class SimpleTslParserTest extends AbstractParserTest {
 		'''
 
 		// expect
-		tsl.parse [
+		tsl.parseTsl => [
 			package.assertEquals('com.example')
 			specification.assertNull
 		]
@@ -45,7 +45,7 @@ class SimpleTslParserTest extends AbstractParserTest {
 		'''
 
 		// expect
-		tsl.parse [
+		tsl.parseTsl => [
 			specification.name.assertEquals('Test')
 		]
 	}
@@ -61,7 +61,7 @@ class SimpleTslParserTest extends AbstractParserTest {
 		'''
 
 		// expect
-		tsl.parse [
+		tsl.parseTsl => [
 			specification.steps.assertSingleElement => [
 				contents.restoreString.assertEquals('Simple spec')
 			]
@@ -81,7 +81,7 @@ class SimpleTslParserTest extends AbstractParserTest {
 		'''
 
 		// expect
-		tsl.parse [
+		tsl.parseTsl => [
 			assertNoSyntaxErrors
 			specification.steps.assertSize(2) => [
 				get(0).contents.restoreString.assertEquals('Simple spec with a * in it')
@@ -110,7 +110,7 @@ class SimpleTslParserTest extends AbstractParserTest {
 		'''
 
 		// expect
-		tsl.parse [
+		tsl.parseTsl => [
 			assertNoSyntaxErrors
 			specification.steps => [
 				assertSize(6)
@@ -136,7 +136,7 @@ class SimpleTslParserTest extends AbstractParserTest {
 		'''
 
 		// expect
-		tsl.parse [
+		tsl.parseTsl => [
 			specification.steps.assertSingleElement => [
 				contents.filter(StepContentVariable).assertSingleElement => [
 					value.assertEquals('Hello World')
@@ -184,7 +184,7 @@ class SimpleTslParserTest extends AbstractParserTest {
 
 		// expect
 		#[tslWithoutNewLines, tslWithSingleNewLines, tslWithMultipleNewLines].forEach [
-			parse [
+			parseTsl => [
 				specification.description.assertEquals('This is a sample description.')
 				specification.steps => [
 					assertSize(2)
@@ -201,7 +201,7 @@ class SimpleTslParserTest extends AbstractParserTest {
 		val tsl = ""
 
 		// expect nothing parsed
-		tsl.parse.assertNull
+		tsl.parseTsl.assertNull
 	}
 
 }

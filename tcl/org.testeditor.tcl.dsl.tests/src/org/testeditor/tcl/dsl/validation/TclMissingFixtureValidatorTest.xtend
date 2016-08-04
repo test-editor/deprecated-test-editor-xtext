@@ -20,11 +20,11 @@ import org.junit.Test
 import org.mockito.Mock
 import org.testeditor.aml.InteractionType
 import org.testeditor.tcl.ComponentTestStepContext
+import org.testeditor.tcl.TestStep
 
 import static org.mockito.Matchers.*
 
 import static extension org.mockito.Mockito.*
-import org.testeditor.tcl.TestStep
 
 class TclMissingFixtureValidatorTest extends AbstractMockedTclValidatorTest {
 
@@ -47,7 +47,7 @@ class TclMissingFixtureValidatorTest extends AbstractMockedTclValidatorTest {
 	@Test
 	def void noInfoOnExistingFixture() {
 		// given
-		val tclFix = parse('''
+		val tclFix = parseTcl('''
 			package pa
 			# Test
 			
@@ -68,7 +68,7 @@ class TclMissingFixtureValidatorTest extends AbstractMockedTclValidatorTest {
 	@Test
 	def void infoOnMissingFixture() {
 		// given
-		val tclFix = parse('''
+		val tclFix = parseTcl('''
 			package pa
 			# Test
 			

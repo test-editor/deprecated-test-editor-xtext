@@ -5,31 +5,32 @@ import java.util.Set
 import javax.inject.Inject
 import org.junit.Before
 import org.junit.Test
+import org.testeditor.aml.AmlModel
 import org.testeditor.aml.Template
+import org.testeditor.aml.TemplateVariable
+import org.testeditor.aml.Variable
 import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.aml.dsl.tests.AmlModelGenerator
 import org.testeditor.aml.dsl.tests.common.AmlTestModels
 import org.testeditor.tcl.AbstractTestStep
+import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
+import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.VariableReference
+import org.testeditor.tcl.dsl.services.TclGrammarAccess
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 import org.testeditor.tsl.StepContentVariable
-import org.testeditor.tcl.TclModel
-import org.testeditor.aml.Variable
-import org.testeditor.aml.TemplateVariable
-import org.testeditor.aml.AmlModel
-import org.testeditor.tcl.MacroCollection
-import org.testeditor.dsl.common.testing.ResourceSetHelper
 
 class TclModelUtilTest extends AbstractParserTest {
 
 	@Inject var TclModelUtil tclModelUtil // class under test
 	@Inject extension TclModelGenerator
 	@Inject extension AmlModelGenerator
-	@Inject extension ResourceSetHelper
 	@Inject var AmlTestModels amlTestModels
+	@Inject protected TclGrammarAccess grammarAccess
+	@Inject extension TclModelUtil
 
 	@Before
 	def void setup() {		
@@ -52,7 +53,7 @@ class TclModelUtilTest extends AbstractParserTest {
 	@Test
 	def void testFindMacroDefinition() {
 		// given
-		val tmlModel = parse( '''
+		val tmlModel = parseTcl( '''
 			package com.example
 			
 			# MyMacroCollection

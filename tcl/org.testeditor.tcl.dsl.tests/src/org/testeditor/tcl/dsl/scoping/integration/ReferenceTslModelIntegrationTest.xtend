@@ -13,28 +13,13 @@
 package org.testeditor.tcl.dsl.scoping.integration
 
 import javax.inject.Inject
-import org.eclipse.xtext.junit4.util.ParseHelper
-import org.junit.Before
 import org.junit.Test
-import org.testeditor.dsl.common.testing.ResourceSetHelper
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
-import org.testeditor.tsl.TslModel
-import org.testeditor.tsl.dsl.TslStandaloneSetup
-
-import static extension org.eclipse.emf.common.util.URI.createFileURI
+import org.testeditor.tcl.util.TclModelUtil
 
 class ReferenceTslModelIntegrationTest extends AbstractParserTest {
-
-	ParseHelper<TslModel> tslParser
 	
-	@Inject extension ResourceSetHelper
-
-	@Before
-	def void setup() {
-		val tslInjector = (new TslStandaloneSetup).createInjectorAndDoEMFRegistration
-		tslParser = tslInjector.getInstance(ParseHelper)
-
-	}
+	@Inject extension TclModelUtil
 
 	private def parseTslModel(String packageName) {
 		val tsl = '''
@@ -43,8 +28,7 @@ class ReferenceTslModelIntegrationTest extends AbstractParserTest {
 			# DummySpec
 			* First step
 		'''
-		val tslModel = tslParser.parse(tsl, 'DummySpec.tsl'.createFileURI, resourceSet)
-		tslModel.assertNoSyntaxErrors
+		val tslModel = parseTsl(tsl, 'DummySpec.tsl').assertNoSyntaxErrors
 		return tslModel
 	}
 
@@ -60,7 +44,7 @@ class ReferenceTslModelIntegrationTest extends AbstractParserTest {
 		'''
 
 		// when
-		val tclModel = parseHelper.parse(tcl, resourceSet)
+		val tclModel = parseTcl(tcl)
 
 		// then
 		tclModel.test.specification.assertSame(tslModel.specification)
@@ -80,7 +64,7 @@ class ReferenceTslModelIntegrationTest extends AbstractParserTest {
 		'''
 
 		// when
-		val tclModel = parseHelper.parse(tcl, resourceSet)
+		val tclModel = parseTcl(tcl)
 
 		// then
 		tclModel.test.specification.assertSame(tslModel.specification)
@@ -98,7 +82,7 @@ class ReferenceTslModelIntegrationTest extends AbstractParserTest {
 			
 			* First step
 		'''
-		val tclModel = parseHelper.parse(tcl, resourceSet)
+		val tclModel = parseTcl(tcl)
 		val firstStepImpl = tclModel.test.steps.assertSingleElement
 
 		// when

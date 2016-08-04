@@ -16,7 +16,7 @@ import javax.inject.Inject
 import org.junit.Ignore
 import org.junit.Test
 import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
-import org.testeditor.dsl.common.testing.ResourceSetHelper
+import org.testeditor.dsl.common.testing.DslParseHelper
 
 /**
  * Tests for importing AML elements.
@@ -29,7 +29,7 @@ class SimpleImportScopingTest extends AbstractParserTest {
 		component type Dialog
 	'''
 	
-	@Inject extension ResourceSetHelper
+	@Inject extension DslParseHelper
 	
 	/**
 	 * It should not be able to reference an element from a different 
@@ -47,8 +47,8 @@ class SimpleImportScopingTest extends AbstractParserTest {
 		'''
 
 		// When
-		val model1 = parse(file1, resourceSet)
-		val model2 = parse(file2, resourceSet)
+		val model1 = parseAml(file1)
+		val model2 = parseAml(file2)
 
 		// Then
 		model1.assertNoErrors
@@ -138,8 +138,8 @@ class SimpleImportScopingTest extends AbstractParserTest {
 	}
 
 	private def void parseAndVerifyLinking(String file1, String file2) {
-		val model1 = parse(file1, resourceSet)
-		val model2 = parse(file2, resourceSet)
+		val model1 = parseAml(file1)
+		val model2 = parseAml(file2)
 
 		// Then
 		model1.assertNoErrors

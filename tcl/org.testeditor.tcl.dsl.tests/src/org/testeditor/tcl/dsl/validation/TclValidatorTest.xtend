@@ -1,30 +1,14 @@
 package org.testeditor.tcl.dsl.validation
 
 import javax.inject.Inject
-import org.eclipse.emf.common.util.URI
-import org.eclipse.xtext.junit4.util.ParseHelper
 import org.eclipse.xtext.junit4.validation.ValidationTestHelper
-import org.junit.Before
 import org.junit.Test
-import org.testeditor.aml.AmlModel
-import org.testeditor.aml.dsl.AmlStandaloneSetup
-import org.testeditor.dsl.common.testing.ResourceSetHelper
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 
 class TclValidatorTest extends AbstractParserTest {
 
-	@Inject extension ResourceSetHelper
-
-	protected ParseHelper<AmlModel> amlParser
-
 	@Inject
 	ValidationTestHelper validator
-
-	@Before
-	def void initializeAmlParseHelper() {
-		val amlInjector = new AmlStandaloneSetup().createInjectorAndDoEMFRegistration
-		amlParser = amlInjector.getInstance(ParseHelper)
-	}
 
 	@Test
 	def void validateStringArray() {
@@ -32,12 +16,12 @@ class TclValidatorTest extends AbstractParserTest {
 		val aml = getAMLWithValueSpace('''#[ "New", "Open" ]''')
 		var tcl = getTCLWithValue("Test", "New")
 
-		amlParser.parse(aml, URI.createURI("swt.aml"), resourceSet)
+		parseAml(aml)
 		var tclError = getTCLWithValue("Test2", "Save")
 		
 		//when
-		var model = parseHelper.parse(tcl, URI.createURI("Test.tcl"), resourceSet)
-		var modelError = parseHelper.parse(tclError, URI.createURI("Test2.tcl"), resourceSet)
+		var model = parseTcl(tcl.toString, "Test.tcl")
+		var modelError = parseTcl(tclError.toString, "Test2.tcl")
 		
 		//then
 		validator.assertNoIssues(model)
@@ -50,12 +34,12 @@ class TclValidatorTest extends AbstractParserTest {
 		val aml = getAMLWithValueSpace("2 ... 5")
 		var tcl = getTCLWithValue("Test", "4")
 
-		amlParser.parse(aml, URI.createURI("swt.aml"), resourceSet)
+		parseAml(aml)
 		var tclError = getTCLWithValue("Test2", "1")
 		
 		//when
-		var model = parseHelper.parse(tcl, URI.createURI("Test.tcl"), resourceSet)
-		var modelError = parseHelper.parse(tclError, URI.createURI("Test2.tcl"), resourceSet)
+		var model = parseTcl(tcl.toString, "Test.tcl")
+		var modelError = parseTcl(tclError.toString, "Test2.tcl")
 
 		//then
 		validator.assertNoIssues(model)
@@ -68,12 +52,12 @@ class TclValidatorTest extends AbstractParserTest {
 		val aml = getAMLWithValueSpace('''"^[a-zA-Z_0-9]"''')
 		var tcl = getTCLWithValue("Test", "h")
 
-		amlParser.parse(aml, URI.createURI("swt.aml"), resourceSet)
+		parseAml(aml)
 		var tclError = getTCLWithValue("Test2", "!!hello")
 
 		//when
-		var model = parseHelper.parse(tcl, URI.createURI("Test.tcl"), resourceSet)
-		var modelError = parseHelper.parse(tclError, URI.createURI("Test2.tcl"), resourceSet)
+		var model = parseTcl(tcl.toString, "Test.tcl")
+		var modelError = parseTcl(tclError.toString, "Test2.tcl")
 
 		//then
 		validator.assertNoIssues(model)

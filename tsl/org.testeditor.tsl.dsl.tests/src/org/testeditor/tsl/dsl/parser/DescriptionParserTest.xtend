@@ -41,7 +41,7 @@ class DescriptionParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val tslModel = tsl.parse
+		val tslModel = tsl.parseTsl
 
 		// then
 		tslModel.assertNoSyntaxErrors

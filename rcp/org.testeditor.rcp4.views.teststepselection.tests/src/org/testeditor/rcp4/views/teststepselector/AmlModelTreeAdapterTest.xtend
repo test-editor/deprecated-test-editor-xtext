@@ -16,12 +16,10 @@ import javax.inject.Inject
 import org.junit.Test
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
-import org.testeditor.dsl.common.testing.ResourceSetHelper
 
 class AmlModelTreeAdapterTest extends AbstractParserTest {
 
 	@Inject TestStepSelectorTreeContentProvider amlModelTreeAdapter
-	@Inject extension ResourceSetHelper
 	
 	/**
 	 * Set the input for the content provider and then call getChildren
@@ -41,7 +39,7 @@ class AmlModelTreeAdapterTest extends AbstractParserTest {
 			component MyApp { }
 			component MyApp2 { }
 		'''
-		val model = parse(input, resourceSet)
+		val model = parseAml(input)
 
 		// when
 		val children = model.package.getChildren(model)
@@ -69,7 +67,7 @@ class AmlModelTreeAdapterTest extends AbstractParserTest {
 			
 			interaction type release { }
 		'''
-		val model = parse(input, resourceSet)
+		val model = parseAml(input)
 		val app = model.components.findFirst[name == "MyApp"].assertNotNull
 		val button = app.elements.findFirst[name == "MyButton"].assertNotNull
 
@@ -117,7 +115,7 @@ class AmlModelTreeAdapterTest extends AbstractParserTest {
 			
 			interaction type release { }
 		'''
-		val model = parse(input, resourceSet)
+		val model = parseAml(input)
 		val myApp = model.components.findFirst[name == "MyApp"].assertNotNull
 
 		// when

@@ -16,18 +16,11 @@ import org.junit.Before
 import org.junit.Test
 import org.testeditor.dsl.common.testing.DummyFixture
 
-import static extension org.eclipse.emf.common.util.URI.createFileURI
-import javax.inject.Inject
-import org.testeditor.dsl.common.testing.ResourceSetHelper
-
 class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationTest {
-
-	@Inject extension ResourceSetHelper
 
 	@Before
 	def void parseAmlModel() {
-		val amlModel = amlParseHelper.parse(DummyFixture.amlModel, resourceSet)
-		amlModel.assertNoSyntaxErrors
+		parseAml(DummyFixture.amlModel)
 	}
 
 	@Test
@@ -38,8 +31,7 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			
 			# SimpleTest
 		'''
-		val tclModel = tclParseHelper.parse(tcl, 'SimpleTest.tcl'.createFileURI, resourceSet)
-		tclModel.assertNoSyntaxErrors
+		val tclModel = parseTcl(tcl, "SimpleTest.tcl")
 
 		// when
 		val generatedCode = tclModel.generate
@@ -60,7 +52,7 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			    
 			  }
 			}
-		'''.toString.replaceAll('\r\n', '\n'))
+		'''.toString)
 	}
 
 	@Test
@@ -78,8 +70,7 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			
 			* Do something different
 		'''
-		val tclModel = tclParseHelper.parse(tcl, 'SimpleTest.tcl'.createFileURI, resourceSet)
-		tclModel.assertNoSyntaxErrors
+		val tclModel = parseTcl(tcl, "SimpleTest.tcl")
 
 		// when
 		val generatedCode = tclModel.generate
@@ -115,7 +106,7 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			    
 			  }
 			}
-		'''.toString.replaceAll('\r\n', '\n'))
+		'''.toString)
 	}
 
 }

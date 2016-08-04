@@ -12,10 +12,8 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.tests.parser
 
-import javax.inject.Inject
 import org.junit.Test
 import org.testeditor.aml.ComponentElement
-import org.testeditor.dsl.common.testing.ResourceSetHelper
 
 /**
  * Parsing tests for {@link ComponentElement}.
@@ -24,8 +22,6 @@ class ComponentElementParserTest extends AbstractParserTest {
 
 	val typeName = "Button"
 
-	@Inject extension ResourceSetHelper
-	
 	@Test
 	def void parseMinimal() {
 		// Given
@@ -38,7 +34,7 @@ class ComponentElementParserTest extends AbstractParserTest {
 		'''.surroundWithComponentAndElementType
 
 		// When + Then
-		#[withoutBrackets, withBrackets].map[parse(ComponentElement,resourceSet)].forEach [
+		#[withoutBrackets, withBrackets].map[parseAmlWithStdPackage(ComponentElement)].forEach [
 			assertNoErrors
 			name.assertEquals("MyButton")
 			type.assertNotNull.name.assertEquals(typeName)
@@ -55,7 +51,7 @@ class ComponentElementParserTest extends AbstractParserTest {
 		'''.surroundWithComponentAndElementType
 
 		// When
-		val element = input.parse(ComponentElement, resourceSet)
+		val element = input.parseAmlWithStdPackage(ComponentElement)
 
 		// Then
 		element => [
@@ -74,7 +70,7 @@ class ComponentElementParserTest extends AbstractParserTest {
 		'''.surroundWithComponentAndElementType
 
 		// When
-		val element = input.parse(ComponentElement, resourceSet)
+		val element = input.parseAmlWithStdPackage(ComponentElement)
 
 		// Then
 		element => [
@@ -94,7 +90,7 @@ class ComponentElementParserTest extends AbstractParserTest {
 		'''.surroundWithComponentAndElementType
 
 		// When
-		val element = input.parse(ComponentElement, resourceSet)
+		val element = input.parseAmlWithStdPackage(ComponentElement)
 
 		// Then
 		element => [

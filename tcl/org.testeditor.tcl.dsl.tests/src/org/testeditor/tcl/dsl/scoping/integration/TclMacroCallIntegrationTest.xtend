@@ -11,13 +11,11 @@ import org.testeditor.tcl.dsl.jvmmodel.TclJvmModelInferrer
 
 import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
-import org.testeditor.dsl.common.testing.ResourceSetHelper
 
 class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 
 	@Inject TclJvmModelInferrer jvmModelInferrer // class under test
 	@Mock ITreeAppendable outputStub
-	@Inject extension ResourceSetHelper	
 
 	@Before
 	def void setUp() {
@@ -29,7 +27,7 @@ class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 	def void testMacroParameterResolutionThroughCallChains() {
 		// given
 		// aml description to make use of a "Dummy" component and its single interaction "start"
-		parseAmlModel('''
+		parseAml('''
 			package org.test
 			
 			import org.testeditor.dsl.common.testing.*
@@ -44,10 +42,10 @@ class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 			}
 			
 			component Dummy is DummyCT {}
-		''', resourceSet)
+		''')
 
 		// macro definitions such that "other" is a macro again which uses "something" which uses an aml component
-		parseTclModel('''
+		parseTcl('''
 			package org.test
 			
 			import org.test.*
@@ -63,10 +61,10 @@ class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 			template = "something" ${param}
 			Component: Dummy
 			- start @param
-		''', resourceSet)
+		''')
 
 		// tcl that uses the macro(template) "other" with parameter "MyApp"
-		val tcl = parseTclModel('''
+		val tcl = parseTcl('''
 			package org.test
 			
 			# Test
@@ -74,7 +72,7 @@ class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 			* my test 
 			Macro: MacroCollection
 			- other "MyApp"
-		''', resourceSet)
+		''')
 
 		// when
 		jvmModelInferrer.generateMethodBody(tcl.test, outputStub, #{})

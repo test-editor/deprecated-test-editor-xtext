@@ -2,12 +2,12 @@ package org.testeditor.tcl.dsl.tests.parser
 
 import com.google.inject.Inject
 import org.junit.Test
-import org.testeditor.dsl.common.testing.ResourceSetHelper
+import org.testeditor.tcl.dsl.tests.AbstractTclTest
+import org.testeditor.dsl.common.testing.DslParseHelper
 
-class TestConfigurationParserTest extends AbstractParserTest {
+class TestConfigurationParserTest extends AbstractTclTest {
 
-
-	@Inject extension ResourceSetHelper
+	@Inject extension DslParseHelper
 	
 	@Test
 	def void parseMinimal() {
@@ -19,7 +19,7 @@ class TestConfigurationParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val model = parseHelper.parse(input)
+		val model = parseTcl(input)
 
 		// then
 		model.assertNoSyntaxErrors
@@ -42,7 +42,7 @@ class TestConfigurationParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val model = parseHelper.parse(input)
+		val model = parseTcl(input)
 
 		// then
 		model.assertNoSyntaxErrors
@@ -65,7 +65,7 @@ class TestConfigurationParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val model = parseHelper.parse(input)
+		val model = parseTcl(input)
 
 		// then
 		model.assertNoSyntaxErrors
@@ -95,7 +95,7 @@ class TestConfigurationParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val model = parseHelper.parse(input)
+		val model = parseTcl(input)
 
 		// then
 		model.assertNoSyntaxErrors
@@ -122,8 +122,8 @@ class TestConfigurationParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val configModel = parseHelper.parse(configSource, resourceSet)
-		val testModel = parseHelper.parse(testSource, resourceSet)
+		val configModel = parseTcl(configSource)
+		val testModel = parseTcl(testSource)
 
 		// then
 		configModel.assertNoSyntaxErrors

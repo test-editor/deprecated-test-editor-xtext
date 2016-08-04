@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.validation
 
+import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.Captor
@@ -23,7 +24,6 @@ import org.testeditor.tcl.TestStep
 import static org.mockito.Matchers.*
 
 import static extension org.mockito.Mockito.*
-import org.junit.Before
 
 class TclMissingMacroValidatorTest extends AbstractMockedTclValidatorTest {
 
@@ -43,7 +43,7 @@ class TclMissingMacroValidatorTest extends AbstractMockedTclValidatorTest {
 	@Test
 	def void noInfoOnExistingMacro() {
 		// given
-		val tmlModel = parse('''
+		val tmlModel = parseTcl('''
 			package pa
 			# MacroCollection
 			
@@ -66,7 +66,7 @@ class TclMissingMacroValidatorTest extends AbstractMockedTclValidatorTest {
 	@Test
 	def void warningOnMissingMacro() {
 		// given
-		val tmlModel = parse('''
+		val tmlModel = parseTcl('''
 			package pa
 			# MacroCollection
 			
