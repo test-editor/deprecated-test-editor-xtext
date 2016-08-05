@@ -12,72 +12,57 @@
  *******************************************************************************/
 package org.testeditor.rcp4.tcltestrun
 
-import java.io.OutputStream
+import java.io.File
 import java.util.List
 import java.util.Map
-import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.IProgressMonitor
+import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 import org.gradle.tooling.GradleConnectionException
-import org.gradle.tooling.GradleConnector
-import org.gradle.tooling.ProjectConnection
 import org.gradle.tooling.ResultHandler
-import org.gradle.tooling.events.OperationType
 import org.slf4j.LoggerFactory
+import org.testeditor.dsl.common.ui.gradle.GradleHelper
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
+import java.io.OutputStream
 
 public class TclGradleLauncher implements TclLauncher {
 
-	static val logger = LoggerFactory.getLogger(TclGradleLauncher)
 	static val GRADLE_TEST_RESULT_FOLDER = "build/test-results"
+	static val logger = LoggerFactory.getLogger(TclGradleLauncher)
 
 	@Inject extension ProjectUtils
+	@Inject GradleHelper gradleHelper
 
-	private def String elementIdToFileName(String elementId) {
-		'''TEST-«elementId».xml'''
+	override launchTest(List<String> testCases, IProject project, IProgressMonitor monitor, OutputStream out, Map<String, Object> options) {
+		val testCase = testCases.head // currently only works with a single test case
+		monitor.beginTask('''Running gradle test for testCase='«testCase»'.''', IProgressMonitor.UNKNOWN)
+
+		val testResultFolder = project.createOrGetDeepFolder(GRADLE_TEST_RESULT_FOLDER).location.toFile
+		val resultHandler = new TclGradleResultHandler(testResultFolder)
+		gradleHelper.run(project.location.toFile, resultHandler) [
+			withArguments("clean", "test", "--tests", testCase) // https://issues.gradle.org/browse/GRADLE-2972
+			// .forTasks("test") // does not work, see issue below
+			// .setStandardOutput(System.out) // alternatively get a separate console output stream (see http://wiki.eclipse.org/FAQ_How_do_I_write_to_the_console_from_a_plug-in%3F)
+		]
+		return resultHandler.result
 	}
 
-	override launchTest(List<String> testCases, IProject project, IProgressMonitor monitor, OutputStream out,
-		Map<String, Object> options) {
-		val elementId = testCases.get(0)
-		monitor.beginTask("Test execution: " + elementId, IProgressMonitor.UNKNOWN)
-		val testResultFile = project.createOrGetDeepFolder(GRADLE_TEST_RESULT_FOLDER).getFile(
-			elementId.elementIdToFileName).location.toFile.parentFile
-		val GradleConnector connector = GradleConnector.newConnector
-		var ProjectConnection connection = null
-		val result = new AtomicReference<LaunchResult>
-		try {
-			val projectFolder = project.location.makeAbsolute.toFile
-			val task = "test"
-			connection = connector.forProjectDirectory(projectFolder).connect();
-			// val BuildEnvironment environment = connection.model(BuildEnvironment).get();
-			connection.newBuild =>
-				[
-					addProgressListener([event|logger.info("Gradle build event='{}'", event.displayName)],
-						OperationType.values)
-					// .forTasks("test") // does not work, see issue below
-					withArguments("clean", task, "--tests", elementId) // https://issues.gradle.org/browse/GRADLE-2972
-					// .setStandardOutput(System.out) // alternatively get a separate console output stream (see http://wiki.eclipse.org/FAQ_How_do_I_write_to_the_console_from_a_plug-in%3F)
-					run(new ResultHandler {
+	@FinalFieldsConstructor
+	private static class TclGradleResultHandler implements ResultHandler<Object> {
 
-						override onComplete(Object obj) {
-							result.set(new LaunchResult(testResultFile, 0, null))
-						}
+		val File testResultFolder
+		LaunchResult result
 
-						override onFailure(GradleConnectionException e) {
-							logger.error('''Caught error during gradle task='«task»' of elementId='«elementId»' ''', e)
-							result.set(new LaunchResult(testResultFile, 1, e))
-						}
-
-					})
-				]
-		} finally {
-			if (connection != null) {
-				connection.close
-			}
+		override onComplete(Object arg0) {
+			result = new LaunchResult(testResultFolder)
 		}
-		return result.get
+
+		override onFailure(GradleConnectionException e) {
+			logger.error('''Caught error during gradle test execution''', e)
+			result = new LaunchResult(testResultFolder, false, e)
+		}
+
 	}
 
 }
