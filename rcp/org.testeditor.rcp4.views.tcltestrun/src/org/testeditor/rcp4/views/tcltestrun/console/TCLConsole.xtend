@@ -13,11 +13,12 @@
 package org.testeditor.rcp4.views.tcltestrun.console
 
 import org.eclipse.ui.console.MessageConsole
+import java.util.Date
 
 class TCLConsole extends MessageConsole {
 
 	new() {
-		super("Text execution log", null)
+		super("Test execution log started on: " + new Date(), null)
 	}
 
 }

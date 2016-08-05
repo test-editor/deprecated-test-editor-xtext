@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -42,6 +43,35 @@ import org.slf4j.LoggerFactory;
 public class MavenExecutor {
 
 	private static Logger logger = LoggerFactory.getLogger(MavenExecutor.class);
+
+	static class OutputStreamCopyUtil implements Runnable {
+
+		private BufferedReader reader;
+		private PrintStream psOut;
+
+		public OutputStreamCopyUtil(InputStream source, OutputStream out) {
+			reader = new BufferedReader(new InputStreamReader(source));
+			psOut = new PrintStream(out);
+		}
+
+		@Override
+		public void run() {
+			try {
+				String message = "";
+				while (message != null) {
+					psOut.println(message);
+					logger.trace(message);
+					Thread.sleep(100);
+					message = reader.readLine();
+				}
+			} catch (IOException e) {
+				logger.error("Cant connect to process ouput stream", e);
+			} catch (InterruptedException e) {
+				logger.trace("Process log copy terminated.");
+			}
+		}
+
+	}
 
 	/**
 	 * Executes the maven build using maven embedder. It allways starts with a
@@ -112,7 +142,7 @@ public class MavenExecutor {
 		logger.info("Executing maven in new jvm with command={}", command);
 		processBuilder.command(command);
 		Process process = processBuilder.start();
-		Thread outputCopyThread = createOutputCopyThread(process.getInputStream(), out);
+		Thread outputCopyThread = new Thread(new OutputStreamCopyUtil(process.getInputStream(), out));
 		outputCopyThread.run();
 		try {
 			while (!process.waitFor(100, TimeUnit.MILLISECONDS)) {
@@ -127,30 +157,6 @@ public class MavenExecutor {
 			e.printStackTrace();
 		}
 		return result;
-	}
-
-	private Thread createOutputCopyThread(InputStream source, OutputStream out) {
-		return new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				BufferedReader reader = new BufferedReader(new InputStreamReader(source));
-				try {
-					String message = "";
-					while (message != null) {
-						out.write((message + "\n").getBytes());
-						out.flush();
-						logger.trace(message);
-						Thread.sleep(100);
-						message = reader.readLine();
-					}
-				} catch (IOException e) {
-					logger.error("Cant connect to process ouput stream", e);
-				} catch (InterruptedException e) {
-					logger.trace("Process log copy terminated.");
-				}
-			}
-		});
 	}
 
 	/**

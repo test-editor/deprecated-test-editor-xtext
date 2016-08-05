@@ -110,8 +110,7 @@ class TclLauncherUi implements Launcher {
 			launcher.class.simpleName, testCasesCommaList.get(0), project)
 		progressRunner.run([ monitor |
 			monitor.beginTask("Test execution: " + testCasesCommaList.get(0), IProgressMonitor.UNKNOWN)
-			consoleFactory.openConsole
-			val con = consoleFactory.lastCreated
+			val con = consoleFactory.createAndShowConsole
 			val result = launcher.launchTest(testCasesCommaList, project, monitor, con.newOutputStream, options)
 			project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
 			if (result.expectedFileRoot == null) {

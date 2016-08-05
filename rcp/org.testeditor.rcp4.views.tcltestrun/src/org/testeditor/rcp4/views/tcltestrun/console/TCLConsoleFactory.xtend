@@ -19,18 +19,17 @@ class TCLConsoleFactory implements IConsoleFactory {
 
 	@Inject
 	ConsoleManagerProvider consoleManagerProvider
-	
-	TCLConsole console
 
 	override openConsole() {
+		createAndShowConsole
+	}
+
+	def TCLConsole createAndShowConsole() {
 		val consoleManager = consoleManagerProvider.getConsoleManager()
-		console = new TCLConsole()
+		val console = new TCLConsole()
 		consoleManager.addConsoles(#[console])
 		consoleManager.showConsoleView(console)
-	}
-	
-	def TCLConsole getLastCreated() {
-		console
+		return console
 	}
 
 }

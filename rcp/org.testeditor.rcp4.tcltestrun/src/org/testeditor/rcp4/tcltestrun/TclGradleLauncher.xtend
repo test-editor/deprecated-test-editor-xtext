@@ -40,7 +40,7 @@ public class TclGradleLauncher implements TclLauncher {
 
 		val testResultFolder = project.createOrGetDeepFolder(GRADLE_TEST_RESULT_FOLDER).location.toFile
 		val resultHandler = new TclGradleResultHandler(testResultFolder)
-		gradleHelper.setOutput(out)
+		gradleHelper.out = out
 		gradleHelper.run(project.location.toFile, resultHandler) [
 			withArguments("clean", "test", "--tests", testCase) // https://issues.gradle.org/browse/GRADLE-2972
 			// .forTasks("test") // does not work, see issue below

@@ -9,8 +9,7 @@
 	<extension
 	      point="org.eclipse.ui.console.consoleFactories">
 	   <consoleFactory
-	         class="org.testeditor.rcp4.views.tcltestrun.console.TCLConsoleFactory"
-	         icon="icons/etool16/my-console.png"
+	         class="org.testeditor.rcp4.views.tcltestrun.ExecutableExtensionFactory:org.testeditor.rcp4.views.tcltestrun.console.TCLConsoleFactory"
 	         label="Test execution console">
 	   </consoleFactory>
 	</extension>
