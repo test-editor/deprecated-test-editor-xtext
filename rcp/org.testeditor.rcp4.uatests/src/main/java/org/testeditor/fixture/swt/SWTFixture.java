@@ -25,6 +25,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
+import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.finders.ContextMenuHelper;
@@ -42,8 +43,8 @@ import org.testeditor.fixture.core.interaction.FixtureMethod;
  */
 public class SWTFixture {
 
-	Logger logger = LogManager.getLogger(SWTFixture.class);
-	SWTWorkbenchBot bot = new SWTWorkbenchBot();
+	private Logger logger = LogManager.getLogger(SWTFixture.class);
+	private SWTWorkbenchBot bot = new SWTWorkbenchBot();
 
 	/**
 	 * Method for debugging the AUT. A first implementation of an widget
@@ -113,15 +114,25 @@ public class SWTFixture {
 	 * 
 	 * @param seconds
 	 *            to wait until continue test.
-	 * @throws NumberFormatException
-	 *             on not parse able time.
 	 * @throws InterruptedException
 	 *             on test abort.
 	 */
 	@FixtureMethod
-	public void wait(String seconds) throws NumberFormatException, InterruptedException {
-		logger.info("wait for:  {}", seconds);
-		Thread.sleep(Long.parseLong(seconds) * 1000);
+	public void wait(int seconds) throws InterruptedException {
+		logger.info("Waiting for {} seconds.", seconds);
+		Thread.sleep(seconds * 1000);
+	}
+
+	/**
+	 * Waits for a dialog with a given title to show up.
+	 * 
+	 * @param title the title of the dialog
+	 */
+	@FixtureMethod
+	public void waitForDialog(String title) {
+		logger.info("Waiting for dialog with title='{}' to open.", title);
+		bot.waitUntil(Conditions.shellIsActive(title));
+		logger.info("Finished waiting.");
 	}
 
 	/**
