@@ -8,6 +8,7 @@ import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ResultHandler
 import org.gradle.tooling.events.OperationType
 import org.slf4j.LoggerFactory
+import java.io.OutputStream
 
 /**
  * Helper class for running Gradle builds.
@@ -15,6 +16,8 @@ import org.slf4j.LoggerFactory
 class GradleHelper {
 
 	private static val logger = LoggerFactory.getLogger(GradleHelper)
+	
+	private OutputStream out;
 
 	def void runTasks(File projectFolder, String... tasks) {
 		logger.info("Running gradle build with tasks='{}'.", tasks)
@@ -33,6 +36,8 @@ class GradleHelper {
 			val build = connector.newBuild
 			build.addProgressListener([ event |
 				logger.debug("Gradle build event='{}'", event.displayName)
+				out.write((event.displayName+"\n").bytes)
+				out.flush
 			], OperationType.values)
 			configClosure.accept(build)
 			if (resultHandler !== null) {
@@ -59,6 +64,10 @@ class GradleHelper {
 
 	private def File toFile(IProject project) {
 		return project.location.toFile
+	}
+	
+	def setOutput(OutputStream stream) {
+		out = stream
 	}
 
 }
