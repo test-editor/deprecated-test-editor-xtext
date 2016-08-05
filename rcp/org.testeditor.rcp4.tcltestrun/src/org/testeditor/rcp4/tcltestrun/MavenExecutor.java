@@ -108,20 +108,21 @@ public class MavenExecutor {
 			command.add("-o");
 		}
 		ProcessBuilder processBuilder = new ProcessBuilder();
-		processBuilder.inheritIO();
 		processBuilder.directory(new File(pathToPom));
-		// processBuilder.redirectErrorStream(true);
 		logger.info("Executing maven in new jvm with command={}", command);
 		processBuilder.command(command);
 		Process process = processBuilder.start();
-		createOutputCopyThread(process.getInputStream(), out).run();
+		Thread outputCopyThread = createOutputCopyThread(process.getInputStream(), out);
+		outputCopyThread.run();
 		try {
 			while (!process.waitFor(100, TimeUnit.MILLISECONDS)) {
 				if (monitor.isCanceled()) {
+					outputCopyThread.interrupt();
 					process.destroy();
 				}
 			}
 			result = process.exitValue();
+			outputCopyThread.interrupt();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -135,20 +136,18 @@ public class MavenExecutor {
 			public void run() {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(source));
 				try {
-					System.err.println("Heyy im Thrwad");
-					// Thread.currentThread().wait(100);
-					while (reader.ready()) {
-						System.err.println("Reader ready");
-						out.write(reader.readLine().getBytes());
-						out.write("\n".getBytes());
+					String message = "";
+					while (message != null) {
+						out.write((message + "\n").getBytes());
 						out.flush();
-						// Thread.currentThread().wait(100);
+						logger.trace(message);
+						Thread.sleep(100);
+						message = reader.readLine();
 					}
-					System.err.println("And bye bye");
 				} catch (IOException e) {
-					e.printStackTrace();
-					// } catch (InterruptedException e) {
-					// e.printStackTrace();
+					logger.error("Cant connect to process ouput stream", e);
+				} catch (InterruptedException e) {
+					logger.trace("Process log copy terminated.");
 				}
 			}
 		});
@@ -168,7 +167,6 @@ public class MavenExecutor {
 				.findDependencyBundle(MavenPluginActivator.getDefault().getBundle(), "org.eclipse.equinox.common")));
 		Bundle bundle = FrameworkUtil.getBundle(this.getClass());
 		cp.addAll(Bundles.getClasspathEntries(bundle));
-		// Bundle[] bundles = bundle.getBundleContext().getBundles();
 		for (String sname : new String[] { "org.slf4j.api", "org.eclipse.m2e.maven.runtime.slf4j.simple",
 				"javax.inject" }) {
 			Bundle dependency = Bundles.findDependencyBundle(Bundles.findDependencyBundle(
