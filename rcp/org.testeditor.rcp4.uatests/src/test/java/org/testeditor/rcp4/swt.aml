@@ -79,9 +79,9 @@ element type List {
 }
 
 component type General {
-	interactions = reportWidgets, wait, waitForDialog
+	interactions = reportWidgets, wait, waitForDialogClosing
 }
 
 component type Dialog {
-	interactions = reportWidgets, wait, waitForDialog
+	interactions = reportWidgets, wait, waitForDialogClosing
 }
