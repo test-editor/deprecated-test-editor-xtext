@@ -131,7 +131,7 @@ public class SWTFixture {
 	 *            the title of the dialog
 	 */
 	@FixtureMethod
-	public void waitForDialog(String title) {
+	public void waitForDialogClosing(String title) {
 		logger.info("Waiting for dialog with title='{}' to open.", title);
 		try {
 			SWTBotShell shell = bot.shell(title);
