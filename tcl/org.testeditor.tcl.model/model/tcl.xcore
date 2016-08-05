@@ -20,7 +20,7 @@ package org.testeditor.tcl
 import org.eclipse.xtext.xtype.XImportSection
 import org.testeditor.aml.Component
 import org.testeditor.aml.Template
-import org.testeditor.aml.VariableReference
+import org.testeditor.aml.Variable
 import org.testeditor.dsl.common.NamedElement
 import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContent
@@ -30,7 +30,7 @@ import org.testeditor.tsl.TestSpecification
 class TclModel {
 	String ^package
 	contains XImportSection importSection
-	contains EnvironmentVariableReference[0..*] environmentVariableReferences
+	contains EnvironmentVariable[0..*] environmentVariables
 	contains TestCase test opposite model
 	contains MacroCollection macroCollection opposite model
 	contains TestConfiguration config
@@ -59,7 +59,7 @@ class SpecificationStepImplementation extends SpecificationStep, StepContainer {
 	container derived TestCase test opposite steps
 }
 
-class EnvironmentVariableReference extends VariableReference {
+class EnvironmentVariable extends Variable {
 }
 
 /*
@@ -92,64 +92,65 @@ abstract class TestStepContext {
 
 class ComponentTestStepContext extends TestStepContext {
 	refers Component component
-	contains TestStep[0..*] steps
+	contains AbstractTestStep[0..*] steps
 }
 
 class MacroTestStepContext extends TestStepContext {
 	refers MacroCollection macroCollection
-	contains TestStep step
+	contains AbstractTestStep step
 }
 
-class TestStep {
+abstract class AbstractTestStep {	
+}
+
+class TestStep extends AbstractTestStep {
 	contains StepContent[0..*] contents
 }
 
-class AssertionTestStep extends TestStep {
-	contains AssertionExpression expression
+class AssertionTestStep extends AbstractTestStep {
+	contains Expression assertExpression
 }
 
-abstract class AssertionExpression {
+abstract class Expression {
 }
 
-class BinaryAssertionExpression extends AssertionExpression {
-	contains AssertionExpression left
-	contains AssertionExpression right
+abstract class BinaryExpression extends Expression {
+	contains Expression left
+	contains Expression right
 }
 
-class AEComparison extends BinaryAssertionExpression {
+class Comparison extends BinaryExpression {
 	contains Comparator comparator
 }
 
-class AENullOrBoolCheck extends AssertionExpression {
-	contains AEVariableReference varReference
+class NullOrBoolCheck extends Expression {
+	contains VariableReference variableReference
 	boolean negated = "false"
 }
 
-class AEVariableReference extends AssertionExpression {
-	refers AssignmentVariable variable
-	String key // only != null if: map.key
+class VariableReference extends Expression, StepContent {
+	refers Variable variable
 }
 
-class AEStringConstant extends AssertionExpression {
+class VariableReferenceMapAccess extends VariableReference {
+	String key
+}
+
+class StringConstant extends Expression {
 	String string
 }
 
 class TestStepWithAssignment extends TestStep {
-	contains AssignmentVariable variable opposite testStep
+	contains AssignmentVariable variable
 }
 
-class AssignmentVariable extends VariableReference {
-	container TestStepWithAssignment testStep opposite variable
-}
-
-class StepContentVariableReference extends StepContent {
-	refers VariableReference variable
+class AssignmentVariable extends Variable {
 }
 
 class StepContentElement extends StepContentValue {
 }
 
-class Comparator {
+abstract class Comparator {
 	boolean negated = "false"
 }
 

@@ -16,9 +16,9 @@ import javax.inject.Inject
 import org.junit.Test
 import org.testeditor.aml.AmlFactory
 import org.testeditor.aml.TemplateContent
-import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
+import org.testeditor.aml.dsl.tests.AbstractAmlTest
 
-class AmlModelLabelProviderTest extends AbstractParserTest {
+class AmlModelLabelProviderTest extends AbstractAmlTest {
 
 	@Inject
 	AmlModelLabelProvider amlModelLabelProvider

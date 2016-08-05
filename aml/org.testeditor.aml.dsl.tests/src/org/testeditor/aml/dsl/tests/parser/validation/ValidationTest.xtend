@@ -15,6 +15,7 @@ package org.testeditor.aml.dsl.tests.parser.validation
 import javax.inject.Inject
 import org.junit.Test
 import org.testeditor.aml.dsl.tests.AmlModelGenerator
+import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
 import org.testeditor.aml.dsl.validation.AmlValidator
 import org.testeditor.dsl.common.testing.DummyFixture
 import org.testeditor.dsl.common.testing.DummyLocatorStrategy
@@ -26,14 +27,14 @@ import static org.testeditor.aml.dsl.validation.AmlValidator.*
 /**
  * Tests for {@link AmlValidator}.
  */
-class ValidationTest extends AbstractValidationTest {
+class ValidationTest extends AbstractParserTest {
 
 	@Inject extension AmlModelGenerator
 
 	@Test
 	def void validateComponentType() {
 		// Given
-		val component = component("MyComponent").addToResourceSet
+		val component = component("MyComponent").addToResourceSet("Dummy.aml")
 
 		// Expect
 		component.assertError(COMPONENT, COMPONENT__TYPE__MISSING, Validation_Component_Type_Missing)
@@ -42,7 +43,7 @@ class ValidationTest extends AbstractValidationTest {
 	@Test
 	def void regExValueSpace() {
 		// Given
-		val valueSpace = regExValueSpace("${").addToResourceSet
+		val valueSpace = regExValueSpace("${").addToResourceSet("Dummy.aml")
 
 		// Expect
 		valueSpace.assertError(
@@ -67,7 +68,7 @@ class ValidationTest extends AbstractValidationTest {
 				locatorStrategy = locatorStrategy(resourceSet, DummyLocatorStrategy, "SINGLE")
 			]
 		]
-		amlModel.addToResourceSet
+		amlModel.addToResourceSet("Dummy.aml")
 		val interactionType = amlModel.interactionTypes.head
 
 		// expect
@@ -103,7 +104,7 @@ class ValidationTest extends AbstractValidationTest {
 				]
 			]
 		]
-		amlModel.addToResourceSet
+		amlModel.addToResourceSet("Dummy.aml")
 		val elementNewButton = amlModel.components.head.elements.head
 
 		// expect
@@ -137,7 +138,7 @@ class ValidationTest extends AbstractValidationTest {
 				]
 			]
 		]
-		amlModel.addToResourceSet
+		amlModel.addToResourceSet("Dummy.aml")
 
 		// expect
 		amlModel.assertError(
@@ -171,7 +172,7 @@ class ValidationTest extends AbstractValidationTest {
 				]
 			]
 		]
-		amlModel.addToResourceSet
+		amlModel.addToResourceSet("Dummy.aml")
 
 		// expect
 		amlModel.assertNoErrors
@@ -193,7 +194,7 @@ class ValidationTest extends AbstractValidationTest {
 
 
 		// when
-		val amlModel = input.parse
+		val amlModel = input.parseAml
 
 		// then
 		amlModel.assertError(AML_MODEL, INTERACTION_NAME_DUPLICATION, startOfFirstAbc, lengthOfinteractionType,
@@ -213,7 +214,7 @@ class ValidationTest extends AbstractValidationTest {
 			interaction type abc { }
 		'''
 		// when
-		val amlModel = input.parse
+		val amlModel = input.parseAml
 
 		// then
 		amlModel.assertNoErrors

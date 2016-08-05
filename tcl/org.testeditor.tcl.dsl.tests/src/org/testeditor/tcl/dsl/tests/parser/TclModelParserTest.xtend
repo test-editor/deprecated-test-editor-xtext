@@ -13,10 +13,6 @@
 package org.testeditor.tcl.dsl.tests.parser
 
 import org.junit.Test
-import org.testeditor.tcl.AEComparison
-import org.testeditor.tcl.AENullOrBoolCheck
-import org.testeditor.tcl.AEStringConstant
-import org.testeditor.tcl.AEVariableReference
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.ComparatorMatches
 import org.testeditor.tcl.ComponentTestStepContext
@@ -25,11 +21,22 @@ import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclPackage
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepWithAssignment
+import org.testeditor.tcl.VariableReference
 import org.testeditor.tsl.StepContentVariable
 
 import static extension org.eclipse.xtext.nodemodel.util.NodeModelUtils.*
+import org.testeditor.tcl.NullOrBoolCheck
+import org.testeditor.tcl.Comparison
+import org.testeditor.tcl.StringConstant
+import javax.inject.Inject
+import org.testeditor.tcl.dsl.tests.AbstractTclTest
+import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.dsl.common.testing.DslParseHelper
 
-class TclModelParserTest extends AbstractParserTest {
+class TclModelParserTest extends AbstractTclTest {
+	
+	@Inject extension DslParseHelper
+	@Inject extension TclModelUtil
 	
 	@Test
 	def void parseMinimal() {
@@ -39,7 +46,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 		
 		// when
-		val model = parseHelper.parse(input)
+		val model = parseTcl(input)
 		
 		// then
 		model.package.assertEquals('com.example')
@@ -57,7 +64,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 		
 		// when
-		val tcl = parse(input)
+		val tcl = parseTcl(input)
 		
 		// then
 		tcl.test.name.assertEquals('MyTest')
@@ -77,7 +84,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 		
 		// when
-		val test = parse(input).test
+		val test = parseTcl(input).test
 		
 		// then
 		test.steps.assertSingleElement => [
@@ -102,7 +109,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 		
 		// when
-		val test = parse(input).test
+		val test = parseTcl(input).test
 		
 		// then
 		test.steps.assertSingleElement => [
@@ -110,10 +117,10 @@ class TclModelParserTest extends AbstractParserTest {
 				val componentNode = findNodesForFeature(TclPackage.Literals.COMPONENT_TEST_STEP_CONTEXT__COMPONENT).assertSingleElement
 				componentNode.text.trim.assertEquals('GreetingsApplication')
 				steps.assertSize(2)
-				steps.get(0) => [
+				steps.get(0).assertInstanceOf(TestStep) => [
 					contents.restoreString.assertEquals('starte Anwendung "org.testeditor.swing.exammple.Greetings"')	
 				]
-				steps.get(1) => [
+				steps.get(1).assertInstanceOf(TestStep) => [
 					contents.restoreString.assertEquals('gebe in <Eingabefeld> den Wert "Hello World" ein')
 				]
 			]
@@ -134,11 +141,11 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 		
 		// when
-		val test = parse(input).test
+		val test = parseTcl(input).test
 		
 		// then
 		test.steps.assertSingleElement.contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
-			val emptyReferences = steps.assertSingleElement.contents.assertSize(3)
+			val emptyReferences = steps.assertSingleElement.assertInstanceOf(TestStep).contents.assertSize(3)
 			emptyReferences.forEach[
 				assertInstanceOf(StepContentElement) => [
 					value.assertNull
@@ -160,7 +167,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 		
 		// when
-		val test = parse(input).test
+		val test = parseTcl(input).test
 		
 		// then
 		test.steps.assertSingleElement => [
@@ -187,15 +194,15 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val test = parse(input).test
+		val test = parseTcl(input).test
 
 		// then
 		test.steps.assertSingleElement => [
 			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
 				steps.assertSize(2).get(1).assertInstanceOf(AssertionTestStep) => [
-					expression.assertInstanceOf(AENullOrBoolCheck) => [
+					assertExpression.assertInstanceOf(NullOrBoolCheck) => [
 						isNegated.assertFalse
-						varReference.variable.name.assertEquals("hello")
+						variableReference.variable.name.assertEquals("hello")
 					]
 				]
 			]
@@ -216,17 +223,17 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val test = parse(input).test
+		val test = parseTcl(input).test
 
 		// then
 		test.steps.assertSingleElement => [
 			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
 				steps.assertSize(2).get(1).assertInstanceOf(AssertionTestStep) => [
-					expression.assertInstanceOf(AEComparison) => [
-						left.assertInstanceOf(AEVariableReference) => [variable.name.assertEquals("hello")]
+					assertExpression.assertInstanceOf(Comparison) => [
+						left.assertInstanceOf(VariableReference) => [variable.name.assertEquals("hello")]
 						comparator.assertInstanceOf(ComparatorMatches) => [negated.assertTrue]
-						right.assertInstanceOf(AEComparison) => [
-							left.assertInstanceOf(AEStringConstant) => [string.assertEquals(".*AAABBB.*")]
+						right.assertInstanceOf(Comparison) => [
+							left.assertInstanceOf(StringConstant) => [string.assertEquals(".*AAABBB.*")]
 							comparator.assertNull
 						]
 					]
@@ -248,7 +255,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val test = parse(input).test
+		val test = parseTcl(input).test
 
 		// then
 		test.steps.assertSingleElement => [
@@ -281,7 +288,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val model = parse(input).assertNoSyntaxErrors
+		val model = parseTcl(input).assertNoSyntaxErrors
 
 		// then
 		model.package.assertEquals('com.example')
@@ -300,7 +307,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val test = parse(input).test
+		val test = parseTcl(input).test
 
 		// then
 		test.assertNoSyntaxErrors
@@ -321,7 +328,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val test = parse(input).test
+		val test = parseTcl(input).test
 
 		// then
 		test.assertNoSyntaxErrors
@@ -347,7 +354,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val test = parse(input).test
+		val test = parseTcl(input).test
 
 		// then
 		test.assertNoSyntaxErrors
@@ -374,7 +381,7 @@ class TclModelParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val test = parse(input).test
+		val test = parseTcl(input).test
 
 		// then
 		test.assertNoSyntaxErrors

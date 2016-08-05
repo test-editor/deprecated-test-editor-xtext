@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.validation
 
+import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.Captor
@@ -23,9 +24,8 @@ import org.testeditor.tcl.TestStep
 import static org.mockito.Matchers.*
 
 import static extension org.mockito.Mockito.*
-import org.junit.Before
 
-class TclMissingMacroValidatorTest extends AbstractTclValidatorTest {
+class TclMissingMacroValidatorTest extends AbstractMockedTclValidatorTest {
 
 	@Mock MacroTestStepContext macroTestStepContextMock
 
@@ -43,7 +43,7 @@ class TclMissingMacroValidatorTest extends AbstractTclValidatorTest {
 	@Test
 	def void noInfoOnExistingMacro() {
 		// given
-		val tmlModel = parse('''
+		val tmlModel = parseTcl('''
 			package pa
 			# MacroCollection
 			
@@ -53,7 +53,7 @@ class TclMissingMacroValidatorTest extends AbstractTclValidatorTest {
 			- macro call that maps
 		''')
 		val testStepThatMaps = tmlModel.macroCollection.macros.head.contexts.head.assertInstanceOf(
-			MacroTestStepContext).step
+			MacroTestStepContext).step.assertInstanceOf(TestStep)
 		when(macroTestStepContextMock.macroCollection).thenReturn(tmlModel.macroCollection)
 
 		// when
@@ -66,7 +66,7 @@ class TclMissingMacroValidatorTest extends AbstractTclValidatorTest {
 	@Test
 	def void warningOnMissingMacro() {
 		// given
-		val tmlModel = parse('''
+		val tmlModel = parseTcl('''
 			package pa
 			# MacroCollection
 			
@@ -76,7 +76,7 @@ class TclMissingMacroValidatorTest extends AbstractTclValidatorTest {
 			- macro call that does not maps
 		''')
 		val testStepThatDoesNotMap = tmlModel.macroCollection.macros.head.contexts.head.assertInstanceOf(
-			MacroTestStepContext).step
+			MacroTestStepContext).step.assertInstanceOf(TestStep)
 		when(tclModelUtil.normalize(any(Template))).thenReturn("cba")
 		when(macroTestStepContextMock.macroCollection).thenReturn(tmlModel.macroCollection)
 

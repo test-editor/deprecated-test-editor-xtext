@@ -28,21 +28,22 @@ import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
 import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
-import org.testeditor.aml.VariableReference
+import org.testeditor.tcl.AbstractTestStep
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.ComponentTestStepContext
-import org.testeditor.tcl.EnvironmentVariableReference
+import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.SetupAndCleanupProvider
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
-import org.testeditor.tcl.StepContentVariableReference
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestConfiguration
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepWithAssignment
+import org.testeditor.tcl.VariableReference
+import org.testeditor.tcl.VariableReferenceMapAccess
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentValue
@@ -57,6 +58,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	@Inject TclAssertCallBuilder assertCallBuilder
 	@Inject IQualifiedNameProvider nameProvider
 	@Inject JvmModelHelper jvmModelHelper
+	@Inject TclExpressionBuilder expressionBuilder
 
 	def dispatch void infer(TclModel model, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		model.test?.infer(acceptor, isPreIndexingPhase)
@@ -106,11 +108,11 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	private def dispatch void infer(JvmGenericType result, TestCase element) {
 		// create variables for required environment variables
-		val envParams = element.model.environmentVariableReferences
-		result.members += envParams.map [ environmentVariableReference |
-			environmentVariableReference.toField(environmentVariableReference.variableReferenceToVarName,
+		val envParams = element.model.environmentVariables
+		result.members += envParams.map [ environmentVariable |
+			environmentVariable.toField(expressionBuilder.variableToVarName(environmentVariable),
 				typeRef(String)) [
-				initializer = '''System.getenv("«environmentVariableReference.name»")'''
+				initializer = '''System.getenv("«environmentVariable.name»")'''
 			]
 		]
 		if (!envParams.empty) {
@@ -150,27 +152,27 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		]
 	}
 	
-	private def JvmOperation createSetupMethod(SetupAndCleanupProvider container, Iterable<EnvironmentVariableReference> envParams) {
+	private def JvmOperation createSetupMethod(SetupAndCleanupProvider container, Iterable<EnvironmentVariable> environmentVariables) {
 		val setup = container.setup
 		return setup.toMethod(container.setupMethodName, typeRef(Void.TYPE)) [
 			exceptions += typeRef(Exception)
 			annotations += annotationRef('org.junit.Before')
 			body = [
 				val output = trace(setup, true)
-				setup.contexts.forEach[generateContext(output.trace(it), #[], envParams)]
+				setup.contexts.forEach[generateContext(output.trace(it), #[], environmentVariables)]
 			]
 		]
 	}
 
 	private def JvmOperation createCleanupMethod(SetupAndCleanupProvider container,
-		Iterable<EnvironmentVariableReference> envParams) {
+		Iterable<EnvironmentVariable> environmentVariables) {
 		val cleanup = container.cleanup
 		return cleanup.toMethod(container.cleanupMethodName, typeRef(Void.TYPE)) [
 			exceptions += typeRef(Exception)
 			annotations += annotationRef('org.junit.After')
 			body = [
 				val output = trace(cleanup, true)
-				cleanup.contexts.forEach[generateContext(output.trace(it), #[], envParams)]
+				cleanup.contexts.forEach[generateContext(output.trace(it), #[], environmentVariables)]
 			]
 		]
 	}
@@ -190,26 +192,26 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	def void generateMethodBody(TestCase test, ITreeAppendable output,
-		Iterable<EnvironmentVariableReference> EnvironmentVariableReferences) {
-		test.steps.forEach[generate(output.trace(it), EnvironmentVariableReferences)]
+		Iterable<EnvironmentVariable> environmentVariables) {
+		test.steps.forEach[generate(output.trace(it), environmentVariables)]
 	}
 
-	private def void generateEnvironmentVariableAssertion(EnvironmentVariableReference EnvironmentVariableReference,
+	private def void generateEnvironmentVariableAssertion(EnvironmentVariable environmentVariable,
 		ITreeAppendable output) {
-		output.append('''org.junit.Assert.assertNotNull(«EnvironmentVariableReference.variableReferenceToVarName»);''').
+		output.append('''org.junit.Assert.assertNotNull(«expressionBuilder.variableToVarName(environmentVariable)»);''').
 			newLine
 	}
 
 	private def void generate(SpecificationStepImplementation step, ITreeAppendable output,
-		Iterable<EnvironmentVariableReference> EnvironmentVariableReferences) {
+		Iterable<EnvironmentVariable> environmentVariables) {
 		val comment = '''/* «step.contents.restoreString» */'''
 		output.newLine
 		output.append(comment).newLine
-		step.contexts.forEach[generateContext(output.trace(it), #[], EnvironmentVariableReferences)]
+		step.contexts.forEach[generateContext(output.trace(it), #[], environmentVariables)]
 	}
 
 	private def dispatch void generateContext(MacroTestStepContext context, ITreeAppendable output,
-		Iterable<MacroTestStepContext> macroUseStack, Iterable<EnvironmentVariableReference> envParams) {
+		Iterable<MacroTestStepContext> macroUseStack, Iterable<EnvironmentVariable> environmentVariables) {
 		output.newLine
 		val macro = context.findMacroDefinition
 		if (macro == null) {
@@ -217,7 +219,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		} else {
 			output.append('''// Macro start: «context.macroCollection.name» - «macro.template.normalize»''').newLine
 			macro.contexts.forEach [
-				generateContext(output.trace(it), #[context] + macroUseStack, envParams)
+				generateContext(output.trace(it), #[context] + macroUseStack, environmentVariables)
 			]
 			output.newLine
 			output.append('''// Macro end: «context.macroCollection.name» - «macro.template.normalize»''').newLine
@@ -226,17 +228,19 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	private def dispatch void generateContext(ComponentTestStepContext context, ITreeAppendable output,
 		Iterable<MacroTestStepContext> macroUseStack,
-		Iterable<EnvironmentVariableReference> EnvironmentVariableReferences) {
+		Iterable<EnvironmentVariable> environmentVariables) {
 		output.newLine
 		output.append('''// Component: «context.component.name»''').newLine
-		context.steps.forEach[generate(output.trace(it), macroUseStack, EnvironmentVariableReferences)]
+		context.steps.forEach[generate(output.trace(it), macroUseStack, environmentVariables)]
 	}
 
-	protected def void generate(TestStep step, ITreeAppendable output, Iterable<MacroTestStepContext> macroUseStack,
-		Iterable<EnvironmentVariableReference> EnvironmentVariableReferences) {
+	protected def void generate(AbstractTestStep step, ITreeAppendable output, Iterable<MacroTestStepContext> macroUseStack,
+		Iterable<EnvironmentVariable> environmentVariables) {
 		output.newLine
-		output.append('''// - «step.contents.restoreString»''').newLine
-		toUnitTestCodeLine(step, output, macroUseStack, EnvironmentVariableReferences)
+		if (step instanceof TestStep) {
+			output.append('''// - «step.contents.restoreString»''').newLine			
+		}		
+			toUnitTestCodeLine(step, output, macroUseStack, environmentVariables)
 	}
 
 	/**
@@ -277,12 +281,12 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	private def dispatch void toUnitTestCodeLine(AssertionTestStep step, ITreeAppendable output,
 		Iterable<MacroTestStepContext> macroUseStack,
-		Iterable<EnvironmentVariableReference> EnvironmentVariableReferences) {
-		output.append(assertCallBuilder.build(step.expression)).newLine
+		Iterable<EnvironmentVariable> environmentVariables) {
+		output.append(assertCallBuilder.build(step.assertExpression)).newLine
 	}
 
 	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output,
-		Iterable<MacroTestStepContext> macroUseStack, Iterable<EnvironmentVariableReference> envParams) {
+		Iterable<MacroTestStepContext> macroUseStack, Iterable<EnvironmentVariable> environmentVariables) {
 		val interaction = step.interaction
 		if (interaction !== null) {
 			val fixtureField = interaction.defaultMethod?.typeReference?.type?.fixtureFieldName
@@ -290,22 +294,20 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			if (fixtureField !== null && operation !== null) {
 				step.maybeCreateAssignment(operation, output)
 				output.trace(interaction.defaultMethod) => [
-					val codeLine = '''«fixtureField».«operation.simpleName»(«getParameterList(step, interaction, macroUseStack, envParams)»);'''
+					val codeLine = '''«fixtureField».«operation.simpleName»(«getParameterList(step, interaction, macroUseStack, environmentVariables)»);'''
 					append(codeLine) // please call with string, since tests checks against expected string which fails for passing ''' directly
 				]
 			} else {
-				output.
-					append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
+				output.append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
 			}
 		} else if (step.componentContext != null) {
-			output.
-				append('''// TODO could not resolve '«step.componentContext.component.name»' - «step.contents.restoreString»''')
+			output.append('''// TODO could not resolve '«step.componentContext.component.name»' - «step.contents.restoreString»''')
 		} else {
 			output.append('''// TODO could not resolve unknown component - «step.contents.restoreString»''')
 		}
 	}
-
-	def void maybeCreateAssignment(TestStep step, JvmOperation operation, ITreeAppendable output) {
+	
+	private def void maybeCreateAssignment(TestStep step, JvmOperation operation, ITreeAppendable output) {
 		if (step instanceof TestStepWithAssignment) {
 			output.trace(step, TEST_STEP_WITH_ASSIGNMENT__VARIABLE, 0) => [
 				// TODO should we use output.declareVariable here?
@@ -319,12 +321,12 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	// TODO we could also trace the parameters here
 	private def String getParameterList(TestStep step, InteractionType interaction,
 		Iterable<MacroTestStepContext> macroUseStack,
-		Iterable<EnvironmentVariableReference> EnvironmentVariableReferences) {
+		Iterable<EnvironmentVariable> environmentVariables) {
 		val mapping = getVariableToValueMapping(step, interaction.template)
 		val stepContents = interaction.defaultMethod.parameters.map [ templateVariable |
 			val stepContent = mapping.get(templateVariable)
-			val stepContentResolved = if (stepContent instanceof StepContentVariableReference) {
-					stepContent.resolveVariableReference(macroUseStack, EnvironmentVariableReferences)
+			val stepContentResolved = if (stepContent instanceof VariableReference) {
+					stepContent.resolveVariableReference(macroUseStack, environmentVariables)
 				} else {
 					stepContent
 				}
@@ -369,23 +371,16 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	/**
 	 * generate the parameter-code passed to the fixture call depending on the type of the step content
 	 */
-	private def dispatch Iterable<String> generateCallParameters(StepContentVariableReference stepContent,
+	private def dispatch Iterable<String> generateCallParameters(VariableReference variableReference,
 		JvmTypeReference expectedType, InteractionType interaction) {
-		if (expectedType.qualifiedName.equals(String.name)) {
-			return #[stepContent.variable.variableReferenceToVarName]
+		val result = expressionBuilder.buildExpression(variableReference)
+		if (variableReference instanceof VariableReferenceMapAccess && expectedType.qualifiedName == String.canonicalName) {
+			return #[result+'.toString()'] // since the map is generic and thus the actual type is java.lang.Object
 		} else {
-			throw new RuntimeException('''Environment variable '«stepContent.variable.name»' (always of type String) is used where type '«expectedType.qualifiedName»' is expected.''')
+			return #[result]
 		}
 	}
-
-	private def String variableReferenceToVarName(VariableReference varRef) {
-		switch (varRef) {
-			AssignmentVariable: return varRef.name
-			EnvironmentVariableReference: return "env_" + varRef.name
-			default: throw new RuntimeException('''unknown variable reference type='«varRef.class.canonicalName»'.''')
-		}
-	}
-
+	
 	/**
 	 * resolve dereferenced variable (in macro) with call site value (recursively if necessary).
 	 * 
@@ -410,28 +405,41 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	 * @see org.testeditor.tcl.dsl.validation.TclParameterUsageValidatorTest
 	 * 
 	 */
+	// TODO: There should be a sub class of StepContent, which functions as superclass to VariableReference, StepContentVariable   
 	private def StepContent resolveVariableReference(
-		StepContentVariableReference referencedVariable,
+		VariableReference referencedVariable,
 		Iterable<MacroTestStepContext> macroUseStack,
-		Iterable<EnvironmentVariableReference> environmentVariableReferences) {
+		Iterable<EnvironmentVariable> environmentVariables) {
 
-		if (macroUseStack.empty) {
+		if (macroUseStack.empty || referencedVariable.variable instanceof AssignmentVariable) { 
+			// if the macroCallStack is empty, no further resolving is necessary
+			// in case of an assignment variable, no resolving is necessary 
 			return referencedVariable
 		}
 
 		val callSiteMacroContext = macroUseStack.head
 		val macroCalled = callSiteMacroContext.findMacroDefinition
+		val callSiteMacroTestStep = callSiteMacroContext.step
+		
+		if (callSiteMacroTestStep instanceof TestStep) {
+			val varValMap = getVariableToValueMapping(callSiteMacroTestStep, macroCalled.template)
+			val varKey = varValMap.keySet.findFirst [
+				name.equals(referencedVariable.variable.name)
+			]
+			
+			if (!varValMap.containsKey(varKey)) {
+				throw new RuntimeException('''The referenced variable='«referencedVariable.variable.name»' cannot be resolved via macro parameters (macro call stack='«macroUseStack.map[findMacroDefinition.name].join('->')»').''')
+			} else {
+				val callSiteParameter = varValMap.get(varKey)
 
-		val varValMap = getVariableToValueMapping(callSiteMacroContext.step, macroCalled.template)
-		val varKey = varValMap.keySet.findFirst [
-			name.equals(referencedVariable.variable.name)
-		]
-		val callSiteParameter = varValMap.get(varKey)
-
-		if (callSiteParameter instanceof StepContentVariableReference) {
-			return callSiteParameter.resolveVariableReference(macroUseStack.tail, environmentVariableReferences)
+				if (callSiteParameter instanceof VariableReference) { // needs further variable resolving
+					return callSiteParameter.resolveVariableReference(macroUseStack.tail, environmentVariables)
+				} else {
+					return callSiteParameter // could be a StepContentVariable
+				}
+			}
 		} else {
-			return callSiteParameter
+			throw new RuntimeException('''Call site is of type='«callSiteMacroTestStep.class.canonicalName»' but should be of type='«TestStep.canonicalName»'.''')
 		}
 	}
 

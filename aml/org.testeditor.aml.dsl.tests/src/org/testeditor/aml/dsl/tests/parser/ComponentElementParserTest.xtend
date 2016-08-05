@@ -34,7 +34,7 @@ class ComponentElementParserTest extends AbstractParserTest {
 		'''.surroundWithComponentAndElementType
 
 		// When + Then
-		#[withoutBrackets, withBrackets].map[parse(ComponentElement)].forEach [
+		#[withoutBrackets, withBrackets].map[parseAmlWithStdPackage(ComponentElement)].forEach [
 			assertNoErrors
 			name.assertEquals("MyButton")
 			type.assertNotNull.name.assertEquals(typeName)
@@ -51,7 +51,7 @@ class ComponentElementParserTest extends AbstractParserTest {
 		'''.surroundWithComponentAndElementType
 
 		// When
-		val element = input.parse(ComponentElement)
+		val element = input.parseAmlWithStdPackage(ComponentElement)
 
 		// Then
 		element => [
@@ -70,7 +70,7 @@ class ComponentElementParserTest extends AbstractParserTest {
 		'''.surroundWithComponentAndElementType
 
 		// When
-		val element = input.parse(ComponentElement)
+		val element = input.parseAmlWithStdPackage(ComponentElement)
 
 		// Then
 		element => [
@@ -90,7 +90,7 @@ class ComponentElementParserTest extends AbstractParserTest {
 		'''.surroundWithComponentAndElementType
 
 		// When
-		val element = input.parse(ComponentElement)
+		val element = input.parseAmlWithStdPackage(ComponentElement)
 
 		// Then
 		element => [

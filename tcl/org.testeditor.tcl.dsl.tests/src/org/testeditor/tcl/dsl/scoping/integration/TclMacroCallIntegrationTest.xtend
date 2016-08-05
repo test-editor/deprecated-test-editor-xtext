@@ -18,7 +18,7 @@ class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 	@Mock ITreeAppendable outputStub
 
 	@Before
-	def void initMocks() {
+	def void setUp() {
 		when(outputStub.trace(any(EObject))).thenReturn(outputStub)
 		when(outputStub.append(any(CharSequence))).thenReturn(outputStub)
 	}
@@ -27,7 +27,7 @@ class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 	def void testMacroParameterResolutionThroughCallChains() {
 		// given
 		// aml description to make use of a "Dummy" component and its single interaction "start"
-		parseAmlModel('''
+		parseAml('''
 			package org.test
 			
 			import org.testeditor.dsl.common.testing.*
@@ -45,7 +45,7 @@ class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 		''')
 
 		// macro definitions such that "other" is a macro again which uses "something" which uses an aml component
-		parseTclModel('''
+		parseTcl('''
 			package org.test
 			
 			import org.test.*
@@ -64,7 +64,7 @@ class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 		''')
 
 		// tcl that uses the macro(template) "other" with parameter "MyApp"
-		val tcl = parseTclModel('''
+		val tcl = parseTcl('''
 			package org.test
 			
 			# Test

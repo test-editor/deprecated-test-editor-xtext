@@ -3,6 +3,7 @@ package org.testeditor.tcl.dsl.scoping.integration
 import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable
+import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
 import org.testeditor.aml.AmlModel
@@ -25,9 +26,9 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 
 	@Inject extension TclModelGenerator
 	@Inject extension AmlModelGenerator
-	
-	override void setup() {
-		super.setup
+
+	@Before
+	def void setUp() {
 		when(outputStub.trace(any(EObject))).thenReturn(outputStub)
 		when(outputStub.append(any(CharSequence))).thenReturn(outputStub)
 	}
@@ -47,7 +48,7 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 	/**
 	 * generate aml that has an interaction with a defaultLocatorStrategy (if not null),
 	 *   an element with locator elementLocator and with a locatorStrategy elementLocatorStrategy (if not null).
-	 *
+	 * 
 	 * if no defaultLocatorStrategy is given, it is mandatory to have an elementLocatorStrategy
 	 * if no elementLocatorStrategy is given, it is mandatory to have a defaultLocatoryStrategy
 	 * if both strategies are given, the elementLocatorStrategy overrules the defaultLocatorStrategy
