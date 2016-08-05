@@ -12,61 +12,23 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.validation
 
-import com.google.inject.Provider
-import java.util.UUID
 import javax.inject.Inject
-import org.eclipse.emf.ecore.EObject
-import org.eclipse.xtext.junit4.validation.ValidationTestHelper
-import org.eclipse.xtext.resource.XtextResourceSet
-import org.junit.Before
 import org.junit.Test
-import org.testeditor.aml.Component
-import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.aml.dsl.tests.AmlModelGenerator
-import org.testeditor.aml.dsl.tests.common.AmlTestModels
-import org.testeditor.dsl.common.testing.DummyFixture
 import org.testeditor.tcl.Macro
-import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.TclModel
+import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
-import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
+import org.testeditor.tcl.util.TclModelUtil
 
 import static org.testeditor.tcl.TclPackage.Literals.*
 
-class TclParameterUsageValidatorTest extends AbstractParserTest {
+class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 	
-	@Inject TclValidator tclValidator // class under test (not mocked)
-
-	@Inject Provider<XtextResourceSet> resourceSetProvider
-	@Inject XtextResourceSet resourceSet
-	@Inject ValidationTestHelper validator
-
 	@Inject extension AmlModelGenerator
 	@Inject extension TclModelGenerator
-	@Inject AmlTestModels amlTestModels
+	@Inject TclModelUtil tclModelUtil
 
-	private var Component dummyComponent
-
-	@Before
-	def void setup() {
-		resourceSet = resourceSetProvider.get
-		resourceSet.classpathURIContext = this
-		new AmlStandaloneSetup().createInjectorAndDoEMFRegistration // needs to be registered to register aml models
-
-		// build component "Dummy" with two interactions, "start" with a string parameter, "wait" with a long parameter
-		val amlModel = amlTestModels.dummyComponent(resourceSet) => [
-			interactionTypes += interactionType("wait") => [
-				defaultMethod = methodReference(resourceSet, DummyFixture, "waitSeconds", "secs")
-				template = template("wait").withParameter(defaultMethod.parameters.head)
-			]
-		]
-		amlModel.componentTypes.findFirst[name == amlTestModels.COMPONENT_TYPE_NAME] => [
-			interactionTypes += amlModel.interactionTypes.findFirst[name == "wait"]
-		]
-		amlModel.register("aml")
-
-		dummyComponent = amlModel.components.findFirst[name == amlTestModels.COMPONENT_NAME]
-	}
 
 	@Test
 	def void testDirectCallVariableTypeChecks() {
@@ -76,59 +38,48 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 				macros += macro("MyCallMacro") => [
 					template = template("mycall").withParameter("appname")
 					contexts += componentTestStepContext(dummyComponent) => [
-						steps += testStep("start").withVariableReference("appname")
+						steps += testStep("start").withReferenceToTemplateVariable("appname")
 					]
 				]
 				// macro calls (directly) the aml interaction "wait" (which expects the parameter to be of type long)
 				macros += macro("OtherCallMacro") => [
 					template = template("othercall").withParameter("secs")
 					contexts += componentTestStepContext(dummyComponent) => [
-						steps += testStep("wait").withVariableReference("secs")
+						steps += testStep("wait").withReferenceToTemplateVariable("secs")
 					]
 				]
 			]
 		]
-		macroModel.register("tml")
+		macroModel.addToResourceSet("test.tml")
 
-		val allEnvVars=envVariables("envVar", "myEnvString")
+		val allEnvVars=environmentVariables("envVar", "myEnvString")
 		val envVar = allEnvVars.head
 		val myEnvString = allEnvVars.last
 		val tclModel = tclModel => [
-			environmentVariableReferences.addAll(allEnvVars)
+			environmentVariables.addAll(allEnvVars)
 			test = testCase("MyTest") => [
 				// use macro "mycall" using env param (no error, since type String is provided and String is expected)
 				steps += specificationStep("test", "something") => [
 					contexts += macroTestStepContext(macroModel.macroCollection) => [
-						step = testStep("mycall").withReferenceToEnvironmentVariable(myEnvString)
+						step = testStep("mycall").withReferenceToVariable(myEnvString)
+						verifyVariableTypeUsage(myEnvString.name, #[String.simpleName]) // intermediate model check
 					]
 				]
 				// use macro "othercall" using env param (error expected, since type String is provided and long is expected)
 				steps += specificationStep("test", "other") => [
 					contexts += macroTestStepContext(macroModel.macroCollection) => [
-						step = testStep("othercall").withReferenceToEnvironmentVariable(envVar)
+						step = testStep("othercall").withReferenceToVariable(envVar)
+						verifyVariableTypeUsage(envVar.name, #[long.simpleName]) // intermediate model check
 					]
 				]
 			]
 		]
-		tclModel.register('MyTest', 'tcl')
-
-		val somethingContext = tclModel.test.steps.head.contexts.head as MacroTestStepContext
-		val otherContext = tclModel.test.steps.last.contexts.head as MacroTestStepContext
-
-		// when
-		val setWithString = tclValidator.getAllTypeUsagesOfVariable(somethingContext, "myEnvString")
-		val setWithLong = tclValidator.getAllTypeUsagesOfVariable(otherContext, "envVar")
-
-		// then
-		setWithString.assertSize(1)
-		setWithString.head.simpleName.assertEquals(String.simpleName)
-
-		setWithLong.assertSize(1)
-		setWithLong.head.simpleName.assertEquals(long.simpleName)
-
+		tclModel.addToResourceSet('MyTest.tcl')
+	
+		// when validator is run, then
 		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_TYPED_VAR_DEREF)
 	}
-
+	
 	@Test
 	def void testIndirectCallVariableTypeChecks() {
 		// given
@@ -140,30 +91,23 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 				macros += macro("MyCallMacro") => [
 					template = template("mycall").withParameter("unknown")
 					contexts += macroTestStepContext(macroModel.macroCollection) => [
-						step = testStep("othercall").withVariableReference("unknown")
+						step = testStep("othercall").withReferenceToTemplateVariable("unknown")
 					]
 				]
 				macros += macro("OtherCallMacro") => [
 					template = template("othercall").withParameter("secs")
 					contexts += componentTestStepContext(dummyComponent) => [
-						steps += testStep("wait").withVariableReference("secs") // secs are expected to be of type long in aml fixture
+						steps += testStep("wait").withReferenceToTemplateVariable("secs") // secs are expected to be of type long in aml fixture
 					]
 				]
 			]
 		]
-		macroModel.register("tml")
+		macroModel.addToResourceSet("test.tml")
 
 		// call "mycall" with env parameter (which is of type String, transitively expected is type long) ...
-		val tclModel = tclCallingMyCallMacroWithOneEnvParam("myEnvString", macroModel)
+		val tclModel = tclCallingMyCallMacroWithOneEnvParam("myEnvString", macroModel, #[long.simpleName])
 
-		val myCallContext = tclModel.test.steps.head.contexts.head
-
-		// when
-		val setWithLong = tclValidator.getAllTypeUsagesOfVariable(myCallContext, "myEnvString")
-
-		// then
-		setWithLong.assertSize(1)
-		setWithLong.head.simpleName.assertEquals(long.simpleName)
+		// when validator is run, then
 		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_TYPED_VAR_DEREF)
 	}
 
@@ -179,29 +123,19 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 				macros += macro("MyCallMacro") => [
 					template = template("mycall").withParameter("unknown")
 					contexts += macroTestStepContext(macroModel.macroCollection) => [
-						step = testStep("othercall").withVariableReference("unknown").withText("with").
-							withVariableReference("unknown")
+						step = testStep("othercall").withReferenceToTemplateVariable("unknown").withText("with").
+							withReferenceToTemplateVariable("unknown")
 					]
 				]
 			]
 		]
-		macroModel.register("tml")
+		macroModel.addToResourceSet("test.tml")
 
 		// since tcl calls mycall Macro with environment variable (which always has type String)
 		// and this parameter is transitively used for calls in the aml expecting long and String ...
-		val tclModel = tclCallingMyCallMacroWithOneEnvParam("myEnvString", macroModel)
+		val tclModel = tclCallingMyCallMacroWithOneEnvParam("myEnvString", macroModel, #[long.simpleName, String.simpleName])
 
-		val myCallContext = tclModel.test.steps.head.contexts.head
-
-		// when
-		val setWithLong = tclValidator.getAllTypeUsagesOfVariable(myCallContext, "myEnvString")
-
-		// then
-		setWithLong.assertSize(2)
-		setWithLong.map[simpleName].toList => [
-			contains(long.simpleName) // one usage expects type long
-			contains(String.simpleName) // one usage expects type String
-		]
+		// when validator is run, then
 		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_TYPED_VAR_DEREF) // since environment variables are of type String, report invalid usage
 	}
 
@@ -218,15 +152,15 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 					template = template("mycall").withParameter("unknown")
 					contexts += macroTestStepContext(macroModel.macroCollection) => [
 						step = testStep("othercall").withParameter("3").withText("with").
-							withVariableReference("unknown")
+							withReferenceToTemplateVariable("unknown")
 					]
 				]
 			]
 		]
-		macroModel.register("tml")
+		macroModel.addToResourceSet("test.tml")
 		// since tcl calls mycall Macro with environment variable (which always has type String)
 		// and this parameter is transitively used for calls expecting type String ... (no errors expected)
-		val tclModel = tclCallingMyCallMacroWithOneEnvParam("myEnvString", macroModel)
+		val tclModel = tclCallingMyCallMacroWithOneEnvParam("myEnvString", macroModel, #[String.simpleName])
 
 		// then
 		validator.assertNoError(tclModel, TclValidator.INVALID_TYPED_VAR_DEREF)
@@ -236,22 +170,18 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 	@Test
 	def void useAssignedVariableInParameterPosition() {
 		// given
-		val amlModel = amlTestModels.dummyComponent(resourceSet)
-		amlModel.register(resourceSet, 'Dummy.aml')
-		val dummyComponent = amlModel.components.head
-		
 		val tclModel = tclModel => [
 			test = testCase('Test') => [
 				steps += specificationStep('spec') => [
 					contexts += componentTestStepContext(dummyComponent) => [
-						val assignment = testStepWithAssignment('variable', 'getValue') // get something of type string
+						val assignment = testStepWithAssignment('variable', 'getValue').withElement("dummyElement") // get something of type string
 						steps += assignment
-						steps += testStep('start').withReferenceToAssignmentVariable(assignment.variable) 
+						steps += testStep('start').withReferenceToVariable(assignment.variable) 
 					]
 				]
 			]
 		]
-		tclModel.register('test', 'tcl')
+		tclModel.addToResourceSet('test.tcl')
 
 		// when then
 		validator.assertNoErrors(tclModel)
@@ -259,23 +189,19 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 	
 	@Test
 	def void useAssignedVariableInParameterPositionWrongOrder() {
-		// given 
-		val amlModel = amlTestModels.dummyComponent(resourceSet)
-		amlModel.register(resourceSet, 'Dummy.aml')
-		val dummyComponent = amlModel.components.head
-		
+		// given 	
 		val tclModel = tclModel => [
 			test = testCase('Test') => [
 				steps += specificationStep('spec') => [
 					contexts += componentTestStepContext(dummyComponent) => [
-						val assignment = testStepWithAssignment('variable', 'getValue') // assignment can be faulty, since checks on the type of 'variable' won't be carried out  
-						steps += testStep('start').withReferenceToAssignmentVariable(assignment.variable)
+						val assignment = testStepWithAssignment('variable', 'getValue').withElement("dummyElement") // assignment can be faulty, since checks on the type of 'variable' won't be carried out  
+						steps += testStep('start').withReferenceToVariable(assignment.variable)
 						steps += assignment
 					]
 				]
 			]
 		]
-		tclModel.register('test', 'tcl')
+		tclModel.addToResourceSet('test.tcl')
 		
 		// when then
 		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_VAR_DEREF) // since assignment must take place before usage!
@@ -285,39 +211,40 @@ class TclParameterUsageValidatorTest extends AbstractParserTest {
 		return macro("OtherCallMacro") => [
 			template = template("othercall").withParameter("secs").withText("with").withParameter("strParam")
 			contexts += componentTestStepContext(dummyComponent) => [
-				steps += testStep("wait").withVariableReference("secs")
-				steps += testStep("start").withVariableReference("strParam")
+				steps += testStep("wait").withReferenceToTemplateVariable("secs")
+				steps += testStep("start").withReferenceToTemplateVariable("strParam")
 			]
 		]
 	}
 
-	private def TclModel tclCallingMyCallMacroWithOneEnvParam(String envVarString, TclModel tmlModel) {
-		val envVar=envVariables(envVarString).head
+	/** 
+	 * create a test that calls "mycall" macro with the reference to an environment variable, validating that
+	 * the parameter is used in positions that expect the passed types (simple names)
+	 */
+	private def TclModel tclCallingMyCallMacroWithOneEnvParam(String envVarString, TclModel tmlModel, Iterable<String> types) {
+		val envVar=environmentVariables(envVarString).head
 		val tclModel = tclModel => [
-			environmentVariableReferences += envVar
+			environmentVariables += envVar
 			test = testCase("MyTest") => [
 				steps += specificationStep("test", "something") => [
 					contexts += macroTestStepContext(tmlModel.macroCollection) => [
-						step = testStep("mycall").withReferenceToEnvironmentVariable(envVar)
+						step = testStep("mycall").withReferenceToVariable(envVar)
+						verifyVariableTypeUsage(envVar.name, types)
 					]
 				]
 			]
 		]
-		tclModel.register('MyTest', 'tcl')
+		tclModel.addToResourceSet('MyTest.tcl')
 		return tclModel
 	}
-	
-	/** 
-	 * register the given model with the resource set (for cross linking)
+
+	/**
+	 * verify model to have the expected type usages when querying for a certain variable in a given context
 	 */
-	private def <T extends EObject> T register(T model, String fileExtension) {
-		model.register(resourceSet, UUID.randomUUID.toString + '.' + fileExtension)
+	private def void verifyVariableTypeUsage(TestStepContext context, String variable, Iterable<String> types) {
+		val typeSet = tclModelUtil.getAllTypeUsagesOfVariable(context, variable).map[simpleName].toSet
+		typeSet.assertSize(types.size)
+		types.forEach[ assertTrue(typeSet.contains(it)) ]
 	}
 
-	/** 
-	 * register the given model with the resource set (for cross linking)
-	 */
-	private def <T extends EObject> T register(T model, String fileName, String fileExtension) {
-		model.register(resourceSet, fileName + '.' + fileExtension)
-	}
 }

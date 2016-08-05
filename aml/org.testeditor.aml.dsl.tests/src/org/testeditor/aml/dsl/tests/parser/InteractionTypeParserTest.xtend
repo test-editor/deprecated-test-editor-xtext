@@ -34,7 +34,7 @@ class InteractionTypeParserTest extends AbstractParserTest {
 		'''
 
 		// When + Then
-		#[withoutBrackets, withBrackets].map[parse(InteractionType)].forEach [
+		#[withoutBrackets, withBrackets].map[parseAmlWithStdPackage(InteractionType)].forEach [
 			assertNoErrors
 			name.assertEquals("MyInteractionType")
 		]
@@ -50,7 +50,7 @@ class InteractionTypeParserTest extends AbstractParserTest {
 		'''
 
 		// When
-		val interactionType = input.parse(InteractionType)
+		val interactionType = input.parseAmlWithStdPackage(InteractionType)
 
 		// Then
 		interactionType => [
@@ -70,7 +70,7 @@ class InteractionTypeParserTest extends AbstractParserTest {
 		'''
 
 		// When
-		val interactionType = input.parse(InteractionType)
+		val interactionType = input.parseAmlWithStdPackage(InteractionType)
 
 		// Then
 		interactionType => [
@@ -90,7 +90,7 @@ class InteractionTypeParserTest extends AbstractParserTest {
 		'''
 
 		// When
-		val interactionType = input.parse(InteractionType)
+		val interactionType = input.parseAmlWithStdPackage(InteractionType)
 
 		// Then
 		interactionType => [
@@ -116,7 +116,7 @@ class InteractionTypeParserTest extends AbstractParserTest {
 		'''
 
 		// When
-		val interactionType = input.parse(InteractionType)
+		val interactionType = input.parseAmlWithStdPackage(InteractionType)
 
 		// Then
 		interactionType.assertNoSyntaxErrors
@@ -134,7 +134,7 @@ class InteractionTypeParserTest extends AbstractParserTest {
 		'''
 
 		// When
-		val interactionType = input.parse(InteractionType)
+		val interactionType = input.parseAmlWithStdPackage(InteractionType)
 
 		// Then
 		interactionType.assertNoSyntaxErrors

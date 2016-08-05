@@ -21,13 +21,14 @@ import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
-import org.testeditor.tcl.StepContentVariableReference
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestCleanup
 import org.testeditor.tcl.TestConfiguration
 import org.testeditor.tcl.TestSetup
 import org.testeditor.tcl.TestStep
+import org.testeditor.tcl.VariableReference
+import org.testeditor.tcl.VariableReferenceMapAccess
 import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
@@ -43,7 +44,7 @@ class TclFormatter extends XbaseFormatter {
 		// import section is not formatted (yet), should be done by organize imports
 		tclModel.regionFor.keyword("require").prepend[newLines = 2]
 		tclModel.regionFor.keyword(",").prepend[noSpace]
-		tclModel.environmentVariableReferences.forEach[prepend[oneSpace]]
+		tclModel.environmentVariables.forEach[prepend[oneSpace]]
 		tclModel.test?.format
 		tclModel.macroCollection?.format
 		tclModel.config?.format
@@ -143,10 +144,17 @@ class TclFormatter extends XbaseFormatter {
 		stepContentElement.regionFor.keywords("<", "<>").forEach[prepend[oneSpace]]
 	}
 
-	def dispatch void format(StepContentVariableReference stepContentVariableReference,
+	def dispatch void format(VariableReference variableReference, extension IFormattableDocument document) {
+		variableReference.regionFor.keyword('@').prepend[oneSpace].append[noSpace]		
+		variableReference.variable.append[oneSpace;priority=LOW_PRIORITY]
+	}
+
+	def dispatch void format(VariableReferenceMapAccess variableReferenceMapAccess,
 		extension IFormattableDocument document) {
-		stepContentVariableReference.regionFor.keyword('@').prepend[oneSpace]
-		stepContentVariableReference.regionFor.feature(STEP_CONTENT_VARIABLE_REFERENCE__VARIABLE).prepend[noSpace]
+		variableReferenceMapAccess.regionFor.keyword('@').prepend[oneSpace].append[noSpace]		
+		variableReferenceMapAccess.regionFor.keyword('.').prepend[noSpace].append[noSpace]
+		variableReferenceMapAccess.variable.append[noSpace]
+		variableReferenceMapAccess.regionFor.feature(VARIABLE_REFERENCE_MAP_ACCESS__KEY).prepend[noSpace]
 	}
 
 	def dispatch void format(Template template, extension IFormattableDocument document) {

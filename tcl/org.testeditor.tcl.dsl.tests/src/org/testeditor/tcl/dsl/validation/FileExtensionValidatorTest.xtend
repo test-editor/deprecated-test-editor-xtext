@@ -1,20 +1,15 @@
 package org.testeditor.tcl.dsl.validation
 
-import com.google.inject.Provider
 import javax.inject.Inject
 import org.eclipse.xtext.junit4.validation.ValidationTestHelper
-import org.eclipse.xtext.resource.XtextResourceSet
 import org.junit.Before
 import org.junit.Test
 import org.testeditor.tcl.TclModel
 
 import static org.testeditor.tcl.TclPackage.Literals.*
+import org.testeditor.dsl.common.testing.DslParseHelper
 
-class FileExtensionValidatorTest extends AbstractTclValidatorTest {
-
-	@Inject protected Provider<XtextResourceSet> resourceSetProvider
-	@Inject protected XtextResourceSet resourceSet
-	@Inject ValidationTestHelper validator
+class FileExtensionValidatorTest extends AbstractMockedTclValidatorTest {
 
 	TclModel modelWithTestCase
 	TclModel modelWithMacroCollection
@@ -22,8 +17,6 @@ class FileExtensionValidatorTest extends AbstractTclValidatorTest {
 
 	@Before
 	def void setup() {
-		resourceSet = resourceSetProvider.get
-		resourceSet.classpathURIContext = this
 		modelWithTestCase = tclModel => [
 			test = testCase("Test")
 		]
@@ -38,40 +31,40 @@ class FileExtensionValidatorTest extends AbstractTclValidatorTest {
 	@Test
 	def void checkModelForTclExtension() {
 		// given
-		modelWithTestCase.register(resourceSet, "Test.tcl")
-		modelWithMacroCollection.register(resourceSet, "Macro.tcl")
-		modelWithTestConfiguration.register(resourceSet, "Config.tcl")
+		modelWithTestCase.addToResourceSet("Test.tcl")
+		modelWithMacroCollection.addToResourceSet("Macro.tcl")
+		modelWithTestConfiguration.addToResourceSet("Config.tcl")
 
 		// when + then
-		validator.assertNoErrors(modelWithTestCase)
-		validator.assertError(modelWithMacroCollection, TCL_MODEL, null)
-		validator.assertError(modelWithTestConfiguration, TCL_MODEL, null)
+		assertNoErrors(modelWithTestCase)
+		assertError(modelWithMacroCollection, TCL_MODEL, null)
+		assertError(modelWithTestConfiguration, TCL_MODEL, null)
 	}
 
 	@Test
 	def void checkModelForConfigExtension() {
 		// given
-		modelWithTestCase.register(resourceSet, "Test.config")
-		modelWithMacroCollection.register(resourceSet, "Macro.config")
-		modelWithTestConfiguration.register(resourceSet, "Config.config")
+		modelWithTestCase.addToResourceSet("Test.config")
+		modelWithMacroCollection.addToResourceSet( "Macro.config")
+		modelWithTestConfiguration.addToResourceSet("Config.config")
 
 		// when + then
-		validator.assertNoErrors(modelWithTestConfiguration)
-		validator.assertError(modelWithTestCase, TCL_MODEL, null)
-		validator.assertError(modelWithMacroCollection, TCL_MODEL, null)
+		assertNoErrors(modelWithTestConfiguration)
+		assertError(modelWithTestCase, TCL_MODEL, null)
+		assertError(modelWithMacroCollection, TCL_MODEL, null)
 	}
 
 	@Test
 	def void checkModelForTmlExtension() {
 		// given
-		modelWithTestCase.register(resourceSet, "Test.tml")
-		modelWithMacroCollection.register(resourceSet, "Macro.tml")
-		modelWithTestConfiguration.register(resourceSet, "Config.tml")
+		modelWithTestCase.addToResourceSet("Test.tml")
+		modelWithMacroCollection.addToResourceSet("Macro.tml")
+		modelWithTestConfiguration.addToResourceSet("Config.tml")
 
 		// when + then
-		validator.assertNoErrors(modelWithMacroCollection)
-		validator.assertError(modelWithTestConfiguration, TCL_MODEL, null)
-		validator.assertError(modelWithTestConfiguration, TCL_MODEL, null)
+		assertNoErrors(modelWithMacroCollection)
+		assertError(modelWithTestConfiguration, TCL_MODEL, null)
+		assertError(modelWithTestConfiguration, TCL_MODEL, null)
 	}
 
 }

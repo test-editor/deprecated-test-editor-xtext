@@ -34,7 +34,7 @@ class ComponentParserTest extends AbstractParserTest {
 		'''.addType
 
 		// When + Then
-		#[withoutBrackets, withBrackets].map[parse(Component)].forEach [
+		#[withoutBrackets, withBrackets].map[parseAmlWithStdPackage(Component)].forEach [
 			assertNoErrors
 			name.assertEquals("MyDialog")
 			type.assertNotNull.name.assertEquals(typeName)
@@ -53,7 +53,7 @@ class ComponentParserTest extends AbstractParserTest {
 		'''.addType
 		
 		// When
-		val component = input.parse(Component)
+		val component = input.parseAmlWithStdPackage(Component)
 		
 		// Then
 		component => [
@@ -74,7 +74,7 @@ class ComponentParserTest extends AbstractParserTest {
 		'''.addType
 		
 		// When
-		val component = input.parse(Component)
+		val component = input.parseAmlWithStdPackage(Component)
 		
 		// Then
 		component => [
@@ -93,7 +93,7 @@ class ComponentParserTest extends AbstractParserTest {
 		'''.addType
 		
 		// When
-		val component = input.parse(Component)
+		val component = input.parseAmlWithStdPackage(Component)
 		
 		// Then
 		component => [
@@ -116,7 +116,7 @@ class ComponentParserTest extends AbstractParserTest {
 		'''.addType
 		
 		// When
-		val component = input.parse(Component)
+		val component = input.parseAmlWithStdPackage(Component)
 		
 		// Then
 		component => [
@@ -138,7 +138,7 @@ class ComponentParserTest extends AbstractParserTest {
 		'''.addType
 		
 		// When
-		val component = input.parse(Component)
+		val component = input.parseAmlWithStdPackage(Component)
 		component => [
 			assertNoErrors
 			name.assertEquals(componentName)

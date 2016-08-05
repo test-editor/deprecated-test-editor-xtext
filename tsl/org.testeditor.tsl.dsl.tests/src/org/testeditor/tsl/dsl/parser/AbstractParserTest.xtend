@@ -13,22 +13,13 @@
 package org.testeditor.tsl.dsl.parser
 
 import javax.inject.Inject
-import org.eclipse.xtext.junit4.util.ParseHelper
-import org.testeditor.tsl.TslModel
 import org.testeditor.tsl.dsl.tests.AbstractTslTest
+import org.eclipse.xtext.junit4.validation.ValidationTestHelper
+import org.testeditor.dsl.common.testing.DslParseHelper
 
 abstract class AbstractParserTest extends AbstractTslTest {
 
-	@Inject protected ParseHelper<TslModel> parseHelper
-
-	protected def TslModel parse(CharSequence input) {
-		return parseHelper.parse(input)
-	}
+	@Inject extension protected DslParseHelper
+	@Inject extension protected ValidationTestHelper
 	
-	protected def TslModel parse(CharSequence input, (TslModel)=>void assertionBlock) {
-		val model = input.parse
-		assertionBlock.apply(model)
-		return model
-	}
-
 }

@@ -1,15 +1,14 @@
 package org.testeditor.tcl.dsl.tests.parser
 
 import com.google.inject.Inject
-import com.google.inject.Provider
-import org.eclipse.xtext.resource.XtextResourceSet
 import org.junit.Test
+import org.testeditor.tcl.dsl.tests.AbstractTclTest
+import org.testeditor.dsl.common.testing.DslParseHelper
 
-class TestConfigurationParserTest extends AbstractParserTest {
+class TestConfigurationParserTest extends AbstractTclTest {
 
-	@Inject
-	Provider<XtextResourceSet> resourceSetProvider
-
+	@Inject extension DslParseHelper
+	
 	@Test
 	def void parseMinimal() {
 		// given
@@ -20,7 +19,7 @@ class TestConfigurationParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val model = parseHelper.parse(input)
+		val model = parseTcl(input)
 
 		// then
 		model.assertNoSyntaxErrors
@@ -43,7 +42,7 @@ class TestConfigurationParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val model = parseHelper.parse(input)
+		val model = parseTcl(input)
 
 		// then
 		model.assertNoSyntaxErrors
@@ -66,7 +65,7 @@ class TestConfigurationParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val model = parseHelper.parse(input)
+		val model = parseTcl(input)
 
 		// then
 		model.assertNoSyntaxErrors
@@ -96,7 +95,7 @@ class TestConfigurationParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val model = parseHelper.parse(input)
+		val model = parseTcl(input)
 
 		// then
 		model.assertNoSyntaxErrors
@@ -109,7 +108,6 @@ class TestConfigurationParserTest extends AbstractParserTest {
 	@Test
 	def void parseReferenceToConfig() {
 		// given
-		val resourceSet = resourceSetProvider.get
 		val configSource = '''
 			package com.example
 			
@@ -124,8 +122,8 @@ class TestConfigurationParserTest extends AbstractParserTest {
 		'''
 
 		// when
-		val configModel = parseHelper.parse(configSource, resourceSet)
-		val testModel = parseHelper.parse(testSource, resourceSet)
+		val configModel = parseTcl(configSource)
+		val testModel = parseTcl(testSource)
 
 		// then
 		configModel.assertNoSyntaxErrors

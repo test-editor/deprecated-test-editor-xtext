@@ -14,20 +14,21 @@ package org.testeditor.tcl.dsl.validation
 
 import org.eclipse.xtext.common.types.JvmParameterizedTypeReference
 import org.eclipse.xtext.common.types.JvmType
+import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
 import org.testeditor.aml.InteractionType
 import org.testeditor.tcl.ComponentTestStepContext
+import org.testeditor.tcl.TestStep
 
 import static org.mockito.Matchers.*
 
 import static extension org.mockito.Mockito.*
-import org.junit.Before
 
-class TclMacroMissingFixtureValidatorTest extends AbstractTclValidatorTest {
+class TclMacroMissingFixtureValidatorTest extends AbstractMockedTclValidatorTest {
 
 	@Mock JvmParameterizedTypeReference typeReferenceMock
-
+	
 	@Before
 	def void initMocks() {
 		val jvmTypeMock = JvmType.mock
@@ -42,7 +43,7 @@ class TclMacroMissingFixtureValidatorTest extends AbstractTclValidatorTest {
 	@Test
 	def void noInfoOnExistingFixture() {
 		// given
-		val tmlFix = parse('''
+		val tmlFix = parseTcl('''
 			package pa
 			# MacroCollection
 			
@@ -52,7 +53,7 @@ class TclMacroMissingFixtureValidatorTest extends AbstractTclValidatorTest {
 			- test step that maps
 		''')
 		val testStepThatMaps = tmlFix.macroCollection.macros.head.contexts.head.assertInstanceOf(
-			ComponentTestStepContext).steps.head
+			ComponentTestStepContext).steps.head.assertInstanceOf(TestStep)
 
 		// when
 		tclValidator.checkFixtureMethodForExistence(testStepThatMaps)
@@ -64,7 +65,7 @@ class TclMacroMissingFixtureValidatorTest extends AbstractTclValidatorTest {
 	@Test
 	def void infoOnMissingFixture() {
 		// given
-		val tmlFix = parse('''
+		val tmlFix = parseTcl('''
 			package pa
 			# MacroCollection
 			
@@ -74,7 +75,7 @@ class TclMacroMissingFixtureValidatorTest extends AbstractTclValidatorTest {
 			- test step that does not map
 		''')
 		val testStepThatDoesNotMap = tmlFix.macroCollection.macros.head.contexts.head.assertInstanceOf(
-			ComponentTestStepContext).steps.head
+			ComponentTestStepContext).steps.head.assertInstanceOf(TestStep)
 		when(typeReferenceMock.type).thenReturn(null)
 
 		// when
@@ -85,27 +86,4 @@ class TclMacroMissingFixtureValidatorTest extends AbstractTclValidatorTest {
 		assertMatches(message.value, ".*could not resolve fixture")
 	}
 
-	@Test
-	def void noInfoOnAssertion() {
-		// given
-		val tmlFix = parse('''
-			package pa
-			# MacroCollection
-			
-			## UnnamedMacro
-			template = "hello"
-			Component: some_fantasy_component
-			- variable = get some
-			- assert variable = "Hello"
-		''')
-		val testStepThatDoesNotMap = tmlFix.macroCollection.macros.head.contexts.head.assertInstanceOf(
-			ComponentTestStepContext).steps.get(1)
-		when(typeReferenceMock.type).thenReturn(null)
-
-		// when
-		tclValidator.checkFixtureMethodForExistence(testStepThatDoesNotMap)
-
-		// then
-		messageAcceptor.verify(never).acceptInfo(anyString, anyObject, anyObject, anyInt, anyString)
-	}
 }

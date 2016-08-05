@@ -19,9 +19,8 @@ import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
 
 class AmlModelTreeAdapterTest extends AbstractParserTest {
 
-	@Inject
-	TestStepSelectorTreeContentProvider amlModelTreeAdapter
-
+	@Inject TestStepSelectorTreeContentProvider amlModelTreeAdapter
+	
 	/**
 	 * Set the input for the content provider and then call getChildren
 	 * with the passed parent element.
@@ -40,7 +39,7 @@ class AmlModelTreeAdapterTest extends AbstractParserTest {
 			component MyApp { }
 			component MyApp2 { }
 		'''
-		val model = parse(input)
+		val model = parseAml(input)
 
 		// when
 		val children = model.package.getChildren(model)
@@ -68,7 +67,7 @@ class AmlModelTreeAdapterTest extends AbstractParserTest {
 			
 			interaction type release { }
 		'''
-		val model = parse(input)
+		val model = parseAml(input)
 		val app = model.components.findFirst[name == "MyApp"].assertNotNull
 		val button = app.elements.findFirst[name == "MyButton"].assertNotNull
 
@@ -116,7 +115,7 @@ class AmlModelTreeAdapterTest extends AbstractParserTest {
 			
 			interaction type release { }
 		'''
-		val model = parse(input)
+		val model = parseAml(input)
 		val myApp = model.components.findFirst[name == "MyApp"].assertNotNull
 
 		// when

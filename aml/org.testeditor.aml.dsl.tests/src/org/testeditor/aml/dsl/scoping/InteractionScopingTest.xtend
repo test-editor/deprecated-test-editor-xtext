@@ -26,7 +26,7 @@ import org.testeditor.dsl.common.testing.DummyFixture
 class InteractionScopingTest extends AbstractParserTest {
 
 	@Inject extension ModelUtil
-
+	
 	@Test
 	def void testImportedInteractionScope() {
 		// Given
@@ -54,8 +54,8 @@ class InteractionScopingTest extends AbstractParserTest {
 		'''
 
 		// When
-		val model1 = parse(file1)
-		val model2 = parse(file2)
+		val model1 = parseAml(file1)
+		val model2 = parseAml(file2)
 
 		// Then
 		model1.assertNoErrors
@@ -83,7 +83,7 @@ class InteractionScopingTest extends AbstractParserTest {
 		val file = resizeInteraction('someFixtureMethod')
 
 		// When
-		val model = parse(file)
+		val model = parseAml(file)
 
 		// Then
 		model.assertNoErrors
@@ -101,7 +101,7 @@ class InteractionScopingTest extends AbstractParserTest {
 		val file = resizeInteraction('someUnrelatedMethod')
 
 		// When
-		val model = parse(file)
+		val model = parseAml(file)
 
 		// Then
 		val issue = model.validate.assertSingleElement
@@ -117,7 +117,7 @@ class InteractionScopingTest extends AbstractParserTest {
 		val file = resizeInteraction('someFixtureMethod()')
 
 		// When
-		val model = parse(file)
+		val model = parseAml(file)
 
 		// Then
 		model.assertNoErrors
@@ -129,7 +129,7 @@ class InteractionScopingTest extends AbstractParserTest {
 		val file = resizeInteraction('someFixtureMethod(size)')
 
 		// When
-		val model = parse(file)
+		val model = parseAml(file)
 
 		// Then
 		val issue = model.validate.assertSingleElement
@@ -152,7 +152,7 @@ class InteractionScopingTest extends AbstractParserTest {
 		'''
 
 		// When
-		val model = parse(file)
+		val model = parseAml(file)
 
 		// Then
 		model.assertNoErrors
@@ -176,7 +176,7 @@ class InteractionScopingTest extends AbstractParserTest {
 		'''
 
 		// When
-		val model = parse(file)
+		val model = parseAml(file)
 
 		// Then
 		model.assertNoErrors

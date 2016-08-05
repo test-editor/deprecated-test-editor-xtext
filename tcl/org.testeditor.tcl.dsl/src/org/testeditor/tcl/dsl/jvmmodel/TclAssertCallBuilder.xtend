@@ -1,23 +1,26 @@
 package org.testeditor.tcl.dsl.jvmmodel
 
 import javax.inject.Inject
+import org.apache.commons.lang3.StringEscapeUtils
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.testeditor.aml.ModelUtil
-import org.testeditor.tcl.AEComparison
-import org.testeditor.tcl.AENullOrBoolCheck
-import org.testeditor.tcl.AEStringConstant
-import org.testeditor.tcl.AEVariableReference
-import org.testeditor.tcl.AssertionExpression
 import org.testeditor.tcl.Comparator
 import org.testeditor.tcl.ComparatorEquals
 import org.testeditor.tcl.ComparatorGreaterThen
 import org.testeditor.tcl.ComparatorLessThen
 import org.testeditor.tcl.ComparatorMatches
+import org.testeditor.tcl.Comparison
+import org.testeditor.tcl.Expression
+import org.testeditor.tcl.NullOrBoolCheck
+import org.testeditor.tcl.StringConstant
+import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.util.TclModelUtil
 
 class TclAssertCallBuilder {
 	@Inject extension TclModelUtil
 	@Inject extension ModelUtil
+	
+	@Inject TclExpressionBuilder expressionBuilder
 
 	/** assert method calls used, toString must yield the actual method name! */
 	enum AssertMethod {
@@ -46,23 +49,27 @@ class TclAssertCallBuilder {
 		}
 	}
 
-	def String build(AssertionExpression expression) {
+	def String build(Expression expression) {
 		val assertionMethod = assertionMethod(expression)
 		if (assertionMethod == null) {
 			return '''// TODO no assertion method implementation for expression with type "«expression.class»"'''
 		} else {
-			val assertionText = NodeModelUtils.getNode(expression)?.text?.trim ?:
-				""
+			val assertionText = NodeModelUtils.getNode(expression)?.text?.trim ?: ""
+			val expressionBuilt = switch (expression) {
+				NullOrBoolCheck: buildNullOrBoolCheck(expression) 
+				Comparison: buildComparison(expression) 
+				default: throw new RuntimeException('''Assertion expression of type='«expression.class.canonicalName»' cannot be built!''')
+			}
 			return '''
 				// - assert «assertionText»
-				org.junit.Assert.«expression.assertionMethod»("«assertionText.replaceAll('"','\\\\"')»", «expression.buildExpression»);
+				org.junit.Assert.«expression.assertionMethod»("«StringEscapeUtils.escapeJava(assertionText)»", «expressionBuilt»);
 			'''
 		}
 	}
 
-	private def AssertMethod assertionMethodForNullOrBoolCheck(AENullOrBoolCheck expression) {
-		val interaction = getInteraction(expression.varReference.variable.testStep)
-		val returnTypeName = getReturnType(interaction)?.qualifiedName ?: ""
+	private def AssertMethod assertionMethodForNullOrBoolCheck(NullOrBoolCheck expression) {
+		val interaction = expression.testStep.interaction
+		val returnTypeName = interaction.returnType?.qualifiedName ?: ""
 		switch (returnTypeName) {
 			case boolean.name,
 			case Boolean.name: return adjustedAssertMethod(AssertMethod.assertTrue, expression.isNegated)
@@ -70,12 +77,12 @@ class TclAssertCallBuilder {
 		}
 	}
 
-	private def AssertMethod assertionMethod(AssertionExpression expression) {
+	private def AssertMethod assertionMethod(Expression expression) {
 		return switch (expression) {
-			AENullOrBoolCheck: assertionMethodForNullOrBoolCheck(expression)
-			AEVariableReference: AssertMethod.assertNotNull
-			AEComparison: assertionMethod(expression.comparator)
-			AEStringConstant: AssertMethod.assertNotNull
+			NullOrBoolCheck: assertionMethodForNullOrBoolCheck(expression)
+			VariableReference: AssertMethod.assertNotNull
+			Comparison: assertionMethod(expression.comparator)
+			StringConstant: AssertMethod.assertNotNull
 			default: throw new RuntimeException('''unknown expression type «expression.class»''')
 		}
 	}
@@ -86,54 +93,45 @@ class TclAssertCallBuilder {
 		}
 		return switch (comparator) {
 			ComparatorEquals: adjustedAssertMethod(AssertMethod.assertEquals, comparator.negated)
-			ComparatorGreaterThen: null // TODO adjustedAssertMethod(AssertMethod.assertTrue, comparator.negated)
-			ComparatorLessThen: null // TODO adjustedAssertMethod(AssertMethod.assertTrue, comparator.negated)
+			ComparatorGreaterThen: throw new RuntimeException('>= not implemented yet') // adjustedAssertMethod(AssertMethod.assertTrue, comparator.negated)
+			ComparatorLessThen: throw new RuntimeException('<= not implemented yet') // adjustedAssertMethod(AssertMethod.assertTrue, comparator.negated)
 			ComparatorMatches: adjustedAssertMethod(AssertMethod.assertTrue, comparator.negated)
 			default: throw new RuntimeException('''unknown comparator type «comparator.class»''')
 		}
 
 	}
 
-	private def dispatch String buildExpression(AssertionExpression expression) {
-		throw new RuntimeException('''no builder found for type «expression.class»''')
-	}
-
-	private def dispatch String buildExpression(AENullOrBoolCheck nullCheck) {
-		val expression = nullCheck.varReference.buildExpression
-		val interaction = nullCheck.varReference.variable.testStep.interaction
-		val returnType = interaction.returnType
-		if (Boolean.isAssignableWithoutConversion(returnType)) {
-			return '''(«expression» != null) && «expression».booleanValue()'''
-		} else {
-			return expression
-		}
-	}
-
-	private def dispatch String buildExpression(AEComparison comparison) {
+	/**
+	 * return a string that is directly usable within an assertion command
+	 */
+	def String buildComparison(Comparison comparison) {
 		if (comparison.comparator == null) {
-			return comparison.left.
-				buildExpression
+			return expressionBuilder.buildExpression(comparison.left)
 		}
+		val builtRightExpression=expressionBuilder.buildExpression(comparison.right)
+		val builtLeftExpression=expressionBuilder.buildExpression(comparison.left)
 		switch (comparison.comparator) {
-			ComparatorEquals: '''«comparison.right.buildExpression», «comparison.left.buildExpression»'''
-			ComparatorGreaterThen: '''«comparison.left.buildExpression» «if(comparison.comparator.negated){'<='}else{'>'}» «comparison.right.buildExpression»'''
-			ComparatorLessThen: '''«comparison.left.buildExpression» «if(comparison.comparator.negated){'>='}else{'<'}» «comparison.right.buildExpression»'''
-			ComparatorMatches: '''«comparison.left.buildExpression».matches(«comparison.right.buildExpression»)'''
+			ComparatorEquals: '''«builtRightExpression», «builtLeftExpression»'''
+			ComparatorGreaterThen: '''«builtLeftExpression» «if(comparison.comparator.negated){'<='}else{'>'}» «builtRightExpression»'''
+			ComparatorLessThen: '''«builtLeftExpression» «if(comparison.comparator.negated){'>='}else{'<'}» «builtRightExpression»'''
+			ComparatorMatches: '''«builtLeftExpression».toString().matches(«builtRightExpression».toString())'''
 			default:
 				throw new RuntimeException('''no builder found for comparator «comparison.comparator.class»''')
 		}
 	}
 
-	private def dispatch String buildExpression(AEVariableReference varRef) {
-		if (varRef.key == null) {
-			return varRef.variable.name
+	/**
+	 * return a string that is directly usable within an assertion command
+	 */
+	private def String buildNullOrBoolCheck(NullOrBoolCheck nullCheck) {
+		val builtExpression = expressionBuilder.buildExpression(nullCheck.variableReference)
+		val interaction = nullCheck.testStep.interaction
+		val returnType = interaction.returnType
+		if (Boolean.isAssignableWithoutConversion(returnType)) {
+			return '''(«builtExpression» != null) && «builtExpression».booleanValue()'''
 		} else {
-			return '''«varRef.variable.name».get("«varRef.key»")'''
+			return builtExpression
 		}
-	}
-
-	private def dispatch String buildExpression(AEStringConstant string) {
-		return '''"«string.string»"'''
 	}
 
 }
