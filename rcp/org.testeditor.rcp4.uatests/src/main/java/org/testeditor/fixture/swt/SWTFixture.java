@@ -133,9 +133,7 @@ public class SWTFixture {
 	public void waitForDialog(String title) {
 		logger.info("Waiting for dialog with title='{}' to open.", title);
 		try {
-			if (bot.shell(title).isActive()) {
-				bot.waitUntil(Conditions.shellIsActive(title));
-			}
+			bot.waitUntil(Conditions.shellIsActive(title));
 		} catch (WidgetNotFoundException e) {
 			logger.info("Widget not found. No reason to wait.");
 		}
