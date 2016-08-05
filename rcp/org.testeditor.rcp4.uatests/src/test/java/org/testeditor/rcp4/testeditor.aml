@@ -38,9 +38,9 @@ component HauptFenster is General {
 value-space projectmenues = #[ "New/Project...", "Open" ]
 
 component ProjectExplorer is General {
-	element ProjektBaum is TreeView {
+	element ProjektBaum is TreeView { // TODO english!
 		label = "Project Explorer"
-		locator ="Test Project Explorer"
+		locator = "Test Project Explorer"
 		executeContextMenuEntry.item restrict to projectmenues 
 	}
 }
