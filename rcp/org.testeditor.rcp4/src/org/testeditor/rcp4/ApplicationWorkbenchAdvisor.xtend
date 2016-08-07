@@ -62,9 +62,9 @@ class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		val ideBundle = Platform.getBundle(IDEWorkbenchPlugin.IDE_WORKBENCH)
 		configurer =>
 			[
-				declareWorkbenchImage(ideBundle, IDE.SharedImages.IMG_OBJ_PROJECT, '''«ICONS_PATH»obj16/prj_obj.gif''')
+				declareWorkbenchImage(ideBundle, IDE.SharedImages.IMG_OBJ_PROJECT, '''«ICONS_PATH»obj16/prj_obj.png''')
 				declareWorkbenchImage(ideBundle,
-					IDE.SharedImages.IMG_OBJ_PROJECT_CLOSED, '''«ICONS_PATH»obj16/cprj_obj.gif''')
+					IDE.SharedImages.IMG_OBJ_PROJECT_CLOSED, '''«ICONS_PATH»obj16/cprj_obj.png''')
 				declareWorkbenchImage(ideBundle,
 					IDEInternalWorkbenchImages.IMG_ETOOL_PROBLEMS_VIEW, '''«ICONS_PATH»eview16/problems_view.gif''')
 				declareWorkbenchImage(ideBundle, IDEInternalWorkbenchImages.
@@ -72,9 +72,9 @@ class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 				declareWorkbenchImage(ideBundle, IDEInternalWorkbenchImages.
 					IMG_ETOOL_PROBLEMS_VIEW_WARNING, '''«ICONS_PATH»eview16/problems_view_warning.gif''')
 				declareWorkbenchImage(ideBundle,
-					IDEInternalWorkbenchImages.IMG_OBJS_ERROR_PATH, '''«ICONS_PATH»obj16/error_tsk.gif''')
+					IDEInternalWorkbenchImages.IMG_OBJS_ERROR_PATH, '''«ICONS_PATH»obj16/error_tsk.png''')
 				declareWorkbenchImage(ideBundle,
-					IDEInternalWorkbenchImages.IMG_OBJS_WARNING_PATH, '''«ICONS_PATH»obj16/warn_tsk.gif''')
+					IDEInternalWorkbenchImages.IMG_OBJS_WARNING_PATH, '''«ICONS_PATH»obj16/warn_tsk.png''')
 			]
 	}
 
