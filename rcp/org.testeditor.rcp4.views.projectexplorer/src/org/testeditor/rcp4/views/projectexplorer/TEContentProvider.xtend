@@ -13,6 +13,7 @@
 package org.testeditor.rcp4.views.projectexplorer
 
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.ResourcesPlugin
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
@@ -42,6 +43,20 @@ class TEContentProvider implements ITreeContentProvider {
 	}
 
 	override getParent(Object element) {
+		if (element instanceof IResource) {
+			if (element.project != null) {
+				val list = getChildren(element.project).filter(IClasspathEntry).filter [
+					ResourcesPlugin.workspace.root.getFolder(it.path).members.contains(element)
+				]
+				if (!list.empty) {
+					return list.head
+				}
+			}
+		}
+		if (element instanceof IClasspathEntry) {
+			return ResourcesPlugin.workspace.root.getFolder(element.path).project
+		}
+		return null
 	}
 
 	override hasChildren(Object element) {
