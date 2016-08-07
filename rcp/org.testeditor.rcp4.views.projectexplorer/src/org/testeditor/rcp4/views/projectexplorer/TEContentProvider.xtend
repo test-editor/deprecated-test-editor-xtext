@@ -14,26 +14,29 @@ package org.testeditor.rcp4.views.projectexplorer
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
-import org.eclipse.core.resources.ResourcesPlugin
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jface.viewers.ITreeContentProvider
 import org.eclipse.jface.viewers.Viewer
+import org.eclipse.xtend.lib.annotations.Accessors
 
 /**
  * Content Provider to extend the cnf navigator with the TE specific elements. The provider replaces folders of the classpath entry with one entry.
  */
 class TEContentProvider implements ITreeContentProvider {
 
+	@Accessors WorkspaceRootHelper workspaceRootHelper = new WorkspaceRootHelper
+	@Accessors JavaCoreHelper javaCoreHelper = new JavaCoreHelper
+
 	override getChildren(Object parentElement) {
 		if (parentElement instanceof IProject) {
 			if (parentElement.hasNature(JavaCore.NATURE_ID)) {
-				val javaProject = JavaCore.create(parentElement);
+				val javaProject = javaCoreHelper.create(parentElement);
 				return javaProject.rawClasspath.filter[entryKind == IClasspathEntry.CPE_SOURCE]
 			}
 		}
 		if (parentElement instanceof IClasspathEntry) {
-			return ResourcesPlugin.workspace.root.getFolder(parentElement.path).members
+			return workspaceRootHelper.getRoot.getFolder(parentElement.path).members
 		}
 		return null;
 	}
@@ -46,7 +49,7 @@ class TEContentProvider implements ITreeContentProvider {
 		if (element instanceof IResource) {
 			if (element.project != null) {
 				val list = getChildren(element.project).filter(IClasspathEntry).filter [
-					ResourcesPlugin.workspace.root.getFolder(it.path).members.contains(element)
+					workspaceRootHelper.getRoot.getFolder(it.path).members.contains(element)
 				]
 				if (!list.empty) {
 					return list.head
@@ -54,14 +57,14 @@ class TEContentProvider implements ITreeContentProvider {
 			}
 		}
 		if (element instanceof IClasspathEntry) {
-			return ResourcesPlugin.workspace.root.getFolder(element.path).project
+			return workspaceRootHelper.getRoot.getFolder(element.path).project
 		}
 		return null
 	}
 
 	override hasChildren(Object element) {
 		if (element instanceof IClasspathEntry) {
-			return ResourcesPlugin.workspace.root.getFolder(element.path).members.length > 0
+			return workspaceRootHelper.getRoot.getFolder(element.path).members.length > 0
 		}
 		return false
 	}
