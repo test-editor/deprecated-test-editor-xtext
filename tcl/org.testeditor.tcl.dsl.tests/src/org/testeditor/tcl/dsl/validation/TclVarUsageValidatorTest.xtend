@@ -155,6 +155,28 @@ class TclVarUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 	}
 
 	@Test
+	def void testVariableAccessInAssertion() {
+		// given
+		val tclModel = tclModel => [
+			test = testCase => [
+				steps += specificationStep => [
+					contexts += componentTestStepContext(dummyComponent) => [
+						val assignmentStep = testStepWithAssignment("myVar", "getValue").withElement("dummyElement")
+						steps += assignmentStep
+						steps += assertionTestStep => [
+							assertExpression = compareOnEquality(flatReference(assignmentStep.variable), "expected-value")
+						]
+					]
+				]
+			]
+			addToResourceSet('Test.tcl')
+		]
+
+		// when + then
+		tclModel.assertNoErrors
+	}
+
+	@Test
 	def void testIllegalVariableMapAccessInAssertion() {		
 		// given, when				
 		val tclModel = tclModel => [
