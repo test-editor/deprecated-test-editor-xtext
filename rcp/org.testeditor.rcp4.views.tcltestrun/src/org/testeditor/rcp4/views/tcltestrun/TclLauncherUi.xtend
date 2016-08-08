@@ -34,6 +34,7 @@ import org.eclipse.ui.PlatformUI
 import org.eclipse.ui.dialogs.ElementListSelectionDialog
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.ProgressMonitorRunner
+import org.testeditor.dsl.common.ui.workbench.PartHelper
 import org.testeditor.rcp4.tcltestrun.TclGradleLauncher
 import org.testeditor.rcp4.tcltestrun.TclLauncher
 import org.testeditor.rcp4.tcltestrun.TclMavenLauncher
@@ -45,6 +46,8 @@ import org.testeditor.tcl.dsl.ui.util.TclIndexHelper
 import org.testeditor.tcl.dsl.ui.util.TclInjectorProvider
 
 class TclLauncherUi implements Launcher {
+	
+	static val RESULT_VIEW = "org.eclipse.jdt.junit.ResultView"
 	static val logger = LoggerFactory.getLogger(TclLauncherUi)
 
 	@Inject ProgressMonitorRunner progressRunner
@@ -55,6 +58,7 @@ class TclLauncherUi implements Launcher {
 	LaunchShortcutUtil launchShortcutUtil // since this class itself is instanciated by e4, this attribute has to be injected manually
 	Map<URI, ArrayList<TestCase>> tslIndex
 	@Inject TCLConsoleFactory consoleFactory
+	@Inject PartHelper partHelper
 
 	@Inject
 	new(TclInjectorProvider tclInjectorProvider) {
@@ -204,6 +208,7 @@ class TclLauncherUi implements Launcher {
 			testResultFileWriter.writeErrorFile(projectName, resultFile)
 		}
 		JUnitCore.importTestRunSession(resultFile)
+		partHelper.showView(RESULT_VIEW)
 	}
 
 }
