@@ -30,11 +30,18 @@ Setup:
 	- Click on <AddFixtureButton>
 	- Check <GenerateWithExamples>
 	- Click on <FinishButton>
+	- Wait until dialog with title "Progress Information" is closed
 
 * Run "GreetingTest"
 
 	Component: ProjectExplorer
-	
+	- Select element "swingdemo/Tests/swingdemo/GreetingTest.tcl" in tree <ProjektBaum>
+	- Execute menu item "Run As/1 Test" in tree <ProjektBaum>
+	- Wait at most "20" seconds until dialog with title "Progress Information" is closed
 
 // then
-// TODO
+* Verify test execution result
+
+	Component: HauptFenster
+	- Is view <JUnitView> visible
+	// TODO verify the contents of the view (test should be green)

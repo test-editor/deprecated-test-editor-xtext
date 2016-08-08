@@ -29,7 +29,7 @@ import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.finders.ContextMenuHelper;
-import org.eclipse.swtbot.swt.finder.matchers.WithId;
+import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotList;
@@ -134,11 +134,25 @@ public class SWTFixture {
 	 */
 	@FixtureMethod
 	public void waitForDialogClosing(String title) {
-		logger.info("Waiting for dialog with title='{}' to open.", title);
+		long swtBotDefaultInMilliSeconds = SWTBotPreferences.TIMEOUT;
+		waitForDialogClosingWithTimeout(title, swtBotDefaultInMilliSeconds / 1000);
+	}
+
+	/**
+	 * Waits for a dialog with a given title to show up.
+	 * 
+	 * @param title
+	 *            the title of the dialog
+	 * @param timeout
+	 *            the time to wait
+	 */
+	@FixtureMethod
+	public void waitForDialogClosingWithTimeout(String title, long timeout) {
+		logger.info("Waiting for dialog with title='{}' to open, timeout='{}' seconds.", title, timeout);
 		try {
 			SWTBotShell shell = bot.shell(title);
 			if (shell.isActive()) {
-				bot.waitUntil(Conditions.shellCloses(shell));
+				bot.waitUntil(Conditions.shellCloses(shell), timeout * 1000);
 			}
 		} catch (WidgetNotFoundException e) {
 			logger.info("Widget not found. No reason to wait.");
@@ -147,17 +161,34 @@ public class SWTFixture {
 	}
 
 	/**
-	 * Checks that a view in the rcp is active.
+	 * Checks that a view in the RCP is active.
 	 * 
-	 * @param viewName
-	 *            to bee looked up.
+	 * @param locator
+	 *            to locator of the view to be looked up.
+	 * @param locatorStrategy
+	 *            the strategy that shall be applied
 	 * @return true if the vie is visible
 	 */
 	@FixtureMethod
-	public boolean isViewVisible(String viewName) {
-		logger.trace("search for view with title: {}", viewName);
-		SWTBotView view = bot.viewByTitle(viewName);
+	public boolean isViewVisible(String locator, SWTBotViewLocatorStrategy locatorStrategy) {
+		SWTBotView view = getView(locator, locatorStrategy);
 		return view.isActive();
+	}
+
+	private SWTBotView getView(String locator, SWTBotViewLocatorStrategy locatorStrategy) {
+		switch (locatorStrategy) {
+		case VIEW_ID:
+			logger.debug("Searching for view with id='{}'.", locator);
+			return bot.viewById(locator);
+		case VIEW_PARTNAME:
+			logger.debug("Searching for view with partName='{}'.", locator);
+			return bot.viewByPartName(locator);
+		case VIEW_TITLE:
+			logger.debug("Searching for view with title='{}'.", locator);
+			return bot.viewByTitle(locator);
+		default:
+			throw new IllegalArgumentException("Unknown locator strategy: " + locatorStrategy);
+		}
 	}
 
 	/**

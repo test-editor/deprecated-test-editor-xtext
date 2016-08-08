@@ -2,6 +2,7 @@ package org.testeditor.rcp4
 
 import org.testeditor.fixture.swt.*
 import org.testeditor.fixture.swt.SWTLocatorStrategy
+import org.testeditor.fixture.swt.SWTBotViewLocatorStrategy
 
 interaction type reportWidgets {
 	template = "Report current visable widgets"
@@ -19,10 +20,16 @@ interaction type waitForDialogClosing {
 	method = SWTFixture.waitForDialogClosing(title)
 }
 
+interaction type waitForDialogClosingWithTimeout {
+	template = "Wait at most" ${timeout} "seconds until dialog with title" ${title} "is closed" 
+	method = SWTFixture.waitForDialogClosingWithTimeout(title, timeout)
+}
+
 interaction type isViewVisible {
 	label = "Is view visible"
 	template = "Is view" ${element} "visible"
-	method = SWTFixture.isViewVisible(element)
+	method = SWTFixture.isViewVisible(element, locatorStrategy)
+	locatorStrategy = VIEW_TITLE
 }
 
 interaction type selectElement {
@@ -96,9 +103,9 @@ element type List {
 }
 
 component type General {
-	interactions = reportWidgets, wait, waitForDialogClosing
+	interactions = reportWidgets, wait, waitForDialogClosing, waitForDialogClosingWithTimeout
 }
 
 component type Dialog {
-	interactions = reportWidgets, wait, waitForDialogClosing
+	interactions = reportWidgets, wait, waitForDialogClosing, waitForDialogClosingWithTimeout
 }
