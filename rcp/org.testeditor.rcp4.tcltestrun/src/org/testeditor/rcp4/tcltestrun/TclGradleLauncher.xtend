@@ -13,6 +13,7 @@
 package org.testeditor.rcp4.tcltestrun
 
 import java.io.File
+import java.io.OutputStream
 import java.util.List
 import java.util.Map
 import javax.inject.Inject
@@ -24,7 +25,6 @@ import org.gradle.tooling.ResultHandler
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.gradle.GradleHelper
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
-import java.io.OutputStream
 
 public class TclGradleLauncher implements TclLauncher {
 
@@ -40,11 +40,10 @@ public class TclGradleLauncher implements TclLauncher {
 
 		val testResultFolder = project.createOrGetDeepFolder(GRADLE_TEST_RESULT_FOLDER).location.toFile
 		val resultHandler = new TclGradleResultHandler(testResultFolder)
-		gradleHelper.out = out
 		gradleHelper.run(project.location.toFile, resultHandler) [
 			withArguments("clean", "test", "--tests", testCase) // https://issues.gradle.org/browse/GRADLE-2972
-			// .forTasks("test") // does not work, see issue below
-			// .setStandardOutput(System.out) // alternatively get a separate console output stream (see http://wiki.eclipse.org/FAQ_How_do_I_write_to_the_console_from_a_plug-in%3F)
+			standardOutput = out
+			standardError = out
 		]
 		return resultHandler.result
 	}
