@@ -31,23 +31,25 @@ class TEContentProviderTest extends AbstractTest {
 	@InjectMocks TEContentProvider contentProvider
 	@Mock WorkspaceRootHelper workspaceHelper
 	@Mock JavaCoreHelper javaCoreHelper
+	@Mock IClasspathEntry classPathSource
+	@Mock IWorkspaceRoot root
+	@Mock IProject project
+	@Mock IFolder folder
 
 	@Test
 	def void testGetChildrenOfProject() {
 		// given
-		val parent = mock(IProject)
-		val classPathSource = mock(IClasspathEntry)
 		val classPathOther = mock(IClasspathEntry)
 		val javaProject = mock(IJavaProject)
 		contentProvider.javaCoreHelper = javaCoreHelper
 		when(javaCoreHelper.create(any)).thenReturn(javaProject)
-		when(parent.hasNature(JavaCore.NATURE_ID)).thenReturn(true)
+		when(project.hasNature(JavaCore.NATURE_ID)).thenReturn(true)
 		when(classPathSource.entryKind).thenReturn(IClasspathEntry.CPE_SOURCE)
 		when(classPathOther.entryKind).thenReturn(IClasspathEntry.CPE_LIBRARY)
 		when(javaProject.rawClasspath).thenReturn(#[classPathSource, classPathOther])
 
 		// when
-		val cpEntries = contentProvider.getChildren(parent)
+		val cpEntries = contentProvider.getChildren(project)
 
 		// then
 		assertNotNull(cpEntries)
@@ -57,16 +59,13 @@ class TEContentProviderTest extends AbstractTest {
 	@Test
 	def void testGetChildrenOfClasspathEntry() {
 		// given
-		val parent = mock(IClasspathEntry)
-		val root = mock (IWorkspaceRoot)
-		val folder = mock(IFolder)
 		val resource = mock(IResource)
 		when(workspaceHelper.root).thenReturn(root)
 		when(root.getFolder(any)).thenReturn(folder)
 		when(folder.members).thenReturn(#[resource])
 		
 		// when
-		val childs = contentProvider.getChildren(parent)
+		val childs = contentProvider.getChildren(classPathSource)
 
 		// then
 		assertTrue(childs.contains(resource))
@@ -76,11 +75,7 @@ class TEContentProviderTest extends AbstractTest {
 	def void testGetParentOfResource() {
 		// given
 		val resource = mock(IResource)
-		val project = mock(IProject)
-		val root = mock (IWorkspaceRoot)
-		val classPathSource = mock(IClasspathEntry)
 		val javaProject = mock(IJavaProject)
-		val folder = mock(IFolder)
 		contentProvider.javaCoreHelper = javaCoreHelper
 		when(javaCoreHelper.create(any)).thenReturn(javaProject)
 		when(project.hasNature(JavaCore.NATURE_ID)).thenReturn(true)
@@ -101,16 +96,12 @@ class TEContentProviderTest extends AbstractTest {
 	@Test
 	def void testGetParentOfClasspathEntry() {
 		// given
-		val cpEntry = mock(IClasspathEntry)
-		val root = mock (IWorkspaceRoot)
-		val folder = mock(IFolder)
-		val project = mock(IProject)
 		when(workspaceHelper.root).thenReturn(root)
 		when(root.getFolder(any)).thenReturn(folder)
 		when(folder.project).thenReturn(project)
 		
 		// when
-		val parent = contentProvider.getParent(cpEntry)
+		val parent = contentProvider.getParent(classPathSource)
 
 		// then
 		assertEquals(project, parent)
