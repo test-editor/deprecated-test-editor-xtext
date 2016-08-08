@@ -41,7 +41,6 @@ class TEContentProviderTest extends AbstractTest {
 		// given
 		val classPathOther = mock(IClasspathEntry)
 		val javaProject = mock(IJavaProject)
-		contentProvider.javaCoreHelper = javaCoreHelper
 		when(javaCoreHelper.create(any)).thenReturn(javaProject)
 		when(project.hasNature(JavaCore.NATURE_ID)).thenReturn(true)
 		when(classpathSource.entryKind).thenReturn(IClasspathEntry.CPE_SOURCE)
@@ -76,7 +75,6 @@ class TEContentProviderTest extends AbstractTest {
 		// given
 		val resource = mock(IResource)
 		val javaProject = mock(IJavaProject)
-		contentProvider.javaCoreHelper = javaCoreHelper
 		when(javaCoreHelper.create(any)).thenReturn(javaProject)
 		when(project.hasNature(JavaCore.NATURE_ID)).thenReturn(true)
 		when(classpathSource.entryKind).thenReturn(IClasspathEntry.CPE_SOURCE)

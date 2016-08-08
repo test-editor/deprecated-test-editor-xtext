@@ -12,21 +12,21 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.projectexplorer
 
+import javax.inject.Inject
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jface.viewers.ITreeContentProvider
 import org.eclipse.jface.viewers.Viewer
-import org.eclipse.xtend.lib.annotations.Accessors
 
 /**
  * Content Provider to extend the cnf navigator with the TE specific elements. The provider replaces folders of the classpath entry with one entry.
  */
 class TEContentProvider implements ITreeContentProvider {
 
-	@Accessors WorkspaceRootHelper workspaceRootHelper = new WorkspaceRootHelper
-	@Accessors JavaCoreHelper javaCoreHelper = new JavaCoreHelper
+	@Inject WorkspaceRootHelper workspaceRootHelper
+	@Inject JavaCoreHelper javaCoreHelper
 
 	override getChildren(Object parentElement) {
 		if (parentElement instanceof IProject) {
