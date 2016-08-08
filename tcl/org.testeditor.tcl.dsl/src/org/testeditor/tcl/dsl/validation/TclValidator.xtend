@@ -317,9 +317,7 @@ class TclValidator extends AbstractTclValidator {
 		]
 	}
 	
-	private def checkVariableReferenceIsWellTyped(VariableReference variableReference,
-		Set<JvmTypeReference> typeUsageSet, JvmTypeReference typeDeclared, String variableName,
-		Integer errorIndex) {
+	private def checkVariableReferenceIsWellTyped(VariableReference variableReference, Set<JvmTypeReference> typeUsageSet, JvmTypeReference typeDeclared, String variableName, Integer errorIndex) {
 		switch variableReference {
 			VariableReferenceMapAccess:
 				// do no type checking on values retrieved from a map, but check whether this is actually a map
@@ -329,8 +327,9 @@ class TclValidator extends AbstractTclValidator {
 							INVALID_MAP_ACCESS)
 				}
 			VariableReference:
-				// currently this is a naiive check, expecting the types
-				if (typeDeclared == null || !typeUsageSet.identicalSingleTypeInSet(typeDeclared)) {
+				// currently this is a naive check, expecting the types
+				// TODO typeUsageSet is empty for assertions because TclModelUtil.getAllTypeUsagesOfVariable is not implemented for them
+				if (typeDeclared == null || (!typeUsageSet.isEmpty && !typeUsageSet.identicalSingleTypeInSet(typeDeclared))) {
 					error('''Variable='«variableName»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in a position that expects type(s)='«typeUsageSet.map[qualifiedName].join(", ")»'.''',
 							variableReference.eContainer, variableReference.eContainingFeature, errorIndex,
 							INVALID_TYPED_VAR_DEREF)
