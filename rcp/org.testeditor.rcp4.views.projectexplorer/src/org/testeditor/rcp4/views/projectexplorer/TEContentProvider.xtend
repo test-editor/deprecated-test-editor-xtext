@@ -47,7 +47,7 @@ class TEContentProvider implements ITreeContentProvider {
 
 	override getParent(Object element) {
 		if (element instanceof IResource) {
-			val classpathEntry = getParentClassPathOf(element)
+			val classpathEntry = getParentClasspathEntry(element)
 			if (classpathEntry != null) {
 				return classpathEntry
 			}
@@ -61,14 +61,12 @@ class TEContentProvider implements ITreeContentProvider {
 	/**
 	 * returns the parent folder as ClasspathEntry or null if it is not a ClasspathEntry.
 	 */
-	def IClasspathEntry getParentClassPathOf(IResource element) {
+	def private IClasspathEntry getParentClasspathEntry(IResource element) {
 		if (element.project != null) {
-			val list = getChildren(element.project).filter(IClasspathEntry).filter [
+			val parentClasspathEntries = getChildren(element.project).filter(IClasspathEntry).filter [
 				workspaceRootHelper.getRoot.getFolder(it.path).members.contains(element)
 			]
-			if (!list.empty) {
-				return list.head
-			}
+			return parentClasspathEntries.head
 		}
 		return null
 	}

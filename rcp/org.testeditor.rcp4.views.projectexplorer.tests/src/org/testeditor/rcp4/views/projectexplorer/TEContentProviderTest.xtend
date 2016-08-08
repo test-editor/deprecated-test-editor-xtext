@@ -31,7 +31,7 @@ class TEContentProviderTest extends AbstractTest {
 	@InjectMocks TEContentProvider contentProvider
 	@Mock WorkspaceRootHelper workspaceHelper
 	@Mock JavaCoreHelper javaCoreHelper
-	@Mock IClasspathEntry classPathSource
+	@Mock IClasspathEntry classpathSource
 	@Mock IWorkspaceRoot root
 	@Mock IProject project
 	@Mock IFolder folder
@@ -44,9 +44,9 @@ class TEContentProviderTest extends AbstractTest {
 		contentProvider.javaCoreHelper = javaCoreHelper
 		when(javaCoreHelper.create(any)).thenReturn(javaProject)
 		when(project.hasNature(JavaCore.NATURE_ID)).thenReturn(true)
-		when(classPathSource.entryKind).thenReturn(IClasspathEntry.CPE_SOURCE)
+		when(classpathSource.entryKind).thenReturn(IClasspathEntry.CPE_SOURCE)
 		when(classPathOther.entryKind).thenReturn(IClasspathEntry.CPE_LIBRARY)
-		when(javaProject.rawClasspath).thenReturn(#[classPathSource, classPathOther])
+		when(javaProject.rawClasspath).thenReturn(#[classpathSource, classPathOther])
 
 		// when
 		val cpEntries = contentProvider.getChildren(project)
@@ -65,7 +65,7 @@ class TEContentProviderTest extends AbstractTest {
 		when(folder.members).thenReturn(#[resource])
 		
 		// when
-		val childs = contentProvider.getChildren(classPathSource)
+		val childs = contentProvider.getChildren(classpathSource)
 
 		// then
 		assertTrue(childs.contains(resource))
@@ -79,8 +79,8 @@ class TEContentProviderTest extends AbstractTest {
 		contentProvider.javaCoreHelper = javaCoreHelper
 		when(javaCoreHelper.create(any)).thenReturn(javaProject)
 		when(project.hasNature(JavaCore.NATURE_ID)).thenReturn(true)
-		when(classPathSource.entryKind).thenReturn(IClasspathEntry.CPE_SOURCE)
-		when(javaProject.rawClasspath).thenReturn(#[classPathSource])
+		when(classpathSource.entryKind).thenReturn(IClasspathEntry.CPE_SOURCE)
+		when(javaProject.rawClasspath).thenReturn(#[classpathSource])
 		when(resource.project).thenReturn(project)
 		when(workspaceHelper.root).thenReturn(root)
 		when(root.getFolder(any)).thenReturn(folder)
@@ -90,7 +90,7 @@ class TEContentProviderTest extends AbstractTest {
 		val parent = contentProvider.getParent(resource)
 
 		// then
-		assertEquals(classPathSource, parent)
+		assertEquals(classpathSource, parent)
 	}
 
 	@Test
@@ -101,7 +101,7 @@ class TEContentProviderTest extends AbstractTest {
 		when(folder.project).thenReturn(project)
 		
 		// when
-		val parent = contentProvider.getParent(classPathSource)
+		val parent = contentProvider.getParent(classpathSource)
 
 		// then
 		assertEquals(project, parent)
