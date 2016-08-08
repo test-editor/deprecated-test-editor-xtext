@@ -397,9 +397,9 @@ class TclModelUtil extends TslModelUtil {
 	/** 
 	 * get the actual jvm types from the fixtures that are transitively used and to which this variable/parameter is passed to
 	 */
-	def dispatch Set<JvmTypeReference> getAllTypeUsagesOfVariable(ComponentTestStepContext componentTestStepContext,
-		String variableName) {
+	def dispatch Set<JvmTypeReference> getAllTypeUsagesOfVariable(ComponentTestStepContext componentTestStepContext, String variableName) {
 		// type derivation of variable usage within assertions is not implemented "yet" => filter on test steps only
+		// TODO this has to be implemented if the check is to be performed on assertions!
 		val typesUsages = componentTestStepContext.steps.filter(TestStep).map [ step |
 			step.stepVariableFixtureParameterTypePairs.filterKey(VariableReference).filter [
 				key.variable.name == variableName
