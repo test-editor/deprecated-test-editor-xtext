@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
+import java.io.OutputStream
 
 public class TclMavenLauncher implements TclLauncher {
 
@@ -35,7 +36,7 @@ public class TclMavenLauncher implements TclLauncher {
 	@Inject extension ProjectUtils
 	@Inject MavenExecutor mavenExecutor
 
-	override launchTest(List<String> testCases, IProject project, IProgressMonitor monitor,
+	override launchTest(List<String> testCases, IProject project, IProgressMonitor monitor, OutputStream out,
 		Map<String, Object> options) {
 		val parameters = if (options.containsKey(
 				PROFILE)) {
@@ -46,7 +47,7 @@ public class TclMavenLauncher implements TclLauncher {
 			}
 		// val testCases = createTestCasesCommaList(selection)
 		val result = mavenExecutor.executeInNewJvm(parameters, project.location.toOSString,
-			"test=" + testCases.join(","), monitor)
+			"test=" + testCases.join(","), monitor, out)
 		val testResultFolder = project.createOrGetDeepFolder(MVN_TEST_RESULT_FOLDER).location.toFile
 		if (result != 0) {
 			logger.error('''Error during maven build using parameters='«parameters»' and element='«testCases»'.''')
@@ -57,7 +58,7 @@ public class TclMavenLauncher implements TclLauncher {
 
 	def Iterable<String> getProfiles(IProject project) {
 		mavenExecutor.executeInNewJvm("help:all-profiles", project.location.toOSString, '''output=«PROFILE_TXT_PATH»''',
-			new NullProgressMonitor)
+			new NullProgressMonitor, System.out)
 		val file = new File('''«project.location.toOSString»/«PROFILE_TXT_PATH»''')
 		val profileOutput = Files.readAllLines(file.toPath, StandardCharsets.UTF_8)
 		return profileOutput.filter[contains("Profile Id:")].map [

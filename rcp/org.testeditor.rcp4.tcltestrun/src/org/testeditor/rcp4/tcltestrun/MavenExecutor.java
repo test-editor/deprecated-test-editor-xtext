@@ -12,8 +12,13 @@
  *******************************************************************************/
 package org.testeditor.rcp4.tcltestrun;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,6 +43,35 @@ import org.slf4j.LoggerFactory;
 public class MavenExecutor {
 
 	private static Logger logger = LoggerFactory.getLogger(MavenExecutor.class);
+
+	static class OutputStreamCopyUtil implements Runnable {
+
+		private BufferedReader reader;
+		private PrintStream psOut;
+
+		public OutputStreamCopyUtil(InputStream source, OutputStream out) {
+			reader = new BufferedReader(new InputStreamReader(source));
+			psOut = new PrintStream(out);
+		}
+
+		@Override
+		public void run() {
+			try {
+				String message = "";
+				while (message != null) {
+					psOut.println(message);
+					logger.trace(message);
+					Thread.sleep(100);
+					message = reader.readLine();
+				}
+			} catch (IOException e) {
+				logger.error("Cant connect to process ouput stream", e);
+			} catch (InterruptedException e) {
+				logger.trace("Process log copy terminated.");
+			}
+		}
+
+	}
 
 	/**
 	 * Executes the maven build using maven embedder. It allways starts with a
@@ -82,8 +116,8 @@ public class MavenExecutor {
 	 * @throws IOException
 	 *             on failure
 	 */
-	public int executeInNewJvm(String parameters, String pathToPom, String testParam, IProgressMonitor monitor)
-			throws IOException {
+	public int executeInNewJvm(String parameters, String pathToPom, String testParam, IProgressMonitor monitor,
+			OutputStream out) throws IOException {
 		int result = 1; // unspecified error code != 0
 		String jvm = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
 		List<String> command = new ArrayList<String>();
@@ -104,19 +138,21 @@ public class MavenExecutor {
 			command.add("-o");
 		}
 		ProcessBuilder processBuilder = new ProcessBuilder();
-		processBuilder.inheritIO();
 		processBuilder.directory(new File(pathToPom));
-		processBuilder.redirectErrorStream(true);
 		logger.info("Executing maven in new jvm with command={}", command);
 		processBuilder.command(command);
 		Process process = processBuilder.start();
+		Thread outputCopyThread = new Thread(new OutputStreamCopyUtil(process.getInputStream(), out));
+		outputCopyThread.run();
 		try {
 			while (!process.waitFor(100, TimeUnit.MILLISECONDS)) {
 				if (monitor.isCanceled()) {
+					outputCopyThread.interrupt();
 					process.destroy();
 				}
 			}
 			result = process.exitValue();
+			outputCopyThread.interrupt();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -137,7 +173,6 @@ public class MavenExecutor {
 				.findDependencyBundle(MavenPluginActivator.getDefault().getBundle(), "org.eclipse.equinox.common")));
 		Bundle bundle = FrameworkUtil.getBundle(this.getClass());
 		cp.addAll(Bundles.getClasspathEntries(bundle));
-//		Bundle[] bundles = bundle.getBundleContext().getBundles();
 		for (String sname : new String[] { "org.slf4j.api", "org.eclipse.m2e.maven.runtime.slf4j.simple",
 				"javax.inject" }) {
 			Bundle dependency = Bundles.findDependencyBundle(Bundles.findDependencyBundle(
