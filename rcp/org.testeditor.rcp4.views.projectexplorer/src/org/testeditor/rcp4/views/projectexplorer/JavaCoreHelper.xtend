@@ -14,10 +14,11 @@ package org.testeditor.rcp4.views.projectexplorer
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.jdt.core.JavaCore
+import org.eclipse.jdt.core.IJavaProject
 
 class JavaCoreHelper {
 	
-	def create(IProject project) {
+	def IJavaProject create(IProject project) {
 		JavaCore.create(project)
 	}
 	
