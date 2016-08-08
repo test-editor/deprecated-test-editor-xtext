@@ -32,6 +32,7 @@ import org.eclipse.swtbot.swt.finder.finders.ContextMenuHelper;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotList;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotText;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
@@ -126,12 +127,20 @@ public class SWTFixture {
 	/**
 	 * Waits for a dialog with a given title to show up.
 	 * 
-	 * @param title the title of the dialog
+	 * @param title
+	 *            the title of the dialog
 	 */
 	@FixtureMethod
-	public void waitForDialog(String title) {
+	public void waitForDialogClosing(String title) {
 		logger.info("Waiting for dialog with title='{}' to open.", title);
-		bot.waitUntil(Conditions.shellIsActive(title));
+		try {
+			SWTBotShell shell = bot.shell(title);
+			if (shell.isActive()) {
+				bot.waitUntil(Conditions.shellCloses(shell));
+			}
+		} catch (WidgetNotFoundException e) {
+			logger.info("Widget not found. No reason to wait.");
+		}
 		logger.info("Finished waiting.");
 	}
 

@@ -30,7 +30,7 @@ Setup:
 	- Select element "Web Fixture" in list <AvailableFixturesList>
 	- Click on <AddFixtureButton>
 	- Click on <FinishButton>
-	- Wait for dialog with title "Progress Information"
+	- Wait until dialog with title "Progress Information" is closed
 	
 * Verify that the project is visible in the ui
 

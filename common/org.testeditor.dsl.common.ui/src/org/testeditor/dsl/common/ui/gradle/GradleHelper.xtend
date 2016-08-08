@@ -8,6 +8,9 @@ import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ResultHandler
 import org.gradle.tooling.events.OperationType
 import org.slf4j.LoggerFactory
+import java.io.OutputStream
+import org.eclipse.xtend.lib.annotations.Accessors
+import java.io.PrintStream
 
 /**
  * Helper class for running Gradle builds.
@@ -15,6 +18,9 @@ import org.slf4j.LoggerFactory
 class GradleHelper {
 
 	private static val logger = LoggerFactory.getLogger(GradleHelper)
+	
+	@Accessors
+	private OutputStream out;
 
 	def void runTasks(File projectFolder, String... tasks) {
 		logger.info("Running gradle build with tasks='{}'.", tasks)
@@ -31,8 +37,10 @@ class GradleHelper {
 		val connector = GradleConnector.newConnector.forProjectDirectory(projectFolder).connect
 		try {
 			val build = connector.newBuild
+			val psOut = new PrintStream(out)
 			build.addProgressListener([ event |
 				logger.debug("Gradle build event='{}'", event.displayName)
+				psOut.println(event.displayName)
 			], OperationType.values)
 			configClosure.accept(build)
 			if (resultHandler !== null) {
@@ -60,5 +68,5 @@ class GradleHelper {
 	private def File toFile(IProject project) {
 		return project.location.toFile
 	}
-
+	
 }

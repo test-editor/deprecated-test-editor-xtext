@@ -37,6 +37,7 @@ import org.testeditor.dsl.common.ui.utils.ProgressMonitorRunner
 import org.testeditor.rcp4.tcltestrun.TclGradleLauncher
 import org.testeditor.rcp4.tcltestrun.TclLauncher
 import org.testeditor.rcp4.tcltestrun.TclMavenLauncher
+import org.testeditor.rcp4.views.tcltestrun.console.TCLConsoleFactory
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.dsl.ui.testlaunch.LaunchShortcutUtil
 import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
@@ -53,6 +54,7 @@ class TclLauncherUi implements Launcher {
 	@Inject TclIndexHelper indexHelper
 	LaunchShortcutUtil launchShortcutUtil // since this class itself is instanciated by e4, this attribute has to be injected manually
 	Map<URI, ArrayList<TestCase>> tslIndex
+	@Inject TCLConsoleFactory consoleFactory
 
 	@Inject
 	new(TclInjectorProvider tclInjectorProvider) {
@@ -108,8 +110,8 @@ class TclLauncherUi implements Launcher {
 			launcher.class.simpleName, testCasesCommaList.get(0), project)
 		progressRunner.run([ monitor |
 			monitor.beginTask("Test execution: " + testCasesCommaList.get(0), IProgressMonitor.UNKNOWN)
-
-			val result = launcher.launchTest(testCasesCommaList, project, monitor, options)
+			val con = consoleFactory.createAndShowConsole
+			val result = launcher.launchTest(testCasesCommaList, project, monitor, con.newOutputStream, options)
 			project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
 			if (result.expectedFileRoot == null) {
 				logger.error("resulting expectedFile must not be null")
