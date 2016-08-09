@@ -18,6 +18,7 @@ import static org.junit.Assert.assertNotNull;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.widgets.Display;
@@ -213,10 +214,31 @@ public class SWTFixture {
 		}
 		assertNotNull(tree);
 		logger.trace("Open item with path: {}", itemName);
-		SWTBotTreeItem expandNode = tree.expandNode(itemName.split("/"));
-		assertNotNull(expandNode);
-		expandNode.select();
+		try {
+			SWTBotTreeItem expandNode = tree.expandNode(itemName.split("/"));
+			expandNode.select();
+		} catch (WidgetNotFoundException e) {
+			printTreeItems(tree, locator);
+			throw e;
+		}
 	}
+	
+	private void printTreeItems(SWTBotTree tree, String locator) {
+		logger.info("Printing all items of tree with locator='{}'.", locator);
+		printTreeItems(tree.getAllItems(), 0);
+	}
+	
+	private void printTreeItems(SWTBotTreeItem[] items, int level) {
+		String spaces = StringUtils.repeat(" ", 4 * level);
+		for (SWTBotTreeItem item : items) {
+			logger.info("{}|-- {}", spaces, item.getText());
+			if (!item.isExpanded()) {
+				item.expand();
+			}
+			printTreeItems(item.getItems(), level + 1);
+		}
+	}
+	
 
 	@FixtureMethod
 	public void selectElementInList(String locator, String itemName) {
