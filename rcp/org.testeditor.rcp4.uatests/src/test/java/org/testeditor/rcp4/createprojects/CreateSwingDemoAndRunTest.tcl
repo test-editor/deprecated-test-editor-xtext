@@ -35,6 +35,7 @@ Setup:
 * Run "GreetingTest"
 
 	Component: ProjectExplorer
+	- Wait "2" seconds
 	- Select element "swingdemo/Tests/swingdemo/GreetingTest.tcl" in tree <ProjektBaum>
 	- Execute menu item "Run As/1 Test" in tree <ProjektBaum>
 	- Wait at most "20" seconds until dialog with title "Progress Information" is closed
