@@ -19,6 +19,9 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.testeditor.fixture.core.interaction.FixtureMethod;
 
@@ -28,7 +31,7 @@ import org.testeditor.fixture.core.interaction.FixtureMethod;
  */
 public class TestEditorFixture {
 
-	Logger logger = LogManager.getLogger(TestEditorFixture.class);
+	private static Logger logger = LogManager.getLogger(TestEditorFixture.class);
 
 	/**
 	 * Creates a simple Test-Editor project with some basic structures for
@@ -64,18 +67,29 @@ public class TestEditorFixture {
 
 	/**
 	 * Resets the UI of the application to the initial state.
-	 * 
-	 * @throws Exception
-	 *             on failure
 	 */
 	@FixtureMethod
-	public void resetApplication() throws Exception {
-		if (PlatformUI.getWorkbench().getActiveWorkbenchWindow() != null) {
-			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().closeAllEditors(true);
-			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().resetPerspective();
-			logger.info("Reset Workbench");
-		}
-		logger.info("Reset Application");
+	public void resetApplication() {
+		IWorkbench workbench = PlatformUI.getWorkbench();
+		// TODO fix the perspective!
+//		IWorkbenchWindow[] workbenchWindows = workbench.getWorkbenchWindows();
+//		logger.info("Resetting {} workbench window(s).", workbenchWindows.length);
+//		workbench.getDisplay().syncExec(() -> {
+//			for (IWorkbenchWindow window : workbenchWindows) {
+//				window.getActivePage().closeAllEditors(true);
+//				window.getActivePage().resetPerspective();
+//			}
+//		});
+		// hack until perspective is fixed: bring project explorer to the front
+		final IWorkbenchWindow window = workbench.getWorkbenchWindows()[0];
+		workbench.getDisplay().syncExec(() -> {
+			String viewToOpen = "org.testeditor.rcp4.views.ProjectExplorer";
+			try {
+				window.getActivePage().showView(viewToOpen);
+			} catch (PartInitException e) {
+				logger.error("Could not init view='{}'.", viewToOpen);
+			}
+		});
 	}
 
 }

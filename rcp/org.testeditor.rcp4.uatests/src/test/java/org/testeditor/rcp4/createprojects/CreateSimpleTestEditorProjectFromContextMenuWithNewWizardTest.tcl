@@ -27,6 +27,7 @@ Setup:
 	Component: NewDialog
 	- Type "MyFirstProject" into <ProjectName>
 	- Click on <FinishButton>
+	- Wait until dialog with title "Progress Information" is closed
 
 * Verify that the project is visible in the ui
 
