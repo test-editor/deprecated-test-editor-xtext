@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ui.IWorkbench;
@@ -72,14 +73,16 @@ public class TestEditorFixture {
 	public void resetApplication() {
 		IWorkbench workbench = PlatformUI.getWorkbench();
 		// TODO fix the perspective!
-//		IWorkbenchWindow[] workbenchWindows = workbench.getWorkbenchWindows();
-//		logger.info("Resetting {} workbench window(s).", workbenchWindows.length);
-//		workbench.getDisplay().syncExec(() -> {
-//			for (IWorkbenchWindow window : workbenchWindows) {
-//				window.getActivePage().closeAllEditors(true);
-//				window.getActivePage().resetPerspective();
-//			}
-//		});
+		// IWorkbenchWindow[] workbenchWindows =
+		// workbench.getWorkbenchWindows();
+		// logger.info("Resetting {} workbench window(s).",
+		// workbenchWindows.length);
+		// workbench.getDisplay().syncExec(() -> {
+		// for (IWorkbenchWindow window : workbenchWindows) {
+		// window.getActivePage().closeAllEditors(true);
+		// window.getActivePage().resetPerspective();
+		// }
+		// });
 		// hack until perspective is fixed: bring project explorer to the front
 		final IWorkbenchWindow window = workbench.getWorkbenchWindows()[0];
 		workbench.getDisplay().syncExec(() -> {
@@ -90,6 +93,12 @@ public class TestEditorFixture {
 				logger.error("Could not init view='{}'.", viewToOpen);
 			}
 		});
+	}
+
+	@FixtureMethod
+	public String isValidProject(String project) throws CoreException {
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		return Boolean.toString(root.getProject(project).hasNature("org.eclipse.jdt.core.javanature"));
 	}
 
 }

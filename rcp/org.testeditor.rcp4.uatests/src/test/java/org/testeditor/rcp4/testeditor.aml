@@ -21,8 +21,13 @@ interaction type restartApp {
 	method = TestEditorFixture.resetApplication
 }
 
+interaction type isValidTestProject {
+	template = "Check if" ${projectName} "is a valid testproject"
+	method = TestEditorFixture.isValidProject(projectName)
+}
+
 component type TestEditorApp {
-	interactions = createSimpleProject, restartApp, cleanWorkspace
+	interactions = createSimpleProject, restartApp, cleanWorkspace, isValidTestProject
 }
 
 component HauptFenster is General {
