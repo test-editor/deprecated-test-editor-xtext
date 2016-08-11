@@ -12,7 +12,7 @@
  *******************************************************************************/
 @Ecore(nsURI="http://www.testeditor.org/model")
 @GenModel(
-	modelDirectory="org.testeditor.dsl.common/src-gen", 
+	modelDirectory="org.testeditor.dsl.common.model/src-gen", 
 	complianceLevel="7.0",
 	updateClasspath="true"
 )

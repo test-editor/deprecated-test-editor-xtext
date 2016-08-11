@@ -82,6 +82,11 @@
 						</dependency>
 						<dependency>
 							<groupId>org.testeditor</groupId>
+							<artifactId>org.testeditor.dsl.common.model</artifactId>
+							<version>${project.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>org.testeditor</groupId>
 							<artifactId>org.testeditor.aml.model</artifactId>
 							<version>${project.version}</version>
 						</dependency>

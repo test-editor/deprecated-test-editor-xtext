@@ -15,6 +15,7 @@
 
 	<modules>
 		<module>org.testeditor.dsl.common</module>
+        <module>org.testeditor.dsl.common.model</module>
 		<module>org.testeditor.dsl.common.tests</module>
 		<module>org.testeditor.dsl.common.testing</module>
 		<module>org.testeditor.dsl.common.ui</module>
