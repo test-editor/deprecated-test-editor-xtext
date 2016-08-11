@@ -2,7 +2,7 @@ package org.testeditor.rcp4.createprojects
 
 import org.testeditor.rcp4.*
 
-# CreateSwingDemoAndRunTest
+# CreateSwingDemoAndRunFIXME
 
 // given
 Setup:
