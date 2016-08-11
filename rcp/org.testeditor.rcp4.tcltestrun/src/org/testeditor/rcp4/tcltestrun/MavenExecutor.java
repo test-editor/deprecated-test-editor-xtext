@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.maven.cli.MavenCli;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.m2e.core.internal.Bundles;
 import org.eclipse.m2e.core.internal.MavenPluginActivator;
 import org.osgi.framework.Bundle;
@@ -43,35 +44,6 @@ import org.slf4j.LoggerFactory;
 public class MavenExecutor {
 
 	private static Logger logger = LoggerFactory.getLogger(MavenExecutor.class);
-
-	static class OutputStreamCopyUtil implements Runnable {
-
-		private BufferedReader reader;
-		private PrintStream psOut;
-
-		public OutputStreamCopyUtil(InputStream source, OutputStream out) {
-			reader = new BufferedReader(new InputStreamReader(source));
-			psOut = new PrintStream(out);
-		}
-
-		@Override
-		public void run() {
-			try {
-				String message = "";
-				while (message != null) {
-					psOut.println(message);
-					logger.trace(message);
-					Thread.sleep(100);
-					message = reader.readLine();
-				}
-			} catch (IOException e) {
-				logger.error("Cant connect to process ouput stream", e);
-			} catch (InterruptedException e) {
-				logger.trace("Process log copy terminated.");
-			}
-		}
-
-	}
 
 	/**
 	 * Executes the maven build using maven embedder. It allways starts with a
@@ -112,13 +84,11 @@ public class MavenExecutor {
 	 *            pvm parameter to identify the test case to be executed.
 	 * @param monitor
 	 *            Progress monitor to handle cancel events.
-	 * @return int with exit code
+	 * @return the result interpreted as {@link IStatus}.
 	 * @throws IOException
 	 *             on failure
 	 */
-	public int executeInNewJvm(String parameters, String pathToPom, String testParam, IProgressMonitor monitor,
-			OutputStream out) throws IOException {
-		int result = 1; // unspecified error code != 0
+	public int executeInNewJvm(String parameters, String pathToPom, String testParam, IProgressMonitor monitor, OutputStream outputStream) throws IOException {
 		String jvm = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
 		List<String> command = new ArrayList<String>();
 		command.add(jvm);
@@ -142,21 +112,22 @@ public class MavenExecutor {
 		logger.info("Executing maven in new jvm with command={}", command);
 		processBuilder.command(command);
 		Process process = processBuilder.start();
-		Thread outputCopyThread = new Thread(new OutputStreamCopyUtil(process.getInputStream(), out));
-		outputCopyThread.run();
+		PrintStream out = new PrintStream(outputStream);
+		OutputStreamCopyUtil outputCopyThread = new OutputStreamCopyUtil(process.getInputStream(), out);
+		outputCopyThread.start();
 		try {
 			while (!process.waitFor(100, TimeUnit.MILLISECONDS)) {
 				if (monitor.isCanceled()) {
-					outputCopyThread.interrupt();
 					process.destroy();
+					out.println("Operation cancelled.");
+					return IStatus.CANCEL;
 				}
 			}
-			result = process.exitValue();
-			outputCopyThread.interrupt();
+			return process.exitValue() == 0 ? IStatus.OK : IStatus.CANCEL;
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logger.error("Caught exception.", e);
+			return IStatus.ERROR;
 		}
-		return result;
 	}
 
 	/**
@@ -213,6 +184,33 @@ public class MavenExecutor {
 		if (result != 0) {
 			System.exit(result);
 		}
+	}
+
+	static class OutputStreamCopyUtil extends Thread {
+
+		private BufferedReader reader;
+		private PrintStream out;
+
+		public OutputStreamCopyUtil(InputStream source, PrintStream out) {
+			super();
+			this.reader = new BufferedReader(new InputStreamReader(source));
+			this.out = out;
+		}
+
+		@Override
+		public void run() {
+			try {
+				String message = "";
+				while (message != null) {
+					out.println(message);
+					logger.trace(message);
+					message = reader.readLine();
+				}
+			} catch (IOException e) {
+				logger.error("Cannot connect to process ouput stream", e);
+			}
+		}
+
 	}
 
 }

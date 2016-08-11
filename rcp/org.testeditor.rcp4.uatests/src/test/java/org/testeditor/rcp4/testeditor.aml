@@ -1,6 +1,7 @@
 package org.testeditor.rcp4
 
 import org.testeditor.fixture.swt.*
+import org.testeditor.fixture.swt.SWTBotViewLocatorStrategy
 
 interaction type createSimpleProject {
 	label = "Create simple project"
@@ -20,22 +21,35 @@ interaction type restartApp {
 	method = TestEditorFixture.resetApplication
 }
 
+interaction type isValidTestProject {
+	template = "Check if" ${projectName} "is a valid testproject"
+	method = TestEditorFixture.isValidProject(projectName)
+}
+
 component type TestEditorApp {
-	interactions = createSimpleProject, restartApp, cleanWorkspace
+	interactions = createSimpleProject, restartApp, cleanWorkspace, isValidTestProject
 }
 
 component HauptFenster is General {
+
 	element ProjektBaum is View {
 		label = "Project Explorer"
-		locator ="Test Project Explorer"
+		locator = "Test Project Explorer"
 	}
+	
 	element TestStepSelector is View {
 		label = "Test Step Selector"
 		locator = "Test Step Selector"
 	}
+	
+	element JUnitView is View {
+		locator = "org.eclipse.jdt.junit.ResultView"
+		locatorStrategy = VIEW_ID
+	}
+
 }
 
-value-space projectmenues = #[ "New/Project...", "Open" ]
+value-space projectmenues = #[ "New/Project...", "Open", "Run As/1 Test" ]
 
 component ProjectExplorer is General {
 	element ProjektBaum is TreeView { // TODO english!
@@ -73,4 +87,9 @@ component NewDialog is Dialog {
 		label = "Available fixtures list"
 		locator = "[ID]NEW_DIALOG_AVAILABLE_FIXTURE_LIST"
 	}
+	
+	element GenerateWithExamples is CheckBox {
+		locator = "NEW_DIALOG_GENERATE_WITH_EXAMPLES"
+	}
+
 }
