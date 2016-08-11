@@ -18,6 +18,7 @@ import static org.junit.Assert.assertNotNull;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.widgets.Display;
@@ -29,7 +30,9 @@ import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.finders.ContextMenuHelper;
+import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotList;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
@@ -132,11 +135,25 @@ public class SWTFixture {
 	 */
 	@FixtureMethod
 	public void waitForDialogClosing(String title) {
-		logger.info("Waiting for dialog with title='{}' to open.", title);
+		long swtBotDefaultInMilliSeconds = SWTBotPreferences.TIMEOUT;
+		waitForDialogClosingWithTimeout(title, swtBotDefaultInMilliSeconds / 1000);
+	}
+
+	/**
+	 * Waits for a dialog with a given title to show up.
+	 * 
+	 * @param title
+	 *            the title of the dialog
+	 * @param timeout
+	 *            the time to wait
+	 */
+	@FixtureMethod
+	public void waitForDialogClosingWithTimeout(String title, long timeout) {
+		logger.info("Waiting for dialog with title='{}' to open, timeout='{}' seconds.", title, timeout);
 		try {
 			SWTBotShell shell = bot.shell(title);
 			if (shell.isActive()) {
-				bot.waitUntil(Conditions.shellCloses(shell));
+				bot.waitUntil(Conditions.shellCloses(shell), timeout * 1000);
 			}
 		} catch (WidgetNotFoundException e) {
 			logger.info("Widget not found. No reason to wait.");
@@ -145,17 +162,34 @@ public class SWTFixture {
 	}
 
 	/**
-	 * Checks that a view in the rcp is active.
+	 * Checks that a view in the RCP is active.
 	 * 
-	 * @param viewName
-	 *            to bee looked up.
+	 * @param locator
+	 *            to locator of the view to be looked up.
+	 * @param locatorStrategy
+	 *            the strategy that shall be applied
 	 * @return true if the vie is visible
 	 */
 	@FixtureMethod
-	public boolean isViewVisible(String viewName) {
-		logger.trace("search for view with title: {}", viewName);
-		SWTBotView view = bot.viewByTitle(viewName);
+	public boolean isViewVisible(String locator, SWTBotViewLocatorStrategy locatorStrategy) {
+		SWTBotView view = getView(locator, locatorStrategy);
 		return view.isActive();
+	}
+
+	private SWTBotView getView(String locator, SWTBotViewLocatorStrategy locatorStrategy) {
+		switch (locatorStrategy) {
+		case VIEW_ID:
+			logger.debug("Searching for view with id='{}'.", locator);
+			return bot.viewById(locator);
+		case VIEW_PARTNAME:
+			logger.debug("Searching for view with partName='{}'.", locator);
+			return bot.viewByPartName(locator);
+		case VIEW_TITLE:
+			logger.debug("Searching for view with title='{}'.", locator);
+			return bot.viewByTitle(locator);
+		default:
+			throw new IllegalArgumentException("Unknown locator strategy: " + locatorStrategy);
+		}
 	}
 
 	/**
@@ -180,10 +214,31 @@ public class SWTFixture {
 		}
 		assertNotNull(tree);
 		logger.trace("Open item with path: {}", itemName);
-		SWTBotTreeItem expandNode = tree.expandNode(itemName.split("/"));
-		assertNotNull(expandNode);
-		expandNode.select();
+		try {
+			SWTBotTreeItem expandNode = tree.expandNode(itemName.split("/"));
+			expandNode.select();
+		} catch (WidgetNotFoundException e) {
+			printTreeItems(tree, locator);
+			throw e;
+		}
 	}
+	
+	private void printTreeItems(SWTBotTree tree, String locator) {
+		logger.info("Printing all items of tree with locator='{}'.", locator);
+		printTreeItems(tree.getAllItems(), 0);
+	}
+	
+	private void printTreeItems(SWTBotTreeItem[] items, int level) {
+		String spaces = StringUtils.repeat(" ", 4 * level);
+		for (SWTBotTreeItem item : items) {
+			logger.info("{}|-- {}", spaces, item.getText());
+			if (!item.isExpanded()) {
+				item.expand();
+			}
+			printTreeItems(item.getItems(), level + 1);
+		}
+	}
+	
 
 	@FixtureMethod
 	public void selectElementInList(String locator, String itemName) {
@@ -261,6 +316,45 @@ public class SWTFixture {
 		}
 		assertNotNull(button);
 		button.click();
+	}
+
+	/**
+	 * Checks an SWT checkbox.
+	 * 
+	 * @param locator
+	 *            to identify the checkbox
+	 * @param locatorStrategy
+	 *            the strategy to use
+	 */
+	@FixtureMethod
+	public void check(String locator, SWTLocatorStrategy locatorStrategy) {
+		SWTBotCheckBox checkBox = getCheckBox(locator, locatorStrategy);
+		checkBox.select();
+	}
+
+	/**
+	 * Unchecks an SWT checkbox.
+	 * 
+	 * @param locator
+	 *            to identify the checkbox
+	 * @param locatorStrategy
+	 *            the strategy to use
+	 */
+	@FixtureMethod
+	public void uncheck(String locator, SWTLocatorStrategy locatorStrategy) {
+		SWTBotCheckBox checkBox = getCheckBox(locator, locatorStrategy);
+		checkBox.deselect();
+	}
+
+	// TODO would be nicer to use the generic withId(...) but we need Harmcrest on the classpath for that
+	public SWTBotCheckBox getCheckBox(String locator, SWTLocatorStrategy locatorStrategy) {
+		switch (locatorStrategy) {
+		case ID:
+			return bot.checkBoxWithId(locator);
+		case LABEL: 
+			return bot.checkBoxWithLabel(locator);
+		}
+		throw new IllegalArgumentException("Unkown locatorStrategy: " + locatorStrategy);
 	}
 
 	/**

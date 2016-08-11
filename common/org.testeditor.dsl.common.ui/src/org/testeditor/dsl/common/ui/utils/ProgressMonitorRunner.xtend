@@ -15,10 +15,17 @@ package org.testeditor.dsl.common.ui.utils
 import org.eclipse.jface.dialogs.ProgressMonitorDialog
 import org.eclipse.jface.operation.IRunnableWithProgress
 import org.eclipse.swt.widgets.Display
+import org.slf4j.LoggerFactory
 
 class ProgressMonitorRunner {
 
+	static val logger = LoggerFactory.getLogger(ProgressMonitorRunner)
+
 	def void run(IRunnableWithProgress runnableWithProgress) {
-		new ProgressMonitorDialog(Display.current.activeShell).run(true, true, runnableWithProgress)
+		try {
+			new ProgressMonitorDialog(Display.current.activeShell).run(true, true, runnableWithProgress)
+		} catch(InterruptedException e) {
+			logger.debug("User aborted running operation.")
+		}
 	}
 }
