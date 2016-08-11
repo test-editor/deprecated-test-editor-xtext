@@ -7,7 +7,7 @@
 <plugin>
 
    <extension point="org.eclipse.emf.ecore.generated_package">
-      <!-- @generated model -->
+      <!-- @generated common -->
       <package
             uri="http://www.testeditor.org/model"
             class="org.testeditor.dsl.common.CommonPackage"
