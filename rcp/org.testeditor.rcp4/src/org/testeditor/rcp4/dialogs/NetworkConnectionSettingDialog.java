@@ -94,6 +94,8 @@ public class NetworkConnectionSettingDialog extends Dialog {
 
 	private boolean ignoreConnectionState;
 
+	private Button ignoreConnectionStateSwitch;
+
 	public NetworkConnectionSettingDialog(Shell parentShell, IEclipsePreferences prefs, IEclipseContext context) {
 		super(parentShell);
 		this.prefs = prefs;
@@ -128,6 +130,16 @@ public class NetworkConnectionSettingDialog extends Dialog {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				workOffline = offlineSwtich.getSelection();
+				updateNetworkState();
+			}
+		});
+		ignoreConnectionStateSwitch = new Button(container, SWT.CHECK);
+		ignoreConnectionStateSwitch.setText("Ignore network test on startup");
+		ignoreConnectionStateSwitch.setSelection(ignoreConnectionState);
+		ignoreConnectionStateSwitch.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				ignoreConnectionState = ignoreConnectionStateSwitch.getSelection();
 				updateNetworkState();
 			}
 		});
@@ -350,6 +362,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 		prefs.put(PROXY_USER, proxyUserSetting);
 		prefs.put(PROXY_PWD, proxyPwdSetting);
 		prefs.put(NON_PROXY_HOSTS, noProxyHostsSetting);
+		prefs.putBoolean(TE_IGNORE_CONNECTION_STATE, ignoreConnectionState);
 		try {
 			prefs.flush();
 		} catch (BackingStoreException e) {
