@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2012 - 2016 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
 package org.testeditor.tcl.dsl.validation
 
 import javax.inject.Inject
@@ -12,36 +24,36 @@ class TclValidatorTest extends AbstractParserTest {
 
 	@Test
 	def void validateStringArray() {
-		//given
+		// given
 		val aml = getAMLWithValueSpace('''#[ "New", "Open" ]''')
 		var tcl = getTCLWithValue("Test", "New")
 
 		parseAml(aml)
 		var tclError = getTCLWithValue("Test2", "Save")
-		
-		//when
+
+		// when
 		var model = parseTcl(tcl.toString, "Test.tcl")
 		var modelError = parseTcl(tclError.toString, "Test2.tcl")
-		
-		//then
+
+		// then
 		validator.assertNoIssues(model)
 		assertFalse(validator.validate(modelError).isEmpty)
 	}
 
 	@Test
 	def void validateNumberRange() {
-		//given
+		// given
 		val aml = getAMLWithValueSpace("2 ... 5")
 		var tcl = getTCLWithValue("Test", "4")
 
 		parseAml(aml)
 		var tclError = getTCLWithValue("Test2", "1")
-		
-		//when
+
+		// when
 		var model = parseTcl(tcl.toString, "Test.tcl")
 		var modelError = parseTcl(tclError.toString, "Test2.tcl")
 
-		//then
+		// then
 		validator.assertNoIssues(model)
 		assertFalse(validator.validate(modelError).isEmpty)
 	}
@@ -55,16 +67,37 @@ class TclValidatorTest extends AbstractParserTest {
 		parseAml(aml)
 		var tclError = getTCLWithValue("Test2", "!!hello")
 
-		//when
+		// when
 		var model = parseTcl(tcl.toString, "Test.tcl")
 		var modelError = parseTcl(tclError.toString, "Test2.tcl")
 
-		//then
+		// then
 		validator.assertNoIssues(model)
 		assertFalse(validator.validate(modelError).isEmpty)
 	}
 
-	def CharSequence getTCLWithValue(String testName, String value) { '''
+	@Test
+	def void testValidateFieldsWithManyValueSpaces() {
+		// given
+		val aml = getAMLWithValueSpace('''#["foo", "bar"]''')
+		var tcl = getTCLWithTwoValueSpaces("Test", "foo", "Mask")
+		parseAml(aml)
+
+		// when
+		var model = parseTcl(tcl.toString, "Test.tcl")
+
+		// then
+		validator.assertNoIssues(model)
+	}
+
+	def getTCLWithTwoValueSpaces(String testName, String value1, String value2) {
+		getTCLWithValue(testName, value1) + '''
+			- execute menu item  "«value2»"  in tree <TestStepSelector>
+		'''
+	}
+
+	def CharSequence getTCLWithValue(String testName, String value) {
+		'''
 			package com.example
 			
 			# «testName»
@@ -74,7 +107,8 @@ class TclValidatorTest extends AbstractParserTest {
 		'''
 	}
 
-	def CharSequence getAMLWithValueSpace(String valuespace) {'''
+	def CharSequence getAMLWithValueSpace(String valuespace) {
+		'''
 			package com.example
 			
 			interaction type executeContextMenuEntry {
@@ -88,6 +122,7 @@ class TclValidatorTest extends AbstractParserTest {
 			}
 			
 			value-space projectmenues = «valuespace» 
+			value-space components = #["Mask", "Component"] 
 			
 			component type General {
 			}
@@ -98,6 +133,11 @@ class TclValidatorTest extends AbstractParserTest {
 					label = "Projekt Baum"
 					locator ="Project Explorer"
 					executeContextMenuEntry.item restrict to projectmenues 
+				}
+				element TestStepSelector is TreeView {
+					label = "Teststep selector"
+					locator ="teststepSelector"
+					executeContextMenuEntry.item restrict to components 
 				}
 			}
 		'''
