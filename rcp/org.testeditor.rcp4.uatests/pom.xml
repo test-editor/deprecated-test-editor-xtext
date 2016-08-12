@@ -229,6 +229,7 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-surefire-plugin</artifactId>
 				<configuration>
+					<argLine>-Dorg.testeditor.ignoreConnectionStare=true</argLine>
 					<useUIHarness>true</useUIHarness>
 					<useUIThread>false</useUIThread>
 					<product>org.testeditor.rcp4.testeditor_rcp</product>
