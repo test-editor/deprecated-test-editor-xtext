@@ -5,8 +5,7 @@ Bundle-SymbolicName: org.testeditor.dsl.common;singleton:=true
 Bundle-Version: 1.2.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
-Bundle-Vendor: %providerName
-Bundle-Localization: plugin
+Bundle-Vendor: Signal Iduna Corporation
 Require-Bundle: org.eclipse.xtend.lib.macro,
  org.eclipse.xtext,
  org.testeditor.logging,
@@ -15,8 +14,6 @@ Require-Bundle: org.eclipse.xtend.lib.macro,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.emf.ecore.xcore.lib
 Export-Package: org.testeditor.dsl.common.ide.util,
- org.testeditor.dsl.common,
- org.testeditor.dsl.common.impl,
  org.testeditor.dsl.common.util
 Eclipse-BundleShape: dir
 Bundle-ActivationPolicy: lazy

@@ -132,6 +132,11 @@
 						</dependency>
 						<dependency>
 							<groupId>org.testeditor</groupId>
+							<artifactId>org.testeditor.dsl.common.model</artifactId>
+							<version>${testeditor.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>org.testeditor</groupId>
 							<artifactId>org.testeditor.tsl.model</artifactId>
 							<version>${testeditor.version}</version>
 						</dependency>

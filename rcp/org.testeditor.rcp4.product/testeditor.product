@@ -306,6 +306,7 @@
       <plugin id="org.testeditor.aml.dsl.ui"/>
       <plugin id="org.testeditor.aml.model"/>
       <plugin id="org.testeditor.dsl.common"/>
+      <plugin id="org.testeditor.dsl.common.model"/>
       <plugin id="org.testeditor.dsl.common.ui"/>
       <plugin id="org.testeditor.logging"/>
       <plugin id="org.testeditor.rcp4"/>
