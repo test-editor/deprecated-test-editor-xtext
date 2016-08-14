@@ -17,6 +17,7 @@ import org.testeditor.tcl.dsl.ui.contentassist.TclTemplateProposalProvider
 import org.testeditor.tcl.dsl.ui.highlighting.TclHighlightingConfiguration
 import org.testeditor.tcl.dsl.ui.navigation.TclHyperLinkHelper
 import org.testeditor.tcl.dsl.ide.highlighting.TclSemanticHighlightingCalculator
+import org.testeditor.tcl.dsl.ui.refatoring.TclRenameStrategy
 
 /**
  * Use this class to register components to be used within the Eclipse IDE.
@@ -39,4 +40,9 @@ class TclUiModule extends AbstractTclUiModule {
 	override bindITemplateProposalProvider() {
 		return TclTemplateProposalProvider
 	}
+	
+	override bindIRenameStrategy() {
+		return TclRenameStrategy
+	}
+	
 }

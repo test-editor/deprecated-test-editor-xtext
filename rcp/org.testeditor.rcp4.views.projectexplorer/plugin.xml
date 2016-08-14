@@ -30,9 +30,11 @@
                   name="group.edit"
                   separator="true">
             </insertionPoint>
+<!--
             <insertionPoint
                   name="group.reorganize">
             </insertionPoint>
+            -->
             <insertionPoint
                   name="group.port"
                   separator="true">
