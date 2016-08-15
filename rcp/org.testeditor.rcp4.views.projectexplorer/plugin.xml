@@ -11,14 +11,16 @@
             name="Test Project Explorer">
       </view>
    </extension>
+   
+   
    <extension
          point="org.eclipse.ui.navigator.viewer">
       <viewer
             helpContext="org.eclipse.ui.project_explorer_context"
             viewerId="org.testeditor.rcp4.views.ProjectExplorer">
          <popupMenu
-               allowsPlatformContributions="true"
-               id="org.testeditor.rcp4.views.ProjectExplorer#PopupMenu">
+               allowsPlatformContributions="false"
+               id="org.testeditor.rcp4.views.ProjectExplorer.PopupMenu">
             <insertionPoint
                   name="group.new">
             </insertionPoint>
@@ -27,28 +29,23 @@
                   separator="true">
             </insertionPoint>
             <insertionPoint
+                  name="group.openWith"
+                  separator="true">
+            </insertionPoint>
+            <insertionPoint
                   name="group.edit"
                   separator="true">
             </insertionPoint>
-<!--
             <insertionPoint
-                  name="group.reorganize">
+                  name="group.reorganize"
+                  separator="true">
             </insertionPoint>
-            -->
             <insertionPoint
                   name="group.port"
                   separator="true">
             </insertionPoint>
             <insertionPoint
                   name="group.build"
-                  separator="true">
-            </insertionPoint>
-            <insertionPoint
-                  name="group.generate"
-                  separator="true">
-            </insertionPoint>
-            <insertionPoint
-                  name="group.search"
                   separator="true">
             </insertionPoint>
             <insertionPoint
@@ -197,6 +194,9 @@
 			      <instanceof value="java.lang.Object" />
 			   </or>
 			</possibleChildren>
+			<actionProvider
+				class="org.testeditor.rcp4.views.projectexplorer.TEActionProvider"
+				id="org.testeditor.rcp4.views.projectexplorer.TEActionProvider" />
 	   </navigatorContent>
    </extension>
 
