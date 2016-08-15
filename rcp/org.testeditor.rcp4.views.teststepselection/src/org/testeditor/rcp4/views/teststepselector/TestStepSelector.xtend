@@ -41,6 +41,7 @@ import static org.testeditor.rcp4.views.teststepselector.XtendSWTLib.*
  */
 class TestStepSelector {
 
+	public static val String SELECTOR_TOPIC_UPDATE = "MaskStepSelector_Update"
 	public static val String SELECTOR_TOPIC_REFRESH = "MaskStepSelector_Refresh"
 
 	static val logger = LoggerFactory.getLogger(TestStepSelector);
@@ -110,7 +111,6 @@ class TestStepSelector {
 //		// startup complete ensures the index to be populated
 //		Display.getDefault.syncExec[populateViewIfEmpty] // is only run, if view is created on startup
 //	}
-
 	@Focus
 	def void setFocus() {
 		viewer.control.setFocus
@@ -118,27 +118,35 @@ class TestStepSelector {
 
 	@Inject
 	@Optional
+	def void updateView(@EventTopic(SELECTOR_TOPIC_UPDATE) Object data) {
+		populated = false;
+		logger.debug("Updating view.")
+		Display.getDefault.syncExec[updateView]
+	}
+
+	@Inject
+	@Optional
 	def void refreshView(@EventTopic(SELECTOR_TOPIC_REFRESH) Object data) {
-		populated = false
 		logger.debug("Refreshing view.")
-		Display.getDefault.syncExec[populateViewIfEmpty]
+		Display.getDefault.syncExec[updateView]
 	}
 
 	// make sure that the index is populated before calling this method
 	// and that it is run in the swt thread!
-	private def populateViewIfEmpty() {
+	def updateView() {
 		if (populated) {
 			return
 		}
 		val amlInjector = amlInjectorProvider.get
 
-		populated = true
 		viewer.labelProvider = labelProvider
 		viewer.contentProvider = amlInjector.getInstance(TestStepSelectorTreeContentProvider)
 
 		val amlModelsProvider = amlInjector.getInstance(AmlModelsProvider)
 		viewer.input = amlModelsProvider.amlModels
-		viewer.expandAll
+		
+		//viewer.expandAll
+		populated = true
 	}
 
 	@PreDestroy
