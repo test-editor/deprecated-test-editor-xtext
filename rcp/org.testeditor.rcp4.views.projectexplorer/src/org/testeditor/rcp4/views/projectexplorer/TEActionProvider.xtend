@@ -12,26 +12,35 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.projectexplorer
 
-import org.eclipse.ui.navigator.CommonActionProvider
-import org.eclipse.jface.action.IMenuManager
 import org.eclipse.jface.action.ActionContributionItem
-import org.eclipse.ui.navigator.ICommonActionExtensionSite
+import org.eclipse.jface.action.IMenuManager
 import org.eclipse.jface.viewers.ISelectionProvider
+import org.eclipse.ui.IWorkbenchPage
+import org.eclipse.ui.PlatformUI
+import org.eclipse.ui.navigator.CommonActionProvider
+import org.eclipse.ui.navigator.ICommonActionExtensionSite
+import org.testeditor.tcl.dsl.ui.util.TclInjectorProvider
 
 class TEActionProvider extends CommonActionProvider {
 
 	ISelectionProvider selectionProvider
+	
+	IWorkbenchPage page
 
 	override init(ICommonActionExtensionSite aSite) {
 		super.init(aSite)
 		selectionProvider = aSite.viewSite.selectionProvider
+		page = PlatformUI.workbench.activeWorkbenchWindow.activePage
 	}
 
 	override fillContextMenu(IMenuManager menu) {
 		super.fillContextMenu(menu)
 		val con = menu.find("org.eclipse.ui.RenameResourceAction") as ActionContributionItem
 		menu.remove(con)
-		menu.appendToGroup("group.reorganize", new RenameAction(con.action,selectionProvider))
+		val renameAction =new RenameAction(con.action,selectionProvider,page)
+		val injector = new TclInjectorProvider().get
+		injector.injectMembers(renameAction)
+		menu.appendToGroup("group.reorganize", renameAction)
 	}
 
 }

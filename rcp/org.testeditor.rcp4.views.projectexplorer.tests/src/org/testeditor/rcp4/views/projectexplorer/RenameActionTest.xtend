@@ -21,6 +21,7 @@ import org.junit.Before
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IFile
+import org.eclipse.ui.IWorkbenchPage
 
 class RenameActionTest extends AbstractTest {
 
@@ -34,9 +35,10 @@ class RenameActionTest extends AbstractTest {
 	def void setUp() {
 		reanemAction = mock(IAction)
 		val provider = mock(ISelectionProvider)
+		val page = mock(IWorkbenchPage)
 		selection = mock(IStructuredSelection)
 		when(provider.selection).thenReturn(selection)
-		action = new RenameAction(reanemAction, provider)
+		action = new RenameAction(reanemAction, provider, page)
 	}
 
 	@Test
