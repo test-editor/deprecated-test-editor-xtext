@@ -19,7 +19,7 @@
             helpContext="org.eclipse.ui.project_explorer_context"
             viewerId="org.testeditor.rcp4.views.ProjectExplorer">
          <popupMenu
-               allowsPlatformContributions="false"
+               allowsPlatformContributions="true"
                id="org.testeditor.rcp4.views.ProjectExplorer.PopupMenu">
             <insertionPoint
                   name="group.new">
