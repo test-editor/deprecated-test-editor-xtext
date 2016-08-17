@@ -68,7 +68,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 	private static final String NON_PROXY_HOSTS = "http.nonProxyHosts";
 	private static final String PROXY_HTTPS_HOST = "https.proxyHost";
 	private static final String PROXY_HTTPS_PORT = "https.proxyPort";
-	private static final String TE_IGNORE_CONNECTION_STATE = "org.testeditor.ignoreConnectionStare";
+	private static final String TE_IGNORE_CONNECTION_STATE = "org.testeditor.ignoreConnectionState";
 
 	private Label internetState;
 	private Text pathToMavenSettingsFile;
@@ -100,8 +100,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 		super(parentShell);
 		this.prefs = prefs;
 		this.context = context;
-		ignoreConnectionState = Boolean.valueOf(
-				System.getProperty(TE_IGNORE_CONNECTION_STATE, prefs.get(TE_IGNORE_CONNECTION_STATE, "false")));
+		ignoreConnectionState = Boolean.valueOf(getProperty(TE_IGNORE_CONNECTION_STATE, "false"));
 		workOffline = prefs.getBoolean(WORKOFFLINE, false);
 		proxyHostSetting = prefs.get(PROXY_HOST, "");
 		proxyPortSetting = prefs.get(PROXY_PORT, "");
@@ -109,6 +108,10 @@ public class NetworkConnectionSettingDialog extends Dialog {
 		proxyPwdSetting = prefs.get(PROXY_PWD, "");
 		noProxyHostsSetting = prefs.get(NON_PROXY_HOSTS, "");
 		pathToMavenSettingsFileSettings = prefs.get(PATH_TO_MAVENSETTINGS, "");
+	}
+
+	private String getProperty(String key, String defaultValue) {
+		return System.getProperty(key, prefs.get(key, defaultValue));
 	}
 
 	@Override
@@ -314,7 +317,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 
 			@Override
 			public void run() {
-				if (isInternetAvailable(true)) {
+				if (applyAndValidateNetworkSettings(true)) {
 					if (workOffline) {
 						updateUI("work offline", SWT.COLOR_DARK_YELLOW);
 					} else {
@@ -376,7 +379,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 	 * 
 	 * @return if it is possible to reach internet resources.
 	 */
-	public boolean isInternetAvailable(boolean updateSessings) {
+	public boolean applyAndValidateNetworkSettings(boolean updateSessings) {
 		if (ignoreConnectionState) {
 			return true;
 		}
