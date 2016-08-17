@@ -83,11 +83,15 @@ class TclValidatorTest extends AbstractParserTest {
 		var tcl = getTCLWithTwoValueSpaces("Test", "foo", "Mask")
 		parseAml(aml)
 
+		var tclError = getTCLWithTwoValueSpaces("Test", "fooHello", "Mask")
+
 		// when
 		var model = parseTcl(tcl.toString, "Test.tcl")
+		var modelError = parseTcl(tclError.toString, "Test2.tcl")
 
 		// then
 		validator.assertNoIssues(model)
+		assertFalse(validator.validate(modelError).isEmpty)
 	}
 
 	def getTCLWithTwoValueSpaces(String testName, String value1, String value2) {
