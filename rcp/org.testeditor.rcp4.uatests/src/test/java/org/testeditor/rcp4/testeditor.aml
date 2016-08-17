@@ -49,7 +49,7 @@ component HauptFenster is General {
 
 }
 
-value-space projectmenues = #[ "New/Project...", "Open", "Run As/1 Test" ]
+value-space projectmenues = #[ "New/Project...", "Open", "Run As/1 Test", "Rename..." ]
 
 component ProjectExplorer is General {
 	element ProjektBaum is TreeView { // TODO english!
@@ -92,4 +92,17 @@ component NewDialog is Dialog {
 		locator = "NEW_DIALOG_GENERATE_WITH_EXAMPLES"
 	}
 
+}
+
+component RenameDialog is Dialog {
+	element ElementName is Text {
+		locator ="[Single]"
+	}
+	element OK is Button {
+		locator ="[Label]OK"
+	}
+}
+
+component ActiveEditor is Editor {
+	
 }
