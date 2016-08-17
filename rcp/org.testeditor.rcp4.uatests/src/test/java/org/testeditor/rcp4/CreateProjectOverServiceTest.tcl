@@ -2,11 +2,7 @@ package org.testeditor.rcp4
 
 # CreateProjectOverServiceTest implements SmokeTest
 
-Setup:
-
-	Component: TestEditor
-	- Clean Workspace
-	- Reset UI State
+config TestEditorConfig
 
 * Validate initial views
 
