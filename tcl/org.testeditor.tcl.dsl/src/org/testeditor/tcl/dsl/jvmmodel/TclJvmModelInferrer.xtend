@@ -66,18 +66,33 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	/**
+	 * Performs the minimal initialization to a class - its super type and
+	 * its variables.
+	 */
+	private def JvmGenericType toClass(SetupAndCleanupProvider element, boolean isPreIndexingPhase) {
+		if (isPreIndexingPhase) {
+			return element.toClass(nameProvider.getFullyQualifiedName(element))
+		} else {
+			return element.toClass(nameProvider.getFullyQualifiedName(element)) [
+				// Add super type to the element
+				addSuperType(element)
+	
+				// Create variables for used fixture types
+				members += createFixtureVariables(element)
+			]
+		}
+	}
+
+	/**
 	 * First perform common operations like variable initialization and then dispatch to subclass specific operations.
 	 */
-	def dispatch void infer(SetupAndCleanupProvider element, IJvmDeclaredTypeAcceptor acceptor,
-		boolean isPreIndexingPhase) {
-		acceptor.accept(element.toClass(nameProvider.getFullyQualifiedName(element))) [
+	def dispatch void infer(SetupAndCleanupProvider element, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
+		// Create the class with eager initialization
+		val generatedClass = element.toClass(isPreIndexingPhase)
+
+		// Stuff that can be done in late initialization
+		acceptor.accept(generatedClass) [
 			documentation = '''Generated from «element.eResource.URI»'''
-
-			// Add super type to the element
-			addSuperType(element)
-
-			// Create variables for used fixture types
-			members += createFixtureVariables(element)
 
 			// Create @Before method if relevant
 			if (element.setup !== null) {
@@ -95,9 +110,9 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	private def void addSuperType(JvmGenericType result, SetupAndCleanupProvider element) {
 		if (element instanceof TestCase) {
-			// Inherit from configuration, if set - neet to be done before 
+			// Inherit from configuration, if set - need to be done before 
 			if (element.config !== null) {
-				result.superTypes += typeRef(nameProvider.getFullyQualifiedName(element.config).toString)
+				result.superTypes += typeRef(element.config.toClass(false))
 			}
 		} // TODO allow explicit definition of super type in TestConfiguration
 	}

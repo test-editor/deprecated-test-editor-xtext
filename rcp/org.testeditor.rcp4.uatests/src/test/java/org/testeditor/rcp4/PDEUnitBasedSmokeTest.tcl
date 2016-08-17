@@ -4,11 +4,7 @@ import org.testeditor.rcp4.*
 
 # PDEUnitBasedSmokeTest implements SmokeTest
 
-Setup:
-
-	Component: TestEditor
-	- Clean Workspace
-	- Reset UI State
+config TestEditorConfig
 	
 * Validate initial views
 

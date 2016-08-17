@@ -4,11 +4,7 @@ import org.testeditor.rcp4.*
 
 # CreateWebProjectWithExampleTest implements CreateSimpleTestEditorProject
 
-Setup:
-
-	Component: TestEditor
-	- Clean Workspace
-	- Reset UI State
+config TestEditorConfig
 
 * start creation process
 
