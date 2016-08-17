@@ -5,11 +5,7 @@ import org.testeditor.rcp4.*
 # CreateSwingDemoAndRunFIXME
 
 // given
-Setup:
-
-	Component: TestEditor
-	- Clean Workspace
-	- Reset UI State
+config TestEditorConfig
 
 // when
 * Open "Test-Editor Project" wizard
