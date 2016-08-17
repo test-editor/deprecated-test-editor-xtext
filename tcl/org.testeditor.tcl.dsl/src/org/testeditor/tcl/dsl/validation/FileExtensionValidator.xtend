@@ -1,14 +1,22 @@
 package org.testeditor.tcl.dsl.validation
 
+import java.util.List
+import org.eclipse.emf.ecore.EPackage
+import org.eclipse.xtext.validation.AbstractDeclarativeValidator
 import org.eclipse.xtext.validation.Check
 import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.TclModel
+import org.testeditor.tcl.TclPackage
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestConfiguration
 
 import static org.testeditor.tcl.TclPackage.Literals.*
 
-class FileExtensionValidator extends AbstractTclValidator {
+class FileExtensionValidator extends AbstractDeclarativeValidator {
+
+	override protected List<EPackage> getEPackages() {
+		return #[TclPackage.eINSTANCE]
+	}
 
 	/**
 	 * Checks that the contents of a {@link TclModel} match to the their corresponding
@@ -41,22 +49,19 @@ class FileExtensionValidator extends AbstractTclValidator {
 
 	private def void verifyNoMacroCollection(TclModel model) {
 		if (model.macroCollection != null) {
-			error("this file type may only contain test cases but it contains macro definitions", model,
-				TCL_MODEL__MACRO_COLLECTION)
+			error("This file type may not contain macro collections.", model, TCL_MODEL__MACRO_COLLECTION)
 		}
 	}
 
 	private def void verifyNoTestConfiguration(TclModel model) {
 		if (model.config !== null) {
-			error("this file type may only contain test cases but it contains a test configuration", model,
-				TCL_MODEL__CONFIG)
+			error("This file type may not contain test configurations.", model, TCL_MODEL__CONFIG)
 		}
 	}
 
 	private def void verifyNoTestCase(TclModel model) {
 		if (model.test != null) {
-			error("this file type may only contain macro definitions but it contains test cases", model,
-				TCL_MODEL__TEST)
+			error("This file type may not contain test cases.", model, TCL_MODEL__TEST)
 		}
 	}
 
