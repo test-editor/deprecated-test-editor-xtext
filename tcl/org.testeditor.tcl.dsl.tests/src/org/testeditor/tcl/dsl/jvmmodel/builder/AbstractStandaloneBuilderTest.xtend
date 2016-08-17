@@ -21,6 +21,7 @@ import org.eclipse.xtext.junit4.TemporaryFolder
 import org.eclipse.xtext.xbase.compiler.RegisteringFileSystemAccess
 import org.junit.Before
 import org.junit.Rule
+import org.junit.Test
 import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.tcl.dsl.TclStandaloneSetup
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
@@ -38,6 +39,7 @@ abstract class AbstractStandaloneBuilderTest extends AbstractTclTest {
 	@Inject OutputConfigurationProvider configurationProvider
 
 	protected File srcFolder
+	protected List<String> classPathEntries
 
 	override protected collectModules(List<Module> modules) {
 		super.collectModules(modules)
@@ -62,7 +64,15 @@ abstract class AbstractStandaloneBuilderTest extends AbstractTclTest {
 		srcFolder = folder.newFolder("src")
 		builder.baseDir = folder.root.toString
 		builder.sourceDirs = #[srcFolder.absolutePath]
-		builder.classPathEntries = #[]
+		
+		// handle class path entries
+		classPathEntries = newLinkedList
+		classPathEntries += Test.classPathEntry
+		builder.classPathEntries = classPathEntries
+	}
+	
+	protected def String getClassPathEntry(Class<?> clazz) {
+		return clazz.protectionDomain.codeSource.location.toURI.path
 	}
 
 	private def ILanguageConfiguration createLanguageConfiguration(Class<? extends ISetup> setupClass) {
@@ -99,6 +109,7 @@ abstract class AbstractStandaloneBuilderTest extends AbstractTclTest {
 
 	protected def String readFile(String filename) {
 		val file = getFile(filename)
+		assertTrue(file.exists, '''File with filename='«filename»' does not exist. Full path='«file»'.''')
 		return Files.toString(file, StandardCharsets.UTF_8)
 	}
 

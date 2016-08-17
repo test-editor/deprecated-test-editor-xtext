@@ -35,6 +35,7 @@ class TestCaseWithSeparateConfigTest extends AbstractStandaloneBuilderTest {
 		writeFile("src/com/example/Dummy.aml", DummyFixture.amlModel)
 		writeFile("src/com/example/MyConfig.config", configSource)
 		writeFile("src/com/example/SimpleTest.tcl", testSource)
+		classPathEntries += DummyFixture.classPathEntry
 
 		// when
 		builder.launch
