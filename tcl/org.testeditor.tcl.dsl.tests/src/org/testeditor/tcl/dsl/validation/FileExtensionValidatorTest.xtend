@@ -1,13 +1,10 @@
 package org.testeditor.tcl.dsl.validation
 
-import javax.inject.Inject
-import org.eclipse.xtext.junit4.validation.ValidationTestHelper
 import org.junit.Before
 import org.junit.Test
 import org.testeditor.tcl.TclModel
 
 import static org.testeditor.tcl.TclPackage.Literals.*
-import org.testeditor.dsl.common.testing.DslParseHelper
 
 class FileExtensionValidatorTest extends AbstractMockedTclValidatorTest {
 
