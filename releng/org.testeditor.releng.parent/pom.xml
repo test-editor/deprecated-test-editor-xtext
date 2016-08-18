@@ -29,7 +29,7 @@
 		<xtext-target>file:///${basedir}/../../target-platform/org.testeditor.releng.target.updatesite/target/site</xtext-target>
 
 		<!-- other properties -->
-		<tycho-surefire-argline>-Xms40m -Xmx1G</tycho-surefire-argline>
+		<tycho-surefire-argline>-Xms40m -Xmx1G -Dorg.testeditor.ignoreConnectionState=true</tycho-surefire-argline>
 		<os-jvm-flags></os-jvm-flags>
 		<argLine>${tycho-surefire-argline} ${os-jvm-flags}</argLine>
 	</properties>
