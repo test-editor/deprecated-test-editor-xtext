@@ -210,9 +210,12 @@ class TclModelUtil extends TslModelUtil {
 
 	def ValueSpaceAssignment getValueSpaceAssignment(Component component, TestStep container) {
 		for (element : component.elements) {
-			val valueSpace = getValueSpaceAssignment(element, container)
-			if (valueSpace != null) {
-				return valueSpace
+			val stepContentElementsStrings = container.contents.filter(StepContentElement).map[value]
+			if (stepContentElementsStrings.exists[equals(element.name)]) {
+				val valueSpace = getValueSpaceAssignment(element, container)
+				if (valueSpace != null) {
+					return valueSpace
+				}
 			}
 		}
 		return null

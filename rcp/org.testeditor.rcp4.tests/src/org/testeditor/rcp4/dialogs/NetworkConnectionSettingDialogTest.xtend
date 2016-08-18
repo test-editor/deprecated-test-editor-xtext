@@ -50,7 +50,7 @@ class NetworkConnectionSettingDialogTest extends AbstractTest {
 		// Given
 		when(prefs.getBoolean("workOffline", false)).thenReturn(true)
 		// when & then
-		assertTrue(dialog.isInternetAvailable(false))
+		assertTrue(dialog.applyAndValidateNetworkSettings(false))
 	}
 
 	@Test 
@@ -59,7 +59,7 @@ class NetworkConnectionSettingDialogTest extends AbstractTest {
 		initPrefsMockWithProxy()
 		System.setProperty("http.proxyHost", "myProxy")
 		// when
-		val isInternetAvailable = dialog.isInternetAvailable(false)
+		val isInternetAvailable = dialog.applyAndValidateNetworkSettings(false)
 		// then
 		assertTrue(isInternetAvailable)
 		assertEquals("myProxy", System.getProperty("http.proxyHost"))
@@ -83,7 +83,7 @@ class NetworkConnectionSettingDialogTest extends AbstractTest {
 		initContextWithProxyMock()
 		dialog = new NetworkConnectionSettingDialog(parentShell, prefs, context)
 		// when
-		assertTrue(dialog.isInternetAvailable(true))
+		assertTrue(dialog.applyAndValidateNetworkSettings(true))
 		// then
 		assertEquals("proxy", System.getProperty("http.proxyHost"))
 	}
@@ -117,7 +117,7 @@ class NetworkConnectionSettingDialogTest extends AbstractTest {
 
 		// when
 		dialog.extractProxyFromMavenSettings(mavenSettingsFile)
-		dialog.isInternetAvailable(true)
+		dialog.applyAndValidateNetworkSettings(true)
 
 		// then
 		assertEquals("proxy.somewhere.com", System.getProperty("http.proxyHost"))
@@ -140,7 +140,7 @@ class NetworkConnectionSettingDialogTest extends AbstractTest {
 
 		// when
 		dialog.extractProxyFromMavenSettings(mavenSettingsFile)
-		dialog.isInternetAvailable(true)
+		dialog.applyAndValidateNetworkSettings(true)
 
 		// then
 		assertEquals("", System.getProperty("http.proxyHost"))
