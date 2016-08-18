@@ -25,6 +25,10 @@ itemis AG
          version="0.0.0"/>
 
    <includes
+         id="org.eclipse.equinox.p2.rcp.feature.source"
+         version="0.0.0"/>
+
+   <includes
          id="org.eclipse.ecf.core.feature"
          version="0.0.0"/>
 
@@ -37,7 +41,15 @@ itemis AG
          version="0.0.0"/>
 
    <includes
+         id="org.eclipse.rcp.source"
+         version="0.0.0"/>
+
+   <includes
          id="org.eclipse.jdt"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.jdt.source"
          version="0.0.0"/>
 
    <includes
@@ -45,7 +57,15 @@ itemis AG
          version="0.0.0"/>
 
    <includes
+         id="org.eclipse.e4.rcp.source"
+         version="0.0.0"/>
+
+   <includes
          id="org.eclipse.platform"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.platform.source"
          version="0.0.0"/>
 
    <includes
@@ -54,6 +74,10 @@ itemis AG
 
    <includes
          id="org.eclipse.pde"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.pde.source"
          version="0.0.0"/>
 
 </feature>
