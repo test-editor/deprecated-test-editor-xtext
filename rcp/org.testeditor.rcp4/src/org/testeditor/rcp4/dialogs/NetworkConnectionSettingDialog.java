@@ -403,8 +403,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 	private void updateSystemSettings() {
 		if (proxyHostSetting != null && proxyHostSetting.length() > 0) {
 			IProxyService proxyService = context.get(IProxyService.class);
-			proxyService.setProxiesEnabled(true);
-			proxyService.setSystemProxiesEnabled(true);
+			proxyService.setSystemProxiesEnabled(false);
 			IProxyData proxyData = proxyService.getProxyData(IProxyData.HTTP_PROXY_TYPE);
 			IProxyData httpsProxyData = proxyService.getProxyData(IProxyData.HTTPS_PROXY_TYPE);
 			proxyData.setHost(proxyHostSetting);
@@ -418,6 +417,12 @@ public class NetworkConnectionSettingDialog extends Dialog {
 			proxyData.setPassword(proxyPwdSetting);
 			httpsProxyData.setUserid(proxyUserSetting);
 			httpsProxyData.setPassword(proxyPwdSetting);
+			proxyService.setProxiesEnabled(true);
+			try {
+				proxyService.setProxyData(new IProxyData[] { proxyData, httpsProxyData });
+			} catch (CoreException e1) {
+				logger.error("Couldn't store proxy settings in eclipse store", e1);
+			}
 			try {
 				if (noProxyHostsSetting.length() > 0) {
 					proxyService.setNonProxiedHosts(noProxyHostsSetting.split(","));
