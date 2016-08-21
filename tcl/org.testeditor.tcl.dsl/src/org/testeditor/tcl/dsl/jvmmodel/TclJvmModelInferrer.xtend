@@ -129,11 +129,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		val classpathEntries = javaProject.rawClasspath.filter[entryKind == IClasspathEntry.CPE_SOURCE]
 		val cpEntry = classpathEntries.filter[it.path.isPrefixOf(path)].head
 		val start = path.matchingFirstSegments(cpEntry.path)
-		var packageString = path.segments.get(start)
-		for (var i = start + 1; i < path.segments.length; i++) {
-			packageString = packageString + "." + path.segments.get(i)
-		}
-		return packageString
+		return path.removeFirstSegments(start).segments.join(".")
 	}
 
 	private def void addSuperType(JvmGenericType result, SetupAndCleanupProvider element) {
