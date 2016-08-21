@@ -96,10 +96,10 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		boolean isPreIndexingPhase) {
 		// Set package if not defined
 		if (element instanceof TestCase) {
-			if (element.model.package == null) {
-				val package = getPackageFromFileSystem(element)
-				element.model.package = package
-			}
+			updateNullPackageIn(element.model, element)
+		}
+		if (element instanceof TestConfiguration) {
+			updateNullPackageIn(element.model, element)
 		}
 		// Create the class with eager initialization
 		val generatedClass = element.toClass(isPreIndexingPhase)
@@ -122,8 +122,14 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		]
 	}
 
-	def String getPackageFromFileSystem(TestCase testCase) {
-		val path = new Path(EcoreUtil2.getPlatformResourceOrNormalizedURI(testCase).trimFragment.path).
+	def updateNullPackageIn(TclModel model, SetupAndCleanupProvider element) {
+		if (model.package == null) {
+			model.package = getPackageFromFileSystem(element)
+		}
+	}
+
+	def String getPackageFromFileSystem(SetupAndCleanupProvider element) {
+		val path = new Path(EcoreUtil2.getPlatformResourceOrNormalizedURI(element).trimFragment.path).
 			removeFirstSegments(1).removeLastSegments(2)
 		val javaProject = JavaCore.create(workspaceRootHelper.root.getFile(path).project)
 		val classpathEntries = javaProject.rawClasspath.filter[entryKind == IClasspathEntry.CPE_SOURCE]
@@ -468,24 +474,23 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 						name.equals(referencedVariable.variable.name)
 					]
 
-					if (!varValMap.
-						containsKey(
-							varKey)) {
-							throw new RuntimeException('''The referenced variable='«referencedVariable.variable.name»' cannot be resolved via macro parameters (macro call stack='«macroUseStack.map[findMacroDefinition.name].join('->')»').''')
-						} else {
-							val callSiteParameter = varValMap.get(varKey)
-
-							if (callSiteParameter instanceof VariableReference) { // needs further variable resolving
-								return callSiteParameter.resolveVariableReference(macroUseStack.tail,
-									environmentVariables)
-							} else {
-								return callSiteParameter // could be a StepContentVariable
-							}
-						}
+					if (!varValMap.containsKey(
+						varKey)) {
+						throw new RuntimeException('''The referenced variable='«referencedVariable.variable.name»' cannot be resolved via macro parameters (macro call stack='«macroUseStack.map[findMacroDefinition.name].join('->')»').''')
 					} else {
-						throw new RuntimeException('''Call site is of type='«callSiteMacroTestStep.class.canonicalName»' but should be of type='«TestStep.canonicalName»'.''')
-					}
-				}
+						val callSiteParameter = varValMap.get(varKey)
 
+						if (callSiteParameter instanceof VariableReference) { // needs further variable resolving
+							return callSiteParameter.resolveVariableReference(macroUseStack.tail,
+								environmentVariables)
+						} else {
+							return callSiteParameter // could be a StepContentVariable
+						}
+					}
+				} else {
+					throw new RuntimeException('''Call site is of type='«callSiteMacroTestStep.class.canonicalName»' but should be of type='«TestStep.canonicalName»'.''')
+				}
 			}
-			
+
+		}
+		
