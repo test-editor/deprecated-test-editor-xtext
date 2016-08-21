@@ -12,7 +12,8 @@ Require-Bundle: org.eclipse.xtend.lib.macro,
  org.eclipse.core.runtime,
  org.eclipse.emf.ecore;visibility:=reexport,
  org.eclipse.xtext.xbase.lib,
- org.eclipse.emf.ecore.xcore.lib
+ org.eclipse.emf.ecore.xcore.lib,
+ org.eclipse.core.resources;bundle-version="3.11.0"
 Export-Package: org.testeditor.dsl.common.ide.util,
  org.testeditor.dsl.common.util
 Eclipse-BundleShape: dir
