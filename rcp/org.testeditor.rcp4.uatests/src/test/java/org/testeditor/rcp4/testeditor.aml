@@ -49,7 +49,7 @@ component HauptFenster is General {
 
 }
 
-value-space projectmenues = #[ "New/Project...", "Open", "Run As/1 Test" ]
+value-space projectmenues = #[ "New/Project...", "Open", "Run As/1 Test", "New/Test Case" ]
 
 component ProjectExplorer is General {
 	element ProjektBaum is TreeView { // TODO english!
