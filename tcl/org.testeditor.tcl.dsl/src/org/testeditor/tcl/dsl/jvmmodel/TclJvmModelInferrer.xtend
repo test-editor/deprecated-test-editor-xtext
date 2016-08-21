@@ -122,7 +122,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		]
 	}
 
-	def updateNullPackageIn(TclModel model, SetupAndCleanupProvider element) {
+	def void updateNullPackageIn(TclModel model, SetupAndCleanupProvider element) {
 		if (model.package == null) {
 			model.package = getPackageFromFileSystem(element)
 		}
