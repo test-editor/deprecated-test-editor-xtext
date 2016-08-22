@@ -32,6 +32,8 @@ class ClasspathUtil {
 
 	@Inject WorkspaceRootHelper workspaceRootHelper
 
+	List<IPath> mavenClasspath
+
 	def String getPackageFromFileSystem(EObject element) {
 		val orignPath = new Path(EcoreUtil2.getPlatformResourceOrNormalizedURI(element).trimFragment.path)
 		var path = orignPath.removeLastSegments(2)
@@ -61,15 +63,22 @@ class ClasspathUtil {
 		return #[new Path("src/main/java")]
 	}
 
+	/**
+	 * Read ones per jvm run the maven classpath. every other call run the first selected information. This is intended for batch runs.
+	 */
 	def List<IPath> getMavenClasspathEntries(IPath path) {
-		val pb = new ProcessBuilder()
-		pb.command(
-			#[System.getenv("MAVEN_HOME") + "/bin/mvn", "help:effective-pom", "-Doutput=" + EFFECTIVE_POM_TXT_PATH])
-		pb.directory(path.toFile)
-		pb.inheritIO
-		val process = pb.start
-		process.waitFor
-		return readMavenClasspathEntriesFromPom(new FileInputStream(new File(path.toFile, EFFECTIVE_POM_TXT_PATH)))
+		if (mavenClasspath == null) {
+			val pb = new ProcessBuilder()
+			pb.command(
+				#[System.getenv("MAVEN_HOME") + "/bin/mvn", "help:effective-pom", "-Doutput=" + EFFECTIVE_POM_TXT_PATH])
+			pb.directory(path.toFile)
+			pb.inheritIO
+			val process = pb.start
+			process.waitFor
+			mavenClasspath = readMavenClasspathEntriesFromPom(
+				new FileInputStream(new File(path.toFile, EFFECTIVE_POM_TXT_PATH)))
+		}
+		return mavenClasspath
 	}
 
 	def List<IPath> readMavenClasspathEntriesFromPom(InputStream pomStream) {
