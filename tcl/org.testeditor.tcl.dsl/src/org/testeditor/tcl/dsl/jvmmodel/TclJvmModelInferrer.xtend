@@ -15,10 +15,6 @@ package org.testeditor.tcl.dsl.jvmmodel
 import com.google.inject.Inject
 import java.util.Set
 import org.apache.commons.lang3.StringEscapeUtils
-import org.eclipse.core.runtime.Path
-import org.eclipse.jdt.core.IClasspathEntry
-import org.eclipse.jdt.core.JavaCore
-import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.common.types.JvmField
 import org.eclipse.xtext.common.types.JvmGenericType
 import org.eclipse.xtext.common.types.JvmOperation
@@ -32,7 +28,7 @@ import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
 import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
-import org.testeditor.dsl.common.util.WorkspaceRootHelper
+import org.testeditor.dsl.common.util.ClasspathUtil
 import org.testeditor.tcl.AbstractTestStep
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.AssignmentVariable
@@ -64,7 +60,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	@Inject IQualifiedNameProvider nameProvider
 	@Inject JvmModelHelper jvmModelHelper
 	@Inject TclExpressionBuilder expressionBuilder
-	@Inject WorkspaceRootHelper workspaceRootHelper
+	@Inject ClasspathUtil classpathUtil
 
 	def dispatch void infer(TclModel model, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		model.test?.infer(acceptor, isPreIndexingPhase)
@@ -124,18 +120,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	def void updateNullPackageIn(TclModel model, SetupAndCleanupProvider element) {
 		if (model.package == null) {
-			model.package = getPackageFromFileSystem(element)
+			model.package = classpathUtil.getPackageFromFileSystem(element)
 		}
-	}
-
-	def String getPackageFromFileSystem(SetupAndCleanupProvider element) {
-		val path = new Path(EcoreUtil2.getPlatformResourceOrNormalizedURI(element).trimFragment.path).
-			removeFirstSegments(1).removeLastSegments(2)
-		val javaProject = JavaCore.create(workspaceRootHelper.root.getFile(path).project)
-		val classpathEntries = javaProject.rawClasspath.filter[entryKind == IClasspathEntry.CPE_SOURCE]
-		val cpEntry = classpathEntries.filter[it.path.isPrefixOf(path)].head
-		val start = path.matchingFirstSegments(cpEntry.path)
-		return path.removeFirstSegments(start).segments.join(".")
 	}
 
 	private def void addSuperType(JvmGenericType result, SetupAndCleanupProvider element) {
