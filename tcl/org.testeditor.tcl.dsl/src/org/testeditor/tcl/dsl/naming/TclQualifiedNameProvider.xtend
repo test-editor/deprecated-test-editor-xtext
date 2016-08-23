@@ -12,15 +12,22 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.naming
 
+import javax.inject.Inject
 import javax.inject.Singleton
 import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.xtext.xbase.scoping.XbaseQualifiedNameProvider
+import org.testeditor.dsl.common.util.ClasspathUtil
 import org.testeditor.tcl.TclModel
 
 @Singleton
 class TclQualifiedNameProvider extends XbaseQualifiedNameProvider {
 
+	@Inject ClasspathUtil classpathUtil
+
 	def QualifiedName qualifiedName(TclModel model) {
+		if (model.package == null) {
+			model.package = classpathUtil.inferPackage(model)
+		}
 		return converter.toQualifiedName(model.package)
 	}
 

@@ -60,7 +60,6 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	@Inject IQualifiedNameProvider nameProvider
 	@Inject JvmModelHelper jvmModelHelper
 	@Inject TclExpressionBuilder expressionBuilder
-	@Inject ClasspathUtil classpathUtil
 
 	def dispatch void infer(TclModel model, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		model.test?.infer(acceptor, isPreIndexingPhase)
@@ -90,13 +89,6 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	 */
 	def dispatch void infer(SetupAndCleanupProvider element, IJvmDeclaredTypeAcceptor acceptor,
 		boolean isPreIndexingPhase) {
-		// Set package if not defined
-		if (element instanceof TestCase) {
-			updateNullPackageIn(element.model, element)
-		}
-		if (element instanceof TestConfiguration) {
-			updateNullPackageIn(element.model, element)
-		}
 		// Create the class with eager initialization
 		val generatedClass = element.toClass(isPreIndexingPhase)
 
@@ -116,12 +108,6 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			// subclass specific operations
 			infer(element)
 		]
-	}
-
-	def void updateNullPackageIn(TclModel model, SetupAndCleanupProvider element) {
-		if (model.package == null) {
-			model.package = classpathUtil.getPackageFromFileSystem(element)
-		}
 	}
 
 	private def void addSuperType(JvmGenericType result, SetupAndCleanupProvider element) {
