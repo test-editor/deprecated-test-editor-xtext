@@ -13,11 +13,8 @@
 package org.testeditor.rcp4.views.teststepselector
 
 import java.util.ArrayList
-import java.util.Iterator
 import java.util.Set
-import java.util.TreeSet
 import javax.annotation.PostConstruct
-import javax.annotation.PreDestroy
 import javax.inject.Inject
 import org.eclipse.core.commands.ExecutionEvent
 import org.eclipse.core.commands.ExecutionException
@@ -159,104 +156,79 @@ class TestStepSelector {
 	@Inject
 	@Optional
 	def void updateView(@EventTopic(SELECTOR_TOPIC_UPDATE) Object data) {
-		logger.debug("Updating view.")
+		logger.debug("updateView.")
 		Display.getDefault.syncExec[updateView(true)]
 	}
 
 	@Inject
 	@Optional
 	def void refreshView(@EventTopic(SELECTOR_TOPIC_REFRESH) Object data) {
+		logger.debug("refreshView.")
 		Display.getDefault.syncExec[updateView(false)]
 	}
 
-	// make sure that the index is populated before calling this method
-	// and that it is run in the swt thread!
-	def updateView(boolean update) {
+	private def updateView(boolean update) {
 
+		// check if a update is needed
 		if (!update && viewer.input != null) {
 			return
 		}
+
+		// update model
 		val amlInjector = amlInjectorProvider.get
+		val model = amlInjector.getInstance(AmlModelsProvider).amlModels
 
-
-		viewer.labelProvider = labelProvider
-		viewer.contentProvider = amlInjector.getInstance(TestStepSelectorTreeContentProvider)
-
-		val amlModelsProvider = amlInjector.getInstance(AmlModelsProvider)
+		// update view and set model
 		if (viewer.input == null) {
-			
-			viewer.input = amlModelsProvider.amlModels
-			
+			viewer.labelProvider = labelProvider
+			// TODO different handling of labelProvider and contentProvider
+			viewer.contentProvider = amlInjectorProvider.get.getInstance(TestStepSelectorTreeContentProvider)
+			viewer.input = model
 		} else {
-			val Set<String> elements = storeExpandedElements()
-
-			val model = amlModelsProvider.amlModels
+			val Set<String> expandedElements = viewer.expandedElements.map[toStringPath(it)].toSet
 			viewer.input = model;
-			
-			viewer.expandedElements = searchExpandedElementsInModel(elements, model)
+			viewer.expandedElements = expandElements(expandedElements, model)
 		}
 
 	}
-	private def Object[] searchExpandedElementsInModel(Set<String> elements, Iterable<AmlModel> model) {
-	
-			val elementsToExpand = new ArrayList<Object>();
 
-			model.forEach [
-				{
-					if (elements.contains(it.package)) {
-						elementsToExpand.add(it.package)
+	private def Object[] expandElements(Set<String> elements, Iterable<AmlModel> model) {
+		val elementsToExpand = new ArrayList<Object>();
+		model.forEach [
+			{
+				if (elements.contains(it.toStringPath)) {
+					elementsToExpand.add(it.toStringPath)
+				}
+				it.components.forEach [
+					if (elements.contains(it.toStringPath)) {
+						elementsToExpand.add(it)
 					}
-					val package = it.package;
-					it.components.forEach [
-						val componentName = package + ">" + it.name;
-						if (elements.contains(componentName)) {
+					it.elements.forEach [
+						if (elements.contains(it.toStringPath)) {
 							elementsToExpand.add(it)
 						}
-						it.elements.forEach [
-							if (elements.contains(componentName + ">" + it.name)) {
-								elementsToExpand.add(it)
-							}
-						]
 					]
-				}
-			]
-			return elementsToExpand
-		
-	}
-	/**
-	 * Creates
-	 */
-	private def Set<String> storeExpandedElements() {
-		 val Set<String> expandedElements = new TreeSet<String>
-		  
-		viewer.expandedElements.forEach [
-			{
-				if (it instanceof String) {
-					expandedElements.add(it)
-				} else if (it instanceof Component) {
-					expandedElements.add((it.eContainer() as AmlModel).package + ">" + it.name)
-				} else if (it instanceof ComponentElement) {
-					expandedElements.add(
-						(it.eContainer().eContainer() as AmlModel).package + ">" +
-							(it.eContainer() as Component).name + ">" + it.name)
-				} else {
-					throw new IllegalArgumentException(
-						"unexpected type " + it.class.name + " in expanded TreeElements");
-				}
+				]
 			}
 		]
-		return expandedElements
+		return elementsToExpand
 	}
 
-	def getNextValue(Iterator<Object> oldExpandedElementsIterator) {
-		if (oldExpandedElementsIterator.hasNext) {
-			return oldExpandedElementsIterator.next
+	def private String toStringPath(Object object) {
+		switch (object) {
+			String:
+				return object
+			AmlModel:
+				return object.package
+			Component:
+				return (object.eContainer() as AmlModel).package + ">" + object.name
+			ComponentElement:
+				return (object.eContainer().eContainer() as AmlModel).package + ">" +
+					(object.eContainer() as Component).name + ">" + object.name
+			default:
+				throw new IllegalArgumentException("unexpected type " + object.class.name + " in expanded TreeElements")
 		}
-		return null
 	}
 
-	@PreDestroy
-	def void preDestroy() {
-	}
 
 }
