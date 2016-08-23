@@ -25,16 +25,19 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.xtext.EcoreUtil2
+import org.slf4j.LoggerFactory
 
 class ClasspathUtil {
 
 	static val EFFECTIVE_POM_TXT_PATH = "target/effective_pom.txt"
+	static val logger = LoggerFactory.getLogger(ClasspathUtil)
 
 	@Inject WorkspaceRootHelper workspaceRootHelper
+	@Inject MavenCommand mavenCommand
 
 	List<IPath> mavenClasspath
 
-	def String getPackageFromFileSystem(EObject element) {
+	def String inferPackage(EObject element) {
 		val orignPath = new Path(EcoreUtil2.getPlatformResourceOrNormalizedURI(element).trimFragment.path)
 		var path = orignPath.removeLastSegments(2)
 		var IPath cpEntry = new Path("")
@@ -48,7 +51,7 @@ class ClasspathUtil {
 		return path.removeFirstSegments(start).segments.join(".")
 	}
 
-	def IPath getGetBuildToolClasspathEntry(IPath path) {
+	def IPath getBuildToolClasspathEntry(IPath path) {
 		val baseDir = path.getBuildProjectBaseDir
 		if (baseDir.toFile.list.contains("pom.xml")) {
 			return baseDir.getMavenClasspathEntries().filter[it.isPrefixOf(path)].head
@@ -68,17 +71,18 @@ class ClasspathUtil {
 	 */
 	def List<IPath> getMavenClasspathEntries(IPath path) {
 		if (mavenClasspath == null) {
-			val pb = new ProcessBuilder()
-			pb.command(
-				#[System.getenv("MAVEN_HOME") + "/bin/mvn", "help:effective-pom", "-Doutput=" + EFFECTIVE_POM_TXT_PATH])
-			pb.directory(path.toFile)
-			pb.inheritIO
-			val process = pb.start
-			process.waitFor
-			mavenClasspath = readMavenClasspathEntriesFromPom(
-				new FileInputStream(new File(path.toFile, EFFECTIVE_POM_TXT_PATH)))
+			mavenCommand.execute(path.toFile,"help:effective-pom", "-Doutput=" + EFFECTIVE_POM_TXT_PATH)
+			val effectivePom = new File(path.toFile, EFFECTIVE_POM_TXT_PATH)
+			if (effectivePom.exists) {
+				mavenClasspath = readMavenClasspathEntriesFromPom(new FileInputStream(effectivePom))
+			}
+			else {
+				logger.warn(
+					"Could not find the genrated effective pom in {}. This is needed to look up the build path " ,
+						effectivePom)
+			}
+			return mavenClasspath
 		}
-		return mavenClasspath
 	}
 
 	def List<IPath> readMavenClasspathEntriesFromPom(InputStream pomStream) {
@@ -109,7 +113,10 @@ class ClasspathUtil {
 		if (path.toFile.list.contains("pom.xml") || path.toFile.list.contains("build.gradle")) {
 			return path
 		}
-		getBuildProjectBaseDir(new Path(path.toFile.parent))
+		if (path.toFile.parent != null) {
+			return getBuildProjectBaseDir(new Path(path.toFile.parent))
+		}
+		return null
 	}
 
 }

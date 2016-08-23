@@ -12,80 +12,137 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.util
 
+import java.io.File
+import java.nio.file.Files
+import java.util.List
+import org.eclipse.core.runtime.IPath
+import org.eclipse.core.runtime.Path
 import org.eclipse.xtext.util.StringInputStream
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import org.mockito.InjectMocks
+import org.mockito.Mock
 import org.testeditor.dsl.common.testing.AbstractTest
 
+import static org.mockito.Mockito.*
+
 class ClasspathUtilTest extends AbstractTest {
-	
+
+	@Mock
+	MavenCommand mavenCommand
 	@InjectMocks
 	ClasspathUtil classpathUtil
-	
+	@Rule public TemporaryFolder tempFolder = new TemporaryFolder();
+
+	@Test
+	def void testGetBuildToolClasspathEntryWithMaven() {
+		// given
+		val targetDir = tempFolder.newFolder("target")
+		tempFolder.newFile("pom.xml")
+		val packageDir = new File(tempFolder.newFolder("src"), "/test/java/package")
+		packageDir.mkdirs
+		Files.write(new File(targetDir, "effective_pom.txt").toPath, getEffectiveTestPom(tempFolder.root).bytes)
+
+		// when
+		val result = classpathUtil.getBuildToolClasspathEntry(new Path(packageDir.toString))
+
+		// then
+		verify(mavenCommand).execute(any(File),any(String),any(String))
+		assertEquals(tempFolder.root + "/src/test/java", result.toString)
+	}
+
+	@Test
+	def void testGetBuildProjectBaseDir() {
+		// given
+		val path = getPathForBuildFileSearch(#[])
+		val basePathWithPom = getPathForBuildFileSearch(#["pom.xml"])
+		val basePathWithGradle = getPathForBuildFileSearch(#["build.gradle"])
+
+		// when
+		val buildScriptNotFound = classpathUtil.getBuildProjectBaseDir(path)
+		val pathWithPom = classpathUtil.getBuildProjectBaseDir(basePathWithPom)
+		val pathWithGradle = classpathUtil.getBuildProjectBaseDir(basePathWithGradle)
+
+		// then
+		assertNull(buildScriptNotFound)
+		assertSame(basePathWithPom, pathWithPom)
+		assertSame(basePathWithGradle, pathWithGradle)
+	}
+
+	def IPath getPathForBuildFileSearch(List<String> objects) {
+		val path = mock(IPath)
+		val folder = mock(File)
+		when(path.toFile).thenReturn(folder)
+		when(folder.list).thenReturn(objects)
+		when(folder.parent).thenReturn(null)
+		return path
+	}
+
 	@Test
 	def void testReadMavenClasspathEntriesFromPom() {
 		// given
-		val stream = new StringInputStream(effectiveTestPom)
-		
+		val stream = new StringInputStream(getEffectiveTestPom(tempFolder.root))
+
 		// when
 		val result = classpathUtil.readMavenClasspathEntriesFromPom(stream)
-		
+
 		// then
 		val paths = result.map[toString]
-		assertTrue(paths.contains("/home/user/projects/te/rcp/org.testeditor.rcp4.uatests/src/main/java"))
-		assertTrue(paths.contains("/home/user/projects/te/rcp/org.testeditor.rcp4.uatests/src/test/java"))
-		assertFalse(paths.contains("/home/user/projects/te/rcp/org.testeditor.rcp4.uatests/target/classes"))
+		assertTrue(paths.contains(tempFolder.root + "/src/main/java"))
+		assertTrue(paths.contains(tempFolder.root + "/src/test/java"))
+		assertFalse(paths.contains(tempFolder.root + "/target/classes"))
 	}
 
-	def String getEffectiveTestPom() {'''
-	<?xml version="1.0" encoding="UTF-8"?>
-	<!-- ====================================================================== -->
-	<!--                                                                        -->
-	<!-- See: http://maven.apache.org/plugins/maven-help-plugin/                -->
-	<!--                                                                        -->
-	<!-- ====================================================================== -->
-	
-	<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	  <modelVersion>4.0.0</modelVersion>
-	  <parent>
-	    <groupId>org.testeditor</groupId>
-	    <artifactId>org.testeditor.releng.parent</artifactId>
-	    <version>1.2.0-SNAPSHOT</version>
-	    <relativePath>../../releng/org.testeditor.releng.parent</relativePath>
-	  </parent>
-	  <groupId>org.testeditor</groupId>
-	  <artifactId>org.testeditor.rcp4.uatests</artifactId>
-	  <version>1.2.0-SNAPSHOT</version>
-	  <packaging>eclipse-test-plugin</packaging>
-	  <dependencies>
-	    <dependency>
-	      <groupId>org.testeditor.fixture</groupId>
-	      <artifactId>core-fixture</artifactId>
-	      <version>2.5.2</version>
-	      <scope>compile</scope>
-	    </dependency>
-	  </dependencies>
-	  <build>
-	    <sourceDirectory>/home/user/projects/te/rcp/org.testeditor.rcp4.uatests/src/main/java</sourceDirectory>
-	    <scriptSourceDirectory>/home/user/projects/te/rcp/org.testeditor.rcp4.uatests/src/main/scripts</scriptSourceDirectory>
-	    <testSourceDirectory>/home/user/projects/te/rcp/org.testeditor.rcp4.uatests/src/test/java</testSourceDirectory>
-	    <outputDirectory>/home/user/projects/te/rcp/org.testeditor.rcp4.uatests/target/classes</outputDirectory>
-	    <testOutputDirectory>/home/user/projects/te/rcp/org.testeditor.rcp4.uatests/target/test-classes</testOutputDirectory>
-	    <resources>
-	      <resource>
-	        <directory>/home/user/projects/te/rcp/org.testeditor.rcp4.uatests/src/main/resources</directory>
-	      </resource>
-	    </resources>
-	    <testResources>
-	      <testResource>
-	        <directory>/home/user/projects/te/rcp/org.testeditor.rcp4.uatests/src/test/resources</directory>
-	      </testResource>
-	    </testResources>
-	    <directory>/home/user/projects/te/rcp/org.testeditor.rcp4.uatests/target</directory>
-	    <finalName>org.testeditor.rcp4.uatests-1.2.0-SNAPSHOT</finalName>
-	  </build>
-	</project>
-	'''	
+	def String getEffectiveTestPom(File prjDir) {
+		'''
+			<?xml version="1.0" encoding="UTF-8"?>
+			<!-- ====================================================================== -->
+			<!--                                                                        -->
+			<!-- See: http://maven.apache.org/plugins/maven-help-plugin/                -->
+			<!--                                                                        -->
+			<!-- ====================================================================== -->
+			
+			<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+			  <modelVersion>4.0.0</modelVersion>
+			  <parent>
+			    <groupId>org.testeditor</groupId>
+			    <artifactId>org.testeditor.releng.parent</artifactId>
+			    <version>1.2.0-SNAPSHOT</version>
+			    <relativePath>../../releng/org.testeditor.releng.parent</relativePath>
+			  </parent>
+			  <groupId>org.testeditor</groupId>
+			  <artifactId>org.testeditor.rcp4.uatests</artifactId>
+			  <version>1.2.0-SNAPSHOT</version>
+			  <packaging>eclipse-test-plugin</packaging>
+			  <dependencies>
+			    <dependency>
+			      <groupId>org.testeditor.fixture</groupId>
+			      <artifactId>core-fixture</artifactId>
+			      <version>2.5.2</version>
+			      <scope>compile</scope>
+			    </dependency>
+			  </dependencies>
+			  <build>
+			    <sourceDirectory>«prjDir.toString»/src/main/java</sourceDirectory>
+			    <scriptSourceDirectory>«prjDir.toString»/src/main/scripts</scriptSourceDirectory>
+			    <testSourceDirectory>«prjDir.toString»/src/test/java</testSourceDirectory>
+			    <outputDirectory>«prjDir.toString»/target/classes</outputDirectory>
+			    <testOutputDirectory>«prjDir.toString»/target/test-classes</testOutputDirectory>
+			    <resources>
+			      <resource>
+			        <directory>«prjDir.toString»/src/main/resources</directory>
+			      </resource>
+			    </resources>
+			    <testResources>
+			      <testResource>
+			        <directory>«prjDir.toString»/src/test/resources</directory>
+			      </testResource>
+			    </testResources>
+			    <directory>«prjDir.toString»/target</directory>
+			  </build>
+			</project>
+		'''
 	}
-	
+
 }
