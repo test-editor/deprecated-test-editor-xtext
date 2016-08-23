@@ -22,8 +22,7 @@ import org.testeditor.dsl.common.util.ClasspathUtil
 @Singleton
 class TclQualifiedNameProvider extends XbaseQualifiedNameProvider {
 
-	@Inject
-	ClasspathUtil classpathUtil
+	@Inject ClasspathUtil classpathUtil
 
 	def QualifiedName qualifiedName(TclModel model) {
 		if(model.package==null) {

@@ -26,6 +26,10 @@ import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.xtext.EcoreUtil2
 import org.slf4j.LoggerFactory
+import javax.xml.xpath.XPathFactory
+import org.w3c.dom.Node
+import javax.xml.xpath.XPathConstants
+import org.w3c.dom.Document
 
 class ClasspathUtil {
 
@@ -71,52 +75,70 @@ class ClasspathUtil {
 	 */
 	def List<IPath> getMavenClasspathEntries(IPath path) {
 		if (mavenClasspath == null) {
-			mavenCommand.execute(path.toFile,"help:effective-pom", "-Doutput=" + EFFECTIVE_POM_TXT_PATH)
+			mavenCommand.execute(path.toFile, "help:effective-pom", "-Doutput=" + EFFECTIVE_POM_TXT_PATH)
 			val effectivePom = new File(path.toFile, EFFECTIVE_POM_TXT_PATH)
 			if (effectivePom.exists) {
 				mavenClasspath = readMavenClasspathEntriesFromPom(new FileInputStream(effectivePom))
-			}
-			else {
+			} else {
 				logger.warn(
-					"Could not find the genrated effective pom in {}. This is needed to look up the build path " ,
-						effectivePom)
-			}
-			return mavenClasspath
-		}
-	}
-
-	def List<IPath> readMavenClasspathEntriesFromPom(InputStream pomStream) {
-		val doc = DocumentBuilderFactory.newInstance.newDocumentBuilder.parse(pomStream)
-		val node = doc.getElementsByTagName("build").item(0)
-		val mavenPaths = #["sourceDirectory", "testSourceDirectory", "scriptSourceDirectory"]
-		val childs = node.childNodes
-		val result = new ArrayList<IPath>()
-		for (var i = 0; i < childs.length; i++) {
-			if (mavenPaths.contains(childs.item(i).nodeName)) {
-				result.add(new Path(childs.item(i).textContent))
+					"Could not find the genrated effective pom in {}. This is needed to look up the build path ",
+					effectivePom)
+				}
+				return mavenClasspath
 			}
 		}
-		return result
-	}
 
-	def IPath getEclipseClasspathEntry(IPath path) {
-		val javaProject = JavaCore.create(workspaceRootHelper.root.getFile(path).project)
-		val classpathEntries = javaProject.rawClasspath.filter[entryKind == IClasspathEntry.CPE_SOURCE]
-		return classpathEntries.filter[it.path.isPrefixOf(path)].head.path
-	}
-
-	def boolean getIsEclipseResolved(Path path) {
-		return path.toFile.toString.startsWith("/resource/")
-	}
-
-	def IPath getBuildProjectBaseDir(IPath path) {
-		if (path.toFile.list.contains("pom.xml") || path.toFile.list.contains("build.gradle")) {
-			return path
+		def List<IPath> readMavenClasspathEntriesFromPom(InputStream pomStream) {
+			val doc = DocumentBuilderFactory.newInstance.newDocumentBuilder.parse(pomStream)
+			val node = doc.getElementsByTagName("build").item(0)
+			val mavenPaths = #["sourceDirectory", "testSourceDirectory", "scriptSourceDirectory"]
+			val childs = node.childNodes
+			val result = new ArrayList<IPath>()
+			for (var i = 0; i < childs.length; i++) {
+				if (mavenPaths.contains(childs.item(i).nodeName)) {
+					result.add(new Path(childs.item(i).textContent))
+				}
+			}
+			result.addAll(searchForBuildHelperPluginDirectories(doc))
+			return result
 		}
-		if (path.toFile.parent != null) {
-			return getBuildProjectBaseDir(new Path(path.toFile.parent))
-		}
-		return null
-	}
 
-}
+		def List<IPath> searchForBuildHelperPluginDirectories(Document document) {
+			val result = new ArrayList<IPath>()
+			val xpath = XPathFactory.newInstance().newXPath();
+			val expression = "/project/build/plugins/plugin[artifactId='build-helper-maven-plugin']";
+			val helperPluginNode = xpath.evaluate(expression, document, XPathConstants.NODE) as Node;
+			if (helperPluginNode != null) {
+				val sources= xpath.evaluate("executions/execution/configuration/sources", helperPluginNode, XPathConstants.NODE) as Node;
+				val sourcesChilds = sources.childNodes
+				for (var i = 0; i < sourcesChilds.length; i++) {
+					if (sourcesChilds.item(i).nodeName.equals("source")) {
+						result.add(new Path(sourcesChilds.item(i).textContent))
+					}
+				}
+			}
+			return result
+		}
+
+		def IPath getEclipseClasspathEntry(IPath path) {
+			val javaProject = JavaCore.create(workspaceRootHelper.root.getFile(path).project)
+			val classpathEntries = javaProject.rawClasspath.filter[entryKind == IClasspathEntry.CPE_SOURCE]
+			return classpathEntries.filter[it.path.isPrefixOf(path)].head.path
+		}
+
+		def boolean getIsEclipseResolved(Path path) {
+			return path.toFile.toString.startsWith("/resource/")
+		}
+
+		def IPath getBuildProjectBaseDir(IPath path) {
+			if (path.toFile.list.contains("pom.xml") || path.toFile.list.contains("build.gradle")) {
+				return path
+			}
+			if (path.toFile.parent != null) {
+				return getBuildProjectBaseDir(new Path(path.toFile.parent))
+			}
+			return null
+		}
+
+	}
+	

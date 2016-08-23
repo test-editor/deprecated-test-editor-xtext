@@ -42,13 +42,13 @@ class ClasspathUtilTest extends AbstractTest {
 		tempFolder.newFile("pom.xml")
 		val packageDir = new File(tempFolder.newFolder("src"), "/test/java/package")
 		packageDir.mkdirs
-		Files.write(new File(targetDir, "effective_pom.txt").toPath, getEffectiveTestPom(tempFolder.root).bytes)
+		Files.write(new File(targetDir, "effective_pom.txt").toPath, getEffectiveTestPom(tempFolder.root, false).bytes)
 
 		// when
 		val result = classpathUtil.getBuildToolClasspathEntry(new Path(packageDir.toString))
 
 		// then
-		verify(mavenCommand).execute(any(File),any(String),any(String))
+		verify(mavenCommand).execute(any(File), any(String), any(String))
 		assertEquals(tempFolder.root + "/src/test/java", result.toString)
 	}
 
@@ -82,19 +82,28 @@ class ClasspathUtilTest extends AbstractTest {
 	@Test
 	def void testReadMavenClasspathEntriesFromPom() {
 		// given
-		val stream = new StringInputStream(getEffectiveTestPom(tempFolder.root))
+		val stream = new StringInputStream(getEffectiveTestPom(tempFolder.root, false))
+		val streamWithHelper = new StringInputStream(getEffectiveTestPom(tempFolder.root, true))
 
 		// when
 		val result = classpathUtil.readMavenClasspathEntriesFromPom(stream)
+		val resultWithHelper = classpathUtil.readMavenClasspathEntriesFromPom(streamWithHelper)
 
 		// then
 		val paths = result.map[toString]
+		val pathsWithHelper = resultWithHelper.map[toString]
+
 		assertTrue(paths.contains(tempFolder.root + "/src/main/java"))
 		assertTrue(paths.contains(tempFolder.root + "/src/test/java"))
+		assertFalse(paths.contains(tempFolder.root + "/src-gen"))
 		assertFalse(paths.contains(tempFolder.root + "/target/classes"))
+
+		assertTrue(pathsWithHelper.contains(tempFolder.root + "/src/main/java"))
+		assertTrue(pathsWithHelper.contains(tempFolder.root + "/src-gen"))
+		assertFalse(pathsWithHelper.contains(tempFolder.root + "/target/classes"))
 	}
 
-	def String getEffectiveTestPom(File prjDir) {
+	def String getEffectiveTestPom(File prjDir, boolean withHelperPlugIn) {
 		'''
 			<?xml version="1.0" encoding="UTF-8"?>
 			<!-- ====================================================================== -->
@@ -140,6 +149,29 @@ class ClasspathUtilTest extends AbstractTest {
 			      </testResource>
 			    </testResources>
 			    <directory>«prjDir.toString»/target</directory>
+			    «IF (withHelperPlugIn)»
+			    	<plugins>
+			    	  <plugin>
+			    	    <groupId>org.codehaus.mojo</groupId>
+			    	    <artifactId>build-helper-maven-plugin</artifactId>
+			    	    <version>1.7</version>
+			    	    <executions>
+			    	      <execution>
+			    	        <id>add-source</id>
+			    	        <phase>generate-sources</phase>
+			    	        <goals>
+			    	          <goal>add-source</goal>
+			    	        </goals>
+			    	        <configuration>
+			    	          <sources>
+			    	            <source>«prjDir.toString»/src-gen</source>
+			    	          </sources>
+			    	        </configuration>
+			    	      </execution>
+			    	    </executions>
+			    	  </plugin>
+			    	</plugins>
+			    «ENDIF»
 			  </build>
 			</project>
 		'''
