@@ -16,11 +16,19 @@ import javax.inject.Singleton
 import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.xtext.xbase.scoping.XbaseQualifiedNameProvider
 import org.testeditor.tcl.TclModel
+import javax.inject.Inject
+import org.testeditor.dsl.common.util.ClasspathUtil
 
 @Singleton
 class TclQualifiedNameProvider extends XbaseQualifiedNameProvider {
 
+	@Inject
+	ClasspathUtil classpathUtil
+
 	def QualifiedName qualifiedName(TclModel model) {
+		if(model.package==null) {
+			model.package = classpathUtil.inferPackage(model)
+		}
 		return converter.toQualifiedName(model.package)
 	}
 
