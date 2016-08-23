@@ -744,6 +744,13 @@
             icon="icons/config_obj.gif"
             category="org.testeditor">
       </wizard>
+        <wizard
+            name="Test Macro"
+            class="org.testeditor.tcl.dsl.ui.TclExecutableExtensionFactory:org.testeditor.tcl.dsl.ui.wizard.NewTclMacroWizard"
+            id="org.testeditor.tcl.dsl.ui.wizard.NewTclMacroWizard"
+            icon="icons/new_tml_wiz.gif"
+            category="org.testeditor">
+      </wizard>
   </extension>
 
 </plugin>
