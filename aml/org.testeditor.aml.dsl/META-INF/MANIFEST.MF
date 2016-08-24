@@ -32,4 +32,5 @@ Export-Package: org.testeditor.aml.dsl,
  org.testeditor.aml.dsl.services,
  org.testeditor.aml.dsl.validation,
  org.testeditor.aml.dsl.scoping,
+ org.testeditor.aml.dsl.naming,
  org.testeditor.aml.dsl.conversion

@@ -123,4 +123,5 @@ Import-Package: com.google.inject,
  org.eclipse.xtext.resource.persistence,
  org.eclipse.xtext.util,
  org.osgi.service.event,
+ org.testeditor.aml.dsl.naming,
  org.testeditor.aml.dsl.ui.internal
