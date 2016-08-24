@@ -27,7 +27,7 @@ class TestStepSelectorExecutionListener implements IExecutionListener {
 			val activePage = PlatformUI.workbench.activeWorkbenchWindow.activePage
 			val id = activePage.activeEditor.editorSite.id
 			if (DslActivator.ORG_TESTEDITOR_AML_DSL_AML.equals(id)) {
-				broker.post(TestStepSelector.SELECTOR_TOPIC_UPDATE, null)
+				broker.post(TestStepSelector.SELECTOR_UPDATE_MODEL_AND_VIEW, null)
 			}
 		}
 	}
