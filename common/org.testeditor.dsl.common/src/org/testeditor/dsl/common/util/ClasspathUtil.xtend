@@ -19,6 +19,8 @@ import java.util.ArrayList
 import java.util.List
 import javax.inject.Inject
 import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.xpath.XPathConstants
+import javax.xml.xpath.XPathFactory
 import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.Path
 import org.eclipse.emf.ecore.EObject
@@ -26,10 +28,8 @@ import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.xtext.EcoreUtil2
 import org.slf4j.LoggerFactory
-import javax.xml.xpath.XPathFactory
-import org.w3c.dom.Node
-import javax.xml.xpath.XPathConstants
 import org.w3c.dom.Document
+import org.w3c.dom.Node
 
 class ClasspathUtil {
 
@@ -38,8 +38,10 @@ class ClasspathUtil {
 
 	@Inject WorkspaceRootHelper workspaceRootHelper
 	@Inject MavenCommand mavenCommand
+	@Inject GradleCommand gradleCommand
 
 	List<IPath> mavenClasspath
+	List<IPath> gradleClasspath
 
 	def String inferPackage(EObject element) {
 		val orignPath = new Path(EcoreUtil2.getPlatformResourceOrNormalizedURI(element).trimFragment.path)
@@ -67,7 +69,21 @@ class ClasspathUtil {
 	}
 
 	def List<IPath> getGradleClasspathEntries(IPath path) {
-		return #[new Path("src/main/java")]
+		val result = new ArrayList<IPath>()
+		if (gradleClasspath == null) {
+			val output = gradleCommand.execute(path.toFile, "properties")
+			val props = output.split(System.getProperty("line.separator"))
+			val prjDir = props.filter[startsWith("projectDir")].head.split(": ").get(1)
+			val sourceSetProperty = props.filter[startsWith("sourceSets")].head
+			val sourceSets = sourceSetProperty.substring(sourceSetProperty.indexOf("[") + 1,
+				sourceSetProperty.lastIndexOf("]")).split(",")
+			val javaSourceSet = sourceSets.filter[it.trim.startsWith("source set")]
+			javaSourceSet.forEach [
+				result.add(
+					new Path(prjDir + "/src/" + it.substring(it.indexOf("'") + 1, it.lastIndexOf("'")) + "/java"))
+			]
+		}
+		return result
 	}
 
 	/**
@@ -109,7 +125,8 @@ class ClasspathUtil {
 			val expression = "/project/build/plugins/plugin[artifactId='build-helper-maven-plugin']";
 			val helperPluginNode = xpath.evaluate(expression, document, XPathConstants.NODE) as Node;
 			if (helperPluginNode != null) {
-				val sources= xpath.evaluate("executions/execution/configuration/sources", helperPluginNode, XPathConstants.NODE) as Node;
+				val sources = xpath.evaluate("executions/execution/configuration/sources", helperPluginNode,
+					XPathConstants.NODE) as Node;
 				val sourcesChilds = sources.childNodes
 				for (var i = 0; i < sourcesChilds.length; i++) {
 					if (sourcesChilds.item(i).nodeName.equals("source")) {

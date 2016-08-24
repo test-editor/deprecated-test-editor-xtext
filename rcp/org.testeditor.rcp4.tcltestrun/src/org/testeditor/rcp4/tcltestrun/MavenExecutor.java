@@ -12,11 +12,8 @@
  *******************************************************************************/
 package org.testeditor.rcp4.tcltestrun;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -34,6 +31,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testeditor.dsl.common.util.OutputStreamCopyUtil;
 
 /**
  * Executes a maven build in a new jvm using the embedded maven. The maven
@@ -88,7 +86,8 @@ public class MavenExecutor {
 	 * @throws IOException
 	 *             on failure
 	 */
-	public int executeInNewJvm(String parameters, String pathToPom, String testParam, IProgressMonitor monitor, OutputStream outputStream) throws IOException {
+	public int executeInNewJvm(String parameters, String pathToPom, String testParam, IProgressMonitor monitor,
+			OutputStream outputStream) throws IOException {
 		String jvm = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
 		List<String> command = new ArrayList<String>();
 		command.add(jvm);
@@ -184,33 +183,6 @@ public class MavenExecutor {
 		if (result != 0) {
 			System.exit(result);
 		}
-	}
-
-	static class OutputStreamCopyUtil extends Thread {
-
-		private BufferedReader reader;
-		private PrintStream out;
-
-		public OutputStreamCopyUtil(InputStream source, PrintStream out) {
-			super();
-			this.reader = new BufferedReader(new InputStreamReader(source));
-			this.out = out;
-		}
-
-		@Override
-		public void run() {
-			try {
-				String message = "";
-				while (message != null) {
-					out.println(message);
-					logger.trace(message);
-					message = reader.readLine();
-				}
-			} catch (IOException e) {
-				logger.error("Cannot connect to process ouput stream", e);
-			}
-		}
-
 	}
 
 }
