@@ -51,7 +51,7 @@ class ClasspathUtilTest extends AbstractTest {
 
 		// then
 		verify(mavenCommand).execute(any(File), any(String), any(String))
-		assertEquals(tempFolder.root + "/src/test/java", result.toString)
+		assertEquals(new Path(tempFolder.root + "/src/test/java"), result)
 	}
 
 	@Test
@@ -92,17 +92,14 @@ class ClasspathUtilTest extends AbstractTest {
 		val resultWithHelper = classpathUtil.readMavenClasspathEntriesFromPom(streamWithHelper)
 
 		// then
-		val paths = result.map[toString]
-		val pathsWithHelper = resultWithHelper.map[toString]
+		assertTrue(result.contains(new Path(tempFolder.root + "/src/main/java")))
+		assertTrue(result.contains(new Path(tempFolder.root + "/src/test/java")))
+		assertFalse(result.contains(new Path(tempFolder.root + "/src-gen")))
+		assertFalse(result.contains(new Path(tempFolder.root + "/target/classes")))
 
-		assertTrue(paths.contains(tempFolder.root + "/src/main/java"))
-		assertTrue(paths.contains(tempFolder.root + "/src/test/java"))
-		assertFalse(paths.contains(tempFolder.root + "/src-gen"))
-		assertFalse(paths.contains(tempFolder.root + "/target/classes"))
-
-		assertTrue(pathsWithHelper.contains(tempFolder.root + "/src/main/java"))
-		assertTrue(pathsWithHelper.contains(tempFolder.root + "/src-gen"))
-		assertFalse(pathsWithHelper.contains(tempFolder.root + "/target/classes"))
+		assertTrue(resultWithHelper.contains(new Path(tempFolder.root + "/src/main/java")))
+		assertTrue(resultWithHelper.contains(new Path(tempFolder.root + "/src-gen")))
+		assertFalse(resultWithHelper.contains(new Path(tempFolder.root + "/target/classes")))
 	}
 
 	def String getEffectiveTestPom(File prjDir, boolean withHelperPlugIn) {
@@ -190,10 +187,9 @@ class ClasspathUtilTest extends AbstractTest {
 		val result = classpathUtil.getGradleClasspathEntries(path)
 
 		// then
-		val paths = result.map[toString]
-		assertTrue(paths.contains(tempFolder.root + "/src/main/java"))
-		assertTrue(paths.contains(tempFolder.root + "/src/test/java"))
-		assertTrue(paths.contains(tempFolder.root + "/src/integration test/java"))
+		assertTrue(result.contains(new Path(tempFolder.root + "/src/main/java")))
+		assertTrue(result.contains(new Path(tempFolder.root + "/src/test/java")))
+		assertTrue(result.contains(new Path(tempFolder.root + "/src/integration test/java")))
 	}
 
 	def String getGradlePropertiesPrintOut(File prjDir) {
