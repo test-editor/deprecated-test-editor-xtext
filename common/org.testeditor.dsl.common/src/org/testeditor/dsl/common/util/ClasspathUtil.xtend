@@ -30,6 +30,7 @@ import org.eclipse.xtext.EcoreUtil2
 import org.slf4j.LoggerFactory
 import org.w3c.dom.Document
 import org.w3c.dom.Node
+import org.eclipse.core.runtime.NullProgressMonitor
 
 class ClasspathUtil {
 
@@ -37,7 +38,7 @@ class ClasspathUtil {
 	static val logger = LoggerFactory.getLogger(ClasspathUtil)
 
 	@Inject WorkspaceRootHelper workspaceRootHelper
-	@Inject MavenCommand mavenCommand
+	@Inject MavenExecutor mavenCommand
 	@Inject GradleCommand gradleCommand
 
 	List<IPath> mavenClasspath
@@ -91,7 +92,9 @@ class ClasspathUtil {
 	 */
 	def List<IPath> getMavenClasspathEntries(IPath path) {
 		if (mavenClasspath == null) {
-			mavenCommand.execute(path.toFile, "help:effective-pom", "-Doutput=" + EFFECTIVE_POM_TXT_PATH)
+			mavenCommand.executeInNewJvm("help:effective-pom", path.toFile.toString,
+				"-Doutput=" + path.toFile.toString + "/" + EFFECTIVE_POM_TXT_PATH, new NullProgressMonitor(),
+				System.out, true)
 			val effectivePom = new File(path.toFile, EFFECTIVE_POM_TXT_PATH)
 			if (effectivePom.exists) {
 				mavenClasspath = readMavenClasspathEntriesFromPom(new FileInputStream(effectivePom))

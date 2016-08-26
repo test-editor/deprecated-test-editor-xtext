@@ -26,11 +26,13 @@ import org.mockito.Mock
 import org.testeditor.dsl.common.testing.AbstractTest
 
 import static org.mockito.Mockito.*
+import org.eclipse.core.runtime.IProgressMonitor
+import java.io.OutputStream
 
 class ClasspathUtilTest extends AbstractTest {
 
 	@Mock
-	MavenCommand mavenCommand
+	MavenExecutor mavenCommand
 	@Mock
 	GradleCommand gradleCommand
 	@InjectMocks
@@ -50,7 +52,8 @@ class ClasspathUtilTest extends AbstractTest {
 		val result = classpathUtil.getBuildToolClasspathEntry(new Path(packageDir.toString))
 
 		// then
-		verify(mavenCommand).execute(any(File), any(String), any(String))
+		verify(mavenCommand).executeInNewJvm(any(String), any(String), any(String), any(IProgressMonitor),
+			any(OutputStream), any(Boolean))
 		assertEquals(new Path(tempFolder.root + "/src/test/java"), result)
 	}
 

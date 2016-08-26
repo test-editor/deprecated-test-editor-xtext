@@ -49,7 +49,7 @@ class TclMavenLauncherTest extends AbstractTest {
 		val profiles = launcher.getProfiles(project)
 
 		// then 
-		verify(executor).executeInNewJvm(any(String),any(String),any(String),any(IProgressMonitor),any(OutputStream))
+		verify(executor).executeInNewJvm(any(String),any(String),any(String),any(IProgressMonitor),any(OutputStream), any(Boolean))
 		assertTrue(profiles.exists[it == "foo"])
 		assertTrue(profiles.exists[it == "bar"])
 		assertFalse(profiles.exists[it == "test"])

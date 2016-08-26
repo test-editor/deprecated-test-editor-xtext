@@ -31,7 +31,6 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testeditor.dsl.common.util.OutputStreamCopyUtil;
 
 /**
  * Executes a maven build in a new jvm using the embedded maven. The maven
@@ -87,12 +86,12 @@ public class MavenExecutor {
 	 *             on failure
 	 */
 	public int executeInNewJvm(String parameters, String pathToPom, String testParam, IProgressMonitor monitor,
-			OutputStream outputStream) throws IOException {
+			OutputStream outputStream, boolean useJvmClasspath) throws IOException {
 		String jvm = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
 		List<String> command = new ArrayList<String>();
 		command.add(jvm);
 		command.add("-cp");
-		command.add(getClassPath());
+		command.add(getClassPath(useJvmClasspath));
 		Properties props = System.getProperties();
 		for (String key : props.stringPropertyNames()) {
 			if (key.startsWith("http.") | key.startsWith("TE.") | key.startsWith("https.")) {
@@ -133,9 +132,14 @@ public class MavenExecutor {
 	 * Builds the classpath to maven embedder libs, this class and the
 	 * dependencies.
 	 * 
+	 * @param useJvmClasspath
+	 * 
 	 * @return String with the classpath
 	 */
-	private String getClassPath() {
+	private String getClassPath(boolean useJvmClasspath) {
+		if (useJvmClasspath) {
+			return System.getProperty("java.class.path");
+		}
 		List<String> cp = new ArrayList<String>();
 		cp.addAll(Bundles.getClasspathEntries(Bundles
 				.findDependencyBundle(MavenPluginActivator.getDefault().getBundle(), "org.eclipse.m2e.maven.runtime")));
