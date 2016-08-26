@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.IStatus
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
+import org.testeditor.dsl.common.util.MavenExecutor
 
 public class TclMavenLauncher implements TclLauncher {
 

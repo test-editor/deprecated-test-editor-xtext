@@ -10,7 +10,7 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.rcp4.tcltestrun;
+package org.testeditor.dsl.common.util;
 
 import java.io.File;
 import java.io.IOException;
