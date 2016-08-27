@@ -22,6 +22,7 @@ import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.xpath.XPathConstants
 import javax.xml.xpath.XPathFactory
 import org.eclipse.core.runtime.IPath
+import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.jdt.core.IClasspathEntry
@@ -30,7 +31,6 @@ import org.eclipse.xtext.EcoreUtil2
 import org.slf4j.LoggerFactory
 import org.w3c.dom.Document
 import org.w3c.dom.Node
-import org.eclipse.core.runtime.NullProgressMonitor
 
 class ClasspathUtil {
 
@@ -52,6 +52,7 @@ class ClasspathUtil {
 			path = orignPath.removeFirstSegments(1).removeLastSegments(2)
 			cpEntry = path.getEclipseClasspathEntry
 		} else {
+			path = new Path(path.toFile.absolutePath)
 			cpEntry = path.getBuildToolClasspathEntry
 		}
 		val start = path.matchingFirstSegments(cpEntry)
@@ -59,6 +60,7 @@ class ClasspathUtil {
 	}
 
 	def IPath getBuildToolClasspathEntry(IPath path) {
+		logger.info("Searching classpath for {}.", path)
 		val baseDir = path.getBuildProjectBaseDir
 		if (baseDir.toFile.list.contains("pom.xml")) {
 			return baseDir.getMavenClasspathEntries().filter[it.isPrefixOf(path)].head
@@ -92,9 +94,8 @@ class ClasspathUtil {
 	 */
 	def List<IPath> getMavenClasspathEntries(IPath path) {
 		if (mavenClasspath == null) {
-			mavenCommand.executeInNewJvm("help:effective-pom", path.toFile.toString,
-				"output=" + path.toFile.toString + "/" + EFFECTIVE_POM_TXT_PATH, new NullProgressMonitor(),
-				System.out, true)
+			mavenCommand.executeInNewJvm("help:effective-pom", path.toOSString,
+				"output=" + path.toOSString + "/" + EFFECTIVE_POM_TXT_PATH, new NullProgressMonitor(), System.out, true)
 			val effectivePom = new File(path.toFile, EFFECTIVE_POM_TXT_PATH)
 			if (effectivePom.exists) {
 				mavenClasspath = readMavenClasspathEntriesFromPom(new FileInputStream(effectivePom))

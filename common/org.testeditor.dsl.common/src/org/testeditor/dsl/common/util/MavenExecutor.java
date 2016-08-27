@@ -18,6 +18,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -114,33 +115,48 @@ public class MavenExecutor {
 	private List<String> createMavenExecCommand(String parameters, String pathToPom, String testParam,
 			boolean useJvmClasspath) {
 		List<String> command = new ArrayList<String>();
-		// Use maven exec
 		if (useJvmClasspath && System.getenv("MAVEN_HOME") != null) {
-			command.add(System.getenv("MAVEN_HOME") + "/bin/mvn");
-			command.add(parameters);
-			command.add("-D" + testParam);
+			command.addAll(executeMavenScript(parameters, testParam));
 		} else {
-			// Use embedded maven
-			String jvm = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
-			command.add(jvm);
-			command.add("-cp");
-			String mvnClasspath = getClassPath(useJvmClasspath);
-			logger.info("Using Classpath {} for maven", mvnClasspath);
-			command.add(mvnClasspath);
-			Properties props = System.getProperties();
-			for (String key : props.stringPropertyNames()) {
-				if (key.startsWith("http.") | key.startsWith("TE.") | key.startsWith("https.")) {
-					command.add("-D" + key + "=" + props.getProperty(key));
-				}
-			}
-			command.add(this.getClass().getName());
-			command.add(parameters);
-			command.add(pathToPom);
-			command.add(testParam);
+			command.addAll(executeEmbeddedMaven(parameters, pathToPom, testParam, useJvmClasspath));
 		}
 		if (Boolean.getBoolean("te.workOffline")) {
 			command.add("-o");
 		}
+		return command;
+	}
+
+	private Collection<? extends String> executeEmbeddedMaven(String parameters, String pathToPom, String testParam,
+			boolean useJvmClasspath) {
+		List<String> command = new ArrayList<String>();
+		String jvm = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+		command.add(jvm);
+		command.add("-cp");
+		String mvnClasspath = getClassPath(useJvmClasspath);
+		logger.info("Using Classpath {} for maven", mvnClasspath);
+		command.add(mvnClasspath);
+		Properties props = System.getProperties();
+		for (String key : props.stringPropertyNames()) {
+			if (key.startsWith("http.") | key.startsWith("TE.") | key.startsWith("https.")) {
+				command.add("-D" + key + "=" + props.getProperty(key));
+			}
+		}
+		command.add(this.getClass().getName());
+		command.add(parameters);
+		command.add(pathToPom);
+		command.add(testParam);
+		return command;
+	}
+
+	private List<String> executeMavenScript(String parameters, String testParam) {
+		List<String> command = new ArrayList<String>();
+		if (File.separator.equals("\\")) {
+			command.add(System.getenv("MAVEN_HOME") + "\\bin\\mvn.bat");
+		} else {
+			command.add(System.getenv("MAVEN_HOME") + "/bin/mvn");
+		}
+		command.add(parameters);
+		command.add("-D" + testParam);
 		return command;
 	}
 
