@@ -87,24 +87,7 @@ public class MavenExecutor {
 	 */
 	public int executeInNewJvm(String parameters, String pathToPom, String testParam, IProgressMonitor monitor,
 			OutputStream outputStream, boolean useJvmClasspath) throws IOException {
-		String jvm = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
-		List<String> command = new ArrayList<String>();
-		command.add(jvm);
-		command.add("-cp");
-		command.add(getClassPath(useJvmClasspath));
-		Properties props = System.getProperties();
-		for (String key : props.stringPropertyNames()) {
-			if (key.startsWith("http.") | key.startsWith("TE.") | key.startsWith("https.")) {
-				command.add("-D" + key + "=" + props.getProperty(key));
-			}
-		}
-		command.add(this.getClass().getName());
-		command.add(parameters);
-		command.add(pathToPom);
-		command.add(testParam);
-		if (Boolean.getBoolean("te.workOffline")) {
-			command.add("-o");
-		}
+		List<String> command = createMavenExecCommand(parameters, pathToPom, testParam, useJvmClasspath);
 		ProcessBuilder processBuilder = new ProcessBuilder();
 		processBuilder.directory(new File(pathToPom));
 		logger.info("Executing maven in new jvm with command={}", command);
@@ -126,6 +109,39 @@ public class MavenExecutor {
 			logger.error("Caught exception.", e);
 			return IStatus.ERROR;
 		}
+	}
+
+	private List<String> createMavenExecCommand(String parameters, String pathToPom, String testParam,
+			boolean useJvmClasspath) {
+		List<String> command = new ArrayList<String>();
+		// Use maven exec
+		if (useJvmClasspath && System.getenv("MAVEN_HOME") != null) {
+			command.add(System.getenv("MAVEN_HOME") + "/bin/mvn");
+			command.add(parameters);
+			command.add("-D" + testParam);
+		} else {
+			// Use embedded maven
+			String jvm = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+			command.add(jvm);
+			command.add("-cp");
+			String mvnClasspath = getClassPath(useJvmClasspath);
+			logger.info("Using Classpath {} for maven", mvnClasspath);
+			command.add(mvnClasspath);
+			Properties props = System.getProperties();
+			for (String key : props.stringPropertyNames()) {
+				if (key.startsWith("http.") | key.startsWith("TE.") | key.startsWith("https.")) {
+					command.add("-D" + key + "=" + props.getProperty(key));
+				}
+			}
+			command.add(this.getClass().getName());
+			command.add(parameters);
+			command.add(pathToPom);
+			command.add(testParam);
+		}
+		if (Boolean.getBoolean("te.workOffline")) {
+			command.add("-o");
+		}
+		return command;
 	}
 
 	/**
