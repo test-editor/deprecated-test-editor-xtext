@@ -148,10 +148,11 @@ class ClasspathUtil {
 		}
 
 		def boolean getIsEclipseResolved(Path path) {
-			return path.toFile.toString.startsWith("/resource/")
+			return path.toString.startsWith("/resource/")
 		}
 
 		def IPath getBuildProjectBaseDir(IPath path) {
+			println(">>>>>>>>>>>>> " + path)
 			if (path.toFile.list.contains("pom.xml") || path.toFile.list.contains("build.gradle")) {
 				return path
 			}
