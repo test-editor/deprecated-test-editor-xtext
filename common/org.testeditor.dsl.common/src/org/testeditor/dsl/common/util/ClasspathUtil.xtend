@@ -46,17 +46,19 @@ class ClasspathUtil {
 
 	def String inferPackage(EObject element) {
 		val orignPath = new Path(EcoreUtil2.getPlatformResourceOrNormalizedURI(element).trimFragment.path)
-		var path = orignPath.removeLastSegments(2)
+		var path = orignPath.removeLastSegments(1)
 		var IPath cpEntry = new Path("")
 		if (orignPath.isEclipseResolved) {
-			path = orignPath.removeFirstSegments(1).removeLastSegments(2)
+			path = orignPath.removeFirstSegments(1).removeLastSegments(1)
 			cpEntry = path.getEclipseClasspathEntry
 		} else {
 			path = new Path(path.toFile.absolutePath)
 			cpEntry = path.getBuildToolClasspathEntry
 		}
 		val start = path.matchingFirstSegments(cpEntry)
-		return path.removeFirstSegments(start).segments.join(".")
+		val result = path.removeFirstSegments(start).segments.join(".")
+		logger.debug("Inferred package for {} is {}.", element, result)
+		return result
 	}
 
 	def IPath getBuildToolClasspathEntry(IPath path) {
