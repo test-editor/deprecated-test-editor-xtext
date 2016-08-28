@@ -15,15 +15,16 @@ package org.testeditor.dsl.common.util
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.PrintStream
+import java.util.List
+import javax.inject.Inject
 
 class GradleCommand {
-	
+
+	@Inject OSUtil osUtil;
+
 	def String execute(File gradleBuildDirectory, String... commands) {
 		val processBuilder = new ProcessBuilder()
-		val commandString = newArrayList()
-		commandString.add("gradlew")
-		commandString.addAll(commands)
-		processBuilder.command(commandString)
+		processBuilder.command(commands.getCommandString)
 		processBuilder.directory(gradleBuildDirectory)
 		processBuilder.inheritIO
 		val process = processBuilder.start
@@ -32,5 +33,16 @@ class GradleCommand {
 		process.waitFor
 		return out.toString
 	}
-	
+
+	def List<String> getCommandString(String... commands) {
+		val commandString = newArrayList()
+		if (osUtil.windows) {
+			commandString.add("gradlew.bat")
+		} else {
+			commandString.add("gradlew")
+		}
+		commandString.addAll(commands)
+		return commandString
+	}
+
 }

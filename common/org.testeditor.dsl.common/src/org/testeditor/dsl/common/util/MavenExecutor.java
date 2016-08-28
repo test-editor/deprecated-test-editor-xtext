@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+
 import org.apache.maven.cli.MavenCli;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -42,6 +44,9 @@ import org.slf4j.LoggerFactory;
 public class MavenExecutor {
 
 	private static Logger logger = LoggerFactory.getLogger(MavenExecutor.class);
+
+	@Inject
+	private OSUtil osUtil;
 
 	/**
 	 * Executes the maven build using maven embedder. It allways starts with a
@@ -116,9 +121,9 @@ public class MavenExecutor {
 			boolean useJvmClasspath) {
 		List<String> command = new ArrayList<String>();
 		if (useJvmClasspath && System.getenv("MAVEN_HOME") != null) {
-			command.addAll(executeMavenScript(parameters, testParam));
+			command.addAll(getExecuteMavenScriptCommand(parameters, testParam));
 		} else {
-			command.addAll(executeEmbeddedMaven(parameters, pathToPom, testParam, useJvmClasspath));
+			command.addAll(getExecuteEmbeddedMavenCommand(parameters, pathToPom, testParam, useJvmClasspath));
 		}
 		if (Boolean.getBoolean("te.workOffline")) {
 			command.add("-o");
@@ -126,8 +131,8 @@ public class MavenExecutor {
 		return command;
 	}
 
-	private Collection<? extends String> executeEmbeddedMaven(String parameters, String pathToPom, String testParam,
-			boolean useJvmClasspath) {
+	protected Collection<? extends String> getExecuteEmbeddedMavenCommand(String parameters, String pathToPom,
+			String testParam, boolean useJvmClasspath) {
 		List<String> command = new ArrayList<String>();
 		String jvm = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
 		command.add(jvm);
@@ -148,9 +153,9 @@ public class MavenExecutor {
 		return command;
 	}
 
-	private List<String> executeMavenScript(String parameters, String testParam) {
+	protected List<String> getExecuteMavenScriptCommand(String parameters, String testParam) {
 		List<String> command = new ArrayList<String>();
-		if (File.separator.equals("\\")) {
+		if (osUtil.isWindows()) {
 			command.add(System.getenv("MAVEN_HOME") + "\\bin\\mvn.bat");
 		} else {
 			command.add(System.getenv("MAVEN_HOME") + "/bin/mvn");

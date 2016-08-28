@@ -152,7 +152,6 @@ class ClasspathUtil {
 		}
 
 		def IPath getBuildProjectBaseDir(IPath path) {
-			println(">>>>>>>>>>>>> " + path)
 			if (path.toFile.list.contains("pom.xml") || path.toFile.list.contains("build.gradle")) {
 				return path
 			}
