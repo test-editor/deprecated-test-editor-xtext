@@ -103,6 +103,7 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 		parent.layoutData = gd
 		new Label(parent, SWT.NORMAL).text = "Build-system:"
 		buildSystem = new Combo(parent, SWT.None)
+		buildSystem.setData(Constants.SWT_BOT_ID_KEY, Constants.NEW_DIALOG_BUILD_TOOL_COMBO)
 		availableBuildSystems.forEach[buildSystem.add(it)]
 		buildSystem.text = availableBuildSystems.head
 	}
