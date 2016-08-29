@@ -136,7 +136,7 @@ public class SWTFixture {
 	 */
 	@FixtureMethod
 	public void waitForDialogClosing(String title) {
-		long swtBotDefaultInMilliSeconds = SWTBotPreferences.TIMEOUT * 2;
+		long swtBotDefaultInMilliSeconds = SWTBotPreferences.TIMEOUT;
 		waitForDialogClosingWithTimeout(title, swtBotDefaultInMilliSeconds / 1000);
 	}
 
