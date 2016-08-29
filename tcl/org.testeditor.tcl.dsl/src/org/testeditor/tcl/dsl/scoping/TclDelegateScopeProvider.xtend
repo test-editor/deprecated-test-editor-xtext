@@ -7,7 +7,7 @@ import org.eclipse.xtext.scoping.impl.ScopeBasedSelectable
 import org.eclipse.xtext.xbase.scoping.XImportSectionNamespaceScopeProvider
 import org.testeditor.tcl.TclModel
 import javax.inject.Inject
-import org.testeditor.dsl.common.util.ClasspathUtil
+import org.testeditor.dsl.common.util.classpath.ClasspathUtil
 
 public class TclDelegateScopeProvider extends XImportSectionNamespaceScopeProvider {
 

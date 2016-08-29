@@ -17,7 +17,7 @@ import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.xtext.xbase.scoping.XbaseQualifiedNameProvider
 import org.testeditor.tcl.TclModel
 import javax.inject.Inject
-import org.testeditor.dsl.common.util.ClasspathUtil
+import org.testeditor.dsl.common.util.classpath.ClasspathUtil
 
 @Singleton
 class TclQualifiedNameProvider extends XbaseQualifiedNameProvider {

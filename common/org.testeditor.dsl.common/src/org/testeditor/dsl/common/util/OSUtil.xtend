@@ -12,11 +12,11 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.util
 
-import java.io.File
+import org.apache.commons.lang3.SystemUtils
 
 class OSUtil {
 
 	def boolean isWindows() {
-		return File.separator.equals("\\")
+		return SystemUtils.IS_OS_WINDOWS;
 	}	
 }

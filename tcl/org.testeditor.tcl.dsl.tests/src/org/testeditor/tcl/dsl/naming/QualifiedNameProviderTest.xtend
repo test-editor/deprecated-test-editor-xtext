@@ -19,10 +19,10 @@ import org.junit.Test
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.mockito.Mock
-import org.testeditor.dsl.common.util.ClasspathUtil
 
 import static org.mockito.Mockito.*
 import org.mockito.InjectMocks
+import org.testeditor.dsl.common.util.classpath.ClasspathUtil
 
 class QualifiedNameProviderTest extends AbstractTclTest {
 
