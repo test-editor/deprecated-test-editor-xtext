@@ -12,31 +12,33 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.util.classpath
 
+import com.google.inject.AbstractModule
+import com.google.inject.Guice
 import java.io.File
+import java.io.IOException
+import java.io.OutputStream
 import java.nio.file.Files
 import java.util.List
 import org.eclipse.core.runtime.IPath
+import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.Path
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.mockito.InjectMocks
 import org.testeditor.dsl.common.testing.AbstractTest
+import org.testeditor.dsl.common.util.MavenExecutor
 
 import static org.mockito.Mockito.*
 
 class ClasspathUtilTest extends AbstractTest {
-	
+
 	@InjectMocks
 	ClasspathUtil classpathUtil
 	@Rule public TemporaryFolder tempFolder = new TemporaryFolder();
 
 	@Test
-	@Ignore
-	//Disabled because it is an integration test. The setup of mock and real classes needs further work.
-	//TODO Fix the test.
-	def void testGetBuildToolClasspathEntryWithMaven() {
+	def void intTestGetBuildToolClasspathEntryWithMaven() {
 		// given
 		val targetDir = tempFolder.newFolder("target")
 		tempFolder.newFile("pom.xml")
@@ -45,11 +47,23 @@ class ClasspathUtilTest extends AbstractTest {
 		Files.write(new File(targetDir, "effective_pom.txt").toPath,
 			new MavenClasspathUtilTest().getEffectiveTestPom(tempFolder.root, false).bytes)
 
+		val intClasspathUtil = Guice.createInjector(getMavenExecutorMockModule()).getInstance(ClasspathUtil)
+
 		// when
-		val result = classpathUtil.getBuildToolClasspathEntry(new Path(packageDir.toString))
+		val result = intClasspathUtil.getBuildToolClasspathEntry(new Path(packageDir.toString))
 
 		// then
 		assertEquals(new Path(tempFolder.root + "/src/test/java"), result)
+	}
+
+	def AbstractModule getMavenExecutorMockModule() {
+		new AbstractModule() {
+
+			override protected configure() {
+				bind(MavenExecutor).to(ClasspathUtilTest.MavenExecutorDummy)
+			}
+
+		}
 	}
 
 	@Test
@@ -79,4 +93,13 @@ class ClasspathUtilTest extends AbstractTest {
 		return path
 	}
 
+	static class MavenExecutorDummy extends MavenExecutor {
+
+		override executeInNewJvm(String parameters, String pathToPom, String testParam, IProgressMonitor monitor,
+			OutputStream outputStream, boolean useJvmClasspath) throws IOException {
+			return 0;
+		}
+
+	}
+	
 }
