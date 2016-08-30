@@ -15,7 +15,7 @@ import org.eclipse.e4.core.di.annotations.Creatable
 class TestStepSelectorExecutionListener implements IExecutionListener {
 
 	@Inject IEventBroker broker
-	
+
 	override notHandled(String commandId, NotHandledException exception) {
 	}
 
@@ -23,10 +23,10 @@ class TestStepSelectorExecutionListener implements IExecutionListener {
 	}
 
 	override postExecuteSuccess(String commandId, Object returnValue) {
-		if (IWorkbenchCommandConstants.FILE_SAVE.equals(commandId)) {
+		if (commandId == IWorkbenchCommandConstants.FILE_SAVE) {
 			val activePage = PlatformUI.workbench.activeWorkbenchWindow.activePage
 			val id = activePage.activeEditor.editorSite.id
-			if (DslActivator.ORG_TESTEDITOR_AML_DSL_AML.equals(id)) {
+			if (id == DslActivator.ORG_TESTEDITOR_AML_DSL_AML) {
 				broker.post(TestStepSelector.SELECTOR_TOPIC_UPDATE, null)
 			}
 		}
@@ -34,6 +34,5 @@ class TestStepSelectorExecutionListener implements IExecutionListener {
 
 	override preExecute(String commandId, ExecutionEvent exception) {
 	}
-	
 
 }
