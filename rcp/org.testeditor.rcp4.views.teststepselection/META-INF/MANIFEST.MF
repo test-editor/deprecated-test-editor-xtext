@@ -30,7 +30,8 @@ Require-Bundle: com.google.guava,
  org.eclipse.e4.core.di,
  org.eclipse.emf.ecore,
  org.testeditor.logging,
- org.testeditor.aml.dsl
+ org.testeditor.aml.dsl,
+ org.eclipse.ui.workbench
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.google.inject,
  javax.inject;version="1.0.0",
@@ -122,4 +123,5 @@ Import-Package: com.google.inject,
  org.eclipse.xtext.resource.persistence,
  org.eclipse.xtext.util,
  org.osgi.service.event,
+ org.testeditor.aml.dsl.naming,
  org.testeditor.aml.dsl.ui.internal

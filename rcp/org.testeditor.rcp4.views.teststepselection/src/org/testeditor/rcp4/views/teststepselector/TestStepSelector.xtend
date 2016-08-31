@@ -12,8 +12,9 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.teststepselector
 
+import java.util.ArrayList
+import java.util.Set
 import javax.annotation.PostConstruct
-import javax.annotation.PreDestroy
 import javax.inject.Inject
 import org.eclipse.e4.core.di.annotations.Optional
 import org.eclipse.e4.core.di.extensions.EventTopic
@@ -27,13 +28,13 @@ import org.eclipse.swt.dnd.DragSourceListener
 import org.eclipse.swt.dnd.TextTransfer
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Display
-import org.eclipse.ui.IPartListener
-import org.eclipse.ui.IWorkbenchPart
 import org.eclipse.ui.PlatformUI
-import org.eclipse.ui.texteditor.ITextEditor
+import org.eclipse.ui.commands.ICommandService
 import org.slf4j.LoggerFactory
+import org.testeditor.aml.AmlModel
 
 import static org.testeditor.rcp4.views.teststepselector.XtendSWTLib.*
+import org.testeditor.aml.dsl.naming.AmlQualifiedNameProvider
 
 /** 
  * part that display a tree view with drag and drop elements of the aml model which can be inserted into
@@ -41,21 +42,28 @@ import static org.testeditor.rcp4.views.teststepselector.XtendSWTLib.*
  */
 class TestStepSelector {
 
+	public static val String SELECTOR_TOPIC_UPDATE = "MaskStepSelector_Update"
 	public static val String SELECTOR_TOPIC_REFRESH = "MaskStepSelector_Refresh"
 
 	static val logger = LoggerFactory.getLogger(TestStepSelector);
 
 	@Inject AmlInjectorProvider amlInjectorProvider
 	@Inject TestStepSelectorLabelProvider labelProvider
-	@Inject TestStepSelectorDropTextProvider dropTextProvider
 	@Inject AmlDropSupport amlDropSupport
-
-	/** set as soon as the view is populated */
-	boolean populated = false
+	@Inject TestStepSelectorDropTextProvider dropTextProvider
+	TestStepSelectorTreeContentProvider contentProvider;
+	AmlQualifiedNameProvider amlQualifiedNameProvider
 	TreeViewer viewer
-
+	
+	Iterable<AmlModel> model
+	
 	@PostConstruct
-	def void postConstruct(Composite parent) {
+	def void postConstruct(Composite parent, TestStepSelectorExecutionListener testStepSelectorExecutionListener) {
+		
+		val amlInjector = amlInjectorProvider.get
+		amlQualifiedNameProvider = amlInjector.getInstance(AmlQualifiedNameProvider)
+		contentProvider = amlInjectorProvider.get.getInstance(TestStepSelectorTreeContentProvider)
+
 		viewer = newTreeViewer(parent, SWT.V_SCROLL) [
 			addDragSupport((DND.DROP_COPY.bitwiseOr(DND.DROP_MOVE)), #[TextTransfer.instance],
 				new DragSourceListener {
@@ -79,37 +87,14 @@ class TestStepSelector {
 
 				})
 		]
+		
+		val commandService = PlatformUI.workbench.getService(ICommandService)
+		commandService.addExecutionListener(testStepSelectorExecutionListener)
+		
 		val page = PlatformUI.workbench.activeWorkbenchWindow.activePage;
-		page.addPartListener(new IPartListener() {
-
-			override partActivated(IWorkbenchPart part) {
-				if (part instanceof ITextEditor) {
-					refreshView(null)
-				}
-			}
-
-			override partBroughtToTop(IWorkbenchPart part) {
-			}
-
-			override partClosed(IWorkbenchPart part) {
-			}
-
-			override partDeactivated(IWorkbenchPart part) {
-			}
-
-			override partOpened(IWorkbenchPart part) {
-			}
-
-		})
+		page.addPartListener(new TestStepSelectorPartListener(this))
 
 	}
-
-//	@Inject
-//	@Optional
-//	def void startupComplete(@EventTopic(UIEvents.UILifeCycle.APP_STARTUP_COMPLETE) Object data) {
-//		// startup complete ensures the index to be populated
-//		Display.getDefault.syncExec[populateViewIfEmpty] // is only run, if view is created on startup
-//	}
 
 	@Focus
 	def void setFocus() {
@@ -118,31 +103,75 @@ class TestStepSelector {
 
 	@Inject
 	@Optional
+	def void updateView(@EventTopic(SELECTOR_TOPIC_UPDATE) Object data) {
+		logger.debug("updateView.")
+		Display.getDefault.syncExec[updateView()]
+	}
+
+	@Inject
+	@Optional
 	def void refreshView(@EventTopic(SELECTOR_TOPIC_REFRESH) Object data) {
-		populated = false
-		logger.debug("Refreshing view.")
-		Display.getDefault.syncExec[populateViewIfEmpty]
-	}
-
-	// make sure that the index is populated before calling this method
-	// and that it is run in the swt thread!
-	private def populateViewIfEmpty() {
-		if (populated) {
-			return
+		logger.debug("refreshView.")
+		if(viewer.input == null){
+			Display.getDefault.syncExec[updateView()]
 		}
+	}
+
+	private def updateView() {
+
+		updateModel
+		
+		//Initial call to the selector
+		if (viewer.input == null) {
+			viewer.labelProvider = labelProvider
+			viewer.contentProvider = contentProvider
+			viewer.input = model
+		} else {
+			// update the view model and conserver the selection
+			val Set<String> expandedElements = viewer.expandedElements.map[toStringPath(it)].toSet
+			viewer.input = model;
+			viewer.expandedElements = expandElements(expandedElements, model)
+		}
+
+	}
+	// TODO the update of the model has to be asynchron to avoid blocking of the UI 
+	private def void updateModel() {
 		val amlInjector = amlInjectorProvider.get
-
-		populated = true
-		viewer.labelProvider = labelProvider
-		viewer.contentProvider = amlInjector.getInstance(TestStepSelectorTreeContentProvider)
-
-		val amlModelsProvider = amlInjector.getInstance(AmlModelsProvider)
-		viewer.input = amlModelsProvider.amlModels
-		viewer.expandAll
+		model = amlInjector.getInstance(AmlModelsProvider).amlModels
 	}
 
-	@PreDestroy
-	def void preDestroy() {
+	private def Object[] expandElements(Set<String> elements, Iterable<AmlModel> model) {
+		val elementsToExpand = new ArrayList<Object>();
+		model.forEach [
+			{
+				if (elements.contains(it.toStringPath)) {
+					elementsToExpand.add(it.toStringPath)
+				}
+				it.components.forEach [
+					if (elements.contains(it.toStringPath)) {
+						elementsToExpand.add(it)
+					}
+					it.elements.forEach [
+						if (elements.contains(it.toStringPath)) {
+							elementsToExpand.add(it)
+						}
+					]
+				]
+			}
+		]
+		return elementsToExpand
 	}
+
+	def private String toStringPath(Object object) {
+		switch (object) {
+			String:
+				return object
+			EObject:
+				return amlQualifiedNameProvider.apply(object).toString()
+			default:
+				throw new IllegalArgumentException("unexpected type " + object.class.name + " in expanded TreeElements")
+		}
+	}
+
 
 }
