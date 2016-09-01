@@ -83,7 +83,7 @@ class NamedElementRenameParticipantTest extends AbstractTest {
 
 	@Test
 	def void nameIsProperlyReturned() {
-		// when + then
+		// expect
 		participant.name.assertEquals("Tcl Renaming")
 	}
 
