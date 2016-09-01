@@ -3,7 +3,7 @@ package org.testeditor.rcp4.refactoring.rename
 import org.testeditor.fixture.assertion.*
 import org.testeditor.rcp4.*
 
-# RenameTestCaseTestWithOpenEditor
+# RenameTestCaseTestWithoutEditor
 
 config TestEditorConfig
 
@@ -12,6 +12,10 @@ Setup:
 
 	Macro: SampleProjects
 	- Create a sample web project with Gradle
+
+	Component: Workbench
+	- editor = Get editor with file "/demo/src/test/java/demo/GoogleTest.tcl"
+	- Close editor @editor
 
 // when
 * Rename "GoogleTest.tcl" to "NewTestCase.tcl"
@@ -29,7 +33,7 @@ Setup:
 * Verify that the editor contains the line "# NewTestCase"
 
 	Component: Workbench
-	- editor = Get editor with file "/demo/src/test/java/demo/NewTestCase.tcl"
+	- editor = Open editor for file "/demo/src/test/java/demo/NewTestCase.tcl"
 	- editorContents = Get contents of editor @editor
 
 	Component: Assertion
