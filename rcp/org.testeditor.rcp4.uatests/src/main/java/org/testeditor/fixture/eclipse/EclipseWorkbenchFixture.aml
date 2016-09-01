@@ -1,0 +1,15 @@
+package org.testeditor.fixture.eclipse
+
+component type Workbench {
+	interactions = getEditorWithFilePath, getEditorContents
+}
+
+interaction type getEditorWithFilePath {
+	template = "Get editor with file" ${filepath}
+	method = EclipseWorkbenchFixture.getEditorWithFilePath(filepath)
+}
+
+interaction type getEditorContents {
+	template = "Get contents of editor" ${editor}
+	method = EclipseWorkbenchFixture.getEditorContents(editor)
+}
