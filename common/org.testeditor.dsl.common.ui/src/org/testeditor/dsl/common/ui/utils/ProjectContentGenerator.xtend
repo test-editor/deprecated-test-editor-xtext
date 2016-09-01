@@ -32,10 +32,10 @@ import org.eclipse.xtext.util.StringInputStream
 import org.osgi.framework.FrameworkUtil
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ide.util.FileUtils
-import org.testeditor.dsl.common.ui.gradle.GradleHelper
 import org.testeditor.dsl.common.ui.wizards.SwingDemoContentGenerator
 
 import static org.eclipse.xtext.xbase.lib.StringExtensions.isNullOrEmpty
+import org.testeditor.dsl.common.util.GradleHelper
 
 /**
  * Generator to generate content to a new test project.

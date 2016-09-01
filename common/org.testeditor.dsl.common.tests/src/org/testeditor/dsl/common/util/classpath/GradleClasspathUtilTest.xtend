@@ -13,22 +13,15 @@
 package org.testeditor.dsl.common.util.classpath
 
 import java.io.File
-import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.Path
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.mockito.InjectMocks
-import org.mockito.Mock
 import org.testeditor.dsl.common.testing.AbstractTest
-import org.testeditor.dsl.common.util.GradleCommand
-
-import static org.mockito.Mockito.*
 
 class GradleClasspathUtilTest extends AbstractTest {
 
-	@Mock
-	GradleCommand gradleCommand
 	@InjectMocks
 	GradleClasspathUtil classpathUtil
 	@Rule public TemporaryFolder tempFolder = new TemporaryFolder();
@@ -36,12 +29,10 @@ class GradleClasspathUtilTest extends AbstractTest {
 	@Test
 	def void testGetGradleClasspathEntries() {
 		// given
-		val path = mock(IPath)
 		val propertyOutput = getGradlePropertiesPrintOut(tempFolder.root)
-		when(gradleCommand.execute(path.toFile, "properties")).thenReturn(propertyOutput)
 
 		// when
-		val result = classpathUtil.getGradleClasspathEntries(path)
+		val result = classpathUtil.parseGradleProperties(propertyOutput)
 
 		// then
 		assertTrue(result.contains(new Path(tempFolder.root + "/src/main/java")))
