@@ -107,6 +107,19 @@ class NamedElementRenameParticipantTest extends AbstractTest {
 	}
 
 	@Test
+	def void initializesWithUpperCaseFileExtension() {
+		// given
+		val file = mockFile("myFile.TCL")
+
+		// when
+		val result = participant.initialize(file)
+
+		// then
+		result.assertTrue
+		participant.element.assertSame(file)
+	}
+
+	@Test
 	def void doesNotInitializeWithSomeOtherFile() {
 		// given
 		val file = mockFile("myFile.unrelated")
