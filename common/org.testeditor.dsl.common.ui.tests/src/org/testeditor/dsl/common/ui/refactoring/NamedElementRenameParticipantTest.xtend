@@ -11,6 +11,7 @@ import org.eclipse.ltk.core.refactoring.TextFileChange
 import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor
 import org.eclipse.ltk.core.refactoring.participants.RenameArguments
 import org.eclipse.text.edits.ReplaceEdit
+import org.eclipse.ui.texteditor.ITextEditor
 import org.eclipse.xtext.ide.LexerIdeBindings
 import org.eclipse.xtext.junit4.util.ParseHelper
 import org.eclipse.xtext.parser.antlr.Lexer
@@ -244,13 +245,9 @@ class NamedElementRenameParticipantTest extends AbstractTest {
 	}
 
 	@Test
-	def void textChangeCreated() {
+	def void textChangeCreatedIfNoEditorIsOpen() {
 		// given
-		val document = mockDocument
-		when(documentProvider.getDocument(any)).thenReturn(document)
-		when(partHelper.findEditor(participant.element)).thenReturn(Optional.empty)
-		// need to write the private field of Mock due to unmockable final method connect(...) that accesses it
-		FieldUtils.writeField(documentProvider, "fElementInfoMap", newHashMap, true)
+		initializeMocksForPlainTextChange
 
 		// when
 		val change = participant.createPreChange(null)
@@ -263,11 +260,33 @@ class NamedElementRenameParticipantTest extends AbstractTest {
 		]
 	}
 
+	@Test
+	def void textChangeIsCreatedIfEditorIsPlainText() {
+		// given
+		initializeMocksForPlainTextChange
+		val editor = ITextEditor.mock
+		when(partHelper.findEditor(participant.element)).thenReturn(Optional.of(editor))
+
+		// when
+		val change = participant.createPreChange(null)
+
+		// then
+		change.assertInstanceOf(TextFileChange)
+	}
+
 	private def void initializeParticipant(String newName) {
 		val file = mockFile(OLD_NAME + '.tcl')
 		val processor = RefactoringProcessor.mock
 		val arguments = new RenameArguments(newName, false)
 		participant.initialize(processor, file, arguments)
+	}
+
+	private def void initializeMocksForPlainTextChange() {
+		val document = mockDocument
+		when(documentProvider.getDocument(any)).thenReturn(document)
+		when(partHelper.findEditor(participant.element)).thenReturn(Optional.empty)
+		// need to write the private field of Mock due to unmockable final method connect(...) that accesses it
+		FieldUtils.writeField(documentProvider, "fElementInfoMap", newHashMap, true)
 	}
 
 	private def XtextEditor mockEditor(boolean dirty) {
