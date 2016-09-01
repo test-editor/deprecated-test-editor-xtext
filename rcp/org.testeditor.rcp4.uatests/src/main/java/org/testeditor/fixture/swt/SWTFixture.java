@@ -222,12 +222,12 @@ public class SWTFixture {
 			throw e;
 		}
 	}
-	
+
 	private void printTreeItems(SWTBotTree tree, String locator) {
 		logger.info("Printing all items of tree with locator='{}'.", locator);
 		printTreeItems(tree.getAllItems(), 0);
 	}
-	
+
 	private void printTreeItems(SWTBotTreeItem[] items, int level) {
 		String spaces = StringUtils.repeat(" ", 4 * level);
 		for (SWTBotTreeItem item : items) {
@@ -238,7 +238,6 @@ public class SWTFixture {
 			printTreeItems(item.getItems(), level + 1);
 		}
 	}
-	
 
 	@FixtureMethod
 	public void selectElementInList(String locator, String itemName) {
@@ -346,12 +345,18 @@ public class SWTFixture {
 		checkBox.deselect();
 	}
 
-	// TODO would be nicer to use the generic withId(...) but we need Harmcrest on the classpath for that
+	@FixtureMethod
+	public String containsActiveEditor(String content) {
+		return Boolean.toString(bot.activeEditor().toTextEditor().getText().contains(content));
+	}
+
+	// TODO would be nicer to use the generic withId(...) but we need Harmcrest
+	// on the classpath for that
 	public SWTBotCheckBox getCheckBox(String locator, SWTLocatorStrategy locatorStrategy) {
 		switch (locatorStrategy) {
 		case ID:
 			return bot.checkBoxWithId(locator);
-		case LABEL: 
+		case LABEL:
 			return bot.checkBoxWithLabel(locator);
 		}
 		throw new IllegalArgumentException("Unkown locatorStrategy: " + locatorStrategy);

@@ -74,6 +74,11 @@ interaction type uncheck {
 	locatorStrategy = ID
 }
 
+interaction type containsActiveEditor {
+	template = "Contains active editor" ${content}
+	method = SWTFixture.containsActiveEditor(content) 
+}
+
 element type View {
 	interactions = isViewVisible
 }
@@ -108,4 +113,8 @@ component type General {
 
 component type Dialog {
 	interactions = reportWidgets, wait, waitForDialogClosing, waitForDialogClosingWithTimeout
+}
+
+component type Editor {
+	interactions = containsActiveEditor
 }
