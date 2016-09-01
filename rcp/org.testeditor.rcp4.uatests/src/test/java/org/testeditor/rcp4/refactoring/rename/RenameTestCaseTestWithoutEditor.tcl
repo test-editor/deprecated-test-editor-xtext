@@ -30,7 +30,7 @@ Setup:
 	- Wait until dialog with title "Rename Resource" is closed
 
 // then
-* Verify that the editor contains the line "# NewTestCase"
+* Open an editor "NewTestCase.tcl" and verify that the editor contains the line "# NewTestCase"
 
 	Component: Workbench
 	- editor = Open editor for file "/demo/src/test/java/demo/NewTestCase.tcl"

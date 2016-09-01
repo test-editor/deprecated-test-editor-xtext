@@ -24,6 +24,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.testeditor.fixture.core.interaction.FixtureMethod;
 
@@ -57,7 +58,8 @@ public class EclipseWorkbenchFixture {
 	public String getEditorContents(IEditorPart editorPart) {
 		logger.info("Getting contents for editor with input='{}'.", editorPart.getEditorInput());
 		if (editorPart instanceof ITextEditor) {
-			IDocument document = ((ITextEditor) editorPart).getDocumentProvider().getDocument(editorPart.getEditorInput());
+			IDocumentProvider documentProvider = ((ITextEditor) editorPart).getDocumentProvider();
+			IDocument document = documentProvider.getDocument(editorPart.getEditorInput());
 			return document.get();
 		}
 		throw new IllegalArgumentException("The passed editor was not a text editor!");
@@ -122,7 +124,7 @@ public class EclipseWorkbenchFixture {
 	 *         for all workbench windows.
 	 */
 	private Stream<IEditorReference> getEditorReferences() {
-		IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
+		IWorkbenchWindow[] windows = getWorkbench().getWorkbenchWindows();
 		return Stream.of(windows).flatMap(window -> Stream.of(window.getActivePage().getEditorReferences()));
 	}
 

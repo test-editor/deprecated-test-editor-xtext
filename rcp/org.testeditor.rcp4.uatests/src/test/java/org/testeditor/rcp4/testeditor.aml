@@ -100,9 +100,9 @@ component NewDialog is Dialog {
 
 component RenameDialog is Dialog {
 	element ElementName is Text {
-		locator ="[Single]"
+		locator = "[Single]"
 	}
 	element OK is Button {
-		locator ="[Label]OK"
+		locator = "[Label]OK"
 	}
 }
