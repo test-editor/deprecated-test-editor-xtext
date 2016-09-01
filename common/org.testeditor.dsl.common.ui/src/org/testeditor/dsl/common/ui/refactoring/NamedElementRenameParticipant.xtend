@@ -28,7 +28,7 @@ import static org.testeditor.dsl.common.CommonPackage.Literals.*
 
 import static extension org.eclipse.xtext.nodemodel.util.NodeModelUtils.findNodesForFeature
 
-@Accessors(PROTECTED_GETTER)
+@Accessors(PROTECTED_GETTER) // for testing
 class NamedElementRenameParticipant extends RenameParticipant {
 
 	@Inject PartHelper partHelper
