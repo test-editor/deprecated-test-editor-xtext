@@ -51,11 +51,7 @@ class NamedElementRenameParticipant extends RenameParticipant {
 
 	/** 
 	 * Creates the change for the name refactoring.
-	 * Two cases need to be distinguished:
-	 * <ul>
-	 * 	<li>Element is opened in an Xtext editor</li>
-	 * 	<li>Element is not opened and refactored using the navigator</li>
-	 * </ul>
+	 * We need to handle the cases when an element is opened in an editor and not separately.
 	 */
 	override createPreChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
 		val editor = partHelper.findEditor(element)
