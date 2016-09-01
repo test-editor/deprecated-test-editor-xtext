@@ -1,6 +1,7 @@
 package org.testeditor.rcp4
 
 import org.testeditor.fixture.swt.*
+import org.testeditor.fixture.eclipse.*
 import org.testeditor.fixture.swt.SWTBotViewLocatorStrategy
 
 interaction type createSimpleProject {
@@ -49,17 +50,20 @@ component HauptFenster is General {
 
 }
 
-value-space projectmenues = #[ "New/Project...", "Open", "Run As/1 Test", "New/Test Case" ]
+value-space projectmenues = #[ "New/Project...", "Open", "Run As/1 Test", "Rename..." ]
 
 component ProjectExplorer is General {
 	element ProjektBaum is TreeView { // TODO english!
 		label = "Project Explorer"
 		locator = "Test Project Explorer"
-		executeContextMenuEntry.item restrict to projectmenues 
+		executeContextMenuEntry.item restrict to projectmenues
 	}
 }
 
 component TestEditor is TestEditorApp {
+}
+
+component Workbench is Workbench {
 }
 
 component NewDialog is Dialog {
@@ -91,9 +95,14 @@ component NewDialog is Dialog {
 	element GenerateWithExamples is CheckBox {
 		locator = "NEW_DIALOG_GENERATE_WITH_EXAMPLES"
 	}
-	
-	element BuildTool is Combobox {
-		locator = "[ID]NEW_DIALOG_BUILD_TOOL_COMBO"
-	}
 
+}
+
+component RenameDialog is Dialog {
+	element ElementName is Text {
+		locator ="[Single]"
+	}
+	element OK is Button {
+		locator ="[Label]OK"
+	}
 }

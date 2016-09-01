@@ -1,0 +1,13 @@
+package org.testeditor.fixture.assertion
+
+component type AssertionType {
+	interactions = assertContains
+}
+
+component Assertion is AssertionType {
+}
+
+interaction type assertContains {
+	template = "Verify that" ${input} "contains" ${substring}
+	method = AssertionFixture.assertContains(input, substring)
+}
