@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting
 import java.util.Set
 import javax.inject.Inject
 import javax.inject.Named
+import org.apache.commons.io.FilenameUtils
 import org.eclipse.core.resources.IFile
 import org.eclipse.core.runtime.CoreException
 import org.eclipse.core.runtime.IProgressMonitor
@@ -107,7 +108,7 @@ class NamedElementRenameParticipant extends RenameParticipant {
 	@VisibleForTesting
 	protected def ReplaceEdit createNameReplacement(NamedElement namedElement) {
 		val node = namedElement.findNodesForFeature(NAMED_ELEMENT__NAME).head
-		val newName = arguments.newName.replaceFirst('''\.(«fileExtensions.join("|")»)''', "")
+		val newName = FilenameUtils.getBaseName(arguments.newName)
 		return new ReplaceEdit(node.offset, node.length, newName)
 	}
 

@@ -14,7 +14,8 @@ Require-Bundle: org.eclipse.xtend.lib,
  org.eclipse.m2e.core,
  org.testeditor.logging,
  org.apache.commons.lang3;bundle-version="3.1.0",
- org.gradle.toolingapi
+ org.gradle.toolingapi,
+ org.apache.commons.io
 Bundle-Activator: org.testeditor.dsl.common.ui.utils.Activator
 Bundle-ActivationPolicy: lazy
 Export-Package: org.testeditor.dsl.common.ui.gradle,
@@ -22,4 +23,3 @@ Export-Package: org.testeditor.dsl.common.ui.gradle,
  org.testeditor.dsl.common.ui.utils,
  org.testeditor.dsl.common.ui.wizards,
  org.testeditor.dsl.common.ui.workbench
-
