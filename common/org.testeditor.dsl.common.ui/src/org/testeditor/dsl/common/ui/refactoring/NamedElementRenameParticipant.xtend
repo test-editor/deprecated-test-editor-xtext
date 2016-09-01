@@ -55,8 +55,8 @@ class NamedElementRenameParticipant extends RenameParticipant {
 	 */
 	override createPreChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
 		val editor = partHelper.findEditor(element)
-		if (editor instanceof XtextEditor) {
-			return createEditorChange(editor)
+		if (editor.present) {
+			return createEditorChange(editor.get as XtextEditor)
 		} else {
 			return createTextFileChange
 		}

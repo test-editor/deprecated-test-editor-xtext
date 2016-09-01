@@ -3,6 +3,7 @@ package org.testeditor.dsl.common.ui.refactoring
 import com.google.inject.Module
 import com.google.inject.name.Names
 import java.util.List
+import java.util.Optional
 import javax.inject.Inject
 import org.apache.commons.lang3.reflect.FieldUtils
 import org.eclipse.jface.text.IDocumentPartitioner
@@ -231,9 +232,9 @@ class NamedElementRenameParticipantTest extends AbstractTest {
 		// given
 		val document = mockDocument
 		when(documentProvider.getDocument(any)).thenReturn(document)
+		when(partHelper.findEditor(participant.element)).thenReturn(Optional.empty)
 		// need to write the private field of Mock due to unmockable final method connect(...) that accesses it
-		val fElementInfoMap = newHashMap
-		FieldUtils.writeField(documentProvider, "fElementInfoMap", fElementInfoMap, true)
+		FieldUtils.writeField(documentProvider, "fElementInfoMap", newHashMap, true)
 
 		// when
 		val change = participant.createPreChange(null)
@@ -253,7 +254,7 @@ class NamedElementRenameParticipantTest extends AbstractTest {
 			when(it.isDirty).thenReturn(dirty)
 			when(it.documentProvider.getDocument(any)).thenReturn(document)
 		]
-		when(partHelper.findEditor(participant.element)).thenReturn(editor)
+		when(partHelper.findEditor(participant.element)).thenReturn(Optional.of(editor))
 		return editor
 	}
 
