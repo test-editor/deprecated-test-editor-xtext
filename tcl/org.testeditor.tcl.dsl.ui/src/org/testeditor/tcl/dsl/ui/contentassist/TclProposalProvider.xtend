@@ -67,7 +67,7 @@ class TclProposalProvider extends AbstractTclProposalProvider {
 				// need to consider whether the completion should contain the '>' as well
 				val currentNode = context.currentNode
 				val includeClosingBracket = !currentNode.text.contains('>') &&
-					!currentNode.nextSibling.text.contains('>')
+					(currentNode.nextSibling === null || !currentNode.nextSibling.text.contains('>'))
 				possibleElements.forEach [
 					val displayString = '''«name»«IF !label.nullOrEmpty» - "«label»"«ENDIF» (type: «type.name»)'''
 					val proposal = '''<«name»«IF includeClosingBracket»>«ENDIF»'''

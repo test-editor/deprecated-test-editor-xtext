@@ -1,21 +1,4 @@
 #!groovy
-
-/**
-
-    Requirements for this Jenkinsfile:
-    - JDK8 with the id "jdk8"
-    - Maven 3.2.5 with the id "Maven 3.2.5"
-    - Plugin "Pipeline Utility Steps"
-    - Plugin "Xvfb" with an installation called "System"
-
-    The following signatures need to be approved:
-    method hudson.plugins.git.GitSCM getUserRemoteConfigs
-    method hudson.plugins.git.UserRemoteConfig getUrl
-    method java.util.Collection addAll java.util.Collection
-    staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods first java.util.List
-    staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods stripIndent java.lang.String
-*/
-
 nodeWithProperWorkspace {
     stage 'Checkout'
     checkout scm
@@ -71,10 +54,6 @@ nodeWithProperWorkspace {
     codecov('codecov_test-editor-xtext')
 }
 
-boolean isMaster() {
-    return env.BRANCH_NAME == 'master'
-}
-
 void prepareRelease() {
     stage 'Prepare release'
 
@@ -96,14 +75,6 @@ String getCurrentVersion() {
     return pom.parent.version
 }
 
-String getGitUrl() {
-    return scm.userRemoteConfigs.first().url
-}
-
-String getGitUrlAsSsh() {
-    return getGitUrl().replace("https://github.com/", "git@github.com:")
-}
-
 void postRelease(String preReleaseVersion) {
     stage 'Tag release'
 
@@ -113,7 +84,7 @@ void postRelease(String preReleaseVersion) {
         sh "git commit -m '[release] $version'"
         sh "git tag $version"
         // workaround: cannot push without credentials using HTTPS => push using SSH
-        sh "git remote set-url origin ${getGitUrlAsSsh()}"
+        sh "git remote set-url origin ${getGithubUrlAsSsh()}"
         sh "git push origin master --tags"
 
     stage 'Increment develop version'
@@ -153,56 +124,4 @@ void setVersion(String newVersion, String rootPom = null, String artifacts = nul
         def pom = rootPom ? "-f $rootPom " : ''
         sh "mvn $pom$goals -Dartifacts=$artifacts -DnewVersion=$newVersion -Dtycho.mode=maven"
     }
-}
-
-/** Calls Maven with the given argument and adds the -B (batch) and -V (version) flag. */
-void mvn(String argument) {
-    sh "mvn $argument -B -V"
-}
-
-void codecov(String codecovCredentialsId) {
-    withEnv(["ghprbPullId=${env.CHANGE_ID}", "GIT_BRANCH=${env.BRANCH_NAME}"]) {
-        withCredentials([[$class: 'StringBinding', credentialsId: codecovCredentialsId, variable: 'CODECOV_TOKEN']]) {
-            sh """\
-                #!/bin/bash
-                bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
-            """.stripIndent()
-        }
-    }
-}
-
-void withXvfb(def body) {
-    // TODO why do we have more than one installation on our Jenkins? If we had one we wouldn't need to specify the installationName
-    wrap([$class: 'Xvfb', installationName: 'System', timeout: 2, screen: '1024x768x24', displayNameOffset: 1, autoDisplayName: true], body)
-}
-
-void withMavenEnv(List envVars = [], def body) {
-    String jdkTool = tool name: 'jdk8', type: 'hudson.model.JDK'
-    String mvnTool = tool name: 'Maven 3.2.5', type: 'hudson.tasks.Maven$MavenInstallation'
-    List mvnEnv = [
-        "PATH+JDK=${jdkTool}/bin",
-        "JAVA_HOME=${jdkTool}",
-        "PATH+MVN=${mvnTool}/bin",
-        "MAVEN_HOME=${mvnTool}"
-    ]
-    mvnEnv.addAll(envVars)
-    withEnv(mvnEnv) {
-        body.call()
-    }
-}
-
-/**
- * Workaround for Jenkins bug with feature branches (workspace has feature%2Fmy_feature in it).
- * See https://issues.jenkins-ci.org/browse/JENKINS-30744 (marked as resolved but still occurs).
- */
-void nodeWithProperWorkspace(def body) {
-    node {
-        ws(getWorkspace()) {
-            body.call()
-        }
-    }
-}
-
-def getWorkspace() {
-    pwd().replace("%2F", "_")
 }
