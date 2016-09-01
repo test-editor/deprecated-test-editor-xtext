@@ -46,8 +46,8 @@ import static extension org.mockito.Mockito.*
  */
 class NamedElementRenameParticipantTest extends AbstractTest {
 
-	static val oldName = "MyTest"
-	static val newName = "NewTest"
+	static val OLD_NAME = "MyTest"
+	static val NEW_NAME = "NewTest"
 
 	@Inject NamedElementRenameParticipant participant
 	@Mock PartHelper partHelper
@@ -76,10 +76,7 @@ class NamedElementRenameParticipantTest extends AbstractTest {
 
 	@Before
 	def void performDefaultInitialiatzion() {
-		val file = mockFile(oldName + '.tcl')
-		val processor = RefactoringProcessor.mock
-		val arguments = new RenameArguments(newName, false)
-		participant.initialize(processor, file, arguments)
+		initializeParticipant(NEW_NAME)
 	}
 
 	@Test
@@ -187,9 +184,28 @@ class NamedElementRenameParticipantTest extends AbstractTest {
 		// then
 		replacement => [
 			val text = document.get
-			offset.assertSame(text.indexOf(oldName))
-			length.assertSame(oldName.length)
-			getText.assertEquals(newName)
+			offset.assertSame(text.indexOf(OLD_NAME))
+			length.assertSame(OLD_NAME.length)
+			getText.assertEquals(NEW_NAME)
+		]
+	}
+
+	@Test
+	def void nameReplacementConsidersUpperCaseFileExtension() {
+		// given
+		val document = mockDocument
+		val namedElement = participant.getNamedElement(document)
+		initializeParticipant("MyAwesomeNewTest.TCL")
+
+		// when
+		val replacement = participant.createNameReplacement(namedElement)
+
+		// then
+		replacement => [
+			val text = document.get
+			offset.assertSame(text.indexOf(OLD_NAME))
+			length.assertSame(OLD_NAME.length)
+			getText.assertEquals("MyAwesomeNewTest")
 		]
 	}
 
@@ -247,6 +263,13 @@ class NamedElementRenameParticipantTest extends AbstractTest {
 		]
 	}
 
+	private def void initializeParticipant(String newName) {
+		val file = mockFile(OLD_NAME + '.tcl')
+		val processor = RefactoringProcessor.mock
+		val arguments = new RenameArguments(newName, false)
+		participant.initialize(processor, file, arguments)
+	}
+
 	private def XtextEditor mockEditor(boolean dirty) {
 		val document = mockDocument
 		val editor = XtextEditor.mock(RETURNS_DEEP_STUBS) => [
@@ -263,7 +286,7 @@ class NamedElementRenameParticipantTest extends AbstractTest {
 		val documentText = '''
 			package com.example
 			
-			# «oldName»
+			# «OLD_NAME»
 		'''
 		val model = parseHelper.parse(documentText)
 		val resource = model.eResource.assertInstanceOf(XtextResource)
