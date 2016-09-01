@@ -591,6 +591,11 @@ class ProjectContentGenerator {
 										<artifactId>org.testeditor.aml.dsl</artifactId>
 										<version>${testeditor.version}</version>
 									</dependency>
+									<dependency>
+										<groupId>org.gradle</groupId>
+										<artifactId>gradle-tooling-api</artifactId>
+										<version>2.14</version>
+									</dependency>
 								</dependencies>
 							</plugin>
 							<plugin>
