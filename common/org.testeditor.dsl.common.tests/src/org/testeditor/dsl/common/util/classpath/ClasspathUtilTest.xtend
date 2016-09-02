@@ -67,6 +67,52 @@ class ClasspathUtilTest extends AbstractTest {
 	}
 
 	@Test
+	def void intTestGetBuildToolClasspathEntryWithGradle() {
+		val gradleBuildFile = tempFolder.newFile("build.gradle")
+		val packageDir = new File(tempFolder.newFolder("src"), "/test/java/package")
+		packageDir.mkdirs
+
+		Files.write(gradleBuildFile.toPath, getGradleBuildFileExample.bytes)
+		val intClasspathUtil = Guice.createInjector().getInstance(ClasspathUtil)
+
+		// when
+		val result = intClasspathUtil.getBuildToolClasspathEntry(new Path(packageDir.toString))
+
+		// then
+		assertEquals(new Path(tempFolder.root + "/src/test/java"), result)
+	}
+
+	def private String getGradleBuildFileExample() {
+		'''
+			plugins {
+			    id 'org.testeditor.gradle-plugin' version '0.3'
+			    id 'maven'
+			    id 'eclipse'
+			}
+			
+			group = 'org.testeditor.demo'
+			version = '1.0.0-SNAPSHOT'
+			
+			// In this section you declare where to find the dependencies of your project
+			repositories {
+			    jcenter()
+			    maven { url "http://dl.bintray.com/test-editor/Fixtures" }
+			    maven { url "http://dl.bintray.com/test-editor/test-editor-maven/" }
+			}
+			
+			// Configure the testeditor plugin
+			testeditor {
+				version '1.1.0'
+			}
+			
+			// In this section you declare the dependencies for your production and test code
+			dependencies {
+			    testCompile 'junit:junit:4.12'
+			}
+		'''
+	}
+
+	@Test
 	def void testGetBuildProjectBaseDir() {
 		// given
 		val path = getPathForBuildFileSearch(#[])
@@ -101,5 +147,5 @@ class ClasspathUtilTest extends AbstractTest {
 		}
 
 	}
-	
+
 }
