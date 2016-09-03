@@ -5,10 +5,10 @@
          point="org.eclipse.ui.views">
       <view
             allowMultiple="false"
-            class="org.eclipse.ui.navigator.CommonNavigator"
             icon="icons/test_explorer.gif"
             id="org.testeditor.rcp4.views.ProjectExplorer"
-            name="Test Project Explorer">
+            name="Test Project Explorer"
+            class="org.testeditor.rcp4.views.projectexplorer.ProjectExplorer">
       </view>
    </extension>
    <extension
