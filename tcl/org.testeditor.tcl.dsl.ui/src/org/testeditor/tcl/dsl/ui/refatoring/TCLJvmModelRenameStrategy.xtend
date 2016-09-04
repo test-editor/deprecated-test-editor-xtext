@@ -39,9 +39,12 @@ class TCLJvmModelRenameStrategy extends DefaultJvmModelRenameStrategy {
 		IRefactoringUpdateAcceptor updateAcceptor) {
 		super.createDeclarationUpdates(newName, resourceSet, updateAcceptor)
 		val IPath path = getPathToRename(targetElementOriginalURI, resourceSet);
-		if (path != null && path.lastSegment.equals(originalName + ".tcl")) {
-			updateAcceptor.accept(targetElementOriginalURI.trimFragment(),
-				new RenameResourceChange(path, newName + "." + path.fileExtension))
+		if (path != null) {
+			val fileExtension = path.getFileExtension
+			if (fileExtensions.contains(fileExtension) && path.lastSegment.equals(originalName + "." + fileExtension)) {
+				updateAcceptor.accept(targetElementOriginalURI.trimFragment(),
+					new RenameResourceChange(path, newName + "." + path.fileExtension))
+			}
 		}
 	}
 
