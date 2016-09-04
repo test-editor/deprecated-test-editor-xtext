@@ -25,12 +25,14 @@ import org.eclipse.ui.application.ActionBarAdvisor
 import org.eclipse.ui.application.IActionBarConfigurer
 import org.testeditor.rcp4.handlers.OpenNetworkConfigurationHandler
 import org.testeditor.rcp4.handlers.RestartAndResetUIHandler
+import org.eclipse.jface.action.ICoolBarManager
 
 /** dummy class */
 class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 
 	IMenuManager mainMenu
 	IMenuManager configMenu
+	ICoolBarManager toolBar
 
 	new(IActionBarConfigurer configurer) {
 		super(configurer)
@@ -47,6 +49,10 @@ class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		configMenu.add(createActionFor("&Reset UI", RestartAndResetUIHandler))
 	}
 
+	override protected fillCoolBar(ICoolBarManager coolBar) {
+		toolBar = coolBar
+	}
+
 	def Action createActionFor(String actionLabel, Class<?> hanlderClass) {
 		return new Action(actionLabel, SWT.NORMAL) {
 
@@ -61,6 +67,7 @@ class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 
 	def removeUnwantedMenus() {
 		mainMenu.items.filter[it != configMenu].forEach[visible = false]
+		toolBar.items.filter[!it.id.startsWith("org.testeditor")].forEach[it.dispose]
 	}
 
 }

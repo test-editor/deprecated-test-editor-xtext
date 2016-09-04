@@ -39,7 +39,7 @@ class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 	override preWindowOpen() {
 		windowConfigurer => [
 			initialSize = new Point(800, 600)
-			showCoolBar = false
+			showCoolBar = true
 			showStatusLine = false
 			title = "Test-Editor" // $NON-NLS-1$
 			// configuring the drop listener is necessary, since this is done during ide startup but not during rcp startup
