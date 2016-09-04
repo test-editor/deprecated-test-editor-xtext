@@ -96,6 +96,10 @@ component NewDialog is Dialog {
 		locator = "NEW_DIALOG_GENERATE_WITH_EXAMPLES"
 	}
 
+	element BuildTool is Combobox {
+		locator = "[ID]NEW_DIALOG_BUILD_TOOL_COMBO"
+	}
+
 }
 
 component RenameDialog is Dialog {
