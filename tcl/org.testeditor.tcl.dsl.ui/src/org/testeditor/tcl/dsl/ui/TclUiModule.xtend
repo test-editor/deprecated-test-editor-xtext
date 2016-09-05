@@ -13,11 +13,11 @@
 package org.testeditor.tcl.dsl.ui
 
 import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
+import org.testeditor.tcl.dsl.ide.highlighting.TclSemanticHighlightingCalculator
 import org.testeditor.tcl.dsl.ui.contentassist.TclTemplateProposalProvider
 import org.testeditor.tcl.dsl.ui.highlighting.TclHighlightingConfiguration
 import org.testeditor.tcl.dsl.ui.navigation.TclHyperLinkHelper
-import org.testeditor.tcl.dsl.ide.highlighting.TclSemanticHighlightingCalculator
-import org.testeditor.tcl.dsl.ui.refatoring.TCLJvmModelRenameStrategy
+import org.testeditor.tcl.dsl.ui.refatoring.TclJvmModelRenameStrategy
 
 /**
  * Use this class to register components to be used within the Eclipse IDE.
@@ -42,7 +42,7 @@ class TclUiModule extends AbstractTclUiModule {
 	}
 				
 	override bindIRenameStrategy() {
-		return TCLJvmModelRenameStrategy
+		return TclJvmModelRenameStrategy
 	}
 						
 }
