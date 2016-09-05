@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="ASCII"?>
+<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_MTgKQHNGEeaIOZyrnWUBVA">
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_N5kwMHNGEeaIOZyrnWUBVA" featurename="children" parentElementId="org.testeditor.rcp4.toolbar.0">
+    <elements xsi:type="menu:DirectToolItem" xmi:id="_PPW3YHNGEeaIOZyrnWUBVA" elementId="org.testeditor.rcp4.views.tcltestrun.directtoolitem.0" iconURI="platform:/plugin/org.testeditor.rcp4.views.tcltestrun/icons/runlast_co.gif" tooltip="Rerun last test launch" contributionURI="bundleclass://org.testeditor.rcp4.views.tcltestrun/org.testeditor.rcp4.views.tcltestrun.ReRunLastTestLaunchHandler"/>
+  </fragments>
+</fragment:ModelFragments>

@@ -67,7 +67,13 @@ class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 
 	def removeUnwantedMenus() {
 		mainMenu.items.filter[it != configMenu].forEach[visible = false]
-		toolBar.items.filter[!it.id.startsWith("org.testeditor")].forEach[it.dispose]
+		val hiddenToolBarEntries = #[
+			"additions",
+			"org.eclipse.search.searchActionSet",
+			"org.eclipse.ui.edit.text.actionSet.annotationNavigation"
+			//Can't remove external launcher without side effects (npe loop)
+		]
+		toolBar.items.filter[hiddenToolBarEntries.contains(it.id)].forEach[it.dispose]
 	}
 
 }

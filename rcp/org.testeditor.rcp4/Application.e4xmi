@@ -40,7 +40,11 @@
       </children>
     </sharedElements>
     <sharedElements xsi:type="basic:Part" xmi:id="_l7Ed8PsvEeWT-dB_tFBORw" elementId="org.eclipse.ui.console.ConsoleView" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" iconURI="platform:/plugin/org.eclipse.ui.console//icons/full/cview16/console_view.gif"/>
-    <trimBars xmi:id="_VOV6ANTAEeGTY-uOtVc6Mg" elementId="org.eclipse.ui.main.toolbar"/>
+    <trimBars xmi:id="_VOV6ANTAEeGTY-uOtVc6Mg" elementId="org.eclipse.ui.main.toolbar">
+      <children xsi:type="menu:ToolBar" xmi:id="_5fgX0HLZEeaIOZyrnWUBVA" elementId="org.testeditor.rcp4.toolbar.0" accessibilityPhrase="">
+        <children xsi:type="menu:HandledToolItem" xmi:id="_ybnYgHNAEeaIOZyrnWUBVA" elementId="org.testeditor.rcp4.handledtoolitem." label="" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/save_edit.png" tooltip="Save active editor" command="_BHRIgHLcEeaIOZyrnWUBVA"/>
+      </children>
+    </trimBars>
     <trimBars xmi:id="_VP1HwNTAEeGTY-uOtVc6Mg" elementId="org.eclipse.ui.trim.status" side="Bottom">
       <children xsi:type="menu:ToolControl" xmi:id="_VP1u0NTAEeGTY-uOtVc6Mg" elementId="org.eclipse.ui.StatusLine" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.StandardTrim">
         <tags>stretch</tags>
@@ -69,6 +73,7 @@
     <tags>View</tags>
     <tags>categoryTag:General</tags>
   </descriptors>
+  <commands xmi:id="_BHRIgHLcEeaIOZyrnWUBVA" elementId="org.eclipse.ui.file.save" commandName="%command.commandname.save.command"/>
   <addons xmi:id="_VnmadNSzEeGBn6dQ9VPexA" elementId="org.eclipse.e4.core.commands.service" contributionURI="bundleclass://org.eclipse.e4.core.commands/org.eclipse.e4.core.commands.CommandServiceAddon"/>
   <addons xmi:id="_VnmaddSzEeGBn6dQ9VPexA" elementId="org.eclipse.e4.ui.contexts.service" contributionURI="bundleclass://org.eclipse.e4.ui.services/org.eclipse.e4.ui.services.ContextServiceAddon"/>
   <addons xmi:id="_VnmadtSzEeGBn6dQ9VPexA" elementId="org.eclipse.e4.ui.bindings.service" contributionURI="bundleclass://org.eclipse.e4.ui.bindings/org.eclipse.e4.ui.bindings.BindingServiceAddon"/>
