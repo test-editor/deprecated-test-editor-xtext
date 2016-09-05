@@ -41,9 +41,9 @@ class TclJvmModelRenameStrategy extends DefaultJvmModelRenameStrategy {
 		val path = getPathToRename(targetElementOriginalURI, resourceSet)
 		if (path !== null) {
 			val fileExtension = path.fileExtension
-			val isFileToRename = fileExtensions.contains(fileExtension.toLowerCase) && path.lastSegment.equals('''«originalName».«fileExtension»''')
+			val isFileToRename = fileExtensions.contains(fileExtension.toLowerCase) && path.lastSegment == originalName + '.' + fileExtension
 			if (isFileToRename) {
-				val change = new RenameResourceChange(path, '''«newName».«fileExtension»''')
+				val change = new RenameResourceChange(path, newName + '.' + fileExtension)
 				updateAcceptor.accept(targetElementOriginalURI.trimFragment, change)
 			}
 		}
