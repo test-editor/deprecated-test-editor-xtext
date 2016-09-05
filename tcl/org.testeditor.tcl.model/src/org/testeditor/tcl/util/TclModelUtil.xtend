@@ -99,12 +99,12 @@ class TclModelUtil extends TslModelUtil {
 	}
 	
 	// get the test step that holds this expression
-	def TestStep getTestStep(Expression expression) {
-		var parent = expression.eContainer
-		while (parent != null && !(parent instanceof TestStep)) {
-			parent = parent.eContainer
-		}
-		return parent as TestStep
+	def TestStep getTestStep(EObject eObject) {
+		return EcoreUtil2.getContainerOfType(eObject, TestStep)
+	}
+	
+	def TestStepContext getTestStepContext(EObject eObject){
+		return EcoreUtil2.getContainerOfType(eObject, TestStepContext)
 	}
 
 	def InteractionType getInteraction(TestStep step) {

@@ -12,8 +12,13 @@ import org.testeditor.tcl.StringConstant
 import org.testeditor.aml.Variable
 import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.EnvironmentVariable
+import org.eclipse.xtend.lib.annotations.Accessors
 
 class TclExpressionBuilder {
+	
+	@Accessors(PUBLIC_SETTER)
+	VariableResolver variableResolver
+	
 	def dispatch String buildExpression(Expression expression) {
 		throw new RuntimeException('''no builder found for type «expression.class»''')
 	}
@@ -39,6 +44,10 @@ class TclExpressionBuilder {
 	}
 	
 	def dispatch String buildExpression(VariableReference varRef) {
+		val stepContent=variableResolver.resolveVariableReference(varRef)
+		if( stepContent instanceof VariableReference) {
+			return stepContent.variable.variableToVarName
+		}
 		return varRef.variable.variableToVarName
 	}
 
