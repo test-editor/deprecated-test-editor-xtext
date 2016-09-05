@@ -43,6 +43,7 @@
     <trimBars xmi:id="_VOV6ANTAEeGTY-uOtVc6Mg" elementId="org.eclipse.ui.main.toolbar">
       <children xsi:type="menu:ToolBar" xmi:id="_5fgX0HLZEeaIOZyrnWUBVA" elementId="org.testeditor.rcp4.toolbar.0" accessibilityPhrase="">
         <children xsi:type="menu:HandledToolItem" xmi:id="_ybnYgHNAEeaIOZyrnWUBVA" elementId="org.testeditor.rcp4.handledtoolitem." label="" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/save_edit.png" tooltip="Save active editor" command="_BHRIgHLcEeaIOZyrnWUBVA"/>
+        <children xsi:type="menu:HandledToolItem" xmi:id="_X_iksHN0Eeage6Ozf2Rocw" elementId="org.testeditor.rcp4.handledtoolitem.0" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/saveall_edit.png" tooltip="Save all changes" command="_RjP2sHN0Eeage6Ozf2Rocw"/>
       </children>
     </trimBars>
     <trimBars xmi:id="_VP1HwNTAEeGTY-uOtVc6Mg" elementId="org.eclipse.ui.trim.status" side="Bottom">
@@ -74,6 +75,7 @@
     <tags>categoryTag:General</tags>
   </descriptors>
   <commands xmi:id="_BHRIgHLcEeaIOZyrnWUBVA" elementId="org.eclipse.ui.file.save" commandName="%command.commandname.save.command"/>
+  <commands xmi:id="_RjP2sHN0Eeage6Ozf2Rocw" elementId="org.eclipse.ui.file.saveAll" commandName="%command.commandname.saveAll.command"/>
   <addons xmi:id="_VnmadNSzEeGBn6dQ9VPexA" elementId="org.eclipse.e4.core.commands.service" contributionURI="bundleclass://org.eclipse.e4.core.commands/org.eclipse.e4.core.commands.CommandServiceAddon"/>
   <addons xmi:id="_VnmaddSzEeGBn6dQ9VPexA" elementId="org.eclipse.e4.ui.contexts.service" contributionURI="bundleclass://org.eclipse.e4.ui.services/org.eclipse.e4.ui.services.ContextServiceAddon"/>
   <addons xmi:id="_VnmadtSzEeGBn6dQ9VPexA" elementId="org.eclipse.e4.ui.bindings.service" contributionURI="bundleclass://org.eclipse.e4.ui.bindings/org.eclipse.e4.ui.bindings.BindingServiceAddon"/>
