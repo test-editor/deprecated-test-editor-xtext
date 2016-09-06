@@ -18,7 +18,7 @@ import org.eclipse.core.resources.IProject
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.testeditor.rcp4.tcltestrun.TclLauncher
 
-class LastTestExecutionInformation {
+class LastTestLaunchInformation {
 
 	@Accessors
 	List<String> testCasesCommaList

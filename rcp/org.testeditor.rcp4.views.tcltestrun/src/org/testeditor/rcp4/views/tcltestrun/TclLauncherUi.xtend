@@ -56,20 +56,17 @@ class TclLauncherUi implements Launcher {
 	@Inject TclGradleLauncher gradleLauncher
 	@Inject TestResultFileWriter testResultFileWriter
 	@Inject TclIndexHelper indexHelper
+	@Inject TclInjectorProvider tclInjectorProvider
 	LaunchShortcutUtil launchShortcutUtil // since this class itself is instanciated by e4, this attribute has to be injected manually
 	Map<URI, ArrayList<TestCase>> tslIndex
 	@Inject TCLConsoleFactory consoleFactory
 	@Inject PartHelper partHelper
 	@Inject EclipseContextHelper eclipseContextHelper
 
-	@Inject
-	new(TclInjectorProvider tclInjectorProvider) {
-		launchShortcutUtil = tclInjectorProvider.get.getInstance(LaunchShortcutUtil)
-	}
-
 	override boolean launch(IStructuredSelection selection, IProject project, String mode, boolean parameterize) {
-		val options = newHashMap
+		launchShortcutUtil = tclInjectorProvider.get.getInstance(LaunchShortcutUtil)
 		eclipseContextHelper.eclipseContext.set(TclLauncherUi, this)
+		val options = newHashMap
 		tslIndex = indexHelper.createTestCaseIndex()
 		if (project.getFile("build.gradle").exists) {
 			return launchTest(createGradleTestCasesList(selection), project, gradleLauncher, options)
@@ -134,14 +131,14 @@ class TclLauncherUi implements Launcher {
 	def storeTestParameterAsLastTestExecution(List<String> testCasesCommaList, IProject project, TclLauncher launcher,
 		Map<String, Object> options) {
 		logger.debug("Storing test execution as last launch")
-		val lastTestExecution = new LastTestExecutionInformation()
-		lastTestExecution => [
-			lastTestExecution.testCasesCommaList = testCasesCommaList
-			lastTestExecution.project = project
-			lastTestExecution.launcher = launcher
-			lastTestExecution.options = options
+		val lastTestLaunch = new LastTestLaunchInformation()
+		lastTestLaunch => [
+			lastTestLaunch.testCasesCommaList = testCasesCommaList
+			lastTestLaunch.project = project
+			lastTestLaunch.launcher = launcher
+			lastTestLaunch.options = options
 		]
-		eclipseContextHelper.eclipseContext.set(LastTestExecutionInformation, lastTestExecution)
+		eclipseContextHelper.eclipseContext.set(LastTestLaunchInformation, lastTestLaunch)
 	}
 
 	def List<String> createGradleTestCasesList(IStructuredSelection selection) {
