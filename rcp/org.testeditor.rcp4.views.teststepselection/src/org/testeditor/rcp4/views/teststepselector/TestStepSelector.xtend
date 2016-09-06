@@ -23,8 +23,6 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.jface.viewers.TreeViewer
 import org.eclipse.swt.SWT
 import org.eclipse.swt.dnd.DND
-import org.eclipse.swt.dnd.DragSourceEvent
-import org.eclipse.swt.dnd.DragSourceListener
 import org.eclipse.swt.dnd.TextTransfer
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Display
@@ -54,18 +52,17 @@ class TestStepSelector {
 	@Inject IEventBroker broker
 	@Inject AmlInjectorProvider amlInjectorProvider
 	@Inject TestStepSelectorLabelProvider labelProvider
-	@Inject AmlDropSupport amlDropSupport
-	@Inject TestStepSelectorDropTextProvider dropTextProvider
 	@Inject ICommandService commandService
-	TestStepSelectorTreeContentProvider contentProvider;
+	TestStepSelectorTreeContentProvider contentProvider
 	AmlQualifiedNameProvider amlQualifiedNameProvider
 	TreeViewer viewer
-	
+
 	Iterable<AmlModel> model
-	
+
 	@PostConstruct
-	def void postConstruct(Composite parent, TestStepSelectorExecutionListener executionListener,TestStepSelectorPartListener partListener) {
-		
+	def void postConstruct(Composite parent, TestStepSelectorExecutionListener executionListener,
+		TestStepSelectorPartListener partListener, TestStepSelectorDragSourceListener dragSourceListener) {
+
 		val amlInjector = amlInjectorProvider.get
 		amlQualifiedNameProvider = amlInjector.getInstance(AmlQualifiedNameProvider)
 		contentProvider = amlInjectorProvider.get.getInstance(TestStepSelectorTreeContentProvider)
@@ -74,28 +71,9 @@ class TestStepSelector {
 		page.addPartListener(partListener)
 
 		viewer = newTreeViewer(parent, SWT.V_SCROLL) [
-			addDragSupport((DND.DROP_COPY.bitwiseOr(DND.DROP_MOVE)), #[TextTransfer.instance],
-				new DragSourceListener {
-
-					override dragFinished(DragSourceEvent event) {
-						logger.trace("drag stop")
-					}
-
-					override dragSetData(DragSourceEvent event) {
-						if (TextTransfer.instance.isSupportedType(event.dataType) &&
-							amlDropSupport.dropSupported(viewer.structuredSelection.firstElement as EObject)) {
-							event.data = dropTextProvider.getText(viewer.structuredSelection)
-						} else {
-							event.data = ""
-						}
-					}
-
-					override dragStart(DragSourceEvent event) {
-						logger.trace("drag start")
-					}
-
-				})
+			addDragSupport((DND.DROP_COPY.bitwiseOr(DND.DROP_MOVE)), #[TextTransfer.instance], dragSourceListener)
 		]
+		dragSourceListener.viewer = viewer
 		
 		Job.getJobManager().addJobChangeListener(new JobChangeAdapter() {
 			override done(IJobChangeEvent event) {
@@ -103,7 +81,7 @@ class TestStepSelector {
 					logger.info("Building workspace completed. Trigger update TestSetSelector")
 					broker.post(TestStepSelector.SELECTOR_UPDATE_MODEL_AND_VIEW, null)
 				}
-			} 
+			}
 		})
 
 	}
@@ -126,14 +104,14 @@ class TestStepSelector {
 	def void updateView(@EventTopic(SELECTOR_UPDATE_VIEW) Object data) {
 		logger.debug("updateView")
 		// TODO - check on the project of the editor
-		if(viewer.input == null){
+		if (viewer.input == null) {
 			Display.getDefault.syncExec[internalUpdateView()]
 		}
 	}
 
 	private def internalUpdateView() {
 
-		//Initial call to the selector
+		// Initial call to the selector
 		if (viewer.input == null) {
 			viewer.labelProvider = labelProvider
 			viewer.contentProvider = contentProvider
@@ -184,6 +162,5 @@ class TestStepSelector {
 				throw new IllegalArgumentException("unexpected type " + object.class.name + " in expanded TreeElements")
 		}
 	}
-
 
 }
