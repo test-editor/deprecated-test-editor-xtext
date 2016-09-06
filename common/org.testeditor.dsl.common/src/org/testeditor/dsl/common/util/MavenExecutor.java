@@ -10,20 +10,20 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.rcp4.tcltestrun;
+package org.testeditor.dsl.common.util;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+
+import javax.inject.Inject;
 
 import org.apache.maven.cli.MavenCli;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -44,6 +44,9 @@ import org.slf4j.LoggerFactory;
 public class MavenExecutor {
 
 	private static Logger logger = LoggerFactory.getLogger(MavenExecutor.class);
+
+	@Inject
+	private OSUtil osUtil;
 
 	/**
 	 * Executes the maven build using maven embedder. It allways starts with a
@@ -88,25 +91,9 @@ public class MavenExecutor {
 	 * @throws IOException
 	 *             on failure
 	 */
-	public int executeInNewJvm(String parameters, String pathToPom, String testParam, IProgressMonitor monitor, OutputStream outputStream) throws IOException {
-		String jvm = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
-		List<String> command = new ArrayList<String>();
-		command.add(jvm);
-		command.add("-cp");
-		command.add(getClassPath());
-		Properties props = System.getProperties();
-		for (String key : props.stringPropertyNames()) {
-			if (key.startsWith("http.") | key.startsWith("TE.") | key.startsWith("https.")) {
-				command.add("-D" + key + "=" + props.getProperty(key));
-			}
-		}
-		command.add(this.getClass().getName());
-		command.add(parameters);
-		command.add(pathToPom);
-		command.add(testParam);
-		if (Boolean.getBoolean("te.workOffline")) {
-			command.add("-o");
-		}
+	public int executeInNewJvm(String parameters, String pathToPom, String testParam, IProgressMonitor monitor,
+			OutputStream outputStream, boolean useJvmClasspath) throws IOException {
+		List<String> command = createMavenExecCommand(parameters, pathToPom, testParam, useJvmClasspath);
 		ProcessBuilder processBuilder = new ProcessBuilder();
 		processBuilder.directory(new File(pathToPom));
 		logger.info("Executing maven in new jvm with command={}", command);
@@ -130,13 +117,66 @@ public class MavenExecutor {
 		}
 	}
 
+	private List<String> createMavenExecCommand(String parameters, String pathToPom, String testParam,
+			boolean useJvmClasspath) {
+		List<String> command = new ArrayList<String>();
+		if (useJvmClasspath && System.getenv("MAVEN_HOME") != null) {
+			command.addAll(getExecuteMavenScriptCommand(parameters, testParam));
+		} else {
+			command.addAll(getExecuteEmbeddedMavenCommand(parameters, pathToPom, testParam, useJvmClasspath));
+		}
+		if (Boolean.getBoolean("te.workOffline")) {
+			command.add("-o");
+		}
+		return command;
+	}
+
+	protected Collection<? extends String> getExecuteEmbeddedMavenCommand(String parameters, String pathToPom,
+			String testParam, boolean useJvmClasspath) {
+		List<String> command = new ArrayList<String>();
+		String jvm = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+		command.add(jvm);
+		command.add("-cp");
+		String mvnClasspath = getClassPath(useJvmClasspath);
+		logger.info("Using Classpath {} for maven", mvnClasspath);
+		command.add(mvnClasspath);
+		Properties props = System.getProperties();
+		for (String key : props.stringPropertyNames()) {
+			if (key.startsWith("http.") | key.startsWith("TE.") | key.startsWith("https.")) {
+				command.add("-D" + key + "=" + props.getProperty(key));
+			}
+		}
+		command.add(this.getClass().getName());
+		command.add(parameters);
+		command.add(pathToPom);
+		command.add(testParam);
+		return command;
+	}
+
+	protected List<String> getExecuteMavenScriptCommand(String parameters, String testParam) {
+		List<String> command = new ArrayList<String>();
+		if (osUtil.isWindows()) {
+			command.add(System.getenv("MAVEN_HOME") + "\\bin\\mvn.bat");
+		} else {
+			command.add(System.getenv("MAVEN_HOME") + "/bin/mvn");
+		}
+		command.add(parameters);
+		command.add("-D" + testParam);
+		return command;
+	}
+
 	/**
 	 * Builds the classpath to maven embedder libs, this class and the
 	 * dependencies.
 	 * 
+	 * @param useJvmClasspath
+	 * 
 	 * @return String with the classpath
 	 */
-	private String getClassPath() {
+	private String getClassPath(boolean useJvmClasspath) {
+		if (useJvmClasspath) {
+			return System.getProperty("java.class.path");
+		}
 		List<String> cp = new ArrayList<String>();
 		cp.addAll(Bundles.getClasspathEntries(Bundles
 				.findDependencyBundle(MavenPluginActivator.getDefault().getBundle(), "org.eclipse.m2e.maven.runtime")));
@@ -184,33 +224,6 @@ public class MavenExecutor {
 		if (result != 0) {
 			System.exit(result);
 		}
-	}
-
-	static class OutputStreamCopyUtil extends Thread {
-
-		private BufferedReader reader;
-		private PrintStream out;
-
-		public OutputStreamCopyUtil(InputStream source, PrintStream out) {
-			super();
-			this.reader = new BufferedReader(new InputStreamReader(source));
-			this.out = out;
-		}
-
-		@Override
-		public void run() {
-			try {
-				String message = "";
-				while (message != null) {
-					out.println(message);
-					logger.trace(message);
-					message = reader.readLine();
-				}
-			} catch (IOException e) {
-				logger.error("Cannot connect to process ouput stream", e);
-			}
-		}
-
 	}
 
 }
