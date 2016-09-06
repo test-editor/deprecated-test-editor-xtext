@@ -142,6 +142,8 @@ class TclFormatter extends XbaseFormatter {
 
 	def dispatch void format(StepContentElement stepContentElement, extension IFormattableDocument document) {
 		stepContentElement.regionFor.keywords("<", "<>").forEach[prepend[oneSpace]]
+		stepContentElement.regionFor.keyword("<").append[noSpace]
+		stepContentElement.regionFor.keyword(">").prepend[noSpace]
 	}
 
 	def dispatch void format(VariableReference variableReference, extension IFormattableDocument document) {
