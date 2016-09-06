@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -13,12 +13,26 @@
 package org.testeditor.rcp4.views.tcltestrun
 
 import org.eclipse.e4.core.di.annotations.Execute
+import javax.inject.Inject
+import org.eclipse.e4.core.di.annotations.CanExecute
+import org.eclipse.e4.core.contexts.IEclipseContext
 
 class ReRunLastTestLaunchHandler {
 
+	@Inject
+	IEclipseContext context
+
 	@Execute
 	def reLaunchLastTestLaunch() {
-		//TODO Connect to old launch	
+		val tclLauncherUi = context.get(TclLauncherUi)
+		val lastTestExecution = context.get(LastTestExecutionInformation)
+		tclLauncherUi.launchTest(lastTestExecution.testCasesCommaList, lastTestExecution.project,
+			lastTestExecution.launcher, lastTestExecution.options)
+	}
+
+	@CanExecute
+	def boolean canExecute() {
+		return context.containsKey(LastTestExecutionInformation)
 	}
 	
 }

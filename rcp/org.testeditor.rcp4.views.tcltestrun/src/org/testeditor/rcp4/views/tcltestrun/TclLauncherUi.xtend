@@ -44,9 +44,10 @@ import org.testeditor.tcl.dsl.ui.testlaunch.LaunchShortcutUtil
 import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
 import org.testeditor.tcl.dsl.ui.util.TclIndexHelper
 import org.testeditor.tcl.dsl.ui.util.TclInjectorProvider
+import org.testeditor.dsl.common.util.EclipseContextHelper
 
 class TclLauncherUi implements Launcher {
-	
+
 	static val RESULT_VIEW = "org.eclipse.jdt.junit.ResultView"
 	static val logger = LoggerFactory.getLogger(TclLauncherUi)
 
@@ -59,6 +60,7 @@ class TclLauncherUi implements Launcher {
 	Map<URI, ArrayList<TestCase>> tslIndex
 	@Inject TCLConsoleFactory consoleFactory
 	@Inject PartHelper partHelper
+	@Inject EclipseContextHelper eclipseContextHelper
 
 	@Inject
 	new(TclInjectorProvider tclInjectorProvider) {
@@ -67,6 +69,7 @@ class TclLauncherUi implements Launcher {
 
 	override boolean launch(IStructuredSelection selection, IProject project, String mode, boolean parameterize) {
 		val options = newHashMap
+		eclipseContextHelper.eclipseContext.set(TclLauncherUi, this)
 		tslIndex = indexHelper.createTestCaseIndex()
 		if (project.getFile("build.gradle").exists) {
 			return launchTest(createGradleTestCasesList(selection), project, gradleLauncher, options)
@@ -108,8 +111,9 @@ class TclLauncherUi implements Launcher {
 		return result.get
 	}
 
-	private def boolean launchTest(List<String> testCasesCommaList, IProject project, TclLauncher launcher,
+	def boolean launchTest(List<String> testCasesCommaList, IProject project, TclLauncher launcher,
 		Map<String, Object> options) {
+		storeTestParameterAsLastTestExecution(testCasesCommaList, project, launcher, options)
 		logger.info("Trying to launch launcherClass='{}' test execution for elementId='{}' in project='{}'",
 			launcher.class.simpleName, testCasesCommaList.get(0), project)
 		progressRunner.run([ monitor |
@@ -125,6 +129,19 @@ class TclLauncherUi implements Launcher {
 			monitor.done
 		])
 		return true
+	}
+
+	def storeTestParameterAsLastTestExecution(List<String> testCasesCommaList, IProject project, TclLauncher launcher,
+		Map<String, Object> options) {
+		logger.debug("Storing test execution as last launch")
+		val lastTestExecution = new LastTestExecutionInformation()
+		lastTestExecution => [
+			lastTestExecution.testCasesCommaList = testCasesCommaList
+			lastTestExecution.project = project
+			lastTestExecution.launcher = launcher
+			lastTestExecution.options = options
+		]
+		eclipseContextHelper.eclipseContext.set(LastTestExecutionInformation, lastTestExecution)
 	}
 
 	def List<String> createGradleTestCasesList(IStructuredSelection selection) {
