@@ -18,6 +18,7 @@ import org.junit.Test
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.testeditor.dsl.common.testing.AbstractTest
+import org.testeditor.dsl.common.util.WorkspaceRootHelper
 
 import static org.mockito.Mockito.*
 import org.eclipse.jdt.core.IJavaProject
