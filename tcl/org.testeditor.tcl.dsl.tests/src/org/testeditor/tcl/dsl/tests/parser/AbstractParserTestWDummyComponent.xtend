@@ -10,26 +10,23 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.tcl.dsl.validation
+package org.testeditor.tcl.dsl.tests.parser
 
 import javax.inject.Inject
-import org.eclipse.xtext.junit4.validation.ValidationTestHelper
 import org.junit.Before
 import org.testeditor.aml.Component
 import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.aml.dsl.tests.common.AmlTestModels
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 
-abstract class AbstractUnmockedTclValidatorTest extends AbstractParserTest {
+abstract class AbstractParserTestWDummyComponent extends AbstractParserTest {
 	
-	@Inject protected TclValidator tclValidator // class under test (not mocked)
-	@Inject protected ValidationTestHelper validator
 	@Inject protected AmlTestModels amlTestModels
 	
 	protected var Component dummyComponent
 
 	@Before
-	def void setup() {
+	def void setupDummyComponent() {
 		new AmlStandaloneSetup().createInjectorAndDoEMFRegistration // needs to be registered to register aml models
 
 		// build component "Dummy" with two interactions, "start" with a string parameter, "wait" with a long parameter

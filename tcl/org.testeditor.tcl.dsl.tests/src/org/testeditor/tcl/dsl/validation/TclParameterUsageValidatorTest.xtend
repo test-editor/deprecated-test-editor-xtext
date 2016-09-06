@@ -13,21 +13,25 @@
 package org.testeditor.tcl.dsl.validation
 
 import javax.inject.Inject
+import org.eclipse.xtext.junit4.validation.ValidationTestHelper
 import org.junit.Test
 import org.testeditor.aml.dsl.tests.AmlModelGenerator
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
+import org.testeditor.tcl.dsl.tests.parser.AbstractParserTestWDummyComponent
 import org.testeditor.tcl.util.TclModelUtil
 
 import static org.testeditor.tcl.TclPackage.Literals.*
 
-class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
+class TclParameterUsageValidatorTest extends AbstractParserTestWDummyComponent {
 	
 	@Inject extension AmlModelGenerator
 	@Inject extension TclModelGenerator
 	@Inject TclModelUtil tclModelUtil
+	@Inject protected TclValidator tclValidator // class under test (not mocked)
+	@Inject protected ValidationTestHelper validator
 
 
 	@Test

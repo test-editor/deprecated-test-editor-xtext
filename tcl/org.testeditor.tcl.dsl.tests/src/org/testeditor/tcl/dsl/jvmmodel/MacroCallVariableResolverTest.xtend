@@ -3,16 +3,16 @@ package org.testeditor.tcl.dsl.jvmmodel
 import javax.inject.Inject
 import org.junit.Test
 import org.testeditor.aml.TemplateVariable
+import org.testeditor.aml.Variable
 import org.testeditor.aml.dsl.tests.AmlModelGenerator
 import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.EnvironmentVariable
+import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
-import org.testeditor.tcl.dsl.validation.AbstractUnmockedTclValidatorTest
-import org.testeditor.tcl.MacroTestStepContext
-import org.testeditor.aml.Variable
+import org.testeditor.tcl.dsl.tests.parser.AbstractParserTestWDummyComponent
 
-class MacroCallVariableResolverTest extends AbstractUnmockedTclValidatorTest {
+class MacroCallVariableResolverTest extends AbstractParserTestWDummyComponent {
 	@Inject extension TclModelGenerator
 	@Inject extension AmlModelGenerator
 
@@ -21,29 +21,29 @@ class MacroCallVariableResolverTest extends AbstractUnmockedTclValidatorTest {
 	@Test
 	def void testResolvingReferenceToAssignmentVariable() {
 		// given
-		classUnderTest.macroUseStack = #[]
-		val variable = variableReference => [variable = assignmentVariable("some")]
+		classUnderTest.macroUseStack = #[] // empty call stack
+		val assignmentVariableRef = variableReference => [variable = assignmentVariable("some")]
 
 		// when
-		val resolvedVariable = classUnderTest.resolveVariableReference(variable)
+		val resolvedVariable = classUnderTest.resolveVariableReference(assignmentVariableRef)
 
 		// then
 		resolvedVariable.assertInstanceOf(VariableReference) //
-		.variable.assertInstanceOf(AssignmentVariable).name.assertEquals("some")
+		.variable.assertInstanceOf(AssignmentVariable).name.assertEquals(assignmentVariableRef.variable.name)
 	}
 
 	@Test
 	def void testResolvingReferenceToEnvironmentVariable() {
 		// given
-		classUnderTest.macroUseStack = #[]
-		val variable = variableReference => [variable = environmentVariables("some").head]
+		classUnderTest.macroUseStack = #[] // empty call stack
+		val environmentVariableRef = variableReference => [variable = environmentVariables("some").head]
 
 		// when
-		val resolvedVariable = classUnderTest.resolveVariableReference(variable)
+		val resolvedVariable = classUnderTest.resolveVariableReference(environmentVariableRef)
 
 		// then
 		resolvedVariable.assertInstanceOf(VariableReference) //
-		.variable.assertInstanceOf(EnvironmentVariable).name.assertEquals("some")
+		.variable.assertInstanceOf(EnvironmentVariable).name.assertEquals(environmentVariableRef.variable.name)
 	}
 
 	@Test
@@ -58,7 +58,7 @@ class MacroCallVariableResolverTest extends AbstractUnmockedTclValidatorTest {
 
 		// then
 		resolvedVariable.assertInstanceOf(VariableReference) //
-		.variable.assertInstanceOf(EnvironmentVariable).name.assertEquals("some")
+		.variable.assertInstanceOf(EnvironmentVariable).name.assertEquals(environmentVariable.name)
 	}
 
 	@Test
@@ -139,7 +139,7 @@ class MacroCallVariableResolverTest extends AbstractUnmockedTclValidatorTest {
 	 *  the (macro) call stack is passed to the class under test
 	 */
 	private def TemplateVariable macroParameterAtEndOfCallChain(Variable variable) {
-		val macroCollection = macroCollection("MacroCollection")
+		val macroCollection = macroCollection("MacroCollection") // must be assigned before usage in macro creation (see below)
 		macroCollection => [
 			macros += macro("MyCallMacro") => [
 				template = template("mycall").withParameter("appname")
