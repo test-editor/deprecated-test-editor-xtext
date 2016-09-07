@@ -29,9 +29,9 @@ class ReRunLastTestLaunchHandlerTest extends AbstractTest {
 		val handler = ContextInjectionFactory.make(ReRunLastTestLaunchHandler,ctx)
 		
 		// when
-		val canExecuteEmpty = handler.canExecute
+		val canExecuteEmpty = handler.canExecute(ctx)
 		ctx.set(LastTestLaunchInformation, new LastTestLaunchInformation)
-		val canExecuteWithLastLaunch = handler.canExecute
+		val canExecuteWithLastLaunch = handler.canExecute(ctx)
 		
 		// then
 		assertFalse(canExecuteEmpty)
@@ -53,7 +53,7 @@ class ReRunLastTestLaunchHandlerTest extends AbstractTest {
 		val handler = ContextInjectionFactory.make(ReRunLastTestLaunchHandler,ctx)
 
 		//when
-		handler.reLaunchLastTestLaunch
+		handler.reLaunchLastTestLaunch(ctx)
 		
 		//then			
 		verify(tclLauncherUi).launchTest(testList,null,null,null)	

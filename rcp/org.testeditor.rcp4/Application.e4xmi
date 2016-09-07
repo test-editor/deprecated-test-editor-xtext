@@ -57,7 +57,7 @@
       </children>
     </trimBars>
   </children>
-  <bindingTables xmi:id="_VnmafNSzEeGBn6dQ9VPexA" bindingContext="_VnmacdSzEeGBn6dQ9VPexA"/>
+  <bindingTables xmi:id="_VnmafNSzEeGBn6dQ9VPexA" elementId="org.testeditor.bindingTable" bindingContext="_VnmacdSzEeGBn6dQ9VPexA"/>
   <rootContext xmi:id="_VnmacdSzEeGBn6dQ9VPexA" elementId="org.eclipse.ui.contexts.dialogAndWindow" name="In Dialog and Windows">
     <children xmi:id="_VnmactSzEeGBn6dQ9VPexA" elementId="org.eclipse.ui.contexts.window" name="In Windows"/>
     <children xmi:id="_Vnmac9SzEeGBn6dQ9VPexA" elementId="org.eclipse.ui.contexts.dialog" name="In Dialogs"/>
@@ -83,4 +83,5 @@
   <addons xmi:id="_VnmaeNSzEeGBn6dQ9VPexA" elementId="org.eclipse.e4.ui.workbench.contexts.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.ContextProcessingAddon"/>
   <addons xmi:id="_VnmaedSzEeGBn6dQ9VPexA" elementId="org.eclipse.e4.ui.workbench.bindings.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.swt/org.eclipse.e4.ui.workbench.swt.util.BindingProcessingAddon"/>
   <addons xmi:id="_p3hyIMkLEeWnMKdeCKyEvA" elementId="dragAndDropAddon" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.addons.swt/org.eclipse.e4.ui.workbench.addons.dndaddon.DnDAddon"/>
+  <addons xmi:id="__lJeoHTBEeabuNODuaXByQ" elementId="org.eclipse.e4.ui.workbench.handler.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.HandlerProcessingAddon"/>
 </application:Application>

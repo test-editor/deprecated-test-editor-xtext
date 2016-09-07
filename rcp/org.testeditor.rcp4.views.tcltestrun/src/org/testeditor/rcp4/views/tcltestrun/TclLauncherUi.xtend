@@ -35,6 +35,7 @@ import org.eclipse.ui.dialogs.ElementListSelectionDialog
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.ProgressMonitorRunner
 import org.testeditor.dsl.common.ui.workbench.PartHelper
+import org.testeditor.dsl.common.util.EclipseContextHelper
 import org.testeditor.rcp4.tcltestrun.TclGradleLauncher
 import org.testeditor.rcp4.tcltestrun.TclLauncher
 import org.testeditor.rcp4.tcltestrun.TclMavenLauncher
@@ -44,7 +45,6 @@ import org.testeditor.tcl.dsl.ui.testlaunch.LaunchShortcutUtil
 import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
 import org.testeditor.tcl.dsl.ui.util.TclIndexHelper
 import org.testeditor.tcl.dsl.ui.util.TclInjectorProvider
-import org.testeditor.dsl.common.util.EclipseContextHelper
 
 class TclLauncherUi implements Launcher {
 
@@ -57,14 +57,12 @@ class TclLauncherUi implements Launcher {
 	@Inject TestResultFileWriter testResultFileWriter
 	@Inject TclIndexHelper indexHelper
 	@Inject TclInjectorProvider tclInjectorProvider
-	LaunchShortcutUtil launchShortcutUtil // since this class itself is instanciated by e4, this attribute has to be injected manually
 	Map<URI, ArrayList<TestCase>> tslIndex
 	@Inject TCLConsoleFactory consoleFactory
 	@Inject PartHelper partHelper
 	@Inject EclipseContextHelper eclipseContextHelper
 
 	override boolean launch(IStructuredSelection selection, IProject project, String mode, boolean parameterize) {
-		launchShortcutUtil = tclInjectorProvider.get.getInstance(LaunchShortcutUtil)
 		eclipseContextHelper.eclipseContext.set(TclLauncherUi, this)
 		val options = newHashMap
 		tslIndex = indexHelper.createTestCaseIndex()
@@ -154,7 +152,8 @@ class TclLauncherUi implements Launcher {
 				}
 
 			} else {
-				return launchShortcutUtil.getQualifiedNameForTestInTcl(resource).toString
+				return tclInjectorProvider.get.getInstance(LaunchShortcutUtil).getQualifiedNameForTestInTcl(resource).
+					toString
 			}
 		].filterNull
 
@@ -181,6 +180,7 @@ class TclLauncherUi implements Launcher {
 					val secondURI = URI.createPlatformResourceURI(uri.toString, true)
 					return tslIndex.get(secondURI).map[it.model.package + "." + it.name]
 				} else {
+					val launchShortcutUtil = tclInjectorProvider.get.getInstance(LaunchShortcutUtil)
 					return #[launchShortcutUtil.getQualifiedNameForTestInTcl(sel).toString]
 				}
 			}
@@ -189,6 +189,7 @@ class TclLauncherUi implements Launcher {
 
 	def List<String> getTestCasesFromFolder(IFolder folder) {
 		val result = newArrayList()
+		val launchShortcutUtil = tclInjectorProvider.get.getInstance(LaunchShortcutUtil)
 		for (IResource res : folder.members) {
 			if (res instanceof IFile) {
 				if (res.fileExtension.equalsIgnoreCase("tcl")) {

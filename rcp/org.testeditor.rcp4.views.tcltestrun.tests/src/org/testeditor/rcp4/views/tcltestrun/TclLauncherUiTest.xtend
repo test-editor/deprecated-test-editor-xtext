@@ -70,10 +70,8 @@ class TclLauncherUiTest extends AbstractTest {
 	@Before
 	def void setup() {
 		// given
-		// val injector = Injector.mock
 		when(tclInjectorProvider.get).thenReturn(injector)
 		when(injector.getInstance(LaunchShortcutUtil)).thenReturn(launchUtil)
-//		launcherUi = new TclLauncherUi(tclInjectorProvider)
 	}
 
 	@Test
