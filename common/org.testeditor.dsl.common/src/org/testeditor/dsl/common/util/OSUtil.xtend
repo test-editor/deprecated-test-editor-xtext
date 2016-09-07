@@ -10,15 +10,13 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.rcp4.views.projectexplorer
+package org.testeditor.dsl.common.util
 
-import org.eclipse.core.resources.IWorkspaceRoot
-import org.eclipse.core.resources.ResourcesPlugin
+import org.apache.commons.lang3.SystemUtils
 
-class WorkspaceRootHelper {
-	
-	def IWorkspaceRoot getRoot() {
-		return ResourcesPlugin.workspace.root
-	}
-	
+class OSUtil {
+
+	def boolean isWindows() {
+		return SystemUtils.IS_OS_WINDOWS;
+	}	
 }

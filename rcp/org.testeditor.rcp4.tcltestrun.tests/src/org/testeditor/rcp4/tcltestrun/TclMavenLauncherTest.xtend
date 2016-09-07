@@ -24,6 +24,9 @@ import org.mockito.Mock
 import org.testeditor.dsl.common.testing.AbstractTest
 
 import static extension org.mockito.Mockito.*
+import org.testeditor.dsl.common.util.MavenExecutor
+import org.eclipse.core.runtime.IProgressMonitor
+import java.io.OutputStream
 
 class TclMavenLauncherTest extends AbstractTest {
 
@@ -46,6 +49,7 @@ class TclMavenLauncherTest extends AbstractTest {
 		val profiles = launcher.getProfiles(project)
 
 		// then 
+		verify(executor).executeInNewJvm(any(String),any(String),any(String),any(IProgressMonitor),any(OutputStream), any(Boolean))
 		assertTrue(profiles.exists[it == "foo"])
 		assertTrue(profiles.exists[it == "bar"])
 		assertFalse(profiles.exists[it == "test"])
