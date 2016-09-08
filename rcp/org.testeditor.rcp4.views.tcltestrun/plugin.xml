@@ -3,7 +3,8 @@
    <extension
          point="org.testeditor.tcl.dsl.ui.tcl_launcher">
       <launcher
-            class="org.testeditor.rcp4.views.tcltestrun.ExecutableExtensionFactory:org.testeditor.rcp4.views.tcltestrun.TclLauncherUi">
+            class="org.testeditor.rcp4.views.tcltestrun.ExecutableExtensionFactory:org.testeditor.rcp4.views.tcltestrun.TclLauncherUi"
+            actionClass="org.testeditor.rcp4.views.tcltestrun.ExecutableExtensionFactory:org.testeditor.rcp4.views.tcltestrun.TclLauncherAction">
       </launcher>
    </extension>
 	<extension
