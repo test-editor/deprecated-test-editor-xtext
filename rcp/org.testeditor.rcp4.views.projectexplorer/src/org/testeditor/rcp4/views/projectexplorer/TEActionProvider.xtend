@@ -24,7 +24,6 @@ class TEActionProvider extends CommonActionProvider {
 
 	override fillContextMenu(IMenuManager menu) {
 		super.fillContextMenu(menu)
-		menu.items.forEach[println(it)]
 		removeOpenWithMenu(menu)
 		addLauncherActions(menu);
 	}
@@ -33,11 +32,13 @@ class TEActionProvider extends CommonActionProvider {
 		val extReg = new PlatformHelper().extensionRegistry
 		val launchers = extReg.getConfigurationElementsFor("org.testeditor.tcl.dsl.ui.tcl_launcher").filter(
 			IConfigurationElement)
-			menu.insertAfter("group.reorganize", new Separator("te.launch"))
+		menu.insertAfter("group.reorganize", new Separator("te.launch"))
 		launchers.forEach [
-			if (it.getAttribute("actionClass") != null) {
-				menu.insertAfter("te.launch",it.createExecutableExtension("actionClass") as IAction)
-			}
+			it.children.filter[it.name.equals("LaunchAction")].forEach [
+				val action = it.createExecutableExtension("class") as IAction
+				action.text = it.getAttribute("name")
+				menu.insertAfter("te.launch", action)
+			]
 		]
 	}
 

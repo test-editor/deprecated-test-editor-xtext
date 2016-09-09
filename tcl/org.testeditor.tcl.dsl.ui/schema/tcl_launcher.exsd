@@ -54,6 +54,9 @@
          </documentation>
       </annotation>
       <complexType>
+         <sequence minOccurs="0" maxOccurs="unbounded">
+            <element ref="LaunchAction"/>
+         </sequence>
          <attribute name="class" type="string">
             <annotation>
                <documentation>
@@ -64,7 +67,12 @@
                </appInfo>
             </annotation>
          </attribute>
-         <attribute name="actionClass" type="string">
+      </complexType>
+   </element>
+
+   <element name="LaunchAction">
+      <complexType>
+         <attribute name="class" type="string">
             <annotation>
                <documentation>
                   
@@ -72,6 +80,20 @@
                <appInfo>
                   <meta.attribute kind="java" basedOn=":org.eclipse.jface.action.IAction"/>
                </appInfo>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="image" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
             </annotation>
          </attribute>
       </complexType>
