@@ -30,7 +30,7 @@ class ReRunLastTestLaunchHandlerTest extends AbstractTest {
 		
 		// when
 		val canExecuteEmpty = handler.canExecute(ctx)
-		ctx.set(LastTestLaunchInformation, new LastTestLaunchInformation)
+		ctx.set(TestLaunchInformation, new TestLaunchInformation(null,null,null,null))
 		val canExecuteWithLastLaunch = handler.canExecute(ctx)
 		
 		// then
@@ -45,18 +45,15 @@ class ReRunLastTestLaunchHandlerTest extends AbstractTest {
 		val tclLauncherUi = TclLauncherUi.mock
 		ctx.set(TclLauncherUi, tclLauncherUi)
 		val testList = #["test1","test2"]
-		val lastlaunch = new LastTestLaunchInformation
-		lastlaunch => [
-			testCasesCommaList = testList
-		]
-		ctx.set(LastTestLaunchInformation, lastlaunch)
+		val lastlaunch = new TestLaunchInformation(testList,null,null,null)
+		ctx.set(TestLaunchInformation, lastlaunch)
 		val handler = ContextInjectionFactory.make(ReRunLastTestLaunchHandler,ctx)
 
 		//when
 		handler.reLaunchLastTestLaunch(ctx)
 		
 		//then			
-		verify(tclLauncherUi).launchTest(testList,null,null,null)	
+		verify(tclLauncherUi).launchTest(new TestLaunchInformation(testList,null,null,null))	
 	}
 	
 }

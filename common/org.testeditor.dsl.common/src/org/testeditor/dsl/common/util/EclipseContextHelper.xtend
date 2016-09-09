@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -16,9 +16,9 @@ import org.eclipse.e4.core.contexts.IEclipseContext
 import org.eclipse.ui.PlatformUI
 
 class EclipseContextHelper {
-	
+
 	def IEclipseContext getEclipseContext() {
-		PlatformUI.getWorkbench().getService(IEclipseContext)	
+		PlatformUI.workbench.getService(IEclipseContext)
 	}
-	
+
 }

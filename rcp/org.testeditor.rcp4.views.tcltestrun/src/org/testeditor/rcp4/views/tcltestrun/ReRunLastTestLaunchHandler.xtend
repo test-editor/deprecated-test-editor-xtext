@@ -21,14 +21,13 @@ class ReRunLastTestLaunchHandler {
 	@Execute
 	def reLaunchLastTestLaunch(IEclipseContext context) {
 		val tclLauncherUi = context.get(TclLauncherUi)
-		val lastTestLaunch = context.get(LastTestLaunchInformation)
-		tclLauncherUi.launchTest(lastTestLaunch.testCasesCommaList, lastTestLaunch.project, lastTestLaunch.launcher,
-			lastTestLaunch.options)
+		val lastTestLaunch = context.get(TestLaunchInformation)
+		tclLauncherUi.launchTest(lastTestLaunch)
 	}
 
 	@CanExecute
 	def boolean canExecute(IEclipseContext context) {
-		return context.containsKey(LastTestLaunchInformation)
+		return context.containsKey(TestLaunchInformation)
 	}
 
 }

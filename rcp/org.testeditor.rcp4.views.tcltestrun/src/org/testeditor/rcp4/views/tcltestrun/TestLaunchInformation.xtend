@@ -17,8 +17,10 @@ import java.util.Map
 import org.eclipse.core.resources.IProject
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.testeditor.rcp4.tcltestrun.TclLauncher
+import org.eclipse.xtend.lib.annotations.Data
 
-class LastTestLaunchInformation {
+@Data
+class TestLaunchInformation {
 
 	@Accessors
 	List<String> testCasesCommaList
