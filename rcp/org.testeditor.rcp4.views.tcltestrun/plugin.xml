@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin>
+
    <extension
          point="org.testeditor.tcl.dsl.ui.tcl_launcher">
       <launcher
@@ -10,11 +11,19 @@
             </LaunchAction>
       </launcher>
    </extension>
-	<extension
-	      point="org.eclipse.ui.console.consoleFactories">
-	   <consoleFactory
-	         class="org.testeditor.rcp4.views.tcltestrun.ExecutableExtensionFactory:org.testeditor.rcp4.views.tcltestrun.console.TCLConsoleFactory"
-	         label="Test execution console">
-	   </consoleFactory>
-	</extension>
+   <extension
+         point="org.eclipse.ui.console.consoleFactories">
+      <consoleFactory
+            label="Test execution console"
+            class="org.testeditor.rcp4.views.tcltestrun.ExecutableExtensionFactory:org.testeditor.rcp4.views.tcltestrun.console.TCLConsoleFactory">
+      </consoleFactory>
+   </extension>
+   <extension
+         id="org.testeditor.rcp4.views.tcltestrun.fragment"
+         point="org.eclipse.e4.workbench.model">
+      <fragment
+            uri="fragment.e4xmi">
+      </fragment>
+   </extension>
+
 </plugin>
