@@ -22,7 +22,7 @@ class TclParameterLauncherAction extends TclLauncherAction {
 		super(platformHelper)
 	}
 	
-	override protected withParatemer() {
+	override protected withParameter() {
 		return true
 	}
 	
