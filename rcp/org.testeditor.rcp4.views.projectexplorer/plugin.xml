@@ -212,7 +212,7 @@
 			   </or>
 			</possibleChildren>
 			<actionProvider
-				class="org.testeditor.rcp4.views.projectexplorer.TEActionProvider"
+				class="org.testeditor.rcp4.views.projectexplorer.ProjectExplorerExtensionFactory:org.testeditor.rcp4.views.projectexplorer.TEActionProvider"
 				id="org.testeditor.rcp4.views.projectexplorer.TEActionProvider" />
 	   </navigatorContent>
    </extension>

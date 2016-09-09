@@ -19,17 +19,20 @@ import org.eclipse.ui.navigator.CommonActionProvider
 import org.testeditor.dsl.common.util.PlatformHelper
 import org.eclipse.jface.action.IAction
 import org.eclipse.jface.action.Separator
+import javax.inject.Inject
 
 class TEActionProvider extends CommonActionProvider {
+
+	@Inject PlatformHelper platformHelper
 
 	override fillContextMenu(IMenuManager menu) {
 		super.fillContextMenu(menu)
 		removeOpenWithMenu(menu)
-		addLauncherActions(menu);
+		addLauncherActions(menu)
 	}
 
 	def private void addLauncherActions(IMenuManager menu) {
-		val extReg = new PlatformHelper().extensionRegistry
+		val extReg = platformHelper.extensionRegistry
 		val launchers = extReg.getConfigurationElementsFor("org.testeditor.tcl.dsl.ui.tcl_launcher").filter(
 			IConfigurationElement)
 		menu.insertAfter("group.reorganize", new Separator("te.launch"))
@@ -43,11 +46,8 @@ class TEActionProvider extends CommonActionProvider {
 	}
 
 	def private void removeOpenWithMenu(IMenuManager menu) {
-		val openWithMenues = menu.items.filter[it.id != null && it.id.equals("group.openWith")].filter(MenuManager)
-		if (!openWithMenues.empty) {
-			val openWithAction = openWithMenues.head
-			menu.remove(openWithAction)
-		}
+		val openWithMenues = menu.items.filter[id != null && id.equals("group.openWith")].filter(MenuManager)
+		openWithMenues.forEach[menu.remove(it)]
 	}
 
 }

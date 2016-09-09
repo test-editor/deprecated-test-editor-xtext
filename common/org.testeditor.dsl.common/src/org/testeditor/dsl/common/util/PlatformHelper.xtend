@@ -13,10 +13,15 @@ package org.testeditor.dsl.common.util
 
 import org.eclipse.core.runtime.IExtensionRegistry
 import org.eclipse.core.runtime.Platform
+import org.osgi.framework.Bundle
 
 class PlatformHelper {
 	
 	def IExtensionRegistry getExtensionRegistry() {
 		Platform.extensionRegistry
+	}
+	
+	def Bundle getBundle(String bundleId){
+		Platform.getBundle(bundleId)
 	}
 }

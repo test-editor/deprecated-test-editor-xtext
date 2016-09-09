@@ -16,20 +16,21 @@ import javax.inject.Inject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.FileLocator
 import org.eclipse.core.runtime.Path
-import org.eclipse.core.runtime.Platform
 import org.eclipse.jface.action.Action
 import org.eclipse.jface.resource.ImageDescriptor
 import org.eclipse.jface.viewers.StructuredSelection
 import org.eclipse.ui.ISelectionService
 import org.testeditor.dsl.common.ui.workbench.PartHelper
+import org.testeditor.dsl.common.util.PlatformHelper
 
 class TclLauncherAction extends Action {
 
 	@Inject TclLauncherUi launcherUI
 	@Inject PartHelper partHelper
 
-	protected new() {
-		val bundle = Platform.getBundle("org.testeditor.rcp4.views.tcltestrun")
+	@Inject
+	protected new(PlatformHelper platformHelper) {
+		val bundle = platformHelper.getBundle("org.testeditor.rcp4.views.tcltestrun")
 		val path = new Path("icons/run_test.png")
 		val url = FileLocator.find(bundle, path, null)
 		imageDescriptor = ImageDescriptor.createFromURL(url)
@@ -46,9 +47,9 @@ class TclLauncherAction extends Action {
 			}
 		}
 	}
-	
+
 	def protected boolean withParatemer() {
-		return false;
+		return false
 	}
 
 }
