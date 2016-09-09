@@ -43,12 +43,12 @@ class TclLauncherAction extends Action {
 			val sel = selection as StructuredSelection
 			val firstElement = sel.firstElement
 			if (firstElement instanceof IResource) {
-				launcherUI.launch(sel, firstElement.project, null, withParatemer)
+				launcherUI.launch(sel, firstElement.project, null, withParameter)
 			}
 		}
 	}
 
-	def protected boolean withParatemer() {
+	def protected boolean withParameter() {
 		return false
 	}
 
