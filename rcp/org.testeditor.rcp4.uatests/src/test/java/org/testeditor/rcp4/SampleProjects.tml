@@ -9,7 +9,7 @@ package org.testeditor.rcp4
 	Component: ProjectExplorer
 	- Execute menu item "New/Project..." in tree <ProjektBaum>
 
-	Component: NewDialog
+	Component: NewProjectDialog
 	- Select element "Test-Editor Project" in tree <ProjectType>
 	- Click on <NextButton>
 	- Type "demo" into <ProjectName>

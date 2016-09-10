@@ -50,7 +50,7 @@ component HauptFenster is General {
 
 }
 
-value-space projectmenues = #[ "New/Project...", "Open", "Run As/1 Test", "Rename..." ]
+value-space projectmenues = #[ "New/Project...", "Open", "Run As/1 Test", "Rename...", "New/Test Case" ]
 
 component ProjectExplorer is General {
 	element ProjektBaum is TreeView { // TODO english!
@@ -66,7 +66,7 @@ component TestEditor is TestEditorApp {
 component Workbench is Workbench {
 }
 
-component NewDialog is Dialog {
+component NewProjectDialog is Dialog {
 	element ProjectType is Tree {
 		label = "Project Type Tree"
 		locator = "[Single]"
@@ -99,7 +99,22 @@ component NewDialog is Dialog {
 	element BuildTool is Combobox {
 		locator = "[ID]NEW_DIALOG_BUILD_TOOL_COMBO"
 	}
+}
 
+component NewTestCaseDialog is Dialog{
+	element TestCaseName is Text {
+		label = "Testcase name"
+		locator = "[Label]File name:"
+	}
+	element NextButton is Button {
+		label = "Next Button"
+		locator = "[Label]&Next >"
+	}
+	element FinishButton is Button {
+		label = "Finish Button"
+		locator = "[Label]&Finish"
+	}
+	
 }
 
 component RenameDialog is Dialog {

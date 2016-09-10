@@ -13,14 +13,14 @@ config TestEditorConfig
 
 * Select type Test Editor Project
 
-	Component: NewDialog
+	Component: NewProjectDialog
 	- Select element "Test-Editor Project" in tree <ProjectType>
 	- Click on <NextButton>
 
 * Give the Project the name "MyFirstProject"
 
 	// We must select the dialog again, because we are in a new TSL Step.
-	Component: NewDialog
+	Component: NewProjectDialog
 	- Type "MyFirstWebProject" into <ProjectName>
 	- Click on <NextButton>
 	- Select element "Web Fixture" in list <AvailableFixturesList>

@@ -13,13 +13,13 @@ config TestEditorConfig
 	Component: ProjectExplorer
 	- Execute menu item "New/Project..." in tree <ProjektBaum>
 
-	Component: NewDialog
+	Component: NewProjectDialog
 	- Select element "Test-Editor Project" in tree <ProjectType>
 	- Click on <NextButton>
 
 * Create project with "Swing fixture"
 
-	Component: NewDialog
+	Component: NewProjectDialog
 	- Type "swingdemo" into <ProjectName>
 	- Click on <NextButton>
 	- Select element "Swing Fixture" in list <AvailableFixturesList>
