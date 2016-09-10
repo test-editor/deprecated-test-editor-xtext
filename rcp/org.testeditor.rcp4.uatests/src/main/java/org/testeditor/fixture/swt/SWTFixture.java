@@ -305,6 +305,12 @@ public class SWTFixture {
 		if (locator.startsWith("[Single]")) {
 			text = bot.text();
 		}
+		if (locator.startsWith("[Label]")) {
+			text = bot.textWithLabel(getLocatorFragmentFrom(locator));
+		}
+		if (locator.startsWith("[ID]")) {
+			text = bot.textWithId(getLocatorFragmentFrom(locator));
+		}
 		text.setText(value);
 	}
 
