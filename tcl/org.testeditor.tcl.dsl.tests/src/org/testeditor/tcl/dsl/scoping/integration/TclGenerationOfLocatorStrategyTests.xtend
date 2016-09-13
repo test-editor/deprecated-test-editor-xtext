@@ -98,7 +98,7 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 		val tcl = tclClickOnDummyButton(amlModel.components.head)
 
 		// when
-		jvmModelInferrer.generateMethodBody(tcl.test, outputStub, #{})
+		jvmModelInferrer.generateMethodBody(tcl.test, outputStub)
 
 		// then
 		verify(outputStub).append(
@@ -115,7 +115,7 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 		val tcl = tclClickOnDummyButton(amlModel.components.head)
 
 		// when
-		jvmModelInferrer.generateMethodBody(tcl.test, outputStub, #{})
+		jvmModelInferrer.generateMethodBody(tcl.test, outputStub)
 
 		// then
 		verify(outputStub).append(
@@ -131,7 +131,7 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 		val tcl = tclClickOnDummyButton(amlModel.components.head)
 
 		// when
-		jvmModelInferrer.generateMethodBody(tcl.test, outputStub, #{})
+		jvmModelInferrer.generateMethodBody(tcl.test, outputStub)
 
 		// then
 		verify(outputStub).append(
