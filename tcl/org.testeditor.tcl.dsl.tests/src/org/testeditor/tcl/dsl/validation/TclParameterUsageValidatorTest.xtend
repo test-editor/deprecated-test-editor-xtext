@@ -65,14 +65,14 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWDummyComponent {
 				// use macro "mycall" using env param (no error, since type String is provided and String is expected)
 				steps += specificationStep("test", "something") => [
 					contexts += macroTestStepContext(macroModel.macroCollection) => [
-						step = testStep("mycall").withReferenceToVariable(myEnvString)
+						steps += testStep("mycall").withReferenceToVariable(myEnvString)
 						verifyVariableTypeUsage(myEnvString.name, #[String.simpleName]) // intermediate model check
 					]
 				]
 				// use macro "othercall" using env param (error expected, since type String is provided and long is expected)
 				steps += specificationStep("test", "other") => [
 					contexts += macroTestStepContext(macroModel.macroCollection) => [
-						step = testStep("othercall").withReferenceToVariable(envVar)
+						steps += testStep("othercall").withReferenceToVariable(envVar)
 						verifyVariableTypeUsage(envVar.name, #[long.simpleName]) // intermediate model check
 					]
 				]
@@ -95,7 +95,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWDummyComponent {
 				macros += macro("MyCallMacro") => [
 					template = template("mycall").withParameter("unknown")
 					contexts += macroTestStepContext(macroModel.macroCollection) => [
-						step = testStep("othercall").withReferenceToTemplateVariable("unknown")
+						steps += testStep("othercall").withReferenceToTemplateVariable("unknown")
 					]
 				]
 				macros += macro("OtherCallMacro") => [
@@ -127,7 +127,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWDummyComponent {
 				macros += macro("MyCallMacro") => [
 					template = template("mycall").withParameter("unknown")
 					contexts += macroTestStepContext(macroModel.macroCollection) => [
-						step = testStep("othercall").withReferenceToTemplateVariable("unknown").withText("with").
+						steps += testStep("othercall").withReferenceToTemplateVariable("unknown").withText("with").
 							withReferenceToTemplateVariable("unknown")
 					]
 				]
@@ -155,7 +155,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWDummyComponent {
 				macros += macro("MyCallMacro") => [
 					template = template("mycall").withParameter("unknown")
 					contexts += macroTestStepContext(macroModel.macroCollection) => [
-						step = testStep("othercall").withParameter("3").withText("with").
+						steps += testStep("othercall").withParameter("3").withText("with").
 							withReferenceToTemplateVariable("unknown")
 					]
 				]
@@ -232,7 +232,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWDummyComponent {
 			test = testCase("MyTest") => [
 				steps += specificationStep("test", "something") => [
 					contexts += macroTestStepContext(tmlModel.macroCollection) => [
-						step = testStep("mycall").withReferenceToVariable(envVar)
+						steps += testStep("mycall").withReferenceToVariable(envVar)
 						verifyVariableTypeUsage(envVar.name, types)
 					]
 				]

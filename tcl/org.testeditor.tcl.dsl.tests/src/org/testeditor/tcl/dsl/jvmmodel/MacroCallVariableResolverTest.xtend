@@ -8,6 +8,7 @@ import org.testeditor.aml.dsl.tests.AmlModelGenerator
 import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.MacroTestStepContext
+import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTestWDummyComponent
@@ -124,10 +125,10 @@ class MacroCallVariableResolverTest extends AbstractParserTestWDummyComponent {
 
 		val result = macroCollection.macros.head.template.contents.last as TemplateVariable
 		val macroTestStepContext = macroTestStepContext(macroCollection) => [
-			step = testStep("mycall").withReferenceToVariable(variable)
+			steps += testStep("mycall").withReferenceToVariable(variable)
 		]
 
-		classUnderTest.macroUseStack = #[macroTestStepContext]
+		classUnderTest.macroUseStack = #[macroTestStepContext.steps.head as TestStep]
 		
 		return result
 
@@ -152,7 +153,7 @@ class MacroCallVariableResolverTest extends AbstractParserTestWDummyComponent {
 				template = template("myothercall").withParameter("otherparam")
 				val parameter = template.contents.last as TemplateVariable
 				contexts += macroTestStepContext(macroCollection) => [
-					step = testStep("mycall").withReferenceToVariable(parameter)
+					steps += testStep("mycall").withReferenceToVariable(parameter)
 				]
 			]
 		]
@@ -160,11 +161,11 @@ class MacroCallVariableResolverTest extends AbstractParserTestWDummyComponent {
 		val result = macroCollection.macros.head.template.contents.last as TemplateVariable
 
 		val firstMacroTestStepContext = macroTestStepContext(macroCollection) => [
-			step = testStep("myothercall").withReferenceToVariable(variable)
+			steps += testStep("myothercall").withReferenceToVariable(variable)
 		]
 		val secondMacroTestStepContext = macroCollection.macros.last.contexts.head as MacroTestStepContext
 
-		classUnderTest.macroUseStack = #[secondMacroTestStepContext, firstMacroTestStepContext]
+		classUnderTest.macroUseStack = #[secondMacroTestStepContext.steps.head as TestStep, firstMacroTestStepContext.steps.head as TestStep]
 		
 		return result
 	}

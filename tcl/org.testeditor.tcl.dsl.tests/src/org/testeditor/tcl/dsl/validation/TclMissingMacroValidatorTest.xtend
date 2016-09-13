@@ -53,7 +53,7 @@ class TclMissingMacroValidatorTest extends AbstractMockedTclValidatorTest {
 			- macro call that maps
 		''')
 		val testStepThatMaps = tmlModel.macroCollection.macros.head.contexts.head.assertInstanceOf(
-			MacroTestStepContext).step.assertInstanceOf(TestStep)
+			MacroTestStepContext).steps.head.assertInstanceOf(TestStep)
 		when(macroTestStepContextMock.macroCollection).thenReturn(tmlModel.macroCollection)
 
 		// when
@@ -76,7 +76,7 @@ class TclMissingMacroValidatorTest extends AbstractMockedTclValidatorTest {
 			- macro call that does not maps
 		''')
 		val testStepThatDoesNotMap = tmlModel.macroCollection.macros.head.contexts.head.assertInstanceOf(
-			MacroTestStepContext).step.assertInstanceOf(TestStep)
+			MacroTestStepContext).steps.head.assertInstanceOf(TestStep)
 		when(tclModelUtil.normalize(any(Template))).thenReturn("cba")
 		when(macroTestStepContextMock.macroCollection).thenReturn(tmlModel.macroCollection)
 
