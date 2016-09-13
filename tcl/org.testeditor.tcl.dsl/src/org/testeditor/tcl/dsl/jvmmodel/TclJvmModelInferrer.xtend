@@ -371,7 +371,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	 * generate the parameter-code passed to the fixture call depending on the type of the step content
 	 */
 	private def dispatch Iterable<String> generateCallParameters(StepContentValue stepContentValue,
-		JvmTypeReference expectedType, InteractionType interaction,	Iterable<TestStep> macroUseStack) {
+		JvmTypeReference expectedType, InteractionType interaction, Iterable<TestStep> macroUseStack) {
 		if (expectedType.qualifiedName == String.name) {
 			return #['''"«StringEscapeUtils.escapeJava(stepContentValue.value)»"''']
 		} else {
