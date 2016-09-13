@@ -73,7 +73,7 @@ class TclModelUtilTest extends AbstractParserTest {
 		val macroTestStepContext = macroCall.contexts.head as MacroTestStepContext
 
 		// when
-		val macro = tclModelUtil.findMacroDefinition(macroTestStepContext)
+		val macro = tclModelUtil.findMacroDefinition(macroTestStepContext.steps.filter(TestStep).head, macroTestStepContext)
 
 		// then
 		macro.assertSame(macroCalled)
@@ -257,7 +257,7 @@ class TclModelUtilTest extends AbstractParserTest {
 				it.steps += specificationStep("spec") => [
 					steps.forEach [ step |
 						contexts += macroTestStepContext(macroCollection) => [
-							it.step = step
+							it.steps += step
 						]
 					]
 				]
@@ -319,7 +319,7 @@ class TclModelUtilTest extends AbstractParserTest {
 						template = template("stepNext" + index).withParameter("paramNext" + index)
 						val templateVar = template.contents.last as TemplateVariable
 						contexts += macroTestStepContext(macroCollection) => [
-							it.step = testStep("step" + index).withReferenceToVariable(templateVar)
+							it.steps += testStep("step" + index).withReferenceToVariable(templateVar)
 						]
 					]
 				]

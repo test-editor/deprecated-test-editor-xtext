@@ -30,7 +30,6 @@ import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.ValueSpaceAssignment
 import org.testeditor.dsl.common.util.CollectionUtils
-import org.testeditor.tcl.AbstractTestStep
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.BinaryExpression
 import org.testeditor.tcl.ComponentTestStepContext
@@ -91,8 +90,7 @@ class TclModelUtil extends TslModelUtil {
 		].join(' ')
 	}
 
-	def Macro findMacroDefinition(MacroTestStepContext macroCallSite) {
-		val macroCallStep = (macroCallSite.step as TestStep) // call must be a test step
+	def Macro findMacroDefinition(TestStep macroCallStep, MacroTestStepContext macroCallSite) {
 		macroCallSite.macroCollection?.macros?.findFirst [
 			template.normalize == macroCallStep.normalize
 		]
@@ -161,18 +159,18 @@ class TclModelUtil extends TslModelUtil {
 	}
 	
 	def ComponentElement getComponentElement(StepContentElement contentElement) {
-		val container = EcoreUtil2.getContainerOfType(contentElement, TestStep)
-		if (container !== null) {
-			val component = container.componentContext?.component
+		val containingTestStep = EcoreUtil2.getContainerOfType(contentElement, TestStep)
+		if (containingTestStep !== null) {
+			val component = containingTestStep.componentContext?.component
 			return component?.elements?.findFirst[name == contentElement.value]
 		}
 		return null
 	}
 	
 	def Template getMacroTemplate(StepContentElement contentElement) {
-		val container = EcoreUtil2.getContainerOfType(contentElement, TestStep)
-		if (container !== null) {
-			val macro = container.macroContext?.findMacroDefinition
+		val containingTestStep = EcoreUtil2.getContainerOfType(contentElement, TestStep)
+		if (containingTestStep !== null) {
+			val macro = containingTestStep.findMacroDefinition(containingTestStep.macroContext)
 			return macro?.template
 		}
 		return null
@@ -295,14 +293,6 @@ class TclModelUtil extends TslModelUtil {
 		]
 	}
 
-	def dispatch Iterable<AbstractTestStep> getTestSteps(ComponentTestStepContext context) {
-		return context.steps
-	}
-
-	def dispatch Iterable<AbstractTestStep> getTestSteps(MacroTestStepContext context) {
-		return #[context.step]
-	}
-
 	def Iterable<EnvironmentVariable> getEnvParams(EObject object) {
 		val root = EcoreUtil2.getContainerOfType(object, TclModel)
 		if (root !== null && root.environmentVariables != null) {
@@ -315,7 +305,7 @@ class TclModelUtil extends TslModelUtil {
 	 * does the given context make use of (one of the) variables passed via variable reference?
 	 */
 	def dispatch boolean makesUseOfVariablesViaReference(TestStepContext context, Set<String> variables) {
-		return context.testSteps.exists [
+		return context.steps.exists [
 			switch (it) {
 				TestStep: contents.exists[makesUseOfVariablesViaReference(variables)]
 				AssertionTestStep: assertExpression.makesUseOfVariablesViaReference(variables)
@@ -345,7 +335,7 @@ class TclModelUtil extends TslModelUtil {
 	 */
 	def dispatch Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(TestStepContext context) {
 		val result = newHashMap
-		context.testSteps.map[collectDeclaredVariablesTypeMap].forEach[result.putAll(it)]
+		context.steps.map[collectDeclaredVariablesTypeMap].forEach[result.putAll(it)]
 		return result
 	}
 
@@ -379,24 +369,25 @@ class TclModelUtil extends TslModelUtil {
 	 */
 	def dispatch Set<JvmTypeReference> getAllTypeUsagesOfVariable(MacroTestStepContext callingMacroTestStepContext,
 		String variable) {
-		val macroCalled = callingMacroTestStepContext.findMacroDefinition
-		if (macroCalled != null) {
-			val callingMacroStep = callingMacroTestStepContext.step as TestStep // must be a TestStep
-			val templateParamToVarRefMap = mapCalledTemplateParamToCallingVariableReference(
-				callingMacroStep, macroCalled.template, variable)
-			val calledMacroTemplateParameters = templateParamToVarRefMap.keySet.map[name].toSet
-			val contextsUsingAnyOfTheseParameters = macroCalled.contexts.filter [
-				makesUseOfVariablesViaReference(calledMacroTemplateParameters)
-			]
-			val typesOfAllParametersUsed = contextsUsingAnyOfTheseParameters.map [ context |
-				context.getAllTypeUsagesOfVariables(calledMacroTemplateParameters)
-			].flatten.toSet
-			return typesOfAllParametersUsed
-		} else {
-			return #{}
-		}
+		callingMacroTestStepContext.steps.filter(TestStep).map[ step |
+			val macroCalled = step.findMacroDefinition(callingMacroTestStepContext)
+			if (macroCalled != null) {
+				val templateParamToVarRefMap = mapCalledTemplateParamToCallingVariableReference(
+					step, macroCalled.template, variable)
+				val calledMacroTemplateParameters = templateParamToVarRefMap.keySet.map[name].toSet
+				val contextsUsingAnyOfTheseParameters = macroCalled.contexts.filter [
+					makesUseOfVariablesViaReference(calledMacroTemplateParameters)
+				]
+				val typesOfAllParametersUsed = contextsUsingAnyOfTheseParameters.map [ context |
+					context.getAllTypeUsagesOfVariables(calledMacroTemplateParameters)
+				].flatten.toSet
+				return typesOfAllParametersUsed
+			} else {
+				return #{}
+			}		
+		].flatten.toSet
 	}
-
+	
 	/** 
 	 * get the actual jvm types from the fixtures that are transitively used and to which this variable/parameter is passed to
 	 */
@@ -424,6 +415,5 @@ class TclModelUtil extends TslModelUtil {
 			stepContent.makesUseOfVariablesViaReference(#{callingVariableReference})
 		]
 	}
-
 
 }

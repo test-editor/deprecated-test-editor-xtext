@@ -17,13 +17,17 @@
             helpContext="org.eclipse.ui.project_explorer_context"
             viewerId="org.testeditor.rcp4.views.ProjectExplorer">
          <popupMenu
-               allowsPlatformContributions="true"
+               allowsPlatformContributions="false"
                id="org.testeditor.rcp4.views.ProjectExplorer#PopupMenu">
             <insertionPoint
                   name="group.new">
             </insertionPoint>
             <insertionPoint
                   name="group.open"
+                  separator="true">
+            </insertionPoint>
+            <insertionPoint
+                  name="group.openwith"
                   separator="true">
             </insertionPoint>
             <insertionPoint
@@ -207,6 +211,9 @@
 			      <instanceof value="java.lang.Object" />
 			   </or>
 			</possibleChildren>
+			<actionProvider
+				class="org.testeditor.rcp4.views.projectexplorer.ProjectExplorerExtensionFactory:org.testeditor.rcp4.views.projectexplorer.TEActionProvider"
+				id="org.testeditor.rcp4.views.projectexplorer.TEActionProvider" />
 	   </navigatorContent>
    </extension>
 
