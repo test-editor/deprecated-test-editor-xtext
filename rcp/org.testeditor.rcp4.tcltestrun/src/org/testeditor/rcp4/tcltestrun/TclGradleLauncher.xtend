@@ -23,8 +23,8 @@ import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.ResultHandler
 import org.slf4j.LoggerFactory
-import org.testeditor.dsl.common.ui.gradle.GradleHelper
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
+import org.testeditor.dsl.common.util.GradleHelper
 
 public class TclGradleLauncher implements TclLauncher {
 
