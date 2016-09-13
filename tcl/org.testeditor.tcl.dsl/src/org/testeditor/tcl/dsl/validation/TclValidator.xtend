@@ -40,6 +40,7 @@ import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
 
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
+import org.testeditor.aml.TemplateVariable
 
 class TclValidator extends AbstractTclValidator {
 
@@ -318,6 +319,10 @@ class TclValidator extends AbstractTclValidator {
 	}
 	
 	private def checkVariableReferenceIsWellTyped(VariableReference variableReference, Set<JvmTypeReference> typeUsageSet, JvmTypeReference typeDeclared, String variableName, Integer errorIndex) {
+		if (variableReference.variable instanceof TemplateVariable) {
+			// do not type check variables that are passed via parameters
+			return
+		}
 		switch variableReference {
 			VariableReferenceMapAccess:
 				// do no type checking on values retrieved from a map, but check whether this is actually a map
