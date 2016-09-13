@@ -10,17 +10,15 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.rcp4.tcltestrun
+package org.testeditor.dsl.common.util
 
-import java.util.List
-import java.util.Map
-import org.eclipse.core.resources.IProject
-import org.eclipse.core.runtime.IProgressMonitor
-import java.io.OutputStream
+import org.eclipse.core.resources.IWorkspaceRoot
+import org.eclipse.core.resources.ResourcesPlugin
 
-interface TclLauncher {
-
-	public def LaunchResult launchTest(List<String> testCases, IProject project, IProgressMonitor monitor,
-		OutputStream out, Map<String, Object> options)
-
+class WorkspaceRootHelper {
+	
+	def IWorkspaceRoot getRoot() {
+		return ResourcesPlugin.workspace.root
+	}
+	
 }

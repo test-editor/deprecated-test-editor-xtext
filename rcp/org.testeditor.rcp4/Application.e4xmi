@@ -40,7 +40,12 @@
       </children>
     </sharedElements>
     <sharedElements xsi:type="basic:Part" xmi:id="_l7Ed8PsvEeWT-dB_tFBORw" elementId="org.eclipse.ui.console.ConsoleView" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" iconURI="platform:/plugin/org.eclipse.ui.console//icons/full/cview16/console_view.gif"/>
-    <trimBars xmi:id="_VOV6ANTAEeGTY-uOtVc6Mg" elementId="org.eclipse.ui.main.toolbar"/>
+    <trimBars xmi:id="_VOV6ANTAEeGTY-uOtVc6Mg" elementId="org.eclipse.ui.main.toolbar">
+      <children xsi:type="menu:ToolBar" xmi:id="_5fgX0HLZEeaIOZyrnWUBVA" elementId="org.testeditor.rcp4.toolbar.0" accessibilityPhrase="">
+        <children xsi:type="menu:HandledToolItem" xmi:id="_ybnYgHNAEeaIOZyrnWUBVA" elementId="org.testeditor.rcp4.handledtoolitem." label="" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/save_edit.png" tooltip="Save active editor" command="_BHRIgHLcEeaIOZyrnWUBVA"/>
+        <children xsi:type="menu:HandledToolItem" xmi:id="_X_iksHN0Eeage6Ozf2Rocw" elementId="org.testeditor.rcp4.handledtoolitem.0" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/saveall_edit.png" tooltip="Save all changes" command="_RjP2sHN0Eeage6Ozf2Rocw"/>
+      </children>
+    </trimBars>
     <trimBars xmi:id="_VP1HwNTAEeGTY-uOtVc6Mg" elementId="org.eclipse.ui.trim.status" side="Bottom">
       <children xsi:type="menu:ToolControl" xmi:id="_VP1u0NTAEeGTY-uOtVc6Mg" elementId="org.eclipse.ui.StatusLine" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.StandardTrim">
         <tags>stretch</tags>
@@ -52,7 +57,7 @@
       </children>
     </trimBars>
   </children>
-  <bindingTables xmi:id="_VnmafNSzEeGBn6dQ9VPexA" bindingContext="_VnmacdSzEeGBn6dQ9VPexA"/>
+  <bindingTables xmi:id="_VnmafNSzEeGBn6dQ9VPexA" elementId="org.testeditor.bindingTable" bindingContext="_VnmacdSzEeGBn6dQ9VPexA"/>
   <rootContext xmi:id="_VnmacdSzEeGBn6dQ9VPexA" elementId="org.eclipse.ui.contexts.dialogAndWindow" name="In Dialog and Windows">
     <children xmi:id="_VnmactSzEeGBn6dQ9VPexA" elementId="org.eclipse.ui.contexts.window" name="In Windows"/>
     <children xmi:id="_Vnmac9SzEeGBn6dQ9VPexA" elementId="org.eclipse.ui.contexts.dialog" name="In Dialogs"/>
@@ -69,6 +74,8 @@
     <tags>View</tags>
     <tags>categoryTag:General</tags>
   </descriptors>
+  <commands xmi:id="_BHRIgHLcEeaIOZyrnWUBVA" elementId="org.eclipse.ui.file.save" commandName="%command.commandname.save.command"/>
+  <commands xmi:id="_RjP2sHN0Eeage6Ozf2Rocw" elementId="org.eclipse.ui.file.saveAll" commandName="%command.commandname.saveAll.command"/>
   <addons xmi:id="_VnmadNSzEeGBn6dQ9VPexA" elementId="org.eclipse.e4.core.commands.service" contributionURI="bundleclass://org.eclipse.e4.core.commands/org.eclipse.e4.core.commands.CommandServiceAddon"/>
   <addons xmi:id="_VnmaddSzEeGBn6dQ9VPexA" elementId="org.eclipse.e4.ui.contexts.service" contributionURI="bundleclass://org.eclipse.e4.ui.services/org.eclipse.e4.ui.services.ContextServiceAddon"/>
   <addons xmi:id="_VnmadtSzEeGBn6dQ9VPexA" elementId="org.eclipse.e4.ui.bindings.service" contributionURI="bundleclass://org.eclipse.e4.ui.bindings/org.eclipse.e4.ui.bindings.BindingServiceAddon"/>
@@ -76,4 +83,5 @@
   <addons xmi:id="_VnmaeNSzEeGBn6dQ9VPexA" elementId="org.eclipse.e4.ui.workbench.contexts.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.ContextProcessingAddon"/>
   <addons xmi:id="_VnmaedSzEeGBn6dQ9VPexA" elementId="org.eclipse.e4.ui.workbench.bindings.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.swt/org.eclipse.e4.ui.workbench.swt.util.BindingProcessingAddon"/>
   <addons xmi:id="_p3hyIMkLEeWnMKdeCKyEvA" elementId="dragAndDropAddon" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.addons.swt/org.eclipse.e4.ui.workbench.addons.dndaddon.DnDAddon"/>
+  <addons xmi:id="__lJeoHTBEeabuNODuaXByQ" elementId="org.eclipse.e4.ui.workbench.handler.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.HandlerProcessingAddon"/>
 </application:Application>

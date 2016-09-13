@@ -10,17 +10,15 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.rcp4.tcltestrun
+package org.testeditor.dsl.common.util
 
-import java.util.List
-import java.util.Map
-import org.eclipse.core.resources.IProject
-import org.eclipse.core.runtime.IProgressMonitor
-import java.io.OutputStream
+import org.eclipse.e4.core.contexts.IEclipseContext
+import org.eclipse.ui.PlatformUI
 
-interface TclLauncher {
+class EclipseContextHelper {
 
-	public def LaunchResult launchTest(List<String> testCases, IProject project, IProgressMonitor monitor,
-		OutputStream out, Map<String, Object> options)
+	def IEclipseContext getEclipseContext() {
+		PlatformUI.workbench.getService(IEclipseContext)
+	}
 
 }
