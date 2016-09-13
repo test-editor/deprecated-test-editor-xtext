@@ -126,7 +126,7 @@ class TclValidator extends AbstractTclValidator {
 				]
 			}
 			MacroTestStepContext:
-				context.step.checkAllReferencedVariablesAreKnown(knownVariableNames, errorMessage)
+				context.steps.forEach[checkAllReferencedVariablesAreKnown(knownVariableNames, errorMessage)]
 			default:
 				throw new RuntimeException('''Unknown TestStepContextType '«context.class.canonicalName»'.''')
 		}
@@ -274,7 +274,7 @@ class TclValidator extends AbstractTclValidator {
 	 */
 	private def void checkReferencedVariablesAreUsedWellTypedExcluding(TestStepContext ctx,
 		Map<String, JvmTypeReference> declaredVariablesTypeMap, Set<String> excludedVariableNames) {
-		ctx.testSteps.forEach [
+		ctx.steps.forEach [
 			checkReferencedVariablesAreUsedWellTypedExcluding(declaredVariablesTypeMap, ctx, excludedVariableNames)
 		]
 	}
