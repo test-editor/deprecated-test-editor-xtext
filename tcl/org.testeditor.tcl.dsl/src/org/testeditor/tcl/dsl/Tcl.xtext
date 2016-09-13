@@ -100,7 +100,7 @@ ComponentTestStepContext returns TestStepContext:
 MacroTestStepContext returns TestStepContext:
 	{MacroTestStepContext}
 	'Macro' ':' macroCollection=[MacroCollection|QualifiedName]
-	step=TestStep;
+	steps+=TestStep*; // currently macro calls can only be TestSteps!
 
 TestStep:
 	{TestStep}

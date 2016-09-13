@@ -123,7 +123,7 @@ class TclFormatter extends XbaseFormatter {
 		.prepend[oneSpace] //
 		.append[newLine; priority = LOW_PRIORITY]
 		// macroTestStepContext.interior[indent] // configurable?
-		macroTestStepContext.step.format
+		macroTestStepContext.steps.forEach[format]
 	}
 
 	def dispatch void format(TestStep testStep, extension IFormattableDocument document) {

@@ -30,6 +30,7 @@ import static org.testeditor.dsl.common.CommonPackage.Literals.*
 
 import static extension org.eclipse.xtext.nodemodel.util.NodeModelUtils.getNode
 import org.testeditor.tcl.TestStep
+import org.testeditor.tcl.TestStepContext
 
 class TclSemanticHighlightingCalculator extends DefaultSemanticHighlightingCalculator {
 
@@ -76,16 +77,9 @@ class TclSemanticHighlightingCalculator extends DefaultSemanticHighlightingCalcu
 		}
 	}
 
-	protected def dispatch void provideHighlightingForTestStepContext(ComponentTestStepContext context,
+	protected def void provideHighlightingForTestStepContext(TestStepContext context,
 		IHighlightedPositionAcceptor acceptor) {
 		context.steps.filter(TestStep).map[contents].flatten.forEach[provideHighlightingFor(acceptor)]
-	}
-
-	protected def dispatch void provideHighlightingForTestStepContext(MacroTestStepContext context,
-		IHighlightedPositionAcceptor acceptor) {
-		if (context.step !== null && context.step instanceof TestStep) {
-			(context.step as TestStep).contents?.forEach[provideHighlightingFor(acceptor)]
-		}
 	}
 
 	/**
@@ -112,7 +106,7 @@ class TclSemanticHighlightingCalculator extends DefaultSemanticHighlightingCalcu
 		// Provide highlighting for all component element references
 		for (specificationStep : test.steps) {
 			specificationStep.contents.forEach[provideHighlightingFor(acceptor)]
-			val testSteps = specificationStep.contexts.map[testSteps].flatten
+			val testSteps = specificationStep.contexts.map[steps].flatten
 			val stepContents = testSteps.filter(TestStep).map[contents]
 			stepContents.filter(StepContentElement).forEach [
 				if (cancelIndicator.canceled) {

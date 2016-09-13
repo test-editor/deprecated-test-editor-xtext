@@ -89,16 +89,15 @@ class Macro extends StepContainer, NamedElement {
 }
 
 abstract class TestStepContext {
+	contains AbstractTestStep[0..*] steps
 }
 
 class ComponentTestStepContext extends TestStepContext {
 	refers Component component
-	contains AbstractTestStep[0..*] steps
 }
 
 class MacroTestStepContext extends TestStepContext {
 	refers MacroCollection macroCollection
-	contains AbstractTestStep step
 }
 
 abstract class AbstractTestStep {	
