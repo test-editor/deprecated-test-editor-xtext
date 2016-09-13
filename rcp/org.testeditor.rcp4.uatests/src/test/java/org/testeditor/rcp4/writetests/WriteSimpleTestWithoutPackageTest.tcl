@@ -34,9 +34,9 @@ config TestEditorConfig
 	Component: ActiveEditor
 	- Remove line "1" 
 	- Save content
-	//Wait a moment for the generator jobs in the background. 
-	//TODO Write a smarter wait step which looks up the eclipse job api.
-	- Wait "3" seconds
+	
+	Component: Workbench
+	- Wait until all jobs finished
 
 //then
 	Component: TestEditorServices

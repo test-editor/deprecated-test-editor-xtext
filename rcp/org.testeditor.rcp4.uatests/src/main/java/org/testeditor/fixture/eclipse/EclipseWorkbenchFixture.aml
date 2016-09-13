@@ -4,7 +4,7 @@ import org.testeditor.rcp4.* // TODO waiting should go into the core fixture
 import org.testeditor.fixture.swt.*;
 
 component type Workbench {
-	interactions = wait, getEditorWithFilePath, getEditorContents, openEditor, closeEditor
+	interactions = wait, getEditorWithFilePath, getEditorContents, openEditor, closeEditor, waitUntilAllJobsFinished
 }
 
 interaction type getEditorWithFilePath {
@@ -27,3 +27,7 @@ interaction type closeEditor {
 	method = EclipseWorkbenchFixture.closeEditor(editor)
 }
 
+interaction type waitUntilAllJobsFinished {
+	template = "Wait until all jobs finished"
+	method = EclipseWorkbenchFixture.waitUntilJobsCompleted
+}

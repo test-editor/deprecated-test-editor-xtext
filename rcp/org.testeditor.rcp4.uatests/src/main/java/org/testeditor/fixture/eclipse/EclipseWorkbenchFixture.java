@@ -12,6 +12,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
@@ -47,10 +48,11 @@ public class EclipseWorkbenchFixture {
 		logger.info("Searching for open editor with filepath='{}'", filepath);
 		IPath path = getAbsolutePath(filepath);
 		Stream<IEditorReference> editorReferences = getEditorReferences();
-		IEditorReference editorReference = editorReferences.filter(editorRef -> hasFileAsInput(editorRef, path)).findFirst().orElseThrow(() -> {
-			logger.error("No open editor with filepath='{}' was found.", filepath);
-			return getNoEditorFoundWithInputError(filepath);
-		});
+		IEditorReference editorReference = editorReferences.filter(editorRef -> hasFileAsInput(editorRef, path))
+				.findFirst().orElseThrow(() -> {
+					logger.error("No open editor with filepath='{}' was found.", filepath);
+					return getNoEditorFoundWithInputError(filepath);
+				});
 		return editorReference.getEditor(false);
 	}
 
@@ -78,6 +80,18 @@ public class EclipseWorkbenchFixture {
 		logger.info("Closing editor with input='{}'.", editorPart.getEditorInput());
 		IWorkbenchWindow window = editorPart.getSite().getWorkbenchWindow();
 		syncExec(() -> window.getActivePage().closeEditor(editorPart, false));
+	}
+
+	@FixtureMethod
+	public void waitUntilJobsCompleted() {
+		try {
+			// Thread.sleep(10000);
+			while (!Job.getJobManager().isIdle()) {
+				Thread.sleep(100);
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private IWorkbench getWorkbench() {
@@ -141,7 +155,8 @@ public class EclipseWorkbenchFixture {
 			}
 			return null;
 		}).collect(Collectors.joining(", "));
-		String message = String.format("Could not find editor with filepath='%s', but found editors with inputs: %s", filepath, editorInputs);
+		String message = String.format("Could not find editor with filepath='%s', but found editors with inputs: %s",
+				filepath, editorInputs);
 		return new IllegalArgumentException(message);
 	}
 
