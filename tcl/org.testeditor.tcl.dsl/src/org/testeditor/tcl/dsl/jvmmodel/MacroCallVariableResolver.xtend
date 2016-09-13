@@ -9,14 +9,21 @@ import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.StepContent
 
-/** resolve variables through the macro call stack to the variable originally used for the (first) call.
- * 
+/** 
+ *  resolve variables through the macro call stack to the variable originally used for the (first) call.
+ *  <br/><br/> 
  *  e.g. a test step calls a macro with a variable 'x' as parameter. this parameter is used under the name
  *  'y' within the macro. calling the variable resolver setting the macroUseStack will resolve 'y' to its 
  *  original calling variable 'x'. 
- * 
- *  this functionality is used within the generated to inline macros with the right variable in the generated
+ *  <br/><br/>
+ *  this functionality is used by the generator, to inline macros with the right variable in the generated
  *  code. 
+ *  <pre> 
+ *  IMPORTANT: MAKE SURE TO SET THE macroUseStack BEFORE CALLING resolveVariableReference!
+ *             ONLY IF THE STACK IS SET CORRECTLY, THE RESOLVE WILL SUCCEED.
+ *             KEEP IN MIND THAT THE CALL STACK PUSHES CALLS TO THE HEAD.
+ *  </pre>
+ *  @see org.testeditor.tcl.dsl.jvmmodel.MacroCallVariableResolverTest
  */
 class MacroCallVariableResolver implements VariableResolver {
 	@Inject extension TclModelUtil

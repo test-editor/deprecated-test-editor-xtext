@@ -69,7 +69,7 @@ class TclAssertCallBuilder {
 	}
 
 	private def AssertMethod assertionMethodForNullOrBoolCheck(NullOrBoolCheck expression) {
-		val variableTypeMap = expression.testStepContext.collectDeclaredVariablesTypeMap
+		val variableTypeMap = expression.enclosingTestStepContext.collectDeclaredVariablesTypeMap
 		val returnTypeName = variableTypeMap.get(expression.variableReference.variable.name).qualifiedName
 		switch (returnTypeName) {
 			case boolean.name,
@@ -126,7 +126,7 @@ class TclAssertCallBuilder {
 	 */
 	private def String buildNullOrBoolCheck(NullOrBoolCheck nullCheck) {
 		val builtExpression = expressionBuilder.buildExpression(nullCheck.variableReference)
-		val variableTypeMap = nullCheck.testStepContext.collectDeclaredVariablesTypeMap
+		val variableTypeMap = nullCheck.enclosingTestStepContext.collectDeclaredVariablesTypeMap
 		val returnType = variableTypeMap.get(nullCheck.variableReference.variable.name)
 		if (Boolean.isAssignableWithoutConversion(returnType)) {
 			return '''(«builtExpression» != null) && «builtExpression».booleanValue()'''

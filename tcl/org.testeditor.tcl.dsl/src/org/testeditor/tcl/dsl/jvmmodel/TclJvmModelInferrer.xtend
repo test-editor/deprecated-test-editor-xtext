@@ -391,10 +391,11 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		macroCallVariableResolver.macroUseStack = macroUseStack
 		expressionBuilder.variableResolver = macroCallVariableResolver
 		val result = expressionBuilder.buildExpression(variableReference)
-		val isMapReference = variableReference instanceof VariableReferenceMapAccess
-		val isExpectedToBeString = expectedType.qualifiedName == String.canonicalName
-		if (isMapReference && isExpectedToBeString) {
-			return #[result + '.toString()'] // since the map is generic and thus the actual type is java.lang.Object
+		val isMapAccessReference = variableReference instanceof VariableReferenceMapAccess
+		val expectedTypeIsString = expectedType.qualifiedName == String.canonicalName
+		if (isMapAccessReference && expectedTypeIsString) {
+			// convention: within a map there are only strings! there is no deep structured map!
+			return #[result + '.toString()'] // since the map is generic the actual type is java.lang.Object (thus toString) 
 		} else {
 			return #[result]
 		}

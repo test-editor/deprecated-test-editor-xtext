@@ -98,12 +98,7 @@ class TclModelUtil extends TslModelUtil {
 		]
 	}
 	
-	// get the test step that holds this expression
-	def TestStep getTestStep(EObject eObject) {
-		return EcoreUtil2.getContainerOfType(eObject, TestStep)
-	}
-	
-	def TestStepContext getTestStepContext(EObject eObject){
+	def TestStepContext getEnclosingTestStepContext(EObject eObject){
 		return EcoreUtil2.getContainerOfType(eObject, TestStepContext)
 	}
 
@@ -145,6 +140,11 @@ class TclModelUtil extends TslModelUtil {
 		return interaction.template.normalize == step.normalize
 	}
 
+	/** map the variables within the template to the values/variable references used by the test step using this template.
+	 *  <br/><br/>
+	 *  given a test step that makes a call to e.g. a macro that has the given template, the resulting map
+	 *  will map all template parameters to the call site values/variables of the test step.
+	 */
 	// TODO we need a common super class for StepContentElement and StepContentVariable and StepContentDereferencedVariable
 	def Map<TemplateVariable, StepContent> getVariableToValueMapping(TestStep step, Template template) {
 		val map = newHashMap
