@@ -31,6 +31,8 @@ import org.testeditor.dsl.common.util.MavenExecutor
 
 import static org.mockito.Mockito.*
 
+import static org.junit.Assume.*
+
 class ClasspathUtilTest extends AbstractTest {
 
 	@InjectMocks
@@ -68,6 +70,7 @@ class ClasspathUtilTest extends AbstractTest {
 
 	@Test
 	def void intTestGetBuildToolClasspathEntryWithGradle() {
+		assumeTrue(new GradleServerConnectUtil().canConnet())
 		val gradleBuildFile = tempFolder.newFile("build.gradle")
 		val packageDir = new File(tempFolder.newFolder("src"), "/test/java/package")
 		packageDir.mkdirs

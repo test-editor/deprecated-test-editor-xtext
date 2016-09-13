@@ -20,6 +20,8 @@ import org.junit.rules.TemporaryFolder
 import org.mockito.InjectMocks
 import org.testeditor.dsl.common.testing.AbstractTest
 
+import static org.junit.Assume.*
+
 class GradleClasspathUtilTest extends AbstractTest {
 
 	@InjectMocks
@@ -28,6 +30,7 @@ class GradleClasspathUtilTest extends AbstractTest {
 
 	@Test
 	def void testGetGradleClasspathEntries() {
+		assumeTrue(new GradleServerConnectUtil().canConnet())
 		// given
 		val propertyOutput = getGradlePropertiesPrintOut(tempFolder.root)
 
