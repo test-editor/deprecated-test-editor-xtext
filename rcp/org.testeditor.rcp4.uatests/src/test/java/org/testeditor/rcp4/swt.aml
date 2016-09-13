@@ -62,6 +62,11 @@ interaction type click {
 	method = SWTFixture.clickOn(element)
 }
 
+interaction type selectElementInCombobox {
+	template = "Select value" ${value} "in combo box" ${element}
+	method = SWTFixture.selectElementInCombobox(element, value)
+}
+
 interaction type check {
 	template = "Check" ${element}
 	method = SWTFixture.check(element, locatorStrategy)
@@ -92,6 +97,10 @@ element type Text {
 
 element type Button {
 	interactions = click
+}
+
+element type Combobox {
+	interactions = selectElementInCombobox
 }
 
 element type CheckBox {

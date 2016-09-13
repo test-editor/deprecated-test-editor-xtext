@@ -10,17 +10,20 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.rcp4.tcltestrun
+package org.testeditor.rcp4.views.tcltestrun
 
 import java.util.List
 import java.util.Map
 import org.eclipse.core.resources.IProject
-import org.eclipse.core.runtime.IProgressMonitor
-import java.io.OutputStream
+import org.eclipse.xtend.lib.annotations.Data
+import org.testeditor.rcp4.tcltestrun.TclLauncher
 
-interface TclLauncher {
+@Data
+class TestLaunchInformation {
 
-	public def LaunchResult launchTest(List<String> testCases, IProject project, IProgressMonitor monitor,
-		OutputStream out, Map<String, Object> options)
+	List<String> testCasesCommaList
+	IProject project
+	TclLauncher launcher
+	Map<String, Object> options
 
 }
