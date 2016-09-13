@@ -10,17 +10,13 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.rcp4.tcltestrun
+package org.testeditor.dsl.common.util
 
-import java.util.List
-import java.util.Map
-import org.eclipse.core.resources.IProject
-import org.eclipse.core.runtime.IProgressMonitor
-import java.io.OutputStream
+import org.apache.commons.lang3.SystemUtils
 
-interface TclLauncher {
+class OSUtil {
 
-	public def LaunchResult launchTest(List<String> testCases, IProject project, IProgressMonitor monitor,
-		OutputStream out, Map<String, Object> options)
-
+	def boolean isWindows() {
+		return SystemUtils.IS_OS_WINDOWS;
+	}	
 }

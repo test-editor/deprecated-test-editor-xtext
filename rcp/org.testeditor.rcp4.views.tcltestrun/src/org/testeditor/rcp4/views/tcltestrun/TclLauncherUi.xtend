@@ -35,8 +35,8 @@ import org.eclipse.ui.dialogs.ElementListSelectionDialog
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.ProgressMonitorRunner
 import org.testeditor.dsl.common.ui.workbench.PartHelper
+import org.testeditor.dsl.common.util.EclipseContextHelper
 import org.testeditor.rcp4.tcltestrun.TclGradleLauncher
-import org.testeditor.rcp4.tcltestrun.TclLauncher
 import org.testeditor.rcp4.tcltestrun.TclMavenLauncher
 import org.testeditor.rcp4.views.tcltestrun.console.TCLConsoleFactory
 import org.testeditor.tcl.TestCase
@@ -46,7 +46,7 @@ import org.testeditor.tcl.dsl.ui.util.TclIndexHelper
 import org.testeditor.tcl.dsl.ui.util.TclInjectorProvider
 
 class TclLauncherUi implements Launcher {
-	
+
 	static val RESULT_VIEW = "org.eclipse.jdt.junit.ResultView"
 	static val logger = LoggerFactory.getLogger(TclLauncherUi)
 
@@ -55,21 +55,19 @@ class TclLauncherUi implements Launcher {
 	@Inject TclGradleLauncher gradleLauncher
 	@Inject TestResultFileWriter testResultFileWriter
 	@Inject TclIndexHelper indexHelper
-	LaunchShortcutUtil launchShortcutUtil // since this class itself is instanciated by e4, this attribute has to be injected manually
+	@Inject TclInjectorProvider tclInjectorProvider
 	Map<URI, ArrayList<TestCase>> tslIndex
 	@Inject TCLConsoleFactory consoleFactory
 	@Inject PartHelper partHelper
-
-	@Inject
-	new(TclInjectorProvider tclInjectorProvider) {
-		launchShortcutUtil = tclInjectorProvider.get.getInstance(LaunchShortcutUtil)
-	}
+	@Inject EclipseContextHelper eclipseContextHelper
 
 	override boolean launch(IStructuredSelection selection, IProject project, String mode, boolean parameterize) {
+		eclipseContextHelper.eclipseContext.set(TclLauncherUi, this)
 		val options = newHashMap
 		tslIndex = indexHelper.createTestCaseIndex()
 		if (project.getFile("build.gradle").exists) {
-			return launchTest(createGradleTestCasesList(selection), project, gradleLauncher, options)
+			return launchTest(
+				new TestLaunchInformation(createGradleTestCasesList(selection), project, gradleLauncher, options))
 		}
 		if (project.getFile("pom.xml").exists) {
 			if (parameterize) {
@@ -79,7 +77,8 @@ class TclLauncherUi implements Launcher {
 				}
 				options.put(TclMavenLauncher.PROFILE, profile)
 			}
-			return launchTest(createTestCasesList(selection), project, mavenLauncher, options)
+			return launchTest(
+				new TestLaunchInformation(createTestCasesList(selection), project, mavenLauncher, options))
 		}
 		logger.warn("gradle based launching test for tcl element='{}' failed, since file='build.gradle' was not found.",
 			selection.firstElement)
@@ -108,23 +107,31 @@ class TclLauncherUi implements Launcher {
 		return result.get
 	}
 
-	private def boolean launchTest(List<String> testCasesCommaList, IProject project, TclLauncher launcher,
-		Map<String, Object> options) {
+	def boolean launchTest(TestLaunchInformation testLaunchInformation) {
+		storeTestParameterAsLastTestExecution(testLaunchInformation)
 		logger.info("Trying to launch launcherClass='{}' test execution for elementId='{}' in project='{}'",
-			launcher.class.simpleName, testCasesCommaList.get(0), project)
+			testLaunchInformation.launcher.class.simpleName, testLaunchInformation.testCasesCommaList.get(0),
+			testLaunchInformation.project)
 		progressRunner.run([ monitor |
-			monitor.beginTask("Test execution: " + testCasesCommaList.get(0), IProgressMonitor.UNKNOWN)
+			monitor.beginTask("Test execution: " + testLaunchInformation.testCasesCommaList.get(0),
+				IProgressMonitor.UNKNOWN)
 			val con = consoleFactory.createAndShowConsole
-			val result = launcher.launchTest(testCasesCommaList, project, monitor, con.newOutputStream, options)
-			project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
+			val result = testLaunchInformation.launcher.launchTest(testLaunchInformation.testCasesCommaList,
+				testLaunchInformation.project, monitor, con.newOutputStream, testLaunchInformation.options)
+			testLaunchInformation.project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
 			if (result.expectedFileRoot == null) {
 				logger.error("resulting expectedFile must not be null")
 			} else {
-				safeUpdateJunitTestView(result.expectedFileRoot, project.name)
+				safeUpdateJunitTestView(result.expectedFileRoot, testLaunchInformation.project.name)
 			}
 			monitor.done
 		])
 		return true
+	}
+
+	def storeTestParameterAsLastTestExecution(TestLaunchInformation testLaunchInformation) {
+		logger.debug("Storing test execution as last launch")
+		eclipseContextHelper.eclipseContext.set(TestLaunchInformation, testLaunchInformation)
 	}
 
 	def List<String> createGradleTestCasesList(IStructuredSelection selection) {
@@ -140,7 +147,8 @@ class TclLauncherUi implements Launcher {
 				}
 
 			} else {
-				return launchShortcutUtil.getQualifiedNameForTestInTcl(resource).toString
+				return tclInjectorProvider.get.getInstance(LaunchShortcutUtil).getQualifiedNameForTestInTcl(resource).
+					toString
 			}
 		].filterNull
 
@@ -167,6 +175,7 @@ class TclLauncherUi implements Launcher {
 					val secondURI = URI.createPlatformResourceURI(uri.toString, true)
 					return tslIndex.get(secondURI).map[it.model.package + "." + it.name]
 				} else {
+					val launchShortcutUtil = tclInjectorProvider.get.getInstance(LaunchShortcutUtil)
 					return #[launchShortcutUtil.getQualifiedNameForTestInTcl(sel).toString]
 				}
 			}
@@ -175,6 +184,7 @@ class TclLauncherUi implements Launcher {
 
 	def List<String> getTestCasesFromFolder(IFolder folder) {
 		val result = newArrayList()
+		val launchShortcutUtil = tclInjectorProvider.get.getInstance(LaunchShortcutUtil)
 		for (IResource res : folder.members) {
 			if (res instanceof IFile) {
 				if (res.fileExtension.equalsIgnoreCase("tcl")) {

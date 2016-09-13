@@ -10,15 +10,24 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.rcp4.views.projectexplorer
+package org.testeditor.rcp4.views.tcltestrun
 
-import org.eclipse.core.resources.IWorkspaceRoot
-import org.eclipse.core.resources.ResourcesPlugin
+import org.eclipse.e4.core.contexts.IEclipseContext
+import org.eclipse.e4.core.di.annotations.CanExecute
+import org.eclipse.e4.core.di.annotations.Execute
 
-class WorkspaceRootHelper {
-	
-	def IWorkspaceRoot getRoot() {
-		return ResourcesPlugin.workspace.root
+class ReRunLastTestLaunchHandler {
+
+	@Execute
+	def reLaunchLastTestLaunch(IEclipseContext context) {
+		val tclLauncherUi = context.get(TclLauncherUi)
+		val lastTestLaunch = context.get(TestLaunchInformation)
+		tclLauncherUi.launchTest(lastTestLaunch)
 	}
-	
+
+	@CanExecute
+	def boolean canExecute(IEclipseContext context) {
+		return context.containsKey(TestLaunchInformation)
+	}
+
 }

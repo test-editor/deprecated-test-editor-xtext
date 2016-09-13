@@ -10,25 +10,20 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.tcl.dsl.naming
+package org.testeditor.rcp4.views.tcltestrun
 
-import javax.inject.Singleton
-import org.eclipse.xtext.naming.QualifiedName
-import org.eclipse.xtext.xbase.scoping.XbaseQualifiedNameProvider
-import org.testeditor.tcl.TclModel
+import org.testeditor.dsl.common.util.PlatformHelper
 import javax.inject.Inject
-import org.testeditor.dsl.common.util.classpath.ClasspathUtil
 
-@Singleton
-class TclQualifiedNameProvider extends XbaseQualifiedNameProvider {
-
-	@Inject ClasspathUtil classpathUtil
-
-	def QualifiedName qualifiedName(TclModel model) {
-		if(model.package==null) {
-			model.package = classpathUtil.inferPackage(model)
-		}
-		return converter.toQualifiedName(model.package)
+class TclParameterLauncherAction extends TclLauncherAction {
+	
+	@Inject 
+	protected new(PlatformHelper platformHelper) {
+		super(platformHelper)
 	}
-
+	
+	override protected withParameter() {
+		return true
+	}
+	
 }

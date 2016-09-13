@@ -33,6 +33,7 @@ import org.eclipse.swtbot.swt.finder.finders.ContextMenuHelper;
 import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotCombo;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotList;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
@@ -222,12 +223,12 @@ public class SWTFixture {
 			throw e;
 		}
 	}
-	
+
 	private void printTreeItems(SWTBotTree tree, String locator) {
 		logger.info("Printing all items of tree with locator='{}'.", locator);
 		printTreeItems(tree.getAllItems(), 0);
 	}
-	
+
 	private void printTreeItems(SWTBotTreeItem[] items, int level) {
 		String spaces = StringUtils.repeat(" ", 4 * level);
 		for (SWTBotTreeItem item : items) {
@@ -238,7 +239,6 @@ public class SWTFixture {
 			printTreeItems(item.getItems(), level + 1);
 		}
 	}
-	
 
 	@FixtureMethod
 	public void selectElementInList(String locator, String itemName) {
@@ -247,6 +247,23 @@ public class SWTFixture {
 			SWTBotList list = bot.listWithId(getLocatorFragmentFrom(locator));
 			list.select(itemName);
 		}
+	}
+
+	@FixtureMethod
+	public void selectElementInCombobox(String locator, String value) {
+		logger.trace("search for dropdown with {}", locator);
+		SWTBotCombo comboBox = getComboBox(locator);
+		comboBox.setText(value);
+	}
+
+	private SWTBotCombo getComboBox(String locator) {
+		if (locator.startsWith("[ID]")) {
+			return bot.comboBoxWithId(getLocatorFragmentFrom(locator));
+		}
+		if (locator.startsWith("[Label]")) {
+			return bot.comboBoxWithLabel(getLocatorFragmentFrom(locator));
+		}
+		return null;
 	}
 
 	/**
@@ -346,12 +363,13 @@ public class SWTFixture {
 		checkBox.deselect();
 	}
 
-	// TODO would be nicer to use the generic withId(...) but we need Harmcrest on the classpath for that
+	// TODO would be nicer to use the generic withId(...) but we need Harmcrest
+	// on the classpath for that
 	public SWTBotCheckBox getCheckBox(String locator, SWTLocatorStrategy locatorStrategy) {
 		switch (locatorStrategy) {
 		case ID:
 			return bot.checkBoxWithId(locator);
-		case LABEL: 
+		case LABEL:
 			return bot.checkBoxWithLabel(locator);
 		}
 		throw new IllegalArgumentException("Unkown locatorStrategy: " + locatorStrategy);
