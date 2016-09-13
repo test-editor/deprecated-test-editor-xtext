@@ -21,10 +21,10 @@ import org.junit.Test
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.testeditor.dsl.common.testing.AbstractTest
-import org.testeditor.dsl.common.ui.gradle.GradleHelper
 
 import static extension org.mockito.Matchers.*
 import static extension org.mockito.Mockito.*
+import org.testeditor.dsl.common.util.GradleHelper
 
 class ProjectContentGeneratorTest extends AbstractTest {
 
