@@ -291,8 +291,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	private def dispatch void toUnitTestCodeLine(AssertionTestStep step, ITreeAppendable output,
-		output.append(assertCallBuilder.build(step.assertExpression)).newLine
 		Iterable<MacroTestStepContext> macroUseStack) {
+		output.append(assertCallBuilder.build(step.assertExpression)).newLine
 	}
 
 	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output,
@@ -354,7 +354,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	 * generate the parameter-code passed to the fixture call depending on the type of the step content
 	 */
 	private def dispatch Iterable<String> generateCallParameters(StepContentElement stepContent,
-		JvmTypeReference expectedType, InteractionType interaction) {
+		JvmTypeReference expectedType, InteractionType interaction, Iterable<MacroTestStepContext> macroUseStack) {
 		val element = stepContent.componentElement
 		val locator = '''"«element.locator»"'''
 		if (interaction.defaultMethod.locatorStrategyParameters.size > 0) {
@@ -421,8 +421,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	// TODO: There should be a sub class of StepContent, which functions as superclass to VariableReference, StepContentVariable   
 	private def StepContent resolveVariableReference(
 		VariableReference referencedVariable,
-		Iterable<MacroTestStepContext> macroUseStack,
-		Iterable<EnvironmentVariable> environmentVariables) {
+		Iterable<MacroTestStepContext> macroUseStack) {
 
 		if (macroUseStack.empty || referencedVariable.variable instanceof AssignmentVariable) { 
 			// if the macroCallStack is empty, no further resolving is necessary
@@ -446,7 +445,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				val callSiteParameter = varValMap.get(varKey)
 
 				if (callSiteParameter instanceof VariableReference) { // needs further variable resolving
-					return callSiteParameter.resolveVariableReference(macroUseStack.tail, environmentVariables)
+					return callSiteParameter.resolveVariableReference(macroUseStack.tail)
 				} else {
 					return callSiteParameter // could be a StepContentVariable
 				}
