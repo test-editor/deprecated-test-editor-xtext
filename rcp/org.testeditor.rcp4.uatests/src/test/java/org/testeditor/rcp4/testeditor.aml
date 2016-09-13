@@ -27,8 +27,13 @@ interaction type isValidTestProject {
 	method = TestEditorFixture.isValidProject(projectName)
 }
 
+interaction type containsWorkspaceFileText {
+	template = "Contains file" ${filePath} "this" ${searchText}
+	method = TestEditorFixture.containsWorkspaceFileText(filePath, searchText)
+}
+
 component type TestEditorApp {
-	interactions = createSimpleProject, restartApp, cleanWorkspace, isValidTestProject
+	interactions = createSimpleProject, restartApp, cleanWorkspace, isValidTestProject, containsWorkspaceFileText
 }
 
 component HauptFenster is General {
@@ -60,10 +65,13 @@ component ProjectExplorer is General {
 	}
 }
 
-component TestEditor is TestEditorApp {
+component TestEditorServices is TestEditorApp {
 }
 
 component Workbench is Workbench {
+}
+
+component ActiveEditor is TextEditor {
 }
 
 component NewProjectDialog is Dialog {

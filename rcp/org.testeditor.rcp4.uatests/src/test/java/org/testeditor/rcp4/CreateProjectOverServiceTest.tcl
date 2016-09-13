@@ -6,7 +6,7 @@ config TestEditorConfig
 
 * Validate initial views
 
-	Component: TestEditor
+	Component: TestEditorServices
 	- Create simple project
 
 	Component: ProjectExplorer

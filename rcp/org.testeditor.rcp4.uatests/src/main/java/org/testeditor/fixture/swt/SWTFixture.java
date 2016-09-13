@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.finders.ContextMenuHelper;
@@ -379,6 +380,25 @@ public class SWTFixture {
 			return bot.checkBoxWithLabel(locator);
 		}
 		throw new IllegalArgumentException("Unkown locatorStrategy: " + locatorStrategy);
+	}
+
+	@FixtureMethod
+	public String containsActiveTextEditorContent(String searchString) {
+		return Boolean.toString(bot.activeEditor().toTextEditor().getText().contains(searchString));
+	}
+
+	@FixtureMethod
+	public void removeLineFromEditor(int lineNumber) {
+		logger.info("Removing line {} from  editor {}.", lineNumber, bot.activeEditor().getTitle());
+		SWTBotEclipseEditor textEditor = bot.activeEditor().toTextEditor();
+		textEditor.selectLine(lineNumber - 1);
+		textEditor.typeText(" ");
+	}
+
+	@FixtureMethod
+	public void saveActiveEditor() {
+		logger.info("Save editor {}", bot.activeEditor().getTitle());
+		bot.activeEditor().toTextEditor().save();
 	}
 
 	/**

@@ -10,7 +10,7 @@ config TestEditorConfig
 	Component: ProjectExplorer
 	- Execute menu item "New/Project..." in tree <ProjektBaum>
 
-	Component: NewDialog
+	Component: NewProjectDialog
 	- Select element "Test-Editor Project" in tree <ProjectType>
 	- Click on <NextButton>
 	- Type "MyFirstWebProject" into <ProjectName>
@@ -26,7 +26,23 @@ config TestEditorConfig
 	- Select element "MyFirstWebProject/Tests/MyFirstWebProject" in tree <ProjektBaum>
 	- Execute menu item "New/Test Case" in tree <ProjektBaum>
 
-	Component: NewDialog
+	Component: NewTestCaseDialog
+	- Type "MyTestcase.tcl" into <TestCaseName>
 	- Click on <FinishButton>
+
+//when
+	Component: ActiveEditor
+	- Remove line "1" 
+	- Save content
+	//Wait a moment for the generator jobs in the background. 
+	//TODO Write a smarter wait step which looks up the eclipse job api.
+	- Wait "1" seconds
+
+//then
+	Component: TestEditorServices
+	- isJavaPackage = Contains file "/MyFirstWebProject/src-gen/MyFirstWebProject/MyTestcase.java" this "package MyFirstWebProject"
+	- assert isJavaPackage == "true"
 	
-//TODO continue this test after support for text editor is merged	
+	Component: ActiveEditor
+	- isTclPackage = Contains active editor "package MyFirstWebProject"
+	- assert isTclPackage == "false" 

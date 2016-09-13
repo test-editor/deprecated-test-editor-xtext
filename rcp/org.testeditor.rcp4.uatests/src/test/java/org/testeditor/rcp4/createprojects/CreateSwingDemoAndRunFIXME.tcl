@@ -28,7 +28,7 @@ config TestEditorConfig
 	- Click on <FinishButton>
 	- Wait until dialog with title "Progress Information" is closed
 
-	Component: TestEditor
+	Component: TestEditorServices
 	- valid = Check if "swingdemo" is a valid testproject
 	- assert valid = "true"
 

@@ -12,7 +12,7 @@ config TestEditorConfig
 	- Is view <ProjektBaum> visible
 	- Is view <TestStepSelector> visible
 
-	Component: TestEditor
+	Component: TestEditorServices
 	- Create simple project
 
 	Component: ProjectExplorer
