@@ -36,7 +36,7 @@ config TestEditorConfig
 	- Save content
 	//Wait a moment for the generator jobs in the background. 
 	//TODO Write a smarter wait step which looks up the eclipse job api.
-	- Wait "1" seconds
+	- Wait "3" seconds
 
 //then
 	Component: TestEditorServices
