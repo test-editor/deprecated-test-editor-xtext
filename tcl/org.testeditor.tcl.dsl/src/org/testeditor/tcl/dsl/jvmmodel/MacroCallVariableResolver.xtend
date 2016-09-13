@@ -22,7 +22,7 @@ class MacroCallVariableResolver implements VariableResolver {
 	@Inject extension TclModelUtil
 
 	@Accessors(PUBLIC_SETTER)
-	Iterable<MacroTestStepContext> macroUseStack
+	Iterable<TestStep> macroUseStack
 
 	/**
 	 * resolve dereferenced variable (in macro) with call site value (recursively if necessary).
@@ -53,39 +53,38 @@ class MacroCallVariableResolver implements VariableResolver {
 		resolveVariableReference(variableReference, macroUseStack)
 	}
 
-	private def StepContent resolveVariableReference(VariableReference variableReference,
-		Iterable<MacroTestStepContext> macroUseStack) {
+	private def StepContent resolveVariableReference(VariableReference referencedVariable,
+		Iterable<TestStep> macroUseStack) {
 
-		if (macroUseStack.empty || variableReference.variable instanceof AssignmentVariable) {
+		if (macroUseStack.empty || referencedVariable.variable instanceof AssignmentVariable) {
 			// if the macroCallStack is empty, no further resolving is necessary
 			// in case of an assignment variable, no resolving is necessary 
-			return variableReference
+			return referencedVariable
 		}
 
-		val callSiteMacroContext = macroUseStack.head
-		val macroCalled = callSiteMacroContext.findMacroDefinition
-		val callSiteMacroTestStep = callSiteMacroContext.step
+ 		val callSiteMacroTestStep = macroUseStack.head
+ 		val macroContext = callSiteMacroTestStep.macroContext
 
-		if (callSiteMacroTestStep instanceof TestStep) {
-			val varValMap = getVariableToValueMapping(callSiteMacroTestStep, macroCalled.template)
-			val varKey = varValMap.keySet.findFirst [
-				name.equals(variableReference.variable.name)
-			]
-
-			if (!varValMap.containsKey(varKey)) {
-				throw new RuntimeException('''The referenced variable='«variableReference.variable.name»' cannot be resolved via macro parameters (macro call stack='«macroUseStack.map[findMacroDefinition.name].join('->')»').''')
-			} else {
-				val callSiteParameter = varValMap.get(varKey)
-
-				if (callSiteParameter instanceof VariableReference) { // needs further variable resolving
-					return callSiteParameter.resolveVariableReference(macroUseStack.tail)
-				} else {
-					return callSiteParameter // could be a StepContentVariable
-				}
-			}
-		} else {
-			throw new RuntimeException('''Call site is of type='«callSiteMacroTestStep.class.canonicalName»' but should be of type='«TestStep.canonicalName»'.''')
+ 		if (macroContext === null) {
+ 			throw new RuntimeException('''Could not find macro context to test step «callSiteMacroTestStep.toString»''')
+ 		}
+ 
+ 		val macroCalled = callSiteMacroTestStep.findMacroDefinition(macroContext)
+ 		val varValMap = getVariableToValueMapping(callSiteMacroTestStep, macroCalled.template)
+ 		val varKey = varValMap.keySet.findFirst [
+ 			name.equals(referencedVariable.variable.name)
+ 		]
+ 
+ 		if (!varValMap.containsKey(varKey)) {
+ 			throw new RuntimeException('''The referenced variable='«referencedVariable.variable.name»' cannot be resolved via macro parameters (macro call stack='«macroUseStack.map[findMacroDefinition(macroContext).name].join('->')»').''')
+  		} else {
+ 			val callSiteParameter = varValMap.get(varKey)
+ 
+ 			if (callSiteParameter instanceof VariableReference) { // needs further variable resolving
+				return callSiteParameter.resolveVariableReference(macroUseStack.tail)
+ 			} else {
+ 				return callSiteParameter // could be a StepContentVariable
+ 			}
 		}
 	}
 }
-		

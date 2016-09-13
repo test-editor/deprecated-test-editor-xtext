@@ -252,6 +252,7 @@ class TclModelParserTest extends AbstractTclTest {
 			* Do some complex step
 			  Macro: MyMacroFile
 			  - template execute with "param" as a and "param2"
+			  - second template
 		'''
 
 		// when
@@ -260,8 +261,12 @@ class TclModelParserTest extends AbstractTclTest {
 		// then
 		test.steps.assertSingleElement => [
 			contexts.assertSingleElement.assertInstanceOf(MacroTestStepContext) => [
-				step.assertInstanceOf(TestStep) => [
+				steps.assertSize(2)
+				steps.head.assertInstanceOf(TestStep) => [
 					contents.restoreString.assertMatches('template execute with "param" as a and "param2"')
+				]
+				steps.last.assertInstanceOf(TestStep) => [
+					contents.restoreString.assertMatches('second template')
 				]
 			]
 		]
