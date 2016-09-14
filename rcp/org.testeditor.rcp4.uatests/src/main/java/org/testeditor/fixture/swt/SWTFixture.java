@@ -172,20 +172,20 @@ public class SWTFixture {
 	 * @return true if the vie is visible
 	 */
 	@FixtureMethod
-	public boolean isViewVisible(String locator, SWTBotViewLocatorStrategy locatorStrategy) {
+	public boolean isViewVisible(String locator, ViewLocatorStrategy locatorStrategy) {
 		SWTBotView view = getView(locator, locatorStrategy);
 		return view.isActive();
 	}
 
-	private SWTBotView getView(String locator, SWTBotViewLocatorStrategy locatorStrategy) {
+	private SWTBotView getView(String locator, ViewLocatorStrategy locatorStrategy) {
 		switch (locatorStrategy) {
-		case VIEW_ID:
+		case ID:
 			logger.debug("Searching for view with id='{}'.", locator);
 			return bot.viewById(locator);
-		case VIEW_PARTNAME:
+		case PARTNAME:
 			logger.debug("Searching for view with partName='{}'.", locator);
 			return bot.viewByPartName(locator);
-		case VIEW_TITLE:
+		case TITLE:
 			logger.debug("Searching for view with title='{}'.", locator);
 			return bot.viewByTitle(locator);
 		default:
