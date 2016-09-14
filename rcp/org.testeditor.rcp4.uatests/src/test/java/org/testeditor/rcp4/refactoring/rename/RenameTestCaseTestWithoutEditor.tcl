@@ -13,7 +13,7 @@ Setup:
 	Macro: SampleProjects
 	- Create a sample web project with Gradle
 
-	Component: Workbench
+	Component: MainWindow
 	- editor = Get editor with file "/demo/src/test/java/demo/GoogleTest.tcl"
 	- Close editor @editor
 
@@ -32,7 +32,7 @@ Setup:
 // then
 * Open an editor "NewTestCase.tcl" and verify that the editor contains the line "# NewTestCase"
 
-	Component: Workbench
+	Component: MainWindow
 	- editor = Open editor for file "/demo/src/test/java/demo/NewTestCase.tcl"
 	- editorContents = Get contents of editor @editor
 

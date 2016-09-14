@@ -36,7 +36,7 @@ component type TestEditorApp {
 	interactions = createSimpleProject, restartApp, cleanWorkspace, isValidTestProject, containsWorkspaceFileText
 }
 
-component HauptFenster is General {
+component MainWindow is Workbench {
 
 	element ProjektBaum is View {
 		label = "Project Explorer"

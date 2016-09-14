@@ -35,7 +35,7 @@ config TestEditorConfig
 	- Remove line "1" 
 	- Save content
 	
-	Component: Workbench
+	Component: MainWindow
 	- Wait until all jobs finished
 
 //then

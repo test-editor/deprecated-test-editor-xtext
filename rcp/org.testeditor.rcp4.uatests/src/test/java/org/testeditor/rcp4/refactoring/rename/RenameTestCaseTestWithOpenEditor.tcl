@@ -28,7 +28,7 @@ Setup:
 // then
 * Verify that the editor contains the line "# NewTestCase"
 
-	Component: Workbench
+	Component: MainWindow
 	- editor = Get editor with file "/demo/src/test/java/demo/NewTestCase.tcl"
 	- editorContents = Get contents of editor @editor
 

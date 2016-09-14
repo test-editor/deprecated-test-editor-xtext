@@ -8,7 +8,7 @@ config TestEditorConfig
 	
 * Validate initial views
 
-	Component: HauptFenster
+	Component: MainWindow
 	- Is view <ProjektBaum> visible
 	- Is view <TestStepSelector> visible
 

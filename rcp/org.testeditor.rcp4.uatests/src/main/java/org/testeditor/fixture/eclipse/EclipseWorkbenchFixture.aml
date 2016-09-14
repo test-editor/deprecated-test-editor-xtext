@@ -4,7 +4,7 @@ import org.testeditor.rcp4.* // TODO waiting should go into the core fixture
 import org.testeditor.fixture.swt.*;
 
 component type Workbench {
-	interactions = wait, getEditorWithFilePath, getEditorContents, openEditor, closeEditor, waitUntilAllJobsFinished
+	interactions = wait, getEditorWithFilePath, getEditorContents, openEditor, closeEditor, waitUntilAllJobsFinished, reportWidgets, waitForDialogClosing, waitForDialogClosingWithTimeout
 }
 
 interaction type getEditorWithFilePath {
