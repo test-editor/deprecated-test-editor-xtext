@@ -63,8 +63,7 @@ class TclAssertCallBuilder {
 			}
 			return '''
 				// - assert «assertionText»
-				org.junit.Assert.«expression.assertionMethod»("«StringEscapeUtils.escapeJava(assertionText)»", «expressionBuilt»);
-			'''
+				org.junit.Assert.«expression.assertionMethod»("«StringEscapeUtils.escapeJava(assertionText)»", «expressionBuilt»);'''
 		}
 	}
 
