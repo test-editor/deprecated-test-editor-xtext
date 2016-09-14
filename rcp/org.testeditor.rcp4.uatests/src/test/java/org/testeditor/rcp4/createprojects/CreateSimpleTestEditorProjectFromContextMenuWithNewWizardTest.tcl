@@ -9,7 +9,7 @@ config TestEditorConfig
 * start creation process
 
 	Component: ProjectExplorer
-	- Execute menu item "New/Project..." in tree <ProjektBaum>
+	- Execute menu item "New/Project..." in tree <ProjectTree>
 
 * Select type Test Editor Project
 
@@ -28,4 +28,4 @@ config TestEditorConfig
 * Verify that the project is visible in the ui
 
 	Component: ProjectExplorer
-	- Select element "MyFirstProject" in tree <ProjektBaum>
+	- Select element "MyFirstProject" in tree <ProjectTree>

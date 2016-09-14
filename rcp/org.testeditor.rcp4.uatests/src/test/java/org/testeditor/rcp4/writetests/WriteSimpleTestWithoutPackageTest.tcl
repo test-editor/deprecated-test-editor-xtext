@@ -8,7 +8,7 @@ config TestEditorConfig
 * Given Webproject
 
 	Component: ProjectExplorer
-	- Execute menu item "New/Project..." in tree <ProjektBaum>
+	- Execute menu item "New/Project..." in tree <ProjectTree>
 
 	Component: NewProjectDialog
 	- Select element "Test-Editor Project" in tree <ProjectType>
@@ -23,8 +23,8 @@ config TestEditorConfig
 	- Wait at most "30" seconds until dialog with title "Progress Information" is closed
 
 	Component: ProjectExplorer
-	- Select element "MyFirstWebProject/Tests/MyFirstWebProject" in tree <ProjektBaum>
-	- Execute menu item "New/Test Case" in tree <ProjektBaum>
+	- Select element "MyFirstWebProject/Tests/MyFirstWebProject" in tree <ProjectTree>
+	- Execute menu item "New/Test Case" in tree <ProjectTree>
 
 	Component: NewTestCaseDialog
 	- Type "MyTestcase.tcl" into <TestCaseName>
@@ -41,8 +41,8 @@ config TestEditorConfig
 //then
 	Component: TestEditorServices
 	- isJavaPackage = Contains file "/MyFirstWebProject/src-gen/MyFirstWebProject/MyTestcase.java" this "package MyFirstWebProject"
-	- assert isJavaPackage == "true"
+	- assert isJavaPackage = "true"
 	
 	Component: ActiveEditor
 	- isTclPackage = Contains active editor "package MyFirstWebProject"
-	- assert isTclPackage == "false" 
+	- assert isTclPackage = "false" 

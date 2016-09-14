@@ -16,5 +16,5 @@ config TestEditorConfig
 	- Create simple project
 
 	Component: ProjectExplorer
-	- Select element "DemoProject" in tree <ProjektBaum>
+	- Select element "DemoProject" in tree <ProjectTree>
 

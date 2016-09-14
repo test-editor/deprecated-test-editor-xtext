@@ -2,7 +2,7 @@ package org.testeditor.rcp4.createprojects
 
 import org.testeditor.rcp4.*
 
-# CreateSwingDemoAndRunFIXME
+# CreateSwingDemoAndRunTest
 
 // given
 config TestEditorConfig
@@ -11,7 +11,7 @@ config TestEditorConfig
 * Open "Test-Editor Project" wizard
 
 	Component: ProjectExplorer
-	- Execute menu item "New/Project..." in tree <ProjektBaum>
+	- Execute menu item "New/Project..." in tree <ProjectTree>
 
 	Component: NewProjectDialog
 	- Select element "Test-Editor Project" in tree <ProjectType>
@@ -22,6 +22,7 @@ config TestEditorConfig
 	Component: NewProjectDialog
 	- Type "swingdemo" into <ProjectName>
 	- Click on <NextButton>
+	- Select value "Maven" in combo box <BuildTool>
 	- Select element "Swing Fixture" in list <AvailableFixturesList>
 	- Click on <AddFixtureButton>
 	- Check <GenerateWithExamples>
@@ -36,8 +37,8 @@ config TestEditorConfig
 
 	Component: ProjectExplorer
 	- Wait "2" seconds
-	- Select element "swingdemo/Tests/swingdemo/GreetingTest.tcl" in tree <ProjektBaum>
-	- Execute menu item "Run As/1 Test" in tree <ProjektBaum>
+	- Select element "swingdemo/Tests/swingdemo/GreetingTest.tcl" in tree <ProjectTree>
+	- Execute menu item "Run As/1 Test" in tree <ProjectTree>
 	- Wait at most "20" seconds until dialog with title "Progress Information" is closed
 
 // then
