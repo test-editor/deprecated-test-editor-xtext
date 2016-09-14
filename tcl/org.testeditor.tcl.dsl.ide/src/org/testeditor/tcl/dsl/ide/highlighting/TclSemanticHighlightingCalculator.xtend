@@ -18,19 +18,16 @@ import org.eclipse.xtext.ide.editor.syntaxcoloring.IHighlightedPositionAcceptor
 import org.eclipse.xtext.resource.XtextResource
 import org.eclipse.xtext.util.CancelIndicator
 import org.testeditor.dsl.common.ide.util.NodeRegionUtil
-import org.testeditor.tcl.ComponentTestStepContext
-import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
-import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.tcl.TestStep
+import org.testeditor.tcl.TestStepContext
 import org.testeditor.tsl.StepContent
 
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
 
 import static extension org.eclipse.xtext.nodemodel.util.NodeModelUtils.getNode
-import org.testeditor.tcl.TestStep
-import org.testeditor.tcl.TestStepContext
 
 class TclSemanticHighlightingCalculator extends DefaultSemanticHighlightingCalculator {
 
@@ -40,7 +37,6 @@ class TclSemanticHighlightingCalculator extends DefaultSemanticHighlightingCalcu
 	public static val String COMPONENT_ELEMENT_REFERENCE = "tcl.componentElementReference"
 
 	@Inject extension NodeRegionUtil
-	@Inject extension TclModelUtil
 
 	override protected doProvideHighlightingFor(XtextResource resource, IHighlightedPositionAcceptor acceptor,
 		CancelIndicator cancelIndicator) {
