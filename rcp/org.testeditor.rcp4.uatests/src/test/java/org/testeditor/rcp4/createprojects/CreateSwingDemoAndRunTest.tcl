@@ -38,7 +38,7 @@ config TestEditorConfig
 	Component: ProjectExplorer
 	- Wait "2" seconds
 	- Select element "swingdemo/Tests/swingdemo/GreetingTest.tcl" in tree <ProjectTree>
-	- Execute menu item "Run As/1 Test" in tree <ProjectTree>
+	- Execute menu item "Run test" in tree <ProjectTree>
 	- Wait at most "20" seconds until dialog with title "Progress Information" is closed
 
 // then
