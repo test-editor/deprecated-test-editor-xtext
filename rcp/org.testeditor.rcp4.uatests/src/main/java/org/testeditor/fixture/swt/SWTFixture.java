@@ -384,6 +384,7 @@ public class SWTFixture {
 
 	@FixtureMethod
 	public String containsActiveTextEditorContent(String searchString) {
+		logger.info("Check if the current active editor {} contains {}", bot.activeEditor().getTitle(), searchString);
 		return Boolean.toString(bot.activeEditor().toTextEditor().getText().contains(searchString));
 	}
 

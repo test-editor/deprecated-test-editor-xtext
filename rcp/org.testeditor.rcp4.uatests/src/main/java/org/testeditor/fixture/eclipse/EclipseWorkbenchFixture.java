@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2012 - 2016 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
 package org.testeditor.fixture.eclipse;
 
 import java.util.concurrent.Callable;
@@ -82,10 +94,12 @@ public class EclipseWorkbenchFixture {
 		syncExec(() -> window.getActivePage().closeEditor(editorPart, false));
 	}
 
+	/**
+	 * Wait until their is no running job in the background of the RCP/IDE.
+	 */
 	@FixtureMethod
 	public void waitUntilJobsCompleted() {
 		try {
-			// Thread.sleep(10000);
 			while (!Job.getJobManager().isIdle()) {
 				Thread.sleep(100);
 			}
