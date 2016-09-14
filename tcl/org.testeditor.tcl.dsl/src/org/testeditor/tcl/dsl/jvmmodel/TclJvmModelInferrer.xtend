@@ -30,7 +30,6 @@ import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
 import org.testeditor.tcl.AbstractTestStep
 import org.testeditor.tcl.AssertionTestStep
-import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.MacroTestStepContext
@@ -45,7 +44,6 @@ import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferenceMapAccess
 import org.testeditor.tcl.util.TclModelUtil
-import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentValue
 
 import static org.testeditor.tcl.TclPackage.Literals.*
@@ -59,6 +57,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	@Inject IQualifiedNameProvider nameProvider
 	@Inject JvmModelHelper jvmModelHelper
 	@Inject TclExpressionBuilder expressionBuilder
+	@Inject MacroCallVariableResolver macroCallVariableResolver
 
 	def dispatch void infer(TclModel model, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		model.test?.infer(acceptor, isPreIndexingPhase)
@@ -76,7 +75,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			return element.toClass(nameProvider.getFullyQualifiedName(element)) [
 				// Add super type to the element
 				addSuperType(element)
-	
+
 				// Create variables for used fixture types
 				members += createFixtureVariables(element)
 			]
@@ -292,7 +291,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	private def dispatch void toUnitTestCodeLine(AssertionTestStep step, ITreeAppendable output,
 		Iterable<TestStep> macroUseStack) {
-		output.append(assertCallBuilder.build(step.assertExpression)).newLine
+		macroCallVariableResolver.macroUseStack = macroUseStack
+		output.append(assertCallBuilder.build(macroCallVariableResolver, step.assertExpression)).newLine
 	}
 
 	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output,
@@ -335,7 +335,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		val stepContents = interaction.defaultMethod.parameters.map [ templateVariable |
 			val stepContent = mapping.get(templateVariable)
 			val stepContentResolved = if (stepContent instanceof VariableReference) {
-					stepContent.resolveVariableReference(macroUseStack)
+					macroCallVariableResolver.macroUseStack = macroUseStack
+					macroCallVariableResolver.resolveVariableReference(stepContent)
 				} else {
 					stepContent
 				}
@@ -384,70 +385,15 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	private def dispatch Iterable<String> generateCallParameters(VariableReference variableReference,
 		JvmTypeReference expectedType, InteractionType interaction, Iterable<TestStep> macroUseStack) {
 			
+		macroCallVariableResolver.macroUseStack = macroUseStack
+		expressionBuilder.variableResolver = macroCallVariableResolver
 		val result = expressionBuilder.buildExpression(variableReference)
-		if (variableReference instanceof VariableReferenceMapAccess && expectedType.qualifiedName == String.canonicalName) {
-			return #[result+'.toString()'] // since the map is generic and thus the actual type is java.lang.Object
+		val isMapReference = variableReference instanceof VariableReferenceMapAccess
+		val isExpectedToBeString = expectedType.qualifiedName == String.canonicalName
+		if (isMapReference && isExpectedToBeString) {
+			return #[result + '.toString()'] // since the map is generic and thus the actual type is java.lang.Object
 		} else {
 			return #[result]
-		}
-	}
-	
-	/**
-	 * resolve dereferenced variable (in macro) with call site value (recursively if necessary).
-	 * 
-	 * <pre>
-	 * given the following scenario (this is just one example):
-	 *   Tcl uses Macro A -> which again uses a Macro B -> which uses a component interaction
-	 *   => referencedVariable is the variable name in the context of B
-	 *    macroUseStack = #[ B, A ]   (call usage in reverse order)
-	 *    environmentVariableReferences = required environment vars of tcl (if present)
-	 * 
-	 * wanted:
-	 *   in order to get the parameter/value that should actually be passed to the
-	 *   transitively called fixture method, the value/environment variable of the
-	 *   original call site within the tcl must be found.
-	 * 
-	 *   as long as the the macroUseStack is not empty and the parameter used for the call
-	 *   is again a variable reference, this method recursively calls itself:
-	 *     the referencedVariable is decoded to the parameter name as it is used in the
-	 *     enclosing macro call context and the top is poped off the stack
-	 *  </pre>
-	 * 
-	 * @see org.testeditor.tcl.dsl.validation.TclParameterUsageValidatorTest
-	 * 
-	 */
-	// TODO: There should be a sub class of StepContent, which functions as superclass to VariableReference, StepContentVariable   
-	private def StepContent resolveVariableReference(VariableReference referencedVariable, Iterable<TestStep> macroUseStack) {
-
-		if (macroUseStack.empty || referencedVariable.variable instanceof AssignmentVariable) {
-			// if the macroCallStack is empty, no further resolving is necessary
-			// in case of an assignment variable, no resolving is necessary 
-			return referencedVariable
-		}
-
-		val callSiteMacroTestStep = macroUseStack.head
-		val macroContext = callSiteMacroTestStep.macroContext
-
-		if (macroContext === null) {
-			throw new RuntimeException('''Could not find macro context to test step «callSiteMacroTestStep.toString»''')
-		}
-
-		val macroCalled = callSiteMacroTestStep.findMacroDefinition(macroContext)
-		val varValMap = getVariableToValueMapping(callSiteMacroTestStep, macroCalled.template)
-		val varKey = varValMap.keySet.findFirst [
-			name.equals(referencedVariable.variable.name)
-		]
-
-		if (!varValMap.containsKey(varKey)) {
-			throw new RuntimeException('''The referenced variable='«referencedVariable.variable.name»' cannot be resolved via macro parameters (macro call stack='«macroUseStack.map[findMacroDefinition(macroContext).name].join('->')»').''')
-		} else {
-			val callSiteParameter = varValMap.get(varKey)
-
-			if (callSiteParameter instanceof VariableReference) { // needs further variable resolving
-				return callSiteParameter.resolveVariableReference(macroUseStack.tail)
-			} else {
-				return callSiteParameter // could be a StepContentVariable
-			}
 		}
 	}
 
