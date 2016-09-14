@@ -120,8 +120,9 @@ class ModelUtil {
 	 */
 	def boolean isAssignableWithoutConversion(Class<?> clazz, JvmTypeReference jvmTypeReference) {
 		val jvmTypeEClass = jvmTypeReference.type.eClass
+		val typeRefQName = jvmTypeReference.qualifiedName
 		if (jvmTypeEClass != TypesPackage.Literals.JVM_PRIMITIVE_TYPE) {
-			return (clazz.isAssignableFrom(Class.forName(jvmTypeReference.qualifiedName.replaceAll('<.*$',''))))
+			return (clazz.isAssignableFrom(Class.forName(typeRefQName.replaceAll('<.*$',''))))
 		} else { // primitive types need to have identical name (no widening)
 			return jvmTypeReference.qualifiedName == clazz.canonicalName
 		}
