@@ -1,8 +1,9 @@
 package org.testeditor.rcp4
 
 import org.testeditor.fixture.swt.*
-import org.testeditor.fixture.swt.SWTLocatorStrategy
-import org.testeditor.fixture.swt.SWTBotViewLocatorStrategy
+import org.testeditor.fixture.swt.ViewLocatorStrategy
+
+import static org.testeditor.fixture.swt.SWTLocatorStrategy.*
 
 interaction type reportWidgets {
 	template = "Report current visable widgets"
@@ -29,7 +30,7 @@ interaction type isViewVisible {
 	label = "Is view visible"
 	template = "Is view" ${element} "visible"
 	method = SWTFixture.isViewVisible(element, locatorStrategy)
-	locatorStrategy = VIEW_TITLE
+	locatorStrategy = ViewLocatorStrategy.TITLE
 }
 
 interaction type selectElement {

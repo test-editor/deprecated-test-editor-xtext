@@ -2,7 +2,7 @@ package org.testeditor.rcp4
 
 import org.testeditor.fixture.swt.*
 import org.testeditor.fixture.eclipse.*
-import org.testeditor.fixture.swt.SWTBotViewLocatorStrategy
+import org.testeditor.fixture.swt.ViewLocatorStrategy
 
 interaction type createSimpleProject {
 	label = "Create simple project"
@@ -50,7 +50,7 @@ component MainWindow is Workbench {
 	
 	element JUnitView is View {
 		locator = "org.eclipse.jdt.junit.ResultView"
-		locatorStrategy = VIEW_ID
+		locatorStrategy = ViewLocatorStrategy.ID
 	}
 
 }
