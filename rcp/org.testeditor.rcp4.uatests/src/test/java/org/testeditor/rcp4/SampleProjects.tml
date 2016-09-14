@@ -7,9 +7,9 @@ package org.testeditor.rcp4
 	template = "Create a sample web project with Gradle"
 
 	Component: ProjectExplorer
-	- Execute menu item "New/Project..." in tree <ProjektBaum>
+	- Execute menu item "New/Project..." in tree <ProjectTree>
 
-	Component: NewDialog
+	Component: NewProjectDialog
 	- Select element "Test-Editor Project" in tree <ProjectType>
 	- Click on <NextButton>
 	- Type "demo" into <ProjectName>

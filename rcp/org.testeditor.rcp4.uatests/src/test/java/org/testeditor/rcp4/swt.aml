@@ -79,6 +79,25 @@ interaction type uncheck {
 	locatorStrategy = ID
 }
 
+interaction type removeLine {
+	template = "Remove line" ${lineNumber} 
+	method = SWTFixture.removeLineFromEditor(lineNumber)
+} 
+
+interaction type save {
+	template = "Save content" 
+	method = SWTFixture.saveActiveEditor
+} 
+
+interaction type containsEditor {
+	template = "Contains active editor" ${searchString} 
+	method = SWTFixture.containsActiveTextEditorContent(searchString)
+} 
+
+component type TextEditor {
+	interactions = wait, removeLine, save, containsEditor
+}
+
 element type View {
 	interactions = isViewVisible
 }

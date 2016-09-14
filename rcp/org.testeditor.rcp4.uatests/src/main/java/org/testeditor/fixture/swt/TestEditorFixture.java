@@ -12,6 +12,10 @@
  *******************************************************************************/
 package org.testeditor.fixture.swt;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.core.resources.IProject;
@@ -99,6 +103,14 @@ public class TestEditorFixture {
 	public String isValidProject(String project) throws CoreException {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		return Boolean.toString(root.getProject(project).hasNature("org.eclipse.jdt.core.javanature"));
+	}
+
+	@FixtureMethod
+	public String containsWorkspaceFileText(String filePath, String searchText) throws CoreException, IOException {
+		logger.info("Cearching for text {} in {}", searchText, filePath);
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		return Boolean.toString(Files.lines(new File(root.getLocation().toString() + filePath).toPath())
+				.filter(s -> s.contains(searchText)).count() > 0);
 	}
 
 }
