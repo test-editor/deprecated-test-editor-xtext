@@ -32,9 +32,9 @@ config TestEditorConfig
 
 //when
 	Component: ActiveEditor
-	- Remove line "1" 
+	- Remove line "1"
 	- Save content
-	
+
 	Component: MainWindow
 	- Wait until all jobs finished
 
@@ -42,7 +42,8 @@ config TestEditorConfig
 	Component: TestEditorServices
 	- isJavaPackage = Contains file "/MyFirstWebProject/src-gen/MyFirstWebProject/MyTestcase.java" this "package MyFirstWebProject"
 	- assert isJavaPackage = "true"
-	
+
 	Component: ActiveEditor
 	- isTclPackage = Contains active editor "package MyFirstWebProject"
-	- assert isTclPackage = "false" 
+	- assert isTclPackage = "false"
+	 
