@@ -5,13 +5,12 @@ import org.junit.Test
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.Variable
 import org.testeditor.aml.dsl.tests.AmlModelGenerator
-import org.testeditor.tcl.AssignmentVariable
-import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTestWDummyComponent
+import org.testeditor.tsl.StepContent
 
 class MacroCallVariableResolverTest extends AbstractParserTestWDummyComponent {
 	@Inject extension TclModelGenerator
@@ -29,10 +28,9 @@ class MacroCallVariableResolverTest extends AbstractParserTestWDummyComponent {
 		val resolvedVariable = classUnderTest.resolveVariableReference(assignmentVariableRef)
 
 		// then
-		resolvedVariable.assertInstanceOf(VariableReference) //
-		.variable.assertInstanceOf(AssignmentVariable).name.assertEquals(assignmentVariableRef.variable.name)
+		resolvedVariable.assertReferenceToVariable(assignmentVariableRef.variable)
 	}
-
+	
 	@Test
 	def void testResolvingReferenceToEnvironmentVariable() {
 		// given
@@ -43,8 +41,7 @@ class MacroCallVariableResolverTest extends AbstractParserTestWDummyComponent {
 		val resolvedVariable = classUnderTest.resolveVariableReference(environmentVariableRef)
 
 		// then
-		resolvedVariable.assertInstanceOf(VariableReference) //
-		.variable.assertInstanceOf(EnvironmentVariable).name.assertEquals(environmentVariableRef.variable.name)
+		resolvedVariable.assertReferenceToVariable(environmentVariableRef.variable)
 	}
 
 	@Test
@@ -58,8 +55,7 @@ class MacroCallVariableResolverTest extends AbstractParserTestWDummyComponent {
 		val resolvedVariable = classUnderTest.resolveVariableReference(macroParameterReference)
 
 		// then
-		resolvedVariable.assertInstanceOf(VariableReference) //
-		.variable.assertInstanceOf(EnvironmentVariable).name.assertEquals(environmentVariable.name)
+		resolvedVariable.assertReferenceToVariable(environmentVariable)
 	}
 
 	@Test
@@ -73,40 +69,43 @@ class MacroCallVariableResolverTest extends AbstractParserTestWDummyComponent {
 		val resolvedVariable = classUnderTest.resolveVariableReference(macroParameterReference)
 
 		// then
-		resolvedVariable.assertInstanceOf(VariableReference) //
-		.variable.assertInstanceOf(EnvironmentVariable).name.assertEquals(environmentVariable.name)
+		resolvedVariable.assertReferenceToVariable(environmentVariable)
 	}
 	
 	@Test
 	def void testResolvingReferenceToAssignmentVariableThroughSingleMacroCall() {
 		// given
-		val environmentVariable = assignmentVariable("some")
-		val macroParameter = parameterForCallingSingleMacro(environmentVariable)
+		val assignmentVariable = assignmentVariable("some")
+		val macroParameter = parameterForCallingSingleMacro(assignmentVariable)
 		val macroParameterReference = variableReference => [variable = macroParameter] 
 
 		// when
 		val resolvedVariable = classUnderTest.resolveVariableReference(macroParameterReference)
 
 		// then
-		resolvedVariable.assertInstanceOf(VariableReference) //
-		.variable.assertInstanceOf(AssignmentVariable).name.assertEquals("some")
+		resolvedVariable.assertReferenceToVariable(assignmentVariable)
 	}
 
 	@Test
 	def void testResolvingReferenceToAssignmentVariableThroughChainedMacroCall() {
 		// given
-		val environmentVariable = assignmentVariable("some")
-		val macroParameter = macroParameterAtEndOfCallChain(environmentVariable)
+		val assignmentVariable = assignmentVariable("some")
+		val macroParameter = macroParameterAtEndOfCallChain(assignmentVariable)
 		val macroParameterReference = variableReference => [variable = macroParameter] 
 		
 		// when
 		val resolvedVariable = classUnderTest.resolveVariableReference(macroParameterReference)
 
 		// then
-		resolvedVariable.assertInstanceOf(VariableReference) //
-		.variable.assertInstanceOf(AssignmentVariable).name.assertEquals(environmentVariable.name)
+		resolvedVariable.assertReferenceToVariable(assignmentVariable)
 	}
-	
+
+	/** assert that the resolvedVariable is a reference to the given variable
+	 */	
+	private def void assertReferenceToVariable(StepContent resolvedVariable, Variable variable) {
+		resolvedVariable.assertInstanceOf(VariableReference).variable.assertSame(variable)
+	}
+
 	/** build a context where a regular test steps calls a macro 
 	 *  => result is the macro parameter name 
 	 * 
