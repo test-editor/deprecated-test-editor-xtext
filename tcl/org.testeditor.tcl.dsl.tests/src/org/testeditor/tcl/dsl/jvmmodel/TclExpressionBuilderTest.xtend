@@ -13,7 +13,7 @@ class TclExpressionBuilderTest extends AbstractTclTest {
 	@Inject extension TclModelGenerator
 	
 	@Before
-	def void setUp() {
+	def void setupExpressionBuilder() {
 		expressionBuilder.variableResolver = identicalVariableResolver
 	}
 
