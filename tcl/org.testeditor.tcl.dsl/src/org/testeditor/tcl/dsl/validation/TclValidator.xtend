@@ -40,6 +40,7 @@ import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
 
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
+import org.testeditor.aml.TemplateVariable
 
 class TclValidator extends AbstractTclValidator {
 
@@ -292,7 +293,7 @@ class TclValidator extends AbstractTclValidator {
 	private def dispatch void checkReferencedVariablesAreUsedWellTypedExcluding(TestStep step,
 		Map<String, JvmTypeReference> declaredVariablesTypeMap, TestStepContext context,
 		Set<String> excludedVariableNames) {
-		// build this index to be able to correctly issue an error on the element by index
+		// build this variables index to be able to correctly issue an error on the element by index
 		val variablesIndexed = step.contents.indexed.filter [!(value instanceof StepContentText)]
 		val variableReferencesIndexed = variablesIndexed.filterValue(VariableReference).filter [
 			!excludedVariableNames.contains(value.variable.name)
@@ -318,6 +319,12 @@ class TclValidator extends AbstractTclValidator {
 	}
 	
 	private def checkVariableReferenceIsWellTyped(VariableReference variableReference, Set<JvmTypeReference> typeUsageSet, JvmTypeReference typeDeclared, String variableName, Integer errorIndex) {
+		if (variableReference.variable instanceof TemplateVariable) {
+			// do not type check variables that are passed via parameters (are templateVariables),
+			// since they are typeless until actually used by a call, 
+			// but then these variables are either assignmentVariables or environmentVariables
+			return
+		}
 		switch variableReference {
 			VariableReferenceMapAccess:
 				// do no type checking on values retrieved from a map, but check whether this is actually a map
