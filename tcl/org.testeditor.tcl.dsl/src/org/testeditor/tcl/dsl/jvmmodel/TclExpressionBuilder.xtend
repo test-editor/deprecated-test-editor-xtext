@@ -12,8 +12,19 @@ import org.testeditor.tcl.StringConstant
 import org.testeditor.aml.Variable
 import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.EnvironmentVariable
+import org.eclipse.xtend.lib.annotations.Accessors
 
+/** build a (textual) java expression based on a parsed (tcl) expression
+ *  <br/><br/>
+ *  this involves (currently) the generation of string constants, comparisons, variable references and variable map access.
+ *  in order for variables to be resolved correctly within these expressions, a variable resolver must be set. this variable
+ *  resolver is then used to determine the variable to be actually used within the generted java expression string.
+ */
 class TclExpressionBuilder {
+	
+	@Accessors(PUBLIC_SETTER)
+	VariableResolver variableResolver
+	
 	def dispatch String buildExpression(Expression expression) {
 		throw new RuntimeException('''no builder found for type «expression.class»''')
 	}
@@ -39,6 +50,10 @@ class TclExpressionBuilder {
 	}
 	
 	def dispatch String buildExpression(VariableReference varRef) {
+		val stepContent=variableResolver.resolveVariableReference(varRef)
+		if( stepContent instanceof VariableReference) {
+			return stepContent.variable.variableToVarName
+		}
 		return varRef.variable.variableToVarName
 	}
 
