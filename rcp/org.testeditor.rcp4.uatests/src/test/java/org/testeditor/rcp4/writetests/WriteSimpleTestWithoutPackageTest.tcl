@@ -8,9 +8,9 @@ config TestEditorConfig
 * Given Webproject
 
 	Component: ProjectExplorer
-	- Execute menu item "New/Project..." in tree <ProjektBaum>
+	- Execute menu item "New/Project..." in tree <ProjectTree>
 
-	Component: NewDialog
+	Component: NewProjectDialog
 	- Select element "Test-Editor Project" in tree <ProjectType>
 	- Click on <NextButton>
 	- Type "MyFirstWebProject" into <ProjectName>
@@ -23,10 +23,27 @@ config TestEditorConfig
 	- Wait at most "30" seconds until dialog with title "Progress Information" is closed
 
 	Component: ProjectExplorer
-	- Select element "MyFirstWebProject/Tests/MyFirstWebProject" in tree <ProjektBaum>
-	- Execute menu item "New/Test Case" in tree <ProjektBaum>
+	- Select element "MyFirstWebProject/Tests/MyFirstWebProject" in tree <ProjectTree>
+	- Execute menu item "New/Test Case" in tree <ProjectTree>
 
-	Component: NewDialog
+	Component: NewTestCaseDialog
+	- Type "MyTestcase.tcl" into <TestCaseName>
 	- Click on <FinishButton>
-	
-//TODO continue this test after support for text editor is merged	
+
+//when
+	Component: ActiveEditor
+	- Remove line "1"
+	- Save content
+
+	Component: MainWindow
+	- Wait until all jobs finished
+
+//then
+	Component: TestEditorServices
+	- isJavaPackage = Contains file "/MyFirstWebProject/src-gen/MyFirstWebProject/MyTestcase.java" this "package MyFirstWebProject"
+	- assert isJavaPackage = "true"
+
+	Component: ActiveEditor
+	- isTclPackage = Contains active editor "package MyFirstWebProject"
+	- assert isTclPackage = "false"
+	 

@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2012 - 2016 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
 package org.testeditor.fixture.eclipse;
 
 import java.util.concurrent.Callable;
@@ -12,6 +24,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
@@ -47,10 +60,11 @@ public class EclipseWorkbenchFixture {
 		logger.info("Searching for open editor with filepath='{}'", filepath);
 		IPath path = getAbsolutePath(filepath);
 		Stream<IEditorReference> editorReferences = getEditorReferences();
-		IEditorReference editorReference = editorReferences.filter(editorRef -> hasFileAsInput(editorRef, path)).findFirst().orElseThrow(() -> {
-			logger.error("No open editor with filepath='{}' was found.", filepath);
-			return getNoEditorFoundWithInputError(filepath);
-		});
+		IEditorReference editorReference = editorReferences.filter(editorRef -> hasFileAsInput(editorRef, path))
+				.findFirst().orElseThrow(() -> {
+					logger.error("No open editor with filepath='{}' was found.", filepath);
+					return getNoEditorFoundWithInputError(filepath);
+				});
 		return editorReference.getEditor(false);
 	}
 
@@ -78,6 +92,25 @@ public class EclipseWorkbenchFixture {
 		logger.info("Closing editor with input='{}'.", editorPart.getEditorInput());
 		IWorkbenchWindow window = editorPart.getSite().getWorkbenchWindow();
 		syncExec(() -> window.getActivePage().closeEditor(editorPart, false));
+	}
+
+	/**
+	 * Wait until their is no running job in the background of the RCP/IDE.
+	 */
+	@FixtureMethod
+	public void waitUntilJobsCompleted() {
+		try {
+			int counter = 0;
+			while (!Job.getJobManager().isIdle() || counter < 100) {
+				Thread.sleep(100);
+				counter++;
+			}
+			if (counter >= 100) {
+				logger.info("Abort waiting for eclipse job execution after 10 seconds.");
+			}
+		} catch (InterruptedException e) {
+			logger.error("Wait operation is interrupted.", e);
+		}
 	}
 
 	private IWorkbench getWorkbench() {
@@ -141,7 +174,8 @@ public class EclipseWorkbenchFixture {
 			}
 			return null;
 		}).collect(Collectors.joining(", "));
-		String message = String.format("Could not find editor with filepath='%s', but found editors with inputs: %s", filepath, editorInputs);
+		String message = String.format("Could not find editor with filepath='%s', but found editors with inputs: %s",
+				filepath, editorInputs);
 		return new IllegalArgumentException(message);
 	}
 

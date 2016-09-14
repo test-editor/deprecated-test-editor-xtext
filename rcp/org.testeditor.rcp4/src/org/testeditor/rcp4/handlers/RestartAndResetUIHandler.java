@@ -65,9 +65,9 @@ public class RestartAndResetUIHandler {
 			}
 		}
 		try {
+			partService.saveAll(true);
 			prefs.put(Constants.RESET_APP_PROPERTY, "true");
 			prefs.flush();
-			partService.saveAll(true);
 			workbench.restart();
 		} catch (BackingStoreException e) {
 			logger.error("Error storing the restart command. Restart aborted.", e);

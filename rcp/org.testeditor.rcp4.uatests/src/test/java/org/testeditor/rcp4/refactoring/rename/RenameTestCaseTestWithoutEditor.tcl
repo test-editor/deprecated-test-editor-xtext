@@ -13,7 +13,7 @@ Setup:
 	Macro: SampleProjects
 	- Create a sample web project with Gradle
 
-	Component: Workbench
+	Component: MainWindow
 	- editor = Get editor with file "/demo/src/test/java/demo/GoogleTest.tcl"
 	- Close editor @editor
 
@@ -21,8 +21,8 @@ Setup:
 * Rename "GoogleTest.tcl" to "NewTestCase.tcl"
 
 	Component: ProjectExplorer
-	- Select element "demo/Tests/demo/GoogleTest.tcl" in tree <ProjektBaum>
-	- Execute menu item "Rename..." in tree <ProjektBaum>
+	- Select element "demo/Tests/demo/GoogleTest.tcl" in tree <ProjectTree>
+	- Execute menu item "Rename..." in tree <ProjectTree>
 
 	Component: RenameDialog
 	- Type "NewTestCase.tcl" into <ElementName>
@@ -32,7 +32,7 @@ Setup:
 // then
 * Open an editor "NewTestCase.tcl" and verify that the editor contains the line "# NewTestCase"
 
-	Component: Workbench
+	Component: MainWindow
 	- editor = Open editor for file "/demo/src/test/java/demo/NewTestCase.tcl"
 	- editorContents = Get contents of editor @editor
 
