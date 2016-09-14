@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Widget;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor;
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.finders.ContextMenuHelper;
@@ -383,23 +384,26 @@ public class SWTFixture {
 	}
 
 	@FixtureMethod
-	public String containsActiveTextEditorContent(String searchString) {
-		logger.info("Check if the current active editor {} contains {}", bot.activeEditor().getTitle(), searchString);
-		return Boolean.toString(bot.activeEditor().toTextEditor().getText().contains(searchString));
+	public boolean containsActiveTextEditorContent(String searchString) {
+		SWTBotEditor activeEditor = bot.activeEditor();
+		logger.info("Check if the current active editor {} contains {}", activeEditor.getTitle(), searchString);
+		return activeEditor.toTextEditor().getText().contains(searchString);
 	}
 
 	@FixtureMethod
 	public void removeLineFromEditor(int lineNumber) {
-		logger.info("Removing line {} from  editor {}.", lineNumber, bot.activeEditor().getTitle());
-		SWTBotEclipseEditor textEditor = bot.activeEditor().toTextEditor();
+		SWTBotEditor activeEditor = bot.activeEditor();
+		logger.info("Removing line {} from  editor {}.", lineNumber, activeEditor.getTitle());
+		SWTBotEclipseEditor textEditor = activeEditor.toTextEditor();
 		textEditor.selectLine(lineNumber - 1);
 		textEditor.typeText(" ");
 	}
 
 	@FixtureMethod
 	public void saveActiveEditor() {
-		logger.info("Save editor {}", bot.activeEditor().getTitle());
-		bot.activeEditor().toTextEditor().save();
+		SWTBotEditor activeEditor = bot.activeEditor();
+		logger.info("Save editor {}", activeEditor.getTitle());
+		activeEditor.toTextEditor().save();
 	}
 
 	/**

@@ -100,11 +100,16 @@ public class EclipseWorkbenchFixture {
 	@FixtureMethod
 	public void waitUntilJobsCompleted() {
 		try {
-			while (!Job.getJobManager().isIdle()) {
+			int counter = 0;
+			while (!Job.getJobManager().isIdle() || counter < 100) {
 				Thread.sleep(100);
+				counter++;
+			}
+			if (counter >= 100) {
+				logger.info("Abort waiting for eclipse job execution after 10 seconds.");
 			}
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logger.error("Wait operation is interrupted.", e);
 		}
 	}
 
