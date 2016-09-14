@@ -27,6 +27,8 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor;
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.finders.ContextMenuHelper;
@@ -305,6 +307,12 @@ public class SWTFixture {
 		if (locator.startsWith("[Single]")) {
 			text = bot.text();
 		}
+		if (locator.startsWith("[Label]")) {
+			text = bot.textWithLabel(getLocatorFragmentFrom(locator));
+		}
+		if (locator.startsWith("[ID]")) {
+			text = bot.textWithId(getLocatorFragmentFrom(locator));
+		}
 		text.setText(value);
 	}
 
@@ -373,6 +381,29 @@ public class SWTFixture {
 			return bot.checkBoxWithLabel(locator);
 		}
 		throw new IllegalArgumentException("Unkown locatorStrategy: " + locatorStrategy);
+	}
+
+	@FixtureMethod
+	public String containsActiveTextEditorContent(String searchString) {
+		SWTBotEditor activeEditor = bot.activeEditor();
+		logger.info("Check if the current active editor {} contains {}", activeEditor.getTitle(), searchString);
+		return Boolean.toString(activeEditor.toTextEditor().getText().contains(searchString));
+	}
+
+	@FixtureMethod
+	public void removeLineFromEditor(int lineNumber) {
+		SWTBotEditor activeEditor = bot.activeEditor();
+		logger.info("Removing line {} from  editor {}.", lineNumber, activeEditor.getTitle());
+		SWTBotEclipseEditor textEditor = activeEditor.toTextEditor();
+		textEditor.selectLine(lineNumber - 1);
+		textEditor.typeText(" ");
+	}
+
+	@FixtureMethod
+	public void saveActiveEditor() {
+		SWTBotEditor activeEditor = bot.activeEditor();
+		logger.info("Save editor {}", activeEditor.getTitle());
+		activeEditor.toTextEditor().save();
 	}
 
 	/**
