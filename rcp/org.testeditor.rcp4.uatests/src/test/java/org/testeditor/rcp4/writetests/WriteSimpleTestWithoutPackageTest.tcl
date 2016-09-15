@@ -1,4 +1,5 @@
 import org.testeditor.rcp4.*
+import org.testeditor.fixture.swt.*
 
 # WriteSimpleTestWithoutPackageTest
 
@@ -32,8 +33,8 @@ config TestEditorConfig
 
 //when
 	Component: ActiveEditor
-	- Remove line "1"
-	- Save content
+	- Remove line "1" from editor
+	- Save editor content
 
 	Component: MainWindow
 	- Wait until all jobs finished
@@ -44,6 +45,6 @@ config TestEditorConfig
 	- assert isJavaPackage = "true"
 
 	Component: ActiveEditor
-	- isTclPackage = Contains active editor "package MyFirstWebProject"
+	- isTclPackage = Contains editor "package MyFirstWebProject"
 	- assert isTclPackage = "false"
 	 

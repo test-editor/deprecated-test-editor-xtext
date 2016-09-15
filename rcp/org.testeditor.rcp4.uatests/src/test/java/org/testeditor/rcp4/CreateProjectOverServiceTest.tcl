@@ -1,5 +1,7 @@
 package org.testeditor.rcp4
 
+import org.testeditor.fixture.swt.*
+
 # CreateProjectOverServiceTest implements SmokeTest
 
 config TestEditorConfig
