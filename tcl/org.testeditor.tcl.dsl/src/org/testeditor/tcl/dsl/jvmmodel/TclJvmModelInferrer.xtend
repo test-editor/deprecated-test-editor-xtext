@@ -292,7 +292,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	private def dispatch void toUnitTestCodeLine(AssertionTestStep step, ITreeAppendable output,
 		Iterable<TestStep> macroUseStack) {
 		macroCallVariableResolver.macroUseStack = macroUseStack
-		output.append(assertCallBuilder.build(macroCallVariableResolver, step.assertExpression)).newLine
+		output.append(assertCallBuilder.build(macroCallVariableResolver, step.assertExpression))
 	}
 
 	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output,
