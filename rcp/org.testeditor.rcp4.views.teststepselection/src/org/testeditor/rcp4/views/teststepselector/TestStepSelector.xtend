@@ -53,22 +53,20 @@ class TestStepSelector {
 
 	@Inject IEventBroker broker
 	@Inject AmlInjectorProvider amlInjectorProvider
-	@Inject TestStepSelectorLabelProvider labelProvider
 	@Inject AmlDropSupport amlDropSupport
 	@Inject TestStepSelectorDropTextProvider dropTextProvider
 	@Inject ICommandService commandService
-	TestStepSelectorTreeContentProvider contentProvider;
 	AmlQualifiedNameProvider amlQualifiedNameProvider
 	TreeViewer viewer
-	
+
 	Iterable<AmlModel> model
-	
+
 	@PostConstruct
-	def void postConstruct(Composite parent, TestStepSelectorExecutionListener executionListener,TestStepSelectorPartListener partListener) {
-		
+	def void postConstruct(Composite parent, TestStepSelectorExecutionListener executionListener,
+		TestStepSelectorPartListener partListener, TestStepSelectorLabelProvider labelProvider) {
+
 		val amlInjector = amlInjectorProvider.get
 		amlQualifiedNameProvider = amlInjector.getInstance(AmlQualifiedNameProvider)
-		contentProvider = amlInjectorProvider.get.getInstance(TestStepSelectorTreeContentProvider)
 		commandService.addExecutionListener(executionListener)
 		val page = PlatformUI.workbench.activeWorkbenchWindow.activePage;
 		page.addPartListener(partListener)
@@ -96,14 +94,16 @@ class TestStepSelector {
 
 				})
 		]
+		viewer.contentProvider = amlInjectorProvider.get.getInstance(TestStepSelectorTreeContentProvider)
+		viewer.labelProvider = labelProvider
 		
 		Job.getJobManager().addJobChangeListener(new JobChangeAdapter() {
 			override done(IJobChangeEvent event) {
 				if (event.job.name.equals("Building workspace")) {
-					logger.info("Building workspace completed. Trigger update TestSetSelector")
+					logger.info("Building workspace completed. Trigger update TestStepSelector")
 					broker.post(TestStepSelector.SELECTOR_UPDATE_MODEL_AND_VIEW, null)
 				}
-			} 
+			}
 		})
 
 	}
@@ -117,7 +117,8 @@ class TestStepSelector {
 	@Optional
 	def void updateModelAndView(@EventTopic(SELECTOR_UPDATE_MODEL_AND_VIEW) Object data) {
 		logger.debug("updateModelAndView")
-		updateModel
+		val amlInjector = amlInjectorProvider.get
+		model = amlInjector.getInstance(AmlModelsProvider).amlModels
 		Display.getDefault.syncExec[internalUpdateView()]
 	}
 
@@ -126,17 +127,15 @@ class TestStepSelector {
 	def void updateView(@EventTopic(SELECTOR_UPDATE_VIEW) Object data) {
 		logger.debug("updateView")
 		// TODO - check on the project of the editor
-		if(viewer.input == null){
+		if (viewer.input == null) {
 			Display.getDefault.syncExec[internalUpdateView()]
 		}
 	}
 
 	private def internalUpdateView() {
 
-		//Initial call to the selector
+		// Initial call to the selector
 		if (viewer.input == null) {
-			viewer.labelProvider = labelProvider
-			viewer.contentProvider = contentProvider
 			viewer.input = model
 		} else {
 			// update the view model and conserver the selection
@@ -145,11 +144,6 @@ class TestStepSelector {
 			viewer.expandedElements = expandElements(expandedElements, model)
 		}
 
-	}
-
-	private def void updateModel() {
-		val amlInjector = amlInjectorProvider.get
-		model = amlInjector.getInstance(AmlModelsProvider).amlModels
 	}
 
 	private def Object[] expandElements(Set<String> elements, Iterable<AmlModel> model) {
@@ -184,6 +178,5 @@ class TestStepSelector {
 				throw new IllegalArgumentException("unexpected type " + object.class.name + " in expanded TreeElements")
 		}
 	}
-
 
 }
