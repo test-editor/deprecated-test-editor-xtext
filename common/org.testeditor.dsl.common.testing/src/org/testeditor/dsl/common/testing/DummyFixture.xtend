@@ -59,6 +59,11 @@ public class DummyFixture {
 	@FixtureMethod
 	def void clickOn(String locator, DummyLocatorStrategy locatorStragety) {
 	}
+	
+	@FixtureMethod
+	def boolean getBool(String locator){
+		return true
+	}
 
 	static def String getAmlModel() '''
 		«val dummyFixture = DummyFixture.simpleName»
@@ -93,7 +98,11 @@ public class DummyFixture {
 			template = "Read value from" ${element}
 			method = «dummyFixture».getValue(element)
 		}
-		 
+		
+		interaction type getBool {
+			template = "Read bool from" ${element}
+			method = «dummyFixture».getBool(element)
+		}
 		
 		interaction type getList {
 			template = "Read list from" ${element}
@@ -111,7 +120,7 @@ public class DummyFixture {
 		}
 		
 		element type Label {
-			interactions = getList
+			interactions = getList, getValue, getBool, getMap
 		}
 					
 		component GreetingApplication is Application {

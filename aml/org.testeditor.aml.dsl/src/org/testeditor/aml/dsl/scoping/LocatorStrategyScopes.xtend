@@ -34,7 +34,12 @@ class LocatorStrategyScopes {
 	// TODO improve this, we need a better way to determine "reachable" enums
 	private def Iterable<XImportDeclaration> getEnumImports(EObject eObject) {
 		val rootElement = EcoreUtil2.getRootContainer(eObject) as AmlModel
-		return rootElement.importSection.importDeclarations.filter[importedType instanceof JvmEnumerationType]
+		val importSection = rootElement.importSection
+		if (importSection !== null) {
+			return rootElement.importSection.importDeclarations.filter[importedType instanceof JvmEnumerationType]
+		} else {
+			return #[]
+		}
 	}
 
 	private def Iterable<JvmEnumerationLiteral> getEnumLiterals(Iterable<XImportDeclaration> imports) {

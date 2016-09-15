@@ -17,13 +17,12 @@ import org.eclipse.xtext.diagnostics.Severity
 import org.junit.Test
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.TemplateVariable
-import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
 import org.testeditor.dsl.common.testing.DummyFixture
 
 /**
  * Tests scoping for interactions / template variables.
  */
-class InteractionScopingTest extends AbstractParserTest {
+class InteractionScopingTest extends AbstractScopingTest {
 
 	@Inject extension ModelUtil
 	

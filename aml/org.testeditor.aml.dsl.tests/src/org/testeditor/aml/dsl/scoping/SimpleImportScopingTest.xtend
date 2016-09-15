@@ -15,13 +15,12 @@ package org.testeditor.aml.dsl.scoping
 import javax.inject.Inject
 import org.junit.Ignore
 import org.junit.Test
-import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
 import org.testeditor.dsl.common.testing.DslParseHelper
 
 /**
  * Tests for importing AML elements.
  */
-class SimpleImportScopingTest extends AbstractParserTest {
+class SimpleImportScopingTest extends AbstractScopingTest {
 
 	val file1 = '''
 		package com.example
