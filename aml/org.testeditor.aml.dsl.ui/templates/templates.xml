@@ -11,6 +11,12 @@
 	locator ="${locator}"&#13;
 	${cursor}&#13;
 }</template>
+<template id="ComponentType.new" autoinsert="true" context="org.testeditor.aml.dsl.Aml.ComponentType" deleted="false" description="Create a new component type" enabled="true" name="component type">component type ${name} {&#13;
+	interactions = ${cursor}&#13;
+}</template>
+<template id="ComponentElementType.new" autoinsert="true" context="org.testeditor.aml.dsl.Aml.ComponentElementType" deleted="false" description="Create a new element type" enabled="true" name="element type">element type ${name} {&#13;
+	interactions = ${cursor}&#13;
+}</template>
 <template id="InteractionType.new" autoinsert="true" context="org.testeditor.aml.dsl.Aml.InteractionType" deleted="false" description="Create a new interaction type" enabled="true" name="interaction type">interaction type ${name} {&#13;
 	label = "${label}"&#13;
 	template = "${cursor}"&#13;
