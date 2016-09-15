@@ -44,7 +44,7 @@ class MavenClasspathUtil {
 	def List<IPath> getMavenClasspathEntries(IPath path) {
 		if (mavenClasspath == null) {
 			mavenCommand.executeInNewJvm("help:effective-pom", path.toOSString,
-				"output=" + path.toOSString + "/" + EFFECTIVE_POM_TXT_PATH, new NullProgressMonitor(), System.out, true)
+				"output=" + path.append(EFFECTIVE_POM_TXT_PATH).toOSString, new NullProgressMonitor(), System.out, true)
 			val effectivePom = new File(path.toFile, EFFECTIVE_POM_TXT_PATH)
 			if (effectivePom.exists) {
 				mavenClasspath = readMavenClasspathEntriesFromPom(new FileInputStream(effectivePom))
