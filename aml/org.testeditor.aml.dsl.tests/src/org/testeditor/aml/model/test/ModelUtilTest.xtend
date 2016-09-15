@@ -1,6 +1,8 @@
 package org.testeditor.aml.model.test
 
 import com.google.inject.Provider
+import java.util.List
+import java.util.Map
 import javax.inject.Inject
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypeReferenceBuilder
@@ -22,6 +24,16 @@ class ModelUtilTest extends AbstractAmlTest {
 	@Before
 	def void setUp() {
 		jvmTypeReferenceBuilder = jvmTypeReferenceBuilderFactory.create(resourceSetProvider.get)
+	}
+
+	@Test
+	def void testGenericMapAssignable() {
+		Map.assertAssignable("java.util.Map", true, "String", "Object")
+	}
+
+	@Test
+	def void testGenericListAssignable() {
+		List.assertAssignable("java.util.List", true, "String")
 	}
 
 	@Test
@@ -54,9 +66,9 @@ class ModelUtilTest extends AbstractAmlTest {
 		Boolean.assertAssignable("java.lang.Object", false)
 	}
 
-	private def void assertAssignable(Class<?> clazz, String classString, boolean positive) {
+	private def void assertAssignable(Class<?> clazz, String classString, boolean positive, String... genericTypeParameter) {
 		// given 
-		val typeRef = jvmTypeReferenceBuilder.typeRef(classString)
+		val typeRef = jvmTypeReferenceBuilder.typeRef(classString, genericTypeParameter.map[jvmTypeReferenceBuilder.typeRef(it)])
 
 		// when
 		val result = classUnderTest.isAssignableWithoutConversion(clazz, typeRef)
