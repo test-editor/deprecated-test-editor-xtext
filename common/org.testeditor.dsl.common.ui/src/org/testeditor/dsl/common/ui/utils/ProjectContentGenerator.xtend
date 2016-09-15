@@ -43,6 +43,8 @@ import org.testeditor.dsl.common.util.GradleHelper
 class ProjectContentGenerator {
 
 	static public val TEST_EDITOR_VERSION = "1.1.0" // TODO this sucks - extract to VersionHelper and use the newest version
+	
+	static public val String TEST_EDITOR_MVN_GEN_OUTPUT = 'src-gen/test/java'
 
 	static public val String MAVEN = "Maven"
 	static public val String GRADLE = "Gradle"
@@ -166,6 +168,14 @@ class ProjectContentGenerator {
 		configuration.selectedProfiles = ""
 		project.addNature(XtextProjectHelper.NATURE_ID)
 		configurationManager.enableMavenNature(project, configuration, monitor)
+		project.setupMavenTclGeneratorPreferences
+	}
+	
+	private def void setupMavenTclGeneratorPreferences(IProject project) {
+		val prefs=getPrefsNode('org.testeditor.tcl.dsl.Tcl')
+		prefs.put('outlet.DEFAULT_OUTPUT.directory','./'+TEST_EDITOR_MVN_GEN_OUTPUT)
+		prefs.putBoolean('BuilderConfiguration.is_project_specific', true)
+		prefs.save
 	}
 
 	private def void createApplicationCode(String fixture, IProject project, String srcFolder, IProgressMonitor monitor) {
@@ -383,7 +393,7 @@ class ProjectContentGenerator {
 					<xtend.version>${xtext.version}</xtend.version>
 
 					<testeditor.version>«TEST_EDITOR_VERSION»</testeditor.version>
-					<testeditor.output>src-gen/test/java</testeditor.output>
+					<testeditor.output>«TEST_EDITOR_MVN_GEN_OUTPUT»</testeditor.output>
 				</properties>
 
 				<repositories>

@@ -14,6 +14,8 @@ package org.testeditor.dsl.common.ui.utils
 
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.runtime.preferences.IEclipsePreferences
+import org.eclipse.core.runtime.preferences.InstanceScope
 
 class ProjectUtils {
 
@@ -69,4 +71,14 @@ class ProjectUtils {
 		return folder
 	}
 
+	/** get a preference node (e.g. for node "org.testeditor.tcl.dsl.Tcl") */
+	def IEclipsePreferences getPrefsNode(String node) {
+		return InstanceScope.INSTANCE.getNode(node);
+	}
+
+	/** persist (changed) preferences */
+	def void save(IEclipsePreferences prefs) {
+		prefs.flush
+	}
+	
 }
