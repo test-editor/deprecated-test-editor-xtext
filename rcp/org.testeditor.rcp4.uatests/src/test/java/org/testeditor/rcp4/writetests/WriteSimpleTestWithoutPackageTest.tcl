@@ -1,4 +1,5 @@
 import org.testeditor.rcp4.*
+import org.testeditor.fixture.swt.*
 
 # WriteSimpleTestWithoutPackageTest
 

@@ -1,6 +1,5 @@
-package org.testeditor.rcp4
+package org.testeditor.fixture.swt
 
-import org.testeditor.fixture.swt.*
 import org.testeditor.fixture.swt.ViewLocatorStrategy
 
 import static org.testeditor.fixture.swt.SWTLocatorStrategy.*
