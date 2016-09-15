@@ -1,6 +1,6 @@
 package org.testeditor.fixture.assertion
 
-import org.testeditor.rcp4.* // TODO waiting should go into the core fixture
+import org.testeditor.fixture.swt.* // TODO waiting should go into the core fixture
 
 component type AssertionType {
 	interactions = wait, assertContains

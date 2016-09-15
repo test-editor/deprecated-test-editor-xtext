@@ -1,6 +1,7 @@
 package org.testeditor.rcp4.createprojects
 
 import org.testeditor.rcp4.*
+import org.testeditor.fixture.swt.*
 
 # CreateSwingDemoAndRunTest
 
