@@ -1,16 +1,15 @@
-package org.testeditor.rcp4
+package org.testeditor.fixture.swt
 
-import org.testeditor.fixture.swt.*
-import org.testeditor.fixture.swt.SWTLocatorStrategy
-import org.testeditor.fixture.swt.SWTBotViewLocatorStrategy
+import org.testeditor.fixture.swt.ViewLocatorStrategy
+
+import static org.testeditor.fixture.swt.SWTLocatorStrategy.*
 
 interaction type reportWidgets {
-	template = "Report current visable widgets"
+	template = "Report current visible widgets"
 	method = SWTFixture.reportWidgets
 }
 
 interaction type wait {
-	label = "wait"
 	template = "Wait" ${seconds} "seconds"
 	method = SWTFixture.wait(seconds)
 }
@@ -26,38 +25,32 @@ interaction type waitForDialogClosingWithTimeout {
 }
 
 interaction type isViewVisible {
-	label = "Is view visible"
 	template = "Is view" ${element} "visible"
 	method = SWTFixture.isViewVisible(element, locatorStrategy)
-	locatorStrategy = VIEW_TITLE
+	locatorStrategy = ViewLocatorStrategy.TITLE
 }
 
-interaction type selectElement {
-	label = "Select element"
+interaction type selectElementInTree {
 	template = "Select element" ${item} "in tree" ${element} 
 	method = SWTFixture.selectElementInTreeView(element,item)
 }
 
 interaction type selectElementInList {
-	label = "Select element in list"
 	template = "Select element" ${item} "in list" ${element}
 	method = SWTFixture.selectElementInList(element, item)
 }
 
 interaction type executeContextMenuEntry {
-	label = "Execute context menu entry"
 	template = "Execute menu item " ${item} " in tree" ${element} 
 	method = SWTFixture.executeContextMenuEntry(element,item)
 }
 
 interaction type typeInto {
-	label = "Type into"
 	template = "Type " ${value} " into" ${element} 
 	method = SWTFixture.typeInto(element,value)
 }
 
 interaction type click {
-	label = "Click on"
 	template = "Click on" ${element} 
 	method = SWTFixture.clickOn(element)
 }
@@ -80,17 +73,17 @@ interaction type uncheck {
 }
 
 interaction type removeLine {
-	template = "Remove line" ${lineNumber} 
+	template = "Remove line" ${lineNumber} "from editor"
 	method = SWTFixture.removeLineFromEditor(lineNumber)
 } 
 
 interaction type save {
-	template = "Save content" 
+	template = "Save editor content" 
 	method = SWTFixture.saveActiveEditor
 } 
 
 interaction type containsEditor {
-	template = "Contains active editor" ${searchString} 
+	template = "Contains editor" ${searchString} 
 	method = SWTFixture.containsActiveTextEditorContent(searchString)
 } 
 
@@ -103,11 +96,11 @@ element type View {
 }
 
 element type TreeView {
-	interactions = selectElement, isViewVisible, executeContextMenuEntry
+	interactions = selectElementInTree, isViewVisible, executeContextMenuEntry
 }
 
 element type Tree {
-	interactions = selectElement,  executeContextMenuEntry
+	interactions = selectElementInTree,  executeContextMenuEntry
 }
 
 element type Text {

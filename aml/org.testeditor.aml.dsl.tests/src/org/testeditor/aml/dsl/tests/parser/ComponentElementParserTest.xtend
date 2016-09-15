@@ -80,14 +80,45 @@ class ComponentElementParserTest extends AbstractParserTest {
 	}
 
 	@Test
-	def void parseWithLocatorStrategy() {
+	def void parseWithStaticallyImportedLocatorStrategy() {
 		// Given
-		val input = '''
+		val elementInput = '''
 			element MyButton is «typeName» {
 				locator = "OK_ID"
 				locatorStrategy = ID
 			}
-		'''.surroundWithComponentAndElementType
+		'''
+		val input = '''
+			import static org.testeditor.dsl.common.testing.DummyLocatorStrategy.*
+			
+			«elementInput.surroundWithComponentAndElementType»
+		'''
+
+		// When
+		val element = input.parseAmlWithStdPackage(ComponentElement)
+
+		// Then
+		element => [
+			assertNoErrors
+			locator.assertEquals("OK_ID")
+			locatorStrategy.simpleName.assertEquals("ID")
+		]
+	}
+
+	@Test
+	def void parseWithQualifiedLocatorStrategy() {
+		// Given
+		val elementInput = '''
+			element MyButton is «typeName» {
+				locator = "OK_ID"
+				locatorStrategy = DummyLocatorStrategy.ID
+			}
+		'''
+		val input = '''
+			import org.testeditor.dsl.common.testing.DummyLocatorStrategy
+			
+			«elementInput.surroundWithComponentAndElementType»
+		'''
 
 		// When
 		val element = input.parseAmlWithStdPackage(ComponentElement)
@@ -101,8 +132,6 @@ class ComponentElementParserTest extends AbstractParserTest {
 	}
 
 	protected def surroundWithComponentAndElementType(CharSequence element) '''
-		import org.testeditor.dsl.common.testing.DummyLocatorStrategy
-
 		component type Dialog
 		component MyDialog is Dialog {
 			«element»

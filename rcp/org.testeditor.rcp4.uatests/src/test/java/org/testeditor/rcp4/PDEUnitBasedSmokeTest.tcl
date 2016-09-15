@@ -1,6 +1,6 @@
 package org.testeditor.rcp4
 
-import org.testeditor.rcp4.*
+import org.testeditor.fixture.swt.*
 
 # PDEUnitBasedSmokeTest implements SmokeTest
 
