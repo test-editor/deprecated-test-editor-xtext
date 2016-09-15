@@ -19,7 +19,7 @@ import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.aml.dsl.tests.common.AmlTestModels
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 
-abstract class AbstractParserTestWDummyComponent extends AbstractParserTest {
+abstract class AbstractParserTestWithDummyComponent extends AbstractParserTest {
 	
 	@Inject protected AmlTestModels amlTestModels
 	

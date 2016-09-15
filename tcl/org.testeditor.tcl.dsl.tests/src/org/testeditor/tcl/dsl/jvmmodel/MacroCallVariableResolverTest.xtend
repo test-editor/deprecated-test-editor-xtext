@@ -9,10 +9,10 @@ import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
-import org.testeditor.tcl.dsl.tests.parser.AbstractParserTestWDummyComponent
 import org.testeditor.tsl.StepContent
+import org.testeditor.tcl.dsl.tests.parser.AbstractParserTestWithDummyComponent
 
-class MacroCallVariableResolverTest extends AbstractParserTestWDummyComponent {
+class MacroCallVariableResolverTest extends AbstractParserTestWithDummyComponent {
 	@Inject extension TclModelGenerator
 	@Inject extension AmlModelGenerator
 

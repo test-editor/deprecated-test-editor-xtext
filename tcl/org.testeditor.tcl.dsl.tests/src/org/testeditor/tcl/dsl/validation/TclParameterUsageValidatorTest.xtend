@@ -20,12 +20,12 @@ import org.testeditor.tcl.Macro
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
-import org.testeditor.tcl.dsl.tests.parser.AbstractParserTestWDummyComponent
 import org.testeditor.tcl.util.TclModelUtil
 
 import static org.testeditor.tcl.TclPackage.Literals.*
+import org.testeditor.tcl.dsl.tests.parser.AbstractParserTestWithDummyComponent
 
-class TclParameterUsageValidatorTest extends AbstractParserTestWDummyComponent {
+class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponent {
 	
 	@Inject extension AmlModelGenerator
 	@Inject extension TclModelGenerator

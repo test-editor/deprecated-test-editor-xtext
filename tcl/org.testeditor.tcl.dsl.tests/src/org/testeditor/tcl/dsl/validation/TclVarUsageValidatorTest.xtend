@@ -4,11 +4,11 @@ import javax.inject.Inject
 import org.eclipse.xtext.junit4.validation.ValidationTestHelper
 import org.junit.Test
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
-import org.testeditor.tcl.dsl.tests.parser.AbstractParserTestWDummyComponent
 
 import static org.testeditor.tcl.TclPackage.Literals.*
+import org.testeditor.tcl.dsl.tests.parser.AbstractParserTestWithDummyComponent
 
-class TclVarUsageValidatorTest extends AbstractParserTestWDummyComponent {
+class TclVarUsageValidatorTest extends AbstractParserTestWithDummyComponent {
 	
 	@Inject protected TclValidator tclValidator // class under test (not mocked)
 	@Inject protected ValidationTestHelper validator
