@@ -2,6 +2,7 @@ package org.testeditor.rcp4.refactoring.rename
 
 import org.testeditor.fixture.assertion.*
 import org.testeditor.rcp4.*
+import org.testeditor.fixture.swt.*
 
 # RenameTestCaseTestWithOpenEditor
 
