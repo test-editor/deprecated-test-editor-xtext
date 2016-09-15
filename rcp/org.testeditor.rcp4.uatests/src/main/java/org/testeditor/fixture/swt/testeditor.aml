@@ -10,13 +10,13 @@ interaction type createSimpleProject {
 }
 
 interaction type cleanWorkspace {
-	label = "Clean Workspace content"
+	label = "Clean workspace content"
 	template = "Clean Workspace"
 	method = TestEditorFixture.cleanWorkspace
 }
 
 interaction type restartApp {
-	label = "Clean restart Test-Editor"
+	label = "Reset Test-Editor to initial state" 
 	template = "Reset UI State"
 	method = TestEditorFixture.resetApplication
 }
