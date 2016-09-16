@@ -244,29 +244,43 @@ public class SWTFixture {
 	}
 
 	@FixtureMethod
-	public void selectElementInList(String locator, String itemName) {
+	public void selectElementInList(String itemName, String locator, SWTLocatorStrategy locatorStrategy) {
 		logger.trace("search for list with {}", locator);
 		if (locator.startsWith("[ID]")) {
-			SWTBotList list = bot.listWithId(getLocatorFragmentFrom(locator));
+			SWTBotList list = getList(locator, locatorStrategy);
 			list.select(itemName);
 		}
 	}
 
+	private SWTBotList getList(String locator, SWTLocatorStrategy locatorStrategy) {
+		switch (locatorStrategy) {
+		case ID:
+			return bot.listWithId(locator);
+		case LABEL:
+			return bot.listWithLabel(locator);
+		case SINGLE:
+			return bot.list();
+		}
+		throw new IllegalArgumentException("Unkown locatorStrategy: " + locatorStrategy);
+	}
+
 	@FixtureMethod
-	public void selectElementInCombobox(String locator, String value) {
+	public void selectElementInCombobox(String value, String locator, SWTLocatorStrategy locatorStrategy) {
 		logger.trace("search for dropdown with {}", locator);
-		SWTBotCombo comboBox = getComboBox(locator);
+		SWTBotCombo comboBox = getComboBox(locator, locatorStrategy);
 		comboBox.setText(value);
 	}
 
-	private SWTBotCombo getComboBox(String locator) {
-		if (locator.startsWith("[ID]")) {
-			return bot.comboBoxWithId(getLocatorFragmentFrom(locator));
+	private SWTBotCombo getComboBox(String locator, SWTLocatorStrategy locatorStrategy) {
+		switch (locatorStrategy) {
+		case ID:
+			return bot.comboBoxWithId(locator);
+		case LABEL:
+			return bot.comboBoxWithLabel(locator);
+		case SINGLE:
+			return bot.comboBox();
 		}
-		if (locator.startsWith("[Label]")) {
-			return bot.comboBoxWithLabel(getLocatorFragmentFrom(locator));
-		}
-		return null;
+		throw new IllegalArgumentException("Unkown locatorStrategy: " + locatorStrategy);
 	}
 
 	/**
@@ -416,17 +430,6 @@ public class SWTFixture {
 		SWTBotEditor activeEditor = bot.activeEditor();
 		logger.info("Save editor {}", activeEditor.getTitle());
 		activeEditor.toTextEditor().save();
-	}
-
-	/**
-	 * Extracts the locator fragment from a locator string type.
-	 * 
-	 * @param locator
-	 *            string with type.
-	 * @return locator fragment without type.
-	 */
-	private String getLocatorFragmentFrom(String locator) {
-		return locator.substring(locator.indexOf(']') + 1);
 	}
 
 }

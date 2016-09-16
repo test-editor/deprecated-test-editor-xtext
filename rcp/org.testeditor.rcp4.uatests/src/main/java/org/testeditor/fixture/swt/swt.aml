@@ -37,7 +37,7 @@ interaction type selectElementInTree {
 
 interaction type selectElementInList {
 	template = "Select element" ${item} "in list" ${element}
-	method = SWTFixture.selectElementInList(element, item)
+	method = SWTFixture.selectElementInList(item, element, locatorStrategy)
 }
 
 interaction type executeContextMenuEntry {
@@ -57,7 +57,7 @@ interaction type click {
 
 interaction type selectElementInCombobox {
 	template = "Select value" ${value} "in combo box" ${element}
-	method = SWTFixture.selectElementInCombobox(element, value)
+	method = SWTFixture.selectElementInCombobox(value, element, locatorStrategy)
 }
 
 interaction type check {
@@ -75,17 +75,17 @@ interaction type uncheck {
 interaction type removeLine {
 	template = "Remove line" ${lineNumber} "from editor"
 	method = SWTFixture.removeLineFromEditor(lineNumber)
-} 
+}
 
 interaction type save {
 	template = "Save editor content" 
 	method = SWTFixture.saveActiveEditor
-} 
+}
 
 interaction type containsEditor {
 	template = "Contains editor" ${searchString} 
 	method = SWTFixture.containsActiveTextEditorContent(searchString)
-} 
+}
 
 component type TextEditor {
 	interactions = wait, removeLine, save, containsEditor

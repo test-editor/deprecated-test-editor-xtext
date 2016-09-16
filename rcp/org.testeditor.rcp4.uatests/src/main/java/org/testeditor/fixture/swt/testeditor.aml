@@ -17,7 +17,7 @@ interaction type cleanWorkspace {
 }
 
 interaction type restartApp {
-	label = "Reset Test-Editor to initial state" 
+	label = "Reset Test-Editor to initial state"
 	template = "Reset UI State"
 	method = TestEditorFixture.resetApplication
 }
@@ -58,7 +58,7 @@ component MainWindow is Workbench {
 value-space projectmenues = #[ "New/Project...", "Open", "Run test", "Rename...", "New/Test Case" ]
 
 component ProjectExplorer is General {
-	element ProjectTree is TreeView { 
+	element ProjectTree is TreeView {
 		label = "Project Explorer"
 		locator = "Test Project Explorer"
 		executeContextMenuEntry.item restrict to projectmenues
@@ -75,55 +75,27 @@ component ActiveEditor is TextEditor {
 }
 
 component NewProjectDialog is Dialog {
-	element ProjectType is Tree {
-		label = "Project Type Tree"
-		locator = "[Single]"
-	}
-	element NextButton is Button {
-		label = "Next Button"
-		locator = "&Next >"
-		locatorStrategy = SWTLocatorStrategy.LABEL
-	}
-	element FinishButton is Button {
-		label = "Finish Button"
-		locator = "&Finish"
-		locatorStrategy = SWTLocatorStrategy.LABEL
-	}
-	element ProjectName is Text {
-		label = "Project Name"
-		locatorStrategy = SWTLocatorStrategy.SINGLE 
-	}
-	element AddFixtureButton is Button {
-		label = "Add Fixture Button"
-		locator = "NEW_DIALOG_ADD_SELECTED_FIXTURE"
-		locatorStrategy = SWTLocatorStrategy.ID
-	}
-	element AvailableFixturesList is List {
-		label = "Available fixtures list"
-		locator = "[ID]NEW_DIALOG_AVAILABLE_FIXTURE_LIST"
-	}
-	
-	element GenerateWithExamples is CheckBox {
-		locator = "NEW_DIALOG_GENERATE_WITH_EXAMPLES"
-	}
-
-	element BuildTool is Combobox {
-		locator = "[ID]NEW_DIALOG_BUILD_TOOL_COMBO"
-	}
+	element ProjectType is Tree locate by SWTLocatorStrategy.SINGLE ""
+	element NextButton is Button locate by SWTLocatorStrategy.LABEL "&Next >"
+	element FinishButton is Button locate by SWTLocatorStrategy.LABEL "&Finish"
+	element ProjectName is Text locate by SWTLocatorStrategy.SINGLE ""
+	element AddFixtureButton is Button locate by 
+		SWTLocatorStrategy.ID "NEW_DIALOG_ADD_SELECTED_FIXTURE"
+	element AvailableFixturesList is List locate by 
+		SWTLocatorStrategy.ID "NEW_DIALOG_AVAILABLE_FIXTURE_LIST"
+	element GenerateWithExamples is CheckBox locate by 
+		SWTLocatorStrategy.ID "NEW_DIALOG_GENERATE_WITH_EXAMPLES"
+	element BuildTool is Combobox locate by 
+		SWTLocatorStrategy.ID "NEW_DIALOG_BUILD_TOOL_COMBO"
 }
 
 component NewTestCaseDialog is Dialog {
 	element TestCaseName is Text locate by SWTLocatorStrategy.LABEL "File name:"
 	element NextButton is Button locate by SWTLocatorStrategy.LABEL "&Next >"
-	element FinishButton is Button locate by SWTLocatorStrategy.LABEL "&Finish"		
+	element FinishButton is Button locate by SWTLocatorStrategy.LABEL "&Finish"
 }
 
 component RenameDialog is Dialog {
-	element ElementName is Text {
-		locatorStrategy = SWTLocatorStrategy.SINGLE
-	}
-	element OK is Button {
-		locator = "OK"
-		locatorStrategy = SWTLocatorStrategy.LABEL
-	}
+	element ElementName is Text locate by SWTLocatorStrategy.SINGLE ""
+	element OK is Button locate by SWTLocatorStrategy.LABEL "OK"
 }
