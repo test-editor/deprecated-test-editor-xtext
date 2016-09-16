@@ -14,6 +14,7 @@ package org.testeditor.fixture.swt;
 
 import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.widgetOfType;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -219,7 +220,7 @@ public class SWTFixture {
 		logger.trace("Open item with path: {}", itemName);
 		try {
 			SWTBotTreeItem expandNode = tree.expandNode(itemName.split("/"));
-			expandNode.select();
+			tree.select(expandNode);
 		} catch (WidgetNotFoundException e) {
 			printTreeItems(tree, locator);
 			throw e;
@@ -299,37 +300,11 @@ public class SWTFixture {
 	 *            of the widget.
 	 * @param value
 	 *            set to the widget.
-	 */
-	@FixtureMethod
-	@Deprecated
-	public void typeInto(String locator, String value) {
-		logger.trace("search for text with title: {}", locator);
-		SWTBotText text = null;
-		if (locator.startsWith("[Single]")) {
-			text = bot.text();
-		}
-		if (locator.startsWith("[Label]")) {
-			text = bot.textWithLabel(getLocatorFragmentFrom(locator));
-		}
-		if (locator.startsWith("[ID]")) {
-			text = bot.textWithId(getLocatorFragmentFrom(locator));
-		}
-		text.setText(value);
-	}
-
-	/**
-	 * Looking for a widget in that is typeable and is identifiable by the
-	 * locator.
-	 * 
-	 * @param locator
-	 *            of the widget.
-	 * @param value
-	 *            set to the widget.
 	 * @param locatorStrategy
 	 *            strategy to lookup the widget.
 	 */
 	@FixtureMethod
-	public void typeInto2(String locator, SWTLocatorStrategy locatorStrategy, String value) {
+	public void typeInto(String value, String locator, SWTLocatorStrategy locatorStrategy) {
 		logger.trace("search for text with title: {}", locator);
 		SWTBotText text = getText(locator, locatorStrategy);
 		text.setText(value);
@@ -341,6 +316,8 @@ public class SWTFixture {
 			return bot.textWithId(locator);
 		case LABEL:
 			return bot.textWithLabel(locator);
+		case SINGLE:
+			return bot.text();
 		}
 		throw new IllegalArgumentException("Unkown locatorStrategy: " + locatorStrategy);
 	}
@@ -352,24 +329,28 @@ public class SWTFixture {
 	 *            to identify the button.
 	 */
 	@FixtureMethod
-	public void clickOn(String locator) {
-		logger.trace("search for button with title: {}", locator);
-		SWTBotButton button = null;
-		if (locator.startsWith("[Label]")) {
-			String locatorFragment = getLocatorFragmentFrom(locator);
-			button = bot.button(locatorFragment);
+	public void clickOn(String locator, SWTLocatorStrategy locatorStrategy) {
+		logger.trace("search for button with: {}", locator);
+		try {
+			SWTBotButton button = getButton(locator, locatorStrategy);
+			button.click();
+		} catch (WidgetNotFoundException e) {
+			logger.info(e.getLocalizedMessage(), e);
+			this.reportWidgets();
+			fail();
 		}
-		if (locator.startsWith("[ID]")) {
-			String locatorFragment = getLocatorFragmentFrom(locator);
-			try {
-				button = bot.buttonWithId(locatorFragment);
-			} catch (WidgetNotFoundException e) {
-				logger.info(e.getLocalizedMessage(), e);
-				this.reportWidgets();
-			}
+	}
+
+	private SWTBotButton getButton(String locator, SWTLocatorStrategy locatorStrategy) {
+		switch (locatorStrategy) {
+		case ID:
+			return bot.buttonWithId(locator);
+		case LABEL:
+			return bot.button(locator);
+		case SINGLE:
+			return bot.button();
 		}
-		assertNotNull(button);
-		button.click();
+		throw new IllegalArgumentException("Unkown locatorStrategy: " + locatorStrategy);
 	}
 
 	/**
@@ -408,6 +389,8 @@ public class SWTFixture {
 			return bot.checkBoxWithId(locator);
 		case LABEL:
 			return bot.checkBoxWithLabel(locator);
+		case SINGLE:
+			return bot.checkBox(locator);
 		}
 		throw new IllegalArgumentException("Unkown locatorStrategy: " + locatorStrategy);
 	}

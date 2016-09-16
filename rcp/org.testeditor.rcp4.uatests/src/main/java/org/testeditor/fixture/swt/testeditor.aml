@@ -81,19 +81,22 @@ component NewProjectDialog is Dialog {
 	}
 	element NextButton is Button {
 		label = "Next Button"
-		locator = "[Label]&Next >"
+		locator = "&Next >"
+		locatorStrategy = SWTLocatorStrategy.LABEL
 	}
 	element FinishButton is Button {
 		label = "Finish Button"
-		locator = "[Label]&Finish"
+		locator = "&Finish"
+		locatorStrategy = SWTLocatorStrategy.LABEL
 	}
 	element ProjectName is Text {
 		label = "Project Name"
-		locator = "[Single]"
+		locatorStrategy = SWTLocatorStrategy.SINGLE 
 	}
 	element AddFixtureButton is Button {
 		label = "Add Fixture Button"
-		locator = "[ID]NEW_DIALOG_ADD_SELECTED_FIXTURE"
+		locator = "NEW_DIALOG_ADD_SELECTED_FIXTURE"
+		locatorStrategy = SWTLocatorStrategy.ID
 	}
 	element AvailableFixturesList is List {
 		label = "Available fixtures list"
@@ -117,9 +120,10 @@ component NewTestCaseDialog is Dialog {
 
 component RenameDialog is Dialog {
 	element ElementName is Text {
-		locator = "[Single]"
+		locatorStrategy = SWTLocatorStrategy.SINGLE
 	}
 	element OK is Button {
-		locator = "[Label]OK"
+		locator = "OK"
+		locatorStrategy = SWTLocatorStrategy.LABEL
 	}
 }
