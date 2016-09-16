@@ -109,8 +109,8 @@ public class TestEditorFixture {
 	public boolean containsWorkspaceFileText(String filePath, String searchText) throws CoreException, IOException {
 		logger.info("Cearching for text {} in {}", searchText, filePath);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		return Files.lines(new File(root.getLocation().toString() + filePath).toPath())
-				.filter(s -> s.contains(searchText)).count() > 0;
+		File file = new File(root.getLocation().toString(), filePath);
+		return Files.lines(file.toPath()).anyMatch(s -> s.contains(searchText));
 	}
 
 }
