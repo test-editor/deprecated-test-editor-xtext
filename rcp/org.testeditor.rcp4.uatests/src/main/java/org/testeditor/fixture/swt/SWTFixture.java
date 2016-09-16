@@ -301,6 +301,7 @@ public class SWTFixture {
 	 *            set to the widget.
 	 */
 	@FixtureMethod
+	@Deprecated
 	public void typeInto(String locator, String value) {
 		logger.trace("search for text with title: {}", locator);
 		SWTBotText text = null;
@@ -314,6 +315,34 @@ public class SWTFixture {
 			text = bot.textWithId(getLocatorFragmentFrom(locator));
 		}
 		text.setText(value);
+	}
+
+	/**
+	 * Looking for a widget in that is typeable and is identifiable by the
+	 * locator.
+	 * 
+	 * @param locator
+	 *            of the widget.
+	 * @param value
+	 *            set to the widget.
+	 * @param locatorStrategy
+	 *            strategy to lookup the widget.
+	 */
+	@FixtureMethod
+	public void typeInto2(String locator, SWTLocatorStrategy locatorStrategy, String value) {
+		logger.trace("search for text with title: {}", locator);
+		SWTBotText text = getText(locator, locatorStrategy);
+		text.setText(value);
+	}
+
+	private SWTBotText getText(String locator, SWTLocatorStrategy locatorStrategy) {
+		switch (locatorStrategy) {
+		case ID:
+			return bot.textWithId(locator);
+		case LABEL:
+			return bot.textWithLabel(locator);
+		}
+		throw new IllegalArgumentException("Unkown locatorStrategy: " + locatorStrategy);
 	}
 
 	/**

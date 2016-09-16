@@ -46,8 +46,9 @@ interaction type executeContextMenuEntry {
 }
 
 interaction type typeInto {
-	template = "Type " ${value} " into" ${element} 
-	method = SWTFixture.typeInto(element,value)
+	template = "Type" ${value} "into" ${element} 
+	method = SWTFixture.typeInto(element,locatorStrategy,value)
+	//locatorStrategy = ID
 }
 
 interaction type click {

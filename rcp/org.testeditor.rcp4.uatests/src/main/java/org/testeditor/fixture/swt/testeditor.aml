@@ -2,6 +2,7 @@ package org.testeditor.fixture.swt
 
 import org.testeditor.fixture.eclipse.*
 import org.testeditor.fixture.swt.ViewLocatorStrategy
+import org.testeditor.fixture.swt.SWTLocatorStrategy
 
 interaction type createSimpleProject {
 	label = "Create simple project"
@@ -108,20 +109,10 @@ component NewProjectDialog is Dialog {
 	}
 }
 
-component NewTestCaseDialog is Dialog{
-	element TestCaseName is Text {
-		label = "Testcase name"
-		locator = "[Label]File name:"
-	}
-	element NextButton is Button {
-		label = "Next Button"
-		locator = "[Label]&Next >"
-	}
-	element FinishButton is Button {
-		label = "Finish Button"
-		locator = "[Label]&Finish"
-	}
-	
+component NewTestCaseDialog is Dialog {
+	element TestCaseName is Text locate by SWTLocatorStrategy.LABEL "File name:"
+	element NextButton is Button locate by SWTLocatorStrategy.LABEL "&Next >"
+	element FinishButton is Button locate by SWTLocatorStrategy.LABEL "&Finish"		
 }
 
 component RenameDialog is Dialog {
