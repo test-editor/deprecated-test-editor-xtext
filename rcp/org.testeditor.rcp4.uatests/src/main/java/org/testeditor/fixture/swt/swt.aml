@@ -32,7 +32,7 @@ interaction type isViewVisible {
 
 interaction type selectElementInTree {
 	template = "Select element" ${item} "in tree" ${element} 
-	method = SWTFixture.selectElementInTreeView(element,item)
+	method = SWTFixture.selectElementInTreeView(item,element,locatorStrategy)
 }
 
 interaction type selectElementInList {

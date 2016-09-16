@@ -207,16 +207,9 @@ public class SWTFixture {
 	 *            "Root/SubNode/FinalNode"
 	 */
 	@FixtureMethod
-	public void selectElementInTreeView(String locator, String itemName) {
+	public void selectElementInTreeView(String itemName, String locator, SWTLocatorStrategy locatorStrategy) {
 		logger.trace("search for view with title: {}", locator);
-		SWTBotTree tree = null;
-		if (locator.startsWith("[Single]")) {
-			tree = bot.tree();
-		} else {
-			SWTBotView view = bot.viewByTitle(locator);
-			tree = view.bot().tree();
-		}
-		assertNotNull(tree);
+		SWTBotTree tree = getTree(locator, locatorStrategy);
 		logger.trace("Open item with path: {}", itemName);
 		try {
 			SWTBotTreeItem expandNode = tree.expandNode(itemName.split("/"));
@@ -225,6 +218,18 @@ public class SWTFixture {
 			printTreeItems(tree, locator);
 			throw e;
 		}
+	}
+
+	private SWTBotTree getTree(String locator, SWTLocatorStrategy locatorStrategy) {
+		switch (locatorStrategy) {
+		case ID:
+			return bot.viewById(locator).bot().tree();
+		case LABEL:
+			return bot.viewByTitle(locator).bot().tree();
+		case SINGLE:
+			return bot.tree();
+		}
+		throw new IllegalArgumentException("Unkown locatorStrategy: " + locatorStrategy);
 	}
 
 	private void printTreeItems(SWTBotTree tree, String locator) {
