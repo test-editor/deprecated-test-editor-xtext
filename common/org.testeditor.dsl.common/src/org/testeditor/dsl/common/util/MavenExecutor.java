@@ -101,7 +101,9 @@ public class MavenExecutor {
 		Process process = processBuilder.start();
 		PrintStream out = new PrintStream(outputStream);
 		OutputStreamCopyUtil outputCopyThread = new OutputStreamCopyUtil(process.getInputStream(), out);
+		OutputStreamCopyUtil errorCopyThread = new OutputStreamCopyUtil(process.getErrorStream(), out);
 		outputCopyThread.start();
+		errorCopyThread.start();
 		try {
 			while (!process.waitFor(100, TimeUnit.MILLISECONDS)) {
 				if (monitor.isCanceled()) {
