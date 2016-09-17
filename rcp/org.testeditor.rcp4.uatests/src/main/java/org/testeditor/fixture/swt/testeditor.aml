@@ -58,11 +58,9 @@ component MainWindow is Workbench {
 value-space projectmenues = #[ "New/Project...", "Open", "Run test", "Rename...", "New/Test Case" ]
 
 component ProjectExplorer is General {
-	element ProjectTree is TreeView {
-		label = "Project Explorer"
-		locator = "Test Project Explorer"
+	element ProjectTree is TreeView locate by 
+		SWTLocatorStrategy.LABEL "Test Project Explorer" 
 		executeContextMenuEntry.item restrict to projectmenues
-	}
 }
 
 component TestEditorServices is TestEditorApp {
