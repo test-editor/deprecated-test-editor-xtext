@@ -212,7 +212,7 @@ public class SWTFixture {
 	 */
 	@FixtureMethod
 	public void selectElementInTreeView(String itemName, String locator, SWTLocatorStrategy locatorStrategy) {
-		logger.trace("search for view with title: {}", locator);
+		logger.trace("search for view with title: {} to get the default tree", locator);
 		SWTBotTree tree = getTree(locator, locatorStrategy);
 		logger.trace("Open item with path: {}", itemName);
 		try {
@@ -220,6 +220,7 @@ public class SWTFixture {
 			expandNode.select();
 			// tree.select(itemName.split("/"));
 		} catch (WidgetNotFoundException e) {
+			logger.error("Widget not found", e);
 			printTreeItems(tree, locator);
 			throw e;
 		}
