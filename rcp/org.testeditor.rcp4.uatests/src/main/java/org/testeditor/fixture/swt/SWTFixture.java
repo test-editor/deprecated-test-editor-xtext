@@ -217,7 +217,8 @@ public class SWTFixture {
 		logger.trace("Open item with path: {}", itemName);
 		try {
 			SWTBotTreeItem expandNode = tree.expandNode(itemName.split("/"));
-			tree.select(expandNode);
+			expandNode.select();
+			// tree.select(itemName.split("/"));
 		} catch (WidgetNotFoundException e) {
 			printTreeItems(tree, locator);
 			throw e;
