@@ -218,7 +218,6 @@ public class SWTFixture {
 		try {
 			SWTBotTreeItem expandNode = tree.expandNode(itemName.split("/"));
 			expandNode.select();
-			// tree.select(itemName.split("/"));
 		} catch (WidgetNotFoundException e) {
 			logger.error("Widget not found", e);
 			printTreeItems(tree, locator);

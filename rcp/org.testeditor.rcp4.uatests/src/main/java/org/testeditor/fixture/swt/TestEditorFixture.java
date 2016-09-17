@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -67,6 +68,7 @@ public class TestEditorFixture {
 		for (IProject project : projects) {
 			project.delete(true, new NullProgressMonitor());
 		}
+		root.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 		logger.info("Workspace cleaned");
 	}
 
