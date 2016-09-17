@@ -251,10 +251,8 @@ public class SWTFixture {
 	@FixtureMethod
 	public void selectElementInList(String itemName, String locator, SWTLocatorStrategy locatorStrategy) {
 		logger.trace("search for list with {}", locator);
-		if (locator.startsWith("[ID]")) {
-			SWTBotList list = getList(locator, locatorStrategy);
-			list.select(itemName);
-		}
+		SWTBotList list = getList(locator, locatorStrategy);
+		list.select(itemName);
 	}
 
 	private SWTBotList getList(String locator, SWTLocatorStrategy locatorStrategy) {
