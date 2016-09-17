@@ -39,7 +39,7 @@ config TestEditorConfig
 	Component: ProjectExplorer
 	- Select element "swingdemo/Tests/swingdemo/GreetingTest.tcl" in tree <ProjectTree>
 	- Execute menu item "Run test" in tree <ProjectTree>
-	- Wait at most "20" seconds until dialog with title "Progress Information" is closed
+	- Wait at most "30" seconds until dialog with title "Progress Information" is closed
 
 // then
 * Verify test execution result
