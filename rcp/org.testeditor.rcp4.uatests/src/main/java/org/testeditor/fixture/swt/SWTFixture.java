@@ -54,6 +54,11 @@ public class SWTFixture {
 	private Logger logger = LogManager.getLogger(SWTFixture.class);
 	private SWTWorkbenchBot bot = new SWTWorkbenchBot();
 
+	public SWTFixture() {
+		System.setProperty("org.eclipse.swtbot.search.timeout", "10000");
+		System.setProperty("org.eclipse.swtbot.playback.poll.delay", "10000");
+	}
+
 	/**
 	 * Method for debugging the AUT. A first implementation of an widget
 	 * scanner. all widget s on current SWT-App will be printed with their id's
