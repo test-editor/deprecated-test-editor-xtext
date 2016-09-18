@@ -303,14 +303,14 @@ public class SWTFixture {
 	 *             on failure to break the test.
 	 */
 	@FixtureMethod
-	public void executeContextMenuEntry(String viewName, String menuItem) throws Exception {
-		logger.trace("search for view with title: {}", viewName);
-		SWTBotView view = bot.viewByTitle(viewName);
-		assertNotNull(view);
-		SWTBotTree tree = view.bot().tree();
+	public void executeContextMenuEntry(String menuItem, String viewName, SWTLocatorStrategy locatorStrategy)
+			throws Exception {
+		logger.trace("Search for view with title: {}", viewName);
+		SWTBotTree tree = getTree(viewName, locatorStrategy);
 		assertNotNull(tree);
 		MenuItem item = ContextMenuHelper.contextMenu(tree, menuItem.split("/"));
 		assertNotNull(item);
+		logger.trace("Click on menu item: {}", menuItem);
 		new SWTBotMenu(item).click();
 	}
 

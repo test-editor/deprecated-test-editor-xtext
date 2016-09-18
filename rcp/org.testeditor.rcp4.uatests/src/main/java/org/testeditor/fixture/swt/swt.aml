@@ -42,7 +42,7 @@ interaction type selectElementInList {
 
 interaction type executeContextMenuEntry {
 	template = "Execute menu item " ${item} " in tree" ${element} 
-	method = SWTFixture.executeContextMenuEntry(element,item)
+	method = SWTFixture.executeContextMenuEntry(item, element, locatorStrategy)
 }
 
 interaction type typeInto {
