@@ -34,7 +34,8 @@ config TestEditorConfig
 	- valid = Check if "swingexecdemo" is a valid testproject
 	- assert valid = "true"
 
-* Run "GreetingTest"
+	Component: Workbench
+	- Wait until all jobs finished* Run "GreetingTest"
 
 	Component: ProjectExplorer
 	- Select element "swingexecdemo/Tests/swingexecdemo/GreetingTest.tcl" in tree <ProjectTree>
