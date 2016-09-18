@@ -131,6 +131,28 @@ class ComponentElementParserTest extends AbstractParserTest {
 		]
 	}
 
+	@Test
+	def void parseShortFormat() {
+		// Given
+		val elementInput = '''
+			element TestCaseName is «typeName» locate by DummyLocatorStrategy.ID "MyID"
+		'''
+		val input = '''
+			import org.testeditor.dsl.common.testing.DummyLocatorStrategy
+			
+			«elementInput.surroundWithComponentAndElementType»
+		'''
+		// When
+		val element = input.parseAmlWithStdPackage(ComponentElement)
+		
+		// Then
+		element => [
+			assertNoErrors
+			locator.assertEquals("MyID")
+			locatorStrategy.simpleName.assertEquals("ID")
+		]		
+	}
+
 	protected def surroundWithComponentAndElementType(CharSequence element) '''
 		component type Dialog
 		component MyDialog is Dialog {
