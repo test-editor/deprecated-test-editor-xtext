@@ -43,6 +43,7 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotText;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
+import org.eclipse.swtbot.swt.finder.widgets.TimeoutException;
 import org.testeditor.fixture.core.interaction.FixtureMethod;
 
 /**
@@ -160,9 +161,13 @@ public class SWTFixture {
 	public void waitForDialogClosingWithTimeout(String title, long timeout) {
 		logger.info("Waiting for dialog with title='{}' to open, timeout='{}' seconds.", title, timeout);
 		try {
-			bot.waitUntil(Conditions.shellIsActive(title), timeout * 1000);
-			SWTBotShell shell = bot.shell(title);
-			bot.waitUntil(Conditions.shellCloses(shell), timeout * 1000);
+			try {
+				bot.waitUntil(Conditions.shellIsActive(title), 3000);
+				SWTBotShell shell = bot.shell(title);
+				bot.waitUntil(Conditions.shellCloses(shell), timeout * 1000);
+			} catch (TimeoutException e) {
+				logger.info("Dialog with title {} was not found. Test continuous.", title);
+			}
 		} catch (WidgetNotFoundException e) {
 			logger.info("Widget not found. No reason to wait.");
 		}
