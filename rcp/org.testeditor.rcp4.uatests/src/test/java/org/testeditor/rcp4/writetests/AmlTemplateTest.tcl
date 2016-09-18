@@ -3,6 +3,8 @@ import org.testeditor.fixture.swt.*
 
 # AmlTemplateTest
 
+config TestEditorConfig
+
 * Given
 
 	Component: ProjectExplorer
