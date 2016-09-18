@@ -21,23 +21,23 @@ config TestEditorConfig
 * Create project with "Swing fixture"
 
 	Component: NewProjectDialog
-	- Type "swingdemo" into <ProjectName>
+	- Type "swingexecdemo" into <ProjectName>
 	- Click on <NextButton>
 	- Select value "Maven" in combo box <BuildTool>
 	- Select element "Swing Fixture" in list <AvailableFixturesList>
 	- Click on <AddFixtureButton>
 	- Check <GenerateWithExamples>
 	- Click on <FinishButton>
-	- Wait until dialog with title "Progress Information" is closed
+	- Wait at most "30" seconds until dialog with title "Progress Information" is closed
 
 	Component: TestEditorServices
-	- valid = Check if "swingdemo" is a valid testproject
+	- valid = Check if "swingexecdemo" is a valid testproject
 	- assert valid = "true"
 
 * Run "GreetingTest"
 
 	Component: ProjectExplorer
-	- Select element "swingdemo/Tests/swingdemo/GreetingTest.tcl" in tree <ProjectTree>
+	- Select element "swingexecdemo/Tests/swingexecdemo/GreetingTest.tcl" in tree <ProjectTree>
 	- Execute menu item "Run test" in tree <ProjectTree>
 	- Wait at most "30" seconds until dialog with title "Progress Information" is closed
 
