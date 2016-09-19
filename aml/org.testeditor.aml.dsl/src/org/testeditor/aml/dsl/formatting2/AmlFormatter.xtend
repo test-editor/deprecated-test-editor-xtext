@@ -17,6 +17,7 @@ import org.eclipse.xtext.formatting2.IFormattableDocument
 import org.eclipse.xtext.xbase.formatting2.XbaseFormatter
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.Component
+import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.IntegerRange
 import org.testeditor.aml.StringLiterals
 
@@ -43,6 +44,7 @@ class AmlFormatter extends XbaseFormatter {
 		component.regionFor.keyword("includes").append[oneSpace].prepend[oneSpace]
 		component.elements.forEach[
 			formatBrackets(document)
+			format
 		]
 	}
 	
@@ -54,6 +56,11 @@ class AmlFormatter extends XbaseFormatter {
 	
 	def dispatch void format(IntegerRange element, extension IFormattableDocument document) {
 		element.regionFor.keyword("..").surround[oneSpace]
+	}
+	
+	def dispatch void format(ComponentElement element, extension IFormattableDocument document) {
+		element.interior[indent]
+		element.valueSpaceAssignments.forEach[prepend[newLine]]
 	}
 	
 	private def void formatBrackets(EObject element, extension IFormattableDocument document) {
