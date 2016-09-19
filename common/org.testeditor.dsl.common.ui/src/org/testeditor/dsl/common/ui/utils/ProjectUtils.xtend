@@ -12,13 +12,16 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.ui.utils
 
+import javax.inject.Inject
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.ProjectScope
 import org.eclipse.core.runtime.preferences.IEclipsePreferences
-import org.eclipse.core.runtime.preferences.InstanceScope
+import org.testeditor.dsl.common.util.EclipseContextHelper
 
 class ProjectUtils {
 
+	@Inject EclipseContextHelper contextHelper
 
 	public static val String BASIC_PATH_PATTERN = "[^/]+(/[^/]+)*"
 
@@ -71,9 +74,20 @@ class ProjectUtils {
 		return folder
 	}
 
+	def ProjectScope getProjectScope(IProject project) {
+		val context = contextHelper.eclipseContext
+		if (context.containsKey(ProjectScope)) {
+			return context.get(ProjectScope)
+		} else {
+			val newProjectScope = new ProjectScope(project)
+			context.set(ProjectScope, newProjectScope)
+			return newProjectScope
+		}
+	}
+
 	/** get a preference node (e.g. for node "org.testeditor.tcl.dsl.Tcl") */
-	def IEclipsePreferences getPrefsNode(String node) {
-		return InstanceScope.INSTANCE.getNode(node);
+	def IEclipsePreferences getPrefsNode(ProjectScope projectScope, String node) {
+		return projectScope.getNode(node)
 	}
 
 	/** persist (changed) preferences */
