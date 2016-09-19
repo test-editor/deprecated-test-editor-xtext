@@ -87,8 +87,22 @@ interaction type containsEditor {
 	method = SWTFixture.containsActiveTextEditorContent(searchString)
 }
 
+interaction type typeTextIntoEditor {
+	template = "Type" ${text} "into active editor"
+	method = SWTFixture.typeTextIntoActiveEditor(text)
+}
+
+interaction type goToLineIntoEditor {
+ 	template = "Go to line" ${lineNumber} "in active editor"
+ 	method = SWTFixture.goToLineInActiveEditor(lineNumber)	
+}
+
+interaction type autocompletation {
+	template = "Use auto completion with" ${text} "and select" ${proposalText}
+	method = SWTFixture.activateAutocompletion(text,proposalText)
+}
 component type TextEditor {
-	interactions = wait, removeLine, save, containsEditor
+	interactions = wait, removeLine, save, containsEditor, typeTextIntoEditor, goToLineIntoEditor, autocompletation
 }
 
 element type View {

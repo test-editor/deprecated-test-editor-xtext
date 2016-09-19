@@ -313,7 +313,13 @@ public class SWTFixture {
 		logger.trace("Search for view with title: {}", viewName);
 		SWTBotTree tree = getTree(viewName, locatorStrategy);
 		assertNotNull(tree);
-		MenuItem item = ContextMenuHelper.contextMenu(tree, menuItem.split("/"));
+		MenuItem item = null;
+		try {
+			item = ContextMenuHelper.contextMenu(tree, menuItem.split("/"));
+		} catch (WidgetNotFoundException e) {
+			logger.trace("Search menu entry a second time: {}", menuItem);
+			item = ContextMenuHelper.contextMenu(tree, menuItem.split("/"));
+		}
 		assertNotNull(item);
 		logger.trace("Click on menu item: {}", menuItem);
 		new SWTBotMenu(item).click();
@@ -443,6 +449,27 @@ public class SWTFixture {
 		SWTBotEditor activeEditor = bot.activeEditor();
 		logger.info("Save editor {}", activeEditor.getTitle());
 		activeEditor.toTextEditor().save();
+	}
+
+	@FixtureMethod
+	public void typeTextIntoActiveEditor(String text) {
+		SWTBotEditor activeEditor = bot.activeEditor();
+		logger.info("Type text: {} into editor {}", text, activeEditor.getTitle());
+		activeEditor.toTextEditor().typeText(text);
+	}
+
+	@FixtureMethod
+	public void goToLineInActiveEditor(int lineNumber) {
+		SWTBotEditor activeEditor = bot.activeEditor();
+		logger.info("Go to line: {} into editor {}", lineNumber, activeEditor.getTitle());
+		activeEditor.toTextEditor().navigateTo(lineNumber, 0);
+	}
+
+	@FixtureMethod
+	public void activateAutocompletion(String text, String selectedProposal) {
+		SWTBotEditor activeEditor = bot.activeEditor();
+		logger.info("Activate autocompletion on editor {}", activeEditor.getTitle());
+		activeEditor.toTextEditor().autoCompleteProposal(text, selectedProposal);
 	}
 
 }
