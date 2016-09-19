@@ -41,8 +41,8 @@ config TestEditorConfig
 
 //then
 	Component: TestEditorServices
-	- isJavaPackage = Contains file "/MyFirstWebProject/src-gen/MyFirstWebProject/MyTestcase.java" this "package MyFirstWebProject"
-	- assert isJavaPackage 
+	- isJavaPackage = Contains file "/MyFirstWebProject/src-gen/test/java/MyFirstWebProject/MyTestcase.java" this "package MyFirstWebProject"
+	- assert isJavaPackage
 
 	Component: ActiveEditor
 	- isTclPackage = Contains editor "package MyFirstWebProject"
