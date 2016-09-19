@@ -5,19 +5,16 @@ import org.testeditor.fixture.swt.ViewLocatorStrategy
 import org.testeditor.fixture.swt.SWTLocatorStrategy
 
 interaction type createSimpleProject {
-	label = "Create simple project"
 	template = "Create simple project"
 	method = TestEditorFixture.createDemoProject
 }
 
 interaction type cleanWorkspace {
-	label = "Clean workspace content"
 	template = "Clean Workspace"
 	method = TestEditorFixture.cleanWorkspace
 }
 
 interaction type restartApp {
-	label = "Reset Test-Editor to initial state"
 	template = "Reset UI State"
 	method = TestEditorFixture.resetApplication
 }
@@ -37,29 +34,15 @@ component type TestEditorApp {
 }
 
 component MainWindow is Workbench {
-
-	element ProjektBaum is View {
-		label = "Project Explorer"
-		locator = "Test Project Explorer"
-	}
-	
-	element TestStepSelector is View {
-		label = "Test Step Selector"
-		locator = "Test Step Selector"
-	}
-	
-	element JUnitView is View {
-		locator = "org.eclipse.jdt.junit.ResultView"
-		locatorStrategy = ViewLocatorStrategy.ID
-	}
-
+	element ProjektBaum is View locate by ViewLocatorStrategy.TITLE "Test Project Explorer"
+	element TestStepSelector is View locate by ViewLocatorStrategy.TITLE "Test Step Selector"
+	element JUnitView is View locate by ViewLocatorStrategy.ID "org.eclipse.jdt.junit.ResultView"
 }
 
 value-space projectmenues = #[ "New/Project...", "Open", "Run test", "Rename...", "New/Test Case", "New/Application Mapping"]
 
 component ProjectExplorer is General {
-	element ProjectTree is TreeView locate by 
-		SWTLocatorStrategy.LABEL "Test Project Explorer" 
+	element ProjectTree is TreeView locate by SWTLocatorStrategy.LABEL "Test Project Explorer" 
 		executeContextMenuEntry.item restrict to projectmenues
 }
 
@@ -77,14 +60,10 @@ component NewProjectDialog is Dialog {
 	element NextButton is Button locate by SWTLocatorStrategy.LABEL "&Next >"
 	element FinishButton is Button locate by SWTLocatorStrategy.LABEL "&Finish"
 	element ProjectName is Text locate by SWTLocatorStrategy.SINGLE ""
-	element AddFixtureButton is Button locate by 
-		SWTLocatorStrategy.ID "NEW_DIALOG_ADD_SELECTED_FIXTURE"
-	element AvailableFixturesList is List locate by 
-		SWTLocatorStrategy.ID "NEW_DIALOG_AVAILABLE_FIXTURE_LIST"
-	element GenerateWithExamples is CheckBox locate by 
-		SWTLocatorStrategy.ID "NEW_DIALOG_GENERATE_WITH_EXAMPLES"
-	element BuildTool is Combobox locate by 
-		SWTLocatorStrategy.ID "NEW_DIALOG_BUILD_TOOL_COMBO"
+	element AddFixtureButton is Button locate by SWTLocatorStrategy.ID "NEW_DIALOG_ADD_SELECTED_FIXTURE"
+	element AvailableFixturesList is List locate by SWTLocatorStrategy.ID "NEW_DIALOG_AVAILABLE_FIXTURE_LIST"
+	element GenerateWithExamples is CheckBox locate by SWTLocatorStrategy.ID "NEW_DIALOG_GENERATE_WITH_EXAMPLES"
+	element BuildTool is Combobox locate by SWTLocatorStrategy.ID "NEW_DIALOG_BUILD_TOOL_COMBO"
 }
 
 component NewTestCaseDialog is Dialog {
