@@ -169,7 +169,6 @@ class ComponentElementParserTest extends AbstractParserTest {
 			}
 			«elementInput.surroundWithComponentAndElementType»
 		'''
-		println(input)
 		// When
 		val element = input.parseAmlWithStdPackage(ComponentElement)
 		
