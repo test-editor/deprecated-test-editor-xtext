@@ -286,7 +286,13 @@ public class SWTFixture {
 		assertNotNull(view);
 		SWTBotTree tree = view.bot().tree();
 		assertNotNull(tree);
-		MenuItem item = ContextMenuHelper.contextMenu(tree, menuItem.split("/"));
+		MenuItem item = null;
+		try {
+			item = ContextMenuHelper.contextMenu(tree, menuItem.split("/"));
+		} catch (WidgetNotFoundException e) {
+			logger.trace("Search menu entry a second time: {}", menuItem);
+			item = ContextMenuHelper.contextMenu(tree, menuItem.split("/"));
+		}
 		assertNotNull(item);
 		new SWTBotMenu(item).click();
 	}
