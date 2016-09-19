@@ -54,7 +54,7 @@ component MainWindow is Workbench {
 
 }
 
-value-space projectmenues = #[ "New/Project...", "Open", "Run test", "Rename...", "New/Test Case" ]
+value-space projectmenues = #[ "New/Project...", "Open", "Run test", "Rename...", "New/Test Case", "New/Application Mapping"]
 
 component ProjectExplorer is General {
 	element ProjectTree is TreeView { 
