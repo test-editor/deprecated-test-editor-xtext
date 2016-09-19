@@ -17,6 +17,8 @@ import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.ProjectScope
 import org.eclipse.core.runtime.preferences.IEclipsePreferences
+import org.eclipse.core.runtime.preferences.IScopeContext
+import org.eclipse.core.runtime.preferences.InstanceScope
 import org.testeditor.dsl.common.util.EclipseContextHelper
 
 class ProjectUtils {
@@ -74,7 +76,7 @@ class ProjectUtils {
 		return folder
 	}
 
-	def ProjectScope getProjectScope(IProject project) {
+	def IScopeContext getProjectScope(IProject project) {
 		val context = contextHelper.eclipseContext
 		if (context.containsKey(ProjectScope)) {
 			return context.get(ProjectScope)
@@ -84,10 +86,14 @@ class ProjectUtils {
 			return newProjectScope
 		}
 	}
+	
+	def IScopeContext getInstanceScope() {
+		return InstanceScope.INSTANCE
+	}
 
 	/** get a preference node (e.g. for node "org.testeditor.tcl.dsl.Tcl") */
-	def IEclipsePreferences getPrefsNode(ProjectScope projectScope, String node) {
-		return projectScope.getNode(node)
+	def IEclipsePreferences getPrefsNode(IScopeContext scopeContext, String node) {
+		return scopeContext.getNode(node)
 	}
 
 	/** persist (changed) preferences */

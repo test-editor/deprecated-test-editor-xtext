@@ -172,7 +172,7 @@ class ProjectContentGenerator {
 	}
 	
 	private def void setupMavenTclGeneratorPreferences(IProject project) {
-		val tclPrefs = project.projectScope.getPrefsNode('org.testeditor.tcl.dsl.Tcl')
+		val tclPrefs = instanceScope.getPrefsNode('org.testeditor.tcl.dsl.Tcl')
 		tclPrefs => [
 			put('outlet.DEFAULT_OUTPUT.directory', './' + TEST_EDITOR_MVN_GEN_OUTPUT)
 			putBoolean('BuilderConfiguration.is_project_specific', true)
