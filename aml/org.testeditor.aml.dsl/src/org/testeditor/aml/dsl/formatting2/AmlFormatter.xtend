@@ -43,8 +43,8 @@ class AmlFormatter extends XbaseFormatter {
 		component.regionFor.keyword("abstract").append[oneSpace]
 		component.regionFor.keyword("includes").append[oneSpace].prepend[oneSpace]
 		component.elements.forEach[
-			formatBrackets(document)
 			format
+			formatBrackets(document)
 		]
 	}
 	
