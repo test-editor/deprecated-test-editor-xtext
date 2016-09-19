@@ -58,7 +58,10 @@ ComponentElement returns ComponentElement:
 		('locator' '=' locator=STRING)?
 		('locatorStrategy' '=' locatorStrategy=[types::JvmEnumerationLiteral|QualifiedName])?
 		(valueSpaceAssignments+=ValueSpaceAssignment)*
-	'}')|('locate' 'by' locatorStrategy=[types::JvmEnumerationLiteral|QualifiedName] ('using')? locator=STRING)(valueSpaceAssignments+=ValueSpaceAssignment)*)?
+	'}')|
+	('locate' 'by' locatorStrategy=[types::JvmEnumerationLiteral|QualifiedName] 
+		('using')? locator=STRING
+	)(valueSpaceAssignments+=ValueSpaceAssignment)*)?
 ;
 
 ComponentElementType returns ComponentElementType:

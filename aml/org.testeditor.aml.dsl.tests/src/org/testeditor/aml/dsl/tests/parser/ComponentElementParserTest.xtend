@@ -153,6 +153,36 @@ class ComponentElementParserTest extends AbstractParserTest {
 		]		
 	}
 
+	@Test
+	def void parseShortFormatWithValueSpace() {
+		// Given
+		val elementInput = '''
+			element TestCaseName is ToDo locate by DummyLocatorStrategy.ID "MyID" doSomething.something restrict to items
+		'''
+		val input = '''
+			import org.testeditor.dsl.common.testing.DummyLocatorStrategy
+			value-space items = #[ "New", "Open"]
+			interaction type doSomething {template = "do" ${something}
+			}
+			element type ToDo {
+				interactions = doSomething
+			}
+			«elementInput.surroundWithComponentAndElementType»
+		'''
+		println(input)
+		// When
+		val element = input.parseAmlWithStdPackage(ComponentElement)
+		
+		// Then
+		element => [
+			assertNoErrors
+			locator.assertEquals("MyID")
+			locatorStrategy.simpleName.assertEquals("ID")
+			valueSpaceAssignments.contains("New")
+			valueSpaceAssignments.contains("Open")
+		]				
+	}
+
 	protected def surroundWithComponentAndElementType(CharSequence element) '''
 		component type Dialog
 		component MyDialog is Dialog {
