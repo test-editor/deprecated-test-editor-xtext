@@ -32,32 +32,32 @@ interaction type isViewVisible {
 
 interaction type selectElementInTree {
 	template = "Select element" ${item} "in tree" ${element} 
-	method = SWTFixture.selectElementInTreeView(element,item)
+	method = SWTFixture.selectElementInTreeView(item,element,locatorStrategy)
 }
 
 interaction type selectElementInList {
 	template = "Select element" ${item} "in list" ${element}
-	method = SWTFixture.selectElementInList(element, item)
+	method = SWTFixture.selectElementInList(item, element, locatorStrategy)
 }
 
 interaction type executeContextMenuEntry {
 	template = "Execute menu item " ${item} " in tree" ${element} 
-	method = SWTFixture.executeContextMenuEntry(element,item)
+	method = SWTFixture.executeContextMenuEntry(item, element, locatorStrategy)
 }
 
 interaction type typeInto {
-	template = "Type " ${value} " into" ${element} 
-	method = SWTFixture.typeInto(element,value)
+	template = "Type" ${value} "into" ${element} 
+	method = SWTFixture.typeInto(value,element,locatorStrategy)
 }
 
 interaction type click {
 	template = "Click on" ${element} 
-	method = SWTFixture.clickOn(element)
+	method = SWTFixture.clickOn(element,locatorStrategy)
 }
 
 interaction type selectElementInCombobox {
 	template = "Select value" ${value} "in combo box" ${element}
-	method = SWTFixture.selectElementInCombobox(element, value)
+	method = SWTFixture.selectElementInCombobox(value, element, locatorStrategy)
 }
 
 interaction type check {
@@ -75,17 +75,17 @@ interaction type uncheck {
 interaction type removeLine {
 	template = "Remove line" ${lineNumber} "from editor"
 	method = SWTFixture.removeLineFromEditor(lineNumber)
-} 
+}
 
 interaction type save {
 	template = "Save editor content" 
 	method = SWTFixture.saveActiveEditor
-} 
+}
 
 interaction type containsEditor {
 	template = "Contains editor" ${searchString} 
 	method = SWTFixture.containsActiveTextEditorContent(searchString)
-} 
+}
 
 interaction type typeTextIntoEditor {
 	template = "Type" ${text} "into active editor"

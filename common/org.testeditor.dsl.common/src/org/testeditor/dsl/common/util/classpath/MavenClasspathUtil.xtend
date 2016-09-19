@@ -28,7 +28,9 @@ import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.util.MavenExecutor
 import org.w3c.dom.Document
 import org.w3c.dom.Node
+import javax.inject.Singleton
 
+@Singleton
 class MavenClasspathUtil {
 
 	static val EFFECTIVE_POM_TXT_PATH = "target/effective_pom.txt"
@@ -52,8 +54,8 @@ class MavenClasspathUtil {
 				logger.warn("Could not find the generated effective pom in {}. This is used to determine build path.",
 					effectivePom)
 			}
-			return mavenClasspath
 		}
+		return mavenClasspath
 	}
 
 	def protected List<IPath> readMavenClasspathEntriesFromPom(InputStream pomStream) {
