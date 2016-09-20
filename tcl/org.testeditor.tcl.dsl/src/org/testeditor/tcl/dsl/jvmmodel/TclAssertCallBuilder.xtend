@@ -15,6 +15,7 @@ package org.testeditor.tcl.dsl.jvmmodel
 import javax.inject.Inject
 import org.apache.commons.lang3.StringEscapeUtils
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
+import org.slf4j.LoggerFactory
 import org.testeditor.aml.ModelUtil
 import org.testeditor.tcl.Comparator
 import org.testeditor.tcl.ComparatorEquals
@@ -29,6 +30,9 @@ import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.util.TclModelUtil
 
 class TclAssertCallBuilder {
+
+	static val logger = LoggerFactory.getLogger(TclAssertCallBuilder)
+
 	@Inject extension TclModelUtil
 	@Inject extension ModelUtil
 	
@@ -82,6 +86,9 @@ class TclAssertCallBuilder {
 	private def AssertMethod assertionMethodForNullOrBoolCheck(NullOrBoolCheck expression) {
 		val variableTypeMap = expression.enclosingTestStepContext.collectDeclaredVariablesTypeMap
 		val returnTypeName = variableTypeMap.get(expression.variableReference.variable.name).qualifiedName
+		logger.trace(
+			"determines assertion method based on return type name='{}' for null or bool check of variable='{}'",
+			returnTypeName, expression.variableReference.variable.name)
 		switch (returnTypeName) {
 			case boolean.name,
 			case Boolean.name: return adjustedAssertMethod(AssertMethod.assertTrue, expression.isNegated)
@@ -139,6 +146,8 @@ class TclAssertCallBuilder {
 		val builtExpression = expressionBuilder.buildExpression(nullCheck.variableReference)
 		val variableTypeMap = nullCheck.enclosingTestStepContext.collectDeclaredVariablesTypeMap
 		val returnType = variableTypeMap.get(nullCheck.variableReference.variable.name)
+		logger.trace("builds expression based on return type name='{}' for null or bool check of variable='{}'",
+			returnType.qualifiedName, nullCheck.variableReference.variable.name)
 		if (Boolean.isAssignableWithoutConversion(returnType)) {
 			return '''(«builtExpression» != null) && «builtExpression».booleanValue()'''
 		} else {
