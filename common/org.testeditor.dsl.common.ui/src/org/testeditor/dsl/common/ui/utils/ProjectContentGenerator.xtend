@@ -33,9 +33,9 @@ import org.osgi.framework.FrameworkUtil
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ide.util.FileUtils
 import org.testeditor.dsl.common.ui.wizards.SwingDemoContentGenerator
+import org.testeditor.dsl.common.util.GradleHelper
 
 import static org.eclipse.xtext.xbase.lib.StringExtensions.isNullOrEmpty
-import org.testeditor.dsl.common.util.GradleHelper
 
 /**
  * Generator to generate content to a new test project.
@@ -43,6 +43,8 @@ import org.testeditor.dsl.common.util.GradleHelper
 class ProjectContentGenerator {
 
 	static public val TEST_EDITOR_VERSION = "1.1.0" // TODO this sucks - extract to VersionHelper and use the newest version
+	
+	static public val String TEST_EDITOR_MVN_GEN_OUTPUT = 'src-gen/test/java'
 
 	static public val String MAVEN = "Maven"
 	static public val String GRADLE = "Gradle"
@@ -145,12 +147,12 @@ class ProjectContentGenerator {
 	}
 
 	def String getProxyProperties()  '''
-		systemProp.http.proxyHost=«System.getProperties().getProperty("http.proxyHost")»
-		systemProp.http.proxyPort=«System.getProperties().getProperty("http.proxyPort")»
-		systemProp.http.proxyUser=«System.getProperties().getProperty("http.proxyUser")»
-		systemProp.http.proxyPassword=«System.getProperties().getProperty("http.proxyPassword")»
-		systemProp.https.proxyHost=«System.getProperties().getProperty("https.proxyHost")»
-		systemProp.https.proxyPort=«System.getProperties().getProperty("https.proxyPort")»
+		systemProp.http.proxyHost=«System.properties.getProperty("http.proxyHost")»
+		systemProp.http.proxyPort=«System.properties.getProperty("http.proxyPort")»
+		systemProp.http.proxyUser=«System.properties.getProperty("http.proxyUser")»
+		systemProp.http.proxyPassword=«System.properties.getProperty("http.proxyPassword")»
+		systemProp.https.proxyHost=«System.properties.getProperty("https.proxyHost")»
+		systemProp.https.proxyPort=«System.properties.getProperty("https.proxyPort")»
 	'''
 
 	protected def void setupMavenProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
@@ -166,6 +168,16 @@ class ProjectContentGenerator {
 		configuration.selectedProfiles = ""
 		project.addNature(XtextProjectHelper.NATURE_ID)
 		configurationManager.enableMavenNature(project, configuration, monitor)
+		project.setupMavenTclGeneratorPreferences
+	}
+	
+	private def void setupMavenTclGeneratorPreferences(IProject project) {
+		val tclPrefs = instanceScope.getPrefsNode('org.testeditor.tcl.dsl.Tcl')
+		tclPrefs => [
+			put('outlet.DEFAULT_OUTPUT.directory', './' + TEST_EDITOR_MVN_GEN_OUTPUT)
+			putBoolean('BuilderConfiguration.is_project_specific', true)
+			save
+		]
 	}
 
 	private def void createApplicationCode(String fixture, IProject project, String srcFolder, IProgressMonitor monitor) {
@@ -383,7 +395,7 @@ class ProjectContentGenerator {
 					<xtend.version>${xtext.version}</xtend.version>
 
 					<testeditor.version>«TEST_EDITOR_VERSION»</testeditor.version>
-					<testeditor.output>src-gen/test/java</testeditor.output>
+					<testeditor.output>«TEST_EDITOR_MVN_GEN_OUTPUT»</testeditor.output>
 				</properties>
 
 				<repositories>
