@@ -19,12 +19,11 @@ class ComponentElementFormatterTest extends AbstractFormatterTest {
 		// long syntax
 		assertFormatted[
 			toBeFormatted = '''
-				element User is Text { label = "foo" doSomething.something restrict to items }
+				element User is Text { doSomething.something restrict to items }
 			'''.wrapInComponent
 			expectation = '''
 				element User is Text {
-						label = "foo"
-						doSomething.something restrict to items
+					doSomething.something restrict to items
 				}
 			'''.wrapInComponent
 		]
