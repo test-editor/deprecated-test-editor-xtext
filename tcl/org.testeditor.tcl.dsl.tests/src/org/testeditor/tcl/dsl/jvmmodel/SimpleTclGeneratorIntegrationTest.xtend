@@ -41,12 +41,13 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			package com.example;
 			
 			import org.junit.Test;
+			import org.testeditor.fixture.core.AbstractTestCase;
 			
 			/**
 			 * Generated from SimpleTest.tcl
 			 */
 			@SuppressWarnings("all")
-			public class SimpleTest {
+			public class SimpleTest extends AbstractTestCase {
 			  @Test
 			  public void execute() throws Exception {
 			    
@@ -91,12 +92,13 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			
 			import org.junit.Test;
 			import org.testeditor.dsl.common.testing.DummyFixture;
+			import org.testeditor.fixture.core.AbstractTestCase;
 			
 			/**
 			 * Generated from SimpleTest.tcl
 			 */
 			@SuppressWarnings("all")
-			public class SimpleTest {
+			public class SimpleTest extends AbstractTestCase {
 			  private DummyFixture dummyFixture = new DummyFixture();
 			  
 			  @Test
@@ -167,12 +169,13 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			
 			import org.junit.Test;
 			import org.testeditor.dsl.common.testing.DummyFixture;
+			import org.testeditor.fixture.core.AbstractTestCase;
 			
 			/**
 			 * Generated from SimpleTest.tcl
 			 */
 			@SuppressWarnings("all")
-			public class SimpleTest {
+			public class SimpleTest extends AbstractTestCase {
 			  private DummyFixture dummyFixture = new DummyFixture();
 			  
 			  @Test

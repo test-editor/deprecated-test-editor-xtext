@@ -45,12 +45,13 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 			
 			import org.junit.Test;
 			import org.testeditor.dsl.common.testing.DummyFixture;
+			import org.testeditor.fixture.core.AbstractTestCase;
 			
 			/**
 			 * Generated from MyTest.tcl
 			 */
 			@SuppressWarnings("all")
-			public class MyTest {
+			public class MyTest extends AbstractTestCase {
 			  private DummyFixture dummyFixture = new DummyFixture();
 			  
 			  @Test

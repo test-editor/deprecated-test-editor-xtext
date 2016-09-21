@@ -43,12 +43,13 @@ class TclSetupAndCleanupGeneratorIntegrationTest extends AbstractTclGeneratorInt
 			import org.junit.Before;
 			import org.junit.Test;
 			import org.testeditor.dsl.common.testing.DummyFixture;
+			import org.testeditor.fixture.core.AbstractTestCase;
 			
 			/**
 			 * Generated from SimpleTest.tcl
 			 */
 			@SuppressWarnings("all")
-			public class SimpleTest {
+			public class SimpleTest extends AbstractTestCase {
 			  private DummyFixture dummyFixture = new DummyFixture();
 			  
 			  @Before
