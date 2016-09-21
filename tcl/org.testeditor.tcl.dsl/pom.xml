@@ -25,7 +25,27 @@
 	</dependencies>
 	
 	<build>
-	
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-clean-plugin</artifactId>
+					<configuration>
+						<filesets combine.children="append">
+							<fileset>
+								<directory>${basedir}/lib/</directory>
+								<includes>
+									<include>**</include>
+								</includes>
+								<excludes>
+									<exclude>.gitignore</exclude>
+								</excludes>
+							</fileset>
+						</filesets>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>	
 		<plugins>
 			<plugin>
 				<artifactId>maven-dependency-plugin</artifactId>
