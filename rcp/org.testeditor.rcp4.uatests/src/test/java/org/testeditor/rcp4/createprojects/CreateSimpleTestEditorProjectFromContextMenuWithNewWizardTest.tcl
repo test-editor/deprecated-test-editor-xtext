@@ -1,6 +1,7 @@
 package org.testeditor.rcp4.createprojects
 
 import org.testeditor.rcp4.*;
+import org.testeditor.fixture.swt.*
 
 # CreateSimpleTestEditorProjectFromContextMenuWithNewWizardTest implements CreateSimpleTestEditorProject
 
@@ -9,18 +10,18 @@ config TestEditorConfig
 * start creation process
 
 	Component: ProjectExplorer
-	- Execute menu item "New/Project..." in tree <ProjektBaum>
+	- Execute menu item "New/Project..." in tree <ProjectTree>
 
 * Select type Test Editor Project
 
-	Component: NewDialog
+	Component: NewProjectDialog
 	- Select element "Test-Editor Project" in tree <ProjectType>
 	- Click on <NextButton>
 
 * Give the Project the name "MyFirstProject"
 
 	// We must select the dialog again, because we are in a new TSL Step.
-	Component: NewDialog
+	Component: NewProjectDialog
 	- Type "MyFirstProject" into <ProjectName>
 	- Click on <FinishButton>
 	- Wait until dialog with title "Progress Information" is closed
@@ -28,4 +29,4 @@ config TestEditorConfig
 * Verify that the project is visible in the ui
 
 	Component: ProjectExplorer
-	- Select element "MyFirstProject" in tree <ProjektBaum>
+	- Select element "MyFirstProject" in tree <ProjectTree>

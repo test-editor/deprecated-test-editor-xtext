@@ -1,13 +1,15 @@
 package org.testeditor.rcp4
 
+import org.testeditor.fixture.swt.*
+
 # CreateProjectOverServiceTest implements SmokeTest
 
 config TestEditorConfig
 
 * Validate initial views
 
-	Component: TestEditor
+	Component: TestEditorServices
 	- Create simple project
 
 	Component: ProjectExplorer
-	- Select element "DemoProject" in tree <ProjektBaum>
+	- Select element "DemoProject" in tree <ProjectTree>

@@ -12,9 +12,14 @@
  *******************************************************************************/
 package org.testeditor.fixture.swt;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -63,6 +68,7 @@ public class TestEditorFixture {
 		for (IProject project : projects) {
 			project.delete(true, new NullProgressMonitor());
 		}
+		root.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 		logger.info("Workspace cleaned");
 	}
 
@@ -99,6 +105,14 @@ public class TestEditorFixture {
 	public String isValidProject(String project) throws CoreException {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		return Boolean.toString(root.getProject(project).hasNature("org.eclipse.jdt.core.javanature"));
+	}
+
+	@FixtureMethod
+	public boolean containsWorkspaceFileText(String filePath, String searchText) throws CoreException, IOException {
+		logger.info("Cearching for text {} in {}", searchText, filePath);
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		File file = new File(root.getLocation().toString(), filePath);
+		return Files.lines(file.toPath()).anyMatch(s -> s.contains(searchText));
 	}
 
 }

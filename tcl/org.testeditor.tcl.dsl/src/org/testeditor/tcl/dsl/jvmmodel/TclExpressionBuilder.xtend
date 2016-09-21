@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2012 - 2016 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
 import org.testeditor.tcl.Comparison
@@ -12,8 +24,19 @@ import org.testeditor.tcl.StringConstant
 import org.testeditor.aml.Variable
 import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.EnvironmentVariable
+import org.eclipse.xtend.lib.annotations.Accessors
 
+/** build a (textual) java expression based on a parsed (tcl) expression
+ *  <br/><br/>
+ *  this involves (currently) the generation of string constants, comparisons, variable references and variable map access.
+ *  in order for variables to be resolved correctly within these expressions, a variable resolver must be set. this variable
+ *  resolver is then used to determine the variable to be actually used within the generted java expression string.
+ */
 class TclExpressionBuilder {
+	
+	@Accessors(PUBLIC_SETTER)
+	VariableResolver variableResolver
+	
 	def dispatch String buildExpression(Expression expression) {
 		throw new RuntimeException('''no builder found for type «expression.class»''')
 	}
@@ -39,6 +62,10 @@ class TclExpressionBuilder {
 	}
 	
 	def dispatch String buildExpression(VariableReference varRef) {
+		val stepContent=variableResolver.resolveVariableReference(varRef)
+		if( stepContent instanceof VariableReference) {
+			return stepContent.variable.variableToVarName
+		}
 		return varRef.variable.variableToVarName
 	}
 

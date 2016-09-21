@@ -45,7 +45,7 @@ class TclCallParameterTest extends AbstractTclGeneratorIntegrationTest {
 		tclModel.addToResourceSet
 
 		// when
-		jvmModelInferrer.generateMethodBody(tclModel.test, outputStub, #{})
+		jvmModelInferrer.generateMethodBody(tclModel.test, outputStub)
 
 		// then
 		// expectation is string is escaped properly
@@ -73,7 +73,7 @@ class TclCallParameterTest extends AbstractTclGeneratorIntegrationTest {
 		tclModel.addToResourceSet
 
 		// when
-		jvmModelInferrer.generateMethodBody(tclModel.test, outputStub, #{})
+		jvmModelInferrer.generateMethodBody(tclModel.test, outputStub)
 
 		// then
 		// expectation is string is escaped properly

@@ -50,7 +50,7 @@ class TclHyperLinkHelper extends XbaseHyperLinkHelper {
 		if (interaction !== null) {
 			testStep.createHyperlinkTo(TEST_STEP__CONTENTS, interaction.template, acceptor)
 		} else if (testStep.hasMacroContext) {
-			val macroTemplate = testStep.macroContext?.findMacroDefinition?.template
+			val macroTemplate = testStep.findMacroDefinition(testStep.macroContext)?.template
 			testStep.createHyperlinkTo(TEST_STEP__CONTENTS, macroTemplate, acceptor)
 		}
 	}

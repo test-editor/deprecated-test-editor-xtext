@@ -3,7 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.testeditor.dsl.common.testing
 Bundle-Version: 1.2.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: org.eclipse.core.runtime,
+Require-Bundle: org.eclipse.core.resources,
+ org.eclipse.core.runtime,
  org.eclipse.xtext.junit4,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.xtext,
@@ -38,6 +39,7 @@ Export-Package: org.hamcrest,
  org.mockito.stubbing.answers,
  org.mockito.verification,
  org.testeditor.dsl.common.testing,
+ org.testeditor.dsl.common.testing.eclipse,
  org.testeditor.dsl.common.testing.xtext,
  org.testeditor.fixture.core.interaction
 Bundle-Vendor: Signal Iduna Corporation

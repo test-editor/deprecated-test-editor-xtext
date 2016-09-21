@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2012 - 2016 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
 import javax.inject.Inject
@@ -49,7 +61,8 @@ class TclAssertCallBuilder {
 		}
 	}
 
-	def String build(Expression expression) {
+	def String build(VariableResolver variableResolver, Expression expression) {
+		expressionBuilder.variableResolver = variableResolver
 		val assertionMethod = assertionMethod(expression)
 		if (assertionMethod == null) {
 			return '''// TODO no assertion method implementation for expression with type "«expression.class»"'''
@@ -62,14 +75,13 @@ class TclAssertCallBuilder {
 			}
 			return '''
 				// - assert «assertionText»
-				org.junit.Assert.«expression.assertionMethod»("«StringEscapeUtils.escapeJava(assertionText)»", «expressionBuilt»);
-			'''
+				org.junit.Assert.«expression.assertionMethod»("«StringEscapeUtils.escapeJava(assertionText)»", «expressionBuilt»);'''
 		}
 	}
 
 	private def AssertMethod assertionMethodForNullOrBoolCheck(NullOrBoolCheck expression) {
-		val interaction = expression.testStep.interaction
-		val returnTypeName = interaction.returnType?.qualifiedName ?: ""
+		val variableTypeMap = expression.enclosingTestStepContext.collectDeclaredVariablesTypeMap
+		val returnTypeName = variableTypeMap.get(expression.variableReference.variable.name).qualifiedName
 		switch (returnTypeName) {
 			case boolean.name,
 			case Boolean.name: return adjustedAssertMethod(AssertMethod.assertTrue, expression.isNegated)
@@ -104,7 +116,7 @@ class TclAssertCallBuilder {
 	/**
 	 * return a string that is directly usable within an assertion command
 	 */
-	def String buildComparison(Comparison comparison) {
+	private def String buildComparison(Comparison comparison) {
 		if (comparison.comparator == null) {
 			return expressionBuilder.buildExpression(comparison.left)
 		}
@@ -125,8 +137,8 @@ class TclAssertCallBuilder {
 	 */
 	private def String buildNullOrBoolCheck(NullOrBoolCheck nullCheck) {
 		val builtExpression = expressionBuilder.buildExpression(nullCheck.variableReference)
-		val interaction = nullCheck.testStep.interaction
-		val returnType = interaction.returnType
+		val variableTypeMap = nullCheck.enclosingTestStepContext.collectDeclaredVariablesTypeMap
+		val returnType = variableTypeMap.get(nullCheck.variableReference.variable.name)
 		if (Boolean.isAssignableWithoutConversion(returnType)) {
 			return '''(«builtExpression» != null) && «builtExpression».booleanValue()'''
 		} else {

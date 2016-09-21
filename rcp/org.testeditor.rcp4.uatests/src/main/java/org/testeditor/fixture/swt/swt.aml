@@ -1,0 +1,146 @@
+package org.testeditor.fixture.swt
+
+import org.testeditor.fixture.swt.ViewLocatorStrategy
+
+import static org.testeditor.fixture.swt.SWTLocatorStrategy.*
+
+interaction type reportWidgets {
+	template = "Report current visible widgets"
+	method = SWTFixture.reportWidgets
+}
+
+interaction type wait {
+	template = "Wait" ${seconds} "seconds"
+	method = SWTFixture.wait(seconds)
+}
+
+interaction type waitForDialogClosing {
+	template = "Wait until dialog with title" ${title} "is closed" 
+	method = SWTFixture.waitForDialogClosing(title)
+}
+
+interaction type waitForDialogClosingWithTimeout {
+	template = "Wait at most" ${timeout} "seconds until dialog with title" ${title} "is closed" 
+	method = SWTFixture.waitForDialogClosingWithTimeout(title, timeout)
+}
+
+interaction type isViewVisible {
+	template = "Is view" ${element} "visible"
+	method = SWTFixture.isViewVisible(element, locatorStrategy)
+	locatorStrategy = ViewLocatorStrategy.TITLE
+}
+
+interaction type selectElementInTree {
+	template = "Select element" ${item} "in tree" ${element} 
+	method = SWTFixture.selectElementInTreeView(item,element,locatorStrategy)
+}
+
+interaction type selectElementInList {
+	template = "Select element" ${item} "in list" ${element}
+	method = SWTFixture.selectElementInList(item, element, locatorStrategy)
+}
+
+interaction type executeContextMenuEntry {
+	template = "Execute menu item " ${item} " in tree" ${element} 
+	method = SWTFixture.executeContextMenuEntry(item, element, locatorStrategy)
+}
+
+interaction type typeInto {
+	template = "Type" ${value} "into" ${element} 
+	method = SWTFixture.typeInto(value,element,locatorStrategy)
+}
+
+interaction type click {
+	template = "Click on" ${element} 
+	method = SWTFixture.clickOn(element,locatorStrategy)
+}
+
+interaction type selectElementInCombobox {
+	template = "Select value" ${value} "in combo box" ${element}
+	method = SWTFixture.selectElementInCombobox(value, element, locatorStrategy)
+}
+
+interaction type check {
+	template = "Check" ${element}
+	method = SWTFixture.check(element, locatorStrategy)
+	locatorStrategy = ID
+}
+
+interaction type uncheck {
+	template = "Uncheck" ${element}
+	method = SWTFixture.uncheck(element, locatorStrategy)
+	locatorStrategy = ID
+}
+
+interaction type removeLine {
+	template = "Remove line" ${lineNumber} "from editor"
+	method = SWTFixture.removeLineFromEditor(lineNumber)
+}
+
+interaction type save {
+	template = "Save editor content" 
+	method = SWTFixture.saveActiveEditor
+}
+
+interaction type containsEditor {
+	template = "Contains editor" ${searchString} 
+	method = SWTFixture.containsActiveTextEditorContent(searchString)
+}
+
+interaction type typeTextIntoEditor {
+	template = "Type" ${text} "into active editor"
+	method = SWTFixture.typeTextIntoActiveEditor(text)
+}
+
+interaction type goToLineIntoEditor {
+ 	template = "Go to line" ${lineNumber} "in active editor"
+ 	method = SWTFixture.goToLineInActiveEditor(lineNumber)	
+}
+
+interaction type autocompletation {
+	template = "Use auto completion with" ${text} "and select" ${proposalText}
+	method = SWTFixture.activateAutocompletion(text,proposalText)
+}
+component type TextEditor {
+	interactions = wait, removeLine, save, containsEditor, typeTextIntoEditor, goToLineIntoEditor, autocompletation
+}
+
+element type View {
+	interactions = isViewVisible
+}
+
+element type TreeView {
+	interactions = selectElementInTree, isViewVisible, executeContextMenuEntry
+}
+
+element type Tree {
+	interactions = selectElementInTree,  executeContextMenuEntry
+}
+
+element type Text {
+	interactions = typeInto
+}
+
+element type Button {
+	interactions = click
+}
+
+element type Combobox {
+	interactions = selectElementInCombobox
+}
+
+element type CheckBox {
+	interactions = check, uncheck
+}
+
+element type List {
+	interactions = selectElementInList
+}
+
+component type General {
+	interactions = reportWidgets, wait, waitForDialogClosing, waitForDialogClosingWithTimeout
+}
+
+component type Dialog {
+	interactions = reportWidgets, wait, waitForDialogClosing, waitForDialogClosingWithTimeout
+}

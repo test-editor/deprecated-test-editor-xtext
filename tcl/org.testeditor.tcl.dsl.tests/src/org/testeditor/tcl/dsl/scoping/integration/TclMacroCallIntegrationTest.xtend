@@ -75,7 +75,7 @@ class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 		''')
 
 		// when
-		jvmModelInferrer.generateMethodBody(tcl.test, outputStub, #{})
+		jvmModelInferrer.generateMethodBody(tcl.test, outputStub)
 
 		// then
 		// expectation is tcl: calls macro other("MyApp"), which again calls macro start("MyApp"), which again calls aml start("MyApp"), which again calls aml-method startApplication("MyApp")
