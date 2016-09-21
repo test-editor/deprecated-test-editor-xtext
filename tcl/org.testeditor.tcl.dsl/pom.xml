@@ -20,9 +20,20 @@
 		<dependency>
 			<groupId>org.testeditor.fixture</groupId>
 			<artifactId>core-fixture</artifactId>
-			<version>3.0.1-SNAPSHOT</version>
+			<version>3.0.1</version>
 		</dependency>
 	</dependencies>
+
+	<repositories>
+		<repository>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>bintray-test-editor-Fixtures</id>
+			<name>bintray</name>
+			<url>http://dl.bintray.com/test-editor/maven</url>
+		</repository>
+	</repositories>
 	
 	<build>
 		<pluginManagement>
@@ -83,12 +94,6 @@
 						<artifactId>org.testeditor.aml.model</artifactId>
 						<version>${project.version}</version>
 					</dependency>
-<!--  					<dependency>
-						<groupId>org.testeditor.fixture</groupId>
-						<artifactId>core-fixture</artifactId>
-						<version>3.0.1-SNAPSHOT</version>
-					</dependency>
-					-->
 				</dependencies>
 			</plugin>
 			<plugin>

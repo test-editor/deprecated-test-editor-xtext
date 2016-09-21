@@ -33,7 +33,7 @@
 			</snapshots>
 			<id>bintray-test-editor-Fixtures</id>
 			<name>bintray</name>
-			<url>http://dl.bintray.com/test-editor/Fixtures</url>
+			<url>http://dl.bintray.com/test-editor/maven</url>
 		</repository>
 	</repositories>
 
@@ -52,7 +52,7 @@
 			</snapshots>
 			<id>bintray-test-editor-Fixtures</id>
 			<name>bintray</name>
-			<url>http://dl.bintray.com/test-editor/Fixtures</url>
+			<url>http://dl.bintray.com/test-editor/maven</url>
 		</pluginRepository>
 	</pluginRepositories>
 
@@ -60,7 +60,7 @@
 		<dependency>
 			<groupId>org.testeditor.fixture</groupId>
 			<artifactId>core-fixture</artifactId>
-			<version>3.0.1-SNAPSHOT</version>
+			<version>3.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.xtend</groupId>
