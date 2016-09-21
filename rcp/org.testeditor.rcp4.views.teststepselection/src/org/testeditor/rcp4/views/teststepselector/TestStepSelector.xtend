@@ -12,12 +12,15 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.teststepselector
 
-import java.util.ArrayList
 import java.util.Set
 import javax.annotation.PostConstruct
 import javax.inject.Inject
+import org.eclipse.core.runtime.jobs.IJobChangeEvent
+import org.eclipse.core.runtime.jobs.Job
+import org.eclipse.core.runtime.jobs.JobChangeAdapter
 import org.eclipse.e4.core.di.annotations.Optional
 import org.eclipse.e4.core.di.extensions.EventTopic
+import org.eclipse.e4.core.services.events.IEventBroker
 import org.eclipse.e4.ui.di.Focus
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.jface.viewers.TreeViewer
@@ -32,9 +35,9 @@ import org.eclipse.ui.PlatformUI
 import org.eclipse.ui.commands.ICommandService
 import org.slf4j.LoggerFactory
 import org.testeditor.aml.AmlModel
+import org.testeditor.aml.dsl.naming.AmlQualifiedNameProvider
 
 import static org.testeditor.rcp4.views.teststepselector.XtendSWTLib.*
-import org.testeditor.aml.dsl.naming.AmlQualifiedNameProvider
 
 /** 
  * part that display a tree view with drag and drop elements of the aml model which can be inserted into
@@ -42,27 +45,30 @@ import org.testeditor.aml.dsl.naming.AmlQualifiedNameProvider
  */
 class TestStepSelector {
 
-	public static val String SELECTOR_TOPIC_UPDATE = "MaskStepSelector_Update"
-	public static val String SELECTOR_TOPIC_REFRESH = "MaskStepSelector_Refresh"
+	public static val String SELECTOR_UPDATE_MODEL_AND_VIEW = "MaskStepSelector_Update_Model"
+	public static val String SELECTOR_UPDATE_VIEW = "MaskStepSelector_Update_View"
 
-	static val logger = LoggerFactory.getLogger(TestStepSelector);
+	static val logger = LoggerFactory.getLogger(TestStepSelector)
 
+	@Inject IEventBroker broker
 	@Inject AmlInjectorProvider amlInjectorProvider
-	@Inject TestStepSelectorLabelProvider labelProvider
 	@Inject AmlDropSupport amlDropSupport
 	@Inject TestStepSelectorDropTextProvider dropTextProvider
-	TestStepSelectorTreeContentProvider contentProvider;
+	@Inject ICommandService commandService
 	AmlQualifiedNameProvider amlQualifiedNameProvider
 	TreeViewer viewer
-	
-	Iterable<AmlModel> model
-	
+
+	Iterable<AmlModel> models
+
 	@PostConstruct
-	def void postConstruct(Composite parent, TestStepSelectorExecutionListener testStepSelectorExecutionListener) {
-		
+	def void postConstruct(Composite parent, TestStepSelectorExecutionListener executionListener,
+		TestStepSelectorPartListener partListener, TestStepSelectorLabelProvider labelProvider) {
+
 		val amlInjector = amlInjectorProvider.get
 		amlQualifiedNameProvider = amlInjector.getInstance(AmlQualifiedNameProvider)
-		contentProvider = amlInjectorProvider.get.getInstance(TestStepSelectorTreeContentProvider)
+		commandService.addExecutionListener(executionListener)
+		val page = PlatformUI.workbench.activeWorkbenchWindow.activePage
+		page.addPartListener(partListener)
 
 		viewer = newTreeViewer(parent, SWT.V_SCROLL) [
 			addDragSupport((DND.DROP_COPY.bitwiseOr(DND.DROP_MOVE)), #[TextTransfer.instance],
@@ -87,12 +93,17 @@ class TestStepSelector {
 
 				})
 		]
+		viewer.contentProvider = amlInjectorProvider.get.getInstance(TestStepSelectorTreeContentProvider)
+		viewer.labelProvider = labelProvider
 		
-		val commandService = PlatformUI.workbench.getService(ICommandService)
-		commandService.addExecutionListener(testStepSelectorExecutionListener)
-		
-		val page = PlatformUI.workbench.activeWorkbenchWindow.activePage;
-		page.addPartListener(new TestStepSelectorPartListener(this))
+		Job.jobManager.addJobChangeListener(new JobChangeAdapter {
+			override done(IJobChangeEvent event) {
+				if (event.job.name.equals("Building workspace")) {
+					logger.info("Building workspace completed. Trigger update TestStepSelector")
+					broker.post(TestStepSelector.SELECTOR_UPDATE_MODEL_AND_VIEW, null)
+				}
+			}
+		})
 
 	}
 
@@ -103,75 +114,65 @@ class TestStepSelector {
 
 	@Inject
 	@Optional
-	def void updateView(@EventTopic(SELECTOR_TOPIC_UPDATE) Object data) {
-		logger.debug("updateView.")
-		Display.getDefault.syncExec[updateView()]
+	def void updateModelAndView(@EventTopic(SELECTOR_UPDATE_MODEL_AND_VIEW) Object data) {
+		logger.debug("updateModelAndView")
+		val amlInjector = amlInjectorProvider.get
+		models = amlInjector.getInstance(AmlModelsProvider).amlModels
+		Display.getDefault.syncExec[internalUpdateView]
 	}
 
 	@Inject
 	@Optional
-	def void refreshView(@EventTopic(SELECTOR_TOPIC_REFRESH) Object data) {
-		logger.debug("refreshView.")
-		if(viewer.input == null){
-			Display.getDefault.syncExec[updateView()]
+	def void updateView(@EventTopic(SELECTOR_UPDATE_VIEW) Object data) {
+		logger.debug("updateView")
+		// TODO - check on the project of the editor
+		if (viewer.input === null) {
+			Display.^default.syncExec[internalUpdateView]
 		}
 	}
 
-	private def updateView() {
-
-		updateModel
-		
-		//Initial call to the selector
-		if (viewer.input == null) {
-			viewer.labelProvider = labelProvider
-			viewer.contentProvider = contentProvider
-			viewer.input = model
+	private def internalUpdateView() {
+		// Initial call to the selector
+		if (viewer.input === null) {
+			viewer.input = models
 		} else {
-			// update the view model and conserver the selection
-			val Set<String> expandedElements = viewer.expandedElements.map[toStringPath(it)].toSet
-			viewer.input = model;
-			viewer.expandedElements = expandElements(expandedElements, model)
+			// update the view model and conserve the expansion
+			val previouslyExpandedElements = viewer.expandedElements.map[toStringPath].toSet
+			viewer.input = models
+			if(!previouslyExpandedElements.empty){
+				viewer.expandedElements = elementsToExpand(previouslyExpandedElements, models)
+			}
 		}
-
 	}
-	// TODO the update of the model has to be asynchron to avoid blocking of the UI 
-	private def void updateModel() {
-		val amlInjector = amlInjectorProvider.get
-		model = amlInjector.getInstance(AmlModelsProvider).amlModels
-	}
-
-	private def Object[] expandElements(Set<String> elements, Iterable<AmlModel> model) {
-		val elementsToExpand = new ArrayList<Object>();
+	
+	private def Object[] elementsToExpand(Set<String> previouslyExpandedElements, Iterable<AmlModel> model) {
+		val elementsToExpand = newArrayList
 		model.forEach [
-			{
-				if (elements.contains(it.toStringPath)) {
-					elementsToExpand.add(it.toStringPath)
+			val pathString = toStringPath
+			if (previouslyExpandedElements.contains(pathString)) {
+				elementsToExpand.add(pathString) // since AmlModels are added by string (not EObject)
+			}
+			components.forEach [
+				if (previouslyExpandedElements.contains(toStringPath)) {
+					elementsToExpand.add(it)
 				}
-				it.components.forEach [
-					if (elements.contains(it.toStringPath)) {
+				elements.forEach [
+					if (previouslyExpandedElements.contains(toStringPath)) {
 						elementsToExpand.add(it)
 					}
-					it.elements.forEach [
-						if (elements.contains(it.toStringPath)) {
-							elementsToExpand.add(it)
-						}
-					]
 				]
-			}
+			]
 		]
 		return elementsToExpand
 	}
 
 	def private String toStringPath(Object object) {
 		switch (object) {
-			String:
-				return object
-			EObject:
-				return amlQualifiedNameProvider.apply(object).toString()
-			default:
-				throw new IllegalArgumentException("unexpected type " + object.class.name + " in expanded TreeElements")
+			String: return object
+			EObject: return amlQualifiedNameProvider.apply(object).toString
+			default: throw new IllegalArgumentException("unexpected type " + object.class.name +
+				" in expanded TreeElements")
 		}
 	}
-
 
 }
