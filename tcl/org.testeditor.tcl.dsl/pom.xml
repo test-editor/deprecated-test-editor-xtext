@@ -16,9 +16,34 @@
 	<properties>
 		<mwe2-workflow>file://${project.basedir}/src/org/testeditor/tcl/dsl/GenerateTcl.mwe2</mwe2-workflow>
 	</properties>
-
+	<dependencies>
+		<dependency>
+			<groupId>org.testeditor.fixture</groupId>
+			<artifactId>core-fixture</artifactId>
+			<version>3.0.1-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+	
 	<build>
+	
 		<plugins>
+			<plugin>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>process-sources</phase>
+
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+
+						<configuration>
+							<outputDirectory>lib</outputDirectory>
+							<includeArtifactIds>core-fixture</includeArtifactIds>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
@@ -38,6 +63,12 @@
 						<artifactId>org.testeditor.aml.model</artifactId>
 						<version>${project.version}</version>
 					</dependency>
+<!--  					<dependency>
+						<groupId>org.testeditor.fixture</groupId>
+						<artifactId>core-fixture</artifactId>
+						<version>3.0.1-SNAPSHOT</version>
+					</dependency>
+					-->
 				</dependencies>
 			</plugin>
 			<plugin>

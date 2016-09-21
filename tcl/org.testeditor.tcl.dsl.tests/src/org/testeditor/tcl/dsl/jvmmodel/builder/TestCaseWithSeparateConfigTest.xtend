@@ -49,9 +49,10 @@ class TestCaseWithSeparateConfigTest extends AbstractStandaloneBuilderTest {
 			import org.junit.After;
 			import org.junit.Before;
 			import org.testeditor.dsl.common.testing.DummyFixture;
+			import org.testeditor.fixture.core.AbstractTestCase;
 			
 			@SuppressWarnings("all")
-			public abstract class MyConfig {
+			public abstract class MyConfig extends AbstractTestCase {
 			  protected DummyFixture dummyFixture = new DummyFixture();
 			  
 			  @Before

@@ -47,6 +47,7 @@ import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.StepContentValue
 
 import static org.testeditor.tcl.TclPackage.Literals.*
+import org.testeditor.fixture.core.AbstractTestCase
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -108,10 +109,16 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	private def void addSuperType(JvmGenericType result, SetupAndCleanupProvider element) {
+		if (element instanceof TestConfiguration) {
+			result.superTypes += typeRef(AbstractTestCase)
+		}		
 		if (element instanceof TestCase) {
 			// Inherit from configuration, if set - need to be done before 
 			if (element.config !== null) {
 				result.superTypes += typeRef(element.config.toClass(false))
+			}
+			else {
+				result.superTypes += typeRef(AbstractTestCase)
 			}
 		} // TODO allow explicit definition of super type in TestConfiguration
 	}

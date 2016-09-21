@@ -18,9 +18,9 @@ Require-Bundle: org.eclipse.xtext,
  org.objectweb.asm;bundle-version="[5.0.1,6.0.0)";resolution:=optional,
  org.eclipse.xtext.util,
  org.eclipse.xtend.lib,
- org.testeditor.aml.dsl
-Import-Package: org.apache.log4j,
- javax.inject,
+ org.testeditor.aml.dsl,
+ org.testeditor.logging;bundle-version="1.2.0"
+Import-Package: javax.inject,
  org.apache.commons.lang3
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.testeditor.tcl.dsl,
@@ -34,3 +34,5 @@ Export-Package: org.testeditor.tcl.dsl,
  org.testeditor.tcl.dsl.serializer,
  org.testeditor.tcl.dsl.services,
  org.testeditor.tcl.dsl.validation
+Bundle-ClassPath: lib/core-fixture-3.0.1-SNAPSHOT.jar,
+ .
