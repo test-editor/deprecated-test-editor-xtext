@@ -222,7 +222,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	private def void generate(SpecificationStepImplementation step, ITreeAppendable output) {
-		val logStatement = '''logger.info(" [Test specification] * «StringEscapeUtils.escapeJava(step.contents.restoreString)»);'''
+		val logStatement = '''logger.info(" [Test specification] * «StringEscapeUtils.escapeJava(step.contents.restoreString)»");'''
 		output.newLine
 		output.append(logStatement).newLine
 		step.contexts.forEach[generateContext(output.trace(it), #[])]
@@ -304,12 +304,14 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output,
 		Iterable<TestStep> macroUseStack) {
-		output.append('''logger.trace(" [test step] - «StringEscapeUtils.escapeJava(step.contents.restoreString)»");''').newLine
+		val stepLog = '''logger.trace(" [test step] - «StringEscapeUtils.escapeJava(step.contents.restoreString)»");''' 
+		//output.append().newLine
 		val interaction = step.interaction
 		if (interaction !== null) {
 			val fixtureField = interaction.defaultMethod?.typeReference?.type?.fixtureFieldName
 			val operation = interaction.defaultMethod?.operation
 			if (fixtureField !== null && operation !== null) {
+				output.append(stepLog).newLine
 				step.maybeCreateAssignment(operation, output)
 				output.trace(interaction.defaultMethod) => [
 					val codeLine = '''«fixtureField».«operation.simpleName»(«getParameterList(step, interaction, macroUseStack)»);'''
