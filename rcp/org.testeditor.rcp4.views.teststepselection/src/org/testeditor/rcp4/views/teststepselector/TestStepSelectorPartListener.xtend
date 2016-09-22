@@ -1,18 +1,20 @@
 package org.testeditor.rcp4.views.teststepselector
 
+import javax.inject.Inject
+import org.eclipse.e4.core.di.annotations.Creatable
+import org.eclipse.e4.core.services.events.IEventBroker
 import org.eclipse.ui.IPartListener
 import org.eclipse.ui.IWorkbenchPart
 import org.eclipse.ui.texteditor.ITextEditor
-import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 
-@FinalFieldsConstructor
+@Creatable
 class TestStepSelectorPartListener implements IPartListener {
 
-	val TestStepSelector testStepSelector
+	@Inject IEventBroker broker
 
 	override partActivated(IWorkbenchPart part) {
 		if (part instanceof ITextEditor) {
-			testStepSelector.refreshView(null)
+			broker.post(TestStepSelector.SELECTOR_UPDATE_VIEW, null)
 		}
 	}
 
