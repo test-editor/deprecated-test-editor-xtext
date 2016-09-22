@@ -249,7 +249,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	private def dispatch void generateContext(ComponentTestStepContext context, ITreeAppendable output,
 		Iterable<TestStep> macroUseStack) {
 		output.newLine
-		output.append('''// Component: «context.component.name»''').newLine
+		output.append('''logger.trace(" [Component] «StringEscapeUtils.escapeJava(context.component.name)»");''').newLine
 		context.steps.forEach[generate(output.trace(it), macroUseStack)]
 	}
 
@@ -304,7 +304,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output,
 		Iterable<TestStep> macroUseStack) {
-		output.append('''// - «step.contents.restoreString»''').newLine
+		output.append('''logger.trace(" [test step] - «StringEscapeUtils.escapeJava(step.contents.restoreString)»");''').newLine
 		val interaction = step.interaction
 		if (interaction !== null) {
 			val fixtureField = interaction.defaultMethod?.typeReference?.type?.fixtureFieldName
