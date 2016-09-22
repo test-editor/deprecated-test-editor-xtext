@@ -106,15 +106,15 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			    
 			    /* Test assertions in the famous greeting application */
 			    
-			    // Component: GreetingApplication
+			    logger.trace(" [Component] GreetingApplication");
 			    
-			    // - Read list from <bar>
+			    logger.trace(" [test step] - Read list from <bar>");
 			    java.util.List<? extends java.lang.Object> foo = dummyFixture.getList("label.greet");
-			    // - Read value from <bar>
+			    logger.trace(" [test step] - Read value from <bar>");
 			    java.lang.String baz = dummyFixture.getValue("label.greet");
-			    // - Read bool from <bar>
+			    logger.trace(" [test step] - Read bool from <bar>");
 			    boolean book = dummyFixture.getBool("label.greet");
-			    // - Read map from <bar>
+			    logger.trace(" [test step] - Read map from <bar>");
 			    java.util.Map<? extends java.lang.Object, ? extends java.lang.Object> mak = dummyFixture.getMap("label.greet");
 			    // - assert foo
 			    org.junit.Assert.assertNotNull("foo", foo);
@@ -183,13 +183,13 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			    
 			    /* Start the famous greetings application */
 			    
-			    // Component: GreetingApplication
+			    logger.trace(" [Component] GreetingApplication");
 			    
-			    // - Start application "org.testeditor.swing.exammple.Greetings"
+			    logger.trace(" [test step] - Start application \"org.testeditor.swing.exammple.Greetings\"");
 			    dummyFixture.startApplication("org.testeditor.swing.exammple.Greetings");
-			    // - Read list from <bar>
+			    logger.trace(" [test step] - Read list from <bar>");
 			    java.util.List<? extends java.lang.Object> foo = dummyFixture.getList("label.greet");
-			    // - Stop application
+			    logger.trace(" [test step] - Stop application");
 			    dummyFixture.stopApplication();
 			    /* Do something different */
 			    

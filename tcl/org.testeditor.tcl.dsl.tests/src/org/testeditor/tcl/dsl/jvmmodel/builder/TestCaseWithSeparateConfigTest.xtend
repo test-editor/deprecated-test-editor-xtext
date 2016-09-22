@@ -60,18 +60,18 @@ class TestCaseWithSeparateConfigTest extends AbstractStandaloneBuilderTest {
 			  @Before
 			  public void setupMyConfig() throws Exception {
 			    
-			    // Component: GreetingApplication
+			    logger.trace(" [Component] GreetingApplication");
 			    
-			    // - Start application "org.testeditor.swing.exammple.Greetings"
+			    logger.trace(" [test step] - Start application \"org.testeditor.swing.exammple.Greetings\"");
 			    dummyFixture.startApplication("org.testeditor.swing.exammple.Greetings");
 			  }
 			  
 			  @After
 			  public void cleanupMyConfig() throws Exception {
 			    
-			    // Component: GreetingApplication
+			    logger.trace(" [Component] GreetingApplication");
 			    
-			    // - Stop application
+			    logger.trace(" [test step] - Stop application");
 			    dummyFixture.stopApplication();
 			  }
 			}
@@ -89,9 +89,9 @@ class TestCaseWithSeparateConfigTest extends AbstractStandaloneBuilderTest {
 			    
 			    /* Test Step */
 			    
-			    // Component: GreetingApplication
+			    logger.trace(" [Component] GreetingApplication");
 			    
-			    // - Wait for "3" seconds
+			    logger.trace(" [test step] - Wait for \"3\" seconds");
 			    dummyFixture.waitSeconds(3);
 			  }
 			}

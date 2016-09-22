@@ -59,15 +59,15 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 			    
 			    /* test something */
 			    
-			    // Component: dummyComponent
+			    logger.trace(" [Component] dummyComponent");
 			    
-			    // - Read map from <dummyElement>
+			    logger.trace(" [test step] - Read map from <dummyElement>");
 			    java.util.Map<? extends java.lang.Object, ? extends java.lang.Object> myMap = dummyFixture.getMap("dummyLocator");
-			    // - Read value from <dummyElement>
+			    logger.trace(" [test step] - Read value from <dummyElement>");
 			    java.lang.String myVal = dummyFixture.getValue("dummyLocator");
-			    // - Start application @myMap."my key"
+			    logger.trace(" [test step] - Start application @myMap.\"my key\"");
 			    dummyFixture.startApplication(myMap.get("my key").toString());
-			    // - Start application @myVal
+			    logger.trace(" [test step] - Start application @myVal");
 			    dummyFixture.startApplication(myVal);
 			  }
 			}

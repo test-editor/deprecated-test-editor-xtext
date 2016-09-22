@@ -55,18 +55,18 @@ class TclSetupAndCleanupGeneratorIntegrationTest extends AbstractTclGeneratorInt
 			  @Before
 			  public void setup() throws Exception {
 			    
-			    // Component: GreetingApplication
+			    logger.trace(" [Component] GreetingApplication");
 			    
-			    // - Start application "org.testeditor.swing.exammple.Greetings"
+			    logger.trace(" [test step] - Start application \"org.testeditor.swing.exammple.Greetings\"");
 			    dummyFixture.startApplication("org.testeditor.swing.exammple.Greetings");
 			  }
 			  
 			  @After
 			  public void cleanup() throws Exception {
 			    
-			    // Component: GreetingApplication
+			    logger.trace(" [Component] GreetingApplication");
 			    
-			    // - Stop application
+			    logger.trace(" [test step] - Stop application");
 			    dummyFixture.stopApplication();
 			  }
 			  
