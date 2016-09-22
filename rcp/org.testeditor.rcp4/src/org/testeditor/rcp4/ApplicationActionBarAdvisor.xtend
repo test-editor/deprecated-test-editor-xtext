@@ -28,7 +28,9 @@ import org.eclipse.ui.application.ActionBarAdvisor
 import org.eclipse.ui.application.IActionBarConfigurer
 import org.testeditor.dsl.common.util.EclipseContextHelper
 import org.testeditor.rcp4.handlers.OpenNetworkConfigurationHandler
+import org.testeditor.rcp4.handlers.ResetUIHandler
 import org.testeditor.rcp4.handlers.RestartAndResetUIHandler
+import org.testeditor.rcp4.handlers.SaveUIHandler
 
 /** dummy class */
 class ApplicationActionBarAdvisor extends ActionBarAdvisor {
@@ -50,6 +52,9 @@ class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		menuBar.add(configMenu)
 		configMenu.add(createActionFor("&NetworkConfig", OpenNetworkConfigurationHandler))
 		configMenu.add(createActionFor("&Reset UI", RestartAndResetUIHandler))
+		configMenu.add(createActionFor("&Reset UI - soft", ResetUIHandler))
+		configMenu.add(createActionFor("&Save UI - soft", SaveUIHandler))
+		
 	}
 
 	override protected fillCoolBar(ICoolBarManager coolBar) {
