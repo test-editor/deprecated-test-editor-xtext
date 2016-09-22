@@ -57,7 +57,7 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 			  @Test
 			  public void execute() throws Exception {
 			    
-			    /* test something */
+			    logger.info(" [Test specification] * test something);
 			    
 			    logger.trace(" [Component] dummyComponent");
 			    
