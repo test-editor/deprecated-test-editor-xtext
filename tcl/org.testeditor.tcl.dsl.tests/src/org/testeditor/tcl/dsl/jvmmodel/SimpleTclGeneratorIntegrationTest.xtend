@@ -104,7 +104,7 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			  @Test
 			  public void execute() throws Exception {
 			    
-			    /* Test assertions in the famous greeting application */
+			    logger.info(" [Test specification] * Test assertions in the famous greeting application);
 			    
 			    logger.trace(" [Component] GreetingApplication");
 			    
@@ -116,27 +116,27 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			    boolean book = dummyFixture.getBool("label.greet");
 			    logger.trace(" [test step] - Read map from <bar>");
 			    java.util.Map<? extends java.lang.Object, ? extends java.lang.Object> mak = dummyFixture.getMap("label.greet");
-			    // - assert foo
+			    logger.trace("- assert foo");
 			    org.junit.Assert.assertNotNull("foo", foo);
-			    // - assert baz = "fix"
+			    logger.trace("- assert baz = "fix"");
 			    org.junit.Assert.assertEquals("baz = \"fix\"", "fix", baz);
-			    // - assert book
+			    logger.trace("- assert book");
 			    org.junit.Assert.assertTrue("book", book);
-			    // - assert mak."key with spaces" = "fox"
+			    logger.trace("- assert mak."key with spaces" = "fox"");
 			    org.junit.Assert.assertEquals("mak.\"key with spaces\" = \"fox\"", "fox", mak.get("key with spaces"));
-			    // - assert ! foo
+			    logger.trace("- assert ! foo");
 			    org.junit.Assert.assertNull("! foo", foo);
-			    // - assert baz <> "fix"
+			    logger.trace("- assert baz <> "fix"");
 			    org.junit.Assert.assertNotEquals("baz <> \"fix\"", "fix", baz);
-			    // - assert ! book
+			    logger.trace("- assert ! book");
 			    org.junit.Assert.assertFalse("! book", book);
-			    // - assert mak."key with spaces" <> "fox"
+			    logger.trace("- assert mak."key with spaces" <> "fox"");
 			    org.junit.Assert.assertNotEquals("mak.\"key with spaces\" <> \"fox\"", "fox", mak.get("key with spaces"));
-			    // - assert mak."key with spaces"
+			    logger.trace("- assert mak."key with spaces"");
 			    org.junit.Assert.assertNotNull("mak.\"key with spaces\"", mak.get("key with spaces"));
-			    // - assert ! mak."key with spaces"
+			    logger.trace("- assert ! mak."key with spaces"");
 			    org.junit.Assert.assertNull("! mak.\"key with spaces\"", mak.get("key with spaces"));
-			    // - assert baz = mak.otherkey
+			    logger.trace("- assert baz = mak.otherkey");
 			    org.junit.Assert.assertEquals("baz = mak.otherkey", mak.get("otherkey"), baz);
 			  }
 			}
@@ -181,7 +181,7 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			  @Test
 			  public void execute() throws Exception {
 			    
-			    /* Start the famous greetings application */
+			    logger.info(" [Test specification] * Start the famous greetings application);
 			    
 			    logger.trace(" [Component] GreetingApplication");
 			    
@@ -191,7 +191,7 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			    java.util.List<? extends java.lang.Object> foo = dummyFixture.getList("label.greet");
 			    logger.trace(" [test step] - Stop application");
 			    dummyFixture.stopApplication();
-			    /* Do something different */
+			    logger.info(" [Test specification] * Do something different);
 			    
 			  }
 			}

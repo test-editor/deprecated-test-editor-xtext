@@ -217,14 +217,14 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	private def void generateEnvironmentVariableAssertion(EnvironmentVariable environmentVariable,
 		ITreeAppendable output) {
-		output.append('''org.junit.Assert.assertNotNull(«expressionBuilder.variableToVarName(environmentVariable)»);''').
-			newLine
+		output.append('''org.junit.Assert.assertNotNull(«expressionBuilder.variableToVarName(environmentVariable)»);''')
+		output.newLine
 	}
 
 	private def void generate(SpecificationStepImplementation step, ITreeAppendable output) {
-		val comment = '''/* «step.contents.restoreString» */'''
+		val logStatement = '''logger.info(" [Test specification] * «StringEscapeUtils.escapeJava(step.contents.restoreString)»);'''
 		output.newLine
-		output.append(comment).newLine
+		output.append(logStatement).newLine
 		step.contexts.forEach[generateContext(output.trace(it), #[])]
 	}
 

@@ -73,7 +73,7 @@ class TclSetupAndCleanupGeneratorIntegrationTest extends AbstractTclGeneratorInt
 			  @Test
 			  public void execute() throws Exception {
 			    
-			    /* Test Step */
+			    logger.info(" [Test specification] * Test Step);
 			    
 			  }
 			}
