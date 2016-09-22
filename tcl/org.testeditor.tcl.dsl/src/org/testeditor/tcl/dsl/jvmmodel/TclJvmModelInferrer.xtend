@@ -304,15 +304,14 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output,
 		Iterable<TestStep> macroUseStack) {
-		val stepLog = '''logger.trace(" [test step] - «StringEscapeUtils.escapeJava(step.contents.restoreString)»");''' 
+		val stepLog = ''' «StringEscapeUtils.escapeJava(step.contents.restoreString)»");''' 
 		//output.append().newLine
 		val interaction = step.interaction
 		if (interaction !== null) {
 			val fixtureField = interaction.defaultMethod?.typeReference?.type?.fixtureFieldName
 			val operation = interaction.defaultMethod?.operation
 			if (fixtureField !== null && operation !== null) {
-				output.append(stepLog).newLine
-				step.maybeCreateAssignment(operation, output)
+				step.maybeCreateAssignment(operation, output, stepLog)
 				output.trace(interaction.defaultMethod) => [
 					val codeLine = '''«fixtureField».«operation.simpleName»(«getParameterList(step, interaction, macroUseStack)»);'''
 					append(codeLine) // please call with string, since tests checks against expected string which fails for passing ''' directly
@@ -327,14 +326,18 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		}
 	}
 	
-	private def void maybeCreateAssignment(TestStep step, JvmOperation operation, ITreeAppendable output) {
+	private def void maybeCreateAssignment(TestStep step, JvmOperation operation, ITreeAppendable output, String stepLog) {
 		if (step instanceof TestStepWithAssignment) {
 			output.trace(step, TEST_STEP_WITH_ASSIGNMENT__VARIABLE, 0) => [
 				// TODO should we use output.declareVariable here?
 				// val variableName = output.declareVariable(step.variableName, step.variableName)
 				val partialCodeLine = '''«operation.returnType.identifier» «step.variable.name» = '''
+				output.append('''logger.trace(" [test step] -«partialCodeLine»«stepLog»''').newLine
 				output.append(partialCodeLine) // please call with string, since tests checks against expected string which fails for passing ''' directly
 			]
+		}
+		else {
+			output.append('''logger.trace(" [test step] -«stepLog»''').newLine
 		}
 	}
 
