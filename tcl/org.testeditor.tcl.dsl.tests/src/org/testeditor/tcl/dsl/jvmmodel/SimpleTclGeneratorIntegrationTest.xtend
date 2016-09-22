@@ -104,7 +104,7 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			  @Test
 			  public void execute() throws Exception {
 			    
-			    logger.info(" [Test specification] * Test assertions in the famous greeting application);
+			    logger.info(" [Test specification] * Test assertions in the famous greeting application");
 			    
 			    logger.trace(" [Component] GreetingApplication");
 			    
@@ -181,7 +181,7 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			  @Test
 			  public void execute() throws Exception {
 			    
-			    logger.info(" [Test specification] * Start the famous greetings application);
+			    logger.info(" [Test specification] * Start the famous greetings application");
 			    
 			    logger.trace(" [Component] GreetingApplication");
 			    
@@ -191,7 +191,7 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			    java.util.List<? extends java.lang.Object> foo = dummyFixture.getList("label.greet");
 			    logger.trace(" [test step] - Stop application");
 			    dummyFixture.stopApplication();
-			    logger.info(" [Test specification] * Do something different);
+			    logger.info(" [Test specification] * Do something different");
 			    
 			  }
 			}

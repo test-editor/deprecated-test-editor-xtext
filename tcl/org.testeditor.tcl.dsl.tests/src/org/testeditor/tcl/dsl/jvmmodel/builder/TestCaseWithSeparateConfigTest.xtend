@@ -87,7 +87,7 @@ class TestCaseWithSeparateConfigTest extends AbstractStandaloneBuilderTest {
 			  @Test
 			  public void execute() throws Exception {
 			    
-			    logger.info(" [Test specification] * Test Step);
+			    logger.info(" [Test specification] * Test Step");
 			    
 			    logger.trace(" [Component] GreetingApplication");
 			    
