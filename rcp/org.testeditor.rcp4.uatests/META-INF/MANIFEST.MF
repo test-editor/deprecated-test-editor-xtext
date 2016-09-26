@@ -19,7 +19,9 @@ Require-Bundle: org.eclipse.swtbot.eclipse.finder;bundle-version="2.3.0",
  org.eclipse.e4.ui.model.workbench,
  org.eclipse.e4.core.di,
  org.eclipse.e4.core.contexts
-Bundle-ClassPath: lib/core-fixture-2.5.2.jar,
- .,
+Bundle-ClassPath: .,
  lib/log4j-core-2.5.jar,
- lib/log4j-api-2.5.jar
+ lib/log4j-api-2.5.jar,
+ lib/core-fixture-3.0.1.jar,
+ lib/log4j-slf4j-impl-2.5.jar,
+ lib/slf4j-api-1.7.18.jar

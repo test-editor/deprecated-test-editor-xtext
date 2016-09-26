@@ -74,7 +74,7 @@ class TclAssertCallBuilder {
 				default: throw new RuntimeException('''Assertion expression of type='«expression.class.canonicalName»' cannot be built!''')
 			}
 			return '''
-				// - assert «assertionText»
+				logger.trace("- assert «StringEscapeUtils.escapeJava(assertionText)»");
 				org.junit.Assert.«expression.assertionMethod»("«StringEscapeUtils.escapeJava(assertionText)»", «expressionBuilt»);'''
 		}
 	}

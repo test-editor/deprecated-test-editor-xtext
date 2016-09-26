@@ -47,6 +47,7 @@ import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.StepContentValue
 
 import static org.testeditor.tcl.TclPackage.Literals.*
+import org.testeditor.fixture.core.AbstractTestCase
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -108,10 +109,16 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	private def void addSuperType(JvmGenericType result, SetupAndCleanupProvider element) {
+		if (element instanceof TestConfiguration) {
+			result.superTypes += typeRef(AbstractTestCase)
+		}		
 		if (element instanceof TestCase) {
 			// Inherit from configuration, if set - need to be done before 
 			if (element.config !== null) {
 				result.superTypes += typeRef(element.config.toClass(false))
+			}
+			else {
+				result.superTypes += typeRef(AbstractTestCase)
 			}
 		} // TODO allow explicit definition of super type in TestConfiguration
 	}
@@ -210,14 +217,14 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	private def void generateEnvironmentVariableAssertion(EnvironmentVariable environmentVariable,
 		ITreeAppendable output) {
-		output.append('''org.junit.Assert.assertNotNull(«expressionBuilder.variableToVarName(environmentVariable)»);''').
-			newLine
+		output.append('''org.junit.Assert.assertNotNull(«expressionBuilder.variableToVarName(environmentVariable)»);''')
+		output.newLine
 	}
 
 	private def void generate(SpecificationStepImplementation step, ITreeAppendable output) {
-		val comment = '''/* «step.contents.restoreString» */'''
+		val logStatement = '''logger.info(" [Test specification] * «StringEscapeUtils.escapeJava(step.contents.restoreString)»");'''
 		output.newLine
-		output.append(comment).newLine
+		output.append(logStatement).newLine
 		step.contexts.forEach[generateContext(output.trace(it), #[])]
 	}
 
@@ -242,7 +249,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	private def dispatch void generateContext(ComponentTestStepContext context, ITreeAppendable output,
 		Iterable<TestStep> macroUseStack) {
 		output.newLine
-		output.append('''// Component: «context.component.name»''').newLine
+		output.append('''logger.trace(" [Component] «StringEscapeUtils.escapeJava(context.component.name)»");''').newLine
 		context.steps.forEach[generate(output.trace(it), macroUseStack)]
 	}
 
@@ -297,13 +304,14 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output,
 		Iterable<TestStep> macroUseStack) {
-		output.append('''// - «step.contents.restoreString»''').newLine
+		val stepLog = ''' «StringEscapeUtils.escapeJava(step.contents.restoreString)»");''' 
+		//output.append().newLine
 		val interaction = step.interaction
 		if (interaction !== null) {
 			val fixtureField = interaction.defaultMethod?.typeReference?.type?.fixtureFieldName
 			val operation = interaction.defaultMethod?.operation
 			if (fixtureField !== null && operation !== null) {
-				step.maybeCreateAssignment(operation, output)
+				step.maybeCreateAssignment(operation, output, stepLog)
 				output.trace(interaction.defaultMethod) => [
 					val codeLine = '''«fixtureField».«operation.simpleName»(«getParameterList(step, interaction, macroUseStack)»);'''
 					append(codeLine) // please call with string, since tests checks against expected string which fails for passing ''' directly
@@ -318,14 +326,18 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		}
 	}
 	
-	private def void maybeCreateAssignment(TestStep step, JvmOperation operation, ITreeAppendable output) {
+	private def void maybeCreateAssignment(TestStep step, JvmOperation operation, ITreeAppendable output, String stepLog) {
 		if (step instanceof TestStepWithAssignment) {
 			output.trace(step, TEST_STEP_WITH_ASSIGNMENT__VARIABLE, 0) => [
 				// TODO should we use output.declareVariable here?
 				// val variableName = output.declareVariable(step.variableName, step.variableName)
 				val partialCodeLine = '''«operation.returnType.identifier» «step.variable.name» = '''
+				output.append('''logger.trace(" [test step] -«partialCodeLine»«stepLog»''').newLine
 				output.append(partialCodeLine) // please call with string, since tests checks against expected string which fails for passing ''' directly
 			]
+		}
+		else {
+			output.append('''logger.trace(" [test step] -«stepLog»''').newLine
 		}
 	}
 
