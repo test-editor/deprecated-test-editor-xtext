@@ -25,6 +25,7 @@ import org.testeditor.aml.Variable
 import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.EnvironmentVariable
 import org.eclipse.xtend.lib.annotations.Accessors
+import org.slf4j.LoggerFactory
 
 /** build a (textual) java expression based on a parsed (tcl) expression
  *  <br/><br/>
@@ -34,6 +35,8 @@ import org.eclipse.xtend.lib.annotations.Accessors
  */
 class TclExpressionBuilder {
 	
+	static val logger = LoggerFactory.getLogger(TclExpressionBuilder)
+
 	@Accessors(PUBLIC_SETTER)
 	VariableResolver variableResolver
 	
@@ -63,10 +66,13 @@ class TclExpressionBuilder {
 	
 	def dispatch String buildExpression(VariableReference varRef) {
 		val stepContent=variableResolver.resolveVariableReference(varRef)
-		if( stepContent instanceof VariableReference) {
-			return stepContent.variable.variableToVarName
-		}
-		return varRef.variable.variableToVarName
+		val result = if (stepContent instanceof VariableReference) {
+				stepContent.variable.variableToVarName
+			} else {
+				varRef.variable.variableToVarName
+			}
+		logger.trace("resolved variable reference='{}' to step content='{}'", varRef.variable.name, result)
+		return result
 	}
 
 	def dispatch String buildExpression(StringConstant string) {
