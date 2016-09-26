@@ -2,6 +2,7 @@ package org.testeditor.tcl.dsl.jvmmodel.builder
 
 import org.junit.Test
 import org.testeditor.dsl.common.testing.DummyFixture
+import org.testeditor.fixture.core.AbstractTestCase
 
 class TestCaseWithSeparateConfigTest extends AbstractStandaloneBuilderTest {
 
@@ -36,6 +37,7 @@ class TestCaseWithSeparateConfigTest extends AbstractStandaloneBuilderTest {
 		writeFile("src/com/example/MyConfig.config", configSource)
 		writeFile("src/com/example/SimpleTest.tcl", testSource)
 		classPathEntries += DummyFixture.classPathEntry
+		classPathEntries += AbstractTestCase.classPathEntry
 
 		// when
 		builder.launch
@@ -49,26 +51,27 @@ class TestCaseWithSeparateConfigTest extends AbstractStandaloneBuilderTest {
 			import org.junit.After;
 			import org.junit.Before;
 			import org.testeditor.dsl.common.testing.DummyFixture;
+			import org.testeditor.fixture.core.AbstractTestCase;
 			
 			@SuppressWarnings("all")
-			public abstract class MyConfig {
+			public abstract class MyConfig extends AbstractTestCase {
 			  protected DummyFixture dummyFixture = new DummyFixture();
 			  
 			  @Before
 			  public void setupMyConfig() throws Exception {
 			    
-			    // Component: GreetingApplication
+			    logger.trace(" [Component] GreetingApplication");
 			    
-			    // - Start application "org.testeditor.swing.exammple.Greetings"
+			    logger.trace(" [test step] - Start application \"org.testeditor.swing.exammple.Greetings\"");
 			    dummyFixture.startApplication("org.testeditor.swing.exammple.Greetings");
 			  }
 			  
 			  @After
 			  public void cleanupMyConfig() throws Exception {
 			    
-			    // Component: GreetingApplication
+			    logger.trace(" [Component] GreetingApplication");
 			    
-			    // - Stop application
+			    logger.trace(" [test step] - Stop application");
 			    dummyFixture.stopApplication();
 			  }
 			}
@@ -84,11 +87,11 @@ class TestCaseWithSeparateConfigTest extends AbstractStandaloneBuilderTest {
 			  @Test
 			  public void execute() throws Exception {
 			    
-			    /* Test Step */
+			    logger.info(" [Test specification] * Test Step");
 			    
-			    // Component: GreetingApplication
+			    logger.trace(" [Component] GreetingApplication");
 			    
-			    // - Wait for "3" seconds
+			    logger.trace(" [test step] - Wait for \"3\" seconds");
 			    dummyFixture.waitSeconds(3);
 			  }
 			}

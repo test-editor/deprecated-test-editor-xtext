@@ -20,8 +20,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Table;
@@ -44,6 +42,8 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotText;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.eclipse.swtbot.swt.finder.widgets.TimeoutException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testeditor.fixture.core.interaction.FixtureMethod;
 
 /**
@@ -52,7 +52,7 @@ import org.testeditor.fixture.core.interaction.FixtureMethod;
  */
 public class SWTFixture {
 
-	private Logger logger = LogManager.getLogger(SWTFixture.class);
+	private static final Logger logger = LoggerFactory.getLogger(SWTFixture.class);
 	private SWTWorkbenchBot bot = new SWTWorkbenchBot();
 
 	public SWTFixture() {

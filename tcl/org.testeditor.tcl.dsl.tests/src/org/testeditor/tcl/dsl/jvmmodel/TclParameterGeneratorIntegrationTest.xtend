@@ -45,28 +45,29 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 			
 			import org.junit.Test;
 			import org.testeditor.dsl.common.testing.DummyFixture;
+			import org.testeditor.fixture.core.AbstractTestCase;
 			
 			/**
 			 * Generated from MyTest.tcl
 			 */
 			@SuppressWarnings("all")
-			public class MyTest {
+			public class MyTest extends AbstractTestCase {
 			  private DummyFixture dummyFixture = new DummyFixture();
 			  
 			  @Test
 			  public void execute() throws Exception {
 			    
-			    /* test something */
+			    logger.info(" [Test specification] * test something");
 			    
-			    // Component: dummyComponent
+			    logger.trace(" [Component] dummyComponent");
 			    
-			    // - Read map from <dummyElement>
+			    logger.trace(" [test step] -java.util.Map<? extends java.lang.Object, ? extends java.lang.Object> myMap =  Read map from <dummyElement>");
 			    java.util.Map<? extends java.lang.Object, ? extends java.lang.Object> myMap = dummyFixture.getMap("dummyLocator");
-			    // - Read value from <dummyElement>
+			    logger.trace(" [test step] -java.lang.String myVal =  Read value from <dummyElement>");
 			    java.lang.String myVal = dummyFixture.getValue("dummyLocator");
-			    // - Start application @myMap."my key"
+			    logger.trace(" [test step] - Start application @myMap.\"my key\"");
 			    dummyFixture.startApplication(myMap.get("my key").toString());
-			    // - Start application @myVal
+			    logger.trace(" [test step] - Start application @myVal");
 			    dummyFixture.startApplication(myVal);
 			  }
 			}
