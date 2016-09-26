@@ -43,36 +43,37 @@ class TclSetupAndCleanupGeneratorIntegrationTest extends AbstractTclGeneratorInt
 			import org.junit.Before;
 			import org.junit.Test;
 			import org.testeditor.dsl.common.testing.DummyFixture;
+			import org.testeditor.fixture.core.AbstractTestCase;
 			
 			/**
 			 * Generated from SimpleTest.tcl
 			 */
 			@SuppressWarnings("all")
-			public class SimpleTest {
+			public class SimpleTest extends AbstractTestCase {
 			  private DummyFixture dummyFixture = new DummyFixture();
 			  
 			  @Before
 			  public void setup() throws Exception {
 			    
-			    // Component: GreetingApplication
+			    logger.trace(" [Component] GreetingApplication");
 			    
-			    // - Start application "org.testeditor.swing.exammple.Greetings"
+			    logger.trace(" [test step] - Start application \"org.testeditor.swing.exammple.Greetings\"");
 			    dummyFixture.startApplication("org.testeditor.swing.exammple.Greetings");
 			  }
 			  
 			  @After
 			  public void cleanup() throws Exception {
 			    
-			    // Component: GreetingApplication
+			    logger.trace(" [Component] GreetingApplication");
 			    
-			    // - Stop application
+			    logger.trace(" [test step] - Stop application");
 			    dummyFixture.stopApplication();
 			  }
 			  
 			  @Test
 			  public void execute() throws Exception {
 			    
-			    /* Test Step */
+			    logger.info(" [Test specification] * Test Step");
 			    
 			  }
 			}

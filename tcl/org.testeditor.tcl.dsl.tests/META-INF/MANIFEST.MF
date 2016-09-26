@@ -16,9 +16,9 @@ Require-Bundle: org.eclipse.xtext,
  org.testeditor.tcl.dsl,
  org.testeditor.aml.dsl.tests,
  org.eclipse.jdt.core,
- org.eclipse.xtext.builder.standalone
-Import-Package: org.apache.log4j,
+ org.eclipse.xtext.builder.standalone,
+ org.testeditor.logging;bundle-version="1.2.0"
+Import-Package: javax.inject,
  org.junit,
- org.junit.runner,
- javax.inject
+ org.junit.runner
 Export-Package: org.testeditor.tcl.dsl.tests

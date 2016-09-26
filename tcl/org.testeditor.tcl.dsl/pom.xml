@@ -16,9 +16,65 @@
 	<properties>
 		<mwe2-workflow>file://${project.basedir}/src/org/testeditor/tcl/dsl/GenerateTcl.mwe2</mwe2-workflow>
 	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.testeditor.fixture</groupId>
+			<artifactId>core-fixture</artifactId>
+			<version>3.0.1</version>
+		</dependency>
+	</dependencies>
 
+	<repositories>
+		<repository>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>bintray-test-editor-Fixtures</id>
+			<name>bintray</name>
+			<url>http://dl.bintray.com/test-editor/maven</url>
+		</repository>
+	</repositories>
+	
 	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-clean-plugin</artifactId>
+					<configuration>
+						<filesets combine.children="append">
+							<fileset>
+								<directory>${basedir}/lib/</directory>
+								<includes>
+									<include>**</include>
+								</includes>
+								<excludes>
+									<exclude>.gitignore</exclude>
+								</excludes>
+							</fileset>
+						</filesets>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>	
 		<plugins>
+			<plugin>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>process-sources</phase>
+
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+
+						<configuration>
+							<outputDirectory>lib</outputDirectory>
+							<includeArtifactIds>core-fixture</includeArtifactIds>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
