@@ -428,25 +428,62 @@ public class SWTFixture {
 		throw new IllegalArgumentException("Unkown locatorStrategy: " + locatorStrategy);
 	}
 
+	private String condenseForLogging(String largeString) {
+		String trimmedLargeString = largeString.trim();
+		int length = trimmedLargeString.length();
+		if (length < 50) {
+			return trimmedLargeString;
+		}
+		return trimmedLargeString.substring(0, 20) + "..." + trimmedLargeString.substring(length - 21, length - 1);
+	}
+
 	@FixtureMethod
 	public boolean containsActiveTextEditorContent(String searchString) {
 		SWTBotEditor activeEditor = bot.activeEditor();
-		logger.info("Check if the current active editor {} contains {}", activeEditor.getTitle(), searchString);
-		return activeEditor.toTextEditor().getText().contains(searchString);
+		logger.info("Check if the current active editor '{}' contains '{}'", activeEditor.getTitle(), searchString);
+		String textEditorContents = activeEditor.toTextEditor().getText();
+		String condensedContents = condenseForLogging(textEditorContents);
+		logger.debug("Editor contains '{}'.", condensedContents);
+		return textEditorContents.contains(searchString);
 	}
 
 	@FixtureMethod
 	public void removeLineFromEditor(int lineNumber) {
 		SWTBotEditor activeEditor = bot.activeEditor();
-		logger.info("Removing line {} from  editor {}.", lineNumber, activeEditor.getTitle());
+		logger.info("Removing line '{}' from  editor '{}'.", lineNumber, activeEditor.getTitle());
 		SWTBotEclipseEditor textEditor = activeEditor.toTextEditor();
-		textEditor.selectLine(lineNumber - 1);
-		textEditor.typeText(" ");
+		String contents = textEditor.getText();
+		String condensedContentsBefore = condenseForLogging(contents);
+		logger.debug("Editor contains '{}' before.", condensedContentsBefore);
+		String newContent = removeLineFromString(contents, lineNumber);
+		textEditor.setText(newContent);
+		String condensedContentsAfter = condenseForLogging(textEditor.getText());
+		logger.debug("Editor contains '{}' after.", condensedContentsAfter);
+	}
+
+	private String removeLineFromString(String string, int lineNumber) {
+		String[] contentLines = string.split(System.lineSeparator());
+		if (lineNumber < 1 || lineNumber > contentLines.length) {
+			return string;
+		}
+		StringBuffer newContent = new StringBuffer();
+		for (int i = 0; i < contentLines.length; i++) {
+			if (i != lineNumber - 1) {
+				if (newContent.length() > 0) {
+					newContent.append(System.lineSeparator());
+				}
+				newContent.append(contentLines[i]);
+			}
+		}
+		return newContent.toString();
 	}
 
 	@FixtureMethod
 	public void saveActiveEditor() {
 		SWTBotEditor activeEditor = bot.activeEditor();
+		String textEditorContents = activeEditor.toTextEditor().getText();
+		String condensedContents = condenseForLogging(textEditorContents);
+		logger.debug("Editor contains '{}'.", condensedContents);
 		logger.info("Save editor {}", activeEditor.getTitle());
 		activeEditor.toTextEditor().save();
 	}

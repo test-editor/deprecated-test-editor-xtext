@@ -52,7 +52,7 @@ class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		menuBar.add(configMenu)
 		configMenu.add(createActionFor("&NetworkConfig", OpenNetworkConfigurationHandler))
 		configMenu.add(createActionFor("&Reset UI", RestartAndResetUIHandler))
-		configMenu.add(createActionFor("&Reset UI - soft", ResetUIHandler))
+		configMenu.add(createActionFor("R&eset UI - soft", ResetUIHandler))
 		configMenu.add(createActionFor("&Save UI - soft", SaveUIHandler))
 		
 	}

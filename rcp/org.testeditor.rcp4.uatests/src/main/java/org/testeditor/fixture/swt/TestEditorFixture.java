@@ -27,7 +27,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;
-import org.eclipse.e4.ui.model.application.MApplication;
 import org.eclipse.e4.ui.workbench.modeling.EModelService;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.ui.IWorkbench;
@@ -114,7 +113,7 @@ public class TestEditorFixture {
 
 	@FixtureMethod
 	public boolean containsWorkspaceFileText(String filePath, String searchText) throws CoreException, IOException {
-		logger.info("Cearching for text {} in {}", searchText, filePath);
+		logger.info("Searching for text '{}' in '{}'", searchText, filePath);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		File file = new File(root.getLocation().toString(), filePath);
 		return Files.lines(file.toPath()).anyMatch(s -> s.contains(searchText));

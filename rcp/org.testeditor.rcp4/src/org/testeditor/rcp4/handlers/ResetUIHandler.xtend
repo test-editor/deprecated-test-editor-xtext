@@ -25,6 +25,8 @@ import org.eclipse.e4.ui.model.application.ui.basic.MWindow
 import org.eclipse.e4.ui.workbench.IPresentationEngine
 import org.eclipse.e4.ui.workbench.modeling.EModelService
 import org.eclipse.e4.ui.workbench.modeling.EPartService
+import org.eclipse.swt.widgets.Display
+import org.eclipse.swt.widgets.Shell
 import org.slf4j.LoggerFactory
 import org.testeditor.rcp4.Constants
 
@@ -37,7 +39,8 @@ class ResetUIHandler {
 	public def void resetUI(EModelService modelService, EPartService partService) {
 		val window = application.getChildren().get(0) as MWindow
 		val perspectiveStack = modelService.find(Constants.MAIN_PERSPECTIVE_STACK_ID, application) as MPerspectiveStack
-		val originalPerspective = modelService.cloneSnippet(application, Constants.PERSPECTIVE_ID, window) as MPerspective
+		val originalPerspective = modelService.cloneSnippet(application, Constants.PERSPECTIVE_ID,
+			window) as MPerspective
 		if (originalPerspective === null) {
 			logger.warn('Could not reset UI since no original perspective has been saved (see SaveUIHandler.saveUI()).')
 			return
@@ -54,12 +57,21 @@ class ResetUIHandler {
 		originalPerspective.recursiveVisible = true
 		modelService.resetPerspectiveModel(originalPerspective, window)
 		try {
-			partService.switchPerspective(originalPerspective)
+			window.ensureActiveFor[partService.switchPerspective(originalPerspective)]
 		} catch (Exception e) {
 			logger.error('Exception during switch of perspective.', e)
 		}
 		minimizedPartStacks.forEach[tags.add(IPresentationEngine.MINIMIZED)]
 		logger.info('UI was reset.')
+	}
+
+	def void ensureActiveFor(MWindow window, (Object)=>void action) {
+		Display.^default.syncExec(new Runnable {
+			override run() {
+				(window.widget as Shell).forceFocus
+				action.apply(window)
+			}
+		});
 	}
 
 	/** get the recursively contained elements of this ui element of the given clazz for which the predicate holds true */
