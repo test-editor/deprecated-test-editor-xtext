@@ -453,8 +453,7 @@ public class SWTFixture {
 		logger.info("Removing line '{}' from  editor '{}'.", lineNumber, activeEditor.getTitle());
 		SWTBotEclipseEditor textEditor = activeEditor.toTextEditor();
 		String contents = textEditor.getText();
-		String condensedContentsBefore = condenseForLogging(contents);
-		logger.debug("Editor contains '{}' before.", condensedContentsBefore);
+		logger.debug("Editor contains '{}' before.", condenseForLogging(contents));
 		String newContent = removeLineFromString(contents, lineNumber);
 		textEditor.setText(newContent);
 		String condensedContentsAfter = condenseForLogging(textEditor.getText());
@@ -462,9 +461,10 @@ public class SWTFixture {
 	}
 
 	private String removeLineFromString(String string, int lineNumber) {
-		String[] contentLines = string.split(System.lineSeparator());
+		String[] contentLines = string.replaceAll("\r","").split("\n");
+		logger.debug("Content contains '{}' lines, now removing line '{}'.", contentLines.length, lineNumber);
 		if (lineNumber < 1 || lineNumber > contentLines.length) {
-			return string;
+			throw new IllegalArgumentException("Linenumber='"+lineNumber+"' outside available lines='"+contentLines.length+"'.");
 		}
 		StringBuffer newContent = new StringBuffer();
 		for (int i = 0; i < contentLines.length; i++) {
