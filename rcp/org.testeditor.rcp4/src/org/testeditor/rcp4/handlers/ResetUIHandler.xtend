@@ -31,7 +31,7 @@ import org.testeditor.dsl.common.ui.workbench.MUIElementUtils
 
 class ResetUIHandler {
 	
-	extension MUIElementUtils muiUtils=new MUIElementUtils  
+	@Inject extension MUIElementUtils muiUtils
 
 	static val logger = LoggerFactory.getLogger(ResetUIHandler)
 	@Inject MApplication application
