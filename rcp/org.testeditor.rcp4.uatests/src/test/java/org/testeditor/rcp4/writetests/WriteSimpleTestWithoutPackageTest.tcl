@@ -40,11 +40,10 @@ config TestEditorConfig
 	- Wait until all jobs finished
 
 //then
-	Component: TestEditorServices
-	- isJavaPackage = Contains file "/MyFirstWebProject/src-gen/test/java/MyFirstWebProject/MyTestcase.java" this "package MyFirstWebProject"
-	- assert isJavaPackage
-
 	Component: ActiveEditor
 	- isTclPackage = Contains editor "package MyFirstWebProject"
 	- assert !isTclPackage
 	 
+	Component: TestEditorServices
+	- isJavaPackage = Contains file "/MyFirstWebProject/src-gen/test/java/MyFirstWebProject/MyTestcase.java" this "package MyFirstWebProject"
+	- assert isJavaPackage
