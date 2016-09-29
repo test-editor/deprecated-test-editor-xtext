@@ -25,11 +25,15 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.e4.core.contexts.ContextInjectionFactory;
+import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.eclipse.e4.ui.workbench.modeling.EModelService;
+import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.testeditor.fixture.core.interaction.FixtureMethod;
+import org.testeditor.rcp4.handlers.ResetUIHandler;
+import org.testeditor.rcp4.handlers.SaveUIHandler;
 
 /**
  * Fixture to enable Test-Editor specific operations to the tests.
@@ -73,31 +77,31 @@ public class TestEditorFixture {
 	}
 
 	/**
-	 * Resets the UI of the application to the initial state.
+	 * Save the UI perspective for the use in a later resetUI
 	 */
 	@FixtureMethod
-	public void resetApplication() {
+	public void saveUI() {
 		IWorkbench workbench = PlatformUI.getWorkbench();
-		// TODO fix the perspective!
-		// IWorkbenchWindow[] workbenchWindows =
-		// workbench.getWorkbenchWindows();
-		// logger.info("Resetting {} workbench window(s).",
-		// workbenchWindows.length);
-		// workbench.getDisplay().syncExec(() -> {
-		// for (IWorkbenchWindow window : workbenchWindows) {
-		// window.getActivePage().closeAllEditors(true);
-		// window.getActivePage().resetPerspective();
-		// }
-		// });
-		// hack until perspective is fixed: bring project explorer to the front
-		final IWorkbenchWindow window = workbench.getWorkbenchWindows()[0];
+		IEclipseContext ctx = workbench.getService(IEclipseContext.class);
+		SaveUIHandler saveUIHandler = ContextInjectionFactory.make(SaveUIHandler.class, ctx);
+		EModelService modelService = workbench.getService(EModelService.class);
 		workbench.getDisplay().syncExec(() -> {
-			String viewToOpen = "org.testeditor.rcp4.views.ProjectExplorer";
-			try {
-				window.getActivePage().showView(viewToOpen);
-			} catch (PartInitException e) {
-				logger.error("Could not init view='{}'.", viewToOpen);
-			}
+			saveUIHandler.saveUI(modelService);
+		});
+	}
+
+	/**
+	 * Resets the UI to a previously saved perspective
+	 */
+	@FixtureMethod
+	public void resetUI() {
+		IWorkbench workbench = PlatformUI.getWorkbench();
+		IEclipseContext ctx = workbench.getService(IEclipseContext.class);
+		ResetUIHandler resetUIHandler = ContextInjectionFactory.make(ResetUIHandler.class, ctx);
+		EModelService modelService = workbench.getService(EModelService.class);
+		EPartService partService = workbench.getService(EPartService.class);
+		workbench.getDisplay().syncExec(() -> {
+			resetUIHandler.resetUI(modelService, partService);
 		});
 	}
 
@@ -109,7 +113,7 @@ public class TestEditorFixture {
 
 	@FixtureMethod
 	public boolean containsWorkspaceFileText(String filePath, String searchText) throws CoreException, IOException {
-		logger.info("Cearching for text {} in {}", searchText, filePath);
+		logger.info("Searching for text '{}' in '{}'", searchText, filePath);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		File file = new File(root.getLocation().toString(), filePath);
 		return Files.lines(file.toPath()).anyMatch(s -> s.contains(searchText));

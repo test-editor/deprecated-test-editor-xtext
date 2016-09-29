@@ -5,10 +5,11 @@
          point="org.eclipse.ui.views">
       <view
             allowMultiple="false"
+            class="org.testeditor.rcp4.views.projectexplorer.ProjectExplorer"
             icon="icons/test_explorer.gif"
             id="org.testeditor.rcp4.views.ProjectExplorer"
             name="Test Project Explorer"
-            class="org.testeditor.rcp4.views.projectexplorer.ProjectExplorer">
+            restorable="true">
       </view>
    </extension>
    <extension
@@ -101,6 +102,7 @@
          id="org.testeditor.rcp4.views.projectexplorer.fragment"
          point="org.eclipse.e4.workbench.model">
       <fragment
+            apply="notexists"
             uri="fragment.e4xmi">
       </fragment>
    </extension>
