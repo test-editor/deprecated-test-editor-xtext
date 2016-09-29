@@ -20,8 +20,8 @@ Require-Bundle: org.eclipse.xtext,
  org.eclipse.xtext.util,
  org.eclipse.xtend.lib,
  org.testeditor.aml.dsl,
- org.eclipse.xtext.builder,
- org.testeditor.logging;bundle-version="1.2.0"
+ org.testeditor.logging;bundle-version="1.2.0",
+ org.eclipse.xtext.builder;bundle-version="2.10.0"
 Import-Package: javax.inject,
  org.apache.commons.lang3,
  org.apache.log4j
@@ -38,4 +38,4 @@ Export-Package: org.testeditor.fixture.core,
  org.testeditor.tcl.dsl.serializer,
  org.testeditor.tcl.dsl.services,
  org.testeditor.tcl.dsl.validation
-Bundle-ClassPath: lib/core-fixture-3.0.1.jar,.
+Bundle-ClassPath: lib/core-fixture-3.0.2-SNAPSHOT.jar,.

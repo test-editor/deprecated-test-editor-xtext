@@ -47,9 +47,13 @@ public class TclMavenLauncher implements TclLauncher {
 			} else {
 				"clean integration-test"
 			}
-		// val testCases = createTestCasesCommaList(selection)
+			
+		var testSelectionArgument = ""
+		if(testCases != null) {
+			testSelectionArgument = "test=" + testCases.join(",")
+		} 
 		val result = mavenExecutor.executeInNewJvm(parameters, project.location.toOSString,
-			"test=" + testCases.join(","), monitor, out, false)
+			testSelectionArgument, monitor, out, false)
 		val testResultFolder = project.createOrGetDeepFolder(MVN_TEST_RESULT_FOLDER).location.toFile
 		if (result == IStatus.OK) {
 			return new LaunchResult(testResultFolder)

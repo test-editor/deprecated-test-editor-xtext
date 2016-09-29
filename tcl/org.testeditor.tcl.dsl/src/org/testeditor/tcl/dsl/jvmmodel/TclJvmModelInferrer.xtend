@@ -14,6 +14,7 @@ package org.testeditor.tcl.dsl.jvmmodel
 
 import com.google.inject.Inject
 import java.util.Set
+import java.util.concurrent.atomic.AtomicInteger
 import org.apache.commons.lang3.StringEscapeUtils
 import org.eclipse.xtext.common.types.JvmField
 import org.eclipse.xtext.common.types.JvmGenericType
@@ -26,9 +27,9 @@ import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable
 import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
-import org.slf4j.LoggerFactory
 import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
+import org.testeditor.fixture.core.AbstractTestCase
 import org.testeditor.tcl.AbstractTestStep
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.ComponentTestStepContext
@@ -48,11 +49,9 @@ import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.StepContentValue
 
 import static org.testeditor.tcl.TclPackage.Literals.*
-import org.testeditor.fixture.core.AbstractTestCase
+import java.util.List
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
-
-	static val logger = LoggerFactory.getLogger(TclJvmModelInferrer)
 
 	@Inject extension JvmTypesBuilder
 	@Inject extension ModelUtil
@@ -62,6 +61,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	@Inject JvmModelHelper jvmModelHelper
 	@Inject TclExpressionBuilder expressionBuilder
 	@Inject MacroCallVariableResolver macroCallVariableResolver
+	
 
 	def dispatch void infer(TclModel model, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		model.test?.infer(acceptor, isPreIndexingPhase)
@@ -82,10 +82,13 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 				// Create variables for used fixture types
 				members += createFixtureVariables(element)
+				if(element instanceof TestCase){
+					members += createTestCaseVariables(element)
+				}
 			]
 		}
 	}
-
+	
 	/**
 	 * First perform common operations like variable initialization and then dispatch to subclass specific operations.
 	 */
@@ -151,6 +154,31 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		}
 
 		// Create test method
+		createTestMethods(result,element)
+	}
+	
+	//Execute Method with 
+	private def createTestMethods(JvmGenericType result, TestCase element) {
+		val stepCount = new AtomicInteger(0)
+		element.steps.forEach[specificationStep |
+			specificationStep.contexts.forEach[stepContext|
+				stepContext.steps.filter(TestStep).forEach[step |
+				//val methodName = step.interaction.defaultMethod.toString
+				stepCount.addAndGet(1)
+				val methodName = step.contents.restoreString.replace("\"","_").replace(" ","_").replace("<","_").replace(">","_").replace(".","_").replace("/","_").replace("-","_").replace("@","_").replace("#","_").replace("{","_").replace("}","_")+stepCount.intValue
+				result.members += element.toMethod(methodName, typeRef(Void.TYPE)) [
+					exceptions += typeRef(Exception)
+					val ano = annotationRef('org.testeditor.fixture.core.TestStepMethod',stepCount.toString,step.contents.restoreString)
+					annotations += ano
+					body = [generate(step,it,#[step])]
+				]]
+			]
+		]
+		
+	}
+
+	//One Method to execute Testcase with normal junit runner
+	private def createTestExecuteMethod(JvmGenericType result, TestCase element) {
 		result.members += element.toMethod('execute', typeRef(Void.TYPE)) [
 			exceptions += typeRef(Exception)
 			annotations += annotationRef('org.junit.Test') // make sure that junit is in the classpath of the workspace containing the dsl
@@ -175,7 +203,22 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			]
 		]
 	}
-
+	
+	private def Iterable<JvmField> createTestCaseVariables(TestCase testcase) {
+		val result = newArrayList()
+		testcase.steps.forEach[contexts.forEach[steps.filter(TestStepWithAssignment).forEach[	
+			val interaction = it.interaction
+			if (interaction !== null) {
+				val fixtureField = interaction.defaultMethod?.typeReference?.type?.fixtureFieldName
+				val operation = interaction.defaultMethod?.operation
+				if (fixtureField !== null && operation !== null) {			
+					result += toField(it, it.variable.name,operation.returnType)
+				}
+			}
+		]]]
+		return result
+	}
+	
 	private def JvmOperation createSetupMethod(SetupAndCleanupProvider container) {
 		val setup = container.setup
 		return setup.toMethod(container.setupMethodName, typeRef(Void.TYPE)) [
@@ -237,11 +280,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			output.newLine
 			val macro = step.findMacroDefinition(context)
 			if (macro == null) {
-				logger.warn("could not find macro for test step='{}'", step.contents.restoreString)
 				output.append('''// TODO Macro could not be resolved from «context.macroCollection.name»''').newLine
 			} else {
-				logger.debug("found macro='{}' in collection='{}' for test step='{}'", macro.name,
-					context.macroCollection.name, step.contents.restoreString)
 				output.append('''// Macro start: «context.macroCollection.name» - «macro.template.normalize»''').newLine
 				macro.contexts.forEach [
 					generateContext(output.trace(it), #[step] + macroUseStack)
@@ -304,19 +344,15 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	private def dispatch void toUnitTestCodeLine(AssertionTestStep step, ITreeAppendable output,
 		Iterable<TestStep> macroUseStack) {
-		logger.debug("generating code line for assertion test step.")
 		macroCallVariableResolver.macroUseStack = macroUseStack
 		output.append(assertCallBuilder.build(macroCallVariableResolver, step.assertExpression))
 	}
 
 	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output,
 		Iterable<TestStep> macroUseStack) {
-		logger.debug("generating code line for test step='{}'.", step.contents.restoreString)
 		val stepLog = ''' «StringEscapeUtils.escapeJava(step.contents.restoreString)»");''' 
 		//output.append().newLine
 		val interaction = step.interaction
-		logger.debug("derived interaction='{}' for test step='{}'.",
-			interaction.defaultMethod?.operation?.qualifiedName, step.contents.restoreString)
 		if (interaction !== null) {
 			val fixtureField = interaction.defaultMethod?.typeReference?.type?.fixtureFieldName
 			val operation = interaction.defaultMethod?.operation
@@ -341,7 +377,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			output.trace(step, TEST_STEP_WITH_ASSIGNMENT__VARIABLE, 0) => [
 				// TODO should we use output.declareVariable here?
 				// val variableName = output.declareVariable(step.variableName, step.variableName)
-				val partialCodeLine = '''«operation.returnType.identifier» «step.variable.name» = '''
+				//val partialCodeLine = '''«operation.returnType.identifier» «step.variable.name» = '''
+				val partialCodeLine = '''«step.variable.name» = '''
 				output.append('''logger.trace(" [test step] -«partialCodeLine»«stepLog»''').newLine
 				output.append(partialCodeLine) // please call with string, since tests checks against expected string which fails for passing ''' directly
 			]
@@ -367,8 +404,6 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		val typedValues = newArrayList
 		stepContents.forEach [ stepContent, i |
 			val jvmParameter = interaction.getTypeOfFixtureParameter(i)
-			logger.debug("interaction='{}' has type='{}' in parameter position='{}'",
-				interaction.defaultMethod.operation.qualifiedName, jvmParameter.qualifiedName, i)
 			typedValues +=
 				stepContent.generateCallParameters(jvmParameter, interaction, macroUseStack)
 		]
@@ -384,9 +419,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		val locator = '''"«element.locator»"'''
 		if (interaction.defaultMethod.locatorStrategyParameters.size > 0) {
 			// use element locator strategy if present, else use default of interaction
-			logger.debug("resolved interaction='{}' to expect locator strategy for parameter='{}'",
-				interaction.defaultMethod.operation.qualifiedName, stepContent.value)
- 			val locatorStrategy = element.locatorStrategy ?: interaction.locatorStrategy
+			val locatorStrategy = element.locatorStrategy ?: interaction.locatorStrategy
 			return #[locator, locatorStrategy.qualifiedName] // locatorStrategy is the parameter right after locator (convention)
 		} else {
 			return #[locator]
@@ -410,16 +443,14 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	 */
 	private def dispatch Iterable<String> generateCallParameters(VariableReference variableReference,
 		JvmTypeReference expectedType, InteractionType interaction, Iterable<TestStep> macroUseStack) {
+			
 		macroCallVariableResolver.macroUseStack = macroUseStack
 		expressionBuilder.variableResolver = macroCallVariableResolver
 		val result = expressionBuilder.buildExpression(variableReference)
-		logger.debug("resolved variable='{}' to result='{}'", variableReference.variable.name, result)
 		val isMapAccessReference = variableReference instanceof VariableReferenceMapAccess
 		val expectedTypeIsString = expectedType.qualifiedName == String.canonicalName
 		if (isMapAccessReference && expectedTypeIsString) {
 			// convention: within a map there are only strings! there is no deep structured map!
-			logger.debug("resolved variable='{}' to be a map and usage expects type String",
-				variableReference.variable.name)
 			return #[result + '.toString()'] // since the map is generic the actual type is java.lang.Object (thus toString) 
 		} else {
 			return #[result]

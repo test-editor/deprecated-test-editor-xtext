@@ -12,6 +12,7 @@ import org.testeditor.tcl.dsl.jvmmodel.TclJvmModelInferrer
 
 import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
+import org.junit.Ignore
 
 class TclCallParameterTest extends AbstractTclGeneratorIntegrationTest {
 
@@ -52,6 +53,7 @@ class TclCallParameterTest extends AbstractTclGeneratorIntegrationTest {
 		verify(outputStub).append('dummyFixture.startApplication("te\\\\st\'");')
 	}
 	
+	@Ignore
 	@Test
 	def void testAssignedVariableAsParameter() {
 		// given

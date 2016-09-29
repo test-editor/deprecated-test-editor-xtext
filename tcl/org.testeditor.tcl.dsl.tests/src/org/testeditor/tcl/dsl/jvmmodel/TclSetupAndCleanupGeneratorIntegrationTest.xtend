@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2012 - 2016 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
 import org.junit.Before
@@ -41,7 +53,6 @@ class TclSetupAndCleanupGeneratorIntegrationTest extends AbstractTclGeneratorInt
 			
 			import org.junit.After;
 			import org.junit.Before;
-			import org.junit.Test;
 			import org.testeditor.dsl.common.testing.DummyFixture;
 			import org.testeditor.fixture.core.AbstractTestCase;
 			
@@ -68,13 +79,6 @@ class TclSetupAndCleanupGeneratorIntegrationTest extends AbstractTclGeneratorInt
 			    
 			    logger.trace(" [test step] - Stop application");
 			    dummyFixture.stopApplication();
-			  }
-			  
-			  @Test
-			  public void execute() throws Exception {
-			    
-			    logger.info(" [Test specification] * Test Step");
-			    
 			  }
 			}
 		'''.toString)
