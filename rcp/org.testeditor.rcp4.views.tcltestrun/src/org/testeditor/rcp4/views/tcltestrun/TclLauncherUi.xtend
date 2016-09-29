@@ -110,16 +110,14 @@ class TclLauncherUi implements Launcher {
 	def boolean launchTest(TestLaunchInformation testLaunchInformation) {
 		storeTestParameterAsLastTestExecution(testLaunchInformation)
 		logger.info("Trying to launch launcherClass='{}' test execution for elementId='{}' in project='{}'",
-			testLaunchInformation.launcher.class.simpleName, testLaunchInformation.testCasesCommaList?.get(0),
+			testLaunchInformation.launcher.class.simpleName, testLaunchInformation.testCasesCommaList?.head,
 			testLaunchInformation.project)
 		progressRunner.run([ monitor |
-			if(testLaunchInformation.testCasesCommaList!=null){
-				monitor.beginTask("Test execution: " + testLaunchInformation.testCasesCommaList.get(0),
-					IProgressMonitor.UNKNOWN)	
-			}
-			else{
-				monitor.beginTask("Test execution: " + testLaunchInformation.project.name,
-					IProgressMonitor.UNKNOWN)					
+			if (testLaunchInformation.testCasesCommaList != null) {
+				monitor.beginTask("Test execution: " + testLaunchInformation.testCasesCommaList.head,
+					IProgressMonitor.UNKNOWN)
+			} else {
+				monitor.beginTask("Test execution: " + testLaunchInformation.project.name, IProgressMonitor.UNKNOWN)
 			}
 			val con = consoleFactory.createAndShowConsole
 			val result = testLaunchInformation.launcher.launchTest(testLaunchInformation.testCasesCommaList,
@@ -166,8 +164,8 @@ class TclLauncherUi implements Launcher {
 		if (selection.size > 1) {
 			return selection.toList.map[testCaseListFromSelection].flatten.toList
 		} else {
-			if(selection.firstElement instanceof IProject) {
-				return null;
+			if (selection.firstElement instanceof IProject) {
+				return null
 			}
 			return selection.firstElement.testCaseListFromSelection.toList
 		}
