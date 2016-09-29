@@ -14,9 +14,14 @@ interaction type cleanWorkspace {
 	method = TestEditorFixture.cleanWorkspace
 }
 
-interaction type restartApp {
+interaction type saveUI {
+	template = "Save UI State"
+	method = TestEditorFixture.saveUI
+}
+
+interaction type resetUI {
 	template = "Reset UI State"
-	method = TestEditorFixture.resetApplication
+	method = TestEditorFixture.resetUI
 }
 
 interaction type isValidTestProject {
@@ -30,7 +35,7 @@ interaction type containsWorkspaceFileText {
 }
 
 component type TestEditorApp {
-	interactions = createSimpleProject, restartApp, cleanWorkspace, isValidTestProject, containsWorkspaceFileText
+	interactions = createSimpleProject, saveUI, resetUI, cleanWorkspace, isValidTestProject, containsWorkspaceFileText
 }
 
 component MainWindow is Workbench {
@@ -39,10 +44,10 @@ component MainWindow is Workbench {
 	element JUnitView is View locate by ViewLocatorStrategy.ID "org.eclipse.jdt.junit.ResultView"
 }
 
-value-space projectmenues = #[ "New/Project...", "Open", "Run test", "Rename...", "New/Test Case", "New/Application Mapping"]
+value-space projectmenues = #[ "New/Project...", "Open", "Run test", "Rename...", "New/Test Case", "New/Application Mapping" ]
 
 component ProjectExplorer is General {
-	element ProjectTree is TreeView locate by SWTLocatorStrategy.LABEL "Test Project Explorer" 
+	element ProjectTree is TreeView locate by SWTLocatorStrategy.LABEL "Test Project Explorer"
 		executeContextMenuEntry.item restrict to projectmenues
 }
 

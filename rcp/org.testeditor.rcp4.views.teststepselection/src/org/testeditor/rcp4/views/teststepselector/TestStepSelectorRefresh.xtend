@@ -22,6 +22,6 @@ class TestStepSelectorRefresh {
 
 	@Execute
 	def void execute() {
-		broker.post(TestStepSelector.SELECTOR_TOPIC_UPDATE, null)
+		broker.post(TestStepSelector.SELECTOR_UPDATE_MODEL_AND_VIEW, null)
 	}
 }

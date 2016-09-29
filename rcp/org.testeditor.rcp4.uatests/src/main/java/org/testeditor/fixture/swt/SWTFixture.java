@@ -20,8 +20,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Table;
@@ -44,6 +42,8 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotText;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.eclipse.swtbot.swt.finder.widgets.TimeoutException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testeditor.fixture.core.interaction.FixtureMethod;
 
 /**
@@ -52,7 +52,7 @@ import org.testeditor.fixture.core.interaction.FixtureMethod;
  */
 public class SWTFixture {
 
-	private Logger logger = LogManager.getLogger(SWTFixture.class);
+	private static final Logger logger = LoggerFactory.getLogger(SWTFixture.class);
 	private SWTWorkbenchBot bot = new SWTWorkbenchBot();
 
 	public SWTFixture() {
@@ -423,25 +423,62 @@ public class SWTFixture {
 		throw new IllegalArgumentException("Unkown locatorStrategy: " + locatorStrategy);
 	}
 
+	private String condenseForLogging(String largeString) {
+		String trimmedLargeString = largeString.trim();
+		int length = trimmedLargeString.length();
+		if (length < 50) {
+			return trimmedLargeString;
+		}
+		return trimmedLargeString.substring(0, 20) + "..." + trimmedLargeString.substring(length - 21, length - 1);
+	}
+
 	@FixtureMethod
 	public boolean containsActiveTextEditorContent(String searchString) {
 		SWTBotEditor activeEditor = bot.activeEditor();
-		logger.info("Check if the current active editor {} contains {}", activeEditor.getTitle(), searchString);
-		return activeEditor.toTextEditor().getText().contains(searchString);
+		logger.info("Check if the current active editor '{}' contains '{}'", activeEditor.getTitle(), searchString);
+		String textEditorContents = activeEditor.toTextEditor().getText();
+		String condensedContents = condenseForLogging(textEditorContents);
+		logger.debug("Editor contains '{}'.", condensedContents);
+		return textEditorContents.contains(searchString);
 	}
 
 	@FixtureMethod
 	public void removeLineFromEditor(int lineNumber) {
 		SWTBotEditor activeEditor = bot.activeEditor();
-		logger.info("Removing line {} from  editor {}.", lineNumber, activeEditor.getTitle());
+		logger.info("Removing line '{}' from  editor '{}'.", lineNumber, activeEditor.getTitle());
 		SWTBotEclipseEditor textEditor = activeEditor.toTextEditor();
-		textEditor.selectLine(lineNumber - 1);
-		textEditor.typeText(" ");
+		String contents = textEditor.getText();
+		logger.debug("Editor contains '{}' before.", condenseForLogging(contents));
+		String newContent = removeLineFromString(contents, lineNumber);
+		textEditor.setText(newContent);
+		String condensedContentsAfter = condenseForLogging(textEditor.getText());
+		logger.debug("Editor contains '{}' after.", condensedContentsAfter);
+	}
+
+	private String removeLineFromString(String string, int lineNumber) {
+		String[] contentLines = string.replaceAll("\r","").split("\n");
+		logger.debug("Content contains '{}' lines, now removing line '{}'.", contentLines.length, lineNumber);
+		if (lineNumber < 1 || lineNumber > contentLines.length) {
+			throw new IllegalArgumentException("Linenumber='"+lineNumber+"' outside available lines='"+contentLines.length+"'.");
+		}
+		StringBuffer newContent = new StringBuffer();
+		for (int i = 0; i < contentLines.length; i++) {
+			if (i != lineNumber - 1) {
+				if (newContent.length() > 0) {
+					newContent.append(System.lineSeparator());
+				}
+				newContent.append(contentLines[i]);
+			}
+		}
+		return newContent.toString();
 	}
 
 	@FixtureMethod
 	public void saveActiveEditor() {
 		SWTBotEditor activeEditor = bot.activeEditor();
+		String textEditorContents = activeEditor.toTextEditor().getText();
+		String condensedContents = condenseForLogging(textEditorContents);
+		logger.debug("Editor contains '{}'.", condensedContents);
 		logger.info("Save editor {}", activeEditor.getTitle());
 		activeEditor.toTextEditor().save();
 	}
