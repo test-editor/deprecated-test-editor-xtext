@@ -8,6 +8,7 @@ Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtext,
  org.eclipse.equinox.common,
  org.testeditor.tcl.model;visibility:=reexport,
+ org.testeditor.logging,
  org.testeditor.dsl.common,
  org.eclipse.xtext.xbase,
  org.eclipse.emf.ecore.xcore,
@@ -19,7 +20,8 @@ Require-Bundle: org.eclipse.xtext,
  org.eclipse.xtext.util,
  org.eclipse.xtend.lib,
  org.testeditor.aml.dsl,
- org.testeditor.logging;bundle-version="1.2.0"
+ org.testeditor.logging;bundle-version="1.2.0",
+ org.eclipse.xtext.builder;bundle-version="2.10.0"
 Import-Package: javax.inject,
  org.apache.commons.lang3,
  org.apache.log4j

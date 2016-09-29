@@ -14,6 +14,7 @@ package org.testeditor.tcl.dsl.ui
 
 import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 import org.testeditor.tcl.dsl.ide.highlighting.TclSemanticHighlightingCalculator
+import org.testeditor.tcl.dsl.jvmmodel.TclBuilderParticipant
 import org.testeditor.tcl.dsl.ui.contentassist.TclTemplateProposalProvider
 import org.testeditor.tcl.dsl.ui.highlighting.TclHighlightingConfiguration
 import org.testeditor.tcl.dsl.ui.navigation.TclHyperLinkHelper
@@ -45,4 +46,8 @@ class TclUiModule extends AbstractTclUiModule {
 		return TclJvmModelRenameStrategy
 	}
 						
+	override bindIXtextBuilderParticipant() {
+		return TclBuilderParticipant
+	}
+
 }
