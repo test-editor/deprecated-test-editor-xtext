@@ -34,14 +34,19 @@ public class TclGradleLauncher implements TclLauncher {
 	@Inject extension ProjectUtils
 	@Inject GradleHelper gradleHelper
 
-	override launchTest(List<String> testCases, IProject project, IProgressMonitor monitor, OutputStream out, Map<String, Object> options) {
+	override launchTest(List<String> testCases, IProject project, IProgressMonitor monitor, OutputStream out,
+		Map<String, Object> options) {
 		val testCase = testCases.head // currently only works with a single test case
 		monitor.beginTask('''Running gradle test for testCase='«testCase»'.''', IProgressMonitor.UNKNOWN)
 
 		val testResultFolder = project.createOrGetDeepFolder(GRADLE_TEST_RESULT_FOLDER).location.toFile
 		val resultHandler = new TclGradleResultHandler(testResultFolder)
 		gradleHelper.run(project.location.toFile, resultHandler) [
-			withArguments("clean", "test", "--tests", testCase) // https://issues.gradle.org/browse/GRADLE-2972
+			if (testCases !== null) {
+				withArguments("clean", "test", "--tests", testCase) // https://issues.gradle.org/browse/GRADLE-2972
+			} else {
+				withArguments("clean", "test")
+			}
 			standardOutput = out
 			standardError = out
 		]
