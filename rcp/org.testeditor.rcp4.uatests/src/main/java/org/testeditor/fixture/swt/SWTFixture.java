@@ -303,7 +303,7 @@ public class SWTFixture {
 	 * @param viewName
 	 *            id of the view / widget with the context menu
 	 * @param menuItem
-	 *            poath to the menuitem Example: "New/Project"
+	 *            path to the menu item Example: "New/Project"
 	 * @throws Exception
 	 *             on failure to break the test.
 	 */
@@ -314,19 +314,14 @@ public class SWTFixture {
 		SWTBotTree tree = getTree(viewName, locatorStrategy);
 		assertNotNull(tree);
 		MenuItem item = null;
-		try {
-			item = ContextMenuHelper.contextMenu(tree, menuItem.split("/"));
-		} catch (WidgetNotFoundException e) {
-			logger.trace("Search menu entry a second time: {}", menuItem);
-			item = ContextMenuHelper.contextMenu(tree, menuItem.split("/"));
-		}
+		item = ContextMenuHelper.contextMenu(tree, menuItem.split("/"));
 		assertNotNull(item);
 		logger.trace("Click on menu item: {}", menuItem);
 		new SWTBotMenu(item).click();
 	}
 
 	/**
-	 * Looking for a widget in that is typeable and is identifiable by the
+	 * Looking for a widget in that is type able and is identifiable by the
 	 * locator.
 	 * 
 	 * @param locator
