@@ -49,7 +49,6 @@ import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.StepContentValue
 
 import static org.testeditor.tcl.TclPackage.Literals.*
-import java.util.List
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -165,7 +164,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				stepContext.steps.filter(TestStep).forEach[step |
 				//val methodName = step.interaction.defaultMethod.toString
 				stepCount.addAndGet(1)
-				val methodName = step.contents.restoreString.replace("\"","_").replace(" ","_").replace("<","_").replace(">","_").replace(".","_").replace("/","_").replace("-","_").replace("@","_").replace("#","_").replace("{","_").replace("}","_")+stepCount.intValue
+				val methodName = step.contents.restoreString.replaceAll("\\W", "_")+stepCount.intValue
 				result.members += element.toMethod(methodName, typeRef(Void.TYPE)) [
 					exceptions += typeRef(Exception)
 					val ano = annotationRef('org.testeditor.fixture.core.TestStepMethod',stepCount.toString,step.contents.restoreString)
@@ -175,15 +174,6 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			]
 		]
 		
-	}
-
-	//One Method to execute Testcase with normal junit runner
-	private def createTestExecuteMethod(JvmGenericType result, TestCase element) {
-		result.members += element.toMethod('execute', typeRef(Void.TYPE)) [
-			exceptions += typeRef(Exception)
-			annotations += annotationRef('org.junit.Test') // make sure that junit is in the classpath of the workspace containing the dsl
-			body = [element.generateMethodBody(trace(element, true))]
-		]
 	}
 
 	/** 
