@@ -21,13 +21,14 @@ import org.testeditor.tcl.dsl.conversion.TclValueConverterService
 import org.testeditor.tcl.dsl.messages.TclSyntaxErrorMessageProvider
 import org.testeditor.tcl.dsl.naming.TclQualifiedNameProvider
 import org.testeditor.tcl.dsl.scoping.TclDelegateScopeProvider
+import org.testeditor.tcl.dsl.validation.AdjustedXbaseConfigurableIssueCodes
 import org.testeditor.tcl.dsl.validation.FileExtensionValidator
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
  */
 class TclRuntimeModule extends AbstractTclRuntimeModule {
-
+	
 	override bindIQualifiedNameProvider() {
 		return TclQualifiedNameProvider
 	}
