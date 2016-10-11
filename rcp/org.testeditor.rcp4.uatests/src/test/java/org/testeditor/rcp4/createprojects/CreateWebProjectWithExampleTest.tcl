@@ -22,6 +22,7 @@ config TestEditorConfig
 
 	// We must select the dialog again, because we are in a new TSL Step.
 	Component: NewProjectDialog
+	- Wait "1" seconds
 	- Type "MyFirstWebProject" into <ProjectName>
 	- Click on <NextButton>
 	- Select element "Web Fixture" in list <AvailableFixturesList>
