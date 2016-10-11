@@ -9,28 +9,27 @@ config TestEditorConfig
 
 * start creation process
 
-	Component: ProjectExplorer
-	- Execute menu item "New/Project..." in tree <ProjectTree>
+//	Component: ProjectExplorer
+//	- Execute menu item "New/Project..." in tree <ProjectTree>
 
 * Select type Test Editor Project
 
-	Component: NewProjectDialog
-	- Select element "Test-Editor Project" in tree <ProjectType>
-	- Click on <NextButton>
+//	Component: NewProjectDialog
+//	- Select element "Test-Editor Project" in tree <ProjectType>
+//	- Click on <NextButton>
 
 * Give the Project the name "MyFirstProject"
 
 	// We must select the dialog again, because we are in a new TSL Step.
-	Component: NewProjectDialog
-	- Wait "1" seconds
-	- Type "MyFirstWebProject" into <ProjectName>
-	- Click on <NextButton>
-	- Select element "Web Fixture" in list <AvailableFixturesList>
-	- Click on <AddFixtureButton>
-	- Click on <FinishButton>
-	- Wait until dialog with title "Progress Information" is closed
+//	Component: NewProjectDialog
+//	- Type "MyFirstWebProject" into <ProjectName>
+//	- Click on <NextButton>
+//	- Select element "Web Fixture" in list <AvailableFixturesList>
+//	- Click on <AddFixtureButton>
+//	- Click on <FinishButton>
+//	- Wait until dialog with title "Progress Information" is closed
 	
 * Verify that the project is visible in the ui
 
-	Component: ProjectExplorer
-	- Select element "MyFirstWebProject" in tree <ProjectTree>
+//	Component: ProjectExplorer
+//	- Select element "MyFirstWebProject" in tree <ProjectTree>
