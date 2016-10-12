@@ -24,6 +24,11 @@ interaction type waitForDialogClosingWithTimeout {
 	method = SWTFixture.waitForDialogClosingWithTimeout(title, timeout)
 }
 
+interaction type waitForDialogWithTimeout {
+	template = "Wait at most" ${timeout} "seconds until dialog with title" ${title} "opens and click" ${buttonTitle}
+	method = SWTFixture.waitForDialog(title, buttonTitle, timeout)
+}
+
 interaction type isViewVisible {
 	template = "Is view" ${element} "visible"
 	method = SWTFixture.isViewVisible(element, locatorStrategy)
@@ -138,9 +143,9 @@ element type List {
 }
 
 component type General {
-	interactions = reportWidgets, wait, waitForDialogClosing, waitForDialogClosingWithTimeout
+	interactions = reportWidgets, wait, waitForDialogClosing, waitForDialogClosingWithTimeout, waitForDialogWithTimeout
 }
 
 component type Dialog {
-	interactions = reportWidgets, wait, waitForDialogClosing, waitForDialogClosingWithTimeout
+	interactions = reportWidgets, wait, waitForDialogClosing, waitForDialogClosingWithTimeout, waitForDialogWithTimeout
 }

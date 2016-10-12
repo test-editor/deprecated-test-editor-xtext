@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
@@ -42,6 +43,8 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotText;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.eclipse.swtbot.swt.finder.widgets.TimeoutException;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testeditor.fixture.core.interaction.FixtureMethod;
@@ -137,6 +140,20 @@ public class SWTFixture {
 		Thread.sleep(seconds * 1000);
 	}
 
+	@FixtureMethod
+	public void waitForDialog(String title, String buttonTitle, long maxSeconds) throws InterruptedException {
+		logger.info("Waiting for dialog with title='{}' to open, timeout='{}' seconds.", title, maxSeconds);
+		try {
+			bot.waitUntil(Conditions.shellIsActive(title), maxSeconds * 1000);
+			logger.info("Found dialog, now pressing button='{}'", buttonTitle);
+			bot.button(buttonTitle).click();
+		} catch (WidgetNotFoundException e) {
+			logger.warn("Button with title='{}' not found. Test continues.", buttonTitle);
+		} catch (TimeoutException e) {
+			logger.info("Dialog with title='{}' was not found (timeout). Test continues.", title);
+		}
+	}
+
 	/**
 	 * Waits for a dialog with a given title to show up.
 	 * 
@@ -159,7 +176,7 @@ public class SWTFixture {
 	 */
 	@FixtureMethod
 	public void waitForDialogClosingWithTimeout(String title, long timeout) {
-		logger.info("Waiting for dialog with title='{}' to open, timeout='{}' seconds.", title, timeout);
+		logger.info("Waiting for dialog with title='{}' to open and then close, timeout='{}' seconds.", title, timeout);
 		try {
 			try {
 				bot.waitUntil(Conditions.shellIsActive(title), timeout * 1000);
