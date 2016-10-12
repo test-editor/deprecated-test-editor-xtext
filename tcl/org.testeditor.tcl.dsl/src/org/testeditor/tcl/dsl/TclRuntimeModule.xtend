@@ -22,11 +22,16 @@ import org.testeditor.tcl.dsl.messages.TclSyntaxErrorMessageProvider
 import org.testeditor.tcl.dsl.naming.TclQualifiedNameProvider
 import org.testeditor.tcl.dsl.scoping.TclDelegateScopeProvider
 import org.testeditor.tcl.dsl.validation.FileExtensionValidator
+import org.testeditor.tcl.dsl.validation.AdjustedXbaseConfigurableIssueCodes
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
  */
 class TclRuntimeModule extends AbstractTclRuntimeModule {
+
+	override bindConfigurableIssueCodesProvider() {
+		return AdjustedXbaseConfigurableIssueCodes
+	}
 
 	override bindIQualifiedNameProvider() {
 		return TclQualifiedNameProvider
