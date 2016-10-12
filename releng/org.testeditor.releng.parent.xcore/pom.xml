@@ -46,7 +46,7 @@
 						</execution>
 					</executions>
 					<configuration>
-						<classPathLookupFilter>.*(ecore|genmodel|xcore|xtext).*</classPathLookupFilter>
+						<classPathLookupFilter>.*(ecore|genmodel|xcore|xtext|model|dsl).*</classPathLookupFilter>
 						<languages>
 							<language>
 								<setup>org.eclipse.xtext.ecore.EcoreSupport</setup>
