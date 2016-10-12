@@ -22,7 +22,7 @@ nodeWithProperWorkspace {
 
     stage 'Build target platform'
     withMavenEnv {
-        mvn 'clean install -f "target-platform/pom.xml"'
+        gradle 'buildTarget'
     }
 
     stage (isMaster() ? 'Build and deploy' : 'Build')

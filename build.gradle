@@ -1,0 +1,30 @@
+def targetPlatform = "$projectDir/target-platform"
+
+task buildTarget(type: MavenExec) {
+    inputs.files fileTree(dir: targetPlatform, exclude: '**/target/**')
+    outputs.dir file("$targetPlatform/org.testeditor.releng.target.updatesite/target/site")
+    workingDir targetPlatform
+    args 'clean', 'install'
+}
+
+task cleanTarget(type: MavenExec) {
+    workingDir targetPlatform
+    args 'clean'
+}
+
+/**
+ * Prefills the commandLine with the Maven executable.
+ */
+class MavenExec extends Exec {
+    
+    MavenExec() {
+        super()
+        def isWindows = org.gradle.internal.os.OperatingSystem.current().windows
+        if (isWindows) {
+            commandLine 'cmd', '/c', 'mvn'
+        } else {
+            commandLine 'mvn'
+        }
+    }
+    
+}
