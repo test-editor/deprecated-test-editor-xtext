@@ -39,5 +39,9 @@ config TestEditorConfig
 	- Use auto completion with "compon" and select "component with type - Create a new component with a type"
 
 * Then
+
+	Component: TestEditorServices
+	- Screenshot to "before-verify"
+
 	Component: ActiveEditor
 	- Contains editor "component name is org.testeditor.fixture.web.GeneralBrowser {"

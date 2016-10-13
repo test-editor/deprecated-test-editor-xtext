@@ -42,6 +42,9 @@ config TestEditorConfig
 	- Wait until all jobs finished
 
 //then
+	Component: TestEditorServices
+	- Screenshot to "before-verify"
+
 	Component: ActiveEditor
 	- isTclPackage = Contains editor "package MyFirstWebProject"
 	- assert !isTclPackage

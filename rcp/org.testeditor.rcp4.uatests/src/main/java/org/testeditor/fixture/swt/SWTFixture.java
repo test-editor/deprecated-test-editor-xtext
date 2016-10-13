@@ -22,7 +22,6 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
@@ -43,8 +42,6 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotText;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.eclipse.swtbot.swt.finder.widgets.TimeoutException;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testeditor.fixture.core.interaction.FixtureMethod;
@@ -189,6 +186,21 @@ public class SWTFixture {
 			logger.info("Widget not found. No reason to wait.");
 		}
 		logger.info("Finished waiting.");
+	}
+
+	@FixtureMethod
+	public void screenshot(String filename) {
+		String graphicTypeCorrectedFilename = null;
+		if (!filename.matches("\\.(jpeg|png|gif|jpg)$")) {
+			graphicTypeCorrectedFilename = filename + ".png";
+		} else {
+			graphicTypeCorrectedFilename = filename;
+		}
+		String testcase = System.getProperty("org.testeditor.testcase");
+		String hash = Integer.toHexString(this.hashCode());
+		String finalFilename = (testcase != null ? testcase + "-" : "") + hash + '-' + graphicTypeCorrectedFilename;
+		new SWTWorkbenchBot().captureScreenshot(finalFilename);
+		logger.info("Wrote screenshot to file='{}'.", finalFilename);
 	}
 
 	/**
@@ -478,10 +490,11 @@ public class SWTFixture {
 	}
 
 	private String removeLineFromString(String string, int lineNumber) {
-		String[] contentLines = string.replaceAll("\r","").split("\n");
+		String[] contentLines = string.replaceAll("\r", "").split("\n");
 		logger.debug("Content contains '{}' lines, now removing line '{}'.", contentLines.length, lineNumber);
 		if (lineNumber < 1 || lineNumber > contentLines.length) {
-			throw new IllegalArgumentException("Linenumber='"+lineNumber+"' outside available lines='"+contentLines.length+"'.");
+			throw new IllegalArgumentException(
+					"Linenumber='" + lineNumber + "' outside available lines='" + contentLines.length + "'.");
 		}
 		StringBuffer newContent = new StringBuffer();
 		for (int i = 0; i < contentLines.length; i++) {

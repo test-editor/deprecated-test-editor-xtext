@@ -139,6 +139,15 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				initializer = '''System.getenv("«environmentVariable.name»")'''
 			]
 		]
+		result.members += element.toMethod('setupTestcaseProperties', typeRef(Void.TYPE)) [
+			exceptions += typeRef(Exception)
+			annotations += annotationRef('org.junit.Before') // make sure that junit is in the classpath of the workspace containing the dsl
+			body = [
+				val output = trace(element, true)
+				output.append('''System.setProperty("org.testeditor.testcase", getClass().getCanonicalName());''')
+			]
+		]
+
 		if (!envParams.empty) {
 			result.members += element.toMethod('checkEnvironmentVariablesOnExistence', typeRef(Void.TYPE)) [
 				exceptions += typeRef(Exception)

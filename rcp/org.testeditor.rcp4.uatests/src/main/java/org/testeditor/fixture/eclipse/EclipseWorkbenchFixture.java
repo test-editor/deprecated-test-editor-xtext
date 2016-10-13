@@ -43,6 +43,8 @@ import org.testeditor.fixture.core.interaction.FixtureMethod;
 
 public class EclipseWorkbenchFixture {
 
+	private final static int JOB_WAIT_THRESHOLD=100; // in 10^-1 seconds (100 = 10 sec ...)
+
 	private Logger logger = LogManager.getLogger(EclipseWorkbenchFixture.class);
 
 	/**
@@ -93,7 +95,7 @@ public class EclipseWorkbenchFixture {
 		IWorkbenchWindow window = editorPart.getSite().getWorkbenchWindow();
 		syncExec(() -> window.getActivePage().closeEditor(editorPart, false));
 	}
-
+	
 	/**
 	 * Wait until their is no running job in the background of the RCP/IDE.
 	 */
@@ -101,12 +103,12 @@ public class EclipseWorkbenchFixture {
 	public void waitUntilJobsCompleted() {
 		try {
 			int counter = 0;
-			while (!Job.getJobManager().isIdle() || counter < 100) {
+			while (!Job.getJobManager().isIdle() || counter < JOB_WAIT_THRESHOLD) {
 				Thread.sleep(100);
 				counter++;
 			}
-			if (counter >= 100) {
-				logger.info("Abort waiting for eclipse job execution after 10 seconds.");
+			if (counter >= JOB_WAIT_THRESHOLD) {
+				logger.info("Abort waiting for eclipse job execution after {} seconds.",JOB_WAIT_THRESHOLD/10);
 			}
 		} catch (InterruptedException e) {
 			logger.error("Wait operation is interrupted.", e);

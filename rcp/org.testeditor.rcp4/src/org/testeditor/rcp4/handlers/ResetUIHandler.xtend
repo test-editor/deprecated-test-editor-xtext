@@ -28,9 +28,11 @@ import org.slf4j.LoggerFactory
 
 import static org.testeditor.rcp4.Constants.*
 import org.testeditor.dsl.common.ui.workbench.MUIElementUtils
+import org.eclipse.ui.PlatformUI
+import org.eclipse.swt.SWTException
 
 class ResetUIHandler {
-	
+
 	@Inject extension MUIElementUtils muiUtils
 
 	static val logger = LoggerFactory.getLogger(ResetUIHandler)
@@ -38,6 +40,7 @@ class ResetUIHandler {
 
 	@Execute
 	public def void resetUI(EModelService modelService, EPartService partService) {
+		closeAllModalWindows
 		val window = application.children.head
 		val perspectiveStack = modelService.find(MAIN_PERSPECTIVE_STACK_ID, application) as MPerspectiveStack
 		val originalPerspective = modelService.cloneSnippet(application, PERSPECTIVE_ID, window) as MPerspective
@@ -62,6 +65,20 @@ class ResetUIHandler {
 			logger.info('UI was reset.')
 		} catch (Exception e) {
 			logger.error('UI was not correctly reset. Exception during switch of perspective.', e)
+		}
+	}
+
+	private def void closeAllModalWindows() {
+		val allModalWindows=PlatformUI.workbench.display.shells
+		allModalWindows.filter[!text.contains('TestEditor')].forEach[closeModalWindow]
+	}
+
+	private def closeModalWindow(Shell shell) {
+		try {
+			shell.close
+			logger.warn("Closed modal dialog with title='{}'.", shell.text)
+		} catch (SWTException e) {
+			logger.error("Closing modal dialog produced swt exception.", e)
 		}
 	}
 

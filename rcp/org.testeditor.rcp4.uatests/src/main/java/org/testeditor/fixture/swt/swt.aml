@@ -142,10 +142,15 @@ element type List {
 	interactions = selectElementInList
 }
 
+interaction type screenshot {
+	template = "Screenshot to" ${filename}
+	method = SWTFixture.screenshot(filename)
+}
+
 component type General {
-	interactions = reportWidgets, wait, waitForDialogClosing, waitForDialogClosingWithTimeout, waitForDialogWithTimeout
+	interactions = reportWidgets, wait, waitForDialogClosing, waitForDialogClosingWithTimeout, waitForDialogWithTimeout, screenshot
 }
 
 component type Dialog {
-	interactions = reportWidgets, wait, waitForDialogClosing, waitForDialogClosingWithTimeout, waitForDialogWithTimeout
+	interactions = reportWidgets, wait, waitForDialogClosing, waitForDialogClosingWithTimeout, waitForDialogWithTimeout, screenshot
 }

@@ -31,6 +31,7 @@ config TestEditorConfig
 	- Wait at most "30" seconds until dialog with title "Progress Information" is closed
 	// on some machines a dialog pops up that expects to acknowledge a file change for editor refresh
 	- Wait at most "5" seconds until dialog with title "File Changed" opens and click "Yes"
+	- Screenshot to "after-new-project-dialog"
 
 	Component: TestEditorServices
 	- valid = Check if "swingexecdemo" is a valid testproject
@@ -46,6 +47,9 @@ config TestEditorConfig
 
 // then
 * Verify test execution result
+
+	Component: TestEditorServices
+	- Screenshot to "before-verify"
 
 	Component: MainWindow
 	- Is view <JUnitView> visible
