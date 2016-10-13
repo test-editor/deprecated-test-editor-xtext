@@ -303,7 +303,7 @@ public class SWTFixture {
 	 * @param viewName
 	 *            id of the view / widget with the context menu
 	 * @param menuItem
-	 *            poath to the menuitem Example: "New/Project"
+	 *            path to the menu item Example: "New/Project"
 	 * @throws Exception
 	 *             on failure to break the test.
 	 */
@@ -317,6 +317,7 @@ public class SWTFixture {
 		try {
 			item = ContextMenuHelper.contextMenu(tree, menuItem.split("/"));
 		} catch (WidgetNotFoundException e) {
+			Thread.sleep(100);
 			logger.trace("Search menu entry a second time: {}", menuItem);
 			item = ContextMenuHelper.contextMenu(tree, menuItem.split("/"));
 		}
@@ -326,7 +327,7 @@ public class SWTFixture {
 	}
 
 	/**
-	 * Looking for a widget in that is typeable and is identifiable by the
+	 * Looking for a widget in that is type able and is identifiable by the
 	 * locator.
 	 * 
 	 * @param locator
@@ -461,10 +462,11 @@ public class SWTFixture {
 	}
 
 	private String removeLineFromString(String string, int lineNumber) {
-		String[] contentLines = string.replaceAll("\r","").split("\n");
+		String[] contentLines = string.replaceAll("\r", "").split("\n");
 		logger.debug("Content contains '{}' lines, now removing line '{}'.", contentLines.length, lineNumber);
 		if (lineNumber < 1 || lineNumber > contentLines.length) {
-			throw new IllegalArgumentException("Linenumber='"+lineNumber+"' outside available lines='"+contentLines.length+"'.");
+			throw new IllegalArgumentException(
+					"Linenumber='" + lineNumber + "' outside available lines='" + contentLines.length + "'.");
 		}
 		StringBuffer newContent = new StringBuffer();
 		for (int i = 0; i < contentLines.length; i++) {
