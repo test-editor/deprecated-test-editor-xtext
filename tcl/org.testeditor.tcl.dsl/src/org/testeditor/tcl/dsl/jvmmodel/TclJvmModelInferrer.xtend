@@ -149,8 +149,10 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				]
 			]
 		}
-
-		// Create test method
+		createTestMethods(result,element)
+	}
+	
+	private def createTestMethods(JvmGenericType result, TestCase element) {
 		result.members += element.toMethod('execute', typeRef(Void.TYPE)) [
 			exceptions += typeRef(Exception)
 			annotations += annotationRef('org.junit.Test') // make sure that junit is in the classpath of the workspace containing the dsl
