@@ -12,6 +12,23 @@ task cleanTarget(type: MavenExec) {
     args 'clean'
 }
 
+// TODO define inputs and outputs
+task install(type: MavenExec, dependsOn: buildTarget) {
+    workingDir projectDir
+    args 'clean', 'install', '-Dmaven.test.failure.ignore', '-Dsurefire.useFile=false', '-Dtycho.localArtifacts=ignore'
+}
+
+task deploy(type: MavenExec, dependsOn: buildTarget) {
+    workingDir projectDir
+    args 'clean', 'deploy', '-Dmaven.test.failure.ignore', '-Dsurefire.useFile=false', '-Dtycho.localArtifacts=ignore'
+}
+
+// TODO should be dependent on build (but build needs to be incremental for that)
+task buildProduct(type: MavenExec) {
+    workingDir projectDir
+    args 'package' , '-Pproduct', '-DskipTests', '-Dtycho.localArtifacts=ignore'
+}
+
 /**
  * Prefills the commandLine with the Maven executable.
  */

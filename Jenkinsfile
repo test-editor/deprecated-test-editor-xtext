@@ -31,7 +31,7 @@ nodeWithProperWorkspace {
     withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g"]) {
         def goal = isMaster() ? 'deploy' : 'install'
         withXvfb {
-            mvn "clean $goal -Dmaven.test.failure.ignore -Dsurefire.useFile=false -Dtycho.localArtifacts=ignore"
+            gradle goal
         }
     }
     
@@ -40,7 +40,7 @@ nodeWithProperWorkspace {
     if (buildProduct) {
         stage 'Build product'
         withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g"]) {
-            mvn 'package -Pproduct -DskipTests -Dtycho.localArtifacts=ignore'
+            gradle 'buildProduct'
         }
     }
 
