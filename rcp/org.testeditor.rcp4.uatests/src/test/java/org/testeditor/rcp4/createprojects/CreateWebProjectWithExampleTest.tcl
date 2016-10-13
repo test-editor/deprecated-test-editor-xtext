@@ -26,10 +26,11 @@ config TestEditorConfig
 	- Click on <NextButton>
 	- Select element "Web Fixture" in list <AvailableFixturesList>
 	- Click on <AddFixtureButton>
+	- Select value "maven" in combo box <BuildTool>
 	- Click on <FinishButton>
 	- Wait until dialog with title "Progress Information" is closed
+	// on some machines a dialog pops up that expects to acknowledge a file change for editor refresh
+	- Wait at most "5" seconds until dialog with title "File Changed" opens and click "Yes"
 	
 * Verify that the project is visible in the ui
 
-	Component: ProjectExplorer
-	- Select element "MyFirstWebProject" in tree <ProjectTree>

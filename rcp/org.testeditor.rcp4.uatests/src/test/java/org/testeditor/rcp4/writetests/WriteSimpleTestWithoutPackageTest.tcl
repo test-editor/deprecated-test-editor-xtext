@@ -22,6 +22,8 @@ config TestEditorConfig
 	- Check <GenerateWithExamples>
 	- Click on <FinishButton>
 	- Wait at most "30" seconds until dialog with title "Progress Information" is closed
+	// on some machines a dialog pops up that expects to acknowledge a file change for editor refresh
+	- Wait at most "5" seconds until dialog with title "File Changed" opens and click "Yes"
 
 	Component: ProjectExplorer
 	- Select element "MyFirstWebProject/Tests/MyFirstWebProject" in tree <ProjectTree>
@@ -40,6 +42,9 @@ config TestEditorConfig
 	- Wait until all jobs finished
 
 //then
+	Component: TestEditorServices
+	- Screenshot to "before-verify"
+
 	Component: ActiveEditor
 	- isTclPackage = Contains editor "package MyFirstWebProject"
 	- assert !isTclPackage

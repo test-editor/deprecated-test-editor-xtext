@@ -33,6 +33,9 @@ Setup:
 // then
 * Open an editor "NewTestCase.tcl" and verify that the editor contains the line "# NewTestCase"
 
+	Component: TestEditorServices
+	- Screenshot to "before-verify"
+
 	Component: MainWindow
 	- editor = Open editor for file "/demo/src/test/java/demo/NewTestCase.tcl"
 	- editorContents = Get contents of editor @editor

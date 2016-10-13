@@ -3,7 +3,9 @@ package org.testeditor.tcl.dsl.jvmmodel
 import org.junit.Before
 import org.junit.Test
 import org.testeditor.dsl.common.testing.DummyFixture
+import org.junit.Ignore
 
+@Ignore
 class TclSetupAndCleanupGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 
 	@Before

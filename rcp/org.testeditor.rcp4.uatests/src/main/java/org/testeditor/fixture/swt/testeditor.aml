@@ -35,7 +35,7 @@ interaction type containsWorkspaceFileText {
 }
 
 component type TestEditorApp {
-	interactions = createSimpleProject, saveUI, resetUI, cleanWorkspace, isValidTestProject, containsWorkspaceFileText
+	interactions = createSimpleProject, saveUI, resetUI, cleanWorkspace, isValidTestProject, containsWorkspaceFileText, screenshot
 }
 
 component MainWindow is Workbench {

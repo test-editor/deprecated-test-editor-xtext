@@ -3,7 +3,9 @@ package org.testeditor.tcl.dsl.jvmmodel.builder
 import org.junit.Test
 import org.testeditor.dsl.common.testing.DummyFixture
 import org.testeditor.fixture.core.AbstractTestCase
+import org.junit.Ignore
 
+@Ignore
 class TestCaseWithSeparateConfigTest extends AbstractStandaloneBuilderTest {
 
 	@Test

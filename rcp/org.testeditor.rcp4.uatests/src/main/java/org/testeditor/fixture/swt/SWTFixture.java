@@ -137,6 +137,20 @@ public class SWTFixture {
 		Thread.sleep(seconds * 1000);
 	}
 
+	@FixtureMethod
+	public void waitForDialog(String title, String buttonTitle, long maxSeconds) throws InterruptedException {
+		logger.info("Waiting for dialog with title='{}' to open, timeout='{}' seconds.", title, maxSeconds);
+		try {
+			bot.waitUntil(Conditions.shellIsActive(title), maxSeconds * 1000);
+			logger.info("Found dialog, now pressing button='{}'", buttonTitle);
+			bot.button(buttonTitle).click();
+		} catch (WidgetNotFoundException e) {
+			logger.warn("Button with title='{}' not found. Test continues.", buttonTitle);
+		} catch (TimeoutException e) {
+			logger.info("Dialog with title='{}' was not found (timeout). Test continues.", title);
+		}
+	}
+
 	/**
 	 * Waits for a dialog with a given title to show up.
 	 * 
@@ -159,7 +173,7 @@ public class SWTFixture {
 	 */
 	@FixtureMethod
 	public void waitForDialogClosingWithTimeout(String title, long timeout) {
-		logger.info("Waiting for dialog with title='{}' to open, timeout='{}' seconds.", title, timeout);
+		logger.info("Waiting for dialog with title='{}' to open and then close, timeout='{}' seconds.", title, timeout);
 		try {
 			try {
 				bot.waitUntil(Conditions.shellIsActive(title), timeout * 1000);
@@ -172,6 +186,21 @@ public class SWTFixture {
 			logger.info("Widget not found. No reason to wait.");
 		}
 		logger.info("Finished waiting.");
+	}
+
+	@FixtureMethod
+	public void screenshot(String filename) {
+		String graphicTypeCorrectedFilename = null;
+		if (!filename.matches("\\.(jpeg|png|gif|jpg)$")) {
+			graphicTypeCorrectedFilename = filename + ".png";
+		} else {
+			graphicTypeCorrectedFilename = filename;
+		}
+		String testcase = System.getProperty("org.testeditor.testcase");
+		String hash = Integer.toHexString(this.hashCode());
+		String finalFilename = (testcase != null ? testcase + "-" : "") + hash + '-' + graphicTypeCorrectedFilename;
+		new SWTWorkbenchBot().captureScreenshot(finalFilename);
+		logger.info("Wrote screenshot to file='{}'.", finalFilename);
 	}
 
 	/**
@@ -461,10 +490,11 @@ public class SWTFixture {
 	}
 
 	private String removeLineFromString(String string, int lineNumber) {
-		String[] contentLines = string.replaceAll("\r","").split("\n");
+		String[] contentLines = string.replaceAll("\r", "").split("\n");
 		logger.debug("Content contains '{}' lines, now removing line '{}'.", contentLines.length, lineNumber);
 		if (lineNumber < 1 || lineNumber > contentLines.length) {
-			throw new IllegalArgumentException("Linenumber='"+lineNumber+"' outside available lines='"+contentLines.length+"'.");
+			throw new IllegalArgumentException(
+					"Linenumber='" + lineNumber + "' outside available lines='" + contentLines.length + "'.");
 		}
 		StringBuffer newContent = new StringBuffer();
 		for (int i = 0; i < contentLines.length; i++) {

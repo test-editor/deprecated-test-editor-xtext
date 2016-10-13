@@ -24,9 +24,10 @@ config TestEditorConfig
 	Component: NewProjectDialog
 	- Type "MyFirstProject" into <ProjectName>
 	- Click on <FinishButton>
-	- Wait until dialog with title "Progress Information" is closed
+	- Wait at most "20" seconds until dialog with title "Progress Information" is closed	
 
 * Verify that the project is visible in the ui
 
 	Component: ProjectExplorer
+	- Screenshot to "before-verify"
 	- Select element "MyFirstProject" in tree <ProjectTree>
