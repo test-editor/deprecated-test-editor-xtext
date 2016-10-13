@@ -12,8 +12,10 @@ nodeWithProperWorkspace {
             echo "Aborting build as the current commit on master is already tagged."
             return
         }
+        sh "git clean -ffdx"
+    } else {
+        sh "git clean -ffd"
     }
-    sh "git clean -ffdx"
 
     def preReleaseVersion = getCurrentVersion()
     if (isMaster()) {
