@@ -94,6 +94,13 @@ public class EclipseWorkbenchFixture {
 		syncExec(() -> window.getActivePage().closeEditor(editorPart, false));
 	}
 
+	@FixtureMethod
+	public void closeAllEditors() {
+		IWorkbenchWindow[] windows = getWorkbench().getWorkbenchWindows();
+		Stream.of(windows).forEach(
+				window -> Stream.of(window.getPages()).forEach(page -> syncExec(() -> page.closeAllEditors(false))));
+	}
+
 	/**
 	 * Wait until their is no running job in the background of the RCP/IDE.
 	 */
