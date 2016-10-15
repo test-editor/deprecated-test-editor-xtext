@@ -14,6 +14,9 @@ package org.testeditor.rcp4.views.tcltestrun
 
 import org.eclipse.ui.plugin.AbstractUIPlugin
 import org.osgi.framework.BundleContext
+import org.testeditor.rcp4.views.tcltestrun.rest.TestExecutionLogService
+import org.eclipse.equinox.http.servlet.ExtendedHttpService
+import org.testeditor.rcp4.views.tcltestrun.rest.TestEditorWebFilter
 
 class Activator extends AbstractUIPlugin {
 	// $NON-NLS-1$
@@ -35,6 +38,12 @@ class Activator extends AbstractUIPlugin {
 	override void start(BundleContext context) throws Exception {
 		super.start(context)
 		plugin = this
+		context.registerService(TestExecutionLogService, new TestExecutionLogService, null)
+		val serviceReference = context.getServiceReference(ExtendedHttpService)
+		if(serviceReference !== null){
+			val httpService = context.getService(serviceReference) 
+			httpService.registerFilter("/services/*",new TestEditorWebFilter,null,null)
+		}
 	}
 
 	/*
