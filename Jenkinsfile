@@ -12,8 +12,10 @@ nodeWithProperWorkspace {
             echo "Aborting build as the current commit on master is already tagged."
             return
         }
+        sh "git clean -ffdx"
+    } else {
+        sh "git clean -ffd"
     }
-    sh "git clean -ffdx"
 
     def preReleaseVersion = getCurrentVersion()
     if (isMaster()) {
@@ -22,14 +24,14 @@ nodeWithProperWorkspace {
 
     stage 'Build target platform'
     withMavenEnv {
-        mvn 'clean install -f "target-platform/pom.xml"'
+        gradle 'buildTarget'
     }
 
     stage (isMaster() ? 'Build and deploy' : 'Build')
     withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g"]) {
         def goal = isMaster() ? 'deploy' : 'install'
         withXvfb {
-            mvn "clean $goal -Dmaven.test.failure.ignore -Dsurefire.useFile=false -Dtycho.localArtifacts=ignore"
+            gradle goal
         }
     }
     
@@ -38,7 +40,7 @@ nodeWithProperWorkspace {
     if (buildProduct) {
         stage 'Build product'
         withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g"]) {
-            mvn 'package -Pproduct -DskipTests -Dtycho.localArtifacts=ignore'
+            gradle 'buildProduct'
         }
     }
 
