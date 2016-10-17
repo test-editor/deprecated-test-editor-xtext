@@ -14,11 +14,13 @@ package org.testeditor.rcp4.views.tcltestrun.model
 
 import org.eclipse.xtend.lib.annotations.Accessors
 import java.util.Date
+import java.util.List
 
 @Accessors
-class TestLogExecution {
+class TestExecutionLog {
 
-	private String testName;
-	private Date testExecution;
+	private String testName
+	private Date testExecution
+	private List<String> testNames
 		
 }

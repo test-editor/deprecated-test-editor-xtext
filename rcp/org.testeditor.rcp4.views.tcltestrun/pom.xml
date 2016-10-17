@@ -44,7 +44,7 @@
 
 						<configuration>
 							<outputDirectory>lib</outputDirectory>
-							<includeArtifactIds>javax.json,javax.json-api</includeArtifactIds>
+							<includeArtifactIds>javax.json,javax.json-api,jersey-media-moxy</includeArtifactIds>
 						</configuration>
 					</execution>
 				</executions>

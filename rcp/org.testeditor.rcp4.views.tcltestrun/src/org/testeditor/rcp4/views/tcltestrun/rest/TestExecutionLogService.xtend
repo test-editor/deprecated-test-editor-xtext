@@ -17,17 +17,23 @@ import javax.ws.rs.GET
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
 import javax.ws.rs.core.MediaType
+import javax.ws.rs.core.Response
+import org.eclipse.xtend.lib.annotations.Accessors
+import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionManager
 
 @Path("/testexeclog")
 class TestExecutionLogService {
 	
+	@Accessors
+	TestExecutionManager testExecutionManager
+	
 	@Path("/metadata") 	
 	@GET 
 	@Produces(MediaType::APPLICATION_JSON) 
-	def String getTestLogExeutionMetaData() {
+	def Response getTestLogExeutionMetaData() {
 		val json = Json.createObjectBuilder
 		json.add("value", "Foo")		
-		return json.build.toString		
+		return Response.ok(json.build.toString).build
 	}
 	
 }
