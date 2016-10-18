@@ -28,7 +28,7 @@ class TestExecutionLogViewPart {
 	}
 	
 	def showLog(TestExecutionLog log) {
-		browser.setUrl("http://localhost:19090/services/testexeclog/metadata")
+		browser.setUrl("http://localhost:19090/services/testexeclog/list")
 	}
 	
 }

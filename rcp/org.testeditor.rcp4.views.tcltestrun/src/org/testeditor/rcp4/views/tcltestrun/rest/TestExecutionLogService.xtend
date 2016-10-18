@@ -36,4 +36,13 @@ class TestExecutionLogService {
 		return Response.ok(json.build.toString).build
 	}
 	
+	@Path("/list") 	
+	@GET 
+	@Produces(MediaType::APPLICATION_JSON) 
+	def Response getTestLogExeutionList() {
+		val array = Json.createArrayBuilder
+		testExecutionManager.testExecutionLogs.forEach[array.add(it)]
+		return Response.ok(array.build.toString).build
+	}
+
 }

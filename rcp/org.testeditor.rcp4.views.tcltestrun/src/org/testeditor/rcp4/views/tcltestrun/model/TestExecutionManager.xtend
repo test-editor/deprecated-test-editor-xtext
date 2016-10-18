@@ -38,4 +38,9 @@ class TestExecutionManager {
 		return new FileOutputStream(new File(location, "te-" + execLog.testExecution.time + ".log"))
 	}
 
+	def List<String> getTestExecutionLogs() {
+		val location = stateLocationHelper.stateLocation
+		location.list([$1.startsWith("te-")])
+	}
+
 }
