@@ -132,7 +132,8 @@ class TclLauncherUi implements Launcher {
 			partHelper.showView(TEST_EXECUTION_RESULT_VIEW)
 			val viewPart = eclipseContextHelper.eclipseContext.get(EPartService).findPart(TEST_EXECUTION_RESULT_VIEW)
 			val teExecView = viewPart.object as TestExecutionLogViewPart
-			Display.^default.syncExec([teExecView?.showLog(execLog)])			
+			//Disabled for test run
+			//Display.^default.syncExec([teExecView?.showLog(execLog)])			
 			val result = testLaunchInformation.launcher.launchTest(testLaunchInformation.testCasesCommaList,
 				testLaunchInformation.project, monitor, output, testLaunchInformation.options)
 			testLaunchInformation.project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
