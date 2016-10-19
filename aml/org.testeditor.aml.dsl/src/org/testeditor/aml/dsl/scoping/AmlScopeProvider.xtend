@@ -50,8 +50,10 @@ class AmlScopeProvider extends XbaseBatchScopeProvider {
 
 		if (context instanceof MethodReference) {
 			if (reference == METHOD_REFERENCE__OPERATION) {
-				return methodReferenceScopes.getMethodReferenceScope(context, reference)
-			} // else: TODO provide scope only for imported element
+				return methodReferenceScopes.scopeFor_MethodReference_operation(context)
+			} else if (reference == METHOD_REFERENCE__PARAMETERS) {
+				return methodReferenceScopes.scopeFor_MethodReference_parameters(context)
+			}
 		}
 
 		if (context instanceof InteractionType) {
