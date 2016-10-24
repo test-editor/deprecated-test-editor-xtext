@@ -55,25 +55,25 @@ class TclSetupAndCleanupGeneratorIntegrationTest extends AbstractTclGeneratorInt
 			  @Before
 			  public void setup() throws Exception {
 			    
-			    logger.trace(" [Component] GreetingApplication");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
 			    
-			    logger.trace(" [test step] - Start application \"org.testeditor.swing.exammple.Greetings\"");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.STEP, "Start application \"org.testeditor.swing.exammple.Greetings\"");
 			    dummyFixture.startApplication("org.testeditor.swing.exammple.Greetings");
 			  }
 			  
 			  @After
 			  public void cleanup() throws Exception {
 			    
-			    logger.trace(" [Component] GreetingApplication");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
 			    
-			    logger.trace(" [test step] - Stop application");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.STEP, "Stop application");
 			    dummyFixture.stopApplication();
 			  }
 			  
 			  @Test
 			  public void execute() throws Exception {
 			    
-			    logger.info(" [Test specification] * Test Step");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "Test Step");
 			    
 			  }
 			}

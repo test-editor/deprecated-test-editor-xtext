@@ -13,6 +13,6 @@
 			<attribute name="ignore_optional_problems" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib/core-fixture-3.0.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/core-fixture-3.0.2-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

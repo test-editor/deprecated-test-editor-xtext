@@ -17,6 +17,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -44,20 +46,40 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.eclipse.swtbot.swt.finder.widgets.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testeditor.fixture.core.TestRunListener;
+import org.testeditor.fixture.core.TestRunReportable;
+import org.testeditor.fixture.core.TestRunReporter;
+import org.testeditor.fixture.core.TestRunReporter.Action;
+import org.testeditor.fixture.core.TestRunReporter.SemanticUnit;
 import org.testeditor.fixture.core.interaction.FixtureMethod;
 
 /**
  * Fixture to control SWT elements in an RCP Application.
  *
  */
-public class SWTFixture {
+public class SWTFixture  implements TestRunListener, TestRunReportable {
 
 	private static final Logger logger = LoggerFactory.getLogger(SWTFixture.class);
 	private SWTWorkbenchBot bot = new SWTWorkbenchBot();
+	private String runningTest = null;
 
 	public SWTFixture() {
 		System.setProperty("org.eclipse.swtbot.search.timeout", "10000");
 		System.setProperty("org.eclipse.swtbot.playback.poll.delay", "10000");
+	}
+	
+	public void initWithReporter(TestRunReporter reporter) {
+		reporter.addListener(this);
+	}
+
+	@Override
+	public void reported(SemanticUnit unit, Action action, String msg) {
+		if (unit == SemanticUnit.TEST && action == Action.ENTER) {
+			runningTest = msg;
+		}
+		if (screenshotShouldBeMade(unit,action,msg)) {
+			screenshot(msg);
+		}
 	}
 
 	/**
@@ -147,6 +169,52 @@ public class SWTFixture {
 	public void waitForDialogClosing(String title) {
 		long swtBotDefaultInMilliSeconds = SWTBotPreferences.TIMEOUT;
 		waitForDialogClosingWithTimeout(title, swtBotDefaultInMilliSeconds / 1000);
+	}
+
+	private String getCurrentTestCase() {
+		return runningTest!=null?runningTest:"UNKNOWN_TEST";
+	}
+
+	private String getScreenshotPath() {
+		// configurable through maven build?
+		return "";
+	}
+	
+	private boolean screenshotShouldBeMade(SemanticUnit unit, Action action, String msg) {
+		// configurable through maven build?
+		return (action == Action.ENTER) || unit == SemanticUnit.TEST;
+	}
+
+	private String constructScreenshotFilename(String filenameBase, String testcase) {
+		String graphicTypeCorrectedFilename = null;
+		String escapedBaseName=filenameBase.replaceAll("[^a-zA-Z0-9.-]", "_");
+		
+		if (!escapedBaseName.matches("\\.(jpeg|png|gif|jpg)$")) {
+			graphicTypeCorrectedFilename = escapedBaseName + ".png";
+		} else {
+			graphicTypeCorrectedFilename = escapedBaseName;
+		}
+		String hash = Integer.toHexString(System.identityHashCode(this));
+		String timeStr = new SimpleDateFormat("HHmmss.SSS").format(new Date());
+		String finalFilename = getScreenshotPath() + testcase + '-' + hash + '-' + timeStr + '-'
+				+ graphicTypeCorrectedFilename;
+		return finalFilename;
+	}
+
+	/**
+	 * Write a screenshot of the current ui into a file, based on the basic
+	 * filenameBase provided. The final filename is constructed using the
+	 * testcase a hash of the fixture itself and a shortened timestamp.
+	 * 
+	 * @param filenameBase
+	 *            user definable part of the final filename
+	 */
+	@FixtureMethod
+	public void screenshot(String filenameBase) {
+		String testcase = getCurrentTestCase();
+		String finalFilename = constructScreenshotFilename(filenameBase, testcase);
+		new SWTWorkbenchBot().captureScreenshot(finalFilename);
+		logger.info("Wrote screenshot to file='{}'.", finalFilename);
 	}
 
 	/**

@@ -104,39 +104,39 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			  @Test
 			  public void execute() throws Exception {
 			    
-			    logger.info(" [Test specification] * Test assertions in the famous greeting application");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "Test assertions in the famous greeting application");
 			    
-			    logger.trace(" [Component] GreetingApplication");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
 			    
-			    logger.trace(" [test step] -java.util.List<? extends java.lang.Object> foo =  Read list from <bar>");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.STEP, "java.util.List<? extends java.lang.Object> foo = Read list from <bar>");
 			    java.util.List<? extends java.lang.Object> foo = dummyFixture.getList("label.greet");
-			    logger.trace(" [test step] -java.lang.String baz =  Read value from <bar>");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.STEP, "java.lang.String baz = Read value from <bar>");
 			    java.lang.String baz = dummyFixture.getValue("label.greet");
-			    logger.trace(" [test step] -boolean book =  Read bool from <bar>");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.STEP, "boolean book = Read bool from <bar>");
 			    boolean book = dummyFixture.getBool("label.greet");
-			    logger.trace(" [test step] -java.util.Map<? extends java.lang.Object, ? extends java.lang.Object> mak =  Read map from <bar>");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.STEP, "java.util.Map<? extends java.lang.Object, ? extends java.lang.Object> mak = Read map from <bar>");
 			    java.util.Map<? extends java.lang.Object, ? extends java.lang.Object> mak = dummyFixture.getMap("label.greet");
-			    logger.trace("- assert foo");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.STEP, "assert foo");
 			    org.junit.Assert.assertNotNull("foo", foo);
-			    logger.trace("- assert baz = \"fix\"");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.STEP, "assert baz = \"fix\"");
 			    org.junit.Assert.assertEquals("baz = \"fix\"", "fix", baz);
-			    logger.trace("- assert book");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.STEP, "assert book");
 			    org.junit.Assert.assertTrue("book", book);
-			    logger.trace("- assert mak.\"key with spaces\" = \"fox\"");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.STEP, "assert mak.\"key with spaces\" = \"fox\"");
 			    org.junit.Assert.assertEquals("mak.\"key with spaces\" = \"fox\"", "fox", mak.get("key with spaces"));
-			    logger.trace("- assert ! foo");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.STEP, "assert ! foo");
 			    org.junit.Assert.assertNull("! foo", foo);
-			    logger.trace("- assert baz <> \"fix\"");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.STEP, "assert baz <> \"fix\"");
 			    org.junit.Assert.assertNotEquals("baz <> \"fix\"", "fix", baz);
-			    logger.trace("- assert ! book");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.STEP, "assert ! book");
 			    org.junit.Assert.assertFalse("! book", book);
-			    logger.trace("- assert mak.\"key with spaces\" <> \"fox\"");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.STEP, "assert mak.\"key with spaces\" <> \"fox\"");
 			    org.junit.Assert.assertNotEquals("mak.\"key with spaces\" <> \"fox\"", "fox", mak.get("key with spaces"));
-			    logger.trace("- assert mak.\"key with spaces\"");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.STEP, "assert mak.\"key with spaces\"");
 			    org.junit.Assert.assertNotNull("mak.\"key with spaces\"", mak.get("key with spaces"));
-			    logger.trace("- assert ! mak.\"key with spaces\"");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.STEP, "assert ! mak.\"key with spaces\"");
 			    org.junit.Assert.assertNull("! mak.\"key with spaces\"", mak.get("key with spaces"));
-			    logger.trace("- assert baz = mak.otherkey");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.STEP, "assert baz = mak.otherkey");
 			    org.junit.Assert.assertEquals("baz = mak.otherkey", mak.get("otherkey"), baz);
 			  }
 			}
@@ -181,17 +181,17 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			  @Test
 			  public void execute() throws Exception {
 			    
-			    logger.info(" [Test specification] * Start the famous greetings application");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "Start the famous greetings application");
 			    
-			    logger.trace(" [Component] GreetingApplication");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
 			    
-			    logger.trace(" [test step] - Start application \"org.testeditor.swing.exammple.Greetings\"");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.STEP, "Start application \"org.testeditor.swing.exammple.Greetings\"");
 			    dummyFixture.startApplication("org.testeditor.swing.exammple.Greetings");
-			    logger.trace(" [test step] -java.util.List<? extends java.lang.Object> foo =  Read list from <bar>");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.STEP, "java.util.List<? extends java.lang.Object> foo = Read list from <bar>");
 			    java.util.List<? extends java.lang.Object> foo = dummyFixture.getList("label.greet");
-			    logger.trace(" [test step] - Stop application");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.STEP, "Stop application");
 			    dummyFixture.stopApplication();
-			    logger.info(" [Test specification] * Do something different");
+			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "Do something different");
 			    
 			  }
 			}
