@@ -40,7 +40,7 @@ class TestExecutionManager {
 
 	def List<String> getTestExecutionLogs() {
 		val location = stateLocationHelper.stateLocation
-		location.list([$1.startsWith("te-")])
+		return location.list().filter[it.startsWith("te-")].toList
 	}
 
 }

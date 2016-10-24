@@ -20,6 +20,8 @@ import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionManager
+import java.util.Date
+import java.text.SimpleDateFormat
 
 @Path("/testexeclog")
 class TestExecutionLogService {
@@ -40,9 +42,22 @@ class TestExecutionLogService {
 	@GET 
 	@Produces(MediaType::APPLICATION_JSON) 
 	def Response getTestLogExeutionList() {
+		val result = Json.createObjectBuilder
 		val array = Json.createArrayBuilder
-		testExecutionManager.testExecutionLogs.forEach[array.add(it)]
-		return Response.ok(array.build.toString).build
+		testExecutionManager.testExecutionLogs.forEach[
+			val execLog = Json.createObjectBuilder
+			execLog.add("filename",it)
+			execLog.add("name",getTestExecutionLogName(it))
+			array.add(execLog)
+		]
+		result.add("entries",array)
+		return Response.ok(result.build.toString).build
 	}
-
+	
+	def private String getTestExecutionLogName(String teLogFileName) {
+		val date = new Date(Long.parseLong(teLogFileName.substring(3,teLogFileName.lastIndexOf("."))))
+		val sdf = new SimpleDateFormat("dd.MM.yy HH:mm")
+		return sdf.format(date)
+	}
+	
 }
