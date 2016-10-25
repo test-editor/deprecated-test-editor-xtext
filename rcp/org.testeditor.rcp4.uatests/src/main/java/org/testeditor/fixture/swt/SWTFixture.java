@@ -78,7 +78,7 @@ public class SWTFixture  implements TestRunListener, TestRunReportable {
 			runningTest = msg;
 		}
 		if (screenshotShouldBeMade(unit,action,msg)) {
-			screenshot(msg);
+			screenshot(msg+'.'+action.name());
 		}
 	}
 
@@ -196,9 +196,10 @@ public class SWTFixture  implements TestRunListener, TestRunReportable {
 		}
 		String hash = Integer.toHexString(System.identityHashCode(this));
 		String timeStr = new SimpleDateFormat("HHmmss.SSS").format(new Date());
-		String finalFilename = getScreenshotPath() + testcase + '-' + hash + '-' + timeStr + '-'
-				+ graphicTypeCorrectedFilename;
-		return finalFilename;
+		StringBuffer finalFilenameBuffer=new StringBuffer();
+		finalFilenameBuffer.append(getScreenshotPath()).append(testcase).append('-').append(hash).append('-')
+				.append(timeStr).append('-').append(graphicTypeCorrectedFilename);
+		return finalFilenameBuffer.toString();
 	}
 
 	/**

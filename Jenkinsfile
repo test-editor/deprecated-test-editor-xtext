@@ -25,6 +25,7 @@ nodeWithProperWorkspace {
     stage 'Build target platform'
     withMavenEnv {
         gradle 'buildTarget'
+        step([$class: 'ArtifactArchiver', artifacts: 'rcp/org.testeditor.rcp4.uatests/*.png', fingerprint: true])
     }
 
     stage (isMaster() ? 'Build and deploy' : 'Build')
