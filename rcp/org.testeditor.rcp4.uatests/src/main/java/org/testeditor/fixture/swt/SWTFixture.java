@@ -188,10 +188,6 @@ public class SWTFixture  implements TestRunListener, TestRunReportable {
 	private String constructScreenshotFilename(String filenameBase, String testcase) {
 		String additionalGraphicType = ".png";
 		String escapedBaseName=filenameBase.replaceAll("[^a-zA-Z0-9.-]", "_");
-		
-		if (!escapedBaseName.matches("\\.(jpeg|png|gif|jpg)$")) {
-			additionalGraphicType = "";
-		}
 		String hash = Integer.toHexString(System.identityHashCode(this));
 		String timeStr = new SimpleDateFormat("HHmmss.SSS").format(new Date());
 		StringBuffer finalFilenameBuffer=new StringBuffer();

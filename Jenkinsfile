@@ -25,7 +25,6 @@ nodeWithProperWorkspace {
     stage 'Build target platform'
     withMavenEnv {
         gradle 'buildTarget'
-        step([$class: 'ArtifactArchiver', artifacts: 'rcp/org.testeditor.rcp4.uatests/*.png', fingerprint: true])
     }
 
     stage (isMaster() ? 'Build and deploy' : 'Build')
@@ -35,7 +34,10 @@ nodeWithProperWorkspace {
             gradle goal
         }
     }
-    
+
+    // archive all written screenshots
+    step([$class: 'ArtifactArchiver', artifacts: 'rcp/org.testeditor.rcp4.uatests/*.png', fingerprint: true])
+
     // workaround for now to speed-up the build: only build the product on develop, master and branches that end with -with-product
     def buildProduct = env.BRANCH_NAME == "develop" || env.BRANCH_NAME.endsWith("-with-product") || isMaster()
     if (buildProduct) {
