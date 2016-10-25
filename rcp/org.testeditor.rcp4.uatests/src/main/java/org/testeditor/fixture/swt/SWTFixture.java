@@ -78,7 +78,7 @@ public class SWTFixture  implements TestRunListener, TestRunReportable {
 			runningTest = msg;
 		}
 		if (screenshotShouldBeMade(unit,action,msg)) {
-			screenshot(msg);
+			screenshot(msg+'.'+action.name());
 		}
 	}
 
@@ -186,19 +186,18 @@ public class SWTFixture  implements TestRunListener, TestRunReportable {
 	}
 
 	private String constructScreenshotFilename(String filenameBase, String testcase) {
-		String graphicTypeCorrectedFilename = null;
+		String additionalGraphicType = ".png";
 		String escapedBaseName=filenameBase.replaceAll("[^a-zA-Z0-9.-]", "_");
 		
 		if (!escapedBaseName.matches("\\.(jpeg|png|gif|jpg)$")) {
-			graphicTypeCorrectedFilename = escapedBaseName + ".png";
-		} else {
-			graphicTypeCorrectedFilename = escapedBaseName;
+			additionalGraphicType = "";
 		}
 		String hash = Integer.toHexString(System.identityHashCode(this));
 		String timeStr = new SimpleDateFormat("HHmmss.SSS").format(new Date());
-		String finalFilename = getScreenshotPath() + testcase + '-' + hash + '-' + timeStr + '-'
-				+ graphicTypeCorrectedFilename;
-		return finalFilename;
+		StringBuffer finalFilenameBuffer=new StringBuffer();
+		finalFilenameBuffer.append(getScreenshotPath()).append(testcase).append('-').append(hash).append('-')
+				.append(timeStr).append('-').append(escapedBaseName).append(additionalGraphicType);
+		return finalFilenameBuffer.toString();
 	}
 
 	/**

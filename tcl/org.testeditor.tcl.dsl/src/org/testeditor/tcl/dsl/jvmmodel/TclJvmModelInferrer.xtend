@@ -459,19 +459,20 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	private def String reporterFieldName() {
-		val result=AbstractTestCase.declaredFields.filter[
-			TestRunReporter.isAssignableFrom(type)			
+		val result = AbstractTestCase.declaredFields.filter [
+			TestRunReporter.isAssignableFrom(type)
 		].map[name].head
-		
-		if(result.nullOrEmpty){
+
+		if (result.nullOrEmpty) {
 			throw new RuntimeException('''cannot find field of type='«TestRunReporter.name»' within test class='«AbstractTestCase.name»'.''')
 		}
-		
+
 		return result
 	}
 
 	private def void appendReporterEnterCall(ITreeAppendable output, SemanticUnit unit, String message) {
-		testRunReporterGenerator.appendReporterEnterCall(output, _typeReferenceBuilder, unit, message, reporterFieldName)
+		testRunReporterGenerator.appendReporterEnterCall(output, _typeReferenceBuilder, unit, message,
+			reporterFieldName)
 	}
 	
 }
