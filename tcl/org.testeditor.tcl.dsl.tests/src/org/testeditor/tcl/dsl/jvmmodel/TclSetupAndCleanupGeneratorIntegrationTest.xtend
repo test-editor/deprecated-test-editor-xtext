@@ -44,6 +44,7 @@ class TclSetupAndCleanupGeneratorIntegrationTest extends AbstractTclGeneratorInt
 			import org.junit.Test;
 			import org.testeditor.dsl.common.testing.DummyFixture;
 			import org.testeditor.fixture.core.AbstractTestCase;
+			import org.testeditor.fixture.core.TestRunReporter;
 			
 			/**
 			 * Generated from SimpleTest.tcl
@@ -55,25 +56,25 @@ class TclSetupAndCleanupGeneratorIntegrationTest extends AbstractTclGeneratorInt
 			  @Before
 			  public void setup() throws Exception {
 			    
-			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
+			    reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
 			    
-			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.STEP, "Start application \"org.testeditor.swing.exammple.Greetings\"");
+			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Start application \"org.testeditor.swing.exammple.Greetings\"");
 			    dummyFixture.startApplication("org.testeditor.swing.exammple.Greetings");
 			  }
 			  
 			  @After
 			  public void cleanup() throws Exception {
 			    
-			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
+			    reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
 			    
-			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.STEP, "Stop application");
+			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Stop application");
 			    dummyFixture.stopApplication();
 			  }
 			  
 			  @Test
 			  public void execute() throws Exception {
 			    
-			    reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "Test Step");
+			    reporter.enter(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "Test Step");
 			    
 			  }
 			}

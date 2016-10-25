@@ -15,6 +15,7 @@ package org.testeditor.tcl.dsl.jvmmodel
 import com.google.inject.Inject
 import java.util.Set
 import org.apache.commons.lang3.StringEscapeUtils
+import org.eclipse.xtext.common.types.JvmConstructor
 import org.eclipse.xtext.common.types.JvmDeclaredType
 import org.eclipse.xtext.common.types.JvmField
 import org.eclipse.xtext.common.types.JvmGenericType
@@ -32,6 +33,7 @@ import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
 import org.testeditor.fixture.core.AbstractTestCase
 import org.testeditor.fixture.core.TestRunReportable
+import org.testeditor.fixture.core.TestRunReporter.SemanticUnit
 import org.testeditor.tcl.AbstractTestStep
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.ComponentTestStepContext
@@ -51,7 +53,7 @@ import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.StepContentValue
 
 import static org.testeditor.tcl.TclPackage.Literals.*
-import org.eclipse.xtext.common.types.JvmConstructor
+import org.testeditor.fixture.core.TestRunReporter
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -65,7 +67,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	@Inject JvmModelHelper jvmModelHelper
 	@Inject TclExpressionBuilder expressionBuilder
 	@Inject MacroCallVariableResolver macroCallVariableResolver
-
+	@Inject TestRunReporterGenerator testRunReporterGenerator 
+		
 	def dispatch void infer(TclModel model, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		model.test?.infer(acceptor, isPreIndexingPhase)
 		model.config?.infer(acceptor, isPreIndexingPhase)
@@ -138,8 +141,9 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		return toConstructor(element) [
 			body = [
 				typesToInitWithReporter.forEach [ fixtureType |
-					append('''
-						((org.testeditor.fixture.core.TestRunReportable)«fixtureType.fixtureFieldName»).initWithReporter(reporter);''')
+					append('((').
+					append(typeRef(TestRunReportable).type).
+					append(''')«fixtureType.fixtureFieldName»).initWithReporter(«reporterFieldName»);''')
 				]
 			]
 		]
@@ -254,13 +258,9 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		output.append('''org.junit.Assert.assertNotNull(«expressionBuilder.variableToVarName(environmentVariable)»);''')
 		output.newLine
 	}
-
+	
 	private def void generate(SpecificationStepImplementation step, ITreeAppendable output) {
-		val specString = StringEscapeUtils.escapeJava(step.contents.restoreString)
-		output.newLine
-		output.
-			append('''reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "«specString»");''').
-			newLine
+		output.appendReporterEnterCall(SemanticUnit.SPECIFICATION_STEP, step.contents.restoreString)
 		step.contexts.forEach[generateContext(output.trace(it), #[])]
 	}
 
@@ -287,11 +287,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	private def dispatch void generateContext(ComponentTestStepContext context, ITreeAppendable output,
 		Iterable<TestStep> macroUseStack) {
-		val componentStr = StringEscapeUtils.escapeJava(context.component.name)
-		output.newLine
-		output.
-			append('''reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.COMPONENT, "«componentStr»");''').
-			newLine
+		output.appendReporterEnterCall(SemanticUnit.COMPONENT, context.component.name)
 		context.steps.forEach[generate(output.trace(it), macroUseStack)]
 	}
 
@@ -342,14 +338,14 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		Iterable<TestStep> macroUseStack) {
 		logger.debug("generating code line for assertion test step.")
 		macroCallVariableResolver.macroUseStack = macroUseStack
+		output.appendReporterEnterCall(SemanticUnit.STEP, '''assert «assertCallBuilder.assertionText(step.assertExpression)»''')
 		output.append(assertCallBuilder.build(macroCallVariableResolver, step.assertExpression))
 	}
 
 	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output,
 		Iterable<TestStep> macroUseStack) {
 		logger.debug("generating code line for test step='{}'.", step.contents.restoreString)
-		val stepLog = ''' «StringEscapeUtils.escapeJava(step.contents.restoreString)»");''' 
-		//output.append().newLine
+		val stepLog = step.contents.restoreString 
 		val interaction = step.interaction
 		logger.debug("derived interaction='{}' for test step='{}'.",
 			interaction.defaultMethod?.operation?.qualifiedName, step.contents.restoreString)
@@ -372,21 +368,18 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		}
 	}
 	
+	
 	private def void maybeCreateAssignment(TestStep step, JvmOperation operation, ITreeAppendable output, String stepLog) {
 		if (step instanceof TestStepWithAssignment) {
 			output.trace(step, TEST_STEP_WITH_ASSIGNMENT__VARIABLE, 0) => [
 				// TODO should we use output.declareVariable here?
 				// val variableName = output.declareVariable(step.variableName, step.variableName)
 				val partialCodeLine = '''«operation.returnType.identifier» «step.variable.name» = '''
-				output.
-					append('''reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.STEP, "«partialCodeLine.trim» «stepLog.trim»''').
-					newLine
+				output.appendReporterEnterCall(SemanticUnit.STEP, '''«partialCodeLine.trim» «stepLog.trim»''')
 				output.append(partialCodeLine) // please call with string, since tests checks against expected string which fails for passing ''' directly
 			]
 		} else {
-			output.
-				append('''reporter.enter(org.testeditor.fixture.core.TestRunReporter.SemanticUnit.STEP, "«stepLog.trim»''').
-				newLine
+			output.appendReporterEnterCall(SemanticUnit.STEP, stepLog.trim)
 		}
 	}
 
@@ -465,4 +458,20 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		}
 	}
 
+	private def String reporterFieldName() {
+		val result=AbstractTestCase.declaredFields.filter[
+			TestRunReporter.isAssignableFrom(type)			
+		].map[name].head
+		
+		if(result.nullOrEmpty){
+			throw new RuntimeException('''cannot find field of type='«TestRunReporter.name»' within test class='«AbstractTestCase.name»'.''')
+		}
+		
+		return result
+	}
+
+	private def void appendReporterEnterCall(ITreeAppendable output, SemanticUnit unit, String message) {
+		testRunReporterGenerator.appendReporterEnterCall(output, _typeReferenceBuilder, unit, message, reporterFieldName)
+	}
+	
 }
