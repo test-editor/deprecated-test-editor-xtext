@@ -19,15 +19,15 @@ class StateLocationHelperTest extends AbstractTest {
 	@Test
 	def void testFileStoreExists() {
 		//given
-		val helper = new StateLocationHelper()
+		val helper = new StateLocationHelper
 		
 		//when
 		val file = helper.stateLocation
 		
 		//then
-		assertNotNull(file)
-		assertTrue(file.exists)
-		assertTrue(file.directory)
+		file.assertNotNull
+		file.exists.assertTrue
+		file.directory.assertTrue
 	}
 	
 }

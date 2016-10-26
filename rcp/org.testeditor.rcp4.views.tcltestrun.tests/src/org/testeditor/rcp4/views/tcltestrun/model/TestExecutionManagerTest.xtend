@@ -40,9 +40,9 @@ class TestExecutionManagerTest extends AbstractTest {
 		val list = testExecutionManager.testExecutionLogs
 		
 		// then
-		assertEquals(list.size,2)
-		assertEquals(list.get(0),"te-1476685123287.log")
-		assertEquals(list.get(1),"te-1476732656343.log")
+		list.assertSize(2)
+		list.get(0).assertEquals("te-1476685123287.log")
+		list.get(1).assertEquals("te-1476732656343.log")
 	}
 	
 }

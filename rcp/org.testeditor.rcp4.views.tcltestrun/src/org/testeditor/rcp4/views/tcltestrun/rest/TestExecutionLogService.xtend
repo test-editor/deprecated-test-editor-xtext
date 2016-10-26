@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.tcltestrun.rest
 
+import java.text.SimpleDateFormat
+import java.util.Date
 import javax.json.Json
 import javax.ws.rs.GET
 import javax.ws.rs.Path
@@ -20,34 +22,23 @@ import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionManager
-import java.util.Date
-import java.text.SimpleDateFormat
+import javax.ws.rs.PathParam
 
-@Path("/testexeclog")
+@Path("/testexeclogs") 
 class TestExecutionLogService {
 	
 	@Accessors
 	TestExecutionManager testExecutionManager
-	
-	@Path("/metadata") 	
+		
 	@GET 
 	@Produces(MediaType::APPLICATION_JSON) 
-	def Response getTestLogExeutionMetaData() {
-		val json = Json.createObjectBuilder
-		json.add("value", "Foo")		
-		return Response.ok(json.build.toString).build
-	}
-	
-	@Path("/list") 	
-	@GET 
-	@Produces(MediaType::APPLICATION_JSON) 
-	def Response getTestLogExeutionList() {
+	def Response getTestLogExeutionsList() {
 		val result = Json.createObjectBuilder
 		val array = Json.createArrayBuilder
 		testExecutionManager.testExecutionLogs.forEach[
 			val execLog = Json.createObjectBuilder
 			execLog.add("filename",it)
-			execLog.add("name",getTestExecutionLogName(it))
+			execLog.add("name",testExecutionLogName)
 			array.add(execLog)
 		]
 		result.add("entries",array)
@@ -58,6 +49,15 @@ class TestExecutionLogService {
 		val date = new Date(Long.parseLong(teLogFileName.substring(3,teLogFileName.lastIndexOf("."))))
 		val sdf = new SimpleDateFormat("dd.MM.yy HH:mm")
 		return sdf.format(date)
+	}
+
+	@Path("/{filename}")
+	@GET 
+	@Produces(MediaType::APPLICATION_JSON) 
+	def Response getTestLogExeutionContent(@PathParam("filename") String filename) {
+		val result = Json.createObjectBuilder
+		result.add("foo",filename);
+		return Response.ok(result.build.toString).build
 	}
 	
 }

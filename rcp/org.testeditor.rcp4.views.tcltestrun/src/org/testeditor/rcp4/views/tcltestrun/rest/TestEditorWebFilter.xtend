@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -23,24 +23,25 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 class TestEditorWebFilter implements Filter {
-	
-	private static val ORIGIN_HEADER = "Origin"
-	private static val ACCESS_CONTROL_ALLOW_ORIGIN_HEADER = "Access-Control-Allow-Origin"
-	
+
+	static val ORIGIN_HEADER = "Origin"
+	static val ACCESS_CONTROL_ALLOW_ORIGIN_HEADER = "Access-Control-Allow-Origin"
+
 	override destroy() {
 	}
-	
-	override doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-		handle( request as HttpServletRequest,  response as HttpServletResponse)
+
+	override doFilter(ServletRequest request, ServletResponse response,
+		FilterChain chain) throws IOException, ServletException {
+		handle(request as HttpServletRequest, response as HttpServletResponse)
 		chain.doFilter(request, response)
 	}
-	
+
 	def handle(HttpServletRequest request, HttpServletResponse response) {
 		val origin = request.getHeader(ORIGIN_HEADER)
 		response.setHeader(ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, origin)
 	}
-	
+
 	override init(FilterConfig filterConfig) throws ServletException {
 	}
-	
+
 }

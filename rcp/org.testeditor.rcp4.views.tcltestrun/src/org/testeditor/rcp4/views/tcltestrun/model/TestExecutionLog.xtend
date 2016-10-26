@@ -20,7 +20,7 @@ import java.util.List
 class TestExecutionLog {
 
 	private String testName
-	private Date testExecution
-	private List<String> testNames
+	private Date executionDate
+	private List<String> testSteps
 		
 }

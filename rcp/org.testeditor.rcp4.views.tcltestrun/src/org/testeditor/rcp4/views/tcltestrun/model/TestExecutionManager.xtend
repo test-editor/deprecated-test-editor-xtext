@@ -28,19 +28,19 @@ class TestExecutionManager {
 
 	def TestExecutionLog createTestExecutionLog(List<String> strings) {
 		val result = new TestExecutionLog
-		result.testNames = strings
-		result.testExecution = new Date
+		result.testSteps = strings
+		result.executionDate = new Date
 		return result
 	}
 
 	def OutputStream createOutputStreamFor(TestExecutionLog execLog) {
 		val location = stateLocationHelper.stateLocation
-		return new FileOutputStream(new File(location, "te-" + execLog.testExecution.time + ".log"))
+		return new FileOutputStream(new File(location, "te-" + execLog.executionDate.time + ".log"))
 	}
 
 	def List<String> getTestExecutionLogs() {
 		val location = stateLocationHelper.stateLocation
-		return location.list().filter[it.startsWith("te-")].toList
+		return location.list().filter[it.matches('te-\\d+\\.log')].toList
 	}
 
 }

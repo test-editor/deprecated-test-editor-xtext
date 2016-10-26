@@ -37,7 +37,7 @@ class TestExecutionLogServiceTest extends AbstractTest {
 		when(executionManager.testExecutionLogs).thenReturn(#["te-1476685123287.log", "te-1476732656343.log"])
 
 		// when
-		val listString = testExecLogService.testLogExeutionList.entity as String
+		val listString = testExecLogService.testLogExeutionsList.entity as String
 		val json = Json.createReader(new StringReader(listString)).readObject
 
 		// then

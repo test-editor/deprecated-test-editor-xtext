@@ -24,7 +24,7 @@ class TestExecutionLogViewPart {
 	
 	@PostConstruct
 	def buildUI(Composite parent) {
-		browser = new Browser(parent, SWT.NORMAL);
+		browser = new Browser(parent, SWT.NORMAL)
 	}
 	
 	def showLog(TestExecutionLog log) {
