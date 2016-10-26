@@ -10,7 +10,7 @@ export class TestLogService {
     constructor(private http: Http) {}
 
     getTestExecutionLogs(): Promise<String[]> {
-        return this.http.get('http://localhost:19090/services/testexeclog/list').toPromise().then(response =>
+        return this.http.get('http://localhost:19090/services/testexeclogs').toPromise().then(response =>
             response.json().entries as TestExecutionLog[]
         ).catch(this.handleError);
     }

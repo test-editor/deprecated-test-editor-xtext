@@ -1,6 +1,7 @@
 .idea
 typings/**
 node_modules
+node
 jspm_packages
 link-checker-results.txt
 **/*npm-debug.log.*
