@@ -38,15 +38,6 @@
 				<configuration>
 					<filesets combine.children="append">
 						<fileset>
-							<directory>${testeditor.output}</directory>
-							<includes>
-								<include>**</include>
-							</includes>
-							<excludes>
-								<exclude>.gitignore</exclude>
-							</excludes>
-						</fileset>
-						<fileset>
 							<directory>lib</directory>
 							<includes>
 								<include>**</include>
