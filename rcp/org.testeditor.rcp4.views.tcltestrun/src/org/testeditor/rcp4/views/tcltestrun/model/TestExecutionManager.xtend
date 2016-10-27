@@ -20,6 +20,7 @@ import java.util.List
 import javax.inject.Inject
 import org.testeditor.rcp4.views.tcltestrun.StateLocationHelper
 import org.eclipse.e4.core.di.annotations.Creatable
+import java.text.SimpleDateFormat
 
 @Creatable
 class TestExecutionManager {
@@ -38,9 +39,21 @@ class TestExecutionManager {
 		return new FileOutputStream(new File(location, "te-" + execLog.executionDate.time + ".log"))
 	}
 
-	def List<String> getTestExecutionLogs() {
+	def List<TestExecutionLog> getTestExecutionLogs() {
 		val location = stateLocationHelper.stateLocation
-		return location.list().filter[it.matches('te-\\d+\\.log')].toList
+		val logs = location.list().filter[it.matches('te-\\d+\\.log')]
+		return logs.map[
+			val log = new TestExecutionLog
+			log.testName = testExecutionLogName
+			log.logFile = new File(location,it)
+			return log
+		].toList
+	}
+
+	def private String getTestExecutionLogName(String teLogFileName) {
+		val date = new Date(Long.parseLong(teLogFileName.substring(3,teLogFileName.lastIndexOf("."))))
+		val sdf = new SimpleDateFormat("dd.MM.yy HH:mm")
+		return sdf.format(date)
 	}
 
 }

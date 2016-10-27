@@ -21,6 +21,8 @@ import org.testeditor.dsl.common.testing.AbstractTest
 import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionManager
 
 import static org.mockito.Mockito.*
+import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionLog
+import java.io.File
 
 class TestExecutionLogServiceTest extends AbstractTest {
 
@@ -34,7 +36,13 @@ class TestExecutionLogServiceTest extends AbstractTest {
 	def void testGetTestLogExeutionList() {
 		// given
 		testExecLogService.testExecutionManager = executionManager
-		when(executionManager.testExecutionLogs).thenReturn(#["te-1476685123287.log", "te-1476732656343.log"])
+		val teLog1 = new TestExecutionLog
+		teLog1.testName = "17.10.16 08:18"
+		teLog1.logFile = new File("te-1476685123287.log")
+		val teLog2 = new TestExecutionLog
+		teLog2.testName = "17.10.16 21:30"
+		teLog2.logFile = new File("te-1476732656343.log")
+		when(executionManager.testExecutionLogs).thenReturn(#[teLog1, teLog2])
 
 		// when
 		val listString = testExecLogService.testLogExeutionsList.entity as String
@@ -42,7 +50,7 @@ class TestExecutionLogServiceTest extends AbstractTest {
 
 		// then
 		assertEquals(json.getJsonArray("entries").length, 2)
-		assertEquals(json.getJsonArray("entries").getJsonObject(0).getString("name"),"17.10.16 08:18")
-		assertEquals(json.getJsonArray("entries").getJsonObject(1).getString("name"),"17.10.16 21:30")
+		assertEquals(json.getJsonArray("entries").getJsonObject(0).getString("name"), "17.10.16 08:18")
+		assertEquals(json.getJsonArray("entries").getJsonObject(1).getString("name"), "17.10.16 21:30")
 	}
 }

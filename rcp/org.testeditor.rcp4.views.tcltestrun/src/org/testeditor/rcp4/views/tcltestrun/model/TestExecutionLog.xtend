@@ -15,6 +15,7 @@ package org.testeditor.rcp4.views.tcltestrun.model
 import org.eclipse.xtend.lib.annotations.Accessors
 import java.util.Date
 import java.util.List
+import java.io.File
 
 @Accessors
 class TestExecutionLog {
@@ -22,5 +23,6 @@ class TestExecutionLog {
 	private String testName
 	private Date executionDate
 	private List<String> testSteps
-		
+	private File logFile
+
 }
