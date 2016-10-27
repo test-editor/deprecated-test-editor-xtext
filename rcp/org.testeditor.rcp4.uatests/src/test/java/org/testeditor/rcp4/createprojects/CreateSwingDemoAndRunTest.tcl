@@ -45,6 +45,6 @@ config TestEditorConfig
 // then
 * Verify test execution result
 
-	Component: MainWindow
-	- Is view <JUnitView> visible
+	//Component: MainWindow
+	//- Is view <JUnitView> visible
 	// TODO verify the contents of the view (test should be green)
