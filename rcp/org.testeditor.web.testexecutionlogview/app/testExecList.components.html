@@ -1,8 +1,8 @@
 <nav>
 <b>Test execution logs:</b>
     <ul>
-        <li *ngFor="let legexec of testruns">
-            <a href="{{legexec.filename}}">{{legexec.name}}</a>
+        <li *ngFor="let logexec of testruns" (click)="onSelect(logexec)">
+            <span class="badge">{{logexec.name}}</span>
         </li>
     </ul>
 </nav>

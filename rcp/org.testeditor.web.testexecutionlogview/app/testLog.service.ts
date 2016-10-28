@@ -9,24 +9,16 @@ export class TestLogService {
 
     constructor(private http: Http) {}
 
-    getTestExecutionLogs(): Promise<String[]> {
+    getTestExecutionLogs(): Promise<TestExecutionLog[]> {
         return this.http.get('http://localhost:19090/services/testexeclogs').toPromise().then(response =>
             response.json().entries as TestExecutionLog[]
         ).catch(this.handleError);
     }
 
-//    getLogTitle(): Promise<String> {
-//        console.log("Title Service call");
-//        return this.http.get('http://localhost:9090/services/testlog/title').toPromise().then(response =>
-//            response.json().value as String
-//        ).catch(this.handleError);
-//    }
-
-    getLogContent(): Promise<LogGroup[]> {
-        console.log("Content Service call");
-        return this.http.get('http://localhost:9090/services/testlog/content').toPromise().then(response =>
-            response.json().logGroups as LogGroup[]
-        ).catch(this.handleError);
+    getTestExecutionLogContent(testExecLog: TestExecutionLog): Promise<String> {
+        return this.http.get('http://localhost:19090/services' + testExecLog.href).toPromise().then(response =>
+            response.json().content as String
+        ).catch(this.handleError);        
     }
 
     private handleError(error: any): Promise<any> {

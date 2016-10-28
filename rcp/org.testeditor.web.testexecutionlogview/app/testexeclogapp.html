@@ -2,10 +2,10 @@
 <div class="container">
   <div class="row">
     <div class="col-sm-3">
-        <testExecList [testruns]="testRuns"> </testExecList>
+        <testExecList [testruns]="testRuns" [app]='this'> </testExecList>
     </div>
     <div class="col-sm-8">
-      One of three columns Just a lot of content
+      {{testRunLog}}
     </div>
   </div>
 </div>

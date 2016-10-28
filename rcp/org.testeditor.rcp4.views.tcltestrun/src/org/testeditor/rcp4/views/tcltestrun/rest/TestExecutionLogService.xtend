@@ -38,6 +38,7 @@ class TestExecutionLogService {
 			val execLog = Json.createObjectBuilder
 			execLog.add("filename",it.logFile.name)
 			execLog.add("name",it.testName)
+			execLog.add("href",'''/testexeclogs/«it.logFile.name»/fulllogs''')
 			array.add(execLog)
 		]
 		result.add("entries",array)
