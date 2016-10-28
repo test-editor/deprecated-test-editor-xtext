@@ -64,6 +64,10 @@ class TclAssertCallBuilder {
 			method
 		}
 	}
+	
+	def String assertionText(Expression expression) {
+		return NodeModelUtils.getNode(expression)?.text?.trim ?: ""
+	}
 
 	def String build(VariableResolver variableResolver, Expression expression) {
 		expressionBuilder.variableResolver = variableResolver
@@ -71,15 +75,13 @@ class TclAssertCallBuilder {
 		if (assertionMethod == null) {
 			return '''// TODO no assertion method implementation for expression with type "«expression.class»"'''
 		} else {
-			val assertionText = NodeModelUtils.getNode(expression)?.text?.trim ?: ""
 			val expressionBuilt = switch (expression) {
 				NullOrBoolCheck: buildNullOrBoolCheck(expression) 
 				Comparison: buildComparison(expression) 
 				default: throw new RuntimeException('''Assertion expression of type='«expression.class.canonicalName»' cannot be built!''')
 			}
 			return '''
-				logger.trace("- assert «StringEscapeUtils.escapeJava(assertionText)»");
-				org.junit.Assert.«expression.assertionMethod»("«StringEscapeUtils.escapeJava(assertionText)»", «expressionBuilt»);'''
+				org.junit.Assert.«expression.assertionMethod»("«StringEscapeUtils.escapeJava(expression.assertionText)»", «expressionBuilt»);'''
 		}
 	}
 
