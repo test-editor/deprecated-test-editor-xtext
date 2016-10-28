@@ -21,6 +21,7 @@ class TclMacroCallIntegrationTest extends AbstractTclGeneratorIntegrationTest {
 	def void setUp() {
 		when(outputStub.trace(any(EObject))).thenReturn(outputStub)
 		when(outputStub.append(any(CharSequence))).thenReturn(outputStub)
+		when(outputStub.newLine).thenReturn(outputStub)
 	}
 
 	@Test

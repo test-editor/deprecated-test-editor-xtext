@@ -53,3 +53,7 @@ aml/org.testeditor.aml.model/text/
 tcl/org.testeditor.tcl.model/text/
 tsl/org.testeditor.tsl.model/text/
 common/org.testeditor.dsl.common/text/
+
+
+### Test Run Screenshots ###
+rcp/org.testeditor.rcp4.uatests/**/org.testeditor.*.png
