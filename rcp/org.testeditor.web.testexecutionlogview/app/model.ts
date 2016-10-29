@@ -4,8 +4,13 @@ export class LogGroup {
 
 export class TestExecutionLog {
 
-    href: String
+    links: Link[]
     name: String
     filename: String
     
+}
+
+export class Link {
+    rel: String
+    href: String
 }
