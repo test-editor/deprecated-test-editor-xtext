@@ -27,9 +27,9 @@ class TestExecutionManager {
 
 	@Inject StateLocationHelper stateLocationHelper
 
-	def TestExecutionLog createTestExecutionLog(List<String> strings) {
+	def TestExecutionLog createTestExecutionLog(List<String> testNames) {
 		val result = new TestExecutionLog
-		result.testSteps = strings
+		result.testCases = testNames.map[new TestCaseExecution(it)]
 		result.executionDate = new Date
 		return result
 	}
@@ -44,7 +44,7 @@ class TestExecutionManager {
 		val logs = location.list().filter[it.matches('te-\\d+\\.log')]
 		return logs.map[
 			val log = new TestExecutionLog
-			log.testName = testExecutionLogName
+			log.testExecutionName = testExecutionLogName
 			log.logFile = new File(location,it)
 			return log
 		].toList

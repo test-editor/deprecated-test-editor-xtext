@@ -12,17 +12,12 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.tcltestrun.model
 
-import org.eclipse.xtend.lib.annotations.Accessors
-import java.util.Date
-import java.util.List
-import java.io.File
-
-@Accessors
-class TestExecutionLog {
-
-	private String testExecutionName
-	private Date executionDate
-	private List<TestCaseExecution> testCases
-	private File logFile
-
+class TestCaseExecution {
+	
+	String name
+	
+	new(String testCaseName) {
+		name = testCaseName
+	}
+	
 }

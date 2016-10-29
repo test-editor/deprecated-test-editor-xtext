@@ -12,17 +12,28 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.tcltestrun.model
 
-import org.eclipse.xtend.lib.annotations.Accessors
-import java.util.Date
 import java.util.List
-import java.io.File
+import java.util.ArrayList
+import org.eclipse.xtend.lib.annotations.Accessors
 
-@Accessors
-class TestExecutionLog {
-
-	private String testExecutionName
-	private Date executionDate
-	private List<TestCaseExecution> testCases
-	private File logFile
-
+class TestLogGroup {
+	
+	@Accessors
+	TestLogGroupComposite parent;
+	
+	@Accessors
+	String type
+	
+	List<String> logentries = new ArrayList<String>
+	
+	def addLogLine(String logLine) {
+		if (!logLine.trim.empty) {
+			logentries.add(logLine);
+		}
+	}
+	
+	def List<String> getLogLines() {
+		return logentries
+	}
+	
 }

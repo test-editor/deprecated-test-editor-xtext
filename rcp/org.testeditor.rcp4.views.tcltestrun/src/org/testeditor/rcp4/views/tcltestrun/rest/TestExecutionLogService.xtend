@@ -37,8 +37,11 @@ class TestExecutionLogService {
 		testExecutionManager.testExecutionLogs.forEach[
 			val execLog = Json.createObjectBuilder
 			execLog.add("filename",it.logFile.name)
-			execLog.add("name",it.testName)
-			execLog.add("href",'''/testexeclogs/«it.logFile.name»/fulllogs''')
+			execLog.add("name",it.testExecutionName)
+			val links = Json.createArrayBuilder
+			links.add(Json.createObjectBuilder.add("href",'''/testexeclogs/«it.logFile.name»/fulllogs''').add("rel","fullogs"))
+			links.add(Json.createObjectBuilder.add("href",'''/testexeclogs/«it.logFile.name»/testSteps''').add("rel","testStepTree"))
+			execLog.add("links",links)
 			array.add(execLog)
 		]
 		result.add("entries",array)
@@ -49,6 +52,16 @@ class TestExecutionLogService {
 	@GET 
 	@Produces(MediaType::APPLICATION_JSON) 
 	def Response getTestLogExeutionContent(@PathParam("filename") String filename) {
+		val result = Json.createObjectBuilder
+		val log = testExecutionManager.testExecutionLogs.filter[logFile.name == filename].head
+		result.add("content",Files.readAllLines(log.logFile.toPath).join);
+		return Response.ok(result.build.toString).build
+	}
+	
+	@Path("/{filename}/testStepTree")
+	@GET 
+	@Produces(MediaType::APPLICATION_JSON) 
+	def Response getTestLogExeutionTestStepTree(@PathParam("filename") String filename) {
 		val result = Json.createObjectBuilder
 		val log = testExecutionManager.testExecutionLogs.filter[logFile.name == filename].head
 		result.add("content",Files.readAllLines(log.logFile.toPath).join);

@@ -12,17 +12,23 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.tcltestrun.model
 
-import org.eclipse.xtend.lib.annotations.Accessors
-import java.util.Date
 import java.util.List
-import java.io.File
+import java.util.ArrayList
+import org.eclipse.xtend.lib.annotations.Accessors
 
-@Accessors
-class TestExecutionLog {
+class TestLogGroupComposite extends TestLogGroup {
+	
+	List<TestLogGroup> children = new ArrayList<TestLogGroup>();
+	@Accessors
+	private String name;
+	
+	def List<TestLogGroup> getChildren() {
+		return children;
+	}
 
-	private String testExecutionName
-	private Date executionDate
-	private List<TestCaseExecution> testCases
-	private File logFile
-
+	def add(TestLogGroup testLogGroup) {
+		testLogGroup.setParent(this);
+		children.add(testLogGroup);
+	}
+	
 }
