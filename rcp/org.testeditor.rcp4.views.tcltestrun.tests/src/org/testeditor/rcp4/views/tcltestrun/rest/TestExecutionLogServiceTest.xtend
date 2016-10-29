@@ -37,10 +37,10 @@ class TestExecutionLogServiceTest extends AbstractTest {
 		// given
 		testExecLogService.testExecutionManager = executionManager
 		val teLog1 = new TestExecutionLog
-		teLog1.testName = "17.10.16 08:18"
+		teLog1.testExecutionName = "17.10.16 08:18"
 		teLog1.logFile = new File("te-1476685123287.log")
 		val teLog2 = new TestExecutionLog
-		teLog2.testName = "17.10.16 21:30"
+		teLog2.testExecutionName = "17.10.16 21:30"
 		teLog2.logFile = new File("te-1476732656343.log")
 		when(executionManager.testExecutionLogs).thenReturn(#[teLog1, teLog2])
 
