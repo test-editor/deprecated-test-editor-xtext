@@ -23,6 +23,9 @@ import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionManager
 import static org.mockito.Mockito.*
 import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionLog
 import java.io.File
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
+import java.nio.file.Files
 
 class TestExecutionLogServiceTest extends AbstractTest {
 
@@ -32,6 +35,9 @@ class TestExecutionLogServiceTest extends AbstractTest {
 	@InjectMocks
 	TestExecutionLogService testExecLogService
 
+	@Rule
+	public TemporaryFolder tempFolder = new TemporaryFolder();
+	
 	@Test
 	def void testGetTestLogExeutionList() {
 		// given
@@ -53,4 +59,29 @@ class TestExecutionLogServiceTest extends AbstractTest {
 		assertEquals(json.getJsonArray("entries").getJsonObject(0).getString("name"), "17.10.16 08:18")
 		assertEquals(json.getJsonArray("entries").getJsonObject(1).getString("name"), "17.10.16 21:30")
 	}
+	
+	@Test
+	def void testFullLogsFromListItem() {
+		// given
+		testExecLogService.testExecutionManager = executionManager
+		val teLog = new TestExecutionLog
+		teLog.testExecutionName = "17.10.16 08:18"
+		teLog.logFile = tempFolder.newFile("te-1476685123287.log")
+		Files.write(teLog.logFile.toPath,"Log content".bytes)
+		when(executionManager.testExecutionLogs).thenReturn(#[teLog])
+
+		// when
+		val listString = testExecLogService.testLogExeutionsList.entity as String
+		val json = Json.createReader(new StringReader(listString)).readObject
+		val links = json.getJsonArray("entries").getJsonObject(0).getJsonArray("links")
+		val logString = testExecLogService.getTestLogExeutionContent("te-1476685123287.log").entity as String
+		val log = Json.createReader(new StringReader(logString)).readObject	
+
+		// then
+		assertEquals(links.length, 2)
+		assertEquals(links.getJsonObject(0).getString("href"), "/testexeclogs/te-1476685123287.log/fulllogs")
+		assertEquals(links.getJsonObject(1).getString("href"), "/testexeclogs/te-1476685123287.log/testSteps")		
+		log.getString("content").assertEquals("Log content")
+	}
+	
 }
