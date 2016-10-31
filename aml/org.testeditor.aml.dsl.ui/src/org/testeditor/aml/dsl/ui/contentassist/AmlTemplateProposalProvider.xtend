@@ -1,6 +1,5 @@
 package org.testeditor.aml.dsl.ui.contentassist
 
-import java.util.List
 import javax.inject.Inject
 import org.eclipse.jface.text.templates.ContextTypeRegistry
 import org.eclipse.jface.text.templates.Template
@@ -46,8 +45,8 @@ class AmlTemplateProposalProvider extends DefaultTemplateProposalProvider {
 		// dispatch to responsible method
 		val model = context.currentModel
 		if (model instanceof MethodReference) {
-			val templates = createTemplates(model, templateContext, context)
-			for (template : templates) {
+			val template = createTemplate(model, templateContext, context)
+			if (template !== null) {
 				val proposal = doCreateProposal(template, templateContext, context, getImage(template), DEFAULT_RELEVANCE)
 				acceptor.accept(proposal)
 			}
@@ -64,9 +63,7 @@ class AmlTemplateProposalProvider extends DefaultTemplateProposalProvider {
 	 * 
 	 * Hence, we only provide templates for parameters if the method has already been chosen.
 	 */
-	private def List<Template> createTemplates(MethodReference model, TemplateContext templateContext, ContentAssistContext context) {
-		val templates = newLinkedList
-
+	private def Template createTemplate(MethodReference model, TemplateContext templateContext, ContentAssistContext context) {
 		// Check the context - we only want to add templates if the context is the parenthesis of the parameter list
 		val contextTypeId = templateContext.contextType.id
 		val contextIsParenthesis = contextTypeId == leftParenthesisContextTypeId || contextTypeId == rightParenthesisContextTypeId
@@ -74,11 +71,11 @@ class AmlTemplateProposalProvider extends DefaultTemplateProposalProvider {
 			if (model.operation !== null && !model.operation.eIsProxy && model.parameters.empty) {
 				// there is already an operation configured, we only need to add parameters
 				// TODO note that we might have multiple methods with the same name, but a different set of parameters
-				templates += createParameterTemplate(model.operation, context.currentNode, contextTypeId)
+				return createParameterTemplate(model.operation, context.currentNode, contextTypeId)
 			} // else: nothing we can do here
 		}
 
-		return templates
+		return null
 	}
 
 	/**

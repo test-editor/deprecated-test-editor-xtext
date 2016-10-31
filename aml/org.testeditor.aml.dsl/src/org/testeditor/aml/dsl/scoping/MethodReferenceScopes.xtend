@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.scoping
 
-import java.util.List
 import javax.inject.Inject
 import org.eclipse.xtext.common.types.JvmDeclaredType
 import org.eclipse.xtext.common.types.JvmOperation
@@ -55,16 +54,15 @@ class MethodReferenceScopes {
 	 * @param typeReference may be {@code null}
 	 * @return all public, non-static operations that are annotated with @FixtureMethod, inherited methods included, never {@code null}
 	 */
-	def List<JvmOperation> getFixtureMethods(JvmParameterizedTypeReference typeReference) {
-		val result = newLinkedList
+	private def Iterable<JvmOperation> getFixtureMethods(JvmParameterizedTypeReference typeReference) {
 		val type = typeReference?.type
 		if (type instanceof JvmDeclaredType) {
-			result += getFixtureMethods(type)
+			return getFixtureMethods(type)
 		}
-		return result
+		return emptyList
 	}
 
-	protected def Iterable<JvmOperation> getFixtureMethods(JvmDeclaredType type) {
+	private def Iterable<JvmOperation> getFixtureMethods(JvmDeclaredType type) {
 		return type.allFeatures.filter(JvmOperation).filter[
 			return (visibility == JvmVisibility.PUBLIC) && !isStatic && hasFixtureMethodAnnotation
 		]
@@ -73,7 +71,7 @@ class MethodReferenceScopes {
 	/**
 	 * @return {@code true} if the operation is annotated with {@code org.testeditor.fixture.core.interaction.FixtureMethod}.
 	 */
-	protected def boolean hasFixtureMethodAnnotation(JvmOperation operation) {
+	private def boolean hasFixtureMethodAnnotation(JvmOperation operation) {
 		// TODO do we want a hard-coded reference here or a dependency on core-fixture?
 		return operation.annotations.exists[annotation.qualifiedName == "org.testeditor.fixture.core.interaction.FixtureMethod"]
 	}
