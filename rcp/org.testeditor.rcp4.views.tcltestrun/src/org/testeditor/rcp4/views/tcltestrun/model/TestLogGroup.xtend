@@ -17,23 +17,34 @@ import java.util.ArrayList
 import org.eclipse.xtend.lib.annotations.Accessors
 
 class TestLogGroup {
-	
+
 	@Accessors
 	TestLogGroupComposite parent;
-	
+
 	@Accessors
-	String type
-	
+	TestElementType type
+
+	@Accessors
+	private String name;
+
 	List<String> logentries = new ArrayList<String>
-	
+
+	new(TestElementType type) {
+		this.type = type
+	}
+
 	def addLogLine(String logLine) {
 		if (!logLine.trim.empty) {
 			logentries.add(logLine);
 		}
 	}
-	
+
 	def List<String> getLogLines() {
 		return logentries
 	}
-	
+
+	override toString() {
+		return type.name + ": " + name
+	}
+
 }
