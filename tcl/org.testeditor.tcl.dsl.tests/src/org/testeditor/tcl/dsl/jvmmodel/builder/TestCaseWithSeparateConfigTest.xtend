@@ -52,6 +52,7 @@ class TestCaseWithSeparateConfigTest extends AbstractStandaloneBuilderTest {
 			import org.junit.Before;
 			import org.testeditor.dsl.common.testing.DummyFixture;
 			import org.testeditor.fixture.core.AbstractTestCase;
+			import org.testeditor.fixture.core.TestRunReporter;
 			
 			@SuppressWarnings("all")
 			public abstract class MyConfig extends AbstractTestCase {
@@ -60,18 +61,18 @@ class TestCaseWithSeparateConfigTest extends AbstractStandaloneBuilderTest {
 			  @Before
 			  public void setupMyConfig() throws Exception {
 			    
-			    logger.trace(" [Component] GreetingApplication");
+			    reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
 			    
-			    logger.trace(" [test step] - Start application \"org.testeditor.swing.exammple.Greetings\"");
+			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Start application \"org.testeditor.swing.exammple.Greetings\"");
 			    dummyFixture.startApplication("org.testeditor.swing.exammple.Greetings");
 			  }
 			  
 			  @After
 			  public void cleanupMyConfig() throws Exception {
 			    
-			    logger.trace(" [Component] GreetingApplication");
+			    reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
 			    
-			    logger.trace(" [test step] - Stop application");
+			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Stop application");
 			    dummyFixture.stopApplication();
 			  }
 			}
@@ -81,17 +82,18 @@ class TestCaseWithSeparateConfigTest extends AbstractStandaloneBuilderTest {
 			
 			import com.example.MyConfig;
 			import org.junit.Test;
+			import org.testeditor.fixture.core.TestRunReporter;
 			
 			@SuppressWarnings("all")
 			public class SimpleTest extends MyConfig {
 			  @Test
 			  public void execute() throws Exception {
 			    
-			    logger.info(" [Test specification] * Test Step");
+			    reporter.enter(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "Test Step");
 			    
-			    logger.trace(" [Component] GreetingApplication");
+			    reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
 			    
-			    logger.trace(" [test step] - Wait for \"3\" seconds");
+			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Wait for \"3\" seconds");
 			    dummyFixture.waitSeconds(3);
 			  }
 			}

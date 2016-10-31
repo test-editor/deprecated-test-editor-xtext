@@ -209,7 +209,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 	// assert that the generated code holds 2 lines of which the second is identical to expectedCode
 	private def void assertCodeLine(CharSequence expectedCode, String generatedCode) {
 		val generatedCodeLines = generatedCode.split(System.lineSeparator)
-		assertSize(generatedCodeLines, 2, "expecting two generated code lines, a comment and the assertion call")
+		assertSize(generatedCodeLines, 1, "expecting one generated code line, just the assertion call")
 		val assertMethod = generatedCodeLines.last
 		assertMethod.assertEquals(expectedCode.toString)
 	}

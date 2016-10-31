@@ -2,6 +2,7 @@ package org.testeditor.tcl.dsl.tests
 
 import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.xtext.common.types.JvmType
 import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable
 import org.junit.Before
 import org.junit.Test
@@ -25,6 +26,8 @@ class TclCallParameterTest extends AbstractTclGeneratorIntegrationTest {
 	def void initMocks() {
 		when(outputStub.trace(any(EObject))).thenReturn(outputStub)
 		when(outputStub.append(any(CharSequence))).thenReturn(outputStub)
+		when(outputStub.append(any(JvmType))).thenReturn(outputStub)
+		when(outputStub.newLine).thenReturn(outputStub)
 	}
 
 	@Test

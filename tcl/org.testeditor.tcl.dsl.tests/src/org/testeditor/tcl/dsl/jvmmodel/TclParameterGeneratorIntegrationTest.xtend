@@ -46,6 +46,7 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 			import org.junit.Test;
 			import org.testeditor.dsl.common.testing.DummyFixture;
 			import org.testeditor.fixture.core.AbstractTestCase;
+			import org.testeditor.fixture.core.TestRunReporter;
 			
 			/**
 			 * Generated from MyTest.tcl
@@ -57,17 +58,17 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 			  @Test
 			  public void execute() throws Exception {
 			    
-			    logger.info(" [Test specification] * test something");
+			    reporter.enter(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "test something");
 			    
-			    logger.trace(" [Component] dummyComponent");
+			    reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "dummyComponent");
 			    
-			    logger.trace(" [test step] -java.util.Map<? extends java.lang.Object, ? extends java.lang.Object> myMap =  Read map from <dummyElement>");
+			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "java.util.Map<? extends java.lang.Object, ? extends java.lang.Object> myMap = Read map from <dummyElement>");
 			    java.util.Map<? extends java.lang.Object, ? extends java.lang.Object> myMap = dummyFixture.getMap("dummyLocator");
-			    logger.trace(" [test step] -java.lang.String myVal =  Read value from <dummyElement>");
+			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "java.lang.String myVal = Read value from <dummyElement>");
 			    java.lang.String myVal = dummyFixture.getValue("dummyLocator");
-			    logger.trace(" [test step] - Start application @myMap.\"my key\"");
+			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Start application @myMap.\"my key\"");
 			    dummyFixture.startApplication(myMap.get("my key").toString());
-			    logger.trace(" [test step] - Start application @myVal");
+			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Start application @myVal");
 			    dummyFixture.startApplication(myVal);
 			  }
 			}
