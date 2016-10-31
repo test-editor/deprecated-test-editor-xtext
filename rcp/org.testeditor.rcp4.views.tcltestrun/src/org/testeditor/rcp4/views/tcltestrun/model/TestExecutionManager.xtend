@@ -41,7 +41,7 @@ class TestExecutionManager {
 
 	def List<TestExecutionLog> getTestExecutionLogs() {
 		val location = stateLocationHelper.stateLocation
-		val logs = location.list().filter[it.matches('te-\\d+\\.log')]
+		val logs = location.list.filter[it.matches('te-\\d+\\.log')]
 		return logs.map[
 			val log = new TestExecutionLog
 			log.testExecutionName = testExecutionLogName

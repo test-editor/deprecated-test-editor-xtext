@@ -13,21 +13,20 @@
 package org.testeditor.rcp4.views.tcltestrun.model
 
 import java.util.List
-import java.util.ArrayList
 import org.eclipse.xtend.lib.annotations.Accessors
 
 class TestLogGroup {
 
 	@Accessors
-	TestLogGroupComposite parent;
+	TestLogGroupComposite parent
 
 	@Accessors
 	TestElementType type
 
 	@Accessors
-	private String name;
+	private String name
 
-	List<String> logentries = new ArrayList<String>
+	List<String> logentries = newArrayList
 
 	new(TestElementType type) {
 		this.type = type
@@ -35,7 +34,7 @@ class TestLogGroup {
 
 	def addLogLine(String logLine) {
 		if (!logLine.trim.empty) {
-			logentries.add(logLine);
+			logentries.add(logLine)
 		}
 	}
 

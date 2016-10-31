@@ -28,44 +28,48 @@ import org.testeditor.rcp4.views.tcltestrun.model.TestLogGroupBuilder
 import org.testeditor.rcp4.views.tcltestrun.model.TestLogGroup
 import org.testeditor.rcp4.views.tcltestrun.model.TestLogGroupComposite
 
-@Path("/testexeclogs") 
+@Path("/testexeclogs")
 class TestExecutionLogService {
-	
+
 	@Accessors
 	TestExecutionManager testExecutionManager
-		
-	@GET 
-	@Produces(MediaType::APPLICATION_JSON) 
+
+	@GET
+	@Produces(MediaType::APPLICATION_JSON)
 	def Response getTestLogExeutionsList() {
 		val result = Json.createObjectBuilder
 		val array = Json.createArrayBuilder
-		testExecutionManager.testExecutionLogs.forEach[
+		testExecutionManager.testExecutionLogs.forEach [
 			val execLog = Json.createObjectBuilder
-			execLog.add("filename",it.logFile.name)
-			execLog.add("name",it.testExecutionName)
+			execLog.add("filename", it.logFile.name)
+			execLog.add("name", it.testExecutionName)
 			val links = Json.createArrayBuilder
-			links.add(Json.createObjectBuilder.add("href",'''/testexeclogs/«it.logFile.name»/fulllogs''').add("rel","fullogs"))
-			links.add(Json.createObjectBuilder.add("href",'''/testexeclogs/«it.logFile.name»/testSteps''').add("rel","testStepTree"))
-			execLog.add("links",links)
+			links.add(
+				Json.createObjectBuilder.add("href", '''/testexeclogs/«it.logFile.name»/fulllogs''').add("rel",
+					"fullogs"))
+			links.add(
+				Json.createObjectBuilder.add("href", '''/testexeclogs/«it.logFile.name»/testSteps''').add("rel",
+					"testStepTree"))
+			execLog.add("links", links)
 			array.add(execLog)
 		]
-		result.add("entries",array)
+		result.add("entries", array)
 		return Response.ok(result.build.toString).build
 	}
-	
+
 	@Path("/{filename}/fulllogs")
-	@GET 
-	@Produces(MediaType::APPLICATION_JSON) 
+	@GET
+	@Produces(MediaType::APPLICATION_JSON)
 	def Response getTestLogExeutionContent(@PathParam("filename") String filename) {
 		val result = Json.createObjectBuilder
 		val log = testExecutionManager.testExecutionLogs.filter[logFile.name == filename].head
-		result.add("content",Files.readAllLines(log.logFile.toPath).join);
+		result.add("content", Files.readAllLines(log.logFile.toPath).join)
 		return Response.ok(result.build.toString).build
 	}
-	
+
 	@Path("/{filename}/testStepTree")
-	@GET 
-	@Produces(MediaType::APPLICATION_JSON) 
+	@GET
+	@Produces(MediaType::APPLICATION_JSON)
 	def Response getTestLogExeutionTestStepTree(@PathParam("filename") String filename) {
 		val log = testExecutionManager.testExecutionLogs.filter[logFile.name == filename].head
 		val json = createLogGroupJsonArray(Files.readAllLines(log.logFile.toPath))
@@ -77,25 +81,25 @@ class TestExecutionLogService {
 		val json = Json.createObjectBuilder
 		val arrayBuilder = Json.createArrayBuilder
 		logGroups.forEach[arrayBuilder.add(createJsonFrom(it))]
-		json.add("logGroups",arrayBuilder)
+		json.add("logGroups", arrayBuilder)
 		return json
 	}
-	
+
 	def JsonObjectBuilder createJsonFrom(TestLogGroup group) {
 		val json = Json.createObjectBuilder
-		json.add("type",group.type.type)
+		json.add("type", group.type.type)
 		val arrayBuilder = Json.createArrayBuilder
 		group.logLines.forEach[arrayBuilder.add(it)]
-		json.add("loglines",arrayBuilder)
-		if(group instanceof TestLogGroupComposite){
-			if(group.name!= null){
-				json.add("name",group.name)
+		json.add("loglines", arrayBuilder)
+		if (group instanceof TestLogGroupComposite) {
+			if (group.name != null) {
+				json.add("name", group.name)
 			}
 			val childArrayBuilder = Json.createArrayBuilder
 			group.children.forEach[childArrayBuilder.add(createJsonFrom(it))]
-			json.add("childs",childArrayBuilder)		
+			json.add("childs", childArrayBuilder)
 		}
 		return json
 	}
-	
+
 }
