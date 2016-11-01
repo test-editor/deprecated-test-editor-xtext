@@ -59,7 +59,12 @@ public class DummyFixture {
 	@FixtureMethod
 	def void clickOn(String locator, DummyLocatorStrategy locatorStragety) {
 	}
-	
+
+	@FixtureMethod
+	def boolean isVisible(String locator) {
+		return true
+	}
+
 	@FixtureMethod
 	def boolean getBool(String locator){
 		return true
@@ -104,6 +109,11 @@ public class DummyFixture {
 			method = «dummyFixture».getBool(element)
 		}
 		
+		interaction type isVisible {
+			template = "Is" ${element} "visible?"
+			method = «dummyFixture».isVisible(element)
+		}
+		
 		interaction type getList {
 			template = "Read list from" ${element}
 			method = «dummyFixture».getList(element)
@@ -120,7 +130,7 @@ public class DummyFixture {
 		}
 		
 		element type Label {
-			interactions = getList, getValue, getBool, getMap
+			interactions = getList, getValue, getBool, getMap, isVisible
 		}
 					
 		component GreetingApplication is Application {

@@ -82,12 +82,14 @@ class TclModelUtil extends TslModelUtil {
 				StepContentElement: '''<«value»>'''
 				VariableReferenceMapAccess: '''@«variable?.name»."«key»"'''
 				VariableReference: '''@«variable?.name»'''
-				StepContentValue:
-					value
-				default:
-					'?'
+				StepContentValue: value
+				default: throw new IllegalArgumentException("Unhandled content: " + it)
 			}
-		].join(' ')
+		].join(' ').removeWhitespaceBeforePunctuation
+	}
+
+	private def String removeWhitespaceBeforePunctuation(String input) {
+		return input.replaceAll('''\s+(\.|\?)''', "$1")
 	}
 
 	def Macro findMacroDefinition(TestStep macroCallStep, MacroTestStepContext macroCallSite) {
@@ -118,7 +120,7 @@ class TclModelUtil extends TslModelUtil {
 				TemplateVariable: '""'
 				TemplateText: value.trim
 			}
-		].join(' ')
+		].join(' ').removeWhitespaceBeforePunctuation
 		return normalizedTemplate
 	}
 
@@ -128,9 +130,10 @@ class TclModelUtil extends TslModelUtil {
 				StepContentElement: '<>'
 				StepContentVariable: '""'
 				VariableReference: '""'
-				StepContentText: value.trim
+				StepContentValue: value.trim
+				default: throw new IllegalArgumentException("Unhandled content: " + it)
 			}
-		].join(' ')
+		].join(' ').removeWhitespaceBeforePunctuation
 		return normalizedStepContent
 	}
 
