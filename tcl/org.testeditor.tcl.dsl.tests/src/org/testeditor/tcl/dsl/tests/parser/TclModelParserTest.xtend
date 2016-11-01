@@ -105,7 +105,7 @@ class TclModelParserTest extends AbstractTclTest {
 			* Start the famous greetings application
 				Mask: GreetingsApplication
 				- starte Anwendung "org.testeditor.swing.exammple.Greetings"
-				- gebe in <Eingabefeld> den Wert "Hello World" ein.
+				- gebe in <Eingabefeld> den Wert "Hello World" ein
 		'''
 		
 		// when
@@ -174,7 +174,7 @@ class TclModelParserTest extends AbstractTclTest {
 		test.steps.assertSingleElement => [
 			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
 				steps.assertSingleElement.assertInstanceOf(TestStep) => [
-					contents.restoreString.assertEquals('Is Component visible ?')
+					contents.restoreString.assertEquals('Is Component visible?')
 				]
 			]
 		]
