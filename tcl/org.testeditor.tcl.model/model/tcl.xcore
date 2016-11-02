@@ -164,10 +164,10 @@ class ComparatorEquals extends Comparator {
 class ComparatorMatches extends Comparator {
 }
 
-class ComparatorLessThen extends Comparator {
+class ComparatorLessThan extends Comparator {
 }
 
-class ComparatorGreaterThen extends Comparator {
+class ComparatorGreaterThan extends Comparator {
 }
 
 
