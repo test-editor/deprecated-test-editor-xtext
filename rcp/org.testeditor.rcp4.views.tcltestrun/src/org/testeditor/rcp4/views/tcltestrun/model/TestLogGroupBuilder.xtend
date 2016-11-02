@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -18,7 +18,7 @@ import java.util.List
 class TestLogGroupBuilder {
 
 	TestLogGroup currentLogGroup
-	
+
 	List<TestLogGroup> result
 
 	public def List<TestLogGroup> build(List<String> logLines) {
@@ -40,47 +40,53 @@ class TestLogGroupBuilder {
 			updateCurrentEntryAfterLogGroup(logLine)
 		}
 	}
-	
+
 	def updateCurrentEntryAfterLogGroup(String logLine) {
 		if (logLine.contains("[TE-Test:")) {
 			if (logLine.contains("[Component]")) {
 				val cmp = new TestLogGroupComposite(TestElementType.TestComponentGroup)
 				cmp.name = logLine.substring(logLine.indexOf("[Component]"))
-				if(currentLogGroup instanceof TestLogGroupComposite){
-					currentLogGroup.add(cmp)
-				}else{
+				var parentFound = false
+				if (currentLogGroup.type === TestElementType.TestSpecGroup) {
+					(currentLogGroup as TestLogGroupComposite).add(cmp)
+					parentFound = true
+				}
+				if (currentLogGroup.type === TestElementType.TestComponentGroup) {
+					if (currentLogGroup.parent !== null) {
+						currentLogGroup.parent.add(cmp)
+						parentFound = true
+					}
+				}
+				if (currentLogGroup.type === TestElementType.TestStepGroup) {
+					if (currentLogGroup.parent.parent !== null) {
+						currentLogGroup.parent.parent.add(cmp)
+						parentFound = true
+					}
+				}
+				if (!parentFound) {
 					result.add(cmp)
 				}
-				if(currentLogGroup.type === TestElementType.TestComponentGroup) {
-					if(currentLogGroup.parent!==null){
-						currentLogGroup.parent.add(cmp)						
-					}
-				}
-				if(currentLogGroup.type === TestElementType.TestStepGroup) {
-					if(currentLogGroup.parent.parent!==null){
-						currentLogGroup.parent.parent.add(cmp)						
-					}
-				}
 				currentLogGroup = cmp
-			}			
+			}
 			if (logLine.contains("[test step]")) {
 				val step = new TestLogGroup(TestElementType.TestStepGroup)
 				step.name = logLine.substring(logLine.indexOf("[test step]"))
-				if (currentLogGroup.type === TestElementType.TestStepGroup){
+				if (currentLogGroup.type === TestElementType.TestStepGroup) {
 					currentLogGroup.parent.add(step)
-				}
-				else{
-					if(currentLogGroup instanceof TestLogGroupComposite){
+				} else {
+					if (currentLogGroup instanceof TestLogGroupComposite) {
 						currentLogGroup.add(step)
 					}
 				}
 				currentLogGroup = step
-			}						
+			}
 			if (logLine.contains("[Test specification]")) {
 				val specName = logLine.substring(logLine.indexOf("[Test specification]"))
-				var tsg = result.filter(TestLogGroupComposite).filter[type===TestElementType.TestSpecGroup && name.equals(specName)].head
-				if(tsg === null){
-				 	tsg = new TestLogGroupComposite(TestElementType.TestSpecGroup)
+				var tsg = result.filter(TestLogGroupComposite).filter [
+					type === TestElementType.TestSpecGroup && name.equals(specName)
+				].head
+				if (tsg === null) {
+					tsg = new TestLogGroupComposite(TestElementType.TestSpecGroup)
 					tsg.name = logLine.substring(logLine.indexOf("[Test specification]"))
 					result.add(tsg)
 				}
@@ -88,5 +94,5 @@ class TestLogGroupBuilder {
 			}
 		}
 	}
-	
+
 }

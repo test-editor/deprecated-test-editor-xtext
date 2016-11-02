@@ -91,10 +91,10 @@ class TestExecutionLogService {
 		val arrayBuilder = Json.createArrayBuilder
 		group.logLines.forEach[arrayBuilder.add(it)]
 		json.add("loglines", arrayBuilder)
+		if (group.name != null) {
+			json.add("name", group.name)
+		}
 		if (group instanceof TestLogGroupComposite) {
-			if (group.name != null) {
-				json.add("name", group.name)
-			}
 			val childArrayBuilder = Json.createArrayBuilder
 			group.children.forEach[childArrayBuilder.add(createJsonFrom(it))]
 			json.add("childs", childArrayBuilder)

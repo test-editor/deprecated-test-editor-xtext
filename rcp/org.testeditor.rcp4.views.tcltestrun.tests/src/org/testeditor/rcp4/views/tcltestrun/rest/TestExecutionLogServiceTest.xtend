@@ -102,14 +102,16 @@ class TestExecutionLogServiceTest extends AbstractTest {
 		val json = testExecLogService.createLogGroupJsonArray(log.split("\n")).build
 
 		// then	 
+		json.getJsonArray("logGroups").forEach[println(it)]
 		assertEquals(json.getJsonArray("logGroups").size, 2)
-		assertEquals(json.getJsonArray("logGroups").getJsonObject(0).getString("type"), "system")
+		assertEquals(json.getJsonArray("logGroups").getJsonObject(0).getString("type"), "System")
 		val spec = json.getJsonArray("logGroups").getJsonObject(1)
-		assertEquals(spec.getString("type"), "spec")
+		assertEquals(spec.getString("type"), "Test specification")
 		assertEquals(spec.getJsonArray("childs").size, 2)
 		val componentService = spec.getJsonArray("childs").getJsonObject(0)
 		assertEquals(componentService.getString("name"), "[Component] TestEditorServices")
 		val nextButton = componentService.getJsonArray("childs").getJsonObject(0)
+		println(nextButton)
 		assertEquals(nextButton.getString("name"), "[test step] - Click on <NextButton>")
 		val finishButton1 = componentService.getJsonArray("childs").getJsonObject(1)
 		assertEquals(finishButton1.getString("name"), "[test step] - Click on <FinishButton>")
