@@ -95,22 +95,34 @@ TestStepContext:
 ComponentTestStepContext returns TestStepContext:
 	{ComponentTestStepContext}
 	('Mask' | 'Component') ':' component=[aml::Component|QualifiedName]
-	steps+=(TestStep | TestStepWithAssignment | AssertionTestStep)*;
+	steps+=Step*;
 
 MacroTestStepContext returns TestStepContext:
 	{MacroTestStepContext}
 	'Macro' ':' macroCollection=[MacroCollection|QualifiedName]
-	steps+=TestStep*; // currently macro calls can only be TestSteps!
+	( '-' steps+=TestStep)*; // currently macro calls can only be TestSteps!
+	
+Step returns AbstractTestStep:
+	'-' (TestStep | AssertionTestStep | TestStepWithAssignment);
 
 TestStep:
-	{TestStep}
-	'-' contents+=StepContent* contents+=StepContentPunctuation?;
+	TestStepWithoutPunctuation | TestStepWithBooleanPunctuation | TestStepWithDotPunctuation;
+	
+TestStepWithoutPunctuation returns TestStep:
+	contents+=StepContent+;
+
+TestStepWithDotPunctuation returns TestStep:
+	TestStepWithoutPunctuation contents+=DotStepContentPunctuation;
+
+TestStepWithBooleanPunctuation returns TestStep:
+	TestStepWithoutPunctuation contents+=BooleanStepContentPunctuation;
 
 AssertionTestStep:
-	'-' 'assert' assertExpression=(NullOrBoolCheck | FullComparison) '.'?;
+	'assert' (assertExpression=(NullOrBoolCheck | FullComparison)
+		      | (negated?=('!'|'false'))? testStep=TestStepWithBooleanPunctuation);
 
 TestStepWithAssignment:
-	'-' variable=AssignmentVariable '=' contents+=StepContent* contents+=StepContentPunctuation?;
+	variable=AssignmentVariable '=' contents+=StepContent* contents+=StepContentPunctuation?;
 
 /** expression order: Comparison -> (Addition -> Multiplication ->) Value
  *  which is reflecting the order of operator binding.
@@ -122,7 +134,7 @@ Expression:
 	Comparison;
 
 NullOrBoolCheck:
-	(negated?='!')? variableReference=(VariableReference | VariableReferenceMapAccess);
+	(negated?=('!'|'false'))? variableReference=(VariableReference | VariableReferenceMapAccess);
 
 FullComparison returns Comparison:
 	left=Value
@@ -153,10 +165,10 @@ Comparator:
 	ComparatorGreaterThan;
 
 ComparatorEquals:
-	{ComparatorEquals} ('=' | '==' | negated?='!=' | negated?='<>' | 'is' (negated?='not')?);
+	{ComparatorEquals} ('=' | '==' | negated?='!='); 
 
 ComparatorMatches:
-	{ComparatorMatches} ('matches' | negated?='does' 'not' 'match');
+	{ComparatorMatches} ('~' | negated?='!~');
 
 ComparatorLessThan:
 	{ComparatorLessThan} ('<' WS+ | negated?='>=');
@@ -183,9 +195,14 @@ StepContentVariable returns tsl::StepContentVariable:
 	value=STRING;
 
 StepContentElement hidden():
-	('<' value=ID '>') |
-	{StepContentElement} ('<>' | '<' WS+ '>');
+	'<' value=ID '>' |
+	{StepContentElement} '<>';
 
 StepContentPunctuation:
-	value=('.'|'?')
-;
+	DotStepContentPunctuation | BooleanStepContentPunctuation;
+
+DotStepContentPunctuation returns StepContentPunctuation:
+	value = '.';
+
+BooleanStepContentPunctuation returns StepContentPunctuation:
+	value = '?';

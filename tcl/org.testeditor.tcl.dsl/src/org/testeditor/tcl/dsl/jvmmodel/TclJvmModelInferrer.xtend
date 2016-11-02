@@ -336,30 +336,61 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	private def dispatch void toUnitTestCodeLine(AssertionTestStep step, ITreeAppendable output,
 		Iterable<TestStep> macroUseStack) {
-		logger.debug("generating code line for assertion test step.")
 		macroCallVariableResolver.macroUseStack = macroUseStack
-		output.appendReporterEnterCall(SemanticUnit.STEP, '''assert «assertCallBuilder.assertionText(step.assertExpression)»''')
-		output.append(assertCallBuilder.build(macroCallVariableResolver, step.assertExpression))
+		if (step.assertExpression !== null) {
+			logger.debug("generating code line for assertion test step with expression.")
+			output.appendReporterEnterCall(SemanticUnit.STEP, '''assert «assertCallBuilder.assertionText(step.assertExpression)»''')
+			output.append(assertCallBuilder.build(macroCallVariableResolver, step.assertExpression))
+		} else if (step.testStep!==null){
+			logger.debug("generating code line for assertion test step with call to fixture.")
+			val testStepRestoredString = '''«if(step.negated){"! "}else{""}»«step.testStep.contents.restoreString»'''
+
+			val interaction = step.testStep.interaction
+			if (interaction !== null) {
+				val callCode = generateInteractionCall(interaction, step.testStep, macroUseStack)
+				if (callCode !== null) {
+					output.appendReporterEnterCall(SemanticUnit.STEP, '''assert «testStepRestoredString»''')
+					val assertMethodCall='''org.junit.Assert.assert«if(step.negated){"False"}else{"True"}»'''
+					output.append('''«assertMethodCall»("«StringEscapeUtils.escapeJava(testStepRestoredString)»", «callCode»);''')
+				} else {
+					logger.error("Code generation failed for interaction='{}' within assert.", interaction)
+					output.append('''// TODO: code generation failure for interaction='«interaction.name»' within assert (does not have a proper method reference).''')
+				}
+			} else {
+				logger.error("Interaction not found for fixture call within assert.")
+				output.append('''// TODO: code generation failure for assert failed, since expected interaction is null.''')
+			}
+		} else {
+			throw new RuntimeException("Neither assertion expression nor fixture call is given in assertion.")
+		}
 	}
 
+	private def String generateInteractionCall(InteractionType interaction, TestStep step, Iterable<TestStep> macroUseStack) {
+		val fixtureField = interaction.defaultMethod?.typeReference?.type?.fixtureFieldName
+		val operation = interaction.defaultMethod?.operation
+		if (fixtureField !== null && operation !== null) {
+			return '''«fixtureField».«operation.simpleName»(«getParameterList(step, interaction, macroUseStack)»)'''
+		}
+		return null
+	}
+	
 	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output,
 		Iterable<TestStep> macroUseStack) {
 		logger.debug("generating code line for test step='{}'.", step.contents.restoreString)
 		val stepLog = step.contents.restoreString 
 		val interaction = step.interaction
-		logger.debug("derived interaction='{}' for test step='{}'.",
+		logger.debug("identified interaction='{}' for test step='{}'.",
 			interaction.defaultMethod?.operation?.qualifiedName, step.contents.restoreString)
 		if (interaction !== null) {
-			val fixtureField = interaction.defaultMethod?.typeReference?.type?.fixtureFieldName
-			val operation = interaction.defaultMethod?.operation
-			if (fixtureField !== null && operation !== null) {
+			val callCode=generateInteractionCall(interaction, step, macroUseStack)
+			if (callCode !== null) {
+				val operation = interaction.defaultMethod?.operation
 				step.maybeCreateAssignment(operation, output, stepLog)
 				output.trace(interaction.defaultMethod) => [
-					val codeLine = '''«fixtureField».«operation.simpleName»(«getParameterList(step, interaction, macroUseStack)»);'''
-					append(codeLine) // please call with string, since tests checks against expected string which fails for passing ''' directly
+					append('''«callCode»;'''.toString) // please call with string, since tests checks against expected string which fails for passing ''' directly
 				]
 			} else {
-				output.append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
+				output.append('''// TODO code generation failed for interaction='«interaction.name»' (does not have a proper method reference)''')
 			}
 		} else if (step.componentContext != null) {
 			output.append('''// TODO could not resolve '«step.componentContext.component.name»' - «step.contents.restoreString»''')
