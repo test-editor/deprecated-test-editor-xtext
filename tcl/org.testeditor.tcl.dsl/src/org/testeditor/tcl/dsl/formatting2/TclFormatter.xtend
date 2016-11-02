@@ -21,6 +21,7 @@ import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
+import org.testeditor.tcl.StepContentPunctuation
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestCleanup
@@ -129,11 +130,14 @@ class TclFormatter extends XbaseFormatter {
 	def dispatch void format(TestStep testStep, extension IFormattableDocument document) {
 		testStep.regionFor.keyword("-").prepend[newLine]
 		testStep.contents.forEach[format]
-		testStep.regionFor.keyword(".").prepend[noSpace]
 	}
 
 	def dispatch void format(StepContentText stepContentText, extension IFormattableDocument document) {
 		stepContentText.regionFor.feature(TslPackage.Literals.STEP_CONTENT_VALUE__VALUE).prepend[oneSpace]
+	}
+
+	def dispatch void format(StepContentPunctuation punctuation, extension IFormattableDocument document) {
+		punctuation.regionFor.feature(TslPackage.Literals.STEP_CONTENT_VALUE__VALUE).prepend[noSpace]
 	}
 
 	def dispatch void format(StepContentVariable stepContentVariable, extension IFormattableDocument document) {

@@ -104,10 +104,13 @@ MacroTestStepContext returns TestStepContext:
 
 TestStep:
 	{TestStep}
-	'-' contents+=StepContent* '.'?;
+	'-' contents+=StepContent* contents+=StepContentPunctuation?;
 
 AssertionTestStep:
 	'-' 'assert' assertExpression=(NullOrBoolCheck | FullComparison) '.'?;
+
+TestStepWithAssignment:
+	'-' variable=AssignmentVariable '=' contents+=StepContent* contents+=StepContentPunctuation?;
 
 /** expression order: Comparison -> (Addition -> Multiplication ->) Value
  *  which is reflecting the order of operator binding.
@@ -161,9 +164,6 @@ ComparatorLessThen:
 ComparatorGreaterThen:
 	{ComparatorGreaterThen} ('>' | negated?='<=');
 
-TestStepWithAssignment:
-	'-' variable=AssignmentVariable '=' contents+=StepContent* '.'?;
-
 AssignmentVariable:
 	name=ID;
 	
@@ -185,3 +185,7 @@ StepContentVariable returns tsl::StepContentVariable:
 StepContentElement hidden():
 	('<' value=ID '>') |
 	{StepContentElement} ('<>' | '<' WS+ '>');
+
+StepContentPunctuation:
+	value=('.'|'?')
+;
