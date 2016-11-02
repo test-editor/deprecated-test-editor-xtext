@@ -12,26 +12,26 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.tests.parser
 
+import javax.inject.Inject
 import org.junit.Test
+import org.testeditor.dsl.common.testing.DslParseHelper
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.ComparatorMatches
+import org.testeditor.tcl.Comparison
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.MacroTestStepContext
+import org.testeditor.tcl.NullOrBoolCheck
 import org.testeditor.tcl.StepContentElement
+import org.testeditor.tcl.StringConstant
 import org.testeditor.tcl.TclPackage
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.VariableReference
+import org.testeditor.tcl.dsl.tests.AbstractTclTest
+import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.StepContentVariable
 
 import static extension org.eclipse.xtext.nodemodel.util.NodeModelUtils.*
-import org.testeditor.tcl.NullOrBoolCheck
-import org.testeditor.tcl.Comparison
-import org.testeditor.tcl.StringConstant
-import javax.inject.Inject
-import org.testeditor.tcl.dsl.tests.AbstractTclTest
-import org.testeditor.tcl.util.TclModelUtil
-import org.testeditor.dsl.common.testing.DslParseHelper
 
 class TclModelParserTest extends AbstractTclTest {
 	
@@ -105,7 +105,7 @@ class TclModelParserTest extends AbstractTclTest {
 			* Start the famous greetings application
 				Mask: GreetingsApplication
 				- starte Anwendung "org.testeditor.swing.exammple.Greetings"
-				- gebe in <Eingabefeld> den Wert "Hello World" ein.
+				- gebe in <Eingabefeld> den Wert "Hello World" ein
 		'''
 		
 		// when
@@ -149,6 +149,32 @@ class TclModelParserTest extends AbstractTclTest {
 			emptyReferences.forEach[
 				assertInstanceOf(StepContentElement) => [
 					value.assertNull
+				]
+			]
+		]
+	}
+
+	@Test
+	def void parseTestStepWithQuestionMark() {
+		// given
+		val input = '''
+			package com.example
+			
+			# Test
+			
+			* Start
+				Mask: Demo
+				- Is Component visible?
+		'''
+		
+		// when
+		val test = parseTcl(input).test
+		
+		// then
+		test.steps.assertSingleElement => [
+			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
+				steps.assertSingleElement.assertInstanceOf(TestStep) => [
+					contents.restoreString.assertEquals('Is Component visible?')
 				]
 			]
 		]

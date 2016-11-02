@@ -13,6 +13,7 @@ import java.math.BigDecimal
 import java.util.regex.Pattern
 import javax.inject.Singleton
 import org.junit.Assert
+import org.junit.ComparisonFailure
 
 // TODO include the AssertionHelper via the JAR instead of copy&pasting it
 @Singleton
@@ -80,6 +81,12 @@ class AssertionHelper {
 					partialMatch: «actual.substring(0,lastIndex)»[«actual.substring(lastIndex)»]
 				«ENDIF»
 			''')
+		}
+	}
+
+	def void assertContains(String container, CharSequence substring) {
+		if (!container.contains(substring)) {
+			throw new ComparisonFailure("Could not find expected substring.", substring.toString, container)
 		}
 	}
 
