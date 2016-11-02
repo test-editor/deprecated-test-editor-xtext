@@ -25,10 +25,12 @@ class TestExecutionLogViewPart {
 	@PostConstruct
 	def buildUI(Composite parent) {
 		browser = new Browser(parent, SWT.NORMAL)
+		browser.setUrl("http://localhost:3000/")
 	}
 	
 	def showLog(TestExecutionLog log) {
-		browser.setUrl("http://localhost:19090/services/testexeclog/list")
+		//TODO update browser with new navigation content
+		browser.refresh
 	}
 	
 }
