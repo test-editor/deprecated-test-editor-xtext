@@ -24,6 +24,7 @@ import org.testeditor.aml.Variable
 import org.testeditor.dsl.common.NamedElement
 import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContent
+import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.TestSpecification
 
@@ -148,6 +149,9 @@ class AssignmentVariable extends Variable {
 }
 
 class StepContentElement extends StepContentValue {
+}
+
+class StepContentPunctuation extends StepContentText {
 }
 
 abstract class Comparator {

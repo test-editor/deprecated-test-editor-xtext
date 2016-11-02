@@ -51,6 +51,21 @@ class TclModelUtilTest extends AbstractParserTest {
 	}
 
 	@Test
+	def void restoreStringWithPunctuation() {
+		// given
+		val questionMark = parse('- Hello World?', grammarAccess.testStepRule, TestStep)
+		val questionMarkAndWhitespace = parse('- Hello World  ?', grammarAccess.testStepRule, TestStep)
+		val dot = parse('- Hello World  .', grammarAccess.testStepRule, TestStep)
+		val dotAndWhitespace = parse('- Hello World.', grammarAccess.testStepRule, TestStep)
+
+		// then
+		tclModelUtil.restoreString(questionMark.contents).assertEquals('Hello World?')
+		tclModelUtil.restoreString(questionMarkAndWhitespace.contents).assertEquals('Hello World?')
+		tclModelUtil.restoreString(dot.contents).assertEquals('Hello World.')
+		tclModelUtil.restoreString(dotAndWhitespace.contents).assertEquals('Hello World.')
+	}
+
+	@Test
 	def void testFindMacroDefinition() {
 		// given
 		val tmlModel = parseTcl( '''
@@ -83,28 +98,28 @@ class TclModelUtilTest extends AbstractParserTest {
 	def void testNormalizeTemplate() {
 		// given
 		val template = parse('''
-			"start with" ${somevar} "and more" ${othervar}
+			"start with" ${somevar} "and more" ${othervar} "?"
 		''', grammarAccess.templateRule, Template)
 
 		// when
 		val normalizedTemplate = tclModelUtil.normalize(template)
 
 		// then
-		normalizedTemplate.assertEquals('start with "" and more ""')
+		normalizedTemplate.assertEquals('start with "" and more ""?')
 	}
 
 	@Test
 	def void testNormalizeTestStep() {
 		// given
 		val testStep = parse('''
-			- start with "some" and more @other
+			- start with "some" and more @other ?
 		''', grammarAccess.testStepRule, TestStep)
 
 		// when
 		val normalizedTestStep = tclModelUtil.normalize(testStep)
 
 		// then
-		normalizedTestStep.assertEquals('start with "" and more ""')
+		normalizedTestStep.assertEquals('start with "" and more ""?')
 	}
 
 	@Test
