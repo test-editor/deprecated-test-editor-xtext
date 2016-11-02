@@ -149,8 +149,8 @@ Value returns Expression:
 Comparator:
 	ComparatorEquals |
 	ComparatorMatches |
-	ComparatorLessThen |
-	ComparatorGreaterThen;
+	ComparatorLessThan |
+	ComparatorGreaterThan;
 
 ComparatorEquals:
 	{ComparatorEquals} ('=' | '==' | negated?='!=' | negated?='<>' | 'is' (negated?='not')?);
@@ -158,11 +158,11 @@ ComparatorEquals:
 ComparatorMatches:
 	{ComparatorMatches} ('matches' | negated?='does' 'not' 'match');
 
-ComparatorLessThen:
-	{ComparatorLessThen} ('<' | negated?='>=');
+ComparatorLessThan:
+	{ComparatorLessThan} ('<' WS+ | negated?='>=');
 
-ComparatorGreaterThen:
-	{ComparatorGreaterThen} ('>' | negated?='<=');
+ComparatorGreaterThan:
+	{ComparatorGreaterThan} ('>' WS+ | negated?='<=');
 
 AssignmentVariable:
 	name=ID;
