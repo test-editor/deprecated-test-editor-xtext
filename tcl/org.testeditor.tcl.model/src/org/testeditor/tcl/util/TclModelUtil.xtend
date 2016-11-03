@@ -108,7 +108,7 @@ class TclModelUtil extends TslModelUtil {
 			val allElementInteractions = component.elements.map[type.interactionTypes].flatten.filterNull
 			val interactionTypes = component.type.interactionTypes + allElementInteractions
 			val normalizedTestStep = step.normalize
-			return interactionTypes.findFirst[matches(normalizedTestStep)]
+			return interactionTypes.findFirst[template.normalize == normalizedTestStep]
 		}
 		return null
 	}
@@ -135,10 +135,6 @@ class TclModelUtil extends TslModelUtil {
 			}
 		].join(' ').removeWhitespaceBeforePunctuation
 		return normalizedStepContent
-	}
-
-	private def boolean matches(InteractionType interaction, String normalizedTestStep) {
-		return interaction.template.normalize == normalizedTestStep
 	}
 
 	/** map the variables within the template to the values/variable references used by the test step using this template.
