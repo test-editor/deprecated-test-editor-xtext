@@ -177,27 +177,4 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 		'''.indent(2))
 	}
 
-	@Test
-	def void testStepWithQuestionMark() {
-		// given
-		val tcl = '''
-			package com.example
-			
-			# SimpleTest
-			* Start the famous greetings application
-				Mask: GreetingApplication
-				- Is <bar> visible?
-		'''
-		val tclModel = parseTcl(tcl, "SimpleTest.tcl")
-
-		// when
-		val generatedCode = tclModel.generate
-
-		// then
-		generatedCode.assertContains('''
-		    «"    "»reporter.enter(TestRunReporter.SemanticUnit.STEP, "Is <bar> visible?");
-		    «"    "»dummyFixture.isVisible("label.greet");
-		'''.toString)
-	}
-
 }
