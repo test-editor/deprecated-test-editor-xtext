@@ -95,22 +95,20 @@ class TclModelUtil extends TslModelUtil {
 	}
 
 	def Macro findMacroDefinition(TestStep macroCallStep, MacroTestStepContext macroCallSite) {
-		macroCallSite.macroCollection?.macros?.findFirst [
-			template.normalize == macroCallStep.normalize
+		val normalizedMacroCallStep = macroCallStep.normalize
+		return macroCallSite.macroCollection?.macros?.findFirst [
+			template.normalize == normalizedMacroCallStep
 		]
 	}
 	
-	def TestStepContext getEnclosingTestStepContext(EObject eObject){
-		return EcoreUtil2.getContainerOfType(eObject, TestStepContext)
-	}
-
 	def InteractionType getInteraction(TestStep step) {
 		// TODO this should be solved by using an adapter (so that we don't need to recalculate it over and over again)
 		val component = step.componentContext?.component
 		if (component !== null) {
 			val allElementInteractions = component.elements.map[type.interactionTypes].flatten.filterNull
 			val interactionTypes = component.type.interactionTypes + allElementInteractions
-			return interactionTypes.findFirst[matches(step)]
+			val normalizedTestStep = step.normalize
+			return interactionTypes.findFirst[matches(normalizedTestStep)]
 		}
 		return null
 	}
@@ -139,8 +137,8 @@ class TclModelUtil extends TslModelUtil {
 		return normalizedStepContent
 	}
 
-	protected def boolean matches(InteractionType interaction, TestStep step) {
-		return interaction.template.normalize == step.normalize
+	private def boolean matches(InteractionType interaction, String normalizedTestStep) {
+		return interaction.template.normalize == normalizedTestStep
 	}
 
 	/** map the variables within the template to the values/variable references used by the test step using this template.
