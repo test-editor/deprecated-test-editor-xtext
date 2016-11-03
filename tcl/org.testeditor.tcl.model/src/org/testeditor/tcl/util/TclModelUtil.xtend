@@ -55,6 +55,8 @@ import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
 
+import static extension org.eclipse.xtext.EcoreUtil2.getContainerOfType
+
 @Singleton
 class TclModelUtil extends TslModelUtil {
 
@@ -223,8 +225,18 @@ class TclModelUtil extends TslModelUtil {
 	}
 
 	def ValueSpaceAssignment getValueSpaceAssignment(ComponentElement element, TestStep container) {
-		val foo = element.valueSpaceAssignments
-		return foo.findFirst[variable.template.interactionType.name == container.interaction?.name]
+		val containerName = container.interaction?.name
+		if (containerName !== null) {
+			return element.valueSpaceAssignments.findFirst[
+				val interaction = variable.template.getContainerOfType(InteractionType)
+				if (interaction !== null) {
+					return interaction.name == containerName
+				} else {
+					return false
+				}
+			]
+		}
+		return null
 	}
 
 	def Set<TemplateVariable> getEnclosingMacroParameters(EObject object) {
