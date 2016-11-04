@@ -20,8 +20,8 @@ import org.slf4j.LoggerFactory
 import org.testeditor.aml.ModelUtil
 import org.testeditor.tcl.Comparator
 import org.testeditor.tcl.ComparatorEquals
-import org.testeditor.tcl.ComparatorGreaterThen
-import org.testeditor.tcl.ComparatorLessThen
+import org.testeditor.tcl.ComparatorGreaterThan
+import org.testeditor.tcl.ComparatorLessThan
 import org.testeditor.tcl.ComparatorMatches
 import org.testeditor.tcl.Comparison
 import org.testeditor.tcl.Expression
@@ -118,8 +118,8 @@ class TclAssertCallBuilder {
 		}
 		return switch (comparator) {
 			ComparatorEquals: adjustedAssertMethod(AssertMethod.assertEquals, comparator.negated)
-			ComparatorGreaterThen: throw new RuntimeException('>= not implemented yet') // adjustedAssertMethod(AssertMethod.assertTrue, comparator.negated)
-			ComparatorLessThen: throw new RuntimeException('<= not implemented yet') // adjustedAssertMethod(AssertMethod.assertTrue, comparator.negated)
+			ComparatorGreaterThan: throw new RuntimeException('>= not implemented yet') // adjustedAssertMethod(AssertMethod.assertTrue, comparator.negated)
+			ComparatorLessThan: throw new RuntimeException('<= not implemented yet') // adjustedAssertMethod(AssertMethod.assertTrue, comparator.negated)
 			ComparatorMatches: adjustedAssertMethod(AssertMethod.assertTrue, comparator.negated)
 			default: throw new RuntimeException('''unknown comparator type «comparator.class»''')
 		}
@@ -137,8 +137,8 @@ class TclAssertCallBuilder {
 		val builtLeftExpression=expressionBuilder.buildExpression(comparison.left)
 		switch (comparison.comparator) {
 			ComparatorEquals: '''«builtRightExpression», «builtLeftExpression»'''
-			ComparatorGreaterThen: '''«builtLeftExpression» «if(comparison.comparator.negated){'<='}else{'>'}» «builtRightExpression»'''
-			ComparatorLessThen: '''«builtLeftExpression» «if(comparison.comparator.negated){'>='}else{'<'}» «builtRightExpression»'''
+			ComparatorGreaterThan: '''«builtLeftExpression» «if(comparison.comparator.negated){'<='}else{'>'}» «builtRightExpression»'''
+			ComparatorLessThan: '''«builtLeftExpression» «if(comparison.comparator.negated){'>='}else{'<'}» «builtRightExpression»'''
 			ComparatorMatches: '''«builtLeftExpression».toString().matches(«builtRightExpression».toString())'''
 			default:
 				throw new RuntimeException('''no builder found for comparator «comparison.comparator.class»''')
