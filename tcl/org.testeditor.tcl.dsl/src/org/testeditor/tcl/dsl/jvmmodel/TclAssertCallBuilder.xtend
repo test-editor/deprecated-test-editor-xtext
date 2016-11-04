@@ -14,6 +14,7 @@ package org.testeditor.tcl.dsl.jvmmodel
 
 import javax.inject.Inject
 import org.apache.commons.lang3.StringEscapeUtils
+import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.slf4j.LoggerFactory
 import org.testeditor.aml.ModelUtil
@@ -26,8 +27,11 @@ import org.testeditor.tcl.Comparison
 import org.testeditor.tcl.Expression
 import org.testeditor.tcl.NullOrBoolCheck
 import org.testeditor.tcl.StringConstant
+import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.util.TclModelUtil
+
+import static extension org.eclipse.xtext.EcoreUtil2.getContainerOfType
 
 class TclAssertCallBuilder {
 
@@ -155,6 +159,10 @@ class TclAssertCallBuilder {
 		} else {
 			return builtExpression
 		}
+	}
+
+	private def TestStepContext getEnclosingTestStepContext(EObject eObject) {
+		return eObject.getContainerOfType(TestStepContext)
 	}
 
 }

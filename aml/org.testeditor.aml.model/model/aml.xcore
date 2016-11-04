@@ -115,6 +115,14 @@ class ComponentType extends ElementTypeWithInteractions {
 class ComponentElementType extends ElementTypeWithInteractions {
 }
 
+abstract class TemplateContainer {
+	/* 
+	 * The {@link Template}, 
+	 * e.g. <pre>"Pick a value" ${value} "from drop-down" ${element}</pre>
+	 */
+	contains Template template
+}
+
 /* <p>
  * Instances of this class define a type of interaction with a component element,
  * such as "read value" or "write value" (e.g. on a text field).<br/><br/>
@@ -124,12 +132,7 @@ class ComponentElementType extends ElementTypeWithInteractions {
  * as well as a label.
  * </p>
  */
-class InteractionType extends ModelElement {
-	/* 
-	 * The {@link Template} for the interaction, 
-	 * e.g. <pre>"Pick a value" ${value} "from drop-down" ${element}</pre>
-	 */
-	contains Template template opposite interactionType 
+class InteractionType extends ModelElement, TemplateContainer {
 	contains MethodReference defaultMethod
 	refers JvmEnumerationLiteral locatorStrategy // default strategy
 }
@@ -158,7 +161,6 @@ class MethodReference {
  * </p>
  */
 class Template {
-	container InteractionType interactionType opposite template
 	contains TemplateContent[0..*] contents opposite template
 }
 
