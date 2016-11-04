@@ -55,6 +55,8 @@ import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
 
+import static extension org.eclipse.xtext.EcoreUtil2.getContainerOfType
+
 @Singleton
 class TclModelUtil extends TslModelUtil {
 
@@ -93,22 +95,20 @@ class TclModelUtil extends TslModelUtil {
 	}
 
 	def Macro findMacroDefinition(TestStep macroCallStep, MacroTestStepContext macroCallSite) {
-		macroCallSite.macroCollection?.macros?.findFirst [
-			template.normalize == macroCallStep.normalize
+		val normalizedMacroCallStep = macroCallStep.normalize
+		return macroCallSite.macroCollection?.macros?.findFirst [
+			template.normalize == normalizedMacroCallStep
 		]
 	}
 	
-	def TestStepContext getEnclosingTestStepContext(EObject eObject){
-		return EcoreUtil2.getContainerOfType(eObject, TestStepContext)
-	}
-
 	def InteractionType getInteraction(TestStep step) {
 		// TODO this should be solved by using an adapter (so that we don't need to recalculate it over and over again)
 		val component = step.componentContext?.component
 		if (component !== null) {
 			val allElementInteractions = component.elements.map[type.interactionTypes].flatten.filterNull
 			val interactionTypes = component.type.interactionTypes + allElementInteractions
-			return interactionTypes.findFirst[matches(step)]
+			val normalizedTestStep = step.normalize
+			return interactionTypes.findFirst[template.normalize == normalizedTestStep]
 		}
 		return null
 	}
@@ -135,10 +135,6 @@ class TclModelUtil extends TslModelUtil {
 			}
 		].join(' ').removeWhitespaceBeforePunctuation
 		return normalizedStepContent
-	}
-
-	protected def boolean matches(InteractionType interaction, TestStep step) {
-		return interaction.template.normalize == step.normalize
 	}
 
 	/** map the variables within the template to the values/variable references used by the test step using this template.
@@ -223,8 +219,18 @@ class TclModelUtil extends TslModelUtil {
 	}
 
 	def ValueSpaceAssignment getValueSpaceAssignment(ComponentElement element, TestStep container) {
-		val foo = element.valueSpaceAssignments
-		return foo.findFirst[variable.template.interactionType.name == container.interaction?.name]
+		val containerName = container.interaction?.name
+		if (containerName !== null) {
+			return element.valueSpaceAssignments.findFirst[
+				val interaction = variable.template.getContainerOfType(InteractionType)
+				if (interaction !== null) {
+					return interaction.name == containerName
+				} else {
+					return false
+				}
+			]
+		}
+		return null
 	}
 
 	def Set<TemplateVariable> getEnclosingMacroParameters(EObject object) {
