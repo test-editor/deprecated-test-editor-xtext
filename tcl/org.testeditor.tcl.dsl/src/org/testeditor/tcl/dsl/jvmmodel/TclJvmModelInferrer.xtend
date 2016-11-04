@@ -341,7 +341,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			logger.debug("generating code line for assertion test step with expression.")
 			output.appendReporterEnterCall(SemanticUnit.STEP, '''assert «assertCallBuilder.assertionText(step.assertExpression)»''')
 			output.append(assertCallBuilder.build(macroCallVariableResolver, step.assertExpression))
-		} else if (step.testStep!==null){
+		} else if (step.testStep !== null) {
 			logger.debug("generating code line for assertion test step with call to fixture.")
 			val testStepRestoredString = '''«if(step.negated){"! "}else{""}»«step.testStep.contents.restoreString»'''
 
@@ -350,7 +350,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				val callCode = generateInteractionCall(interaction, step.testStep, macroUseStack)
 				if (callCode !== null) {
 					output.appendReporterEnterCall(SemanticUnit.STEP, '''assert «testStepRestoredString»''')
-					val assertMethodCall='''org.junit.Assert.assert«if(step.negated){"False"}else{"True"}»'''
+					val assertMethodCall = '''org.junit.Assert.assert«if(step.negated){"False"}else{"True"}»'''
 					output.append('''«assertMethodCall»("«StringEscapeUtils.escapeJava(testStepRestoredString)»", «callCode»);''')
 				} else {
 					logger.error("Code generation failed for interaction='{}' within assert.", interaction)

@@ -130,7 +130,7 @@ class TclModelUtil extends TslModelUtil {
 				StepContentElement: '<>'
 				StepContentVariable: '""'
 				VariableReference: '""'
-				StepContentValue: value?.trim
+				StepContentValue: value.trim
 				default: throw new IllegalArgumentException("Unhandled content: " + it)
 			}
 		].join(' ').removeWhitespaceBeforePunctuation

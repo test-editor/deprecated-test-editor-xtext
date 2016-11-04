@@ -106,8 +106,8 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			  org.junit.Assert.assertTrue("book", book);
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert mak.\"key with spaces\" = \"fox\"");
 			  org.junit.Assert.assertEquals("mak.\"key with spaces\" = \"fox\"", "fox", mak.get("key with spaces"));
-			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert ! foo");
-			  org.junit.Assert.assertNull("! foo", foo);
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert false foo");
+			  org.junit.Assert.assertNull("false foo", foo);
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert baz != \"fix\"");
 			  org.junit.Assert.assertNotEquals("baz != \"fix\"", "fix", baz);
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert ! book");
@@ -120,6 +120,12 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			  org.junit.Assert.assertNull("! mak.\"key with spaces\"", mak.get("key with spaces"));
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert baz = mak.otherkey");
 			  org.junit.Assert.assertEquals("baz = mak.otherkey", mak.get("otherkey"), baz);
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert Is <bar> visible?");
+			  org.junit.Assert.assertTrue("Is <bar> visible?", dummyFixture.isVisible("label.greet"));
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert ! Is <bar> visible?");
+			  org.junit.Assert.assertFalse("! Is <bar> visible?", dummyFixture.isVisible("label.greet"));
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert ! Is <bar> visible?");
+			  org.junit.Assert.assertFalse("! Is <bar> visible?", dummyFixture.isVisible("label.greet"));
 			}
 		'''.indent(1))
 	}

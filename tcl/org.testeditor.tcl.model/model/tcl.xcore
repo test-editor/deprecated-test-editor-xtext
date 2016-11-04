@@ -116,10 +116,6 @@ class AssertionTestStep extends AbstractTestStep {
 abstract class Expression {
 }
 
-class FixtureCall extends Expression {
-	contains TestStep testStep
-}
-
 abstract class BinaryExpression extends Expression {
 	contains Expression left
 	contains Expression right
