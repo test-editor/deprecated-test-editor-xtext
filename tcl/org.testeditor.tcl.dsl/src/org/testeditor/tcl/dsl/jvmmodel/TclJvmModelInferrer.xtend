@@ -374,14 +374,12 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		return null
 	}
 	
-	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output,
-		Iterable<TestStep> macroUseStack) {
-		logger.debug("generating code line for test step='{}'.", step.contents.restoreString)
-		val stepLog = step.contents.restoreString 
+	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output, Iterable<TestStep> macroUseStack) {
+		val stepLog = step.contents.restoreString
+		logger.debug("generating code line for test step='{}'.", stepLog)
 		val interaction = step.interaction
-		logger.debug("identified interaction='{}' for test step='{}'.",
-			interaction.defaultMethod?.operation?.qualifiedName, step.contents.restoreString)
 		if (interaction !== null) {
+			logger.debug("derived interaction with method='{}' for test step='{}'.", interaction.defaultMethod?.operation?.qualifiedName, stepLog)
 			val callCode=generateInteractionCall(interaction, step, macroUseStack)
 			if (callCode !== null) {
 				val operation = interaction.defaultMethod?.operation
@@ -393,12 +391,11 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				output.append('''// TODO code generation failed for interaction='«interaction.name»' (does not have a proper method reference)''')
 			}
 		} else if (step.componentContext != null) {
-			output.append('''// TODO could not resolve '«step.componentContext.component.name»' - «step.contents.restoreString»''')
+			output.append('''// TODO could not resolve '«step.componentContext.component.name»' - «stepLog»''')
 		} else {
-			output.append('''// TODO could not resolve unknown component - «step.contents.restoreString»''')
+			output.append('''// TODO could not resolve unknown component - «stepLog»''')
 		}
 	}
-	
 	
 	private def void maybeCreateAssignment(TestStep step, JvmOperation operation, ITreeAppendable output, String stepLog) {
 		if (step instanceof TestStepWithAssignment) {
