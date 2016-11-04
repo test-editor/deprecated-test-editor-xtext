@@ -20,4 +20,5 @@ import org.testeditor.fixture.swt.*
 	- Click on <AddFixtureButton>
 	- Check <GenerateWithExamples>
 	- Click on <FinishButton>
-	- Wait until dialog with title "Progress Information" is closed
+	- Wait for dialog "Progress Information" to popup and then close after at most "3" respectively "120" seconds  
+	

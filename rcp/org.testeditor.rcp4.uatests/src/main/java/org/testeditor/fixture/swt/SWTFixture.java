@@ -168,7 +168,7 @@ public class SWTFixture  implements TestRunListener, TestRunReportable {
 	@FixtureMethod
 	public void waitForDialogClosing(String title) {
 		long swtBotDefaultInMilliSeconds = SWTBotPreferences.TIMEOUT;
-		waitForDialogClosingWithTimeout(title, swtBotDefaultInMilliSeconds / 1000);
+		waitForPopupDialogClosingWithTimeout(title, swtBotDefaultInMilliSeconds / 2000, swtBotDefaultInMilliSeconds / 1000);
 	}
 
 	private String getCurrentTestCase() {
@@ -217,17 +217,19 @@ public class SWTFixture  implements TestRunListener, TestRunReportable {
 	 * 
 	 * @param title
 	 *            the title of the dialog
-	 * @param timeout
-	 *            the time to wait
+	 * @param openingTimeout
+	 *            the time to wait for the window to open
+	 * @param closingTimeout
+	 *            the time to wait for the window to close, once it opened up
 	 */
 	@FixtureMethod
-	public void waitForDialogClosingWithTimeout(String title, long timeout) {
-		logger.info("Waiting for dialog with title='{}' to open, timeout='{}' seconds.", title, timeout);
+	public void waitForPopupDialogClosingWithTimeout(String title, long openingTimeout, long closingTimeout) {
+		logger.info("Waiting for dialog with title='{}' to open, timeout='{}' seconds.", title, closingTimeout);
 		try {
 			try {
-				bot.waitUntil(Conditions.shellIsActive(title), timeout * 1000);
+				bot.waitUntil(Conditions.shellIsActive(title), openingTimeout * 1000);
 				SWTBotShell shell = bot.shell(title);
-				bot.waitUntil(Conditions.shellCloses(shell), timeout * 1000);
+				bot.waitUntil(Conditions.shellCloses(shell), closingTimeout * 1000);
 			} catch (TimeoutException e) {
 				logger.info("Dialog with title {} was not found. Test continuous.", title);
 			}

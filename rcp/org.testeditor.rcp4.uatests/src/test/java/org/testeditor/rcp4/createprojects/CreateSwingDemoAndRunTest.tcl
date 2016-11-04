@@ -28,7 +28,7 @@ config TestEditorConfig
 	- Click on <AddFixtureButton>
 	- Check <GenerateWithExamples>
 	- Click on <FinishButton>
-	- Wait at most "30" seconds until dialog with title "Progress Information" is closed
+	- Wait for dialog "Progress Information" to popup and then close after at most "3" respectively "120" seconds  
 
 	Component: TestEditorServices
 	- valid = Check if "swingexecdemo" is a valid testproject
@@ -40,7 +40,7 @@ config TestEditorConfig
 	Component: ProjectExplorer
 	- Select element "swingexecdemo/Tests/swingexecdemo/GreetingTest.tcl" in tree <ProjectTree>
 	- Execute menu item "Run test" in tree <ProjectTree>
-	- Wait at most "30" seconds until dialog with title "Progress Information" is closed
+	- Wait for dialog "Progress Information" to popup and then close after at most "3" respectively "120" seconds  
 
 // then
 * Verify test execution result

@@ -20,7 +20,7 @@ config TestEditorConfig
 	- Click on <AddFixtureButton>
 	- Check <GenerateWithExamples>
 	- Click on <FinishButton>
-	- Wait at most "30" seconds until dialog with title "Progress Information" is closed
+	- Wait for dialog "Progress Information" to popup and then close after at most "3" respectively "120" seconds  
 
 	Component: ProjectExplorer
 	- Select element "MyFirstWebProject/Tests/MyFirstWebProject" in tree <ProjectTree>
