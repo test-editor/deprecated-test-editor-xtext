@@ -7,7 +7,7 @@ import {LogGroup} from "./model";
     selector: 'te-log-groups-view',
     templateUrl: 'LogGroupView.components.html'
 })
-export class                 LogGroupView {
+export class LogGroupView {
     @Input() testruns:LogGroup[] = [];
 
 }

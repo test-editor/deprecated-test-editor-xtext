@@ -1,0 +1,12 @@
+<div>
+    <ul>
+        <details *ngFor="let loggroup of testruns">
+            <summary>{{ loggroup.type }}: {{loggroup.name}}</summary>
+            <li *ngFor="let logentry of loggroup.logLines">
+                {{logentry}}
+            </li>
+            <li><te-log-groups-view [testruns]="loggroup.childs"></te-log-groups-view>
+            </li>
+        </details>
+    </ul>
+</div>

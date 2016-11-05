@@ -55,8 +55,8 @@ class TestExecutionLogService {
 		val links = Json.createArrayBuilder
 		links.add(Json.createObjectBuilder.add("href", '''/testexeclogs/«fileName»/fulllogs''').add("rel", "fullogs"))
 		links.add(
-			Json.createObjectBuilder.add("href", '''/testexeclogs/«fileName»/testSteps''').add("rel", "logGroups"))
-		links.add(Json.createObjectBuilder.add("href", '''/testexeclogs/«fileName»/testSteps''').add("rel", "self"))
+			Json.createObjectBuilder.add("href", '''/testexeclogs/«fileName»/logGroups''').add("rel", "logGroups"))
+		links.add(Json.createObjectBuilder.add("href", '''/testexeclogs/«fileName»/logGroups''').add("rel", "self"))
 		return links.build
 	}
 

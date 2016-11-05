@@ -78,7 +78,7 @@ class TestExecutionLogServiceTest extends AbstractTest {
 		val log = Json.createReader(new StringReader(logString)).readObject
 
 		// then
-		assertEquals(links.length, 2)
+		assertEquals(links.length, 3)
 		assertEquals(links.getJsonObject(0).getString("href"), "/testexeclogs/te-1476685123287.log/fulllogs")
 		assertEquals(links.getJsonObject(1).getString("href"), "/testexeclogs/te-1476685123287.log/testSteps")
 		log.getString("content").assertEquals("Log content")

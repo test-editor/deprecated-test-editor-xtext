@@ -7,22 +7,23 @@ import {TestExecutionLog, Link} from "./model";
 @Injectable()
 export class TestLogService {
 
-    constructor(private http: Http) {}
+    constructor(private http: Http) {
+    }
 
     getTestExecutionLogs(): Promise<TestExecutionLog[]> {
-        return this.http.get('http://localhost:19090/services/testexeclogs').toPromise().then(response =>
+        return this.http.get('http://localhost:19091/services/testexeclogs').toPromise().then(response =>
             response.json().entries as TestExecutionLog[]
         ).catch(this.handleError);
     }
 
     getTestExecutionLogContent(testExecLog: TestExecutionLog): Promise<String> {
-        return this.http.get('http://localhost:19090/services' + testExecLog.links[0].href).toPromise().then(response =>
+        return this.http.get('http://localhost:19091/services'+ testExecLog.links[0].href).toPromise().then(response =>
             response.json().content as String
         ).catch(this.handleError);        
     }
 
     getTestExecutionLogGroups(testExecLog: TestExecutionLog): Promise<LogGroup[]> {
-        return this.http.get('http://localhost:19090/services' + testExecLog.links[1].href).toPromise().then(response =>
+        return this.http.get('http://localhost:19091/services' + testExecLog.links[1].href).toPromise().then(response =>
             response.json().logGroups as LogGroup[]
         ).catch(this.handleError);        
     }
