@@ -1,12 +1,10 @@
-<div>
-    <ul>
-        <details *ngFor="let loggroup of testruns">
-            <summary>{{ loggroup.type }}: {{loggroup.name}}</summary>
-            <li *ngFor="let logentry of loggroup.logLines">
-                {{logentry}}
-            </li>
-            <li><te-log-groups-view [testruns]="loggroup.childs"></te-log-groups-view>
-            </li>
-        </details>
-    </ul>
-</div>
+<ngb-accordion #acc="ngbAccordion" activeIds="ngb-panel-0">
+    <ngb-panel *ngFor="let loggroup of testruns" title="{{ loggroup.type }}: {{loggroup.name}}">
+        <template ngbPanelContent>
+            <span *ngFor="let logentry of loggroup.logLines">
+                    {{logentry}} <br>
+                </span>
+            <te-log-groups-view [testruns]="loggroup.childs"></te-log-groups-view>
+        </template>
+    </ngb-panel>
+</ngb-accordion>

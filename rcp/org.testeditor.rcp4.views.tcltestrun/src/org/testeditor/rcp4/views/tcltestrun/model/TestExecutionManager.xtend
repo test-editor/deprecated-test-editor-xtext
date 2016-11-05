@@ -51,7 +51,7 @@ class TestExecutionManager {
 			log.testExecutionName = testExecutionLogName
 			log.logFile = new File(location, it)
 			return log
-		].toList
+		].sortBy[testExecutionName]
 	}
 
 	def private String getTestExecutionLogName(String teLogFileName) {

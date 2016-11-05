@@ -14,7 +14,6 @@ export class AppComponent {
     currentSelection: TestExecutionLog;
 
     constructor(private logService: TestLogService) {
-        console.log(logService)
         this.logService.getTestExecutionLogs().then(testExecLogs => this.testRuns=testExecLogs)
         this.testRunLog = '';
         this.useLogGroup = false
