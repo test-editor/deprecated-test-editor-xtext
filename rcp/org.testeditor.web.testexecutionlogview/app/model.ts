@@ -1,5 +1,8 @@
 export class LogGroup {
-
+    type: String
+    logLines: String[]
+    childs: LogGroup[]
+    name: String
 }
 
 export class TestExecutionLog {

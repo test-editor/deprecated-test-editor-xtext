@@ -21,6 +21,12 @@ export class TestLogService {
         ).catch(this.handleError);        
     }
 
+    getTestExecutionLogGroups(testExecLog: TestExecutionLog): Promise<LogGroup[]> {
+        return this.http.get('http://localhost:19090/services' + testExecLog.links[1].href).toPromise().then(response =>
+            response.json().logGroups as LogGroup[]
+        ).catch(this.handleError);        
+    }
+
     private handleError(error: any): Promise<any> {
         console.error('An error occurred', error); // for development purposes only
         return Promise.reject(error.message || error);

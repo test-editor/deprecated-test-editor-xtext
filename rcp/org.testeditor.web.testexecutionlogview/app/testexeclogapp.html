@@ -5,7 +5,13 @@
         <testExecList [testruns]="testRuns" [app]='this'> </testExecList>
     </div>
     <div class="col-sm-8">
-      {{testRunLog}}
+      <div *ngIf="!useLogGroup">
+        {{testRunLog}}
+      </div>
+      <div *ngIf="useLogGroup">
+        <te-log-groups-view>
+        </te-log-groups-view>
+      </div>
     </div>
   </div>
 </div>
