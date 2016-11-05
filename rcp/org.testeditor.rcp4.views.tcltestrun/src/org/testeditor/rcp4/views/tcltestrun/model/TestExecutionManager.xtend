@@ -21,11 +21,13 @@ import javax.inject.Inject
 import org.testeditor.rcp4.views.tcltestrun.StateLocationHelper
 import org.eclipse.e4.core.di.annotations.Creatable
 import java.text.SimpleDateFormat
+import org.slf4j.LoggerFactory
 
 @Creatable
 class TestExecutionManager {
 
 	@Inject StateLocationHelper stateLocationHelper
+	static val logger = LoggerFactory.getLogger(TestExecutionManager)
 
 	def TestExecutionLog createTestExecutionLog(List<String> testNames) {
 		val result = new TestExecutionLog
@@ -36,22 +38,24 @@ class TestExecutionManager {
 
 	def OutputStream createOutputStreamFor(TestExecutionLog execLog) {
 		val location = stateLocationHelper.stateLocation
-		return new FileOutputStream(new File(location, "te-" + execLog.executionDate.time + ".log"))
+		val newLog = new File(location, "te-" + execLog.executionDate.time + ".log")
+		logger.info("Create new test execution log file {}.", newLog.absolutePath)
+		return new FileOutputStream(newLog)
 	}
 
 	def List<TestExecutionLog> getTestExecutionLogs() {
 		val location = stateLocationHelper.stateLocation
 		val logs = location.list.filter[it.matches('te-\\d+\\.log')]
-		return logs.map[
+		return logs.map [
 			val log = new TestExecutionLog
 			log.testExecutionName = testExecutionLogName
-			log.logFile = new File(location,it)
+			log.logFile = new File(location, it)
 			return log
 		].toList
 	}
 
 	def private String getTestExecutionLogName(String teLogFileName) {
-		val date = new Date(Long.parseLong(teLogFileName.substring(3,teLogFileName.lastIndexOf("."))))
+		val date = new Date(Long.parseLong(teLogFileName.substring(3, teLogFileName.lastIndexOf("."))))
 		val sdf = new SimpleDateFormat("dd.MM.yy HH:mm")
 		return sdf.format(date)
 	}

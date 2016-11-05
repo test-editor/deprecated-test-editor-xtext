@@ -80,7 +80,7 @@ class TestExecutionLogServiceTest extends AbstractTest {
 		// then
 		assertEquals(links.length, 3)
 		assertEquals(links.getJsonObject(0).getString("href"), "/testexeclogs/te-1476685123287.log/fulllogs")
-		assertEquals(links.getJsonObject(1).getString("href"), "/testexeclogs/te-1476685123287.log/testSteps")
+		assertEquals(links.getJsonObject(1).getString("href"), "/testexeclogs/te-1476685123287.log/logGroups")
 		log.getString("content").assertEquals("Log content")
 	}
 
@@ -91,11 +91,11 @@ class TestExecutionLogServiceTest extends AbstractTest {
 			[INFO] --- xtend-maven-plugin:2.10.0:testCompile (default) @ org.testeditor.rcp4.uatests ---
 			18:49:10 INFO  [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test specification] * Given
 			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] TestEditorServices
-			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [test step] - Click on <NextButton>
-			18:49:12 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [test step] - Click on <FinishButton>
+			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] - Click on <NextButton>
+			18:49:12 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] - Click on <FinishButton>
 			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] TestEditorWizard
-			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [test step] - Type "foo" into field <name>
-			18:49:12 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [test step] - Click on <FinishButton>
+			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] - Type "foo" into field <name>
+			18:49:12 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] - Click on <FinishButton>
 		 '''
 
 		// when
@@ -112,16 +112,16 @@ class TestExecutionLogServiceTest extends AbstractTest {
 		assertEquals(componentService.getString("name"), "[Component] TestEditorServices")
 		val nextButton = componentService.getJsonArray("childs").getJsonObject(0)
 		println(nextButton)
-		assertEquals(nextButton.getString("name"), "[test step] - Click on <NextButton>")
+		assertEquals(nextButton.getString("name"), "[Test step] - Click on <NextButton>")
 		val finishButton1 = componentService.getJsonArray("childs").getJsonObject(1)
-		assertEquals(finishButton1.getString("name"), "[test step] - Click on <FinishButton>")
+		assertEquals(finishButton1.getString("name"), "[Test step] - Click on <FinishButton>")
 
 		val componentWizard = spec.getJsonArray("childs").getJsonObject(1)
 		assertEquals(componentWizard.getString("name"), "[Component] TestEditorWizard")
 		val field = componentWizard.getJsonArray("childs").getJsonObject(0)
-		assertEquals(field.getString("name"), "[test step] - Type \"foo\" into field <name>")
+		assertEquals(field.getString("name"), "[Test step] - Type \"foo\" into field <name>")
 		val finishButton2 = componentWizard.getJsonArray("childs").getJsonObject(1)
-		assertEquals(finishButton2.getString("name"), "[test step] - Click on <FinishButton>")
+		assertEquals(finishButton2.getString("name"), "[Test step] - Click on <FinishButton>")
 	}
 
 }

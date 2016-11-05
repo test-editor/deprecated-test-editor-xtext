@@ -68,9 +68,9 @@ class TestLogGroupBuilder {
 				}
 				currentLogGroup = cmp
 			}
-			if (logLine.contains("[test step]")) {
+			if (logLine.contains("[Test step]")) {
 				val step = new TestLogGroup(TestElementType.TestStepGroup)
-				step.name = logLine.substring(logLine.indexOf("[test step]"))
+				step.name = logLine.substring(logLine.indexOf("[Test step]"))
 				if (currentLogGroup.type === TestElementType.TestStepGroup) {
 					currentLogGroup.parent.add(step)
 				} else {
