@@ -22,8 +22,8 @@
   "author": "",
   "licenses": [
     {
-      "type": "MIT",
-      "url": "https://github.com/angular/angular.io/blob/master/LICENSE"
+      "type": "EPL",
+      "url": "https://www.eclipse.org/legal/epl-v10.html"
     }
   ],
   "dependencies": {
