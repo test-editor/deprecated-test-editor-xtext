@@ -1,4 +1,4 @@
-<ngb-accordion #acc="ngbAccordion" activeIds="ngb-panel-0">
+<ngb-accordion #acc="ngbAccordion" >
     <ngb-panel *ngFor="let loggroup of testruns" title="{{ loggroup.type }}: {{loggroup.name}}">
         <template ngbPanelContent>
             <span *ngFor="let logentry of loggroup.logLines">

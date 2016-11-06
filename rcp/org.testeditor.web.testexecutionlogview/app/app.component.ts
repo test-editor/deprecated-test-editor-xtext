@@ -16,7 +16,7 @@ export class AppComponent {
     constructor(private logService: TestLogService) {
         this.logService.getTestExecutionLogs().then(testExecLogs => this.testRuns=testExecLogs)
         this.testRunLog = '';
-        this.useLogGroup = false
+        this.useLogGroup = true;
     }
 
     onSelect(testExecLog: TestExecutionLog) {
