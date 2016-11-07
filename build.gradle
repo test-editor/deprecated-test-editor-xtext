@@ -25,6 +25,15 @@ task npmInstallTeLogView(type: NpmTask, dependsOn: npmInstallDep) {
 	args = [ 'run-script', 'tsc' ]
 }
 
+task copyTeLogViewToRcp(type: Copy, dependsOn: npmInstallTeLogView) {
+    from 'rcp/org.testeditor.web.testexecutionlogview'
+    into 'rcp/org.testeditor.rcp4.views.tcltestrun/web-inf'
+    exclude 'node'
+    exclude 'typings'
+    exclude 'pom.xml'
+    exclude 'package.json'
+}
+
 task buildTarget(type: MavenExec) {
     inputs.files fileTree(dir: targetPlatform, exclude: '**/target/**')
     outputs.dir file("$targetPlatform/org.testeditor.releng.target.updatesite/target/site")
