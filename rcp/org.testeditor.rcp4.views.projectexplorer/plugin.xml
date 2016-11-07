@@ -12,6 +12,23 @@
             restorable="true">
       </view>
    </extension>
+   
+<extension point="org.eclipse.ui.decorators">
+<decorator
+    id="org.testeditor.rcp4.views.projectexplorer.ResourceDecorator"
+    label="Decorator Example"
+    state="true"
+    class= "org.testeditor.rcp4.views.projectexplorer.ResourceDecorator"
+    adaptable="true">
+    <enablement>
+      <objectClass name="org.eclipse.core.resources.IFile"/>    
+    </enablement>
+    <description>
+      This is an example to illustrate the use of decorators
+    </description>
+  </decorator>
+</extension>
+   
    <extension
          point="org.eclipse.ui.navigator.viewer">
       <viewer
