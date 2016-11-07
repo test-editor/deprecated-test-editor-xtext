@@ -49,5 +49,9 @@ class TELabelProvider extends LabelProvider implements ILabelProvider {
 		}
 		return null
 	}
+	
+	override void dispose() {
+        baseFolderImage.dispose
+    }
 
 }
