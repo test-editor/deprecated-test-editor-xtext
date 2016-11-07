@@ -1,6 +1,7 @@
 package org.testeditor.rcp4.views.projectexplorer
 
 import org.eclipse.core.resources.IMarker
+import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.CoreException
 import org.eclipse.jface.viewers.IDecoration
@@ -16,20 +17,26 @@ class ResourceDecorator extends LabelProvider implements ILightweightLabelDecora
 	def void fireLabelEvent(LabelProviderChangedEvent event) {
 		Display.^default.asyncExec[fireLabelProviderChanged(event)]
 	}
-	
+
 	override decorate(Object element, IDecoration decoration) {
-		if (element instanceof IResource) try {
-			val maxSeverity = element.findMaxProblemSeverity(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
-			val errorIcon=WorkbenchImages.getImageDescriptor(ISharedImages.IMG_DEC_FIELD_ERROR)
-			val warningIcon=WorkbenchImages.getImageDescriptor(ISharedImages.IMG_DEC_FIELD_WARNING)
-			switch(maxSeverity){
-				case IMarker.SEVERITY_ERROR: decoration.addOverlay(errorIcon) 
+		try {
+			val maxSeverity = if (element instanceof IProject) {
+					element.getFolder("/src").findMaxProblemSeverity(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)
+				} else if (element instanceof IResource) {
+					element.findMaxProblemSeverity(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)
+				} else {
+					IMarker.SEVERITY_INFO 
+				}
+			val errorIcon = WorkbenchImages.getImageDescriptor(ISharedImages.IMG_DEC_FIELD_ERROR)
+			val warningIcon = WorkbenchImages.getImageDescriptor(ISharedImages.IMG_DEC_FIELD_WARNING)
+			switch (maxSeverity) {
+				case IMarker.SEVERITY_ERROR: decoration.addOverlay(errorIcon)
 				case IMarker.SEVERITY_WARNING: decoration.addOverlay(warningIcon)
-				// default: // do nothing		
+			// default: // do nothing		
 			}
-		}catch(CoreException ce){
+		} catch (CoreException ce) {
 			// ignore
 		}
 	}
-	
+
 }

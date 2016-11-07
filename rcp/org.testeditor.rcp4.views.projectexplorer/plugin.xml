@@ -22,7 +22,7 @@
             adaptable="true"
             lightweight="true">
          <enablement>
-            <objectClass name="org.eclipse.core.resources.IFile"/>    
+            <objectClass name="org.eclipse.core.resources.IResource"/>    
          </enablement>
          <description>resource decoration e.g. in test navigator</description>
       </decorator>
