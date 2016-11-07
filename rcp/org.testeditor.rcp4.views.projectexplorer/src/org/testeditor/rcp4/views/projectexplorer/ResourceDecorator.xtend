@@ -16,35 +16,54 @@ import org.eclipse.ui.internal.WorkbenchImages
 
 class ResourceDecorator extends LabelProvider implements ILightweightLabelDecorator {
 
+	val NO_SEVERITY = -1
+
+	// only descriptors, need not be disposed => no cleanup necessary
+	val errorIcon = WorkbenchImages.getImageDescriptor(ISharedImages.IMG_DEC_FIELD_ERROR)
+	val warningIcon = WorkbenchImages.getImageDescriptor(ISharedImages.IMG_DEC_FIELD_WARNING)
+
 	def void fireLabelEvent(LabelProviderChangedEvent event) {
+		// make sure that event is executed in ui thread
 		Display.^default.asyncExec[fireLabelProviderChanged(event)]
 	}
 
 	override decorate(Object element, IDecoration decoration) {
+		val maxSeverity = getMaxSeverity(element)
+		switch (maxSeverity) {
+			case IMarker.SEVERITY_ERROR:
+				decoration.addOverlay(errorIcon)
+			case IMarker.SEVERITY_WARNING:
+				decoration.addOverlay(warningIcon)
+			case NO_SEVERITY: {
+			} // ignore
+		}
+	}
+
+	private def IResource getResourceForSeverityCalculation(Object element) {
+		switch (element) {
+			IClasspathEntry case element.path.toString.matches(".*/src/(test|java)/java"):
+				// classpath entries need to be heeded because of TELabelProvider
+				ResourcesPlugin.workspace.root.getFolder(element.path)
+			IProject:
+				// project should only provide status of src and its subfolders (excluding technical problems elsewhere)
+				element.getFolder("/src")
+			IResource:
+				element
+			default:
+				null
+		}
+	}
+
+	private def int getMaxSeverity(Object element) {
+		val resource = element.getResourceForSeverityCalculation
 		try {
-			val maxSeverity = if (element instanceof IClasspathEntry) {
-					if (element.path.toString.matches(".*/src/(test|java)/java")) {
-						ResourcesPlugin.workspace.root.getFolder(element.path).findMaxProblemSeverity(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)						
-					}else {
-						IMarker.SEVERITY_INFO
-					}
-				} else if (element instanceof IProject) {
-					element.getFolder("/src").findMaxProblemSeverity(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)
-				} else if (element instanceof IResource) {
-					element.findMaxProblemSeverity(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)
-				} else {
-					IMarker.SEVERITY_INFO 
-				}
-			val errorIcon = WorkbenchImages.getImageDescriptor(ISharedImages.IMG_DEC_FIELD_ERROR)
-			val warningIcon = WorkbenchImages.getImageDescriptor(ISharedImages.IMG_DEC_FIELD_WARNING)
-			switch (maxSeverity) {
-				case IMarker.SEVERITY_ERROR: decoration.addOverlay(errorIcon)
-				case IMarker.SEVERITY_WARNING: decoration.addOverlay(warningIcon)
-			// default: // do nothing		
+			if (resource !== null) {
+				return resource.findMaxProblemSeverity(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)
 			}
 		} catch (CoreException ce) {
-			// ignore
+			// ignore (and return default)
 		}
+		return NO_SEVERITY
 	}
 
 }

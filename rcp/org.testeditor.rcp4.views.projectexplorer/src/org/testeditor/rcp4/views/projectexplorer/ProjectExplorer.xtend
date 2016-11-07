@@ -39,23 +39,22 @@ class ProjectExplorer extends CommonNavigator {
 
 		if (decorator !== null) {
 			val affectedResources = newLinkedList
-			data.delta.accept[affectedResources.add(resource)] // POST_CHANGE event produces delta => collect those resources
-			// additionally add class path entry object, since those have to be updated to and are not part of the delta»
+			data.delta.accept[affectedResources.add(resource)] // POST_CHANGE event produces delta (only) => collect those resources
+			// additionally add classpath entry object, since those have to be updated to and are not part of the delta
+			// classpath entries need updating, since TELabelProvider makes use of those
 			val foldersToExplicitlyHeed = affectedResources.filter(IFolder).filter [
 				projectRelativePath.toString.matches("src/(main|test)/java")
 			]
 			val affectedClassPaths = foldersToExplicitlyHeed.map[respectiveJavaClasspathEntry].filterNull
 			val event = new LabelProviderChangedEvent(decorator, (affectedClassPaths + affectedResources).toList.toArray)
-			decorator.fireLabelEvent(event) // fire one event for all affected resources
+			decorator.fireLabelEvent(event) // fire one event for all affected
 		}
 	}
 	
 	private def IClasspathEntry getRespectiveJavaClasspathEntry(IFolder folder){
 			if (JavaProject.hasJavaNature(folder.project)) {
 				val javaProject=JavaCore.create(folder.project)
-				val classPath=javaProject.readRawClasspath
-				val relevantClassPath=classPath.findFirst[path == folder.fullPath]
-				return relevantClassPath
+				return javaProject.readRawClasspath.findFirst[path == folder.fullPath]
 			}
 			return null
 	}
