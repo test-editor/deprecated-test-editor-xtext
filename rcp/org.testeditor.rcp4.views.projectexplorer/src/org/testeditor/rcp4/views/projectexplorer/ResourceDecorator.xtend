@@ -3,7 +3,9 @@ package org.testeditor.rcp4.views.projectexplorer
 import org.eclipse.core.resources.IMarker
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
+import org.eclipse.core.resources.ResourcesPlugin
 import org.eclipse.core.runtime.CoreException
+import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jface.viewers.IDecoration
 import org.eclipse.jface.viewers.ILightweightLabelDecorator
 import org.eclipse.jface.viewers.LabelProvider
@@ -20,7 +22,13 @@ class ResourceDecorator extends LabelProvider implements ILightweightLabelDecora
 
 	override decorate(Object element, IDecoration decoration) {
 		try {
-			val maxSeverity = if (element instanceof IProject) {
+			val maxSeverity = if (element instanceof IClasspathEntry) {
+					if (element.path.toString.matches(".*/src/(test|java)/java")) {
+						ResourcesPlugin.workspace.root.getFolder(element.path).findMaxProblemSeverity(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)						
+					}else {
+						IMarker.SEVERITY_INFO
+					}
+				} else if (element instanceof IProject) {
 					element.getFolder("/src").findMaxProblemSeverity(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)
 				} else if (element instanceof IResource) {
 					element.findMaxProblemSeverity(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)

@@ -11,8 +11,12 @@
  */
 package org.testeditor.rcp4.views.projectexplorer
 
+import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IResourceChangeEvent
 import org.eclipse.core.resources.ResourcesPlugin
+import org.eclipse.jdt.core.IClasspathEntry
+import org.eclipse.jdt.core.JavaCore
+import org.eclipse.jdt.internal.core.JavaProject
 import org.eclipse.jface.viewers.LabelProviderChangedEvent
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.ui.PlatformUI
@@ -36,9 +40,24 @@ class ProjectExplorer extends CommonNavigator {
 		if (decorator !== null) {
 			val affectedResources = newLinkedList
 			data.delta.accept[affectedResources.add(resource)] // POST_CHANGE event produces delta => collect those resources
-			val event = new LabelProviderChangedEvent(decorator, affectedResources.toArray)
+			// additionally add class path entry object, since those have to be updated to and are not part of the delta»
+			val foldersToExplicitlyHeed = affectedResources.filter(IFolder).filter [
+				projectRelativePath.toString.matches("src/(main|test)/java")
+			]
+			val affectedClassPaths = foldersToExplicitlyHeed.map[respectiveJavaClasspathEntry].filterNull
+			val event = new LabelProviderChangedEvent(decorator, (affectedClassPaths + affectedResources).toList.toArray)
 			decorator.fireLabelEvent(event) // fire one event for all affected resources
 		}
+	}
+	
+	private def IClasspathEntry getRespectiveJavaClasspathEntry(IFolder folder){
+			if (JavaProject.hasJavaNature(folder.project)) {
+				val javaProject=JavaCore.create(folder.project)
+				val classPath=javaProject.readRawClasspath
+				val relevantClassPath=classPath.findFirst[path == folder.fullPath]
+				return relevantClassPath
+			}
+			return null
 	}
 
 }
