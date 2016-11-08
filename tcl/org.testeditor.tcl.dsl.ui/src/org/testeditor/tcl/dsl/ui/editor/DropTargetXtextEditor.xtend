@@ -10,7 +10,6 @@ import org.eclipse.jface.viewers.ISelection
 import org.eclipse.swt.dnd.TextTransfer
 import org.eclipse.swt.dnd.DropTargetListener
 import org.eclipse.ui.dnd.IDragAndDropService
-import org.slf4j.LoggerFactory
 import org.eclipse.jface.util.LocalSelectionTransfer
 import org.eclipse.jface.viewers.TreeSelection
 import org.testeditor.aml.InteractionType
@@ -30,37 +29,30 @@ import org.testeditor.tcl.StepContentElement
 import org.eclipse.jface.text.TextSelection
 import org.eclipse.xtext.resource.EObjectAtOffsetHelper
 import org.testeditor.tcl.SpecificationStepImplementation
-import org.testeditor.aml.impl.AmlFactoryImpl
 import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.AbstractTestStep
-import org.testeditor.tcl.StringConstant
 import org.eclipse.xtext.xtype.XImportSection
-import org.testeditor.tcl.Comparator
 import org.eclipse.xtext.xtype.XImportDeclaration
-import org.testeditor.tcl.AssignmentVariable
-import org.testeditor.tcl.TestStepWithAssignment
-import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.eclipse.jface.text.source.SourceViewer
 import org.eclipse.emf.ecore.EObject
 import org.testeditor.tsl.StepContent
 import org.testeditor.tcl.impl.TestStepImpl
 import org.eclipse.xtext.EcoreUtil2
-import org.testeditor.tcl.TestStepContext
 import java.util.List
-import org.eclipse.xtext.nodemodel.ICompositeNode
-import java.util.concurrent.atomic.AtomicLong
+import org.eclipse.emf.ecore.util.EcoreUtil
+import org.eclipse.xtext.resource.ILocationInFileProvider
 
 class DropTargetXtextEditor extends XtextEditor {
 
-	static val logger = LoggerFactory.getLogger(DropTargetXtextEditor);
 	var ISourceViewer viewer
 	@Inject protected TclFactoryImpl tclFactory
 	@Inject protected TslFactoryImpl tslFactory
-	@Inject protected AmlFactoryImpl amlFactory
 
 	@Inject extension EObjectAtOffsetHelper
+	@Inject extension ILocationInFileProvider
+	@Inject DropTargetXtextEditorListener dropTargetListener
 
 	override protected installTextDragAndDrop(ISourceViewer viewer) {
 		super.installTextDragAndDrop(viewer)
@@ -78,203 +70,223 @@ class DropTargetXtextEditor extends XtextEditor {
 		val StyledText st = viewer.getTextWidget()
 		val DropTargetXtextEditor editor = this
 		// Install drag target
+		dropTargetListener.editor = this
 		val DropTargetListener dropTargetListener = new DropTargetAdapter() {
 
 			override void dragEnter(DropTargetEvent event) {
-				logger.info("dragEnter" + editor.languageName)
 				if ("org.testeditor.tcl.dsl.Tcl" != editor.languageName) {
 					event.detail = DND.DROP_NONE
 				}
-				if (interactionType == null) {
+				if (getSelectionAs(InteractionType) == null) {
 					event.detail = DND.DROP_NONE
 				}
 			}
 
 			override void drop(DropTargetEvent event) {
 
+				val List<String> toFormat = newArrayList
+				val List<String> currentElement = newArrayList
+
+				editor.document.modify(
+					updateModel(toFormat, currentElement)
+				)
+				editor.document.modify(
+					formatRelevantRegion(toFormat)
+				)
+				editor.document.modify(
+					setCursorToNewElement(currentElement)
+				)
+
+			}
+
+			def updateModel(List<String> toFormat, List<String> currentElement) {
+				new IUnitOfWork.Void<XtextResource>() {
+
+					override process(XtextResource resource) throws Exception {
+						if (resource.contents.head instanceof TclModel) {
+							val tclModel = resource.contents.head as TclModel
+							val List<EObject> toFormatEObject = newArrayList
+							// testStepContext, idx = determineInsertionPoint()
+							// insertionPoint.index = indexOfSelectedTestStep
+							// insertionPoint.testStepContext = testStepContext
+							val insertionData = determineInsertionData(resource, toFormatEObject)
+							toFormatEObject.add(insertionData.testStepContext)
+
+							val TestStep newTestStep = createNewTestStep
+							addTestStepToModel(insertionData, newTestStep)
+
+							currentElement.add(EcoreUtil.getRelativeURIFragmentPath(tclModel, newTestStep))
+							toFormat.addAll(toFormatEObject.map[EcoreUtil.getRelativeURIFragmentPath(tclModel, it)])
+						}
+					}
+
+					def addTestStepToModel(ModelInsertData insertionPoint, TestStep newTestStep) {
+						if (insertionPoint.index < 0 ||
+							insertionPoint.index >= insertionPoint.testStepContext.steps.size()) {
+							insertionPoint.testStepContext.steps.add(newTestStep)
+						} else {
+							insertionPoint.testStepContext.steps.add(insertionPoint.index, newTestStep)
+						}
+					}
+
+					def createNewTestStep() {
+						val newTestStep = tclFactory.createTestStep
+
+						getSelectionAs(InteractionType).template.contents.forEach [
+							switch (it) {
+								TemplateText: {
+									val StepContentText stepContentText = tslFactory.createStepContentText
+									stepContentText.value = value
+									newTestStep.contents.add(stepContentText)
+								}
+								TemplateVariable: {
+									if (name != 'element') {
+										val StepContentVariable stepContentVariable = tslFactory.
+											createStepContentVariable
+										stepContentVariable.value = name
+										newTestStep.contents.add(stepContentVariable)
+									} else {
+										val StepContentElement stepContentElement = tclFactory.createStepContentElement
+										stepContentElement.value = getSelectionAs(ComponentElement).name
+										newTestStep.contents.add(stepContentElement)
+									}
+								}
+								default:
+									throw new IllegalArgumentException("The class '" + it.class.getName() +
+										"' is not a valid classifier")
+							}
+						]
+						return newTestStep
+					}
+
+				}
+			}
+
+			def ModelInsertData determineInsertionData(XtextResource resource, List<EObject> toFormatEObject) {
 				val offset = (selectionProvider.selection as TextSelection).offset;
-				val List<EObject> toFormat = newArrayList
+				var contained = resolveContainedElementAt(resource, offset)
+				val tclModel = resource.contents.head as TclModel
+				var ComponentTestStepContext testStepContext = null
 
-				editor.document.modify(
-					new IUnitOfWork.Void<XtextResource>() {
+				val TestCase test = (resource.contents.head as TclModel).test
+				var indexOfSelectedTestStep = 0
 
-						override process(XtextResource resource) throws Exception {
-							if (resource.contents.head instanceof TclModel) {
+				testStepContext = EcoreUtil2.getContainerOfType(contained, ComponentTestStepContext)
 
-								var contained = resolveContainedElementAt(resource, offset)
-
-								var ComponentTestStepContext testStepContext = null
-
-								val TestCase test = (resource.contents.head as TclModel).test
-								var indexOfSelectedTestStep = 0
-
-								testStepContext = EcoreUtil2.getContainerOfType(contained, ComponentTestStepContext)
-
-								if (testStepContext == null) {
-									val insertionIndex = if (contained == null) {
-											-1
-										} else {
-											0
-										}
-									testStepContext = createNewTestContext(insertionIndex, test, component)
-								} else {
-
-									var AbstractTestStep selectedTestStep = null
-									switch (contained) {
-										AbstractTestStep:
-											selectedTestStep = contained
-										XImportSection,
-										XImportDeclaration,
-										TestCase,
-										TclModel:
-											testStepContext = createNewTestContext(0, test, component)
-										default:
-											selectedTestStep = EcoreUtil2.getContainerOfType(contained,
-												AbstractTestStep)
-									}
-									if (selectedTestStep != null) {
-										testStepContext = selectedTestStep.eContainer as ComponentTestStepContext
-										indexOfSelectedTestStep = testStepContext.steps.indexOf(selectedTestStep) + 1
-									}
-
-									if (testStepContext.component.name != component.name) {
-										val indexOfContext = test.steps.indexOf(testStepContext.eContainer)
-										if (indexOfSelectedTestStep > 0 &&
-											indexOfSelectedTestStep < testStepContext.steps.size()) {
-											val splitTestStepContext = createNewTestContext(indexOfContext + 1, test,
-												testStepContext.component)
-											var stepsBeingMoved = testStepContext.steps.subList(indexOfSelectedTestStep,
-												testStepContext.steps.size())
-											splitTestStepContext.steps.addAll(stepsBeingMoved)
-											toFormat.add(splitTestStepContext)
-											val node = NodeModelUtils.findActualNodeFor(splitTestStepContext)
-										val reformatOffset = node.getTotalOffset() //
-										val reformatMaxOffset = node.getTotalLength() + reformatOffset - 1
-										}
-										if (indexOfSelectedTestStep == 0) {
-											testStepContext = createNewTestContext(indexOfContext, test, component)
-										} else {
-											testStepContext = createNewTestContext(indexOfContext + 1, test, component)
-										}
-									}
-									toFormat.add(testStepContext)
-								}
-								toFormat.add(testStepContext)
-								val TestStep newTestStep = tclFactory.createTestStep
-								interactionType.template.contents.forEach [
-									switch (it) {
-										TemplateText: {
-											val StepContentText stepContentText = tslFactory.createStepContentText
-											stepContentText.value = value
-											newTestStep.contents.add(stepContentText)
-										}
-										TemplateVariable: {
-											if (name != 'element') {
-												val StepContentVariable stepContentVariable = tslFactory.
-													createStepContentVariable
-												stepContentVariable.value = name
-												newTestStep.contents.add(stepContentVariable)
-											} else {
-												val StepContentElement stepContentElement = tclFactory.
-													createStepContentElement
-												stepContentElement.value = componentElement.name
-												newTestStep.contents.add(stepContentElement)
-											}
-										}
-										default:
-											throw new IllegalArgumentException("The class '" + it.class.getName() +
-												"' is not a valid classifier")
-									}
-								]
-								if (indexOfSelectedTestStep < 0 ||
-									indexOfSelectedTestStep >= testStepContext.steps.size()) {
-									testStepContext.steps.add(newTestStep)
-								} else {
-									testStepContext.steps.add(indexOfSelectedTestStep, newTestStep)
-								}
-							}
-						}
-
-						def ComponentTestStepContext createNewTestContext(int index, TestCase test,
-							Component component) {
-
-							var SpecificationStepImplementation specification = tclFactory.
-								createSpecificationStepImplementation
-							if (index < 0 || index >= test.steps.size()) {
-								test.steps.add(specification)
+				if (testStepContext == null) {
+					val insertionIndex = if (contained == null) {
+							val prev = tclModel.test.steps.last?.contexts?.last
+							if (prev !== null) {
+								toFormatEObject.add(prev)
 							} else {
-								test.steps.add(index, specification)
-							}
-							specification.contents.add(
-								tslFactory.createStepContentText => [
-									value = "Kommentar bitte eintragen"
-								]
-							);
-							var componentTestStepContext = tclFactory.createComponentTestStepContext
-							componentTestStepContext.component = component
-							if (componentElement != null) {
-								componentTestStepContext.component.elements.add(componentElement)
-							}
-							specification.contexts.add(componentTestStepContext)
-							return componentTestStepContext
+								toFormatEObject.add(tclModel)
+							};
+							-1
+						} else {
+							0
 						}
+					testStepContext = createNewTestContext(insertionIndex, test, getSelectionAs(Component))
+				} else {
 
+					var AbstractTestStep selectedTestStep = null
+					switch (contained) {
+						AbstractTestStep:
+							selectedTestStep = contained
+						XImportSection,
+						XImportDeclaration,
+						TestCase,
+						TclModel:
+							testStepContext = createNewTestContext(0, test, getSelectionAs(Component))
+						default:
+							selectedTestStep = EcoreUtil2.getContainerOfType(contained, AbstractTestStep)
 					}
-				)
-				editor.document.modify(
-					new IUnitOfWork.Void<XtextResource>() {
+					if (selectedTestStep != null) {
+						testStepContext = selectedTestStep.eContainer as ComponentTestStepContext
+						indexOfSelectedTestStep = testStepContext.steps.indexOf(selectedTestStep) + 1
+					}
 
-						override process(XtextResource resource) throws Exception {
-
-							if (resource.contents.get(0) instanceof TclModel) {
-								var int minOffset = Integer.MAX_VALUE
-								var int maxOffset = 0
-								for (eObject : toFormat) {
-									val node = NodeModelUtils.findActualNodeFor(eObject)
-									if (node != null) {
-										val reformatOffset = node.getTotalOffset() //
-										val reformatMaxOffset = node.getTotalLength() + reformatOffset - 1
-										minOffset = Math.min(minOffset, reformatOffset)
-										maxOffset = Math.max(maxOffset, reformatMaxOffset)
-									}
-								}
-								val int reformatOffset = minOffset
-								val int reformatLength = maxOffset - minOffset + 1
-								(internalSourceViewer as SourceViewer) => [
-									setSelectedRange(0, editor.document.length - 1)
-									doOperation(ISourceViewer.FORMAT); // execute format on selection
-									editor.setFocus
-								]
-
-//								toFormat.forEach [
-//									val node = NodeModelUtils.findActualNodeFor(it) // find node for model element that should be reformatted
-//									if (node != null) {
-//										val reformatLength = node.getTotalLength() // get node text position in editor
-//										val reformatOffset = node.getTotalOffset() //
-//										editor.document.modify(
-//											new IUnitOfWork<Object, XtextResource> {
-//												override exec(XtextResource state) throws Exception {
-//													(internalSourceViewer as SourceViewer) =>
-//														[
-//															val savedSelection = selection // keep old selection
-//															val tobeformatted = internalSourceViewer.document.get(
-//																reformatOffset, reformatLength)
-//															setSelectedRange(reformatOffset, reformatLength)
-//															doOperation(ISourceViewer.FORMAT); // execute format on selection
-//															setSelection(savedSelection, false)
-//															editor.setFocus
-//														]
-//												}
-//											}
-//										)
-//									}
-//								]
-							}
+					if (testStepContext.component.name != getSelectionAs(Component).name) {
+						val indexOfContext = test.steps.indexOf(testStepContext.eContainer)
+						if (indexOfSelectedTestStep > 0 && indexOfSelectedTestStep < testStepContext.steps.size()) {
+							val splitTestStepContext = createNewTestContext(indexOfContext + 1, test,
+								testStepContext.component)
+							var stepsBeingMoved = testStepContext.steps.subList(indexOfSelectedTestStep,
+								testStepContext.steps.size())
+							splitTestStepContext.steps.addAll(stepsBeingMoved)
+							toFormatEObject.add(splitTestStepContext.steps.head);
+							toFormatEObject.add(testStepContext.steps.last);
 						}
-
+						if (indexOfSelectedTestStep == 0) {
+							testStepContext = createNewTestContext(indexOfContext, test, getSelectionAs(Component))
+						} else {
+							testStepContext = createNewTestContext(indexOfContext + 1, test, getSelectionAs(Component))
+						}
 					}
-				)
+				}
 
+				return new ModelInsertData(testStepContext, indexOfSelectedTestStep)
+			}
+
+			def ComponentTestStepContext createNewTestContext(int index, TestCase test, Component component) {
+
+				var SpecificationStepImplementation specification = tclFactory.createSpecificationStepImplementation
+				if (index < 0 || index >= test.steps.size()) {
+					test.steps.add(specification)
+				} else {
+					test.steps.add(index, specification)
+				}
+				specification.contents.add(
+					tslFactory.createStepContentText => [
+						value = "Kommentar bitte eintragen"
+					]
+				);
+				var componentTestStepContext = tclFactory.createComponentTestStepContext
+				componentTestStepContext.component = component
+				if (getSelectionAs(ComponentElement) != null) {
+					componentTestStepContext.component.elements.add(getSelectionAs(ComponentElement))
+				}
+				specification.contexts.add(componentTestStepContext)
+				return componentTestStepContext
+			}
+
+			def setCursorToNewElement(List<String> currentElement) {
+				new IUnitOfWork.Void<XtextResource>() {
+
+					override process(XtextResource resource) throws Exception {
+
+						if (resource.contents.get(0) instanceof TclModel) {
+							val eObject = EcoreUtil2.getEObject(resource.contents.head, currentElement.head)
+							var currentRegion = eObject.fullTextRegion;
+							(internalSourceViewer as SourceViewer).setSelectedRange(currentRegion.offset +
+								currentRegion.length, 0)
+							editor.setFocus
+
+						}
+					}
+
+				}
+			}
+
+			def formatRelevantRegion(List<String> toFormat) {
+				new IUnitOfWork.Void<XtextResource>() {
+
+					override process(XtextResource resource) throws Exception {
+
+						if (resource.contents.get(0) instanceof TclModel) {
+
+							val textRegion = toFormat //
+							.map[EcoreUtil2.getEObject(resource.contents.head, it)] //
+							.map[fullTextRegion] //
+							.reduce[textRegion1, textRegion2|textRegion1.merge(textRegion2)]
+
+							(internalSourceViewer as SourceViewer) => [
+								setSelectedRange(textRegion.offset, textRegion.length)
+								doOperation(ISourceViewer.FORMAT)
+							]
+						}
+					}
+
+				}
 			}
 
 			def ComponentTestStepContext getTestStepContext(EObject currentElement, EObject containedElement,
@@ -284,81 +296,53 @@ class DropTargetXtextEditor extends XtextEditor {
 				if (currentElement == null) {
 					if (test.steps.size == 0 ||
 						(test.steps.last.contexts.get(0) as ComponentTestStepContext).component.name !=
-							component.name) {
-								return null
+							getSelectionAs(Component).name) {
+						return null
+					} else {
+						testStepContext = test.steps.last.contexts.last as ComponentTestStepContext
+					}
+
+				} else {
+					switch (currentElement) {
+						TestStepImpl:
+							testStepContext = currentElement.eContainer as ComponentTestStepContext
+						StepContent: {
+							if (currentElement.eContainer instanceof SpecificationStepImplementation) {
+								testStepContext = (currentElement.eContainer as SpecificationStepImplementation).
+									contexts.head as ComponentTestStepContext
 							} else {
-								testStepContext = test.steps.last.contexts.last as ComponentTestStepContext
-							}
-
-						} else {
-							switch (currentElement) {
-								TestStepImpl:
-									testStepContext = currentElement.eContainer as ComponentTestStepContext
-								StepContent: {
-									if (currentElement.eContainer instanceof SpecificationStepImplementation) {
-										testStepContext = (currentElement.
-											eContainer as SpecificationStepImplementation).contexts.
-											head as ComponentTestStepContext
-									} else {
-										testStepContext = currentElement.eContainer.
-											eContainer as ComponentTestStepContext
-									}
-								}
-								ComponentTestStepContext:
-									testStepContext = currentElement
-								SpecificationStepImplementation:
-									testStepContext = currentElement.contexts.head as ComponentTestStepContext
-								Component:
-									testStepContext = containedElement as ComponentTestStepContext
-							}
-
-						}
-						return testStepContext
-
-					}
-
-					def ComponentElement getComponentElement() {
-						val ISelection sel = LocalSelectionTransfer.getTransfer().getSelection();
-						if (sel instanceof TreeSelection) {
-							val treeSelection = sel.paths.head
-							for (var index = 0; index < treeSelection.segmentCount; index++) {
-								if (treeSelection.getSegment(index) instanceof ComponentElement) {
-									return treeSelection.getSegment(index) as ComponentElement
-								}
+								testStepContext = currentElement.eContainer.eContainer as ComponentTestStepContext
 							}
 						}
-						return null
+						ComponentTestStepContext:
+							testStepContext = currentElement
+						SpecificationStepImplementation:
+							testStepContext = currentElement.contexts.head as ComponentTestStepContext
+						Component:
+							testStepContext = containedElement as ComponentTestStepContext
 					}
 
-					def Component getComponent() {
-						val ISelection sel = LocalSelectionTransfer.getTransfer().getSelection();
-						if (sel instanceof TreeSelection) {
-							val treeSelection = sel.paths.head
-							for (var index = 0; index < treeSelection.segmentCount; index++) {
-								if (treeSelection.getSegment(index) instanceof Component) {
-									return treeSelection.getSegment(index) as Component
-								}
-							}
-						}
-						return null
-					}
+				}
+				return testStepContext
 
-					def InteractionType getInteractionType() {
-						val ISelection sel = LocalSelectionTransfer.getTransfer().getSelection();
-						if (sel instanceof TreeSelection) {
-							val treeSelection = sel.paths.get(0)
-							for (var index = 0; index < treeSelection.segmentCount; index++) {
-								if (treeSelection.getSegment(index) instanceof InteractionType) {
-									return treeSelection.getSegment(index) as InteractionType
-								}
-							}
-						}
-						return null
-					}
-				};
-				dndService.addMergedDropTarget(st, DND.DROP_MOVE.bitwiseOr(DND.DROP_COPY), #[TextTransfer.instance],
-					dropTargetListener);
 			}
 
-		}
+			def <T> T getSelectionAs(Class<T> clazz) {
+				val ISelection sel = LocalSelectionTransfer.getTransfer().getSelection();
+				if (sel instanceof TreeSelection) {
+					val treeSelection = sel.paths.head
+					for (var index = 0; index < treeSelection.segmentCount; index++) {
+						if (clazz.isInstance(treeSelection.getSegment(index))) {
+							return treeSelection.getSegment(index) as T
+						}
+					}
+				}
+				return null
+			}
+		};
 		
+		dndService.addMergedDropTarget(st, DND.DROP_MOVE.bitwiseOr(DND.DROP_COPY), #[TextTransfer.instance],
+			dropTargetListener);
+	}
+
+}
