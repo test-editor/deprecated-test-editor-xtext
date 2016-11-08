@@ -2,6 +2,7 @@ package org.testeditor.tcl.dsl.jvmmodel.builder
 
 import org.junit.Test
 import org.testeditor.dsl.common.testing.DummyFixture
+import org.testeditor.dsl.common.testing.DummyLocatorStrategy
 import org.testeditor.fixture.core.AbstractTestCase
 
 class TestCaseWithSeparateConfigTest extends AbstractStandaloneBuilderTest {
@@ -37,6 +38,7 @@ class TestCaseWithSeparateConfigTest extends AbstractStandaloneBuilderTest {
 		writeFile("src/com/example/MyConfig.config", configSource)
 		writeFile("src/com/example/SimpleTest.tcl", testSource)
 		classPathEntries += DummyFixture.classPathEntry
+		classPathEntries += DummyLocatorStrategy.classPathEntry
 		classPathEntries += AbstractTestCase.classPathEntry
 
 		// when

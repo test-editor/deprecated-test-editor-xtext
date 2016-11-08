@@ -4,19 +4,12 @@ import javax.inject.Inject
 import org.junit.Test
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
-import org.junit.Before
 
 class TclExpressionBuilderTest extends AbstractTclTest {
 
 	@Inject TclExpressionBuilder expressionBuilder 
-	@Inject IdenticalVariableResolver identicalVariableResolver
 	@Inject extension TclModelGenerator
 	
-	@Before
-	def void setupExpressionBuilder() {
-		expressionBuilder.variableResolver = identicalVariableResolver
-	}
-
 	@Test
 	def void testMatches() {
 		// given

@@ -30,8 +30,6 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 		
 	@Inject JvmTypeReferenceBuilder.Factory jvmTypeReferenceBuilderFactory
 	
-	@Inject IdenticalVariableResolver identicalVariableResolver
-	
 	static val VARIABLE_NAME = 'variable'
 	static val STRING_FOR_COMPARISON = 'test'
 	
@@ -48,7 +46,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 		val expression = flatReference(VARIABLE_NAME).compareOnEquality(STRING_FOR_COMPARISON)
 
 		// when
-		val generatedCode = assertCallBuilder.build(identicalVariableResolver, expression)
+		val generatedCode = assertCallBuilder.build(expression)
 
 		// then
 		assertCodeLine('''org.junit.Assert.assertEquals("", "«STRING_FOR_COMPARISON»", «VARIABLE_NAME»);''', generatedCode)
@@ -60,7 +58,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 		val expression = flatReference(VARIABLE_NAME).compareNotEqual(STRING_FOR_COMPARISON)
 
 		// when
-		val generatedCode = assertCallBuilder.build(identicalVariableResolver, expression)
+		val generatedCode = assertCallBuilder.build(expression)
 
 		// then
 		assertCodeLine('''org.junit.Assert.assertNotEquals("", "«STRING_FOR_COMPARISON»", «VARIABLE_NAME»);''', generatedCode)
@@ -73,7 +71,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 		val expression = nullOrBoolCheck(VARIABLE_NAME)
 
 		// when
-		val generatedCode = assertCallBuilder.build(identicalVariableResolver, expression)
+		val generatedCode = assertCallBuilder.build(expression)
 
 		// then
 		assertCodeLine('''org.junit.Assert.assertNotNull("", «VARIABLE_NAME»);''', generatedCode)
@@ -86,7 +84,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 		val expression = nullOrBoolCheck(VARIABLE_NAME) => [negated = true]
 
 		// when
-		val generatedCode = assertCallBuilder.build(identicalVariableResolver, expression)
+		val generatedCode = assertCallBuilder.build(expression)
 
 		// then
 		assertCodeLine('''org.junit.Assert.assertNull("", «VARIABLE_NAME»);''', generatedCode)
@@ -99,7 +97,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 		val expression = nullOrBoolCheck(VARIABLE_NAME)
 
 		// when
-		val generatedCode = assertCallBuilder.build(identicalVariableResolver, expression)
+		val generatedCode = assertCallBuilder.build(expression)
 
 		// then
 		assertCodeLine('''org.junit.Assert.assertTrue("", «VARIABLE_NAME»);''', generatedCode)
@@ -112,7 +110,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 		val expression = nullOrBoolCheck(VARIABLE_NAME) => [negated = true]
 
 		// when
-		val generatedCode = assertCallBuilder.build(identicalVariableResolver, expression)
+		val generatedCode = assertCallBuilder.build(expression)
 
 		// then
 		assertCodeLine('''org.junit.Assert.assertFalse("", «VARIABLE_NAME»);''', generatedCode)
@@ -125,7 +123,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 		val expression = nullOrBoolCheck(VARIABLE_NAME)
 
 		// when
-		val generatedCode = assertCallBuilder.build(identicalVariableResolver, expression)
+		val generatedCode = assertCallBuilder.build(expression)
 
 		// then
 		assertCodeLine('''org.junit.Assert.assertTrue("", («VARIABLE_NAME» != null) && «VARIABLE_NAME».booleanValue());''', generatedCode)
@@ -138,7 +136,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 		val expression = nullOrBoolCheck(VARIABLE_NAME) => [negated = true]
 
 		// when
-		val generatedCode = assertCallBuilder.build(identicalVariableResolver, expression)
+		val generatedCode = assertCallBuilder.build(expression)
 
 		// then
 		assertCodeLine('''org.junit.Assert.assertFalse("", («VARIABLE_NAME» != null) && «VARIABLE_NAME».booleanValue());''',
@@ -151,7 +149,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 		val expression = flatReference(VARIABLE_NAME).compareMatching(STRING_FOR_COMPARISON)
 
 		// when
-		val generatedCode = assertCallBuilder.build(identicalVariableResolver, expression)
+		val generatedCode = assertCallBuilder.build(expression)
 
 		// then
 		assertCodeLine('''org.junit.Assert.assertTrue("", «VARIABLE_NAME».toString().matches("«STRING_FOR_COMPARISON»".toString()));''',
@@ -164,7 +162,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 		val expression = flatReference(VARIABLE_NAME).compareNotMatching(STRING_FOR_COMPARISON)
 
 		// when
-		val generatedCode = assertCallBuilder.build(identicalVariableResolver, expression)
+		val generatedCode = assertCallBuilder.build(expression)
 
 		// then
 		assertCodeLine('''org.junit.Assert.assertFalse("", «VARIABLE_NAME».toString().matches("«STRING_FOR_COMPARISON»".toString()));''',
@@ -177,7 +175,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 		val expression = mappedReference(VARIABLE_NAME, "key").compareOnEquality(STRING_FOR_COMPARISON)
 
 		// when
-		val generatedCode = assertCallBuilder.build(identicalVariableResolver, expression)
+		val generatedCode = assertCallBuilder.build(expression)
 
 		// then
 		assertCodeLine('''org.junit.Assert.assertEquals("", "«STRING_FOR_COMPARISON»", «VARIABLE_NAME».get("key"));''', generatedCode)
@@ -191,7 +189,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 			VARIABLE_NAME+'.get("key with spaces")')
 
 		// when
-		val generatedCode = assertCallBuilder.build(identicalVariableResolver, expression)
+		val generatedCode = assertCallBuilder.build(expression)
 
 		// then
 		assertCodeLine('''org.junit.Assert.assertEquals("", "«STRING_FOR_COMPARISON»", «VARIABLE_NAME».get("key with spaces"));''', generatedCode)
