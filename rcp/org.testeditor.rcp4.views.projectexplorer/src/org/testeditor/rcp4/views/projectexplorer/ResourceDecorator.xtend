@@ -16,7 +16,7 @@ import org.eclipse.ui.internal.WorkbenchImages
 
 class ResourceDecorator extends LabelProvider implements ILightweightLabelDecorator {
 
-	val NO_SEVERITY = -1
+	static val NO_SEVERITY = -1
 
 	// only descriptors, need not be disposed => no cleanup necessary
 	val errorIcon = WorkbenchImages.getImageDescriptor(ISharedImages.IMG_DEC_FIELD_ERROR)
@@ -28,8 +28,7 @@ class ResourceDecorator extends LabelProvider implements ILightweightLabelDecora
 	}
 
 	override decorate(Object element, IDecoration decoration) {
-		val maxSeverity = getMaxSeverity(element)
-		switch (maxSeverity) {
+		switch (element.maxSeverity) {
 			case IMarker.SEVERITY_ERROR:
 				decoration.addOverlay(errorIcon)
 			case IMarker.SEVERITY_WARNING:

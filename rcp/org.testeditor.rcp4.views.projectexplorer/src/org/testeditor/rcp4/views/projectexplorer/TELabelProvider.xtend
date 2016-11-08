@@ -22,8 +22,8 @@ import org.eclipse.ui.PlatformUI
  * Label Provider to extend the Common Navigtor for test elements. It decorates src classpath entries as root elements for test definitions.
  */
 class TELabelProvider extends LabelProvider implements ILabelProvider {
-	
-	val baseFolderImage=PlatformUI.workbench.sharedImages.getImage(ISharedImages.IMG_OBJ_FOLDER)
+
+	val baseFolderImage = PlatformUI.workbench.sharedImages.getImage(ISharedImages.IMG_OBJ_FOLDER)
 
 	override getImage(Object element) {
 		if (element instanceof IClasspathEntry) {
@@ -49,9 +49,9 @@ class TELabelProvider extends LabelProvider implements ILabelProvider {
 		}
 		return null
 	}
-	
+
 	override void dispose() {
-        baseFolderImage.dispose
-    }
+		baseFolderImage.dispose
+	}
 
 }

@@ -46,17 +46,18 @@ class ProjectExplorer extends CommonNavigator {
 				projectRelativePath.toString.matches("src/(main|test)/java")
 			]
 			val affectedClassPaths = foldersToExplicitlyHeed.map[respectiveJavaClasspathEntry].filterNull
-			val event = new LabelProviderChangedEvent(decorator, (affectedClassPaths + affectedResources).toList.toArray)
+			val event = new LabelProviderChangedEvent(decorator,
+				(affectedClassPaths + affectedResources).toList.toArray)
 			decorator.fireLabelEvent(event) // fire one event for all affected
 		}
 	}
-	
-	private def IClasspathEntry getRespectiveJavaClasspathEntry(IFolder folder){
-			if (JavaProject.hasJavaNature(folder.project)) {
-				val javaProject=JavaCore.create(folder.project)
-				return javaProject.readRawClasspath.findFirst[path == folder.fullPath]
-			}
-			return null
+
+	private def IClasspathEntry getRespectiveJavaClasspathEntry(IFolder folder) {
+		if (JavaProject.hasJavaNature(folder.project)) {
+			val javaProject = JavaCore.create(folder.project)
+			return javaProject.readRawClasspath.findFirst[path == folder.fullPath]
+		}
+		return null
 	}
 
 }

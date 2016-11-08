@@ -22,14 +22,14 @@
             adaptable="true"
             lightweight="true">
          <enablement>
-         	<or>
-            	<objectClass name="org.eclipse.core.resources.IResource"/>
-            	<objectClass name="org.eclipse.jdt.core.IClasspathEntry"/> 
-          	</or>    
+             <or>
+                <objectClass name="org.eclipse.core.resources.IResource"/>
+                <objectClass name="org.eclipse.jdt.core.IClasspathEntry"/>
+             </or>
          </enablement>
          <description>resource decoration e.g. in test navigator</description>
       </decorator>
-   </extension>   
+   </extension>
    <extension
          point="org.eclipse.ui.navigator.viewer">
       <viewer
