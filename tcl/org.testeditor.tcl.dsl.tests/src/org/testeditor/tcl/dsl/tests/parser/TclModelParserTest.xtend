@@ -136,8 +136,8 @@ class TclModelParserTest extends AbstractTclTest {
 			# Test
 			* Dummy step
 				Mask: Demo
-				- <> < 	> <
-				>
+				- <> <>      
+				<>
 		'''
 		
 		// when
@@ -245,7 +245,7 @@ class TclModelParserTest extends AbstractTclTest {
 			* Start using some keywords like is matches does not match
 			  Mask: Demo
 			  - hello = some
-			  - assert hello does    not match ".*AAABBB.*"
+			  - assert hello !~ ".*AAABBB.*"
 		'''
 
 		// when
