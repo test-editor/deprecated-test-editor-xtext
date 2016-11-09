@@ -245,7 +245,33 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 		]
 	}
 
-	// TODO environment variable
+	@Test
+	def void environmentVariableIsPassedToMacro() {
+		// given
+		val tcl = '''
+			package com.example
+			
+			require myEnvVar
+			
+			# SimpleTest
+			* step1
+				Macro: MyMacroCollection
+				- Wait for @myEnvVar seconds
+		'''
+
+		// when
+		val tclModel = parseTcl(tcl, "SimpleTest.tcl")
+		val generatedCode = tclModel.generate
+
+		// then
+		generatedCode => [
+			assertContains('''
+				// Macro: MyMacroCollection
+				// - Wait for @myEnvVar seconds
+				macro_MyMacroCollection_WaitMacro(env_myEnvVar);
+			'''.indent(2))
+		]
+	}
 
 	override protected getTestHeader() '''
 		«super.testHeader»
