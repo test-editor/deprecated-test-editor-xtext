@@ -4,7 +4,7 @@ import org.testeditor.fixture.swt.*;
 
 component type Workbench {
 	interactions = wait, getEditorWithFilePath, getEditorContents, openEditor, closeEditor, waitUntilAllJobsFinished, 
-	reportWidgets, waitForDialogClosing, waitForDialogClosingWithTimeout, closeAllEditors
+	reportWidgets, waitForDialogClosing, waitForPopupDialogClosingAutomatically, closeAllEditors
  }
 
 interaction type getEditorWithFilePath {
