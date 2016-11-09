@@ -208,7 +208,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				exceptions += typeRef(Exception)
 				visibility = JvmVisibility.PRIVATE
 				val variablesWithTypes = typeComputer.getVariablesWithTypes(macro)
-				parameters += variablesWithTypes.entrySet.map[toParameter(key, key.name, value.orElse(null))]
+				parameters += variablesWithTypes.entrySet.map[toParameter(key, key.name, value.orElse(typeRef(String)))]
 				body = [macro.generateMethodBody(trace(macro))]
 			]
 		]
@@ -409,16 +409,16 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	 * Converts a {@link StepContent} to a parameter call. If it is a {@link VariableReference} this
 	 * is straightforward - just use the variable name. If is is a {@link StepContentValue} we need
 	 * to check the type of the underlying {@link TemplateVariable} - if it is a String we need to
-	 * put it in quotes.
+	 * put it in quotes. If the type is not specified we assume a String to handle parameter passing gracefully.
 	 */
 	// TODO return type is only an iterable because of the locator strategy
 	private def Iterable<String> toParameterString(StepContent stepContent, Optional<JvmTypeReference> parameterType, TemplateContainer templateContainer) {
-		val isStringParameter = parameterType.map[qualifiedName == String.name].orElse(false) 
+		val isStringParameterOrUnspecified = parameterType.map[qualifiedName == String.name].orElse(true) 
 		// stepContent can be a reference to a variable or a value
 		if (stepContent instanceof VariableReference) {
 			// if variable reference forward the call to expressionBuilder
 			val parameterString = expressionBuilder.buildExpression(stepContent)
-			if (isStringParameter && stepContent instanceof VariableReferenceMapAccess) {
+			if (isStringParameterOrUnspecified && stepContent instanceof VariableReferenceMapAccess) {
 				// TODO this is not very nice, we should get the type of the referenced variable
 				return #['''String.valueOf(«parameterString»)''']
 			}
@@ -432,7 +432,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		}
 		if (stepContent instanceof StepContentValue) {
 			// if value, check if type is String, if yes put it in quotes
-			if (isStringParameter) {
+			if (isStringParameterOrUnspecified) {
 				return #['''"«StringEscapeUtils.escapeJava(stepContent.value)»"''']
 			} else {
 				return #[stepContent.value]

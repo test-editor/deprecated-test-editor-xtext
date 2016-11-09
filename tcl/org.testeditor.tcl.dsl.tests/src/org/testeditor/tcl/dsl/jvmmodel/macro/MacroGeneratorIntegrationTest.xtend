@@ -22,6 +22,9 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 				Macro: MyMacroCollection
 				- Do nothing
 			
+			## EmptyMacroWithUnusedParameter
+				template = "Do nothing with" ${unused}
+			
 			## ReadMacro
 				template = "Read some values"
 				Component: GreetingApplication
@@ -49,7 +52,7 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 	}
 
 	@Test
-	def void minimalGeneration() {
+	def void emptyMacroWithoutParameter() {
 		// given
 		val tcl = '''
 			Macro: MyMacroCollection
@@ -75,6 +78,33 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 
 			assertContains('''
 				private void macro_MyMacroCollection_EmptyMacro() throws Exception {
+				  
+				}
+			'''.indent(1))
+		]
+	}
+
+	@Test
+	def void emptyMacroWithUnusedParameter() {
+		// given
+		val tcl = '''
+			Macro: MyMacroCollection
+			- Do nothing with "x"
+		'''
+
+		// when
+		val generatedCode = tcl.parseAndGenerate
+
+		// then
+		generatedCode => [
+			assertContains('''
+				// Macro: MyMacroCollection
+				// - Do nothing with "x"
+				macro_MyMacroCollection_EmptyMacroWithUnusedParameter("x");
+			'''.indent(2))
+
+			assertContains('''
+				private void macro_MyMacroCollection_EmptyMacroWithUnusedParameter(final String unused) throws Exception {
 				  
 				}
 			'''.indent(1))
@@ -215,7 +245,6 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 		]
 	}
 
-	// TODO unused variable
 	// TODO environment variable
 
 	override protected getTestHeader() '''
