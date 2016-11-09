@@ -27,7 +27,7 @@ config TestEditorConfig
 	- Select element "Web Fixture" in list <AvailableFixturesList>
 	- Click on <AddFixtureButton>
 	- Click on <FinishButton>
-	- Wait until dialog with title "Progress Information" is closed
+	- Wait for dialog "Progress Information" to popup and then close after at most "3" respectively "120" seconds  
 	
 * Verify that the project is visible in the ui
 
