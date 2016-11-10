@@ -29,14 +29,16 @@ import org.testeditor.rcp4.views.tcltestrun.model.TestLogGroup
 import org.testeditor.rcp4.views.tcltestrun.model.TestLogGroupComposite
 import javax.json.JsonArray
 
-@Path("/testexeclogs")
+@Path(TestExecutionLogService.SERVICE_PATH)
 class TestExecutionLogService {
 
 	@Accessors
 	TestExecutionManager testExecutionManager
+	
+	val public static String SERVICE_PATH = "/testruns"
 
 	@GET
-	@Produces(MediaType::APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	def Response getTestLogExeutionsList() {
 		val result = Json.createObjectBuilder
 		val array = Json.createArrayBuilder
@@ -53,16 +55,16 @@ class TestExecutionLogService {
 
 	def JsonArray createLinks(String fileName) {
 		val links = Json.createArrayBuilder
-		links.add(Json.createObjectBuilder.add("href", '''/testexeclogs/«fileName»/fulllogs''').add("rel", "fullogs"))
+		links.add(Json.createObjectBuilder.add("href", '''«SERVICE_PATH»/«fileName»/fulllogs''').add("rel", "fullogs"))
 		links.add(
-			Json.createObjectBuilder.add("href", '''/testexeclogs/«fileName»/logGroups''').add("rel", "logGroups"))
-		links.add(Json.createObjectBuilder.add("href", '''/testexeclogs/«fileName»/logGroups''').add("rel", "self"))
+			Json.createObjectBuilder.add("href", '''«SERVICE_PATH»/«fileName»/logGroups''').add("rel", "logGroups"))
+		links.add(Json.createObjectBuilder.add("href", '''«SERVICE_PATH»«fileName»/logGroups''').add("rel", "self"))
 		return links.build
 	}
 
 	@Path("/{filename}/fulllogs")
 	@GET
-	@Produces(MediaType::APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	def Response getTestLogExeutionContent(@PathParam("filename") String filename) {
 		val result = Json.createObjectBuilder
 		val log = testExecutionManager.testExecutionLogs.filter[logFile.name == filename].head
@@ -73,7 +75,7 @@ class TestExecutionLogService {
 
 	@Path("/{filename}/logGroups")
 	@GET
-	@Produces(MediaType::APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	def Response getTestLogExeutionTestStepTree(@PathParam("filename") String filename) {
 		val log = testExecutionManager.testExecutionLogs.filter[logFile.name == filename].head
 		val json = createLogGroupJsonArray(Files.readAllLines(log.logFile.toPath))

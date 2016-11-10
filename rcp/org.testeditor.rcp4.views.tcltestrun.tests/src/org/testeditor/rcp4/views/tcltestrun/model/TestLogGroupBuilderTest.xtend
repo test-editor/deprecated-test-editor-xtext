@@ -12,18 +12,16 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.tcltestrun.model
 
-import org.testeditor.dsl.common.testing.AbstractTest
-import org.junit.Before
 import org.junit.Test
+import org.mockito.InjectMocks
+import org.testeditor.dsl.common.testing.AbstractTest
+
+import static com.google.common.io.CharSource.*
 
 class TestLogGroupBuilderTest extends AbstractTest {
 
+	@InjectMocks
 	TestLogGroupBuilder logGroupBuilder
-
-	@Before
-	def void setup() {
-		logGroupBuilder = new TestLogGroupBuilder
-	}
 
 	@Test
 	def void testCreateSystemComponentFirst() {
@@ -44,10 +42,10 @@ class TestLogGroupBuilderTest extends AbstractTest {
 		val log = '''
 			[INFO] --- xtend-maven-plugin:2.10.0:testCompile (default) @ org.testeditor.rcp4.uatests ---
 			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] TestEditorServices
-		 '''
+		'''
 
 		// when
-		val group = logGroupBuilder.build(log.split("\n"))
+		val group = logGroupBuilder.build(wrap(log).readLines)
 
 		// then	
 		assertTrue(group.get(1).type === TestElementType.TestComponentGroup)
@@ -59,10 +57,10 @@ class TestLogGroupBuilderTest extends AbstractTest {
 		val log = '''
 			[INFO] --- xtend-maven-plugin:2.10.0:testCompile (default) @ org.testeditor.rcp4.uatests ---
 			18:49:10 INFO  [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test specification] * Given
-		 '''
+		'''
 
 		// when
-		val group = logGroupBuilder.build(log.split("\n"))
+		val group = logGroupBuilder.build(wrap(log).readLines)
 
 		// then	
 		assertTrue(group.get(1).type === TestElementType.TestSpecGroup)
@@ -75,10 +73,10 @@ class TestLogGroupBuilderTest extends AbstractTest {
 			[INFO] --- xtend-maven-plugin:2.10.0:testCompile (default) @ org.testeditor.rcp4.uatests ---
 			18:49:10 INFO  [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test specification] * Given
 			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] TestEditorServices
-		 '''
+		'''
 
 		// when
-		val group = logGroupBuilder.build(log.split("\n"))
+		val group = logGroupBuilder.build(wrap(log).readLines)
 
 		// then	
 		assertEquals(group.size, 2)
@@ -97,10 +95,10 @@ class TestLogGroupBuilderTest extends AbstractTest {
 			[INFO] --- xtend-maven-plugin:2.10.0:testCompile (default) @ org.testeditor.rcp4.uatests ---
 			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] TestEditorServices
 			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] - Click on <NextButton>
-		 '''
+		'''
 
 		// when
-		val group = logGroupBuilder.build(log.split("\n"))
+		val group = logGroupBuilder.build(wrap(log).readLines)
 
 		// then	
 		assertEquals(group.size, 2)
@@ -120,10 +118,10 @@ class TestLogGroupBuilderTest extends AbstractTest {
 			18:49:10 INFO  [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test specification] * Given
 			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] TestEditorServices
 			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] - Click on <NextButton>
-		 '''
+		'''
 
 		// when
-		val group = logGroupBuilder.build(log.split("\n"))
+		val group = logGroupBuilder.build(wrap(log).readLines)
 
 		// then	
 		assertEquals(group.size, 2)
@@ -146,10 +144,10 @@ class TestLogGroupBuilderTest extends AbstractTest {
 			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] TestEditorServices
 			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] - Click on <NextButton>
 			18:49:12 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] - Click on <FinishButton>
-		 '''
+		'''
 
 		// when
-		val group = logGroupBuilder.build(log.split("\n"))
+		val group = logGroupBuilder.build(wrap(log).readLines)
 
 		// then	
 		assertEquals(group.size, 2)
@@ -193,10 +191,10 @@ class TestLogGroupBuilderTest extends AbstractTest {
 			11   [main] WARN  org.eclipse.swtbot.swt.finder.widgets.SWTBotButton  - Widget is not enabled: (of type 'Button' and with mnemonic 'Next >' and with style 'SWT.PUSH')
 			08:28:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] - Type "MyFirstWebProject" into <ProjectName>
 			08:28:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] SWTFixture search for text with title: 
-		 '''
+		'''
 
 		// when
-		val group = logGroupBuilder.build(log.split("\n"))
+		val group = logGroupBuilder.build(wrap(log).readLines)
 
 		// then	
 		assertEquals(group.size, 3)

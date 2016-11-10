@@ -80,8 +80,10 @@ class TestExecutionLogServiceTest extends AbstractTest {
 
 		// then
 		assertEquals(links.length, 3)
-		assertEquals(links.getJsonObject(0).getString("href"), "/testexeclogs/te-1476685123287.log/fulllogs")
-		assertEquals(links.getJsonObject(1).getString("href"), "/testexeclogs/te-1476685123287.log/logGroups")
+		assertEquals(links.getJsonObject(0).getString("href"),
+			TestExecutionLogService.SERVICE_PATH + "/te-1476685123287.log/fulllogs")
+		assertEquals(links.getJsonObject(1).getString("href"),
+			TestExecutionLogService.SERVICE_PATH + "/te-1476685123287.log/logGroups")
 		log.getString("content").assertEquals("Log content")
 	}
 
@@ -97,7 +99,7 @@ class TestExecutionLogServiceTest extends AbstractTest {
 			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] TestEditorWizard
 			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] - Type "foo" into field <name>
 			18:49:12 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] - Click on <FinishButton>
-		 '''
+		'''
 
 		// when
 		val json = testExecLogService.createLogGroupJsonArray(wrap(log).readLines).build
@@ -112,7 +114,6 @@ class TestExecutionLogServiceTest extends AbstractTest {
 		val componentService = spec.getJsonArray("childs").getJsonObject(0)
 		assertEquals(componentService.getString("name"), "[Component] TestEditorServices")
 		val nextButton = componentService.getJsonArray("childs").getJsonObject(0)
-		println(nextButton)
 		assertEquals(nextButton.getString("name"), "[Test step] - Click on <NextButton>")
 		val finishButton1 = componentService.getJsonArray("childs").getJsonObject(1)
 		assertEquals(finishButton1.getString("name"), "[Test step] - Click on <FinishButton>")
