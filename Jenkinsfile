@@ -29,7 +29,7 @@ nodeWithProperWorkspace {
 
     stage 'Build Web TE-Log-View'
     withMavenEnv {
-        gradle 'npmInstallTeLogView'
+        gradle 'copyTeLogViewToRcp'
     }
 
     stage (isMaster() ? 'Build and deploy' : 'Build')
