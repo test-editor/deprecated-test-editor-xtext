@@ -15,18 +15,13 @@ package org.testeditor.rcp4.views.tcltestrun.model
 import java.util.List
 import org.eclipse.xtend.lib.annotations.Accessors
 
+@Accessors
 class TestLogGroup {
 
-	@Accessors
 	TestLogGroupComposite parent
-
-	@Accessors
 	TestElementType type
-
-	@Accessors
-	private String name
-
-	List<String> logentries = newArrayList
+	String name
+	@Accessors(PUBLIC_GETTER) List<String> logLines = newArrayList
 
 	new(TestElementType type) {
 		this.type = type
@@ -34,16 +29,12 @@ class TestLogGroup {
 
 	def addLogLine(String logLine) {
 		if (!logLine.trim.empty) {
-			logentries.add(logLine)
+			logLines += logLine
 		}
 	}
 
-	def List<String> getLogLines() {
-		return logentries
-	}
-
 	override toString() {
-		return type.name + ": " + name
+		return '''«type.name»: «name»'''
 	}
 
 }

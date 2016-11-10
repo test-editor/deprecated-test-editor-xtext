@@ -12,20 +12,21 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.tcltestrun.rest
 
+import java.io.File
 import java.io.StringReader
+import java.nio.file.Files
 import javax.json.Json
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.testeditor.dsl.common.testing.AbstractTest
+import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionLog
 import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionManager
 
+import static com.google.common.io.CharSource.*
 import static org.mockito.Mockito.*
-import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionLog
-import java.io.File
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
-import java.nio.file.Files
 
 class TestExecutionLogServiceTest extends AbstractTest {
 
@@ -99,7 +100,7 @@ class TestExecutionLogServiceTest extends AbstractTest {
 		 '''
 
 		// when
-		val json = testExecLogService.createLogGroupJsonArray(log.split("\n")).build
+		val json = testExecLogService.createLogGroupJsonArray(wrap(log).readLines).build
 
 		// then	 
 		json.getJsonArray("logGroups").forEach[println(it)]

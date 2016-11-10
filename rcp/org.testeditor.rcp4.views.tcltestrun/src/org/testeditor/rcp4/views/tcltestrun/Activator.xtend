@@ -22,29 +22,24 @@ import org.testeditor.rcp4.views.tcltestrun.rest.TestEditorWebFilter
 import org.testeditor.rcp4.views.tcltestrun.rest.TestExecutionLogService
 
 class Activator extends AbstractUIPlugin {
-	// $NON-NLS-1$
+
 	// The shared instance
 	private static var Activator plugin
 
-	/**
-	 * The constructor
-	 */
-	new() {
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see AbstractUIPlugin#start(org.osgi.framework.
-	 * BundleContext)
-	 */
 	override void start(BundleContext context) throws Exception {
 		super.start(context)
 		plugin = this
+		registerServices(context)
+	}
+
+	private def void registerServices(BundleContext context) {
+		// Register TestExecutionLogService
 		val eclipseContext = EclipseContextFactory.create
 		val restService = ContextInjectionFactory.make(TestExecutionLogService, eclipseContext)
 		restService.testExecutionManager = ContextInjectionFactory.make(TestExecutionManager, eclipseContext)
 		context.registerService(TestExecutionLogService, restService, null)
+
+		// Register TestEditorWebFilter
 		val serviceReference = context.getServiceReference(ExtendedHttpService)
 		if (serviceReference !== null) {
 			val httpService = context.getService(serviceReference)
@@ -52,12 +47,6 @@ class Activator extends AbstractUIPlugin {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see AbstractUIPlugin#stop(org.osgi.framework.
-	 * BundleContext)
-	 */
 	override void stop(BundleContext context) throws Exception {
 		plugin = null
 		super.stop(context)
@@ -70,4 +59,5 @@ class Activator extends AbstractUIPlugin {
 	def static Activator getDefault() {
 		return plugin
 	}
+
 }

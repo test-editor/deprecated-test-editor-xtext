@@ -16,13 +16,13 @@ import org.eclipse.e4.core.contexts.IEclipseContext
 import org.eclipse.e4.core.di.annotations.CanExecute
 import org.eclipse.e4.core.di.annotations.Execute
 
-class ReRunLastTestLaunchHandler {
+class RerunLastTestLaunchHandler {
 
 	@Execute
-	def reLaunchLastTestLaunch(IEclipseContext context) {
-		val tclLauncherUi = context.get(TclLauncherUi)
+	def boolean rerunLastTestLaunch(IEclipseContext context) {
+		val launcher = context.get(TclLauncherUi)
 		val lastTestLaunch = context.get(TestLaunchInformation)
-		tclLauncherUi.launchTest(lastTestLaunch)
+		launcher.launchTest(lastTestLaunch)
 	}
 
 	@CanExecute

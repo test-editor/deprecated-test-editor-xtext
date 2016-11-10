@@ -10,7 +10,7 @@
     <elements xsi:type="commands:Command" xmi:id="_Qg9mUHRQEeaX_egOZLHGqQ" elementId="org.testeditor.rcp4.views.tcltestrun.testrerun.command" commandName="Rerun Last Test Launch"/>
   </fragments>
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_7qvI4HRQEeaX_egOZLHGqQ" featurename="handlers" parentElementId="application">
-    <elements xsi:type="commands:Handler" xmi:id="_AAQ-sHRREeaX_egOZLHGqQ" elementId="org.testeditor.rcp4.views.tcltestrun.handler.rerunlastTestLaunch" contributionURI="bundleclass://org.testeditor.rcp4.views.tcltestrun/org.testeditor.rcp4.views.tcltestrun.ReRunLastTestLaunchHandler" command="_Qg9mUHRQEeaX_egOZLHGqQ"/>
+    <elements xsi:type="commands:Handler" xmi:id="_AAQ-sHRREeaX_egOZLHGqQ" elementId="org.testeditor.rcp4.views.tcltestrun.handler.rerunlastTestLaunch" contributionURI="bundleclass://org.testeditor.rcp4.views.tcltestrun/org.testeditor.rcp4.views.tcltestrun.RerunLastTestLaunchHandler" command="_Qg9mUHRQEeaX_egOZLHGqQ"/>
   </fragments>
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_WRg7YJPbEeaCgurVgtrqaA" featurename="children" parentElementId="org.testeditor.rcp4.partstack.0">
     <elements xsi:type="basic:Part" xmi:id="_h-jKQJPbEeaCgurVgtrqaA" elementId="org.testeditor.rcp4.views.tcltestrun.part.testexecutionconsole" contributionURI="bundleclass://org.testeditor.rcp4.views.tcltestrun/org.testeditor.rcp4.views.tcltestrun.console.TestExecutionLogViewPart" label="Test execution console" iconURI="platform:/plugin/org.testeditor.rcp4.views.tcltestrun/icons/console_view.png"/>

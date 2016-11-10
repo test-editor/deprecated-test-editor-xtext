@@ -26,14 +26,15 @@ import org.slf4j.LoggerFactory
 @Creatable
 class TestExecutionManager {
 
-	@Inject StateLocationHelper stateLocationHelper
 	static val logger = LoggerFactory.getLogger(TestExecutionManager)
 
+	@Inject StateLocationHelper stateLocationHelper
+
 	def TestExecutionLog createTestExecutionLog(List<String> testNames) {
-		val result = new TestExecutionLog
-		result.testCases = testNames.map[new TestCaseExecution(it)]
-		result.executionDate = new Date
-		return result
+		return new TestExecutionLog => [
+			testCases = testNames.map[new TestCaseExecution(it)]
+			executionDate = new Date
+		]
 	}
 
 	def OutputStream createOutputStreamFor(TestExecutionLog execLog) {
