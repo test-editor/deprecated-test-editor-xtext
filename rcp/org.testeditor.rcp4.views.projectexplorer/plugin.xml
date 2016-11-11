@@ -5,7 +5,7 @@
          point="org.eclipse.ui.views">
       <view
             allowMultiple="false"
-            class="org.testeditor.rcp4.views.projectexplorer.ProjectExplorer"
+            class="org.testeditor.rcp4.views.projectexplorer.ProjectExplorerExtensionFactory:org.testeditor.rcp4.views.projectexplorer.ProjectExplorer"
             icon="icons/test_explorer.gif"
             id="org.testeditor.rcp4.views.ProjectExplorer"
             name="Test Project Explorer"
@@ -18,7 +18,7 @@
             id="org.testeditor.rcp4.views.projectexplorer.ResourceDecorator" 
             label="ResourceDecorator"
             state="true"
-            class= "org.testeditor.rcp4.views.projectexplorer.ResourceDecorator"
+            class= "org.testeditor.rcp4.views.projectexplorer.ProjectExplorerExtensionFactory:org.testeditor.rcp4.views.projectexplorer.ResourceDecorator"
             adaptable="true"
             lightweight="true">
          <enablement>

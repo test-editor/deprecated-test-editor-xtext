@@ -1,11 +1,14 @@
 package org.testeditor.rcp4.views.projectexplorer
 
+import javax.inject.Inject
 import org.eclipse.core.resources.IMarker
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
-import org.eclipse.core.resources.ResourcesPlugin
 import org.eclipse.core.runtime.CoreException
+import org.eclipse.core.runtime.IPath
 import org.eclipse.jdt.core.IClasspathEntry
+import org.eclipse.jdt.core.JavaCore
+import org.eclipse.jdt.internal.core.JavaProject
 import org.eclipse.jface.viewers.IDecoration
 import org.eclipse.jface.viewers.ILightweightLabelDecorator
 import org.eclipse.jface.viewers.LabelProvider
@@ -13,8 +16,11 @@ import org.eclipse.jface.viewers.LabelProviderChangedEvent
 import org.eclipse.swt.widgets.Display
 import org.eclipse.ui.ISharedImages
 import org.eclipse.ui.internal.WorkbenchImages
+import org.testeditor.dsl.common.util.WorkspaceRootHelper
 
 class ResourceDecorator extends LabelProvider implements ILightweightLabelDecorator {
+
+	@Inject WorkspaceRootHelper rootHelper
 
 	static val NO_SEVERITY = -1
 
@@ -33,32 +39,44 @@ class ResourceDecorator extends LabelProvider implements ILightweightLabelDecora
 				decoration.addOverlay(errorIcon)
 			case IMarker.SEVERITY_WARNING:
 				decoration.addOverlay(warningIcon)
-			case NO_SEVERITY: {
-			} // ignore
+			default: {
+			} // ignore, that is no decoration
 		}
 	}
 
-	private def IResource getResourceForSeverityCalculation(Object element) {
+	private def Iterable<IResource> getResourcesForSeverityCalculation(Object element) {
 		switch (element) {
-			IClasspathEntry case element.path.toString.matches(".*/src/(test|java)/java"):
+			IClasspathEntry case element.entryKind==IClasspathEntry.CPE_SOURCE:
 				// classpath entries need to be heeded because of TELabelProvider
-				ResourcesPlugin.workspace.root.getFolder(element.path)
+ 				return #[getResourceFor(element.path)]
 			IProject:
-				// project should only provide status of src and its subfolders (excluding technical problems elsewhere)
-				element.getFolder("/src")
+				// project should only provide status of its source folders and its subfolders (excluding technical problems elsewhere)
+				getJavaSourceClasspaths(element).map[getResourceFor(path)]
 			IResource:
-				element
+				return #[element]
 			default:
-				null
+				return emptyList
 		}
+	}
+
+	private def Iterable<IClasspathEntry> getJavaSourceClasspaths(IProject project) {
+		if (JavaProject.hasJavaNature(project)) {
+			return JavaCore.create(project).rawClasspath.filter[entryKind == IClasspathEntry.CPE_SOURCE]
+		} else {
+			return emptyList
+		}
+	}
+	
+	private def IResource getResourceFor(IPath path) {
+		return rootHelper.root.getFolder(path)
 	}
 
 	private def int getMaxSeverity(Object element) {
-		val resource = element.getResourceForSeverityCalculation
+		val resources = element.resourcesForSeverityCalculation
 		try {
-			if (resource !== null) {
-				return resource.findMaxProblemSeverity(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)
-			}
+			val severities = resources.map[findMaxProblemSeverity(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)]
+			val maxSeverity = severities.reduce[a, b|Math.max(a, b)]
+			return maxSeverity?:NO_SEVERITY
 		} catch (CoreException ce) {
 			// ignore (and return default)
 		}
