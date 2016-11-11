@@ -16,11 +16,11 @@ import org.eclipse.jface.viewers.LabelProviderChangedEvent
 import org.eclipse.swt.widgets.Display
 import org.eclipse.ui.ISharedImages
 import org.eclipse.ui.internal.WorkbenchImages
-import org.testeditor.dsl.common.util.WorkspaceRootHelper
+import org.testeditor.dsl.common.util.WorkspaceHelper
 
 class ResourceDecorator extends LabelProvider implements ILightweightLabelDecorator {
 
-	@Inject WorkspaceRootHelper rootHelper
+	@Inject WorkspaceHelper workspaceHelper
 
 	static val NO_SEVERITY = -1
 
@@ -68,7 +68,7 @@ class ResourceDecorator extends LabelProvider implements ILightweightLabelDecora
 	}
 	
 	private def IResource getResourceFor(IPath path) {
-		return rootHelper.root.getFolder(path)
+		return workspaceHelper.root.getFolder(path)
 	}
 
 	private def int getMaxSeverity(Object element) {
