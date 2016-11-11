@@ -20,13 +20,13 @@ import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.xtext.EcoreUtil2
 import org.slf4j.LoggerFactory
-import org.testeditor.dsl.common.util.WorkspaceRootHelper
+import org.testeditor.dsl.common.util.WorkspaceHelper
 
 class ClasspathUtil {
 
 	static val logger = LoggerFactory.getLogger(ClasspathUtil)
 
-	@Inject WorkspaceRootHelper workspaceRootHelper
+	@Inject WorkspaceHelper workspaceHelper
 	@Inject MavenClasspathUtil mavenClasspathUtil
 	@Inject GradleClasspathUtil gradleClasspathUtil
 
@@ -60,7 +60,7 @@ class ClasspathUtil {
 	}
 
 	def protected IPath getEclipseClasspathEntry(IPath path) {
-		val javaProject = JavaCore.create(workspaceRootHelper.root.getFile(path).project)
+		val javaProject = JavaCore.create(workspaceHelper.root.getFile(path).project)
 		val classpathEntries = javaProject.rawClasspath.filter[entryKind == IClasspathEntry.CPE_SOURCE]
 		return classpathEntries.filter[it.path.isPrefixOf(path)].head.path
 	}
