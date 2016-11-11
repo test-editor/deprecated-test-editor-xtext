@@ -15,18 +15,16 @@ import org.eclipse.jface.viewers.LabelProvider
 import org.eclipse.jface.viewers.LabelProviderChangedEvent
 import org.eclipse.swt.widgets.Display
 import org.eclipse.ui.ISharedImages
-import org.eclipse.ui.internal.WorkbenchImages
+import org.testeditor.dsl.common.util.WorkbenchImagesHelper
 import org.testeditor.dsl.common.util.WorkspaceHelper
+import org.eclipse.jface.resource.ImageDescriptor
 
 class ResourceDecorator extends LabelProvider implements ILightweightLabelDecorator {
 
 	@Inject WorkspaceHelper workspaceHelper
+	@Inject WorkbenchImagesHelper imagesHelper
 
 	static val NO_SEVERITY = -1
-
-	// only descriptors, need not be disposed => no cleanup necessary
-	val errorIcon = WorkbenchImages.getImageDescriptor(ISharedImages.IMG_DEC_FIELD_ERROR)
-	val warningIcon = WorkbenchImages.getImageDescriptor(ISharedImages.IMG_DEC_FIELD_WARNING)
 
 	def void fireLabelEvent(LabelProviderChangedEvent event) {
 		// make sure that event is executed in ui thread
@@ -46,9 +44,9 @@ class ResourceDecorator extends LabelProvider implements ILightweightLabelDecora
 
 	private def Iterable<IResource> getResourcesForSeverityCalculation(Object element) {
 		switch (element) {
-			IClasspathEntry case element.entryKind==IClasspathEntry.CPE_SOURCE:
+			IClasspathEntry case element.entryKind == IClasspathEntry.CPE_SOURCE:
 				// classpath entries need to be heeded because of TELabelProvider
- 				return #[getResourceFor(element.path)]
+				return #[getResourceFor(element.path)]
 			IProject:
 				// project should only provide status of its source folders and its subfolders (excluding technical problems elsewhere)
 				getJavaSourceClasspaths(element).map[getResourceFor(path)]
@@ -66,7 +64,7 @@ class ResourceDecorator extends LabelProvider implements ILightweightLabelDecora
 			return emptyList
 		}
 	}
-	
+
 	private def IResource getResourceFor(IPath path) {
 		return workspaceHelper.root.getFolder(path)
 	}
@@ -76,11 +74,20 @@ class ResourceDecorator extends LabelProvider implements ILightweightLabelDecora
 		try {
 			val severities = resources.map[findMaxProblemSeverity(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)]
 			val maxSeverity = severities.reduce[a, b|Math.max(a, b)]
-			return maxSeverity?:NO_SEVERITY
+			return maxSeverity ?: NO_SEVERITY
 		} catch (CoreException ce) {
 			// ignore (and return default)
 		}
 		return NO_SEVERITY
+	}
+
+    // only descriptors, need not be disposed => no cleanup necessary
+	private def getErrorIcon() {
+		return imagesHelper.getImageDescriptor(ISharedImages.IMG_DEC_FIELD_ERROR)
+	}
+
+	private def getWarningIcon() {
+		return imagesHelper.getImageDescriptor(ISharedImages.IMG_DEC_FIELD_WARNING)
 	}
 
 }
