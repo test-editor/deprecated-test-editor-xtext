@@ -35,8 +35,8 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 				Component: GreetingApplication
 				- Set value of <Input> to @value
 			
-			## WaitMacro
-				template = "Wait for" ${x} "seconds"
+			## SleepMacro
+				template = "Sleep for" ${x} "seconds"
 				Component: GreetingApplication
 				- Wait for @x seconds
 			
@@ -47,7 +47,7 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 				Macro: MyMacroCollection
 				- Set input to @value
 				Macro: MyMacroCollection
-				- Wait for @seconds seconds
+				- Sleep for @seconds seconds
 		''')
 	}
 
@@ -149,7 +149,7 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 		// given
 		val tcl = '''
 			Macro: MyMacroCollection
-			- Wait for "5" seconds
+			- Sleep for "5" seconds
 		'''
 
 		// when
@@ -159,11 +159,11 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 		generatedCode => [
 			assertContains('''
 				// Macro: MyMacroCollection
-				// - Wait for "5" seconds
-				macro_MyMacroCollection_WaitMacro(5);
+				// - Sleep for "5" seconds
+				macro_MyMacroCollection_SleepMacro(5);
 			'''.indent(2))
 			assertContains('''
-				private void macro_MyMacroCollection_WaitMacro(final long x) throws Exception {
+				private void macro_MyMacroCollection_SleepMacro(final long x) throws Exception {
 				  
 				  reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
 				  
@@ -237,8 +237,8 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 				  // - Set input to @value
 				  macro_MyMacroCollection_WriteMacro(value);
 				  // Macro: MyMacroCollection
-				  // - Wait for @seconds seconds
-				  macro_MyMacroCollection_WaitMacro(seconds);
+				  // - Sleep for @seconds seconds
+				  macro_MyMacroCollection_SleepMacro(seconds);
 				}
 			'''.indent(1))
 
@@ -256,7 +256,7 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 			# SimpleTest
 			* step1
 				Macro: MyMacroCollection
-				- Wait for @myEnvVar seconds
+				- Sleep for @myEnvVar seconds
 		'''
 
 		// when
@@ -267,8 +267,8 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 		generatedCode => [
 			assertContains('''
 				// Macro: MyMacroCollection
-				// - Wait for @myEnvVar seconds
-				macro_MyMacroCollection_WaitMacro(env_myEnvVar);
+				// - Sleep for @myEnvVar seconds
+				macro_MyMacroCollection_SleepMacro(env_myEnvVar);
 			'''.indent(2))
 		]
 	}

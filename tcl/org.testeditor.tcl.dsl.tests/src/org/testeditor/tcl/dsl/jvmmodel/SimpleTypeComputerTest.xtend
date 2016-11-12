@@ -149,12 +149,12 @@ class SimpleTypeComputerTest extends AbstractParserTest {
 	def void macroWithNestedMacroParameter() {
 		// given
 		val macro = parseMacro('''
-			template = "Wait nested for" ${x} "seconds"
+			template = "Sleep nested for" ${x} "seconds"
 			Macro: MyMacroCollection
-			- Wait for @x seconds
+			- Sleep for @x seconds
 			
-			## WaitMacro
-			template = "Wait for" ${seconds} "seconds"
+			## SleepMacro
+			template = "Sleep for" ${seconds} "seconds"
 			Component: GreetingApplication
 			- Wait for @seconds seconds
 		''')

@@ -62,8 +62,8 @@ class MacroMethodNameStoreTest extends AbstractTclTest {
 
 		// then
 		nameForMacro1First.assertEquals('macro_collection_mymacro')
-		nameForMacro1Second.assertEquals('macro_collection_mymacro')
 		nameForMacro2First.assertEquals('macro_collection_mymacro_1')
+		nameForMacro1Second.assertEquals('macro_collection_mymacro')
 		nameForMacro2Second.assertEquals('macro_collection_mymacro_1')
 	}
 
