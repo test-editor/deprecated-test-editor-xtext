@@ -23,9 +23,11 @@ import org.eclipse.ui.PlatformUI
  */
 class TELabelProvider extends LabelProvider implements ILabelProvider {
 
+	val baseFolderImage = PlatformUI.workbench.sharedImages.getImage(ISharedImages.IMG_OBJ_FOLDER)
+
 	override getImage(Object element) {
 		if (element instanceof IClasspathEntry) {
-			return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER)
+			return baseFolderImage
 		}
 		return null
 	}
@@ -46,6 +48,10 @@ class TELabelProvider extends LabelProvider implements ILabelProvider {
 			return elementPath
 		}
 		return null
+	}
+
+	override void dispose() {
+		baseFolderImage.dispose
 	}
 
 }
