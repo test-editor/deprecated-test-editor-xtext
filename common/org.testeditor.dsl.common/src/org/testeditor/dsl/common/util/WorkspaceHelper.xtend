@@ -12,13 +12,18 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.util
 
+import org.eclipse.core.resources.IWorkspace
 import org.eclipse.core.resources.IWorkspaceRoot
 import org.eclipse.core.resources.ResourcesPlugin
 
-class WorkspaceRootHelper {
+class WorkspaceHelper {
 	
 	def IWorkspaceRoot getRoot() {
-		return ResourcesPlugin.workspace.root
+		return workspace.root
+	}
+	
+	def IWorkspace getWorkspace() {
+		return ResourcesPlugin.workspace
 	}
 	
 }
