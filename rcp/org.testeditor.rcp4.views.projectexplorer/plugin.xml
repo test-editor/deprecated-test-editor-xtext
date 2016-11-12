@@ -5,12 +5,30 @@
          point="org.eclipse.ui.views">
       <view
             allowMultiple="false"
-            class="org.testeditor.rcp4.views.projectexplorer.ProjectExplorer"
+            class="org.testeditor.rcp4.views.projectexplorer.ProjectExplorerExtensionFactory:org.testeditor.rcp4.views.projectexplorer.ProjectExplorer"
             icon="icons/test_explorer.gif"
             id="org.testeditor.rcp4.views.ProjectExplorer"
             name="Test Project Explorer"
             restorable="true">
       </view>
+   </extension>
+   <extension 
+         point="org.eclipse.ui.decorators">
+      <decorator
+            id="org.testeditor.rcp4.views.projectexplorer.ResourceDecorator" 
+            label="ResourceDecorator"
+            state="true"
+            class= "org.testeditor.rcp4.views.projectexplorer.ProjectExplorerExtensionFactory:org.testeditor.rcp4.views.projectexplorer.ResourceDecorator"
+            adaptable="true"
+            lightweight="true">
+         <enablement>
+             <or>
+                <objectClass name="org.eclipse.core.resources.IResource"/>
+                <objectClass name="org.eclipse.jdt.core.IClasspathEntry"/>
+             </or>
+         </enablement>
+         <description>resource decoration e.g. in test navigator</description>
+      </decorator>
    </extension>
    <extension
          point="org.eclipse.ui.navigator.viewer">

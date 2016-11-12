@@ -13,6 +13,7 @@
 package org.testeditor.tcl.dsl.jvmmodel
 
 import com.google.inject.Inject
+import java.util.Optional
 import java.util.Set
 import org.apache.commons.lang3.StringEscapeUtils
 import org.eclipse.xtext.common.types.JvmConstructor
@@ -31,13 +32,17 @@ import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
 import org.slf4j.LoggerFactory
 import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
+import org.testeditor.aml.TemplateContainer
+import org.testeditor.aml.TemplateVariable
 import org.testeditor.fixture.core.AbstractTestCase
 import org.testeditor.fixture.core.TestRunReportable
+import org.testeditor.fixture.core.TestRunReporter
 import org.testeditor.fixture.core.TestRunReporter.SemanticUnit
 import org.testeditor.tcl.AbstractTestStep
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariable
+import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.SetupAndCleanupProvider
 import org.testeditor.tcl.SpecificationStepImplementation
@@ -49,11 +54,12 @@ import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferenceMapAccess
+import org.testeditor.tcl.dsl.jvmmodel.macro.MacroHelper
 import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentValue
 
 import static org.testeditor.tcl.TclPackage.Literals.*
-import org.testeditor.fixture.core.TestRunReporter
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -66,8 +72,9 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	@Inject IQualifiedNameProvider nameProvider
 	@Inject JvmModelHelper jvmModelHelper
 	@Inject TclExpressionBuilder expressionBuilder
-	@Inject MacroCallVariableResolver macroCallVariableResolver
 	@Inject TestRunReporterGenerator testRunReporterGenerator 
+	@Inject MacroHelper macroHelper
+	@Inject SimpleTypeComputer typeComputer
 		
 	def dispatch void infer(TclModel model, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		model.test?.infer(acceptor, isPreIndexingPhase)
@@ -193,6 +200,18 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			annotations += annotationRef('org.junit.Test') // make sure that junit is in the classpath of the workspace containing the dsl
 			body = [element.generateMethodBody(trace(element, true))]
 		]
+
+		// Create methods for macros
+		val macros = macroHelper.getAllTransitiveMacros(element)
+		result.members += macros.map [ macro |
+			element.toMethod(macroHelper.getMethodName(macro), typeRef(Void.TYPE)) [
+				exceptions += typeRef(Exception)
+				visibility = JvmVisibility.PRIVATE
+				val variablesWithTypes = typeComputer.getVariablesWithTypes(macro)
+				parameters += variablesWithTypes.entrySet.map[toParameter(key, key.name, value.orElse(typeRef(String)))]
+				body = [macro.generateMethodBody(trace(macro))]
+			]
+		]
 	}
 
 	/** 
@@ -218,7 +237,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			annotations += annotationRef('org.junit.Before')
 			body = [
 				val output = trace(setup, true)
-				setup.contexts.forEach[generateContext(output.trace(it), #[])]
+				setup.contexts.forEach[generateContext(output.trace(it))]
 			]
 		]
 	}
@@ -230,7 +249,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			annotations += annotationRef('org.junit.After')
 			body = [
 				val output = trace(cleanup, true)
-				cleanup.contexts.forEach[generateContext(output.trace(it), #[])]
+				cleanup.contexts.forEach[generateContext(output.trace(it))]
 			]
 		]
 	}
@@ -253,6 +272,10 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		test.steps.forEach[generate(output.trace(it))]
 	}
 
+	def void generateMethodBody(Macro macro, ITreeAppendable output) {
+		macro.contexts.forEach[generateContext(output.trace(it))]
+	}
+
 	private def void generateEnvironmentVariableAssertion(EnvironmentVariable environmentVariable,
 		ITreeAppendable output) {
 		output.append('''org.junit.Assert.assertNotNull(«expressionBuilder.variableToVarName(environmentVariable)»);''')
@@ -261,39 +284,23 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	
 	private def void generate(SpecificationStepImplementation step, ITreeAppendable output) {
 		output.appendReporterEnterCall(SemanticUnit.SPECIFICATION_STEP, step.contents.restoreString)
-		step.contexts.forEach[generateContext(output.trace(it), #[])]
+		step.contexts.forEach[generateContext(output.trace(it))]
 	}
 
-	private def dispatch void generateContext(MacroTestStepContext context, ITreeAppendable output,
-		Iterable<TestStep> macroUseStack) {
-		context.steps.filter(TestStep).forEach [ step |
-			output.newLine
-			val macro = step.findMacroDefinition(context)
-			if (macro == null) {
-				logger.warn("could not find macro for test step='{}'", step.contents.restoreString)
-				output.append('''// TODO Macro could not be resolved from «context.macroCollection.name»''').newLine
-			} else {
-				logger.debug("found macro='{}' in collection='{}' for test step='{}'", macro.name,
-					context.macroCollection.name, step.contents.restoreString)
-				output.append('''// Macro start: «context.macroCollection.name» - «macro.template.normalize»''').newLine
-				macro.contexts.forEach [
-					generateContext(output.trace(it), #[step] + macroUseStack)
-				]
-				output.newLine
-				output.append('''// Macro end: «context.macroCollection.name» - «macro.template.normalize»''').newLine
-			}
-		]
-	}
-
-	private def dispatch void generateContext(ComponentTestStepContext context, ITreeAppendable output,
-		Iterable<TestStep> macroUseStack) {
-		output.appendReporterEnterCall(SemanticUnit.COMPONENT, context.component.name)
-		context.steps.forEach[generate(output.trace(it), macroUseStack)]
-	}
-
-	protected def void generate(AbstractTestStep step, ITreeAppendable output, Iterable<TestStep> macroUseStack) {
+	private def dispatch void generateContext(MacroTestStepContext context, ITreeAppendable output) {
 		output.newLine
-		toUnitTestCodeLine(step, output, macroUseStack)
+		output.append('''// Macro: «context.macroCollection.name»''')
+		context.steps.filter(TestStep).forEach[generateMacroCall(context, output.trace(it))]
+	}
+
+	private def dispatch void generateContext(ComponentTestStepContext context, ITreeAppendable output) {
+		output.appendReporterEnterCall(SemanticUnit.COMPONENT, context.component.name)
+		context.steps.forEach[generate(output.trace(it))]
+	}
+
+	protected def void generate(AbstractTestStep step, ITreeAppendable output) {
+		output.newLine
+		toUnitTestCodeLine(step, output)
 	}
 
 	/**
@@ -334,15 +341,13 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		return fixtureType.simpleName.toFirstLower
 	}
 
-	private def dispatch void toUnitTestCodeLine(AssertionTestStep step, ITreeAppendable output,
-		Iterable<TestStep> macroUseStack) {
+	private def dispatch void toUnitTestCodeLine(AssertionTestStep step, ITreeAppendable output) {
 		logger.debug("generating code line for assertion test step.")
-		macroCallVariableResolver.macroUseStack = macroUseStack
 		output.appendReporterEnterCall(SemanticUnit.STEP, '''assert «assertCallBuilder.assertionText(step.assertExpression)»''')
-		output.append(assertCallBuilder.build(macroCallVariableResolver, step.assertExpression))
+		output.append(assertCallBuilder.build(step.assertExpression))
 	}
 
-	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output, Iterable<TestStep> macroUseStack) {
+	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output) {
 		val stepLog = step.contents.restoreString
 		logger.debug("generating code line for test step='{}'.", stepLog)
 		val interaction = step.interaction
@@ -353,7 +358,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			if (fixtureField !== null && operation !== null) {
 				step.maybeCreateAssignment(operation, output, stepLog)
 				output.trace(interaction.defaultMethod) => [
-					val codeLine = '''«fixtureField».«operation.simpleName»(«getParameterList(step, interaction, macroUseStack)»);'''
+					val codeLine = '''«fixtureField».«operation.simpleName»(«generateCallParameters(step, interaction)»);'''
 					append(codeLine) // please call with string, since tests checks against expected string which fails for passing ''' directly
 				]
 			} else {
@@ -365,50 +370,77 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			output.append('''// TODO could not resolve unknown component - «stepLog»''')
 		}
 	}
-	
-	private def void maybeCreateAssignment(TestStep step, JvmOperation operation, ITreeAppendable output, String stepLog) {
-		if (step instanceof TestStepWithAssignment) {
-			output.trace(step, TEST_STEP_WITH_ASSIGNMENT__VARIABLE, 0) => [
-				// TODO should we use output.declareVariable here?
-				// val variableName = output.declareVariable(step.variableName, step.variableName)
-				val partialCodeLine = '''«operation.returnType.identifier» «step.variable.name» = '''
-				output.appendReporterEnterCall(SemanticUnit.STEP, '''«partialCodeLine.trim» «stepLog.trim»''')
-				output.append(partialCodeLine) // please call with string, since tests checks against expected string which fails for passing ''' directly
-			]
+
+	private def void generateMacroCall(TestStep step, MacroTestStepContext context, ITreeAppendable output) {
+		val stepLog = step.contents.restoreString
+		logger.debug("generating code line for macro test step='{}'.", stepLog)
+		output.newLine
+		output.append('''// - «stepLog»''')
+		output.newLine
+		val macro = step.findMacroDefinition(context)
+		if (macro !== null) {
+			val parameters = generateCallParameters(step, macro)
+			output.append('''«macroHelper.getMethodName(macro)»(«parameters»);''')
 		} else {
-			output.appendReporterEnterCall(SemanticUnit.STEP, stepLog.trim)
+			output.append('''// TODO could not resolve '«context.macroCollection.name»' - «stepLog»''')
 		}
 	}
 
-	// TODO we could also trace the parameters here
-	private def String getParameterList(TestStep step, InteractionType interaction, Iterable<TestStep> macroUseStack) {
-		val mapping = getVariableToValueMapping(step, interaction.template)
-		val stepContents = interaction.defaultMethod.parameters.map [ templateVariable |
-			val stepContent = mapping.get(templateVariable)
-			val stepContentResolved = if (stepContent instanceof VariableReference) {
-					macroCallVariableResolver.macroUseStack = macroUseStack
-					macroCallVariableResolver.resolveVariableReference(stepContent)
-				} else {
-					stepContent
-				}
-			return stepContentResolved
-		]
-		val typedValues = newArrayList
-		stepContents.forEach [ stepContent, i |
-			val jvmParameter = interaction.getTypeOfFixtureParameter(i)
-			logger.debug("interaction='{}' has type='{}' in parameter position='{}'",
-				interaction.defaultMethod.operation.qualifiedName, jvmParameter.qualifiedName, i)
-			typedValues +=
-				stepContent.generateCallParameters(jvmParameter, interaction, macroUseStack)
-		]
-		return typedValues.join(', ')
+	private def String generateCallParameters(TestStep step, TemplateContainer templateContainer) {
+		val stepContentsWithTypes = getVariablesWithTypesInOrder(step, templateContainer)
+		stepContentsWithTypes.map[toParameterString(key, value, templateContainer)].flatten.join(', ')
+	}
+
+	private def getVariablesWithTypesInOrder(TestStep step, TemplateContainer templateContainer) {
+		val variablesWithTypes = typeComputer.getVariablesWithTypes(templateContainer)
+		val stepContentToTemplateVariables = step.getStepContentToTemplateVariablesMapping(templateContainer.template)
+		val stepContentWithTypes = stepContentToTemplateVariables.mapValues[variablesWithTypes.get(it)]
+		if (templateContainer instanceof InteractionType) {
+			// need to consider the order of the parameters in the method call
+			val variableToIndexMap = templateContainer.defaultMethod.parameters.indexed.toMap[value].mapValues[key]
+			return stepContentWithTypes.entrySet.sortBy[variableToIndexMap.get(value)]
+		} else {
+			// for macros the order of the appearance in the test step is fine
+			return stepContentWithTypes.entrySet
+		}
 	}
 
 	/**
-	 * generate the parameter-code passed to the fixture call depending on the type of the step content
+	 * Converts a {@link StepContent} to a parameter call. If it is a {@link VariableReference} this
+	 * is straightforward - just use the variable name. If is is a {@link StepContentValue} we need
+	 * to check the type of the underlying {@link TemplateVariable} - if it is a String we need to
+	 * put it in quotes. If the type is not specified we assume a String to handle parameter passing gracefully.
 	 */
-	private def dispatch Iterable<String> generateCallParameters(StepContentElement stepContent,
-		JvmTypeReference expectedType, InteractionType interaction, Iterable<TestStep> macroUseStack) {
+	// TODO return type is only an iterable because of the locator strategy
+	private def Iterable<String> toParameterString(StepContent stepContent, Optional<JvmTypeReference> parameterType, TemplateContainer templateContainer) {
+		val isStringParameterOrUnspecified = parameterType.map[qualifiedName == String.name].orElse(true) 
+		// stepContent can be a reference to a variable or a value
+		if (stepContent instanceof VariableReference) {
+			// if variable reference forward the call to expressionBuilder
+			val parameterString = expressionBuilder.buildExpression(stepContent)
+			if (isStringParameterOrUnspecified && stepContent instanceof VariableReferenceMapAccess) {
+				// TODO this is not very nice, we should get the type of the referenced variable
+				return #['''String.valueOf(«parameterString»)''']
+			}
+			return #[parameterString]
+		}
+		// Handle special case for locator + locator strategy
+		if (templateContainer instanceof InteractionType) {
+			if (stepContent instanceof StepContentElement) {
+				return toLocatorParameterString(stepContent, templateContainer)
+			}
+		}
+		if (stepContent instanceof StepContentValue) {
+			// if value, check if type is String, if yes put it in quotes
+			if (isStringParameterOrUnspecified) {
+				return #['''"«StringEscapeUtils.escapeJava(stepContent.value)»"''']
+			} else {
+				return #[stepContent.value]
+			}
+		}
+	}
+
+	private def Iterable<String> toLocatorParameterString(StepContentElement stepContent, InteractionType interaction) {
 		val element = stepContent.componentElement
 		val locator = '''"«element.locator»"'''
 		if (interaction.defaultMethod.locatorStrategyParameters.size > 0) {
@@ -422,36 +454,17 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		}
 	}
 
-	/**
-	 * generate the parameter-code passed to the fixture call depending on the type of the step content
-	 */
-	private def dispatch Iterable<String> generateCallParameters(StepContentValue stepContentValue,
-		JvmTypeReference expectedType, InteractionType interaction, Iterable<TestStep> macroUseStack) {
-		if (expectedType.qualifiedName == String.name) {
-			return #['''"«StringEscapeUtils.escapeJava(stepContentValue.value)»"''']
+	private def void maybeCreateAssignment(TestStep step, JvmOperation operation, ITreeAppendable output, String stepLog) {
+		if (step instanceof TestStepWithAssignment) {
+			output.trace(step, TEST_STEP_WITH_ASSIGNMENT__VARIABLE, 0) => [
+				// TODO should we use output.declareVariable here?
+				// val variableName = output.declareVariable(step.variableName, step.variableName)
+				val partialCodeLine = '''«operation.returnType.identifier» «step.variable.name» = '''
+				output.appendReporterEnterCall(SemanticUnit.STEP, '''«partialCodeLine.trim» «stepLog.trim»''')
+				output.append(partialCodeLine) // please call with string, since tests checks against expected string which fails for passing ''' directly
+			]
 		} else {
-			return #[stepContentValue.value]
-		}
-	}
-
-	/**
-	 * generate the parameter-code passed to the fixture call depending on the type of the step content
-	 */
-	private def dispatch Iterable<String> generateCallParameters(VariableReference variableReference,
-		JvmTypeReference expectedType, InteractionType interaction, Iterable<TestStep> macroUseStack) {
-		macroCallVariableResolver.macroUseStack = macroUseStack
-		expressionBuilder.variableResolver = macroCallVariableResolver
-		val result = expressionBuilder.buildExpression(variableReference)
-		logger.debug("resolved variable='{}' to result='{}'", variableReference.variable.name, result)
-		val isMapAccessReference = variableReference instanceof VariableReferenceMapAccess
-		val expectedTypeIsString = expectedType.qualifiedName == String.canonicalName
-		if (isMapAccessReference && expectedTypeIsString) {
-			// convention: within a map there are only strings! there is no deep structured map!
-			logger.debug("resolved variable='{}' to be a map and usage expects type String",
-				variableReference.variable.name)
-			return #[result + '.toString()'] // since the map is generic the actual type is java.lang.Object (thus toString) 
-		} else {
-			return #[result]
+			output.appendReporterEnterCall(SemanticUnit.STEP, stepLog.trim)
 		}
 	}
 

@@ -73,8 +73,7 @@ class TclAssertCallBuilder {
 		return NodeModelUtils.getNode(expression)?.text?.trim ?: ""
 	}
 
-	def String build(VariableResolver variableResolver, Expression expression) {
-		expressionBuilder.variableResolver = variableResolver
+	def String build(Expression expression) {
 		val assertionMethod = assertionMethod(expression)
 		if (assertionMethod == null) {
 			return '''// TODO no assertion method implementation for expression with type "«expression.class»"'''

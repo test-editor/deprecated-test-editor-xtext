@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.util
 
+import org.eclipse.core.resources.IResourceChangeListener
 import org.eclipse.core.resources.IWorkspace
 import org.eclipse.core.resources.IWorkspaceRoot
 import org.eclipse.core.resources.ResourcesPlugin
@@ -26,4 +27,12 @@ class WorkspaceHelper {
 		return ResourcesPlugin.workspace
 	}
 	
+	def void addResourceChangeListener(IResourceChangeListener listener, int eventMask) {
+		workspace.addResourceChangeListener(listener, eventMask)
+	}
+	
+	def void removeResourceChangeListener(IResourceChangeListener listener){
+		workspace.removeResourceChangeListener(listener)
+	}
+
 }

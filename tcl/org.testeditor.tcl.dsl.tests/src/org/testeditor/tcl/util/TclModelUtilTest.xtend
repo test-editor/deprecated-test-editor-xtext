@@ -123,25 +123,26 @@ class TclModelUtilTest extends AbstractParserTest {
 	}
 
 	@Test
-	def void testVariableToValueMapping() {
+	def void testStepContentToTemplateVariablesMapping() {
 		// given
 		val testStep = parse('''
 			- start with "some" and more @other
 		''', grammarAccess.testStepRule, TestStep)
-
 		val template = parse('''
 			"start with" ${somevar} "and more" ${othervar}
 		''', grammarAccess.templateRule, Template)
+		val someValue = testStep.contents.filter(StepContentVariable).head
+		val otherRef = testStep.contents.filter(VariableReference).head
 		val somevar = template.contents.get(1)
 		val othervar = template.contents.get(3)
 
 		// when
-		val varValueMap = tclModelUtil.getVariableToValueMapping(testStep, template)
+		val map = tclModelUtil.getStepContentToTemplateVariablesMapping(testStep, template)
 
 		// then
-		varValueMap.keySet.assertSize(2)
-		varValueMap.get(somevar).assertInstanceOf(StepContentVariable).value.assertEquals("some")
-		varValueMap.get(othervar).assertInstanceOf(VariableReference)
+		map.entrySet.assertSize(2)
+		map.get(someValue).assertSame(somevar)
+		map.get(otherRef).assertSame(othervar)
 	}
 
 	@Test
