@@ -44,15 +44,16 @@ class TestExecutionManager {
 		return new FileOutputStream(newLog)
 	}
 
-	def List<TestExecutionLog> getTestExecutionLogs() {
+	def TestExecutionLogList getTestExecutionLogs() {
 		val location = stateLocationHelper.stateLocation
 		val logs = location.list.filter[it.matches('te-\\d+\\.log')]
-		return logs.map [
+		return new TestExecutionLogList(logs.map [
 			val log = new TestExecutionLog
-			log.testExecutionName = testExecutionLogName
+			log.name = testExecutionLogName
 			log.logFile = new File(location, it)
+			log.filename = log.logFile.name
 			return log
-		].sortBy[testExecutionName]
+		].sortBy[name])
 	}
 
 	def private String getTestExecutionLogName(String teLogFileName) {

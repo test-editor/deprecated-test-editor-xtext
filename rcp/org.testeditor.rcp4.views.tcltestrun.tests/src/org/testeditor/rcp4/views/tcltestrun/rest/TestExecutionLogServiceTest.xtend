@@ -15,7 +15,6 @@ package org.testeditor.rcp4.views.tcltestrun.rest
 import java.io.File
 import java.io.StringReader
 import java.nio.file.Files
-import javax.json.Json
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -23,9 +22,9 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.testeditor.dsl.common.testing.AbstractTest
 import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionLog
+import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionLogList
 import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionManager
 
-import static com.google.common.io.CharSource.*
 import static org.mockito.Mockito.*
 
 class TestExecutionLogServiceTest extends AbstractTest {
@@ -44,12 +43,12 @@ class TestExecutionLogServiceTest extends AbstractTest {
 		// given
 		testExecLogService.testExecutionManager = executionManager
 		val teLog1 = new TestExecutionLog
-		teLog1.testExecutionName = "17.10.16 08:18"
+		teLog1.name = "17.10.16 08:18"
 		teLog1.logFile = new File("te-1476685123287.log")
 		val teLog2 = new TestExecutionLog
-		teLog2.testExecutionName = "17.10.16 21:30"
+		teLog2.name = "17.10.16 21:30"
 		teLog2.logFile = new File("te-1476732656343.log")
-		when(executionManager.testExecutionLogs).thenReturn(#[teLog1, teLog2])
+		when(executionManager.testExecutionLogs).thenReturn(new TestExecutionLogList(#[teLog1, teLog2]))
 
 		// when
 		val listString = testExecLogService.testLogExeutionsList.entity as String
@@ -66,10 +65,10 @@ class TestExecutionLogServiceTest extends AbstractTest {
 		// given
 		testExecLogService.testExecutionManager = executionManager
 		val teLog = new TestExecutionLog
-		teLog.testExecutionName = "17.10.16 08:18"
+		teLog.name = "17.10.16 08:18"
 		teLog.logFile = tempFolder.newFile("te-1476685123287.log")
 		Files.write(teLog.logFile.toPath, "Log content".bytes)
-		when(executionManager.testExecutionLogs).thenReturn(#[teLog])
+		when(executionManager.testExecutionLogs).thenReturn(new TestExecutionLogList(#[teLog]))
 
 		// when
 		val listString = testExecLogService.testLogExeutionsList.entity as String
@@ -81,49 +80,11 @@ class TestExecutionLogServiceTest extends AbstractTest {
 		// then
 		assertEquals(links.length, 3)
 		assertEquals(links.getJsonObject(0).getString("href"),
-			TestExecutionLogService.SERVICE_PATH + "/te-1476685123287.log/fulllogs")
+			TestExecutionLogService.SERVICE_PATH + "/te-1476685123287.log/fullLogs")
 		assertEquals(links.getJsonObject(1).getString("href"),
 			TestExecutionLogService.SERVICE_PATH + "/te-1476685123287.log/logGroups")
 		log.getString("content").assertEquals("Log content")
 	}
 
-	@Test
-	def void testComplexLog() {
-		// given
-		val log = '''
-			[INFO] --- xtend-maven-plugin:2.10.0:testCompile (default) @ org.testeditor.rcp4.uatests ---
-			18:49:10 INFO  [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test specification] * Given
-			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] TestEditorServices
-			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] - Click on <NextButton>
-			18:49:12 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] - Click on <FinishButton>
-			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] TestEditorWizard
-			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] - Type "foo" into field <name>
-			18:49:12 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] - Click on <FinishButton>
-		'''
-
-		// when
-		val json = testExecLogService.createLogGroupJsonArray(wrap(log).readLines).build
-
-		// then	 
-		json.getJsonArray("logGroups").forEach[println(it)]
-		assertEquals(json.getJsonArray("logGroups").size, 2)
-		assertEquals(json.getJsonArray("logGroups").getJsonObject(0).getString("type"), "System")
-		val spec = json.getJsonArray("logGroups").getJsonObject(1)
-		assertEquals(spec.getString("type"), "Test specification")
-		assertEquals(spec.getJsonArray("childs").size, 2)
-		val componentService = spec.getJsonArray("childs").getJsonObject(0)
-		assertEquals(componentService.getString("name"), "[Component] TestEditorServices")
-		val nextButton = componentService.getJsonArray("childs").getJsonObject(0)
-		assertEquals(nextButton.getString("name"), "[Test step] - Click on <NextButton>")
-		val finishButton1 = componentService.getJsonArray("childs").getJsonObject(1)
-		assertEquals(finishButton1.getString("name"), "[Test step] - Click on <FinishButton>")
-
-		val componentWizard = spec.getJsonArray("childs").getJsonObject(1)
-		assertEquals(componentWizard.getString("name"), "[Component] TestEditorWizard")
-		val field = componentWizard.getJsonArray("childs").getJsonObject(0)
-		assertEquals(field.getString("name"), "[Test step] - Type \"foo\" into field <name>")
-		val finishButton2 = componentWizard.getJsonArray("childs").getJsonObject(1)
-		assertEquals(finishButton2.getString("name"), "[Test step] - Click on <FinishButton>")
-	}
 
 }

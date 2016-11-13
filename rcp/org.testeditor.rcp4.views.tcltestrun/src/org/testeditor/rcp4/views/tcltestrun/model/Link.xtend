@@ -12,29 +12,12 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.tcltestrun.model
 
-import java.util.List
-import org.eclipse.xtend.lib.annotations.Accessors
+import org.eclipse.xtend.lib.annotations.Data
 
-@Accessors
-class TestLogGroup {
-
-	transient TestLogGroupComposite parent
-	TestElementType type
-	String name
-	@Accessors(PUBLIC_GETTER) List<String> logLines = newArrayList
-
-	new(TestElementType type) {
-		this.type = type
-	}
-
-	def addLogLine(String logLine) {
-		if (!logLine.trim.empty) {
-			logLines += logLine
-		}
-	}
-
-	override toString() {
-		return '''«type.name»: «name»'''
-	}
-
+@Data
+class Link {
+	
+	String href
+	String rel
+	 	
 }

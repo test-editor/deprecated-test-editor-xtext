@@ -32,7 +32,7 @@
    </vm>
 
    <plugins>
-      <plugin id="com.eclipsesource.jaxrs.jersey-all"/>
+      <plugin id="com.eclipsesource.jaxrs.jersey-min"/>
       <plugin id="com.eclipsesource.jaxrs.publisher"/>
       <plugin id="com.google.gson"/>
       <plugin id="com.google.guava"/>

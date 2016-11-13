@@ -45,14 +45,14 @@ class TestExecutionManagerTest extends AbstractTest {
 		when(stateLocationHelper.stateLocation).thenReturn(dir)
 		
 		// when
-		val list = testExecutionManager.testExecutionLogs
+		val list = testExecutionManager.testExecutionLogs.entries
 		
 		// then
 		list.assertSize(2)
 		list.get(0).logFile.name.assertEquals("te-1476685123287.log")
-		list.get(0).testExecutionName.assertEquals("17.10.16 08:18")
+		list.get(0).name.assertEquals("17.10.16 08:18")
 		list.get(1).logFile.name.assertEquals("te-1476732656343.log")
-		list.get(1).testExecutionName.assertEquals("17.10.16 21:30")
+		list.get(1).name.assertEquals("17.10.16 21:30")
 	}
 	
 }

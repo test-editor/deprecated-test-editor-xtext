@@ -1,7 +1,7 @@
 export class LogGroup {
     type: String
     logLines: String[]
-    childs: LogGroup[]
+    children: LogGroup[]
     name: String
 }
 

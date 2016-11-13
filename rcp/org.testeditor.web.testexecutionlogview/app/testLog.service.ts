@@ -11,7 +11,7 @@ export class TestLogService {
     }
 
     getTestExecutionLogs(): Promise<TestExecutionLog[]> {
-        return this.http.get('http://localhost:19091/services/testexeclogs').toPromise().then(response =>
+        return this.http.get('http://localhost:19091/services/testruns').toPromise().then(response =>
             response.json().entries as TestExecutionLog[]
         ).catch(this.handleError);
     }
