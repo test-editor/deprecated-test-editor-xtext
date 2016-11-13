@@ -12,19 +12,6 @@
 
 	<artifactId>org.testeditor.rcp4.views.tcltestrun</artifactId>
 	<packaging>eclipse-plugin</packaging>
-
-	<dependencies>
-		<dependency>
-		    <groupId>javax.json</groupId>
-		    <artifactId>javax.json-api</artifactId>
-		    <version>1.0</version>
-		</dependency>
-		<dependency>
-		    <groupId>org.glassfish</groupId>
-		    <artifactId>javax.json</artifactId>
-		    <version>1.0.4</version>
-		</dependency>
-	</dependencies>
 	
 	<build>
 		<plugins>
@@ -32,40 +19,6 @@
 				<groupId>org.eclipse.xtend</groupId>
 				<artifactId>xtend-maven-plugin</artifactId>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-clean-plugin</artifactId>
-				<configuration>
-					<filesets combine.children="append">
-						<fileset>
-							<directory>lib</directory>
-							<includes>
-								<include>**</include>
-							</includes>
-							<excludes>
-								<exclude>.gitignore</exclude>
-							</excludes>
-						</fileset>
-					</filesets>
-				</configuration>
-			</plugin>			
-			<plugin>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
-					<execution>
-						<phase>process-sources</phase>
-
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
-
-						<configuration>
-							<outputDirectory>lib</outputDirectory>
-							<includeArtifactIds>javax.json,javax.json-api,jersey-media-moxy</includeArtifactIds>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>			
 		</plugins>
 	</build>
 </project>

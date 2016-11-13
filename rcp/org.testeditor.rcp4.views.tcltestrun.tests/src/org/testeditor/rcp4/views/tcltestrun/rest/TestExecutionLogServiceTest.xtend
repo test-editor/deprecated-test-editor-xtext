@@ -26,6 +26,7 @@ import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionLogList
 import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionManager
 
 import static org.mockito.Mockito.*
+import com.google.gson.Gson
 
 class TestExecutionLogServiceTest extends AbstractTest {
 
@@ -52,12 +53,13 @@ class TestExecutionLogServiceTest extends AbstractTest {
 
 		// when
 		val listString = testExecLogService.testLogExeutionsList.entity as String
-		val json = Json.createReader(new StringReader(listString)).readObject
+		val gson = new Gson
+		val list = gson.fromJson(new StringReader(listString), TestExecutionLogList)
 
 		// then
-		assertEquals(json.getJsonArray("entries").length, 2)
-		assertEquals(json.getJsonArray("entries").getJsonObject(0).getString("name"), "17.10.16 08:18")
-		assertEquals(json.getJsonArray("entries").getJsonObject(1).getString("name"), "17.10.16 21:30")
+		assertEquals(list.entries.length, 2)
+		assertEquals(list.entries.get(0).name, "17.10.16 08:18")
+		assertEquals(list.entries.get(1).name, "17.10.16 21:30")
 	}
 
 	@Test
@@ -72,19 +74,19 @@ class TestExecutionLogServiceTest extends AbstractTest {
 
 		// when
 		val listString = testExecLogService.testLogExeutionsList.entity as String
-		val json = Json.createReader(new StringReader(listString)).readObject
-		val links = json.getJsonArray("entries").getJsonObject(0).getJsonArray("links")
+		val gson = new Gson
+		val json = gson.fromJson(new StringReader(listString), TestExecutionLogList)
+		val links = json.entries.get(0).links
 		val logString = testExecLogService.getTestLogExeutionContent("te-1476685123287.log").entity as String
-		val log = Json.createReader(new StringReader(logString)).readObject
+		val log = gson.fromJson(new StringReader(logString), TestExecutionLog)
 
 		// then
 		assertEquals(links.length, 3)
-		assertEquals(links.getJsonObject(0).getString("href"),
+		assertEquals(links.get(0).href,
 			TestExecutionLogService.SERVICE_PATH + "/te-1476685123287.log/fullLogs")
-		assertEquals(links.getJsonObject(1).getString("href"),
+		assertEquals(links.get(1).href,
 			TestExecutionLogService.SERVICE_PATH + "/te-1476685123287.log/logGroups")
-		log.getString("content").assertEquals("Log content")
+		log.content.assertEquals("Log content")
 	}
-
 
 }

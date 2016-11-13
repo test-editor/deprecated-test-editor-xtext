@@ -4,7 +4,7 @@
             <span *ngFor="let logentry of loggroup.logLines">
                     {{logentry}} <br>
                 </span>
-            <te-log-groups-view [testruns]="loggroup.childs"></te-log-groups-view>
+            <te-log-groups-view [testruns]="loggroup.children"></te-log-groups-view>
         </template>
     </ngb-panel>
 </ngb-accordion>
