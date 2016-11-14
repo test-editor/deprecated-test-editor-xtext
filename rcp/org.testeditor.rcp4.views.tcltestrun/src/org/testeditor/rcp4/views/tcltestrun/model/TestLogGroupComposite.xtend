@@ -26,7 +26,7 @@ class TestLogGroupComposite extends TestLogGroup {
 		return children
 	}
 
-	def add(TestLogGroup testLogGroup) {
+	def void add(TestLogGroup testLogGroup) {
 		testLogGroup.setParent(this)
 		children.add(testLogGroup)
 	}

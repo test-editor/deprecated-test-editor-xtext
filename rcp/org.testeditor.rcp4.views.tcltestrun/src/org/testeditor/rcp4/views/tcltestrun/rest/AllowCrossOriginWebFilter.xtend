@@ -22,7 +22,7 @@ import javax.servlet.FilterConfig
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-class TestEditorWebFilter implements Filter {
+class AllowCrossOriginWebFilter implements Filter {
 
 	static val ORIGIN_HEADER = "Origin"
 	static val ACCESS_CONTROL_ALLOW_ORIGIN_HEADER = "Access-Control-Allow-Origin"
@@ -36,7 +36,7 @@ class TestEditorWebFilter implements Filter {
 		chain.doFilter(request, response)
 	}
 
-	def handle(HttpServletRequest request, HttpServletResponse response) {
+	def void handle(HttpServletRequest request, HttpServletResponse response) {
 		val origin = request.getHeader(ORIGIN_HEADER)
 		response.setHeader(ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, origin)
 	}
