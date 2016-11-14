@@ -7,8 +7,6 @@ import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.CoreException
 import org.eclipse.core.runtime.IPath
 import org.eclipse.jdt.core.IClasspathEntry
-import org.eclipse.jdt.core.JavaCore
-import org.eclipse.jdt.internal.core.JavaProject
 import org.eclipse.jface.viewers.IDecoration
 import org.eclipse.jface.viewers.ILightweightLabelDecorator
 import org.eclipse.jface.viewers.LabelProvider
@@ -17,11 +15,13 @@ import org.eclipse.swt.widgets.Display
 import org.eclipse.ui.ISharedImages
 import org.testeditor.dsl.common.ui.utils.WorkbenchImagesHelper
 import org.testeditor.dsl.common.util.WorkspaceHelper
+import org.testeditor.dsl.common.util.classpath.ClasspathUtil
 
 class ResourceDecorator extends LabelProvider implements ILightweightLabelDecorator {
 
 	@Inject WorkspaceHelper workspaceHelper
 	@Inject WorkbenchImagesHelper imagesHelper
+	@Inject ClasspathUtil classpathUtil
 
 	static val NO_SEVERITY = -1
 
@@ -45,10 +45,10 @@ class ResourceDecorator extends LabelProvider implements ILightweightLabelDecora
 		switch (element) {
 			IClasspathEntry case element.entryKind == IClasspathEntry.CPE_SOURCE:
 				// classpath entries need to be heeded because of TELabelProvider
-				return #[getResourceFor(element.path)]
+				return #[getResourcesFor(element.path)].filterNull
 			IProject:
 				// project should only provide status of its source folders and its subfolders (excluding technical problems elsewhere)
-				getJavaSourceClasspaths(element).map[getResourceFor(path)]
+				return classpathUtil.getSourceClasspathEntries(element).map[getResourcesFor(path)].filterNull
 			IResource:
 				return #[element]
 			default:
@@ -56,31 +56,29 @@ class ResourceDecorator extends LabelProvider implements ILightweightLabelDecora
 		}
 	}
 
-	private def Iterable<IClasspathEntry> getJavaSourceClasspaths(IProject project) {
-		if (JavaProject.hasJavaNature(project)) {
-			return JavaCore.create(project).rawClasspath.filter[entryKind == IClasspathEntry.CPE_SOURCE]
-		} else {
-			return emptyList
+	/** may return null */
+	private def IResource getResourcesFor(IPath path) {
+		try {
+			return workspaceHelper.root.getFolder(path)
+		} catch (IllegalArgumentException e) { // if path cannot be resolved: this may happen during creation/import of a new project
+			return null
 		}
-	}
-
-	private def IResource getResourceFor(IPath path) {
-		return workspaceHelper.root.getFolder(path)
 	}
 
 	private def int getMaxSeverity(Object element) {
 		val resources = element.resourcesForSeverityCalculation
-		try {
-			val severities = resources.map[findMaxProblemSeverity(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)]
-			val maxSeverity = severities.reduce[a, b|Math.max(a, b)]
-			return maxSeverity ?: NO_SEVERITY
-		} catch (CoreException ce) {
-			// ignore (and return default)
-		}
-		return NO_SEVERITY
+		val severities = resources.map [
+			try {
+				return findMaxProblemSeverity(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)
+			} catch (CoreException ce) {
+				return NO_SEVERITY
+			}
+		]
+		val maxSeverity = severities.reduce[a, b|Math.max(a, b)]
+		return maxSeverity ?: NO_SEVERITY // severities may be an empty list, reduce will null => provide default
 	}
 
-    // only descriptors, need not be disposed => no cleanup necessary
+	// only descriptors, need not be disposed => no cleanup necessary
 	private def getErrorIcon() {
 		return imagesHelper.getImageDescriptor(ISharedImages.IMG_DEC_FIELD_ERROR)
 	}
