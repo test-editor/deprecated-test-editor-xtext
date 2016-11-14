@@ -127,7 +127,11 @@ class TclLauncherUi implements Launcher {
 				monitor.beginTask("Test execution: " + testLaunchInformation.project.name, IProgressMonitor.UNKNOWN)
 			}
 			val con = consoleFactory.createAndShowConsole
-			val execLog = testExecutionManager.createTestExecutionLog(testLaunchInformation.testCasesCommaList)
+			var list = testLaunchInformation.testCasesCommaList
+			if(list === null) {
+				list = #[]
+			}
+			val execLog = testExecutionManager.createTestExecutionLog(list)
 			val output = new TeeOutputStream(con.newOutputStream, testExecutionManager.createOutputStreamFor(execLog))
 			partHelper.showView(TEST_EXECUTION_RESULT_VIEW)
 			val viewPart = eclipseContextHelper.eclipseContext.get(EPartService).findPart(TEST_EXECUTION_RESULT_VIEW)
