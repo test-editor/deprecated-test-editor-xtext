@@ -12,22 +12,22 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.tcltestrun.model
 
-import org.testeditor.dsl.common.testing.AbstractTest
-import org.mockito.Mock
-import org.mockito.InjectMocks
-import org.testeditor.rcp4.views.tcltestrun.StateLocationHelper
+import java.io.File
+import java.nio.file.Files
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
+import org.mockito.InjectMocks
+import org.mockito.Mock
+import org.testeditor.dsl.common.testing.AbstractTest
+import org.testeditor.rcp4.views.tcltestrun.LogLocationHelper
 
 import static org.mockito.Mockito.*
-import java.io.File
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
-import java.nio.file.Files
 
 class TestExecutionManagerTest extends AbstractTest {
 
 	@Mock
-	StateLocationHelper stateLocationHelper
+	LogLocationHelper logLocationHelper
 	
 	@InjectMocks
 	TestExecutionManager testExecutionManager
@@ -42,7 +42,7 @@ class TestExecutionManagerTest extends AbstractTest {
 		Files.createFile(new File(dir,"foo.bar").toPath)
 		Files.createFile(new File(dir,"te-1476685123287.log").toPath)
 		Files.createFile(new File(dir,"te-1476732656343.log").toPath)
-		when(stateLocationHelper.stateLocation).thenReturn(dir)
+		when(logLocationHelper.logLocation).thenReturn(dir)
 		
 		// when
 		val list = testExecutionManager.testExecutionLogs.entries

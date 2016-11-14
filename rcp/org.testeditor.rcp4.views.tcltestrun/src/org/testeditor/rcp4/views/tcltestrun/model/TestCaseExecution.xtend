@@ -12,12 +12,11 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.tcltestrun.model
 
+import org.eclipse.xtend.lib.annotations.Data
+
+@Data
 class TestCaseExecution {
 	
 	String name
-	
-	new(String testCaseName) {
-		name = testCaseName
-	}
-	
+		
 }

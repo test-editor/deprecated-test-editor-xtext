@@ -14,15 +14,15 @@ package org.testeditor.rcp4.views.tcltestrun
 import org.testeditor.dsl.common.testing.AbstractTest
 import org.junit.Test
 
-class StateLocationHelperTest extends AbstractTest {
+class LogLocationHelperTest extends AbstractTest {
 	
 	@Test
 	def void testFileStoreExists() {
 		//given
-		val helper = new StateLocationHelper
+		val helper = new LogLocationHelper
 		
 		//when
-		val file = helper.stateLocation
+		val file = helper.logLocation
 		
 		//then
 		file.assertNotNull

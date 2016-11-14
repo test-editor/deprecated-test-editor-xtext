@@ -19,29 +19,27 @@ class TestLogGroupBuilder {
 
 	TestLogGroup currentLogGroup
 
-	List<TestLogGroup> result
-
 	public def List<TestLogGroup> build(List<String> logLines) {
-		result = new ArrayList<TestLogGroup>()
+		val result = new ArrayList<TestLogGroup>()
 		logLines.forEach [
-			updateCurrentLogEntry(it)
+			updateCurrentLogEntry(it, result)
 			currentLogGroup.addLogLine(it)
 		]
 		return result
 	}
 
-	def updateCurrentLogEntry(String logLine) {
+	def void updateCurrentLogEntry(String logLine, List<TestLogGroup> result) {
 		if (currentLogGroup === null) {
 			if (!logLine.contains("[TE-Test:")) {
 				currentLogGroup = new TestLogGroup(TestElementType.SystemGroup)
 				result.add(currentLogGroup)
 			}
 		} else {
-			updateCurrentEntryAfterLogGroup(logLine)
+			updateCurrentEntryAfterLogGroup(logLine, result)
 		}
 	}
 
-	def updateCurrentEntryAfterLogGroup(String logLine) {
+	def void updateCurrentEntryAfterLogGroup(String logLine, List<TestLogGroup> result) {
 		if (logLine.contains("[TE-Test:")) {
 			if (logLine.contains("[Component]")) {
 				val cmp = new TestLogGroupComposite(TestElementType.TestComponentGroup)

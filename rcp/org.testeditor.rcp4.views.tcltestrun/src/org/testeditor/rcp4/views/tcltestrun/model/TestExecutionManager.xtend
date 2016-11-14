@@ -15,20 +15,20 @@ package org.testeditor.rcp4.views.tcltestrun.model
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
+import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.List
 import javax.inject.Inject
-import org.testeditor.rcp4.views.tcltestrun.StateLocationHelper
 import org.eclipse.e4.core.di.annotations.Creatable
-import java.text.SimpleDateFormat
 import org.slf4j.LoggerFactory
+import org.testeditor.rcp4.views.tcltestrun.LogLocationHelper
 
 @Creatable
 class TestExecutionManager {
 
 	static val logger = LoggerFactory.getLogger(TestExecutionManager)
 
-	@Inject StateLocationHelper stateLocationHelper
+	@Inject LogLocationHelper logLocationHelper
 
 	def TestExecutionLog createTestExecutionLog(List<String> testNames) {
 		return new TestExecutionLog => [
@@ -38,14 +38,14 @@ class TestExecutionManager {
 	}
 
 	def OutputStream createOutputStreamFor(TestExecutionLog execLog) {
-		val location = stateLocationHelper.stateLocation
+		val location = logLocationHelper.logLocation
 		val newLog = new File(location, "te-" + execLog.executionDate.time + ".log")
 		logger.info("Create new test execution log file {}.", newLog.absolutePath)
 		return new FileOutputStream(newLog)
 	}
 
 	def TestExecutionLogList getTestExecutionLogs() {
-		val location = stateLocationHelper.stateLocation
+		val location = logLocationHelper.logLocation
 		val logs = location.list.filter[it.matches('te-\\d+\\.log')]
 		return new TestExecutionLogList(logs.map [
 			val log = new TestExecutionLog

@@ -16,9 +16,9 @@ import java.io.File
 import org.eclipse.e4.core.di.annotations.Creatable
 
 @Creatable
-class StateLocationHelper {
+class LogLocationHelper {
 
-	def File getStateLocation() {
+	def File getLogLocation() {
 		return Activator.^default.stateLocation.toFile
 	}
 		
