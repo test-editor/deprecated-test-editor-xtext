@@ -51,7 +51,6 @@ class TestExecutionManager {
 			val log = new TestExecutionLog
 			log.name = testExecutionLogName
 			log.logFile = new File(location, it)
-			log.filename = log.logFile.name
 			return log
 		].sortBy[name])
 	}

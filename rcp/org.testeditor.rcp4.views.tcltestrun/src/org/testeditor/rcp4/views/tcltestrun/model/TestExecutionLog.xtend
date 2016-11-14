@@ -29,4 +29,8 @@ class TestExecutionLog {
 	private String content
 	private TestLogGroup[] logGroups
 		
+	def void setLogFile(File file) {
+		logFile = file
+		filename = logFile.name
+	}
 }
