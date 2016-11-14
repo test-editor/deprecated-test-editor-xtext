@@ -18,8 +18,9 @@ import org.eclipse.equinox.http.servlet.ExtendedHttpService
 import org.eclipse.ui.plugin.AbstractUIPlugin
 import org.osgi.framework.BundleContext
 import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionManager
-import org.testeditor.rcp4.views.tcltestrun.rest.TestExecutionLogService
 import org.testeditor.rcp4.views.tcltestrun.rest.AllowCrossOriginWebFilter
+import org.testeditor.rcp4.views.tcltestrun.rest.BundleHttpContext
+import org.testeditor.rcp4.views.tcltestrun.rest.TestExecutionLogService
 
 class Activator extends AbstractUIPlugin {
 
@@ -43,6 +44,7 @@ class Activator extends AbstractUIPlugin {
 		val serviceReference = context.getServiceReference(ExtendedHttpService)
 		if (serviceReference !== null) {
 			val httpService = context.getService(serviceReference)
+			httpService.registerResources("/testlogs", "/", new BundleHttpContext(bundle))
 			httpService.registerFilter("/services/*", new AllowCrossOriginWebFilter, null, null)
 		}
 	}

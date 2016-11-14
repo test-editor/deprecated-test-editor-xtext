@@ -50,7 +50,7 @@ class TestExecutionManager {
 		val logs = location.list.filter[it.matches('te-\\d+\\.log')]
 		return new TestExecutionLogList(logs.map [
 			createTestExecutionLog
-		].sortBy[name])
+		].sortBy[-logFile.lastModified])
 	}
 
 	def TestExecutionLog gettestExecutionLogFor(String fileName) {

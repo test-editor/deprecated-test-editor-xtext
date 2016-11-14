@@ -27,7 +27,7 @@ task npmInstallTeLogView(type: NpmTask, dependsOn: npmInstallDep) {
 
 task copyTeLogViewToRcp(type: Copy, dependsOn: npmInstallTeLogView) {
     from 'rcp/org.testeditor.web.testexecutionlogview'
-    into 'rcp/org.testeditor.rcp4.views.tcltestrun/web-inf'
+    into 'rcp/org.testeditor.rcp4.views.tcltestrun/web-app'
     exclude 'node'
     exclude 'typings'
     exclude 'pom.xml'
