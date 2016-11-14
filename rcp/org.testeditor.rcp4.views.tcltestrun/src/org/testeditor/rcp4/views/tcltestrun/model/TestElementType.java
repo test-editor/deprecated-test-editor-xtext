@@ -13,16 +13,5 @@
 package org.testeditor.rcp4.views.tcltestrun.model;
 
 public enum TestElementType {
-	SystemGroup("System"), TestComponentGroup("Test Component"), TestStepGroup("Test step"), TestSpecGroup(
-			"Test specification");
-
-	private String type;
-
-	TestElementType(String name) {
-		type = name;
-	}
-
-	public String getType() {
-		return type;
-	}
+	SystemGroup, TestComponentGroup, TestStepGroup, TestSpecGroup;
 }

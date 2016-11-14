@@ -27,10 +27,14 @@ import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionManager
 
 import static org.mockito.Mockito.*
 import com.google.gson.Gson
+import org.testeditor.rcp4.views.tcltestrun.LogLocationHelper
 
 class TestExecutionLogServiceTest extends AbstractTest {
 
 	@Mock
+	LogLocationHelper logLocationHelper
+
+	@InjectMocks
 	TestExecutionManager executionManager
 
 	@InjectMocks
@@ -42,14 +46,15 @@ class TestExecutionLogServiceTest extends AbstractTest {
 	@Test
 	def void testGetTestLogExeutionList() {
 		// given
-		testExecLogService.testExecutionManager = executionManager
+		val executionManagerMock = mock(TestExecutionManager)
+		testExecLogService.testExecutionManager = executionManagerMock
 		val teLog1 = new TestExecutionLog
 		teLog1.name = "17.10.16 08:18"
 		teLog1.logFile = new File("te-1476685123287.log")
 		val teLog2 = new TestExecutionLog
 		teLog2.name = "17.10.16 21:30"
 		teLog2.logFile = new File("te-1476732656343.log")
-		when(executionManager.testExecutionLogs).thenReturn(new TestExecutionLogList(#[teLog1, teLog2]))
+		when(executionManagerMock.testExecutionLogs).thenReturn(new TestExecutionLogList(#[teLog1, teLog2]))
 
 		// when
 		val listString = testExecLogService.testLogExeutionsList.entity as String
@@ -70,7 +75,8 @@ class TestExecutionLogServiceTest extends AbstractTest {
 		teLog.name = "17.10.16 08:18"
 		teLog.logFile = tempFolder.newFile("te-1476685123287.log")
 		Files.write(teLog.logFile.toPath, "Log content".bytes)
-		when(executionManager.testExecutionLogs).thenReturn(new TestExecutionLogList(#[teLog]))
+		//when(executionManager.testExecutionLogs).thenReturn(new TestExecutionLogList(#[teLog]))
+		when(logLocationHelper.logLocation).thenReturn(tempFolder.root)
 
 		// when
 		val listString = testExecLogService.testLogExeutionsList.entity as String

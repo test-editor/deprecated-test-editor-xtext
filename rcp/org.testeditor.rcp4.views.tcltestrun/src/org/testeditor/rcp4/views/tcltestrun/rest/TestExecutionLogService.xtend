@@ -30,7 +30,7 @@ class TestExecutionLogService {
 
 	@Accessors
 	TestExecutionManager testExecutionManager
-	
+
 	val public static String SERVICE_PATH = "/testruns"
 
 	@GET
@@ -45,9 +45,10 @@ class TestExecutionLogService {
 	}
 
 	def Link[] createLinks(String fileName) {
-		val links = #[ new Link('''«SERVICE_PATH»/«fileName»/fullLogs''',"fullLogs"),
-			new Link('''«SERVICE_PATH»/«fileName»/logGroups''',"logGroups"),
-			new Link('''«SERVICE_PATH»/«fileName»/logGroups''',"self")
+		val links = #[
+			new Link('''«SERVICE_PATH»/«fileName»/fullLogs''', "fullLogs"),
+			new Link('''«SERVICE_PATH»/«fileName»/logGroups''', "logGroups"),
+			new Link('''«SERVICE_PATH»/«fileName»/logGroups''', "self")
 		]
 		return links
 	}
@@ -56,8 +57,7 @@ class TestExecutionLogService {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	def Response getTestLogExeutionContent(@PathParam("filename") String filename) {
-		val log = testExecutionManager.testExecutionLogs.entries.filter[logFile.name == filename].head
-		log.content = Files.readAllLines(log.logFile.toPath).join
+		val log = testExecutionManager.gettestExecutionLogFor(filename)
 		log.links = createLinks(filename)
 		val gson = new Gson
 		return Response.ok(gson.toJson(log)).build

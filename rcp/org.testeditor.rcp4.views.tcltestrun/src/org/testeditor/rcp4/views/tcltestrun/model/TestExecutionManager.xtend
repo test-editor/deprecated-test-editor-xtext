@@ -22,6 +22,7 @@ import javax.inject.Inject
 import org.eclipse.e4.core.di.annotations.Creatable
 import org.slf4j.LoggerFactory
 import org.testeditor.rcp4.views.tcltestrun.LogLocationHelper
+import java.nio.file.Files
 
 @Creatable
 class TestExecutionManager {
@@ -48,11 +49,28 @@ class TestExecutionManager {
 		val location = logLocationHelper.logLocation
 		val logs = location.list.filter[it.matches('te-\\d+\\.log')]
 		return new TestExecutionLogList(logs.map [
-			val log = new TestExecutionLog
-			log.name = testExecutionLogName
-			log.logFile = new File(location, it)
-			return log
+			createTestExecutionLog
 		].sortBy[name])
+	}
+
+	def TestExecutionLog gettestExecutionLogFor(String fileName) {
+		val location = logLocationHelper.logLocation
+		val log = location.list.filter[it.matches(fileName)]
+		if (log.head != null) {
+			val result = log.head.createTestExecutionLog
+			result.content = Files.readAllLines(result.logFile.toPath).join
+			return result
+		}
+		return null
+
+	}
+
+	def private TestExecutionLog createTestExecutionLog(String teLogFileName) {
+		val log = new TestExecutionLog
+		val location = logLocationHelper.logLocation
+		log.name = teLogFileName.testExecutionLogName
+		log.logFile = new File(location, teLogFileName)
+		return log
 	}
 
 	def private String getTestExecutionLogName(String teLogFileName) {
