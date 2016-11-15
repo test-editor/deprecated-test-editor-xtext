@@ -259,14 +259,14 @@ class ProjectContentGenerator {
 		* Start browser and navigate to Google
 		
 			Component: WebBrowser
-			- start browser <Firefox>
+			- Start <Firefox>
 			- Browse to "http://www.google.de"
 		
 		* Search ^for "testeditor"
 		
 			Component: Searchsite
 			- Type in <Searchfield> value "testeditor"
-			- press enter in <Searchfield>
+			- Press enter on <Searchfield>
 		
 		* Close browser
 		
@@ -350,6 +350,7 @@ class ProjectContentGenerator {
 
 			// In this section you declare the dependencies for your production and test code
 			dependencies {
+				compile 'org.testeditor.fixture:core-fixture:3.1.0'
 			    «FOR s : fixtureNames»
 			    	«getGradleDependency(s)»
 				«ENDFOR»
@@ -361,12 +362,12 @@ class ProjectContentGenerator {
 	def String getGradleDependency(String fixtureName) {
 		if (fixtureName == WEBFIXTURE) {
 			return '''
-				compile 'org.testeditor.fixture:web-fixture:3.0.0-PROTO'
+				compile 'org.testeditor.fixture:web-fixture:3.1.0'
 			'''
 		}
 		if (fixtureName == SWINGFIXTURE) {
 			return '''
-				compile 'org.testeditor.fixture:swing-fixture:3.0.0-PROTO'
+				compile 'org.testeditor.fixture:swing-fixture:3.1.0'
 			'''
 		}
 	}
@@ -445,6 +446,11 @@ class ProjectContentGenerator {
 						<groupId>junit</groupId>
 						<artifactId>junit</artifactId>
 						<version>4.12</version>
+					</dependency>
+					<dependency>
+						<groupId>org.testeditor.fixture</groupId>
+						<artifactId>core-fixture</artifactId>
+						<version>3.1.0</version>
 					</dependency>
 					«FOR s : fixtureNames»
 						«getMavenDependency(s)»
@@ -559,6 +565,11 @@ class ProjectContentGenerator {
 								</configuration>
 								<dependencies>
 									<dependency>
+										<groupId>org.apache.commons</groupId>
+										<artifactId>commons-lang3</artifactId>
+										<version>3.4</version>
+									</dependency>
+									<dependency>
 										<groupId>org.testeditor</groupId>
 										<artifactId>org.testeditor.dsl.common</artifactId>
 										<version>${testeditor.version}</version>
@@ -658,7 +669,7 @@ class ProjectContentGenerator {
 				<dependency>
 					<groupId>org.testeditor.fixture</groupId>
 					<artifactId>web-fixture</artifactId>
-					<version>3.0.0-PROTO</version>
+					<version>3.1.0</version>
 				</dependency>
 			'''
 		}
@@ -667,7 +678,7 @@ class ProjectContentGenerator {
 				<dependency>
 					<groupId>org.testeditor.fixture</groupId>
 					<artifactId>swing-fixture</artifactId>
-					<version>3.0.0-PROTO</version>
+					<version>3.1.0</version>
 				</dependency>
 			'''
 		}
