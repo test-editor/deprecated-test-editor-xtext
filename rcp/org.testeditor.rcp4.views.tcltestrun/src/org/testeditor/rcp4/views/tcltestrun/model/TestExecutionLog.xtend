@@ -20,14 +20,14 @@ import org.eclipse.xtend.lib.annotations.Accessors
 @Accessors
 class TestExecutionLog {
 
-	private String name
-	private Date executionDate
-	private List<TestCaseExecution> testCases
-	private String filename
-	private File logFile
-	private Link[] links
-	private String content
-	private TestLogGroup[] logGroups
+	String name
+	Date executionDate
+	List<TestCaseExecution> testCases
+	String filename
+	File logFile
+	Link[] links
+	String content
+	TestLogGroup[] logGroups
 		
 	def void setLogFile(File file) {
 		logFile = file

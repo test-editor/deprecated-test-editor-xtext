@@ -5,7 +5,7 @@ plugins {
 node {
 	version = '6.9.1'
 	npmVersion = '3.10.8'
-    workDir file("rcp/org.testeditor.web.testexecutionlogview/node")
+	workDir file("rcp/org.testeditor.web.testexecutionlogview/node")
 	download = true
 }
 
@@ -13,14 +13,14 @@ def targetPlatform = "$projectDir/target-platform"
 
 task npmInstallDep(type: NpmTask, dependsOn: npmSetup){
 	group 'Node'
-    workingDir file("rcp/org.testeditor.web.testexecutionlogview")
+	workingDir file("rcp/org.testeditor.web.testexecutionlogview")
 	description 'Installs the NodeJS packages'
     args = [ 'install' ]    
 }
 
 task npmInstallTeLogView(type: NpmTask, dependsOn: npmInstallDep) {
 	group 'Node'
-    workingDir file("rcp/org.testeditor.web.testexecutionlogview")
+	workingDir file("rcp/org.testeditor.web.testexecutionlogview")
 	description 'Typescript compile'
 	args = [ 'run-script', 'tsc' ]
 }

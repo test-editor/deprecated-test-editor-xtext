@@ -17,6 +17,7 @@ import org.eclipse.swt.SWT
 import org.eclipse.swt.browser.Browser
 import org.eclipse.swt.widgets.Composite
 import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionLog
+import org.eclipse.e4.ui.di.Focus
 
 class TestExecutionLogViewPart {
 	
@@ -26,6 +27,11 @@ class TestExecutionLogViewPart {
 	def void buildUI(Composite parent) {
 		browser = new Browser(parent, SWT.NORMAL)
 		browser.setUrl("http://localhost:19091/testlogs/web-app/index.html")
+	}
+	
+	@Focus
+	def void setFocus() {
+		browser.setFocus
 	}
 	
 	def void showLog(TestExecutionLog log) {

@@ -27,18 +27,17 @@ class BundleHttpContext implements HttpContext {
 	}
 	
 	override getMimeType(String name) {
-		return null;
+		return null
 	}
 
 	override getResource(String name) {
-		if (name != null) {
+		if (name !== null) {
 			if (name.startsWith("/")) {
-				return bundle.getEntry(name.substring(1));
+				return bundle.getEntry(name.substring(1))
 			}
-
-			return bundle.getEntry(name);
+			return bundle.getEntry(name)
 		}
-		return null;
+		return null
 	}
 
 	override handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {

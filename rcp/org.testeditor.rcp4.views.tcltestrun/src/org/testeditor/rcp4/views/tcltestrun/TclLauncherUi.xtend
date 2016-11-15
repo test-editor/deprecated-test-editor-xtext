@@ -128,7 +128,7 @@ class TclLauncherUi implements Launcher {
 			}
 			val con = consoleFactory.createAndShowConsole
 			var list = testLaunchInformation.testCasesCommaList
-			if(list === null) {
+			if (list === null) {
 				list = #[]
 			}
 			val execLog = testExecutionManager.createTestExecutionLog(list)
@@ -136,7 +136,7 @@ class TclLauncherUi implements Launcher {
 			partHelper.showView(TEST_EXECUTION_RESULT_VIEW)
 			val viewPart = eclipseContextHelper.eclipseContext.get(EPartService).findPart(TEST_EXECUTION_RESULT_VIEW)
 			val teExecView = viewPart.object as TestExecutionLogViewPart
-			Display.^default.syncExec[teExecView?.showLog(execLog)]			
+			Display.^default.syncExec[teExecView?.showLog(execLog)]
 			val result = testLaunchInformation.launcher.launchTest(testLaunchInformation.testCasesCommaList,
 				testLaunchInformation.project, monitor, output, testLaunchInformation.options)
 			testLaunchInformation.project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
@@ -149,7 +149,7 @@ class TclLauncherUi implements Launcher {
 		])
 		return true
 	}
-	
+
 	def storeTestParameterAsLastTestExecution(TestLaunchInformation testLaunchInformation) {
 		logger.debug("Storing test execution as last launch")
 		eclipseContextHelper.eclipseContext.set(TestLaunchInformation, testLaunchInformation)

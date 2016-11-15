@@ -33,7 +33,7 @@ class TestExecutionManagerTest extends AbstractTest {
 	TestExecutionManager testExecutionManager
 	
 	@Rule 
-	public TemporaryFolder tempFolder = new TemporaryFolder();
+	public TemporaryFolder tempFolder = new TemporaryFolder
 	
 	@Test
 	def void testGetTestExecutionLogs() {

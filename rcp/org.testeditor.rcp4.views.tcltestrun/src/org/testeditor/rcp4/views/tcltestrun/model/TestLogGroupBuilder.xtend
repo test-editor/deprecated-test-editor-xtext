@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.tcltestrun.model
 
-import java.util.ArrayList
 import java.util.List
 
 class TestLogGroupBuilder {
@@ -20,9 +19,9 @@ class TestLogGroupBuilder {
 	TestLogGroup currentLogGroup
 
 	public def List<TestLogGroup> build(List<String> logLines) {
-		val result = new ArrayList<TestLogGroup>()
+		val result = newArrayList
 		logLines.forEach [
-			updateCurrentLogEntry(it, result)
+			updateCurrentLogEntry(result)
 			currentLogGroup.addLogLine(it)
 		]
 		return result

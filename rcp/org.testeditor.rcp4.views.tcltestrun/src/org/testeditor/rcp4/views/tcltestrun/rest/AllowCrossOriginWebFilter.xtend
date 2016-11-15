@@ -28,6 +28,7 @@ class AllowCrossOriginWebFilter implements Filter {
 	static val ACCESS_CONTROL_ALLOW_ORIGIN_HEADER = "Access-Control-Allow-Origin"
 
 	override destroy() {
+		// nothing to do here
 	}
 
 	override doFilter(ServletRequest request, ServletResponse response,
@@ -42,6 +43,7 @@ class AllowCrossOriginWebFilter implements Filter {
 	}
 
 	override init(FilterConfig filterConfig) throws ServletException {
+		// nothing to do here
 	}
 
 }

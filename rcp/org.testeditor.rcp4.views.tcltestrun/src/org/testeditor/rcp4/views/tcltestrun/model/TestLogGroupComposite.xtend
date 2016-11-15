@@ -13,19 +13,17 @@
 package org.testeditor.rcp4.views.tcltestrun.model
 
 import java.util.List
+import org.eclipse.xtend.lib.annotations.Accessors
 
 class TestLogGroupComposite extends TestLogGroup {
 	
+	@Accessors(PUBLIC_GETTER)
 	List<TestLogGroup> children = newArrayList
 	
 	new(TestElementType type) {
 		super(type)
 	}
 		
-	def List<TestLogGroup> getChildren() {
-		return children
-	}
-
 	def void add(TestLogGroup testLogGroup) {
 		testLogGroup.setParent(this)
 		children.add(testLogGroup)

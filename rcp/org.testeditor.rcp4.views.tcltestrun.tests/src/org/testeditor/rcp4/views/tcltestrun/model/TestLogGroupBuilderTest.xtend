@@ -79,13 +79,22 @@ class TestLogGroupBuilderTest extends AbstractTest {
 		val group = logGroupBuilder.build(wrap(log).readLines)
 
 		// then	
-		assertEquals(group.size, 2)
-		assertTrue(group.get(1) instanceof TestLogGroup)
-		val tlGroup = group.get(1) as TestLogGroupComposite
-		assertTrue(tlGroup.children.get(0).type === TestElementType.TestComponentGroup)
-		val cmpGroup = tlGroup.children.get(0) as TestLogGroup
-		assertTrue(cmpGroup.parent.type === TestElementType.TestSpecGroup)
-		assertTrue((cmpGroup.parent).children.contains(cmpGroup))
+		group.assertSize(2)
+		group.get(1).assertInstanceOf(TestLogGroupComposite) => [ parent |
+			parent.type.assertEquals(TestElementType.TestSpecGroup)
+			parent.children.head.assertInstanceOf(TestLogGroup) =>[
+				type.assertEquals(TestElementType.TestComponentGroup)
+				it.parent.assertSame(parent)
+				//assertTrue(it.parent.type === TestElementType.TestSpecGroup)
+				//assertTrue(it.parent.children.contains(it))
+			]
+		]
+//		assertTrue(group.get(1) instanceof TestLogGroupComposite)
+//		val tlGroup = group.get(1) as TestLogGroupComposite
+//		assertTrue(tlGroup.children.get(0).type === TestElementType.TestComponentGroup)
+//		val cmpGroup = tlGroup.children.get(0) as TestLogGroup
+//		assertTrue(cmpGroup.parent.type === TestElementType.TestSpecGroup)
+//		assertTrue((cmpGroup.parent).children.contains(cmpGroup))
 	}
 
 	@Test

@@ -41,7 +41,7 @@ class TestExecutionLogServiceTest extends AbstractTest {
 	TestExecutionLogService testExecLogService
 
 	@Rule
-	public TemporaryFolder tempFolder = new TemporaryFolder();
+	public TemporaryFolder tempFolder = new TemporaryFolder
 
 	@Test
 	def void testGetTestLogExeutionList() {
