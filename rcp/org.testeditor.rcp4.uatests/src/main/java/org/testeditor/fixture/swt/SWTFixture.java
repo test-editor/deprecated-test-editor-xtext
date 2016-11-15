@@ -60,6 +60,9 @@ import org.testeditor.fixture.core.interaction.FixtureMethod;
 public class SWTFixture  implements TestRunListener, TestRunReportable {
 
 	private static final Logger logger = LoggerFactory.getLogger(SWTFixture.class);
+	private static final int SCREENSHOT_FILENAME_MAXLEN = 128;
+
+
 	private SWTWorkbenchBot bot = new SWTWorkbenchBot();
 	private String runningTest = null;
 
@@ -184,15 +187,42 @@ public class SWTFixture  implements TestRunListener, TestRunReportable {
 		// configurable through maven build?
 		return (action == Action.ENTER) || unit == SemanticUnit.TEST;
 	}
-
+	
+	/** reduce a string to a maxlength (if too large). 
+	 *  remove characters from splitAt ongoing, replacing all by one separator, until string length is maxlength 
+	 *  e.g.
+	 *  reduceString("abcdefgh", 6, "..") = "abc..h" */
+	private String reduceStringTo(String base, int maxlength, String separator) {
+		int splitAt = (maxlength * 2) / 3;
+		if (maxlength - splitAt - separator.length() < 0) {
+			throw new IllegalArgumentException("maxlength/3 must be >= length(separator)");
+		}
+		if (base.length() > maxlength) {
+			// lengths: [splitAt - seplen/2 ] + [ seplen ] + [ maxlen - splitAt - seplen + seplen/2] = maxlen
+			return base.substring(0, splitAt - separator.length() / 2) + separator
+					+ base.substring(base.length() - maxlength + splitAt + separator.length() - separator.length() / 2);
+		}
+		return base;
+	}
+	
 	private String constructScreenshotFilename(String filenameBase, String testcase) {
 		String additionalGraphicType = ".png";
-		String escapedBaseName=filenameBase.replaceAll("[^a-zA-Z0-9.-]", "_");
-		String hash = Integer.toHexString(System.identityHashCode(this));
+		String escapedBaseName = filenameBase.replaceAll("[^a-zA-Z0-9.-]", "_").replaceAll("_+", "_")
+				.replaceAll("_+\\.", ".").replaceAll("\\._+", ".");
+		String hash = Integer.toHexString(System.identityHashCode(this)); // since each new test instatiates a separate fixture, this should be unambiguously identify one testrun
 		String timeStr = new SimpleDateFormat("HHmmss.SSS").format(new Date());
-		StringBuffer finalFilenameBuffer=new StringBuffer();
-		finalFilenameBuffer.append(getScreenshotPath()).append(testcase).append('-').append(hash).append('-')
-				.append(timeStr).append('-').append(escapedBaseName).append(additionalGraphicType);
+		StringBuffer finalFilenameBuffer = new StringBuffer();
+		
+		int fixLength = hash.length() + timeStr.length() + 2/* hyphens */ + additionalGraphicType.length();
+		int charsTooMuch = fixLength + testcase.length() + escapedBaseName.length() - SCREENSHOT_FILENAME_MAXLEN;
+		if (charsTooMuch > 0) {
+			escapedBaseName = reduceStringTo(escapedBaseName, SCREENSHOT_FILENAME_MAXLEN/2-fixLength/2-charsTooMuch/2, "..");
+			int testCaseMaxLen = SCREENSHOT_FILENAME_MAXLEN - fixLength - escapedBaseName.length();
+			testcase = reduceStringTo(testcase, testCaseMaxLen, "..");
+		}
+		
+		finalFilenameBuffer.append(getScreenshotPath()).append(hash).append('-').append(timeStr).append('-')
+				.append(testcase).append('-').append(escapedBaseName).append(additionalGraphicType);
 		return finalFilenameBuffer.toString();
 	}
 
