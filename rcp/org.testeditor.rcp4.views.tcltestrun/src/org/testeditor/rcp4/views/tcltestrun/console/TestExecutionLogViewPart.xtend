@@ -20,23 +20,25 @@ import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionLog
 import org.eclipse.e4.ui.di.Focus
 
 class TestExecutionLogViewPart {
-	
+
 	Browser browser
-	
+
 	@PostConstruct
 	def void buildUI(Composite parent) {
 		browser = new Browser(parent, SWT.NORMAL)
 		browser.setUrl("http://localhost:19091/testlogs/web-app/index.html")
 	}
-	
+
 	@Focus
 	def void setFocus() {
-		browser.setFocus
+		if (browser !== null) {
+			browser.setFocus
+		}
 	}
-	
+
 	def void showLog(TestExecutionLog log) {
-		//TODO update browser with new navigation content
+		// TODO update browser with new navigation content
 		browser.refresh
 	}
-	
+
 }
