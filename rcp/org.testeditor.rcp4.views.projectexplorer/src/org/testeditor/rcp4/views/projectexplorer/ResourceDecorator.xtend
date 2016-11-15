@@ -16,8 +16,11 @@ import org.eclipse.ui.ISharedImages
 import org.testeditor.dsl.common.ui.utils.WorkbenchImagesHelper
 import org.testeditor.dsl.common.util.WorkspaceHelper
 import org.testeditor.dsl.common.util.classpath.ClasspathUtil
+import org.slf4j.LoggerFactory
 
 class ResourceDecorator extends LabelProvider implements ILightweightLabelDecorator {
+	
+	static val log=LoggerFactory.getLogger(ResourceDecorator)
 
 	@Inject WorkspaceHelper workspaceHelper
 	@Inject WorkbenchImagesHelper imagesHelper
@@ -31,13 +34,17 @@ class ResourceDecorator extends LabelProvider implements ILightweightLabelDecora
 	}
 
 	override decorate(Object element, IDecoration decoration) {
-		switch (element.maxSeverity) {
-			case IMarker.SEVERITY_ERROR:
-				decoration.addOverlay(errorIcon, IDecoration.BOTTOM_LEFT)
-			case IMarker.SEVERITY_WARNING:
-				decoration.addOverlay(warningIcon, IDecoration.BOTTOM_LEFT) 
-			default: {
-			} // ignore, that is no decoration
+		try {
+			switch (element.maxSeverity) {
+				case IMarker.SEVERITY_ERROR:
+					decoration.addOverlay(errorIcon, IDecoration.BOTTOM_LEFT)
+				case IMarker.SEVERITY_WARNING:
+					decoration.addOverlay(warningIcon, IDecoration.BOTTOM_LEFT)
+				default: {
+				} // ignore, that is no decoration
+			}
+		} catch (Exception e) {
+			log.error("Exception during decoration process.", e)
 		}
 	}
 
