@@ -177,4 +177,23 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 		'''.indent(2))
 	}
 
+	@Test
+	def void interactionCallWithValueAndLocator() {
+		// given
+		val tcl = '''
+			* Some step
+				Mask: GreetingApplication
+				- Set value of <Input> to "theValue"
+		'''
+
+		// when
+		val generatedCode = tcl.parseAndGenerate
+
+		// then
+		generatedCode.assertContains('''
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "Set value of <Input> to \"theValue\"");
+			dummyFixture.setValue("text.input", "theValue");
+		'''.indent(2))
+	}
+
 }

@@ -75,6 +75,7 @@ public class DummyFixture {
 		package com.example
 		
 		import «DummyFixture.name»
+		import «DummyLocatorStrategy.name»
 		
 		component type Application {
 			interactions = start, stop, wait
@@ -132,11 +133,26 @@ public class DummyFixture {
 		element type Label {
 			interactions = getList, getValue, getBool, getMap, isVisible
 		}
-					
+		
+		element type Text {
+			interactions = getValue, isVisible, setValue
+		}
+
+		element type Button {
+			interactions = clickOn, isVisible
+		}
+		
 		component GreetingApplication is Application {
 			element bar is Label {
 				label = "Label"
 				locator = "label.greet"
+			}
+			element Input is Text {
+				locator = "text.input"
+			}
+			element Ok is Button {
+				locator = "button.ok"
+				locatorStrategy = DummyLocatorStrategy.ID
 			}
 		}
 	'''

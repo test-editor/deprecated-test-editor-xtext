@@ -15,9 +15,8 @@ import org.eclipse.jface.viewers.LabelProvider
 import org.eclipse.jface.viewers.LabelProviderChangedEvent
 import org.eclipse.swt.widgets.Display
 import org.eclipse.ui.ISharedImages
-import org.testeditor.dsl.common.util.WorkbenchImagesHelper
+import org.testeditor.dsl.common.ui.utils.WorkbenchImagesHelper
 import org.testeditor.dsl.common.util.WorkspaceHelper
-import org.eclipse.jface.resource.ImageDescriptor
 
 class ResourceDecorator extends LabelProvider implements ILightweightLabelDecorator {
 
