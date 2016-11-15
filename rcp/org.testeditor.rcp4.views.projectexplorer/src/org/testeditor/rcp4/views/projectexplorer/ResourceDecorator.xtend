@@ -33,9 +33,9 @@ class ResourceDecorator extends LabelProvider implements ILightweightLabelDecora
 	override decorate(Object element, IDecoration decoration) {
 		switch (element.maxSeverity) {
 			case IMarker.SEVERITY_ERROR:
-				decoration.addOverlay(errorIcon)
+				decoration.addOverlay(errorIcon, IDecoration.BOTTOM_LEFT)
 			case IMarker.SEVERITY_WARNING:
-				decoration.addOverlay(warningIcon)
+				decoration.addOverlay(warningIcon, IDecoration.BOTTOM_LEFT) 
 			default: {
 			} // ignore, that is no decoration
 		}
