@@ -73,7 +73,7 @@ class MavenClasspathUtilTest extends AbstractTest {
 			    <dependency>
 			      <groupId>org.testeditor.fixture</groupId>
 			      <artifactId>core-fixture</artifactId>
-			      <version>2.5.2</version>
+			      <version>3.1.0</version>
 			      <scope>compile</scope>
 			    </dependency>
 			  </dependencies>

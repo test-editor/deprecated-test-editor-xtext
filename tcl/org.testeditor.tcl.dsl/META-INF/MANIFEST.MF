@@ -39,4 +39,4 @@ Export-Package: org.testeditor.fixture.core,
  org.testeditor.tcl.dsl.serializer,
  org.testeditor.tcl.dsl.services,
  org.testeditor.tcl.dsl.validation
-Bundle-ClassPath: lib/core-fixture-3.0.2.jar,.
+Bundle-ClassPath: lib/core-fixture-3.1.0.jar,.
