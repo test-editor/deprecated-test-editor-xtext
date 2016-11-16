@@ -21,6 +21,8 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.xtext.EcoreUtil2
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.util.WorkspaceHelper
+import org.eclipse.core.resources.IProject
+import org.eclipse.jdt.internal.core.JavaProject
 
 class ClasspathUtil {
 
@@ -60,9 +62,17 @@ class ClasspathUtil {
 	}
 
 	def protected IPath getEclipseClasspathEntry(IPath path) {
-		val javaProject = JavaCore.create(workspaceHelper.root.getFile(path).project)
-		val classpathEntries = javaProject.rawClasspath.filter[entryKind == IClasspathEntry.CPE_SOURCE]
+		val classpathEntries = getSourceClasspathEntries(workspaceHelper.root.getFile(path).project)
 		return classpathEntries.filter[it.path.isPrefixOf(path)].head.path
+	}
+	
+	def Iterable<IClasspathEntry> getSourceClasspathEntries(IProject project) {
+		if (JavaProject.hasJavaNature(project)) {
+			val javaProject = JavaCore.create(project)
+			return javaProject.rawClasspath.filter[entryKind == IClasspathEntry.CPE_SOURCE]
+		} else {
+			return emptyList
+		}
 	}
 
 	def protected boolean getIsEclipseResolved(Path path) {
