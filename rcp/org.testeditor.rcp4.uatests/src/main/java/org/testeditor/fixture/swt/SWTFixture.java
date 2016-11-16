@@ -57,9 +57,11 @@ import org.testeditor.fixture.core.interaction.FixtureMethod;
  * Fixture to control SWT elements in an RCP Application.
  *
  */
-public class SWTFixture  implements TestRunListener, TestRunReportable {
+public class SWTFixture implements TestRunListener, TestRunReportable {
 
 	private static final Logger logger = LoggerFactory.getLogger(SWTFixture.class);
+	private static final int SCREENSHOT_FILENAME_MAXLEN = 128;
+
 	private SWTWorkbenchBot bot = new SWTWorkbenchBot();
 	private String runningTest = null;
 
@@ -77,8 +79,8 @@ public class SWTFixture  implements TestRunListener, TestRunReportable {
 		if (unit == SemanticUnit.TEST && action == Action.ENTER) {
 			runningTest = msg;
 		}
-		if (screenshotShouldBeMade(unit,action,msg)) {
-			screenshot(msg+'.'+action.name());
+		if (screenshotShouldBeMade(unit, action, msg)) {
+			screenshot(msg + '.' + action.name());
 		}
 	}
 
@@ -168,31 +170,45 @@ public class SWTFixture  implements TestRunListener, TestRunReportable {
 	@FixtureMethod
 	public void waitForDialogClosing(String title) {
 		long swtBotDefaultInMilliSeconds = SWTBotPreferences.TIMEOUT;
-		waitForPopupDialogClosingWithTimeout(title, swtBotDefaultInMilliSeconds / 2000, swtBotDefaultInMilliSeconds / 1000);
+		waitForPopupDialogClosingWithTimeout(title, swtBotDefaultInMilliSeconds / 2000,
+				swtBotDefaultInMilliSeconds / 1000);
 	}
 
 	private String getCurrentTestCase() {
-		return runningTest!=null?runningTest:"UNKNOWN_TEST";
+		return runningTest != null ? runningTest : "UNKNOWN_TEST";
 	}
 
 	private String getScreenshotPath() {
 		// configurable through maven build?
-		return "";
+		return "screenshots";
 	}
-	
+
 	private boolean screenshotShouldBeMade(SemanticUnit unit, Action action, String msg) {
 		// configurable through maven build?
 		return (action == Action.ENTER) || unit == SemanticUnit.TEST;
 	}
+	
+	private String reduceToMaxLen(String base, int maxLen){
+		if (base.length() < maxLen) {
+			return base;
+		} else {
+			return base.substring(0, maxLen);
+		}
+	}
 
 	private String constructScreenshotFilename(String filenameBase, String testcase) {
 		String additionalGraphicType = ".png";
-		String escapedBaseName=filenameBase.replaceAll("[^a-zA-Z0-9.-]", "_");
-		String hash = Integer.toHexString(System.identityHashCode(this));
+		String escapedBaseName = filenameBase.replaceAll("[^a-zA-Z0-9.-]", "_").replaceAll("_+", "_")
+				.replaceAll("_+\\.", ".").replaceAll("\\._+", ".");
 		String timeStr = new SimpleDateFormat("HHmmss.SSS").format(new Date());
-		StringBuffer finalFilenameBuffer=new StringBuffer();
-		finalFilenameBuffer.append(getScreenshotPath()).append(testcase).append('-').append(hash).append('-')
-				.append(timeStr).append('-').append(escapedBaseName).append(additionalGraphicType);
+		StringBuffer finalFilenameBuffer = new StringBuffer();
+		int lenOfFixedElements = timeStr.length() + additionalGraphicType.length() + 1/* hyphen */;
+		finalFilenameBuffer //
+				.append(getScreenshotPath()) //
+				.append('/').append(reduceToMaxLen(testcase, SCREENSHOT_FILENAME_MAXLEN))//
+				.append('/').append(timeStr).append('-')
+				.append(reduceToMaxLen(escapedBaseName, SCREENSHOT_FILENAME_MAXLEN - lenOfFixedElements))//
+				.append(additionalGraphicType);
 		return finalFilenameBuffer.toString();
 	}
 
