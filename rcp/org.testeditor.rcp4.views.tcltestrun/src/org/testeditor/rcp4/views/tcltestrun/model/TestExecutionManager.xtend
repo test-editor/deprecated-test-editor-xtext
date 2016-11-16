@@ -40,14 +40,15 @@ class TestExecutionManager {
 
 	def OutputStream createOutputStreamFor(TestExecutionLog execLog) {
 		val location = logLocationHelper.logLocation
-		val newLog = new File(location, "te-" + execLog.executionDate.time + ".log")
+		val sdf = new SimpleDateFormat("yyyy.MM.dd.-HH:mm")
+		val newLog = new File(location, "te-" + sdf.format(execLog.executionDate) + ".log")
 		logger.info("Create new test execution log file {}.", newLog.absolutePath)
 		return new FileOutputStream(newLog)
 	}
 
 	def TestExecutionLogList getTestExecutionLogs() {
 		val location = logLocationHelper.logLocation
-		val logs = location.list.filter[it.matches('te-\\d+\\.log')]
+		val logs = location.list.filter[it.startsWith('te-') && it.endsWith('.log')]
 		return new TestExecutionLogList(logs.map [
 			createTestExecutionLog
 		].sortBy[-logFile.lastModified])
@@ -74,7 +75,8 @@ class TestExecutionManager {
 	}
 
 	def private String getTestExecutionLogName(String teLogFileName) {
-		val date = new Date(Long.parseLong(teLogFileName.substring(3, teLogFileName.lastIndexOf("."))))
+		val sdfReader = new SimpleDateFormat("yyyy.MM.dd.-HH:mm")
+		val date = sdfReader.parse(teLogFileName.substring(3, teLogFileName.lastIndexOf(".")))
 		val sdf = new SimpleDateFormat("dd.MM.yy HH:mm")
 		return sdf.format(date)
 	}

@@ -146,6 +146,7 @@ class TclLauncherUi implements Launcher {
 				safeUpdateJunitTestView(result.expectedFileRoot, testLaunchInformation.project.name)
 			}
 			monitor.done
+			partHelper.showView(TEST_EXECUTION_RESULT_VIEW)
 		])
 		return true
 	}
