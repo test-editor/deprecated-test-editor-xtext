@@ -13,14 +13,14 @@ import org.eclipse.jface.viewers.LabelProvider
 import org.eclipse.jface.viewers.LabelProviderChangedEvent
 import org.eclipse.swt.widgets.Display
 import org.eclipse.ui.ISharedImages
+import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.WorkbenchImagesHelper
 import org.testeditor.dsl.common.util.WorkspaceHelper
 import org.testeditor.dsl.common.util.classpath.ClasspathUtil
-import org.slf4j.LoggerFactory
 
 class ResourceDecorator extends LabelProvider implements ILightweightLabelDecorator {
-	
-	static val log=LoggerFactory.getLogger(ResourceDecorator)
+
+	static val logger = LoggerFactory.getLogger(ResourceDecorator)
 
 	@Inject WorkspaceHelper workspaceHelper
 	@Inject WorkbenchImagesHelper imagesHelper
@@ -44,7 +44,7 @@ class ResourceDecorator extends LabelProvider implements ILightweightLabelDecora
 				} // ignore, that is no decoration
 			}
 		} catch (Exception e) {
-			log.error("Exception during decoration process.", e)
+			logger.error("Exception during decoration process.", e)
 		}
 	}
 
@@ -74,15 +74,18 @@ class ResourceDecorator extends LabelProvider implements ILightweightLabelDecora
 
 	private def int getMaxSeverity(Object element) {
 		val resources = element.resourcesForSeverityCalculation
-		val severities = resources.map [
-			try {
-				return findMaxProblemSeverity(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)
-			} catch (CoreException ce) {
-				return NO_SEVERITY
-			}
-		]
-		val maxSeverity = severities.reduce[a, b|Math.max(a, b)]
-		return maxSeverity ?: NO_SEVERITY // severities may be an empty list, reduce will null => provide default
+		if (! resources.empty) {
+			val severities = resources.map [
+				try {
+					return findMaxProblemSeverity(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)
+				} catch (CoreException ce) {
+					return NO_SEVERITY
+				}
+			]
+			return severities.max
+		} else {
+			return NO_SEVERITY
+		}
 	}
 
 	// only descriptors, need not be disposed => no cleanup necessary
