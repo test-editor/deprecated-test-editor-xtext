@@ -107,10 +107,7 @@
 								</excludes>
 							</fileset>
 							<fileset>
-							    <directory>.</directory>
-							    <includes>
-							    	<include>org.testeditor.*.png</include>
-							    </includes>
+							    <directory>screenshots</directory>
 							</fileset>
 							<fileset>
 								<directory>lib</directory>

@@ -57,11 +57,10 @@ import org.testeditor.fixture.core.interaction.FixtureMethod;
  * Fixture to control SWT elements in an RCP Application.
  *
  */
-public class SWTFixture  implements TestRunListener, TestRunReportable {
+public class SWTFixture implements TestRunListener, TestRunReportable {
 
 	private static final Logger logger = LoggerFactory.getLogger(SWTFixture.class);
 	private static final int SCREENSHOT_FILENAME_MAXLEN = 128;
-
 
 	private SWTWorkbenchBot bot = new SWTWorkbenchBot();
 	private String runningTest = null;
@@ -80,8 +79,8 @@ public class SWTFixture  implements TestRunListener, TestRunReportable {
 		if (unit == SemanticUnit.TEST && action == Action.ENTER) {
 			runningTest = msg;
 		}
-		if (screenshotShouldBeMade(unit,action,msg)) {
-			screenshot(msg+'.'+action.name());
+		if (screenshotShouldBeMade(unit, action, msg)) {
+			screenshot(msg + '.' + action.name());
 		}
 	}
 
@@ -171,58 +170,45 @@ public class SWTFixture  implements TestRunListener, TestRunReportable {
 	@FixtureMethod
 	public void waitForDialogClosing(String title) {
 		long swtBotDefaultInMilliSeconds = SWTBotPreferences.TIMEOUT;
-		waitForPopupDialogClosingWithTimeout(title, swtBotDefaultInMilliSeconds / 2000, swtBotDefaultInMilliSeconds / 1000);
+		waitForPopupDialogClosingWithTimeout(title, swtBotDefaultInMilliSeconds / 2000,
+				swtBotDefaultInMilliSeconds / 1000);
 	}
 
 	private String getCurrentTestCase() {
-		return runningTest!=null?runningTest:"UNKNOWN_TEST";
+		return runningTest != null ? runningTest : "UNKNOWN_TEST";
 	}
 
 	private String getScreenshotPath() {
 		// configurable through maven build?
-		return "";
+		return "screenshots";
 	}
-	
+
 	private boolean screenshotShouldBeMade(SemanticUnit unit, Action action, String msg) {
 		// configurable through maven build?
 		return (action == Action.ENTER) || unit == SemanticUnit.TEST;
 	}
 	
-	/** reduce a string to a maxlength (if too large). 
-	 *  remove characters from splitAt ongoing, replacing all by one separator, until string length is maxlength 
-	 *  e.g.
-	 *  reduceString("abcdefgh", 6, "..") = "abc..h" */
-	private String reduceStringTo(String base, int maxlength, String separator) {
-		int splitAt = (maxlength * 2) / 3;
-		if (maxlength - splitAt - separator.length() < 0) {
-			throw new IllegalArgumentException("maxlength/3 must be >= length(separator)");
+	private String reduceToMaxLen(String base, int maxLen){
+		if (base.length() < maxLen) {
+			return base;
+		} else {
+			return base.substring(0, maxLen);
 		}
-		if (base.length() > maxlength) {
-			// lengths: [splitAt - seplen/2 ] + [ seplen ] + [ maxlen - splitAt - seplen + seplen/2] = maxlen
-			return base.substring(0, splitAt - separator.length() / 2) + separator
-					+ base.substring(base.length() - maxlength + splitAt + separator.length() - separator.length() / 2);
-		}
-		return base;
 	}
-	
+
 	private String constructScreenshotFilename(String filenameBase, String testcase) {
 		String additionalGraphicType = ".png";
 		String escapedBaseName = filenameBase.replaceAll("[^a-zA-Z0-9.-]", "_").replaceAll("_+", "_")
 				.replaceAll("_+\\.", ".").replaceAll("\\._+", ".");
-		String hash = Integer.toHexString(System.identityHashCode(this)); // since each new test instatiates a separate fixture, this should be unambiguously identify one testrun
 		String timeStr = new SimpleDateFormat("HHmmss.SSS").format(new Date());
 		StringBuffer finalFilenameBuffer = new StringBuffer();
-		
-		int fixLength = hash.length() + timeStr.length() + 2/* hyphens */ + additionalGraphicType.length();
-		int charsTooMuch = fixLength + testcase.length() + escapedBaseName.length() - SCREENSHOT_FILENAME_MAXLEN;
-		if (charsTooMuch > 0) {
-			escapedBaseName = reduceStringTo(escapedBaseName, SCREENSHOT_FILENAME_MAXLEN/2-fixLength/2-charsTooMuch/2, "..");
-			int testCaseMaxLen = SCREENSHOT_FILENAME_MAXLEN - fixLength - escapedBaseName.length();
-			testcase = reduceStringTo(testcase, testCaseMaxLen, "..");
-		}
-		
-		finalFilenameBuffer.append(getScreenshotPath()).append(hash).append('-').append(timeStr).append('-')
-				.append(testcase).append('-').append(escapedBaseName).append(additionalGraphicType);
+		int lenOfFixedElements = timeStr.length() + additionalGraphicType.length() + 1/* hyphen */;
+		finalFilenameBuffer //
+				.append(getScreenshotPath()) //
+				.append('/').append(reduceToMaxLen(testcase, SCREENSHOT_FILENAME_MAXLEN))//
+				.append('/').append(timeStr).append('-')
+				.append(reduceToMaxLen(escapedBaseName, SCREENSHOT_FILENAME_MAXLEN - lenOfFixedElements))//
+				.append(additionalGraphicType);
 		return finalFilenameBuffer.toString();
 	}
 
