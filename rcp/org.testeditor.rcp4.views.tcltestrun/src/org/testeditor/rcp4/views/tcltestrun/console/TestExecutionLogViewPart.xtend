@@ -25,7 +25,7 @@ class TestExecutionLogViewPart {
 
 	@PostConstruct
 	def void buildUI(Composite parent) {
-		browser = new Browser(parent, SWT.WEBKIT)
+		browser = new Browser(parent, SWT.NORMAL)
 		browser.setUrl("http://localhost:19091/testlogs/web-app/index.html")
 	}
 
