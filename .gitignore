@@ -57,3 +57,6 @@ common/org.testeditor.dsl.common/text/
 
 ### Test Run Screenshots ###
 rcp/org.testeditor.rcp4.uatests/**/org.testeditor.*.png
+
+### NPM ###
+node_modules

@@ -1,0 +1,8 @@
+<nav>
+<b>Test execution logs:</b>
+    <ul>
+        <li *ngFor="let logexec of testruns" (click)="onSelect(logexec)">
+            <span class="badge" style="white-space: nowrap">{{logexec.name}}</span>
+        </li>
+    </ul>
+</nav>

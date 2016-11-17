@@ -19,6 +19,7 @@ import java.util.List
 import java.util.Map
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
+import org.apache.commons.io.output.TeeOutputStream
 import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
@@ -39,15 +40,20 @@ import org.testeditor.dsl.common.util.EclipseContextHelper
 import org.testeditor.rcp4.tcltestrun.TclGradleLauncher
 import org.testeditor.rcp4.tcltestrun.TclMavenLauncher
 import org.testeditor.rcp4.views.tcltestrun.console.TCLConsoleFactory
+import org.testeditor.rcp4.views.tcltestrun.console.TestExecutionLogViewPart
+import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionManager
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.dsl.ui.testlaunch.LaunchShortcutUtil
 import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
 import org.testeditor.tcl.dsl.ui.util.TclIndexHelper
 import org.testeditor.tcl.dsl.ui.util.TclInjectorProvider
+import org.eclipse.e4.ui.workbench.modeling.EPartService
+import org.eclipse.swt.widgets.Display
 
 class TclLauncherUi implements Launcher {
 
 	static val RESULT_VIEW = "org.eclipse.jdt.junit.ResultView"
+	static val TEST_EXECUTION_RESULT_VIEW = "org.testeditor.rcp4.views.tcltestrun.part.testexecutionconsole"
 	static val logger = LoggerFactory.getLogger(TclLauncherUi)
 
 	@Inject ProgressMonitorRunner progressRunner
@@ -60,6 +66,7 @@ class TclLauncherUi implements Launcher {
 	@Inject TCLConsoleFactory consoleFactory
 	@Inject PartHelper partHelper
 	@Inject EclipseContextHelper eclipseContextHelper
+	@Inject TestExecutionManager testExecutionManager
 
 	override boolean launch(IStructuredSelection selection, IProject project, String mode, boolean parameterize) {
 		eclipseContextHelper.eclipseContext.set(TclLauncherUi, this)
@@ -120,8 +127,18 @@ class TclLauncherUi implements Launcher {
 				monitor.beginTask("Test execution: " + testLaunchInformation.project.name, IProgressMonitor.UNKNOWN)
 			}
 			val con = consoleFactory.createAndShowConsole
+			var list = testLaunchInformation.testCasesCommaList
+			if (list === null) {
+				list = #[]
+			}
+			val execLog = testExecutionManager.createTestExecutionLog(list)
+			val output = new TeeOutputStream(con.newOutputStream, testExecutionManager.createOutputStreamFor(execLog))
+			partHelper.showView(TEST_EXECUTION_RESULT_VIEW)
+			val viewPart = eclipseContextHelper.eclipseContext.get(EPartService).findPart(TEST_EXECUTION_RESULT_VIEW)
+			val teExecView = viewPart.object as TestExecutionLogViewPart
+			Display.^default.syncExec[teExecView?.showLog(execLog)]
 			val result = testLaunchInformation.launcher.launchTest(testLaunchInformation.testCasesCommaList,
-				testLaunchInformation.project, monitor, con.newOutputStream, testLaunchInformation.options)
+				testLaunchInformation.project, monitor, output, testLaunchInformation.options)
 			testLaunchInformation.project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
 			if (result.expectedFileRoot == null) {
 				logger.error("resulting expectedFile must not be null")
@@ -129,6 +146,7 @@ class TclLauncherUi implements Launcher {
 				safeUpdateJunitTestView(result.expectedFileRoot, testLaunchInformation.project.name)
 			}
 			monitor.done
+			partHelper.showView(TEST_EXECUTION_RESULT_VIEW)
 		])
 		return true
 	}

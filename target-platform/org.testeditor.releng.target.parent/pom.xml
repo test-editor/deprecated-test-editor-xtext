@@ -40,6 +40,11 @@
 			<layout>p2</layout>
 			<url>http://download.eclipse.org/technology/swtbot/releases/2.4.0/</url>
 		</repository>
+		<repository>
+			<id>osgi-jax-rs</id>
+			<layout>p2</layout>
+			<url>http://hstaudacher.github.io/osgi-jax-rs-connector/5.3.1/</url>
+		</repository>
 
 		<!-- Xtext -->
 		<repository>

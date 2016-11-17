@@ -12,22 +12,14 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.tcltestrun
 
-import org.eclipse.e4.core.contexts.IEclipseContext
-import org.eclipse.e4.core.di.annotations.CanExecute
-import org.eclipse.e4.core.di.annotations.Execute
+import java.io.File
+import org.eclipse.e4.core.di.annotations.Creatable
 
-class ReRunLastTestLaunchHandler {
+@Creatable
+class LogLocationHelper {
 
-	@Execute
-	def reLaunchLastTestLaunch(IEclipseContext context) {
-		val tclLauncherUi = context.get(TclLauncherUi)
-		val lastTestLaunch = context.get(TestLaunchInformation)
-		tclLauncherUi.launchTest(lastTestLaunch)
+	def File getLogLocation() {
+		return Activator.^default.stateLocation.toFile
 	}
-
-	@CanExecute
-	def boolean canExecute(IEclipseContext context) {
-		return context.containsKey(TestLaunchInformation)
-	}
-
+		
 }

@@ -27,6 +27,11 @@ nodeWithProperWorkspace {
         gradle 'buildTarget'
     }
 
+    stage 'Build Web TE-Log-View'
+    withMavenEnv {
+        gradle 'copyTeLogViewToRcp'
+    }
+
     stage (isMaster() ? 'Build and deploy' : 'Build')
     withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g"]) {
         def goal = isMaster() ? 'deploy' : 'install'
