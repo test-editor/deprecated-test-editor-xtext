@@ -60,7 +60,7 @@
 		<dependency>
 			<groupId>org.testeditor.fixture</groupId>
 			<artifactId>core-fixture</artifactId>
-			<version>3.0.2</version>
+			<version>3.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.xtend</groupId>
@@ -88,6 +88,8 @@
 			<version>1.7.18</version>
 		</dependency>
 	</dependencies>
+	
+	  
 
 	<build>
 		<pluginManagement>
