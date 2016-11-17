@@ -25,5 +25,16 @@
             uri="fragment.e4xmi">
       </fragment>
    </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <e4view
+            category="org.eclipse.ui"
+            class="org.testeditor.rcp4.views.tcltestrun.console.TestExecutionLogViewPart"
+            icon="icons/console_view.png"
+            id="org.testeditor.rcp4.views.tcltestrun.part.testexecutionconsole"
+            name="Test Runs View"
+            restorable="true">
+      </e4view>
+   </extension>
 
 </plugin>

@@ -12,7 +12,7 @@
 
 	<artifactId>org.testeditor.rcp4.views.tcltestrun</artifactId>
 	<packaging>eclipse-plugin</packaging>
-
+	
 	<build>
 		<plugins>
 			<plugin>
