@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -25,20 +25,23 @@ import org.eclipse.ui.wizards.IWizardCategory
 import org.eclipse.ui.wizards.IWizardDescriptor
 
 class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
+
+	ApplicationActionBarAdvisor actionBarAdvisor
+
 	new(IWorkbenchWindowConfigurer configurer) {
 		super(configurer)
 	}
 
 	override createActionBarAdvisor(IActionBarConfigurer configurer) {
-		new ApplicationActionBarAdvisor(configurer)
+		actionBarAdvisor = new ApplicationActionBarAdvisor(configurer)
 	}
 
 	override preWindowOpen() {
 		windowConfigurer => [
 			initialSize = new Point(800, 600)
-			showCoolBar = false
+			showCoolBar = true
 			showStatusLine = false
-			title = "Testeditor" // $NON-NLS-1$
+			title = "Test-Editor" // $NON-NLS-1$
 			// configuring the drop listener is necessary, since this is done during ide startup but not during rcp startup
 			// if not configured, drag and drop of text within and to editors is not functional !
 			configureEditorAreaDropListener(new EditorAreaDropAdapter(PlatformUI.workbench.activeWorkbenchWindow))
@@ -47,6 +50,7 @@ class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 
 	override postWindowOpen() {
 		removeUnwantedWizards
+		actionBarAdvisor.removeUnwantedMenus
 	}
 
 	def void removeUnwantedWizards() {

@@ -18,31 +18,155 @@
 package org.testeditor.tcl
 
 import org.eclipse.xtext.xtype.XImportSection
+import org.testeditor.aml.Component
+import org.testeditor.aml.TemplateContainer
+import org.testeditor.aml.Variable
+import org.testeditor.dsl.common.NamedElement
 import org.testeditor.tsl.SpecificationStep
+import org.testeditor.tsl.StepContent
+import org.testeditor.tsl.StepContentText
+import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.TestSpecification
-import org.testeditor.tml.TestStepContext
-import org.testeditor.aml.VariableReference
 
 class TclModel {
 	String ^package
 	contains XImportSection importSection
-	contains EnvironmentVariableReference [0..*] environmentVariableReferences
+	contains EnvironmentVariable[0..*] environmentVariables
 	contains TestCase test opposite model
+	contains MacroCollection macroCollection opposite model
+	contains TestConfiguration config opposite model
 }
 
-class TestCase {
-	String name
+/*
+ * Super class for {@link TestCase} and {@link TestConfiguration} since both may
+ * contain a setup and cleanup.
+ */
+abstract class SetupAndCleanupProvider extends NamedElement {
+	contains TestSetup setup
+	contains TestCleanup cleanup
+}
+
+class TestCase extends SetupAndCleanupProvider {
 	container derived TclModel model opposite test
 	refers TestSpecification specification
+	refers TestConfiguration config
 	contains SpecificationStepImplementation[0..*] steps opposite test
 }
 
-class SpecificationStepImplementation extends SpecificationStep {
+class TestConfiguration extends SetupAndCleanupProvider {
+	container derived TclModel model opposite config
+}
+
+class SpecificationStepImplementation extends SpecificationStep, StepContainer {
 	container derived TestCase test opposite steps
+}
+
+class EnvironmentVariable extends Variable {
+}
+
+/*
+ * Defines the steps that shall be executed before each test execution.
+ */
+class TestSetup extends StepContainer {
+}
+
+/*
+ * Defines the steps that shall be executed after each test execution.
+ */
+class TestCleanup extends StepContainer {
+}
+
+abstract class StepContainer {
 	contains TestStepContext[0..*] contexts
 }
 
-class EnvironmentVariableReference extends VariableReference {
+class MacroCollection extends NamedElement {
+	container derived TclModel model opposite macroCollection
+	contains Macro[0..*] macros
+}
+
+class Macro extends StepContainer, NamedElement, TemplateContainer {
+}
+
+abstract class TestStepContext {
+	contains AbstractTestStep[0..*] steps
+}
+
+class ComponentTestStepContext extends TestStepContext {
+	refers Component component
+}
+
+class MacroTestStepContext extends TestStepContext {
+	refers MacroCollection macroCollection
+}
+
+abstract class AbstractTestStep {	
+}
+
+class TestStep extends AbstractTestStep {
+	contains StepContent[0..*] contents
+}
+
+class AssertionTestStep extends AbstractTestStep {
+	contains Expression assertExpression
+}
+
+abstract class Expression {
+}
+
+abstract class BinaryExpression extends Expression {
+	contains Expression left
+	contains Expression right
+}
+
+class Comparison extends BinaryExpression {
+	contains Comparator comparator
+}
+
+class NullOrBoolCheck extends Expression {
+	contains VariableReference variableReference
+	boolean negated = "false"
+}
+
+class VariableReference extends Expression, StepContent {
+	refers Variable variable
+}
+
+class VariableReferenceMapAccess extends VariableReference {
+	String key
+}
+
+class StringConstant extends Expression {
+	String string
+}
+
+class TestStepWithAssignment extends TestStep {
+	contains AssignmentVariable variable
+}
+
+class AssignmentVariable extends Variable {
+}
+
+class StepContentElement extends StepContentValue {
+}
+
+class StepContentPunctuation extends StepContentText {
+}
+
+abstract class Comparator {
+	boolean negated = "false"
+}
+
+class ComparatorEquals extends Comparator {
+}
+
+class ComparatorMatches extends Comparator {
+}
+
+class ComparatorLessThan extends Comparator {
+}
+
+class ComparatorGreaterThan extends Comparator {
 }
 
 

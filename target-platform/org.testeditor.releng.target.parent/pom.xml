@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.testeditor</groupId>
+	<artifactId>org.testeditor.releng.target.parent</artifactId>
+	<version>1.2.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<properties>
+		<tycho-version>0.25.0</tycho-version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<repositories>
+		<!-- Use specific p2-repositories instead of composite ones to speed up 
+			the build -->
+
+		<!-- Platform -->
+		<repository>
+			<id>neon</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/releases/neon/</url>
+		</repository>
+		<repository>
+			<id>neon-additional</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/eclipse/updates/4.6/R-4.6-201606061100</url>
+		</repository>
+
+		<!-- Thirdparty -->
+		<repository>
+			<id>orbit-neon</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/tools/orbit/downloads/drops/R20160520211859/repository/</url>
+		</repository>
+		<repository>
+			<id>swtbot</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/technology/swtbot/releases/2.4.0/</url>
+		</repository>
+		<repository>
+			<id>osgi-jax-rs</id>
+			<layout>p2</layout>
+			<url>http://hstaudacher.github.io/osgi-jax-rs-connector/5.3.1/</url>
+		</repository>
+
+		<!-- Xtext -->
+		<repository>
+			<id>xtext</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.10.0/</url>
+		</repository>
+		<repository>
+			<id>emf</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/modeling/emf/emf/updates/2.12/</url>
+		</repository>
+		<repository>
+			<id>mwe2</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/modeling/emft/mwe/updates/releases/2.9.0/</url>
+		</repository>
+
+		<!-- Gradle / Maven -->
+		<repository>
+			<id>buildship</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/buildship/updates/e46/releases/1.0/1.0.19.v20160830-1454</url>
+		</repository>
+		<repository>
+			<id>m2e</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/technology/m2e/releases/1.7</url>
+		</repository>
+	</repositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<environments>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86_64</arch>
+						</environment>
+					</environments>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

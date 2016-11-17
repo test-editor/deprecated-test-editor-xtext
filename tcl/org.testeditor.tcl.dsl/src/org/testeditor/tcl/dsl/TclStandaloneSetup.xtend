@@ -17,9 +17,6 @@ import org.testeditor.aml.AmlPackage
 import org.testeditor.tcl.TclPackage
 import org.testeditor.tsl.TslPackage
 
-import static extension org.testeditor.dsl.common.util.CollectionUtils.putIfAbsent
-import org.testeditor.tml.TmlPackage
-
 /**
  * Initialization support for running Xtext languages without Equinox extension registry.
  */
@@ -33,7 +30,6 @@ class TclStandaloneSetup extends TclStandaloneSetupGenerated {
 		EPackage.Registry.INSTANCE.putIfAbsent(TslPackage.eNS_URI, TslPackage.eINSTANCE)
 		EPackage.Registry.INSTANCE.putIfAbsent(TclPackage.eNS_URI, TclPackage.eINSTANCE)
 		EPackage.Registry.INSTANCE.putIfAbsent(AmlPackage.eNS_URI, AmlPackage.eINSTANCE)
-		EPackage.Registry.INSTANCE.putIfAbsent(TmlPackage.eNS_URI, TmlPackage.eINSTANCE)
 		return super.createInjectorAndDoEMFRegistration
 	}
 

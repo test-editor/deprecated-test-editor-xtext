@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -12,78 +12,64 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
+import com.google.common.base.Strings
 import javax.inject.Inject
-import javax.inject.Provider
-import org.eclipse.emf.ecore.EObject
-import org.eclipse.xtext.generator.IFileSystemAccess
 import org.eclipse.xtext.generator.IGenerator
-import org.eclipse.xtext.generator.InMemoryFileSystemAccess
-import org.eclipse.xtext.junit4.util.ParseHelper
 import org.eclipse.xtext.resource.XtextResourceSet
-import org.junit.Before
-import org.testeditor.aml.AmlModel
-import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.tcl.TclModel
-import org.testeditor.tcl.dsl.tests.AbstractTclTest
-import org.testeditor.tml.TmlModel
-import org.testeditor.tml.dsl.TmlStandaloneSetup
-import org.testeditor.tsl.TslModel
+import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 
-abstract class AbstractTclGeneratorIntegrationTest extends AbstractTclTest {
+abstract class AbstractTclGeneratorIntegrationTest extends AbstractParserTest {
 
-	@Inject protected Provider<XtextResourceSet> resourceSetProvider
-	@Inject protected XtextResourceSet resourceSet
-	
-	protected ParseHelper<AmlModel> amlParseHelper
-	protected ParseHelper<TmlModel> tmlParseHelper
+	static val SPACES_PER_LEVEL = 2
 
-	@Inject protected ParseHelper<TclModel> tclParseHelper
 	@Inject protected IGenerator generator
-
-	protected InMemoryFileSystemAccess fsa
-
-	@Before
-	def void setup() {
-		resourceSet = resourceSetProvider.get
-		resourceSet.classpathURIContext = this
-		val injector = (new AmlStandaloneSetup).createInjectorAndDoEMFRegistration
-		amlParseHelper = injector.getInstance(ParseHelper)
-		val tmlInjector = (new TmlStandaloneSetup).createInjectorAndDoEMFRegistration
-		tmlParseHelper = tmlInjector.getInstance(ParseHelper)
-		fsa = new InMemoryFileSystemAccess
-	}
-
-	protected def AmlModel parseAmlModel(String aml) {
-		return amlParseHelper.parse(aml, resourceSet).assertNoSyntaxErrors
-	}
-
-	protected def TmlModel parseTmlModel(String tml) {
-		return tmlParseHelper.parse(tml, resourceSet).assertNoSyntaxErrors
-	}
-
-	protected def TclModel parseTclModel(String tcl) {
-		return tclParseHelper.parse(tcl, resourceSet).assertNoSyntaxErrors
-	}
 
 	protected def String generate(TclModel model) {
 		generator.doGenerate(model.eResource, fsa)
-		val file = fsa.getJavaFile(model.package, model.test.name)
+		val file = getJavaFile(model)
 		return file.toString
 	}
 
-	protected def Object getJavaFile(InMemoryFileSystemAccess fsa, String ^package, String name) {
-		val key = '''«IFileSystemAccess.DEFAULT_OUTPUT»«package.replaceAll('\\.', '/')»/«name».java'''
-		return fsa.allFiles.get(key)
+	protected def XtextResourceSet getResourceSet() {
+		return resourceSet
 	}
 
-	protected def <T extends EObject> T addToResourceSet(T model) {
-		switch (model) {
-			TclModel: return model.addToResourceSet(resourceSet, "tcl")
-			TmlModel: return model.addToResourceSet(resourceSet, "tml")
-			AmlModel: return model.addToResourceSet(resourceSet, "aml")
-			TslModel: return model.addToResourceSet(resourceSet, "tsl")
-			default: throw new RuntimeException('''unknown model='«model.class.name»'.''')
-		}
+	protected def XtextResourceSet createNewResourceSet() {
+		return resourceSetProvider.get
+	}
+
+	/**
+	 * Lets subclasses define the repeating "header" of the test so that
+	 * they don't need to copy&paste it all the time.
+	 */
+	protected def String getTestHeader() '''
+		package com.example
+							
+		# SimpleTest
+	'''
+
+	protected def String parseAndGenerate(CharSequence tcl) {
+		val fullTcl = '''
+			«testHeader»
+			
+			«tcl»
+		'''
+		val tclModel = parseTcl(fullTcl, "SimpleTest.tcl")
+		return tclModel.generate
+	}
+
+	/**
+	 * Indents the passed input to the passed level. Note that the
+	 * parameter does not represent the number of spaces but is multiplied
+	 * with the {@link #SPACES_PER_LEVEL}.
+	 * 
+	 * @param input the input
+	 * @param level the level of indentation, not the number of spaces
+	 */
+	protected def String indent(CharSequence input, int level) {
+		val indentation = Strings.repeat(' ', SPACES_PER_LEVEL * level)
+		return input.toString.replaceAll("(?m)^", indentation)
 	}
 
 }

@@ -2,13 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.testeditor.aml.dsl
 Bundle-Vendor: Signal Iduna Corporation
-Bundle-Version: 1.1.0
+Bundle-Version: 1.2.0.qualifier
 Bundle-SymbolicName: org.testeditor.aml.dsl; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtext,
  org.eclipse.equinox.common,
  org.eclipse.emf.ecore.xcore,
- org.testeditor.aml.model,
+ org.testeditor.aml.model;visibility:=reexport,
  org.eclipse.osgi,
  org.eclipse.xtext,
  org.eclipse.xtext.util,
@@ -19,7 +19,7 @@ Require-Bundle: org.eclipse.xtext,
  org.eclipse.xtext.xbase,
  org.eclipse.osgi,
  org.eclipse.xtend.lib,
- org.testeditor.dsl.common;bundle-version="1.0.0"
+ org.testeditor.dsl.common
 Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.testeditor.aml.dsl,
@@ -32,4 +32,5 @@ Export-Package: org.testeditor.aml.dsl,
  org.testeditor.aml.dsl.services,
  org.testeditor.aml.dsl.validation,
  org.testeditor.aml.dsl.scoping,
+ org.testeditor.aml.dsl.naming,
  org.testeditor.aml.dsl.conversion

@@ -12,11 +12,9 @@
  *******************************************************************************/
 @Ecore(nsURI="http://www.testeditor.org/aml")
 @GenModel(
-	
 	modelDirectory="org.testeditor.aml.model/src-gen", 
 	complianceLevel="7.0",
 	updateClasspath="true"
-	
 )
 package org.testeditor.aml
 
@@ -35,6 +33,7 @@ import org.eclipse.xtext.xtype.XImportSection
 import org.eclipse.xtext.common.types.JvmParameterizedTypeReference
 import org.eclipse.xtext.common.types.JvmOperation
 import org.eclipse.xtext.common.types.JvmEnumerationLiteral
+import org.testeditor.dsl.common.NamedElement
 
 class AmlModel {
 	String[1] ^package
@@ -52,9 +51,7 @@ class AmlModel {
  * Abstract super-class for all elements of this model. 
  * </p>
  */
-abstract class ModelElement {
-	/* The identifying name (id) of the element. */
-	String[1] name
+abstract class ModelElement extends NamedElement {
 	/* The label of the element. */
 	String label
 }
@@ -118,6 +115,14 @@ class ComponentType extends ElementTypeWithInteractions {
 class ComponentElementType extends ElementTypeWithInteractions {
 }
 
+abstract class TemplateContainer {
+	/* 
+	 * The {@link Template}, 
+	 * e.g. <pre>"Pick a value" ${value} "from drop-down" ${element}</pre>
+	 */
+	contains Template template
+}
+
 /* <p>
  * Instances of this class define a type of interaction with a component element,
  * such as "read value" or "write value" (e.g. on a text field).<br/><br/>
@@ -127,12 +132,7 @@ class ComponentElementType extends ElementTypeWithInteractions {
  * as well as a label.
  * </p>
  */
-class InteractionType extends ModelElement {
-	/* 
-	 * The {@link Template} for the interaction, 
-	 * e.g. <pre>"Pick a value" ${value} "from drop-down" ${element}</pre>
-	 */
-	contains Template template opposite interactionType 
+class InteractionType extends ModelElement, TemplateContainer {
 	contains MethodReference defaultMethod
 	refers JvmEnumerationLiteral locatorStrategy // default strategy
 }
@@ -161,7 +161,6 @@ class MethodReference {
  * </p>
  */
 class Template {
-	container InteractionType interactionType opposite template
 	contains TemplateContent[0..*] contents opposite template
 }
 
@@ -181,15 +180,14 @@ class TemplateText extends TemplateContent {
 	String value
 }
 
-abstract class VariableReference {
-	String name
+abstract class Variable extends NamedElement {
 }
 
 /* <p>
  * Represents a variable within a {@link Template}.
  * </p>
  */
-class TemplateVariable extends TemplateContent, VariableReference {
+class TemplateVariable extends TemplateContent, Variable {
 }
 
 class InteractionValueSpace {

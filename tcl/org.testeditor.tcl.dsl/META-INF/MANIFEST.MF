@@ -2,12 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.testeditor.tcl.dsl
 Bundle-Vendor: Signal Iduna Corporation
-Bundle-Version: 1.1.0
+Bundle-Version: 1.2.0.qualifier
 Bundle-SymbolicName: org.testeditor.tcl.dsl; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtext,
  org.eclipse.equinox.common,
  org.testeditor.tcl.model;visibility:=reexport,
+ org.testeditor.logging,
  org.testeditor.dsl.common,
  org.eclipse.xtext.xbase,
  org.eclipse.emf.ecore.xcore,
@@ -19,14 +20,17 @@ Require-Bundle: org.eclipse.xtext,
  org.eclipse.xtext.util,
  org.eclipse.xtend.lib,
  org.testeditor.aml.dsl,
- org.testeditor.tsl.dsl,
- org.testeditor.tml.dsl
-Import-Package: org.apache.log4j,
- javax.inject
+ org.eclipse.xtext.builder,
+ org.testeditor.logging;bundle-version="1.2.0"
+Import-Package: javax.inject,
+ org.apache.commons.lang3,
+ org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: org.testeditor.tcl.dsl,
+Export-Package: org.testeditor.fixture.core,
+ org.testeditor.tcl.dsl,
  org.testeditor.tcl.dsl.formatting2,
  org.testeditor.tcl.dsl.jvmmodel,
+ org.testeditor.tcl.dsl.jvmmodel.macro,
  org.testeditor.tcl.dsl.messages,
  org.testeditor.tcl.dsl.naming,
  org.testeditor.tcl.dsl.parser.antlr,
@@ -35,3 +39,4 @@ Export-Package: org.testeditor.tcl.dsl,
  org.testeditor.tcl.dsl.serializer,
  org.testeditor.tcl.dsl.services,
  org.testeditor.tcl.dsl.validation
+Bundle-ClassPath: lib/core-fixture-3.1.0.jar,.

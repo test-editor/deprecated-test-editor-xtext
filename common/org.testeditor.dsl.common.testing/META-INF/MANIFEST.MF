@@ -1,16 +1,26 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.testeditor.dsl.common.testing
-Bundle-Version: 1.1.0
+Bundle-Version: 1.2.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: org.testeditor.dsl.common,
+Require-Bundle: org.eclipse.core.resources,
  org.eclipse.core.runtime,
+ org.eclipse.xtext.junit4,
  org.eclipse.xtext.xbase.lib,
- org.eclipse.xtext
+ org.eclipse.xtext,
+ org.testeditor.tsl.dsl,
+ org.testeditor.tcl.dsl,
+ org.testeditor.aml.dsl,
+ org.junit;bundle-version="4.12.0",
+ org.testeditor.dsl.common.model
 Import-Package: javax.inject,
  org.hamcrest.core,
- org.junit,
- org.slf4j
+ org.slf4j,
+ org.testeditor.tcl,
+ org.testeditor.aml,
+ org.testeditor.tsl,
+ org.testeditor.dsl.common,
+ org.eclipse.xtend.lib.annotations
 Export-Package: org.hamcrest,
  org.mockito,
  org.mockito.configuration,
@@ -29,9 +39,11 @@ Export-Package: org.hamcrest,
  org.mockito.stubbing.answers,
  org.mockito.verification,
  org.testeditor.dsl.common.testing,
+ org.testeditor.dsl.common.testing.eclipse,
  org.testeditor.dsl.common.testing.xtext,
  org.testeditor.fixture.core.interaction
 Bundle-Vendor: Signal Iduna Corporation
 Bundle-Name: org.testeditor.dsl.common.testing
 Bundle-ClassPath: lib/mockito-all-1.10.19.jar,
  .
+

@@ -15,7 +15,7 @@ class TclTestCaseContentAssistTest extends AbstractTclContentAssistTest {
 		''')
 
 		// expect
-		builder.assertTextAtCursorPosition("Mask", "* ", "implements")
+		builder.assertTextAtCursorPosition("Mask", "config", "Cleanup", "Setup", "* ", "implements")
 	}
 
 	@Test
@@ -25,7 +25,7 @@ class TclTestCaseContentAssistTest extends AbstractTclContentAssistTest {
 			# Test implements Target
 			
 			Mask: SomeMask
-		''').assertTextAtCursorPosition("Mask", "* ")
+		''').assertTextAtCursorPosition("Mask", "config", "Cleanup", "Setup", "* ")
 	}
 
 }

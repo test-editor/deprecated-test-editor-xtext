@@ -55,11 +55,11 @@ Workflow {
 		}
 		language = StandardLanguage {
 			name = "org.testeditor.tcl.dsl.Tcl"
-			fileExtensions = "tcl"
+			fileExtensions = "tcl,tml,config"
+			referencedResource = "platform:/resource/org.testeditor.dsl.common.model/model/common.xcore"
 			referencedResource = "platform:/resource/org.testeditor.tsl.model/model/tsl.xcore"
 			referencedResource = "platform:/resource/org.testeditor.tcl.model/model/tcl.xcore"
 			referencedResource = "platform:/resource/org.testeditor.aml.model/model/aml.xcore"
-			referencedResource = "platform:/resource/org.testeditor.tml.model/model/tml.xcore"
 			formatter = {
 				generateStub = true
 			}

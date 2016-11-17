@@ -15,19 +15,17 @@ package org.testeditor.aml.dsl.scoping
 import javax.inject.Inject
 import org.eclipse.xtext.diagnostics.Severity
 import org.junit.Test
-import org.testeditor.aml.dsl.tests.parser.AbstractParserTest
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.dsl.common.testing.DummyFixture
-import org.junit.Ignore
 
 /**
  * Tests scoping for interactions / template variables.
  */
-class InteractionScopingTest extends AbstractParserTest {
+class InteractionScopingTest extends AbstractScopingTest {
 
 	@Inject extension ModelUtil
-
+	
 	@Test
 	def void testImportedInteractionScope() {
 		// Given
@@ -55,8 +53,8 @@ class InteractionScopingTest extends AbstractParserTest {
 		'''
 
 		// When
-		val model1 = parse(file1)
-		val model2 = parse(file2)
+		val model1 = parseAml(file1)
+		val model2 = parseAml(file2)
 
 		// Then
 		model1.assertNoErrors
@@ -84,7 +82,7 @@ class InteractionScopingTest extends AbstractParserTest {
 		val file = resizeInteraction('someFixtureMethod')
 
 		// When
-		val model = parse(file)
+		val model = parseAml(file)
 
 		// Then
 		model.assertNoErrors
@@ -102,7 +100,7 @@ class InteractionScopingTest extends AbstractParserTest {
 		val file = resizeInteraction('someUnrelatedMethod')
 
 		// When
-		val model = parse(file)
+		val model = parseAml(file)
 
 		// Then
 		val issue = model.validate.assertSingleElement
@@ -118,7 +116,7 @@ class InteractionScopingTest extends AbstractParserTest {
 		val file = resizeInteraction('someFixtureMethod()')
 
 		// When
-		val model = parse(file)
+		val model = parseAml(file)
 
 		// Then
 		model.assertNoErrors
@@ -130,7 +128,7 @@ class InteractionScopingTest extends AbstractParserTest {
 		val file = resizeInteraction('someFixtureMethod(size)')
 
 		// When
-		val model = parse(file)
+		val model = parseAml(file)
 
 		// Then
 		val issue = model.validate.assertSingleElement
@@ -153,7 +151,7 @@ class InteractionScopingTest extends AbstractParserTest {
 		'''
 
 		// When
-		val model = parse(file)
+		val model = parseAml(file)
 
 		// Then
 		model.assertNoErrors
@@ -177,7 +175,7 @@ class InteractionScopingTest extends AbstractParserTest {
 		'''
 
 		// When
-		val model = parse(file)
+		val model = parseAml(file)
 
 		// Then
 		model.assertNoErrors

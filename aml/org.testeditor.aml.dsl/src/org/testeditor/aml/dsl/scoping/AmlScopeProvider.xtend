@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -47,25 +47,28 @@ class AmlScopeProvider extends XbaseBatchScopeProvider {
 				return context.element.interactionsScope
 			}
 		}
+
 		if (context instanceof MethodReference) {
 			if (reference == METHOD_REFERENCE__OPERATION) {
-				return methodReferenceScopes.getMethodReferenceScope(context, reference)
-			} // else: TODO provide scope only for imported element
+				return methodReferenceScopes.scopeFor_MethodReference_operation(context)
+			} else if (reference == METHOD_REFERENCE__PARAMETERS) {
+				return methodReferenceScopes.scopeFor_MethodReference_parameters(context)
+			}
 		}
 
 		if (context instanceof InteractionType) {
 			if (reference == INTERACTION_TYPE__LOCATOR_STRATEGY) {
-				return locatorStrategyScopes.getLocatorStrategyScope(context, reference)
+				return locatorStrategyScopes.getLocatorStrategyScope(context)
 			}
 		}
 
-		if(context instanceof ComponentElement) {
+		if (context instanceof ComponentElement) {
 			if (reference == COMPONENT_ELEMENT__LOCATOR_STRATEGY) {
-				return locatorStrategyScopes.getLocatorStrategyScope(context, reference)
+				return locatorStrategyScopes.getLocatorStrategyScope(context)
 			}
 		}
 
-		super.getScope(context, reference)
+		return super.getScope(context, reference)
 	}
 
 	/**

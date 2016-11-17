@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -24,9 +24,11 @@ import org.eclipse.ui.ide.IDE
 import org.eclipse.ui.internal.ide.IDEInternalWorkbenchImages
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin
 import org.osgi.framework.Bundle
+import org.slf4j.LoggerFactory
 
 class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 	static final String PERSPECTIVE_ID = "org.testeditor.rcp4.perspective"
+	static val logger = LoggerFactory.getLogger(ApplicationWorkbenchAdvisor)
 
 	// $NON-NLS-1$
 	override createWorkbenchWindowAdvisor(IWorkbenchWindowConfigurer configurer) {
@@ -62,9 +64,9 @@ class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		val ideBundle = Platform.getBundle(IDEWorkbenchPlugin.IDE_WORKBENCH)
 		configurer =>
 			[
-				declareWorkbenchImage(ideBundle, IDE.SharedImages.IMG_OBJ_PROJECT, '''«ICONS_PATH»obj16/prj_obj.gif''')
+				declareWorkbenchImage(ideBundle, IDE.SharedImages.IMG_OBJ_PROJECT, '''«ICONS_PATH»obj16/prj_obj.png''')
 				declareWorkbenchImage(ideBundle,
-					IDE.SharedImages.IMG_OBJ_PROJECT_CLOSED, '''«ICONS_PATH»obj16/cprj_obj.gif''')
+					IDE.SharedImages.IMG_OBJ_PROJECT_CLOSED, '''«ICONS_PATH»obj16/cprj_obj.png''')
 				declareWorkbenchImage(ideBundle,
 					IDEInternalWorkbenchImages.IMG_ETOOL_PROBLEMS_VIEW, '''«ICONS_PATH»eview16/problems_view.gif''')
 				declareWorkbenchImage(ideBundle, IDEInternalWorkbenchImages.
@@ -72,9 +74,9 @@ class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 				declareWorkbenchImage(ideBundle, IDEInternalWorkbenchImages.
 					IMG_ETOOL_PROBLEMS_VIEW_WARNING, '''«ICONS_PATH»eview16/problems_view_warning.gif''')
 				declareWorkbenchImage(ideBundle,
-					IDEInternalWorkbenchImages.IMG_OBJS_ERROR_PATH, '''«ICONS_PATH»obj16/error_tsk.gif''')
+					IDEInternalWorkbenchImages.IMG_OBJS_ERROR_PATH, '''«ICONS_PATH»obj16/error_tsk.png''')
 				declareWorkbenchImage(ideBundle,
-					IDEInternalWorkbenchImages.IMG_OBJS_WARNING_PATH, '''«ICONS_PATH»obj16/warn_tsk.gif''')
+					IDEInternalWorkbenchImages.IMG_OBJS_WARNING_PATH, '''«ICONS_PATH»obj16/warn_tsk.png''')
 			]
 	}
 
@@ -82,6 +84,9 @@ class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		String path) {
 		val url = ideBundle.getEntry(path)
 		val desc = ImageDescriptor.createFromURL(url)
+		if (desc.class.name.contains("MissingImageDescriptor")) {
+			logger.warn("Can not find image on path {}", path)
+		}
 		configurer.declareImage(symbolicName, desc, true)
 	}
 }

@@ -5,9 +5,9 @@
 
 	<parent>
 		<groupId>org.testeditor</groupId>
-		<artifactId>org.testeditor.releng.parent.dsl</artifactId>
-		<version>1.1.0</version>
-		<relativePath>../../releng/org.testeditor.releng.parent.dsl</relativePath>
+		<artifactId>org.testeditor.releng.parent</artifactId>
+		<version>1.2.0-SNAPSHOT</version>
+		<relativePath>../../releng/org.testeditor.releng.parent</relativePath>
 	</parent>
 
 	<artifactId>org.testeditor.dsl.common</artifactId>

@@ -4,39 +4,17 @@
    <extension
          point="org.eclipse.ui.newWizards">
       <category
-      	name="Testeditor"
+      	name="Test-Editor"
       	id="org.testeditor"	
       />
       <wizard
-            name="Testeditor Project"
+            name="Test-Editor Project"
             class="org.testeditor.dsl.common.ui.utils.ExecutableExtensionFactory:org.testeditor.dsl.common.ui.wizards.NewProjectWizard"
             id="org.testeditor.dsl.common.ui.wizards.NewProjectWizard"
             icon="icons/new_project_wiz.png"
             category="org.testeditor"
             project="true">
       </wizard>
-      <wizard
-            name="Aml File"
-            class="org.testeditor.dsl.common.ui.utils.ExecutableExtensionFactory:org.testeditor.dsl.common.ui.wizards.NewAmlFileWizard"
-            id="org.testeditor.dsl.common.ui.wizards.NewAmlFileWizard"
-            icon="icons/new_aml_wiz.png"
-            category="org.testeditor">
-      </wizard>
-      <wizard
-            name="Tcl File"
-            class="org.testeditor.dsl.common.ui.utils.ExecutableExtensionFactory:org.testeditor.dsl.common.ui.wizards.NewTclFileWizard"
-            id="org.testeditor.dsl.common.ui.wizards.NewTclFileWizard"
-            icon="icons/new_tcl_wiz.png"
-            category="org.testeditor">
-      </wizard>
-      <wizard
-            name="Tsl File"
-            class="org.testeditor.dsl.common.ui.utils.ExecutableExtensionFactory:org.testeditor.dsl.common.ui.wizards.NewTslFileWizard"
-            id="org.testeditor.dsl.common.ui.wizards.NewTslFileWizard"
-            icon="icons/new_tsl_wiz.png"
-            category="org.testeditor">
-      </wizard>
       <primaryWizard id="org.testeditor.dsl.common.ui.wizards.NewProjectWizard"/>
-      <primaryWizard id="org.testeditor.dsl.common.ui.wizards.NewTclFileWizard"/>
    </extension>
 </plugin>

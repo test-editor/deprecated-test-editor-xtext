@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2012 - 2016 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
 package org.testeditor.tcl.dsl.messages
 
 import org.antlr.runtime.MismatchedTokenException
@@ -29,7 +41,8 @@ class TclSyntaxErrorMessageProvider extends SyntaxErrorMessageProvider {
 	 * exception is a MismatchedTokenException raised because EOF is expected
 	 */
 	private def boolean isMismatchedTokenExceptionExpectingEOF(RecognitionException exception) {
-		return (exception instanceof MismatchedTokenException) && (exception as MismatchedTokenException).expecting == -1
+		return (exception instanceof MismatchedTokenException) &&
+			(exception as MismatchedTokenException).expecting == -1
 	}
 
 	/**
@@ -37,7 +50,7 @@ class TclSyntaxErrorMessageProvider extends SyntaxErrorMessageProvider {
 	 */
 	private def boolean isTestModelWithoutTestStepsYet(EObject context) {
 		if (context instanceof TclModel) {
-			if (context.test !== null) {
+			if (context.test !== null){
 				return context.test.steps.empty
 			}
 		}

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="TestEditor" uid="testeditor_rcp" id="org.testeditor.rcp4.testeditor_rcp" application="org.testeditor.rcp4.application" version="1.1.0" useFeatures="false" includeLaunchers="true">
+<product name="TestEditor" uid="testeditor_rcp" id="org.testeditor.rcp4.testeditor_rcp" application="org.testeditor.rcp4.application" version="1.2.0.qualifier" useFeatures="false" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>
@@ -9,6 +9,8 @@
    <launcherArgs>
       <programArgs>-consoleLog
       </programArgs>
+      <vmArgs>-Dorg.osgi.service.http.port=19091
+      </vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
       </vmArgsMac>
    </launcherArgs>
@@ -30,6 +32,8 @@
    </vm>
 
    <plugins>
+      <plugin id="com.eclipsesource.jaxrs.jersey-min"/>
+      <plugin id="com.eclipsesource.jaxrs.publisher"/>
       <plugin id="com.google.gson"/>
       <plugin id="com.google.guava"/>
       <plugin id="com.google.inject"/>
@@ -47,6 +51,7 @@
       <plugin id="org.apache.batik.util"/>
       <plugin id="org.apache.batik.util.gui"/>
       <plugin id="org.apache.commons.cli"/>
+      <plugin id="org.apache.commons.io"/>
       <plugin id="org.apache.commons.jxpath"/>
       <plugin id="org.apache.commons.lang"/>
       <plugin id="org.apache.commons.lang3"/>
@@ -73,7 +78,6 @@
       <plugin id="org.eclipse.core.externaltools"/>
       <plugin id="org.eclipse.core.filebuffers"/>
       <plugin id="org.eclipse.core.filesystem"/>
-      <plugin id="org.eclipse.core.filesystem.java7" fragment="true"/>
       <plugin id="org.eclipse.core.filesystem.linux.x86_64" fragment="true"/>
       <plugin id="org.eclipse.core.filesystem.macosx" fragment="true"/>
       <plugin id="org.eclipse.core.filesystem.win32.x86_64" fragment="true"/>
@@ -84,8 +88,6 @@
       <plugin id="org.eclipse.core.resources"/>
       <plugin id="org.eclipse.core.resources.win32.x86_64" fragment="true"/>
       <plugin id="org.eclipse.core.runtime"/>
-      <plugin id="org.eclipse.core.runtime.compatibility"/>
-      <plugin id="org.eclipse.core.runtime.compatibility.registry" fragment="true"/>
       <plugin id="org.eclipse.core.variables"/>
       <plugin id="org.eclipse.debug.core"/>
       <plugin id="org.eclipse.debug.ui"/>
@@ -276,6 +278,7 @@
       <plugin id="org.eclipse.xtext.builder.standalone"/>
       <plugin id="org.eclipse.xtext.common.types"/>
       <plugin id="org.eclipse.xtext.common.types.edit"/>
+      <plugin id="org.eclipse.xtext.common.types.shared"/>
       <plugin id="org.eclipse.xtext.common.types.ui"/>
       <plugin id="org.eclipse.xtext.ecore"/>
       <plugin id="org.eclipse.xtext.generator"/>
@@ -309,6 +312,7 @@
       <plugin id="org.testeditor.aml.dsl.ui"/>
       <plugin id="org.testeditor.aml.model"/>
       <plugin id="org.testeditor.dsl.common"/>
+      <plugin id="org.testeditor.dsl.common.model"/>
       <plugin id="org.testeditor.dsl.common.ui"/>
       <plugin id="org.testeditor.logging"/>
       <plugin id="org.testeditor.rcp4"/>
@@ -321,10 +325,6 @@
       <plugin id="org.testeditor.tcl.dsl.ide"/>
       <plugin id="org.testeditor.tcl.dsl.ui"/>
       <plugin id="org.testeditor.tcl.model"/>
-      <plugin id="org.testeditor.tml.dsl"/>
-      <plugin id="org.testeditor.tml.dsl.ide"/>
-      <plugin id="org.testeditor.tml.dsl.ui"/>
-      <plugin id="org.testeditor.tml.model"/>
       <plugin id="org.testeditor.tsl.dsl"/>
       <plugin id="org.testeditor.tsl.dsl.ide"/>
       <plugin id="org.testeditor.tsl.dsl.ui"/>
@@ -337,19 +337,21 @@
    </plugins>
 
    <features>
-      <feature id="org.testeditor.aml.legacy.feature" version="1.1.0"/>
-      <feature id="org.testeditor.aml.sdk" version="1.1.0"/>
-      <feature id="org.testeditor.tcl.sdk" version="1.1.0"/>
-      <feature id="org.testeditor.tsl.sdk" version="1.1.0"/>
-      <feature id="org.testeditor.rcp4.platform.feature" version="1.1.0"/>
-      <feature id="org.testeditor.rcp4.feature" version="1.1.0"/>
+      <feature id="org.testeditor.aml.legacy.feature" version="1.2.0.qualifier"/>
+      <feature id="org.testeditor.aml.sdk" version="1.2.0.qualifier"/>
+      <feature id="org.testeditor.tcl.sdk" version="1.2.0.qualifier"/>
+      <feature id="org.testeditor.tsl.sdk" version="1.2.0.qualifier"/>
+      <feature id="org.testeditor.rcp4.platform.feature" version="1.2.0.qualifier"/>
+      <feature id="org.testeditor.rcp4.feature" version="1.2.0.qualifier"/>
    </features>
 
    <configurations>
+      <plugin id="com.eclipsesource.jaxrs.publisher" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.http.jetty" autoStart="true" startLevel="1" />
       <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
    </configurations>

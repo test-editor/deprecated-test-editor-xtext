@@ -1,0 +1,24 @@
+/*******************************************************************************
+ * Copyright (c) 2012 - 2015 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
+@Ecore(nsURI="http://www.testeditor.org/model")
+@GenModel(
+	modelDirectory="org.testeditor.dsl.common.model/src-gen", 
+	complianceLevel="7.0",
+	updateClasspath="true"
+)
+package org.testeditor.dsl.common
+
+abstract class NamedElement {
+	/* The identifying name (id) of the element. */
+	String name
+}

@@ -12,9 +12,13 @@
  *******************************************************************************/
 package org.testeditor.rcp4.dialogs;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.core.net.proxy.IProxyData;
 import org.eclipse.core.net.proxy.IProxyService;
@@ -42,6 +46,10 @@ import org.osgi.service.prefs.BackingStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testeditor.rcp4.ApplicationLifeCycleHandler;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  * Dialog to manage network settings.
@@ -60,6 +68,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 	private static final String NON_PROXY_HOSTS = "http.nonProxyHosts";
 	private static final String PROXY_HTTPS_HOST = "https.proxyHost";
 	private static final String PROXY_HTTPS_PORT = "https.proxyPort";
+	private static final String TE_IGNORE_CONNECTION_STATE = "org.testeditor.ignoreConnectionState";
 
 	private Label internetState;
 	private Text pathToMavenSettingsFile;
@@ -81,10 +90,17 @@ public class NetworkConnectionSettingDialog extends Dialog {
 
 	private IEclipseContext context;
 
+	private boolean showWelcomeMessage;
+
+	private boolean ignoreConnectionState;
+
+	private Button ignoreConnectionStateSwitch;
+
 	public NetworkConnectionSettingDialog(Shell parentShell, IEclipsePreferences prefs, IEclipseContext context) {
 		super(parentShell);
 		this.prefs = prefs;
 		this.context = context;
+		ignoreConnectionState = Boolean.valueOf(getProperty(TE_IGNORE_CONNECTION_STATE, "false"));
 		workOffline = prefs.getBoolean(WORKOFFLINE, false);
 		proxyHostSetting = prefs.get(PROXY_HOST, "");
 		proxyPortSetting = prefs.get(PROXY_PORT, "");
@@ -94,10 +110,17 @@ public class NetworkConnectionSettingDialog extends Dialog {
 		pathToMavenSettingsFileSettings = prefs.get(PATH_TO_MAVENSETTINGS, "");
 	}
 
+	private String getProperty(String key, String defaultValue) {
+		return System.getProperty(key, prefs.get(key, defaultValue));
+	}
+
 	@Override
 	protected Control createDialogArea(Composite parent) {
 		Composite container = (Composite) super.createDialogArea(parent);
 		container.setLayout(new GridLayout(2, false));
+		if (showWelcomeMessage) {
+			createWelcomeMessage(container);
+		}
 		new Label(container, SWT.NORMAL).setText("Connectivity state: ");
 		internetState = new Label(container, SWT.NORMAL);
 		updateNetworkState();
@@ -113,7 +136,29 @@ public class NetworkConnectionSettingDialog extends Dialog {
 				updateNetworkState();
 			}
 		});
+		ignoreConnectionStateSwitch = new Button(container, SWT.CHECK);
+		ignoreConnectionStateSwitch.setText("Ignore network test on startup");
+		ignoreConnectionStateSwitch.setSelection(ignoreConnectionState);
+		ignoreConnectionStateSwitch.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				ignoreConnectionState = ignoreConnectionStateSwitch.getSelection();
+				updateNetworkState();
+			}
+		});
+		checkForUserMavenSettings();
 		return container;
+	}
+
+	private void createWelcomeMessage(Composite container) {
+		Label welcome = new Label(container, SWT.NORMAL);
+		GridData gd = new GridData();
+		gd.horizontalSpan = 2;
+		welcome.setLayoutData(gd);
+		welcome.setText(
+				"The Test-Editor cannot connect to the internet. Usually a\ntest-project downloads additional dependencies from the\ninternet."
+						+ "This dialog allows you to specify either to work offline\nor specify a proxy.");
+		welcome.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
 	}
 
 	private void createProxySettingsWidgets(Composite container) {
@@ -193,6 +238,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 			@Override
 			public void modifyText(ModifyEvent e) {
 				pathToMavenSettingsFileSettings = pathToMavenSettingsFile.getText();
+				extractProxyFromMavenSettings(new File(pathToMavenSettingsFileSettings));
 				updateNetworkState();
 			}
 		});
@@ -211,6 +257,58 @@ public class NetworkConnectionSettingDialog extends Dialog {
 		});
 	}
 
+	protected void extractProxyFromMavenSettings(File mavenSettingsFile) {
+		try {
+			if (mavenSettingsFile.exists()) {
+				Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mavenSettingsFile);
+				NodeList nodeList = doc.getElementsByTagName("proxy");
+				if (nodeList.getLength() > 0) {
+					Node item = nodeList.item(0);
+					NodeList childNodes = item.getChildNodes();
+					for (int i = 0; i < childNodes.getLength(); i++) {
+						if (childNodes.item(i).getNodeName().equalsIgnoreCase("host")) {
+							proxyHostSetting = childNodes.item(i).getTextContent();
+							updateUIField(proxyHost, proxyHostSetting);
+						}
+						if (childNodes.item(i).getNodeName().equalsIgnoreCase("nonProxyHosts")) {
+							noProxyHostsSetting = childNodes.item(i).getTextContent();
+							updateUIField(noProxyHosts, noProxyHostsSetting);
+						}
+						if (childNodes.item(i).getNodeName().equalsIgnoreCase("port")) {
+							proxyPortSetting = childNodes.item(i).getTextContent();
+							updateUIField(proxyPort, proxyPortSetting);
+						}
+						if (childNodes.item(i).getNodeName().equalsIgnoreCase("username")) {
+							proxyUserSetting = childNodes.item(i).getTextContent();
+							updateUIField(proxyUser, proxyUserSetting);
+						}
+						if (childNodes.item(i).getNodeName().equalsIgnoreCase("password")) {
+							proxyPwdSetting = childNodes.item(i).getTextContent();
+							updateUIField(proxyPwd, proxyPwdSetting);
+						}
+					}
+				}
+			}
+		} catch (SAXException | IOException | ParserConfigurationException e) {
+			logger.error("Error reading maven settings.", e);
+		}
+	}
+
+	protected void updateUIField(Text text, String textContent) {
+		if (text != null) {
+			text.setText(textContent);
+		}
+	}
+
+	protected void checkForUserMavenSettings() {
+		if (pathToMavenSettingsFileSettings.equals("")) {
+			File file = new File(System.getProperty("user.home") + File.separator + ".m2", "settings.xml");
+			if (file.exists()) {
+				pathToMavenSettingsFile.setText(file.getAbsolutePath());
+			}
+		}
+	}
+
 	/**
 	 * It runs the connection test in a new thread to avoid blocking the ui.
 	 */
@@ -219,7 +317,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 
 			@Override
 			public void run() {
-				if (isInternetAvailable(true)) {
+				if (applyAndValidateNetworkSettings(true)) {
 					if (workOffline) {
 						updateUI("work offline", SWT.COLOR_DARK_YELLOW);
 					} else {
@@ -255,7 +353,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 
 	@Override
 	protected Point getInitialSize() {
-		return new Point(500, 380);
+		return new Point(500, 450);
 	}
 
 	@Override
@@ -267,6 +365,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 		prefs.put(PROXY_USER, proxyUserSetting);
 		prefs.put(PROXY_PWD, proxyPwdSetting);
 		prefs.put(NON_PROXY_HOSTS, noProxyHostsSetting);
+		prefs.putBoolean(TE_IGNORE_CONNECTION_STATE, ignoreConnectionState);
 		try {
 			prefs.flush();
 		} catch (BackingStoreException e) {
@@ -280,47 +379,16 @@ public class NetworkConnectionSettingDialog extends Dialog {
 	 * 
 	 * @return if it is possible to reach internet resources.
 	 */
-	public boolean isInternetAvailable(boolean updateSessings) {
+	public boolean applyAndValidateNetworkSettings(boolean updateSessings) {
+		if (ignoreConnectionState) {
+			return true;
+		}
 		if (workOffline) {
 			System.setProperty(WORKOFFLINE, Boolean.toString(workOffline));
 			return true;
 		}
 		if (System.getProperty(PROXY_HOST) == null | updateSessings) {
-			if (proxyHostSetting.length() > 0) {
-				IProxyService proxyService = context.get(IProxyService.class);
-				proxyService.setProxiesEnabled(true);
-				proxyService.setSystemProxiesEnabled(true);
-				IProxyData proxyData = proxyService.getProxyData(IProxyData.HTTP_PROXY_TYPE);
-				IProxyData httpsProxyData = proxyService.getProxyData(IProxyData.HTTPS_PROXY_TYPE);
-				proxyData.setHost(proxyHostSetting);
-				httpsProxyData.setHost(proxyHostSetting);
-				if (proxyPortSetting.length() > 0) {
-					int port = Integer.parseInt(proxyPortSetting);
-					proxyData.setPort(port);
-					httpsProxyData.setPort(port);
-				}
-				proxyData.setUserid(proxyUserSetting);
-				proxyData.setPassword(proxyPwdSetting);
-				httpsProxyData.setUserid(proxyUserSetting);
-				httpsProxyData.setPassword(proxyPwdSetting);
-				try {
-					if (noProxyHostsSetting.length() > 0) {
-						proxyService.setNonProxiedHosts(noProxyHostsSetting.split(","));
-					}
-				} catch (CoreException e) {
-					e.printStackTrace();
-				}
-				System.setProperty(PROXY_HOST, proxyHostSetting);
-				System.setProperty(PROXY_HTTPS_HOST, proxyHostSetting);
-				System.setProperty(PROXY_PORT, proxyPortSetting);
-				System.setProperty(PROXY_HTTPS_PORT, proxyPortSetting);
-				System.setProperty(PROXY_USER, proxyUserSetting);
-				System.setProperty(PROXY_PWD, proxyPwdSetting);
-				System.setProperty(NON_PROXY_HOSTS, noProxyHostsSetting);
-				if (pathToMavenSettingsFileSettings.length() > 0) {
-					System.setProperty(PATH_TO_MAVENSETTINGS, pathToMavenSettingsFileSettings);
-				}
-			}
+			updateSystemSettings();
 		}
 		try {
 			URL url = new URL("http://www.google.com");
@@ -330,6 +398,54 @@ public class NetworkConnectionSettingDialog extends Dialog {
 		} catch (IOException e) {
 			return false;
 		}
+	}
+
+	private void updateSystemSettings() {
+		if (proxyHostSetting != null && proxyHostSetting.length() > 0) {
+			IProxyService proxyService = context.get(IProxyService.class);
+			proxyService.setSystemProxiesEnabled(false);
+			IProxyData proxyData = proxyService.getProxyData(IProxyData.HTTP_PROXY_TYPE);
+			IProxyData httpsProxyData = proxyService.getProxyData(IProxyData.HTTPS_PROXY_TYPE);
+			proxyData.setHost(proxyHostSetting);
+			httpsProxyData.setHost(proxyHostSetting);
+			if (proxyPortSetting.length() > 0) {
+				int port = Integer.parseInt(proxyPortSetting);
+				proxyData.setPort(port);
+				httpsProxyData.setPort(port);
+			}
+			proxyData.setUserid(proxyUserSetting);
+			proxyData.setPassword(proxyPwdSetting);
+			httpsProxyData.setUserid(proxyUserSetting);
+			httpsProxyData.setPassword(proxyPwdSetting);
+			proxyService.setProxiesEnabled(true);
+			try {
+				proxyService.setProxyData(new IProxyData[] { proxyData, httpsProxyData });
+			} catch (CoreException e1) {
+				logger.error("Couldn't store proxy settings in eclipse store", e1);
+			}
+			try {
+				if (noProxyHostsSetting.length() > 0) {
+					proxyService.setNonProxiedHosts(noProxyHostsSetting.split(","));
+				}
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}
+			System.setProperty(PROXY_HOST, proxyHostSetting);
+			System.setProperty(PROXY_HTTPS_HOST, proxyHostSetting);
+			System.setProperty(PROXY_PORT, proxyPortSetting);
+			System.setProperty(PROXY_HTTPS_PORT, proxyPortSetting);
+			System.setProperty(PROXY_USER, proxyUserSetting);
+			System.setProperty(PROXY_PWD, proxyPwdSetting);
+			System.setProperty(NON_PROXY_HOSTS, noProxyHostsSetting);
+			if (pathToMavenSettingsFileSettings != null && pathToMavenSettingsFileSettings.length() > 0) {
+				System.setProperty(PATH_TO_MAVENSETTINGS, pathToMavenSettingsFileSettings);
+			}
+		}
+	}
+
+	public void open(boolean showWelcomeMessage) {
+		this.showWelcomeMessage = showWelcomeMessage;
+		open();
 	}
 
 }

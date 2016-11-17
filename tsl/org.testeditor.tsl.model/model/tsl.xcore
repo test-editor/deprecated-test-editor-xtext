@@ -18,64 +18,17 @@
 
 package org.testeditor.tsl
 
+import org.testeditor.dsl.common.NamedElement
+
 class TslModel {
 	String ^package
 	contains TestSpecification specification 
 }
 
-class TestSpecification {
-	String name
-	contains MarkupLine[0..*] descriptions
+class TestSpecification extends NamedElement {
+	String description
 	contains SpecificationStep[0..*] steps
 }
-
-class MarkupLine {
-	contains TextLine textline
-	boolean underlined
-	boolean doubleUnderlined
-}
-
-abstract class MarkupContent {	
-}
-
-class TextLine {
-	contains TextLineElement[0..*] elements
-}
-
-class TextLineElement {	
-	String text
-	boolean times	
-	contains MarkupContent me
-}
-
-class UnderlinedText extends MarkupContent{
-	String text
-}
-
-class Header1 extends MarkupContent {
-	String[1..*] text
-}
-
-class Header2 extends MarkupContent {
-	String[1..*] text
-}
-
-class Header3 extends MarkupContent {
-	String[1..*] text
-}
-
-class BoldText extends MarkupContent {
-	String[1..*] text 
-}
-
-class BoldCursiveText extends MarkupContent {
-	String[1..*] text 
-}
-
-class CursiveText extends MarkupContent {
-	String[1..*] text 
-}
-
 
 class SpecificationStep {
 	contains StepContent[0..*] contents

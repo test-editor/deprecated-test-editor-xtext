@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -13,6 +13,7 @@
 package org.testeditor.aml.dsl.validation
 
 import java.text.MessageFormat
+import java.util.Set
 import java.util.regex.Pattern
 import java.util.regex.PatternSyntaxException
 import javax.inject.Inject
@@ -25,11 +26,11 @@ import org.testeditor.aml.MethodReference
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.RegExValueSpace
 import org.testeditor.aml.ValueSpaceAssignment
-import org.testeditor.aml.VariableReference
+import org.testeditor.aml.Variable
 
 import static org.testeditor.aml.AmlPackage.Literals.*
 import static org.testeditor.aml.dsl.Messages.*
-import java.util.Set
+import static org.testeditor.dsl.common.CommonPackage.Literals.*
 
 class AmlValidator extends AbstractAmlValidator {
 
@@ -76,11 +77,11 @@ class AmlValidator extends AbstractAmlValidator {
 	 * Checks if a template variable has a name, if not => warning
 	 */
 	@Check
-	def void checkVariableReferenceHasName(VariableReference variable) {
+	def void checkVariableReferenceHasName(Variable variable) {
 		if (variable.name.nullOrEmpty) {
 			warning(
 				Validation_VariableReference_MissingName,
-				VARIABLE_REFERENCE__NAME,
+				NAMED_ELEMENT__NAME,
 				VARIABLE_REFERENCE_NAME__MISSING
 			)
 		}
@@ -158,8 +159,8 @@ class AmlValidator extends AbstractAmlValidator {
 	}
 
 	/** get a set of strings that occur more than once in the list passed */
-	private def Set<String> getStringsOccuringMoreThanOnce(Iterable<String> list){
-		val stringsUnusedYet=list.toSet
+	private def Set<String> getStringsOccuringMoreThanOnce(Iterable<String> list) {
+		val stringsUnusedYet = list.toSet
 		val stringsOccuringMoreThanOnce = list.dropWhile [
 			val stringWasUnusedUpToNow = stringsUnusedYet.contains(it)
 			if (stringWasUnusedUpToNow) {
@@ -174,7 +175,7 @@ class AmlValidator extends AbstractAmlValidator {
 	def void checkInteractionNameIsUnique(AmlModel amlModel) {
 		amlModel.interactionTypes => [
 			val doubleUsedInteractionNames = map[name].getStringsOccuringMoreThanOnce
-			indexed.filter[doubleUsedInteractionNames.contains(value.name)].forEach[
+			indexed.filter[doubleUsedInteractionNames.contains(value.name)].forEach [
 				val message = '''Interaction has name ('«value.name»') which is used at least twice.'''
 				error(message, value.eContainer, value.eContainingFeature, key, INTERACTION_NAME_DUPLICATION)
 			]
@@ -182,3 +183,4 @@ class AmlValidator extends AbstractAmlValidator {
 	}
 
 }
+		

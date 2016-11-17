@@ -1,0 +1,38 @@
+package org.testeditor.fixture.eclipse
+
+import org.testeditor.fixture.swt.*;
+
+component type Workbench {
+	interactions = wait, getEditorWithFilePath, getEditorContents, openEditor, closeEditor, waitUntilAllJobsFinished, 
+	reportWidgets, waitForDialogClosing, waitForPopupDialogClosingAutomatically, closeAllEditors
+ }
+
+interaction type getEditorWithFilePath {
+	template = "Get editor with file" ${filepath}
+	method = EclipseWorkbenchFixture.getEditorWithFilePath(filepath)
+}
+
+interaction type getEditorContents {
+	template = "Get contents of editor" ${editor}
+	method = EclipseWorkbenchFixture.getEditorContents(editor)
+}
+
+interaction type openEditor {
+	template = "Open editor for file" ${filepath}
+	method = EclipseWorkbenchFixture.openEditor(filepath)
+}
+
+interaction type closeEditor {
+	template = "Close editor" ${editor}
+	method = EclipseWorkbenchFixture.closeEditor(editor)
+}
+
+interaction type waitUntilAllJobsFinished {
+	template = "Wait until all jobs finished"
+	method = EclipseWorkbenchFixture.waitUntilJobsCompleted
+}
+
+interaction type closeAllEditors {
+	template = "Close all editors"
+	method = EclipseWorkbenchFixture.closeAllEditors
+}

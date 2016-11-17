@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ASCII"?>
+<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmlns:commands="http://www.eclipse.org/ui/2010/UIModel/application/commands" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_MTgKQHNGEeaIOZyrnWUBVA">
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_N5kwMHNGEeaIOZyrnWUBVA" featurename="children" parentElementId="org.testeditor.rcp4.toolbar.0">
+    <elements xsi:type="menu:HandledToolItem" xmi:id="_hmq_gHRPEeaX_egOZLHGqQ" elementId="org.testeditor.rcp4.views.tcltestrun.handledtoolitem.rerunhandler" iconURI="platform:/plugin/org.testeditor.rcp4.views.tcltestrun/icons/runlast_co.gif" tooltip="Rerun last test launch" command="_Qg9mUHRQEeaX_egOZLHGqQ"/>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_vOAX4HRPEeaX_egOZLHGqQ" featurename="bindings" parentElementId="org.testeditor.bindingTable">
+    <elements xsi:type="commands:KeyBinding" xmi:id="_Gs2n8HRQEeaX_egOZLHGqQ" elementId="org.testeditor.rcp4.views.tcltestrun.keybinding.rerunLastTest" keySequence="M3+R" command="_Qg9mUHRQEeaX_egOZLHGqQ"/>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_LhT1cHRQEeaX_egOZLHGqQ" featurename="commands" parentElementId="application">
+    <elements xsi:type="commands:Command" xmi:id="_Qg9mUHRQEeaX_egOZLHGqQ" elementId="org.testeditor.rcp4.views.tcltestrun.testrerun.command" commandName="Rerun Last Test Launch"/>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_7qvI4HRQEeaX_egOZLHGqQ" featurename="handlers" parentElementId="application">
+    <elements xsi:type="commands:Handler" xmi:id="_AAQ-sHRREeaX_egOZLHGqQ" elementId="org.testeditor.rcp4.views.tcltestrun.handler.rerunlastTestLaunch" contributionURI="bundleclass://org.testeditor.rcp4.views.tcltestrun/org.testeditor.rcp4.views.tcltestrun.RerunLastTestLaunchHandler" command="_Qg9mUHRQEeaX_egOZLHGqQ"/>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_WRg7YJPbEeaCgurVgtrqaA" featurename="children" parentElementId="org.testeditor.rcp4.partstack.0">
+    <elements xsi:type="basic:Part" xmi:id="_h-jKQJPbEeaCgurVgtrqaA" elementId="org.testeditor.rcp4.views.tcltestrun.part.testexecutionconsole" contributionURI="bundleclass://org.testeditor.rcp4.views.tcltestrun/org.testeditor.rcp4.views.tcltestrun.console.TestExecutionLogViewPart" label="Test execution console" iconURI="platform:/plugin/org.testeditor.rcp4.views.tcltestrun/icons/console_view.png"/>
+  </fragments>
+</fragment:ModelFragments>

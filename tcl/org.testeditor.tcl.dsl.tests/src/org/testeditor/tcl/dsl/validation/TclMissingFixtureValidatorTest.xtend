@@ -17,27 +17,19 @@ import org.eclipse.xtext.common.types.JvmType
 import org.eclipse.xtext.validation.ValidationMessageAcceptor
 import org.junit.Before
 import org.junit.Test
-import org.mockito.ArgumentCaptor
-import org.mockito.Captor
-import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.testeditor.aml.InteractionType
-import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
-import org.testeditor.tcl.util.TclModelUtil
-import org.testeditor.tml.ComponentTestStepContext
+import org.testeditor.tcl.ComponentTestStepContext
+import org.testeditor.tcl.TestStep
 
 import static org.mockito.Matchers.*
 
 import static extension org.mockito.Mockito.*
 
-class TclMissingFixtureValidatorTest extends AbstractParserTest {
+class TclMissingFixtureValidatorTest extends AbstractMockedTclValidatorTest {
 
-	@InjectMocks TclValidator tclValidator // class under test
-	@Mock TclModelUtil tclModelUtil // injected into class under test
 	@Mock JvmParameterizedTypeReference typeReferenceMock
 	@Mock ValidationMessageAcceptor messageAcceptor
-
-	@Captor ArgumentCaptor<String> message
 
 	@Before
 	def void initMocks() {
@@ -55,7 +47,7 @@ class TclMissingFixtureValidatorTest extends AbstractParserTest {
 	@Test
 	def void noInfoOnExistingFixture() {
 		// given
-		val tclFix = parse('''
+		val tclFix = parseTcl('''
 			package pa
 			# Test
 			
@@ -63,7 +55,8 @@ class TclMissingFixtureValidatorTest extends AbstractParserTest {
 			Component: some_fantasy_component
 			- test step that maps
 		''')
-		val testStepThatMaps = tclFix.steps.head.contexts.head.assertInstanceOf(ComponentTestStepContext).steps.head
+		val testStepThatMaps = tclFix.test.steps.head.contexts.head.assertInstanceOf(ComponentTestStepContext).
+			steps.head.assertInstanceOf(TestStep)
 
 		// when
 		tclValidator.checkFixtureMethodForExistence(testStepThatMaps)
@@ -75,7 +68,7 @@ class TclMissingFixtureValidatorTest extends AbstractParserTest {
 	@Test
 	def void infoOnMissingFixture() {
 		// given
-		val tclFix = parse('''
+		val tclFix = parseTcl('''
 			package pa
 			# Test
 			
@@ -83,7 +76,8 @@ class TclMissingFixtureValidatorTest extends AbstractParserTest {
 			Component: some_fantasy_component
 			- test step that does not map
 		''')
-		val testStepThatDoesNotMap = tclFix.steps.head.contexts.head.assertInstanceOf(ComponentTestStepContext).steps.head
+		val testStepThatDoesNotMap = tclFix.test.steps.head.contexts.head.assertInstanceOf(
+			ComponentTestStepContext).steps.head.assertInstanceOf(TestStep)
 		when(typeReferenceMock.type).thenReturn(null)
 
 		// when
@@ -94,24 +88,4 @@ class TclMissingFixtureValidatorTest extends AbstractParserTest {
 		assertMatches(message.value, ".*could not resolve fixture")
 	}
 
-	@Test
-	def void noInfoOnAssertion() {
-		// given
-		val tclFix = parse('''
-			package pa
-			# Test
-			
-			* first
-			Component: some_fantasy_component
-			- assert variable = "Hello"
-		''')
-		val testStepThatDoesNotMap = tclFix.steps.head.contexts.head.assertInstanceOf(ComponentTestStepContext).steps.head
-		when(typeReferenceMock.type).thenReturn(null)
-
-		// when
-		tclValidator.checkFixtureMethodForExistence(testStepThatDoesNotMap)
-
-		// then
-		messageAcceptor.verify(never).acceptInfo(anyString, anyObject, anyObject, anyInt, anyString)
-	}
 }

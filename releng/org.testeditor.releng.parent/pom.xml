@@ -5,17 +5,17 @@
 
 	<groupId>org.testeditor</groupId>
 	<artifactId>org.testeditor.releng.parent</artifactId>
-	<version>1.1.0</version>
+	<version>1.2.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<properties>
 		<!-- Version definitions below -->
 		<java.version>1.8</java.version>
-		<xtext.version>2.9.0</xtext.version>
+		<xtext.version>2.10.0</xtext.version>
 		<xtend.version>${xtext.version}</xtend.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<tycho-version>0.24.0</tycho-version>
+		<tycho-version>0.25.0</tycho-version>
 		<maven-clean-plugin.version>3.0.0</maven-clean-plugin.version>
 		<maven-resources-plugin.version>2.7</maven-resources-plugin.version>
 		<maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
@@ -26,10 +26,10 @@
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 
 		<!-- point to te.target -->
-		<xtext-target>file:///${basedir}/../../releng/org.testeditor.releng.target/p2-local</xtext-target>
+		<xtext-target>file:///${basedir}/../../target-platform/org.testeditor.releng.target.updatesite/target/site</xtext-target>
 
 		<!-- other properties -->
-		<tycho-surefire-argline>-Xms40m -Xmx1G</tycho-surefire-argline>
+		<tycho-surefire-argline>-Xms40m -Xmx1G -Dorg.testeditor.ignoreConnectionState=true</tycho-surefire-argline>
 		<os-jvm-flags></os-jvm-flags>
 		<argLine>${tycho-surefire-argline} ${os-jvm-flags}</argLine>
 	</properties>
@@ -41,6 +41,8 @@
 				<os><family>mac</family></os>
 			</activation>
 			<properties>
+				<!-- cacao restrictions in combination with swtbot                        -->
+				<!-- https://wiki.eclipse.org/Tycho/FAQ#How_do_I_add_OS-specific_flags.3F -->
 				<os-jvm-flags>-XstartOnFirstThread</os-jvm-flags>
 			</properties>
 		</profile>
@@ -160,6 +162,9 @@
 					<groupId>org.eclipse.tycho</groupId>
 					<artifactId>tycho-surefire-plugin</artifactId>
 					<version>${tycho-version}</version>
+					<configuration>
+						<argLine>${argLine}</argLine>
+					</configuration>
 				</plugin>
                 <plugin>
 					<artifactId>maven-deploy-plugin</artifactId>

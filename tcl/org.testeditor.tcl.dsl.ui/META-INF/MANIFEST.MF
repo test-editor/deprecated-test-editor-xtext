@@ -2,11 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.testeditor.tcl.dsl.ui
 Bundle-Vendor: Signal Iduna Corporation
-Bundle-Version: 1.1.0
+Bundle-Version: 1.2.0.qualifier
 Bundle-SymbolicName: org.testeditor.tcl.dsl.ui; singleton:=true
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.testeditor.dsl.common,
+ org.testeditor.dsl.common.ui,
  org.testeditor.tcl.dsl;visibility:=reexport,
  org.testeditor.tcl.dsl.ide,
  org.eclipse.xtext.ui,
@@ -25,14 +26,12 @@ Require-Bundle: org.testeditor.dsl.common,
  org.eclipse.ui,
  org.eclipse.jdt.debug.ui,
  org.testeditor.logging,
- org.testeditor.tml.dsl,
- org.testeditor.tml.dsl.ui,
- org.testeditor.tml.dsl.ide
-Import-Package: org.apache.log4j,
- org.testeditor.tml.dsl.ui.contentassist
+ org.eclipse.e4.core.di.annotations;bundle-version="1.5.0"
+Import-Package: org.apache.log4j
 Export-Package: org.testeditor.tcl.dsl.ui,
  org.testeditor.tcl.dsl.ui.contentassist,
  org.testeditor.tcl.dsl.ui.internal,
  org.testeditor.tcl.dsl.ui.quickfix,
- org.testeditor.tcl.dsl.ui.testlaunch
+ org.testeditor.tcl.dsl.ui.testlaunch,
+ org.testeditor.tcl.dsl.ui.util
 Bundle-Activator: org.testeditor.tcl.dsl.ui.internal.DslActivator

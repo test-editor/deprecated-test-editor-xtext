@@ -1,132 +1,215 @@
 package org.testeditor.tcl.dsl.jvmmodel
 
+import com.google.inject.Provider
 import javax.inject.Inject
+import org.eclipse.xtext.resource.XtextResourceSet
+import org.eclipse.xtext.xbase.jvmmodel.JvmTypeReferenceBuilder
+import org.junit.Before
 import org.junit.Test
-import org.testeditor.tml.AssertionTestStep
-import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
+import org.mockito.InjectMocks
+import org.mockito.Mock
+import org.testeditor.aml.ModelUtil
+import org.testeditor.tcl.StringConstant
+import org.testeditor.tcl.VariableReference
+import org.testeditor.tcl.VariableReferenceMapAccess
+import org.testeditor.tcl.dsl.tests.AbstractTclTest
+import org.testeditor.tcl.dsl.tests.TclModelGenerator
+import org.testeditor.tcl.util.TclModelUtil
 
-class TclAssertCallBuilderTest extends AbstractParserTest {
+import static org.mockito.Matchers.*
+import static org.mockito.Mockito.*
 
-	@Inject TclAssertCallBuilder assertCallBuilder
+class TclAssertCallBuilderTest extends AbstractTclTest {
+
+	@InjectMocks TclAssertCallBuilder assertCallBuilder // class under test
+	@Mock ModelUtil amlModelUtil // injected into class under test
+	@Mock protected TclModelUtil tclModelUtil // injected into class under test
+	@Mock TclExpressionBuilder expressionBuilder // injected into class under test
+	@Inject extension TclModelGenerator
+	@Inject protected Provider<XtextResourceSet> resourceSetProvider
+		
+	@Inject JvmTypeReferenceBuilder.Factory jvmTypeReferenceBuilderFactory
+	
+	static val VARIABLE_NAME = 'variable'
+	static val STRING_FOR_COMPARISON = 'test'
+	
+	@Before
+	def void setupExpressionBuilder() {
+		when(expressionBuilder.buildExpression(isA(StringConstant))).thenReturn('''"«STRING_FOR_COMPARISON»"''')
+		when(expressionBuilder.buildExpression(isA(VariableReference))).thenReturn(VARIABLE_NAME)
+		when(expressionBuilder.buildExpression(isA(VariableReferenceMapAccess))).thenReturn(VARIABLE_NAME+'.get("key")')
+	}
 
 	@Test
 	def void testEqualsGen() {
-		'- assert variable == "test"' //
-		.assertTclTestStepGeneratesCodeLine( //
-		'org.junit.Assert.assertEquals("test", variable);')
+		// given
+		val expression = flatReference(VARIABLE_NAME).compareOnEquality(STRING_FOR_COMPARISON)
+
+		// when
+		val generatedCode = assertCallBuilder.build(expression)
+
+		// then
+		assertCodeLine('''org.junit.Assert.assertEquals("", "«STRING_FOR_COMPARISON»", «VARIABLE_NAME»);''', generatedCode)
 	}
 
 	@Test
 	def void testNotEqualsGen() {
-		'- assert variable != "test"' //
-		.assertTclTestStepGeneratesCodeLine( //
-		'org.junit.Assert.assertNotEquals("test", variable);')
-	}
+		// given
+		val expression = flatReference(VARIABLE_NAME).compareNotEqual(STRING_FOR_COMPARISON)
 
-	@Test
-	def void testInEqualityGen() {
-		'- assert variable is not "test"' //
-		.assertTclTestStepGeneratesCodeLine( //
-		'org.junit.Assert.assertNotEquals("test", variable);')
+		// when
+		val generatedCode = assertCallBuilder.build(expression)
+
+		// then
+		assertCodeLine('''org.junit.Assert.assertNotEquals("", "«STRING_FOR_COMPARISON»", «VARIABLE_NAME»);''', generatedCode)
 	}
 
 	@Test
 	def void testNotNullGen() {
-		'- assert variable' //
-		.assertTclTestStepGeneratesCodeLine( //
-		'org.junit.Assert.assertNotNull(variable);')
+		// given
+		variableType = String
+		val expression = nullOrBoolCheck(VARIABLE_NAME)
+
+		// when
+		val generatedCode = assertCallBuilder.build(expression)
+
+		// then
+		assertCodeLine('''org.junit.Assert.assertNotNull("", «VARIABLE_NAME»);''', generatedCode)
 	}
 
 	@Test
 	def void testNullGen() {
-		'- assert !variable' //
-		.assertTclTestStepGeneratesCodeLine( //
-		'org.junit.Assert.assertNull(variable);')
+		// given
+		variableType = String
+		val expression = nullOrBoolCheck(VARIABLE_NAME) => [negated = true]
+
+		// when
+		val generatedCode = assertCallBuilder.build(expression)
+
+		// then
+		assertCodeLine('''org.junit.Assert.assertNull("", «VARIABLE_NAME»);''', generatedCode)
 	}
 
 	@Test
-	def void testIncompleteImpl() {
-		'- assert variable > "ohoh"'//
-		.assertTclTestStepGeneratesMatchingComment(//
-		'// TODO .*')
+	def void testBooleanValue() {
+		// given
+		variableType = boolean
+		val expression = nullOrBoolCheck(VARIABLE_NAME)
+
+		// when
+		val generatedCode = assertCallBuilder.build(expression)
+
+		// then
+		assertCodeLine('''org.junit.Assert.assertTrue("", «VARIABLE_NAME»);''', generatedCode)
+	}
+
+	@Test
+	def void testNotBooleanValue() {
+		// given
+		variableType = boolean
+		val expression = nullOrBoolCheck(VARIABLE_NAME) => [negated = true]
+
+		// when
+		val generatedCode = assertCallBuilder.build(expression)
+
+		// then
+		assertCodeLine('''org.junit.Assert.assertFalse("", «VARIABLE_NAME»);''', generatedCode)
+	}
+
+	@Test
+	def void testBooleanObject() {
+		// given
+		variableType = Boolean
+		val expression = nullOrBoolCheck(VARIABLE_NAME)
+
+		// when
+		val generatedCode = assertCallBuilder.build(expression)
+
+		// then
+		assertCodeLine('''org.junit.Assert.assertTrue("", («VARIABLE_NAME» != null) && «VARIABLE_NAME».booleanValue());''', generatedCode)
+	}
+
+	@Test
+	def void testNotBooleanObject() {
+		// given
+		variableType = Boolean
+		val expression = nullOrBoolCheck(VARIABLE_NAME) => [negated = true]
+
+		// when
+		val generatedCode = assertCallBuilder.build(expression)
+
+		// then
+		assertCodeLine('''org.junit.Assert.assertFalse("", («VARIABLE_NAME» != null) && «VARIABLE_NAME».booleanValue());''',
+			generatedCode)
 	}
 
 	@Test
 	def void testMatches() {
-		'- assert variable matches "ohoh"' //
-		.assertTclTestStepGeneratesCodeLine( //
-		'org.junit.Assert.assertTrue(variable.matches("ohoh"));')
+		// given
+		val expression = flatReference(VARIABLE_NAME).compareMatching(STRING_FOR_COMPARISON)
+
+		// when
+		val generatedCode = assertCallBuilder.build(expression)
+
+		// then
+		assertCodeLine('''org.junit.Assert.assertTrue("", «VARIABLE_NAME».toString().matches("«STRING_FOR_COMPARISON»".toString()));''',
+			generatedCode)
 	}
 
 	@Test
 	def void testDoesNotMatch() {
-		'- assert variable does not match "ohoh"' //
-		.assertTclTestStepGeneratesCodeLine( //
-		'org.junit.Assert.assertFalse(variable.matches("ohoh"));')
+		// given
+		val expression = flatReference(VARIABLE_NAME).compareNotMatching(STRING_FOR_COMPARISON)
+
+		// when
+		val generatedCode = assertCallBuilder.build(expression)
+
+		// then
+		assertCodeLine('''org.junit.Assert.assertFalse("", «VARIABLE_NAME».toString().matches("«STRING_FOR_COMPARISON»".toString()));''',
+			generatedCode)
 	}
 
 	@Test
 	def void testWithMapDereference() {
-		'- assert variable.key == "test"' //
-		.assertTclTestStepGeneratesCodeLine( //
-		'org.junit.Assert.assertEquals("test", variable.get("key"));')
+		// given
+		val expression = mappedReference(VARIABLE_NAME, "key").compareOnEquality(STRING_FOR_COMPARISON)
+
+		// when
+		val generatedCode = assertCallBuilder.build(expression)
+
+		// then
+		assertCodeLine('''org.junit.Assert.assertEquals("", "«STRING_FOR_COMPARISON»", «VARIABLE_NAME».get("key"));''', generatedCode)
 	}
 
 	@Test
 	def void testWithMapKeyAsString() {
-		'- assert variable."key with spaces" == "test"' //
-		.assertTclTestStepGeneratesCodeLine( //
-		'org.junit.Assert.assertEquals("test", variable.get("key with spaces"));')
-	}
-
-	@Test
-	def void testGeneratedComment() {
-		'- assert variable."key with spaces" == "test"'//
-		.assertTclTestStepGeneratesMatchingComment(//
-		'// - assert variable."key with spaces" == "test"')
-	}
-
-	// parse the given char sequence as tcl AssertionTestStep
-	private def AssertionTestStep parseAssertionTestStep(CharSequence seq) {
-		return seq.parse(grammarAccess.assertionTestStepRule, AssertionTestStep)
-	}
-
-	// assert that the given tcl AssertionTestStep results in the generation of the expectedCode
-	private def void assertTclTestStepGeneratesCodeLine(String testStep, String expectedCode) {
 		// given
-		val assertionTestStep = parseAssertionTestStep(testStep)
+		val expression = mappedReference(VARIABLE_NAME, "key with spaces").compareOnEquality(STRING_FOR_COMPARISON)
+		when(expressionBuilder.buildExpression(isA(VariableReferenceMapAccess))).thenReturn(
+			VARIABLE_NAME+'.get("key with spaces")')
 
 		// when
-		val genCode = assertCallBuilder.build(assertionTestStep.expression)
+		val generatedCode = assertCallBuilder.build(expression)
 
 		// then
-		genCode.assertCodeLine(expectedCode)
+		assertCodeLine('''org.junit.Assert.assertEquals("", "«STRING_FOR_COMPARISON»", «VARIABLE_NAME».get("key with spaces"));''', generatedCode)
 	}
 
-	// assert that the given tcl AssertionTestStep results in the generation of the expectedCommentPattern
-	private def void assertTclTestStepGeneratesMatchingComment(String testStep, String expectedCommentPattern) {
-		// given
-		val assertionTestStep = parseAssertionTestStep(testStep)
+	/** make sure that questions to the type of the referenced variable within the assertion is set to clazz */
+	private def void setVariableType(Class<?> clazz) {
+		val jvmTypeReferenceBuilder = jvmTypeReferenceBuilderFactory.create(resourceSetProvider.get)
+		val jvmType = jvmTypeReferenceBuilder.typeRef(clazz)
 
-		// when
-		val genCode = assertCallBuilder.build(assertionTestStep.expression)
-
-		// then
-		genCode.assertMatchingCommentLine(expectedCommentPattern)
+		when(tclModelUtil.collectDeclaredVariablesTypeMap(any)).thenReturn(#{VARIABLE_NAME->jvmType})
+		when(amlModelUtil.isAssignableWithoutConversion(clazz, jvmType)).thenReturn(true)
 	}
 
 	// assert that the generated code holds 2 lines of which the second is identical to expectedCode
-	private def void assertCodeLine(String generatedCode, String expectedCode) {
+	private def void assertCodeLine(CharSequence expectedCode, String generatedCode) {
 		val generatedCodeLines = generatedCode.split(System.lineSeparator)
-		assertSize(generatedCodeLines, 2, "expecting two generated code lines, a comment and the assertion call")
+		assertSize(generatedCodeLines, 1, "expecting one generated code line, just the assertion call")
 		val assertMethod = generatedCodeLines.last
-		assertMethod.assertEquals(expectedCode)
-	}
-
-	// assert that the generated codes first line matches the expectedCommentPattern
-	private def void assertMatchingCommentLine(String generatedCode, String expectedCommentPattern) {
-		val assertMethod = generatedCode.split(System.lineSeparator).head
-		assertMethod.assertMatches(expectedCommentPattern)
+		assertMethod.assertEquals(expectedCode.toString)
 	}
 
 }

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.testeditor.tcl.model
 Bundle-SymbolicName: org.testeditor.tcl.model;singleton:=true
-Bundle-Version: 1.1.0
+Bundle-Version: 1.2.0.qualifier
 Bundle-ClassPath: .
 Bundle-Vendor: Signal Iduna Corporation
 Bundle-Localization: plugin
@@ -16,9 +16,10 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.emf.ecore.xcore.lib,
  org.eclipse.xtext.xbase;visibility:=reexport,
+ org.testeditor.dsl.common.model;visibility:=reexport,
  org.eclipse.xtext.common.types;visibility:=reexport,
  org.testeditor.aml.model;visibility:=reexport,
- org.testeditor.tml.model;visibility:=reexport,
+ org.testeditor.dsl.common;visibility:=reexport,
  org.testeditor.tsl.model;visibility:=reexport,
  org.eclipse.xtext
 Bundle-ActivationPolicy: lazy

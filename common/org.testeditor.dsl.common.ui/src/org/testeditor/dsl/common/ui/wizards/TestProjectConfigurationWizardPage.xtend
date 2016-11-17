@@ -59,8 +59,10 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 	}
 
 	private def createDemoSelectionArea(Composite parent) {
-		demoCode = new Button(parent, SWT.CHECK)
-		demoCode.text = "Generate with examples"
+		demoCode = new Button(parent, SWT.CHECK) => [
+			text = "Generate with examples"
+			setData(Constants.SWT_BOT_ID_KEY, Constants.NEW_DIALOG_GENERATE_WITH_EXAMPLES)
+		]
 	}
 
 	private def createFixtureSelectionArea(Composite parent) {
@@ -101,6 +103,7 @@ class TestProjectConfigurationWizardPage extends WizardPage {
 		parent.layoutData = gd
 		new Label(parent, SWT.NORMAL).text = "Build-system:"
 		buildSystem = new Combo(parent, SWT.None)
+		buildSystem.setData(Constants.SWT_BOT_ID_KEY, Constants.NEW_DIALOG_BUILD_TOOL_COMBO)
 		availableBuildSystems.forEach[buildSystem.add(it)]
 		buildSystem.text = availableBuildSystems.head
 	}

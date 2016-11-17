@@ -2,11 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.testeditor.tsl.dsl.ui
 Bundle-Vendor: Signal Iduna Corporation
-Bundle-Version: 1.1.0
+Bundle-Version: 1.2.0.qualifier
 Bundle-SymbolicName: org.testeditor.tsl.dsl.ui; singleton:=true
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: org.testeditor.tsl.dsl;visibility:=reexport,
+Require-Bundle: org.testeditor.dsl.common,
+ org.testeditor.dsl.common.ui,
+ org.testeditor.tsl.dsl;visibility:=reexport,
  org.testeditor.tsl.dsl.ide,
  org.eclipse.xtext.ui,
  org.eclipse.xtext.ui.shared,

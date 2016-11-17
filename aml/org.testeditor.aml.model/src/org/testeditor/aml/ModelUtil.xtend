@@ -15,6 +15,7 @@ package org.testeditor.aml
 import java.util.Set
 import org.eclipse.xtext.common.types.JvmType
 import org.eclipse.xtext.common.types.JvmTypeReference
+import org.eclipse.xtext.common.types.TypesPackage
 
 class ModelUtil {
 
@@ -104,6 +105,26 @@ class ModelUtil {
 			return jvmParameters.get(index).parameterType
 		} else {
 			return null
+		}
+	}
+
+	/**
+	 * @return the type returned by the fixture of the given interaction (may be null)
+	 */
+	def JvmTypeReference getReturnType(InteractionType interaction) {
+		interaction.defaultMethod?.operation?.returnType
+	}
+
+	/**
+	 * @return whether the given jvmTypeReference is assignable to clazz (without conversion)
+	 */
+	def boolean isAssignableWithoutConversion(Class<?> clazz, JvmTypeReference jvmTypeReference) {
+		val jvmTypeEClass = jvmTypeReference.type.eClass
+		val typeRefQName = jvmTypeReference.qualifiedName
+		if (jvmTypeEClass != TypesPackage.Literals.JVM_PRIMITIVE_TYPE) {
+			return (clazz.isAssignableFrom(Class.forName(typeRefQName.replaceAll('<.*$',''))))
+		} else { // primitive types need to have identical name (no widening)
+			return jvmTypeReference.qualifiedName == clazz.canonicalName
 		}
 	}
 
