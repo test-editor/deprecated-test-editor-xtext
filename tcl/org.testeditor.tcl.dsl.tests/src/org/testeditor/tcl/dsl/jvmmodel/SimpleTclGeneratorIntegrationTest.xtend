@@ -196,4 +196,33 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 		'''.indent(2))
 	}
 
+	/**
+	 * The AML template has a different order than the parameters in the fixture method.
+	 *
+	 * <pre>
+	 * interaction type setValueReversed {
+	 *    template = "Set value" ${value} "to" ${element}
+	 *    method = DummyFixture.setValue(element, value)
+	 * }
+	 * </pre>
+	 */
+	@Test
+	def void interactionCallWithValueAndLocatorInReverseOrder() {
+		// given
+		val tcl = '''
+			* Some step
+				Mask: GreetingApplication
+				- Set value "theValue" to <Input>
+		'''
+
+		// when
+		val generatedCode = tcl.parseAndGenerate
+
+		// then
+		generatedCode.assertContains('''
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "Set value \"theValue\" to <Input>");
+			dummyFixture.setValue("text.input", "theValue");
+		'''.indent(2))
+	}	
+
 }
