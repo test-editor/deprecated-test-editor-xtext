@@ -99,6 +99,11 @@ public class DummyFixture {
 			template = "Set value of" ${element} "to" ${value}
 			method = «dummyFixture».setValue(element, value)
 		}
+
+		interaction type setValueReversed {
+			template = "Set value" ${value} "to" ${element}
+			method = «dummyFixture».setValue(element, value)
+		}
 		
 		interaction type getValue {
 			template = "Read value from" ${element}
@@ -135,7 +140,7 @@ public class DummyFixture {
 		}
 		
 		element type Text {
-			interactions = getValue, isVisible, setValue
+			interactions = getValue, isVisible, setValue, setValueReversed
 		}
 
 		element type Button {
