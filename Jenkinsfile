@@ -90,7 +90,7 @@ void postRelease(String preReleaseVersion) {
 
         def version = "v${getCurrentVersion()}"
         echo "Tagging release as $version"
-        sh "git add *"
+        sh "git add ."
         sh "git commit -m '[release] $version'"
         sh "git tag $version"
         // workaround: cannot push without credentials using HTTPS => push using SSH
