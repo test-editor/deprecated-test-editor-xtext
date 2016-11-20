@@ -23,14 +23,14 @@ class TestExecutionLog {
 	String name
 	Date executionDate
 	List<TestCaseExecution> testCases
-	String filename
-	File logFile
+	String testRunTimestamp
+	File logDir
 	Link[] links
 	String content
 	TestLogGroup[] logGroups
 		
-	def void setLogFile(File file) {
-		logFile = file
-		filename = logFile.name
+	def void setLogDir(File file) {
+		logDir = file
+		testRunTimestamp = logDir.name
 	}
 }

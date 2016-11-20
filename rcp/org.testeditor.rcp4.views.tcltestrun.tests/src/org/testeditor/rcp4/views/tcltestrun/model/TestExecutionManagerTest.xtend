@@ -40,8 +40,8 @@ class TestExecutionManagerTest extends AbstractTest {
 		// given
 		val dir = tempFolder.root
 		Files.createFile(new File(dir, "foo.bar").toPath)
-		Files.createFile(new File(dir, "te-2016.11.16.-22:24.log").toPath)
-		Files.createFile(new File(dir, "te-2016.11.16.-23:24.log").toPath)
+		Files.createDirectory(new File(dir, "testrun-2016.11.16-22:24").toPath)
+		Files.createDirectory(new File(dir, "testrun-2016.11.16-23:24").toPath)
 		when(logLocationHelper.logLocation).thenReturn(dir)
 
 		// when
@@ -49,9 +49,9 @@ class TestExecutionManagerTest extends AbstractTest {
 
 		// then
 		list.assertSize(2)
-		list.get(0).logFile.name.assertEquals("te-2016.11.16.-23:24.log")
+		list.get(0).getLogDir.parentFile.name.assertEquals("testrun-2016.11.16-23:24")
 		list.get(0).name.assertEquals("16.11.16 23:24")
-		list.get(1).logFile.name.assertEquals("te-2016.11.16.-22:24.log")
+		list.get(1).getLogDir.parentFile.name.assertEquals("testrun-2016.11.16-22:24")
 		list.get(1).name.assertEquals("16.11.16 22:24")
 	}
 

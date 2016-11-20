@@ -49,6 +49,8 @@ import org.testeditor.tcl.dsl.ui.util.TclIndexHelper
 import org.testeditor.tcl.dsl.ui.util.TclInjectorProvider
 import org.eclipse.e4.ui.workbench.modeling.EPartService
 import org.eclipse.swt.widgets.Display
+import java.io.FileOutputStream
+import java.nio.file.Files
 
 class TclLauncherUi implements Launcher {
 
@@ -132,7 +134,9 @@ class TclLauncherUi implements Launcher {
 				list = #[]
 			}
 			val execLog = testExecutionManager.createTestExecutionLog(list)
-			val output = new TeeOutputStream(con.newOutputStream, testExecutionManager.createOutputStreamFor(execLog))
+			val testResultDir = testExecutionManager.createTestlogDirectoryFor(execLog)
+			val logFileStream = new FileOutputStream(new File(testResultDir, "testrun.log"))
+			val output = new TeeOutputStream(con.newOutputStream, logFileStream)
 			partHelper.showView(TEST_EXECUTION_RESULT_VIEW)
 			val viewPart = eclipseContextHelper.eclipseContext.get(EPartService).findPart(TEST_EXECUTION_RESULT_VIEW)
 			val teExecView = viewPart.object as TestExecutionLogViewPart
@@ -144,6 +148,8 @@ class TclLauncherUi implements Launcher {
 				logger.error("resulting expectedFile must not be null")
 			} else {
 				safeUpdateJunitTestView(result.expectedFileRoot, testLaunchInformation.project.name)
+				Files.copy(new File(result.expectedFileRoot, "te-testCompose.xml").toPath,
+					new File(testResultDir, "testSummary.xml").toPath)
 			}
 			monitor.done
 			partHelper.showView(TEST_EXECUTION_RESULT_VIEW)

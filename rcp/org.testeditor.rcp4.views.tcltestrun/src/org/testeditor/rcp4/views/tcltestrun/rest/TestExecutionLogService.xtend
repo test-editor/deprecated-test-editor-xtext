@@ -38,7 +38,7 @@ class TestExecutionLogService {
 	def Response getTestLogExeutionsList() {
 		val result = testExecutionManager.testExecutionLogs
 		result.entries.forEach [
-			it.links = createLinks(it.filename)
+			it.links = createLinks(it.logDir.parentFile.name)
 		]
 		val gson = new Gson
 		return Response.ok(gson.toJson(result)).build
@@ -67,8 +67,9 @@ class TestExecutionLogService {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	def Response getTestLogExeutionTestStepTree(@PathParam("filename") String filename) {
-		val log = testExecutionManager.testExecutionLogs.entries.filter[logFile.name == filename].head
-		log.logGroups = new TestLogGroupBuilder().build(Files.readAllLines(log.logFile.toPath))
+		val entries = testExecutionManager.testExecutionLogs.entries
+		val log = entries.filter[logDir.parentFile.name == filename].head
+		log.logGroups = new TestLogGroupBuilder().build(Files.readAllLines(log.logDir.toPath))
 		log.links = createLinks(filename)
 		val gson = new Gson
 		return Response.ok(gson.toJson(log)).build
