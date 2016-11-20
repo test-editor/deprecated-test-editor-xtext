@@ -9,6 +9,7 @@ export class TestExecutionLog {
 
     links: Link[]
     testStatistic: TestRunStatistic
+    logGroups: LogGroup[]
     name: String
     filename: String
     
