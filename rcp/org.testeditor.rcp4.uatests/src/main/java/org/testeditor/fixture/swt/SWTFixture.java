@@ -525,8 +525,9 @@ public class SWTFixture implements TestRunListener, TestRunReportable {
 		logger.info("Check if the current active editor '{}' contains '{}'", activeEditor.getTitle(), searchString);
 		String textEditorContents = activeEditor.toTextEditor().getText();
 		String condensedContents = condenseForLogging(textEditorContents);
-		logger.debug("Editor contains '{}'.", condensedContents);
-		return textEditorContents.contains(searchString);
+		boolean result = textEditorContents.contains(searchString);
+		logger.debug("Editor contains '{}' is: {}.", condensedContents, result);
+		return result;
 	}
 
 	@FixtureMethod
