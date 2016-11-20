@@ -59,4 +59,18 @@ class TestExecutionManagerTest extends AbstractTest {
 		list.get(1).name.assertEquals("16.11.16 22:24")
 	}
 
+	@Test
+	def void testReadTestStatistic() {
+		// given
+		val testSummaryFile = new File(tempFolder.root, "testSummary.xml")
+		Files.write(testSummaryFile.toPath, TestRunUtility.testResult.bytes)
+
+		// when
+		val statistic = testExecutionManager.readTestStatistic(testSummaryFile.parentFile)
+
+		// then
+		assertEquals(statistic.errors, 0)
+		assertEquals(statistic.failures, 0)
+		assertEquals(statistic.tests, 1)
+	}
 }
