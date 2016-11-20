@@ -21,15 +21,17 @@ import javax.inject.Inject
 import org.eclipse.e4.core.di.annotations.Creatable
 import org.slf4j.LoggerFactory
 import org.testeditor.rcp4.views.tcltestrun.LogLocationHelper
+import javax.xml.parsers.DocumentBuilderFactory
+import org.w3c.dom.NamedNodeMap
 
 @Creatable
 class TestExecutionManager {
 
 	static val logger = LoggerFactory.getLogger(TestExecutionManager)
 	static val String TIMESTAMP_FILE_PATTERN = "yyyy.MM.dd-HH:mm"
+	static val String TEST_RUN_DIRECTORY_PREFIX = "testrun-"
 
 	@Inject LogLocationHelper logLocationHelper
-	
 
 	def TestExecutionLog createTestExecutionLog(List<String> testNames) {
 		return new TestExecutionLog => [
@@ -41,7 +43,7 @@ class TestExecutionManager {
 	def File createTestlogDirectoryFor(TestExecutionLog execLog) {
 		val location = logLocationHelper.logLocation
 		val sdf = new SimpleDateFormat(TIMESTAMP_FILE_PATTERN)
-		val newLog = new File(location, "testrun-" + sdf.format(execLog.executionDate))
+		val newLog = new File(location, TEST_RUN_DIRECTORY_PREFIX + sdf.format(execLog.executionDate))
 		if (newLog.mkdir) {
 			logger.info("Create new test execution log file {}.", newLog.absolutePath)
 		}
@@ -50,7 +52,7 @@ class TestExecutionManager {
 
 	def TestExecutionLogList getTestExecutionLogs() {
 		val location = logLocationHelper.logLocation
-		val logs = location.list.filter[it.startsWith('testrun-')]
+		val logs = location.list.filter[it.startsWith(TEST_RUN_DIRECTORY_PREFIX)]
 		return new TestExecutionLogList(logs.map [
 			createTestExecutionLog
 		].sortBy[-getLogDir.lastModified])
@@ -71,9 +73,23 @@ class TestExecutionManager {
 	def private TestExecutionLog createTestExecutionLog(String teLogFileName) {
 		val log = new TestExecutionLog
 		val location = logLocationHelper.logLocation
+		val testRunBaseDir = new File(location, teLogFileName)
+		log.testStatistic = readTestStatistic(testRunBaseDir)
 		log.name = teLogFileName.testExecutionLogName
-		log.logDir = new File(new File(location, teLogFileName), "testrun.log")
+		log.logDir = new File(testRunBaseDir, "testrun.log")
 		return log
+	}
+
+	def TestRunStatistic readTestStatistic(File parentDir) {
+		val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder
+		val xml = docBuilder.parse(new File(parentDir, "testSummary.xml"))
+		val testStatistic = xml.firstChild.attributes
+		return new TestRunStatistic(testStatistic.readIntFor("tests"), testStatistic.readIntFor("failures"),
+			testStatistic.readIntFor("errors"))
+	}
+
+	def int readIntFor(NamedNodeMap map, String name) {
+		return Integer.parseInt(map.getNamedItem(name).nodeValue)
 	}
 
 	def private String getTestExecutionLogName(String teLogFileName) {

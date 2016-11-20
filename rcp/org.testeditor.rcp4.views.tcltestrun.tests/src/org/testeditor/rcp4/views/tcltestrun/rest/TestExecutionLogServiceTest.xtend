@@ -28,6 +28,7 @@ import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionManager
 
 import static org.mockito.Mockito.*
 import java.io.File
+import org.testeditor.rcp4.views.tcltestrun.model.TestRunUtility
 
 class TestExecutionLogServiceTest extends AbstractTest {
 
@@ -72,8 +73,11 @@ class TestExecutionLogServiceTest extends AbstractTest {
 		// given
 		testExecLogService.testExecutionManager = executionManager
 		val teLog = new TestExecutionLog
-		teLog.logDir = new File(tempFolder.newFolder("testrun-2016.11.16-22:24"),"testrun.log")
+		val baseDir = tempFolder.newFolder("testrun-2016.11.16-22:24")
+		teLog.logDir = new File(baseDir,"testrun.log")
 		Files.write(teLog.getLogDir.toPath, "Log content".bytes)
+		teLog.logDir = new File(baseDir,"testSummary.xml")
+		Files.write(teLog.getLogDir.toPath, TestRunUtility.testResult.bytes)
 		when(logLocationHelper.logLocation).thenReturn(tempFolder.root)
 
 		// when
@@ -98,13 +102,16 @@ class TestExecutionLogServiceTest extends AbstractTest {
 		// given
 		testExecLogService.testExecutionManager = executionManager
 		val teLog = new TestExecutionLog
-		teLog.logDir = new File(tempFolder.newFolder("testrun-2016.11.16-22:24"),"testrun.log")
+		val baseDir = tempFolder.newFolder("testrun-2016.11.16-22:24")
+		teLog.logDir = new File(baseDir,"testrun.log")
 		val logString = '''
 			[INFO] --- xtend-maven-plugin:2.10.0:testCompile (default) @ org.testeditor.rcp4.uatests ---
 			18:49:10 INFO  [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test specification] * Given
 			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] TestEditorServices		
 		'''
 		Files.write(teLog.logDir.toPath, logString.bytes)
+		teLog.logDir = new File(baseDir,"testSummary.xml")
+		Files.write(teLog.getLogDir.toPath, TestRunUtility.testResult.bytes)
 		when(logLocationHelper.logLocation).thenReturn(tempFolder.root)
 		
 		// when
