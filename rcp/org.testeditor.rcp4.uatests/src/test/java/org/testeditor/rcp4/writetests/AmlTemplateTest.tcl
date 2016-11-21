@@ -38,5 +38,5 @@ config TestEditorConfig
 
 * Then
 	Component: ActiveEditor
-	- textInEditor = Contains editor "component name is org.testeditor.fixture.web.GeneralBrowser {"
+	- textInEditor = Contains editor "component name is org.testeditor.fixture."
 	- assert textInEditor
