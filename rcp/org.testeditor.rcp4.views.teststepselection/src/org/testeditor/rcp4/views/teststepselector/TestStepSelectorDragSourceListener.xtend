@@ -30,7 +30,6 @@ class TestStepSelectorDragSourceListener implements DragSourceListener {
 		LocalSelectionTransfer.transfer.selection = viewer.structuredSelection
 		logger.info("set selection " + viewer.structuredSelection)
 		event.data = "test"
-		if (false) {
 			if (TextTransfer.instance.isSupportedType(event.dataType) &&
 				amlDropSupport.dropSupported(viewer.structuredSelection.firstElement as EObject)) {
 				event.data = dropTextProvider.getText(viewer.structuredSelection)
@@ -38,7 +37,6 @@ class TestStepSelectorDragSourceListener implements DragSourceListener {
 			} else {
 				event.data = ""
 			}
-		}
 	}
 
 	override dragStart(DragSourceEvent event) {

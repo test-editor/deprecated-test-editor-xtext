@@ -9,6 +9,9 @@ Require-Bundle: org.junit,
  org.eclipse.xtext.junit4,
  org.eclipse.xtext.xbase.junit,
  org.testeditor.tcl.dsl.tests,
- org.testeditor.dsl.common.testing
+ org.testeditor.dsl.common.testing,
+ org.eclipse.core.filesystem;bundle-version="1.6.0"
 Bundle-Vendor: Signal Iduna Corporation
+Import-Package: org.testeditor.aml.dsl.generator,
+ org.testeditor.aml.dsl.tests
 
