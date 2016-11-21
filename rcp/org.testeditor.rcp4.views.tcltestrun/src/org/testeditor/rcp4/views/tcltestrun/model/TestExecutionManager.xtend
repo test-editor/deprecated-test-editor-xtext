@@ -28,6 +28,8 @@ import java.nio.file.Files
 class TestExecutionManager {
 
 	static val logger = LoggerFactory.getLogger(TestExecutionManager)
+	
+	val fileDateFormat = new SimpleDateFormat("yyyy.MM.dd-HH.mm")
 
 	@Inject LogLocationHelper logLocationHelper
 
@@ -40,8 +42,7 @@ class TestExecutionManager {
 
 	def OutputStream createOutputStreamFor(TestExecutionLog execLog) {
 		val location = logLocationHelper.logLocation
-		val sdf = new SimpleDateFormat("yyyy.MM.dd.-HH:mm")
-		val newLog = new File(location, "te-" + sdf.format(execLog.executionDate) + ".log")
+		val newLog = new File(location, "te-" + fileDateFormat.format(execLog.executionDate) + ".log")
 		logger.info("Create new test execution log file {}.", newLog.absolutePath)
 		return new FileOutputStream(newLog)
 	}
@@ -54,12 +55,12 @@ class TestExecutionManager {
 		].sortBy[-logFile.lastModified])
 	}
 
-	def TestExecutionLog gettestExecutionLogFor(String fileName) {
+	def TestExecutionLog getTestExecutionLogFor(String fileName) {
 		val location = logLocationHelper.logLocation
-		val log = location.list.filter[it.matches(fileName)]
-		if (log.head != null) {
-			val result = log.head.createTestExecutionLog
-			result.content = Files.readAllLines(result.logFile.toPath).join
+		val logs = location.list.filter[it.matches(fileName)]
+		if (logs.head != null) {
+			val result = logs.head.createTestExecutionLog
+			result.content = Files.readAllLines(result.logFile.toPath).join(System.lineSeparator)
 			return result
 		}
 		return null
@@ -75,8 +76,7 @@ class TestExecutionManager {
 	}
 
 	def private String getTestExecutionLogName(String teLogFileName) {
-		val sdfReader = new SimpleDateFormat("yyyy.MM.dd.-HH:mm")
-		val date = sdfReader.parse(teLogFileName.substring(3, teLogFileName.lastIndexOf(".")))
+		val date = fileDateFormat.parse(teLogFileName.substring(3, teLogFileName.lastIndexOf(".")))
 		val sdf = new SimpleDateFormat("dd.MM.yy HH:mm")
 		return sdf.format(date)
 	}

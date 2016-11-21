@@ -127,10 +127,7 @@ class TclLauncherUi implements Launcher {
 				monitor.beginTask("Test execution: " + testLaunchInformation.project.name, IProgressMonitor.UNKNOWN)
 			}
 			val con = consoleFactory.createAndShowConsole
-			var list = testLaunchInformation.testCasesCommaList
-			if (list === null) {
-				list = #[]
-			}
+			var list = testLaunchInformation.testCasesCommaList?:#[]
 			val execLog = testExecutionManager.createTestExecutionLog(list)
 			val output = new TeeOutputStream(con.newOutputStream, testExecutionManager.createOutputStreamFor(execLog))
 			partHelper.showView(TEST_EXECUTION_RESULT_VIEW)
@@ -139,6 +136,7 @@ class TclLauncherUi implements Launcher {
 			Display.^default.syncExec[teExecView?.showLog(execLog)]
 			val result = testLaunchInformation.launcher.launchTest(testLaunchInformation.testCasesCommaList,
 				testLaunchInformation.project, monitor, output, testLaunchInformation.options)
+			output.close
 			testLaunchInformation.project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
 			if (result.expectedFileRoot == null) {
 				logger.error("resulting expectedFile must not be null")
