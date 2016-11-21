@@ -69,7 +69,7 @@ public class SWTFixture implements TestRunListener, TestRunReportable {
 		System.setProperty("org.eclipse.swtbot.search.timeout", "10000");
 		System.setProperty("org.eclipse.swtbot.playback.poll.delay", "10000");
 	}
-	
+
 	public void initWithReporter(TestRunReporter reporter) {
 		reporter.addListener(this);
 	}
@@ -187,8 +187,8 @@ public class SWTFixture implements TestRunListener, TestRunReportable {
 		// configurable through maven build?
 		return (action == Action.ENTER) || unit == SemanticUnit.TEST;
 	}
-	
-	private String reduceToMaxLen(String base, int maxLen){
+
+	private String reduceToMaxLen(String base, int maxLen) {
 		if (base.length() < maxLen) {
 			return base;
 		} else {
@@ -524,9 +524,8 @@ public class SWTFixture implements TestRunListener, TestRunReportable {
 		SWTBotEditor activeEditor = bot.activeEditor();
 		logger.info("Check if the current active editor '{}' contains '{}'", activeEditor.getTitle(), searchString);
 		String textEditorContents = activeEditor.toTextEditor().getText();
-		String condensedContents = condenseForLogging(textEditorContents);
 		boolean result = textEditorContents.contains(searchString);
-		logger.debug("Editor contains '{}' is: {}.", condensedContents, result);
+		logger.debug("Editor content: '{}' contains '{}' is: {}.", textEditorContents, searchString, result);
 		return result;
 	}
 
