@@ -10,7 +10,6 @@ export class AppComponent {
     testRuns: TestExecutionLog[]
     testRunLog: String
     logGroups: LogGroup[]
-    testExecutionGroup: TestExecutionLog
     useLogGroup: boolean
     currentSelection: TestExecutionLog
     testStatistic:TestRunStatistic
@@ -24,13 +23,12 @@ export class AppComponent {
     onSelect(testExecLog: TestExecutionLog) {
         this.currentSelection = testExecLog
         if(this.useLogGroup) {
-            this.logService.getTestExecutionLogGroups(testExecLog).then(logGroups => this.testExecutionGroup=logGroups)
-            this.testStatistic = this.testExecutionGroup.testStatistic
-            this.logGroups = this.testExecutionGroup.logGroups
+            this.logService.getTestExecutionLogGroups(testExecLog).then(testRunLog => {
+                this.logGroups = testRunLog.logGroups
+                this.testStatistic = testRunLog.testStatistic 
+            })
         }else{
             this.logService.getTestExecutionLogContent(testExecLog).then(content => this.testRunLog=content)
-            this.testStatistic = null
-            this.logGroups = null
         }
     }
 
