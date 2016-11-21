@@ -13,6 +13,7 @@
 package org.testeditor.tcl.dsl.jvmmodel
 
 import com.google.inject.Inject
+import java.util.List
 import java.util.Optional
 import java.util.Set
 import org.apache.commons.lang3.StringEscapeUtils
@@ -391,17 +392,17 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		stepContentsWithTypes.map[toParameterString(key, value, templateContainer)].flatten.join(', ')
 	}
 
-	private def getVariablesWithTypesInOrder(TestStep step, TemplateContainer templateContainer) {
+	private def List<Pair<StepContent, Optional<JvmTypeReference>>> getVariablesWithTypesInOrder(TestStep step, TemplateContainer templateContainer) {
 		val variablesWithTypes = typeComputer.getVariablesWithTypes(templateContainer)
 		val stepContentToTemplateVariables = step.getStepContentToTemplateVariablesMapping(templateContainer.template)
-		val stepContentWithTypes = stepContentToTemplateVariables.mapValues[variablesWithTypes.get(it)]
 		if (templateContainer instanceof InteractionType) {
 			// need to consider the order of the parameters in the method call
 			val variableToIndexMap = templateContainer.defaultMethod.parameters.indexed.toMap[value].mapValues[key]
-			return stepContentWithTypes.entrySet.sortBy[variableToIndexMap.get(value)]
+			val sorted = stepContentToTemplateVariables.entrySet.sortBy[variableToIndexMap.get(value)]
+			return sorted.map[key -> variablesWithTypes.get(value)].toList
 		} else {
 			// for macros the order of the appearance in the test step is fine
-			return stepContentWithTypes.entrySet
+			return stepContentToTemplateVariables.entrySet.map[key -> variablesWithTypes.get(value)].toList
 		}
 	}
 
