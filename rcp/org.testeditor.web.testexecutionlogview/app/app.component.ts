@@ -13,6 +13,7 @@ export class AppComponent {
     useLogGroup: boolean
     currentSelection: TestExecutionLog
     testStatistic:TestRunStatistic
+    resultTableStyle: String
 
     constructor(private logService: TestLogService) {
         this.logService.getTestExecutionLogs().then(testExecLogs => this.testRuns=testExecLogs)
@@ -25,7 +26,13 @@ export class AppComponent {
         if(this.useLogGroup) {
             this.logService.getTestExecutionLogGroups(testExecLog).then(testRunLog => {
                 this.logGroups = testRunLog.logGroups
-                this.testStatistic = testRunLog.testStatistic 
+                this.testStatistic = testRunLog.testStatistic
+                if(this.testStatistic.errors == 0 && this.testStatistic.failures == 0) { 
+                    this.resultTableStyle = 'table table-success'
+                }
+                else {
+                    this.resultTableStyle = 'table table-danger'
+                }
             })
         }else{
             this.logService.getTestExecutionLogContent(testExecLog).then(content => this.testRunLog=content)
