@@ -57,10 +57,10 @@ class TestExecutionManager {
 
 	def TestExecutionLog getTestExecutionLogFor(String fileName) {
 		val location = logLocationHelper.logLocation
-		val logs = location.list.filter[it.matches(fileName)]
-		if (logs.head != null) {
-			val result = logs.head.createTestExecutionLog
-			result.content = Files.readAllLines(result.logFile.toPath).join(System.lineSeparator)
+		val log = location.list.findFirst[matches(fileName)]
+		if (log !== null) {
+			val result = log.createTestExecutionLog
+			result.content = Files.readAllLines(result.logFile.toPath).join
 			return result
 		}
 		return null
