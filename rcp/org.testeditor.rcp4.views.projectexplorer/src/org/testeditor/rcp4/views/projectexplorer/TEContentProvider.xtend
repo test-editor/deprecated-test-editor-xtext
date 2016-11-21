@@ -15,6 +15,7 @@ package org.testeditor.rcp4.views.projectexplorer
 import javax.inject.Inject
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
+import org.eclipse.core.runtime.CoreException
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jface.viewers.ITreeContentProvider
@@ -65,7 +66,11 @@ class TEContentProvider implements ITreeContentProvider {
 	def private IClasspathEntry getParentClasspathEntry(IResource element) {
 		if (element.project != null) {
 			val parentClasspathEntries = getChildren(element.project).filter(IClasspathEntry).filter [
-				workspaceHelper.root.getFolder(path).members.contains(element)
+				try {
+					return workspaceHelper.root.getFolder(path).members.contains(element)
+				} catch (CoreException ce) {
+					return false // ignore this entry
+				}
 			]
 			return parentClasspathEntries.head
 		}
@@ -74,7 +79,11 @@ class TEContentProvider implements ITreeContentProvider {
 
 	override hasChildren(Object element) {
 		if (element instanceof IClasspathEntry) {
-			return workspaceHelper.root.getFolder(element.path).members.length > 0
+			try {
+				return workspaceHelper.root.getFolder(element.path).members.length > 0
+			} catch (CoreException ce) {
+				// ignore
+			}
 		}
 		return false
 	}
