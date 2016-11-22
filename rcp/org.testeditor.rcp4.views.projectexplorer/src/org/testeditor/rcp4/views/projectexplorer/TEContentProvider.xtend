@@ -15,7 +15,6 @@ package org.testeditor.rcp4.views.projectexplorer
 import javax.inject.Inject
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
-import org.eclipse.core.runtime.CoreException
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jface.viewers.ITreeContentProvider
@@ -34,7 +33,7 @@ class TEContentProvider implements ITreeContentProvider {
 		if (parentElement instanceof IProject) {
 			if (parentElement.hasNature(JavaCore.NATURE_ID)) {
 				val javaProject = javaCoreHelper.create(parentElement);
-				return javaProject.rawClasspath.filter[entryKind == IClasspathEntry.CPE_SOURCE]
+				return javaProject.rawClasspath.filter[isRelevantClasspathEntry]
 			}
 		}
 		if (parentElement instanceof IClasspathEntry) {
@@ -47,10 +46,16 @@ class TEContentProvider implements ITreeContentProvider {
 		return null
 	}
 
+	private def boolean isRelevantClasspathEntry(IClasspathEntry entry) {
+		return entry !== null //
+		&& entry.entryKind == IClasspathEntry.CPE_SOURCE //
+		&& !entry.path.segments.exists[matches('(src|xtend)-gen')]
+	}
+
 	override getParent(Object element) {
 		if (element instanceof IResource) {
 			val classpathEntry = getParentClasspathEntry(element)
-			if (classpathEntry != null) {
+			if (classpathEntry.isRelevantClasspathEntry) {
 				return classpathEntry
 			}
 		}
@@ -65,33 +70,29 @@ class TEContentProvider implements ITreeContentProvider {
 	 */
 	def private IClasspathEntry getParentClasspathEntry(IResource element) {
 		if (element.project != null) {
-			val parentClasspathEntries = getChildren(element.project).filter(IClasspathEntry).filter [
-				try {
-					return workspaceHelper.root.getFolder(path).members.contains(element)
-				} catch (CoreException ce) {
-					return false // ignore this entry
-				}
+			val parentClasspathEntry = getChildren(element.project).filter(IClasspathEntry).filter [
+				isRelevantClasspathEntry
+			].findFirst [
+				workspaceHelper.root.getFolder(path).members.contains(element)
 			]
-			return parentClasspathEntries.head
+			return parentClasspathEntry
 		}
 		return null
 	}
 
 	override hasChildren(Object element) {
 		if (element instanceof IClasspathEntry) {
-			try {
-				return workspaceHelper.root.getFolder(element.path).members.length > 0
-			} catch (CoreException ce) {
-				// ignore
-			}
+			return workspaceHelper.root.getFolder(element.path).members.length > 0
 		}
 		return false
 	}
 
 	override dispose() {
+		// nothing to do
 	}
 
 	override inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		// nothing to do
 	}
 
 }
