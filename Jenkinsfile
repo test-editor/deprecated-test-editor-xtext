@@ -7,9 +7,10 @@ nodeWithProperWorkspace {
         sh "git checkout $env.BRANCH_NAME" // workaround for https://issues.jenkins-ci.org/browse/JENKINS-31924
         sh 'git fetch --prune origin +refs/tags/*:refs/tags/*' // delete all local tags
         sh "git reset --hard origin/master"
-        if (isTag()) {
+        if (isVersionTag()) {
             // Workaround: we don't want infinite releases.
             echo "Aborting build as the current commit on master is already tagged."
+            currentBuild.displayName = "checkout-only"
             return
         }
         sh "git clean -ffdx"
@@ -70,7 +71,7 @@ void prepareRelease() {
     // Remove SNAPSHOT version
     echo 'Removing SNAPSHOT from target platform version'
     def String noSnapshotVersion = '\\${parsedVersion.majorVersion}.\\${parsedVersion.minorVersion}.\\${parsedVersion.incrementalVersion}'
-    setVersion(noSnapshotVersion, 'releng/org.testeditor.releng.target/pom.xml', 'org.testeditor.releng.target.parent')
+    setVersion(noSnapshotVersion, 'target-platform/org.testeditor.releng.target.parent/pom.xml', 'org.testeditor.releng.target.parent')
     echo 'Removing SNAPSHOT from test-editor version'
     setVersion(noSnapshotVersion, 'pom.xml', 'org.testeditor.releng.parent')
 
@@ -90,7 +91,7 @@ void postRelease(String preReleaseVersion) {
 
         def version = "v${getCurrentVersion()}"
         echo "Tagging release as $version"
-        sh "git add *"
+        sh "git add ."
         sh "git commit -m '[release] $version'"
         sh "git tag $version"
         // workaround: cannot push without credentials using HTTPS => push using SSH
@@ -105,7 +106,7 @@ void postRelease(String preReleaseVersion) {
         if (developVersion == preReleaseVersion) {
             sh "git merge origin/master"
             def nextSnapshotVersion = '\\${parsedVersion.majorVersion}.\\${parsedVersion.nextMinorVersion}.0-SNAPSHOT'
-            setVersion(nextSnapshotVersion, 'releng/org.testeditor.releng.target/pom.xml', 'org.testeditor.releng.target.parent')
+            setVersion(nextSnapshotVersion, 'target-platform/org.testeditor.releng.target.parent/pom.xml', 'org.testeditor.releng.target.parent')
             setVersion(nextSnapshotVersion, 'pom.xml', 'org.testeditor.releng.parent')
             sh "git add *"
             sh "git commit -m '[release] set version ${getCurrentVersion()}'"
@@ -113,19 +114,6 @@ void postRelease(String preReleaseVersion) {
         } else {
             echo "Version on develop not incremented as it differs from the preReleaseVersion."
         }
-}
-
-boolean isTag() {
-    try {
-        sh '''\
-            #!/bin/sh
-            git describe --exact-match --tags
-        '''.stripIndent()
-        return true
-    } catch (Exception e) {
-        echo e.toString()
-        return false
-    }
 }
 
 void setVersion(String newVersion, String rootPom = null, String artifacts = null) {

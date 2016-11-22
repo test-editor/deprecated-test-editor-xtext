@@ -72,7 +72,7 @@ class TestExecutionLogServiceTest extends AbstractTest {
 		// given
 		testExecLogService.testExecutionManager = executionManager
 		val teLog = new TestExecutionLog
-		teLog.logFile = tempFolder.newFile("te-2016.11.16.-22:24.log")
+		teLog.logFile = tempFolder.newFile("te-2016.11.16-22.24.log")
 		Files.write(teLog.logFile.toPath, "Log content".bytes)
 		when(logLocationHelper.logLocation).thenReturn(tempFolder.root)
 
@@ -81,15 +81,15 @@ class TestExecutionLogServiceTest extends AbstractTest {
 		val gson = new Gson
 		val json = gson.fromJson(new StringReader(listString), TestExecutionLogList)
 		val links = json.entries.get(0).links
-		val logString = testExecLogService.getTestLogExeutionContent("te-2016.11.16.-22:24.log").entity as String
+		val logString = testExecLogService.getTestLogExeutionContent("te-2016.11.16-22.24.log").entity as String
 		val log = gson.fromJson(new StringReader(logString), TestExecutionLog)
 
 		// then
 		assertEquals(links.length, 3)
 		assertEquals(links.get(0).href,
-			TestExecutionLogService.SERVICE_PATH + "/te-2016.11.16.-22:24.log/fullLogs")
+			TestExecutionLogService.SERVICE_PATH + "/te-2016.11.16-22.24.log/fullLogs")
 		assertEquals(links.get(1).href,
-			TestExecutionLogService.SERVICE_PATH + "/te-2016.11.16.-22:24.log/logGroups")
+			TestExecutionLogService.SERVICE_PATH + "/te-2016.11.16-22.24.log/logGroups")
 		log.content.assertEquals("Log content")
 	}
 
