@@ -13,16 +13,18 @@
 package org.testeditor.dsl.common.util.classpath
 
 import javax.inject.Inject
+import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.IPath
+import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
+import org.eclipse.jdt.internal.core.JavaProject
 import org.eclipse.xtext.EcoreUtil2
+import org.eclipse.xtext.xbase.lib.Functions.Function1
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.util.WorkspaceHelper
-import org.eclipse.core.resources.IProject
-import org.eclipse.jdt.internal.core.JavaProject
 
 class ClasspathUtil {
 
@@ -72,6 +74,18 @@ class ClasspathUtil {
 			return javaProject.rawClasspath.filter[entryKind == IClasspathEntry.CPE_SOURCE]
 		} else {
 			return emptyList
+		}
+	}
+	
+	/** get all classpath entries of this java-project, apply the transformation 
+	 *  and set the classpaths of this project to the transformed classpath entries
+	 *  removing nulls if exsitent*/
+	def void transformClasspathEntries(IProject project,
+		Function1<? super IClasspathEntry, ? extends IClasspathEntry> transformation) {
+		if (JavaProject.hasJavaNature(project)) {
+			val javaProject = JavaCore.create(project)
+			val transformedClasspaths=javaProject.rawClasspath.map(transformation).filterNull
+			javaProject.setRawClasspath(transformedClasspaths, new NullProgressMonitor)
 		}
 	}
 

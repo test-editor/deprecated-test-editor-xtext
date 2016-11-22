@@ -24,6 +24,8 @@ import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IResourceFilterDescription
 import org.eclipse.core.runtime.CoreException
 import org.eclipse.core.runtime.IProgressMonitor
+import org.eclipse.core.runtime.Path
+import org.eclipse.jdt.core.JavaCore
 import org.eclipse.m2e.core.MavenPlugin
 import org.eclipse.m2e.core.project.ResolverConfiguration
 import org.eclipse.xtend.lib.annotations.Accessors
@@ -34,6 +36,7 @@ import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ide.util.FileUtils
 import org.testeditor.dsl.common.ui.wizards.SwingDemoContentGenerator
 import org.testeditor.dsl.common.util.GradleHelper
+import org.testeditor.dsl.common.util.classpath.ClasspathUtil
 
 import static org.eclipse.xtext.xbase.lib.StringExtensions.isNullOrEmpty
 
@@ -57,13 +60,15 @@ class ProjectContentGenerator {
 
 	@Inject FileLocatorService fileLocatorService
 	@Inject extension ProjectUtils
+	@Inject extension ClasspathUtil
 	@Inject GradleHelper gradleHelper
 	@Inject SwingDemoContentGenerator swingDemoContentGenerator
 	
 	@Accessors(PUBLIC_GETTER) 
 	IFile demoTclFile
 
-	def void createProjectContent(IProject project, String[] fixtures, String buildsystem, boolean demo, IProgressMonitor monitor) throws CoreException{
+	def void createProjectContent(IProject project, String[] fixtures, String buildsystem, boolean demo,
+		IProgressMonitor monitor) throws CoreException{
 		project => [
 			// setup project structure
 			val srcMain = SRC_FOLDER + "/" + name
@@ -169,8 +174,24 @@ class ProjectContentGenerator {
 		project.addNature(XtextProjectHelper.NATURE_ID)
 		configurationManager.enableMavenNature(project, configuration, monitor)
 		project.setupMavenTclGeneratorPreferences
+		project.setupClasspathFileExclusions
 	}
-	
+
+	// Eclipse build tries to copy files that are possibly already existent in the target folder. 
+	// Excluding these from the copy job keeps stdout somewhat cleaner, removing all that 
+	// noisy exceptions that report this mismatch
+	private def void setupClasspathFileExclusions(IProject project) {
+		val fileExclusions = #["aml", "tcl", "tsl", "config", "tml", "_trace"].map[new Path('''**/*.«it»''')]
+
+		project.transformClasspathEntries [
+			if (path.segments.exists[matches("src(-gen)?")]) {
+				return JavaCore.newSourceEntry(path, fileExclusions) // don't copy these, will reduce exceptions
+			} else {
+				return it
+			}
+		]
+	}
+
 	private def void setupMavenTclGeneratorPreferences(IProject project) {
 		val tclPrefs = instanceScope.getPrefsNode('org.testeditor.tcl.dsl.Tcl')
 		tclPrefs => [
