@@ -28,8 +28,11 @@ import org.w3c.dom.NamedNodeMap
 class TestExecutionManager {
 
 	static val logger = LoggerFactory.getLogger(TestExecutionManager)
-	static val String TIMESTAMP_FILE_PATTERN = "yyyy.MM.dd-HH:mm"
+
 	static val String TEST_RUN_DIRECTORY_PREFIX = "testrun-"
+	
+	val fileDateFormat = new SimpleDateFormat("yyyy.MM.dd-HH.mm")
+
 
 	@Inject LogLocationHelper logLocationHelper
 
@@ -42,8 +45,7 @@ class TestExecutionManager {
 
 	def File createTestlogDirectoryFor(TestExecutionLog execLog) {
 		val location = logLocationHelper.logLocation
-		val sdf = new SimpleDateFormat(TIMESTAMP_FILE_PATTERN)
-		val newLog = new File(location, TEST_RUN_DIRECTORY_PREFIX + sdf.format(execLog.executionDate))
+		val newLog = new File(location, TEST_RUN_DIRECTORY_PREFIX + fileDateFormat.format(execLog.executionDate))
 		if (newLog.mkdir) {
 			logger.info("Create new test execution log file {}.", newLog.absolutePath)
 		}
@@ -58,12 +60,12 @@ class TestExecutionManager {
 		].sortBy[-getLogDir.lastModified])
 	}
 
-	def TestExecutionLog gettestExecutionLogFor(String fileName) {
+	def TestExecutionLog getTestExecutionLogFor(String fileName) {
 		val location = logLocationHelper.logLocation
-		val log = location.list.filter[it.matches(fileName)]
-		if (log.head != null) {
-			val result = log.head.createTestExecutionLog
-			result.content = Files.readAllLines(result.getLogDir.toPath).join
+		val log = location.list.findFirst[matches(fileName)]
+		if (log !== null) {
+			val result = log.createTestExecutionLog
+			result.content = Files.readAllLines(result.logDir.toPath).join
 			return result
 		}
 		return null
@@ -93,8 +95,7 @@ class TestExecutionManager {
 	}
 
 	def private String getTestExecutionLogName(String teLogFileName) {
-		val sdfReader = new SimpleDateFormat(TIMESTAMP_FILE_PATTERN)
-		val date = sdfReader.parse(teLogFileName.substring(8))
+		val date = fileDateFormat.parse(teLogFileName.substring(8))
 		val sdf = new SimpleDateFormat("dd.MM.yy HH:mm")
 		return sdf.format(date)
 	}

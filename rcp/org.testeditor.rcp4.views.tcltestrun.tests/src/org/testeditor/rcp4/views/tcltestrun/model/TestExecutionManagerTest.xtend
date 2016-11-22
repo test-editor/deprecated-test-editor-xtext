@@ -40,8 +40,8 @@ class TestExecutionManagerTest extends AbstractTest {
 		// given
 		val dir = tempFolder.root
 		Files.createFile(new File(dir, "foo.bar").toPath)
-		val runDir1 = Files.createDirectory(new File(dir, "testrun-2016.11.16-22:24").toPath)
-		val runDir2 = Files.createDirectory(new File(dir, "testrun-2016.11.16-23:24").toPath)
+		val runDir1 = Files.createDirectory(new File(dir, "testrun-2016.11.16-22.24").toPath)
+		val runDir2 = Files.createDirectory(new File(dir, "testrun-2016.11.16-23.24").toPath)
 		Files.write(Files.createFile(new File(runDir1.toFile, "testSummary.xml").toPath),
 			TestRunUtility.testResult.bytes)
 		Files.write(Files.createFile(new File(runDir2.toFile, "testSummary.xml").toPath),
@@ -53,9 +53,9 @@ class TestExecutionManagerTest extends AbstractTest {
 
 		// then
 		list.assertSize(2)
-		list.get(0).getLogDir.parentFile.name.assertEquals("testrun-2016.11.16-23:24")
+		list.get(0).getLogDir.parentFile.name.assertEquals("testrun-2016.11.16-23.24")
 		list.get(0).name.assertEquals("16.11.16 23:24")
-		list.get(1).getLogDir.parentFile.name.assertEquals("testrun-2016.11.16-22:24")
+		list.get(1).getLogDir.parentFile.name.assertEquals("testrun-2016.11.16-22.24")
 		list.get(1).name.assertEquals("16.11.16 22:24")
 	}
 
