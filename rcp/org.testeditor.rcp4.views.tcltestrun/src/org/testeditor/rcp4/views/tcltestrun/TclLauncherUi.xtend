@@ -135,15 +135,12 @@ class TclLauncherUi implements Launcher {
 			val teExecView = viewPart.object as TestExecutionLogViewPart
 			Display.^default.syncExec[teExecView?.showLog(execLog)]
 			var LaunchResult result = null
-			var output = new TeeOutputStream(con.newOutputStream, testExecutionManager.createOutputStreamFor(execLog))
+			val output = new TeeOutputStream(con.newOutputStream, testExecutionManager.createOutputStreamFor(execLog))
 			try {
 				result = testLaunchInformation.launcher.launchTest(testLaunchInformation.testCasesCommaList,
 					testLaunchInformation.project, monitor, output, testLaunchInformation.options)
 			} finally {
-				if (output !== null) {
-					output.close
-					output=null
-				}
+				output.close
 			}
 			testLaunchInformation.project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
 			if (result.expectedFileRoot == null) {
