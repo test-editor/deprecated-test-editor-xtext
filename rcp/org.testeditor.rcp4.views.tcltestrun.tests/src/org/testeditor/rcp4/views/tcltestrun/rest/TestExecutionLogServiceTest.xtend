@@ -71,14 +71,7 @@ class TestExecutionLogServiceTest extends AbstractTest {
 	@Test
 	def void testFullLogsFromListItem() {
 		// given
-		testExecLogService.testExecutionManager = executionManager
-		val teLog = new TestExecutionLog
-		val baseDir = tempFolder.newFolder("testrun-2016.11.16-22.24")
-		teLog.logDir = new File(baseDir,"testrun.log")
-		Files.write(teLog.getLogDir.toPath, "Log content".bytes)
-		teLog.logDir = new File(baseDir,"testSummary.xml")
-		Files.write(teLog.getLogDir.toPath, TestRunUtility.testResult.bytes)
-		when(logLocationHelper.logLocation).thenReturn(tempFolder.root)
+		createTestLogServiceEnvironmentWithLogContent("Log Content")		
 
 		// when
 		val listString = testExecLogService.testLogExecutionsList.entity as String
@@ -94,25 +87,18 @@ class TestExecutionLogServiceTest extends AbstractTest {
 			TestExecutionLogService.SERVICE_PATH + "/testrun-2016.11.16-22.24/fullLogs")
 		assertEquals(links.get(1).href,
 			TestExecutionLogService.SERVICE_PATH + "/testrun-2016.11.16-22.24/logGroups")
-		log.content.assertEquals("Log content")
+		log.content.assertEquals("Log Content")
 	}
-
+	
 	@Test
 	def void testGetTestLogExecutionTestStepTree() {
 		// given
-		testExecLogService.testExecutionManager = executionManager
-		val teLog = new TestExecutionLog
-		val baseDir = tempFolder.newFolder("testrun-2016.11.16-22.24")
-		teLog.logDir = new File(baseDir,"testrun.log")
 		val logString = '''
 			[INFO] --- xtend-maven-plugin:2.10.0:testCompile (default) @ org.testeditor.rcp4.uatests ---
 			18:49:10 INFO  [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Spec step] * Given
 			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] ** TestEditorServices		
 		'''
-		Files.write(teLog.logDir.toPath, logString.bytes)
-		teLog.logDir = new File(baseDir,"testSummary.xml")
-		Files.write(teLog.getLogDir.toPath, TestRunUtility.testResult.bytes)
-		when(logLocationHelper.logLocation).thenReturn(tempFolder.root)
+		createTestLogServiceEnvironmentWithLogContent(logString)
 		
 		// when
 		val response = testExecLogService.getTestLogExecutionTestStepTree("testrun-2016.11.16-22.24")
@@ -122,6 +108,17 @@ class TestExecutionLogServiceTest extends AbstractTest {
 		// then
 		log.logGroups.assertNotNull
 		log.logGroups.assertSize(2)
+	}
+	
+	def private void createTestLogServiceEnvironmentWithLogContent(String logContent) {
+		testExecLogService.testExecutionManager = executionManager
+		val teLog = new TestExecutionLog
+		val baseDir = tempFolder.newFolder("testrun-2016.11.16-22.24")
+		teLog.logDir = new File(baseDir,"testrun.log")
+		Files.write(teLog.getLogDir.toPath, logContent.bytes)
+		teLog.logDir = new File(baseDir,"testSummary.xml")
+		Files.write(teLog.getLogDir.toPath, TestRunUtility.testResult.bytes)
+		when(logLocationHelper.logLocation).thenReturn(tempFolder.root)
 	}
 	
 }

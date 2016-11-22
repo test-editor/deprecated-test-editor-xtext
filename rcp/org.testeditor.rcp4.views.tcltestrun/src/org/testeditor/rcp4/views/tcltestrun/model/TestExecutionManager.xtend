@@ -57,7 +57,7 @@ class TestExecutionManager {
 		val logs = location.list.filter[it.startsWith(TEST_RUN_DIRECTORY_PREFIX)]
 		return new TestExecutionLogList(logs.map [
 			createTestExecutionLog
-		].sortBy[-getLogDir.lastModified])
+		].sortBy[getLogDir.lastModified].reverse)
 	}
 
 	def TestExecutionLog getTestExecutionLogFor(String fileName) {
@@ -90,7 +90,7 @@ class TestExecutionManager {
 			testStatistic.readIntFor("errors"))
 	}
 
-	def int readIntFor(NamedNodeMap map, String name) {
+	def private int readIntFor(NamedNodeMap map, String name) {
 		return Integer.parseInt(map.getNamedItem(name).nodeValue)
 	}
 
