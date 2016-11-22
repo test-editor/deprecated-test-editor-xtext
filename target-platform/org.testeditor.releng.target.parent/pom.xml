@@ -40,6 +40,11 @@
 			<layout>p2</layout>
 			<url>http://download.eclipse.org/technology/swtbot/releases/2.4.0/</url>
 		</repository>
+		<repository>
+			<id>osgi-jax-rs</id>
+			<layout>p2</layout>
+			<url>http://hstaudacher.github.io/osgi-jax-rs-connector/5.3.1/</url>
+		</repository>
 
 		<!-- Xtext -->
 		<repository>
@@ -62,7 +67,7 @@
 		<repository>
 			<id>buildship</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/buildship/updates/e45/releases/1.0/1.0.17.v20160713-0853</url>
+			<url>http://download.eclipse.org/buildship/updates/e46/releases/1.0/1.0.19.v20160830-1454</url>
 		</repository>
 		<repository>
 			<id>m2e</id>

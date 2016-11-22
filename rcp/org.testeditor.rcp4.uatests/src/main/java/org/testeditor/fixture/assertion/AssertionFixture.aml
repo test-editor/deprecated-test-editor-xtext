@@ -1,0 +1,15 @@
+package org.testeditor.fixture.assertion
+
+import org.testeditor.fixture.swt.* // TODO waiting should go into the core fixture
+
+component type AssertionType {
+	interactions = wait, assertContains
+}
+
+component Assertion is AssertionType {
+}
+
+interaction type assertContains {
+	template = "Verify that" ${input} "contains" ${substring}
+	method = AssertionFixture.assertContains(input, substring)
+}

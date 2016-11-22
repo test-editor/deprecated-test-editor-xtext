@@ -2,6 +2,7 @@ package org.testeditor.tcl.dsl.scoping.integration
 
 import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.xtext.common.types.JvmType
 import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable
 import org.junit.Before
 import org.junit.Test
@@ -31,6 +32,8 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 	def void setUp() {
 		when(outputStub.trace(any(EObject))).thenReturn(outputStub)
 		when(outputStub.append(any(CharSequence))).thenReturn(outputStub)
+		when(outputStub.append(any(JvmType))).thenReturn(outputStub)
+		when(outputStub.newLine).thenReturn(outputStub)
 	}
 
 	def TclModel tclClickOnDummyButton(Component dummyComponent) {
@@ -98,7 +101,7 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 		val tcl = tclClickOnDummyButton(amlModel.components.head)
 
 		// when
-		jvmModelInferrer.generateMethodBody(tcl.test, outputStub, #{})
+		jvmModelInferrer.generateMethodBody(tcl.test, outputStub)
 
 		// then
 		verify(outputStub).append(
@@ -115,7 +118,7 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 		val tcl = tclClickOnDummyButton(amlModel.components.head)
 
 		// when
-		jvmModelInferrer.generateMethodBody(tcl.test, outputStub, #{})
+		jvmModelInferrer.generateMethodBody(tcl.test, outputStub)
 
 		// then
 		verify(outputStub).append(
@@ -131,7 +134,7 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 		val tcl = tclClickOnDummyButton(amlModel.components.head)
 
 		// when
-		jvmModelInferrer.generateMethodBody(tcl.test, outputStub, #{})
+		jvmModelInferrer.generateMethodBody(tcl.test, outputStub)
 
 		// then
 		verify(outputStub).append(

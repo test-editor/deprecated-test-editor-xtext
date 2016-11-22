@@ -12,8 +12,10 @@ nodeWithProperWorkspace {
             echo "Aborting build as the current commit on master is already tagged."
             return
         }
+        sh "git clean -ffdx"
+    } else {
+        sh "git clean -ffd"
     }
-    sh "git clean -ffdx"
 
     def preReleaseVersion = getCurrentVersion()
     if (isMaster()) {
@@ -22,23 +24,31 @@ nodeWithProperWorkspace {
 
     stage 'Build target platform'
     withMavenEnv {
-        mvn 'clean install -f "target-platform/pom.xml"'
+        gradle 'buildTarget'
+    }
+
+    stage 'Build Web TE-Log-View'
+    withMavenEnv {
+        gradle 'copyTeLogViewToRcp'
     }
 
     stage (isMaster() ? 'Build and deploy' : 'Build')
     withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g"]) {
         def goal = isMaster() ? 'deploy' : 'install'
         withXvfb {
-            mvn "clean $goal -Dmaven.test.failure.ignore -Dsurefire.useFile=false -Dtycho.localArtifacts=ignore"
+            gradle goal
         }
     }
+
+    // archive all written screenshots
+    archiveArtifacts artifacts: 'rcp/org.testeditor.rcp4.uatests/screenshots/**/*.png', fingerprint: true
     
     // workaround for now to speed-up the build: only build the product on develop, master and branches that end with -with-product
     def buildProduct = env.BRANCH_NAME == "develop" || env.BRANCH_NAME.endsWith("-with-product") || isMaster()
     if (buildProduct) {
         stage 'Build product'
         withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g"]) {
-            mvn 'package -Pproduct -DskipTests -Dtycho.localArtifacts=ignore'
+            gradle 'buildProduct'
         }
     }
 
@@ -60,7 +70,7 @@ void prepareRelease() {
     // Remove SNAPSHOT version
     echo 'Removing SNAPSHOT from target platform version'
     def String noSnapshotVersion = '\\${parsedVersion.majorVersion}.\\${parsedVersion.minorVersion}.\\${parsedVersion.incrementalVersion}'
-    setVersion(noSnapshotVersion, 'releng/org.testeditor.releng.target/pom.xml', 'org.testeditor.releng.target.parent')
+    setVersion(noSnapshotVersion, 'target-platform/org.testeditor.releng.target.parent/pom.xml', 'org.testeditor.releng.target.parent')
     echo 'Removing SNAPSHOT from test-editor version'
     setVersion(noSnapshotVersion, 'pom.xml', 'org.testeditor.releng.parent')
 
@@ -80,7 +90,7 @@ void postRelease(String preReleaseVersion) {
 
         def version = "v${getCurrentVersion()}"
         echo "Tagging release as $version"
-        sh "git add *"
+        sh "git add ."
         sh "git commit -m '[release] $version'"
         sh "git tag $version"
         // workaround: cannot push without credentials using HTTPS => push using SSH
@@ -95,7 +105,7 @@ void postRelease(String preReleaseVersion) {
         if (developVersion == preReleaseVersion) {
             sh "git merge origin/master"
             def nextSnapshotVersion = '\\${parsedVersion.majorVersion}.\\${parsedVersion.nextMinorVersion}.0-SNAPSHOT'
-            setVersion(nextSnapshotVersion, 'releng/org.testeditor.releng.target/pom.xml', 'org.testeditor.releng.target.parent')
+            setVersion(nextSnapshotVersion, 'target-platform/org.testeditor.releng.target.parent/pom.xml', 'org.testeditor.releng.target.parent')
             setVersion(nextSnapshotVersion, 'pom.xml', 'org.testeditor.releng.parent')
             sh "git add *"
             sh "git commit -m '[release] set version ${getCurrentVersion()}'"

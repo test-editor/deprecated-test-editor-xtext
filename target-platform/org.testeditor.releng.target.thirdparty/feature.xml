@@ -48,6 +48,10 @@ itemis AG
          id="org.eclipse.jgit"
          version="0.0.0"/>
 
+   <includes
+         id="com.eclipsesource.jaxrs.connector.feature"
+         version="0.0.0"/>
+
    <plugin
          id="com.google.guava"
          download-size="0"
@@ -63,7 +67,28 @@ itemis AG
          unpack="false"/>
 
    <plugin
+         id="org.apache.commons.io"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.io.source"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
          id="org.apache.commons.lang3"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.lang3.source"
          download-size="0"
          install-size="0"
          version="0.0.0"

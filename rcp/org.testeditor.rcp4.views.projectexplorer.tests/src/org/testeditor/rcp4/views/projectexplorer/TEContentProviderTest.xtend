@@ -12,24 +12,26 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.projectexplorer
 
+import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IResource
+import org.eclipse.core.resources.IWorkspaceRoot
+import org.eclipse.jdt.core.IClasspathEntry
+import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 import org.junit.Test
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.testeditor.dsl.common.testing.AbstractTest
+import org.testeditor.dsl.common.util.WorkspaceHelper
 
+import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
-import org.eclipse.jdt.core.IJavaProject
-import org.eclipse.jdt.core.IClasspathEntry
-import org.eclipse.core.resources.IWorkspaceRoot
-import org.eclipse.core.resources.IFolder
-import org.eclipse.core.resources.IResource
 
 class TEContentProviderTest extends AbstractTest {
 
 	@InjectMocks TEContentProvider contentProvider
-	@Mock WorkspaceRootHelper workspaceHelper
+	@Mock WorkspaceHelper workspaceHelper
 	@Mock JavaCoreHelper javaCoreHelper
 	@Mock IClasspathEntry classpathSource
 	@Mock IWorkspaceRoot root

@@ -13,6 +13,7 @@
 package org.testeditor.tcl.dsl.validation
 
 import javax.inject.Inject
+import org.eclipse.xtext.junit4.validation.ValidationTestHelper
 import org.junit.Test
 import org.testeditor.aml.dsl.tests.AmlModelGenerator
 import org.testeditor.tcl.Macro
@@ -22,12 +23,15 @@ import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.util.TclModelUtil
 
 import static org.testeditor.tcl.TclPackage.Literals.*
+import org.testeditor.tcl.dsl.tests.parser.AbstractParserTestWithDummyComponent
 
-class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
+class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponent {
 	
 	@Inject extension AmlModelGenerator
 	@Inject extension TclModelGenerator
 	@Inject TclModelUtil tclModelUtil
+	@Inject protected TclValidator tclValidator // class under test (not mocked)
+	@Inject protected ValidationTestHelper validator
 
 
 	@Test
@@ -61,14 +65,14 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				// use macro "mycall" using env param (no error, since type String is provided and String is expected)
 				steps += specificationStep("test", "something") => [
 					contexts += macroTestStepContext(macroModel.macroCollection) => [
-						step = testStep("mycall").withReferenceToVariable(myEnvString)
+						steps += testStep("mycall").withReferenceToVariable(myEnvString)
 						verifyVariableTypeUsage(myEnvString.name, #[String.simpleName]) // intermediate model check
 					]
 				]
 				// use macro "othercall" using env param (error expected, since type String is provided and long is expected)
 				steps += specificationStep("test", "other") => [
 					contexts += macroTestStepContext(macroModel.macroCollection) => [
-						step = testStep("othercall").withReferenceToVariable(envVar)
+						steps += testStep("othercall").withReferenceToVariable(envVar)
 						verifyVariableTypeUsage(envVar.name, #[long.simpleName]) // intermediate model check
 					]
 				]
@@ -91,7 +95,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				macros += macro("MyCallMacro") => [
 					template = template("mycall").withParameter("unknown")
 					contexts += macroTestStepContext(macroModel.macroCollection) => [
-						step = testStep("othercall").withReferenceToTemplateVariable("unknown")
+						steps += testStep("othercall").withReferenceToTemplateVariable("unknown")
 					]
 				]
 				macros += macro("OtherCallMacro") => [
@@ -123,7 +127,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				macros += macro("MyCallMacro") => [
 					template = template("mycall").withParameter("unknown")
 					contexts += macroTestStepContext(macroModel.macroCollection) => [
-						step = testStep("othercall").withReferenceToTemplateVariable("unknown").withText("with").
+						steps += testStep("othercall").withReferenceToTemplateVariable("unknown").withText("with").
 							withReferenceToTemplateVariable("unknown")
 					]
 				]
@@ -151,7 +155,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 				macros += macro("MyCallMacro") => [
 					template = template("mycall").withParameter("unknown")
 					contexts += macroTestStepContext(macroModel.macroCollection) => [
-						step = testStep("othercall").withParameter("3").withText("with").
+						steps += testStep("othercall").withParameter("3").withText("with").
 							withReferenceToTemplateVariable("unknown")
 					]
 				]
@@ -228,7 +232,7 @@ class TclParameterUsageValidatorTest extends AbstractUnmockedTclValidatorTest {
 			test = testCase("MyTest") => [
 				steps += specificationStep("test", "something") => [
 					contexts += macroTestStepContext(tmlModel.macroCollection) => [
-						step = testStep("mycall").withReferenceToVariable(envVar)
+						steps += testStep("mycall").withReferenceToVariable(envVar)
 						verifyVariableTypeUsage(envVar.name, types)
 					]
 				]

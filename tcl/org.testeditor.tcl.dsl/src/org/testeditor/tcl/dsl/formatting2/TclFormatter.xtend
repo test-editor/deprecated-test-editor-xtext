@@ -21,6 +21,7 @@ import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
+import org.testeditor.tcl.StepContentPunctuation
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestCleanup
@@ -124,7 +125,7 @@ class TclFormatter extends XbaseFormatter {
 		.prepend[oneSpace] //
 		.append[newLine; priority = LOW_PRIORITY]
 		// macroTestStepContext.interior[indent] // configurable?
-		macroTestStepContext.step.format
+		macroTestStepContext.steps.forEach[format]
 	}
 
 	def dispatch void format(AbstractTestStep testStep, extension IFormattableDocument document) {
@@ -137,6 +138,10 @@ class TclFormatter extends XbaseFormatter {
 
 	def dispatch void format(StepContentText stepContentText, extension IFormattableDocument document) {
 		stepContentText.regionFor.feature(TslPackage.Literals.STEP_CONTENT_VALUE__VALUE).prepend[oneSpace]
+	}
+
+	def dispatch void format(StepContentPunctuation punctuation, extension IFormattableDocument document) {
+		punctuation.regionFor.feature(TslPackage.Literals.STEP_CONTENT_VALUE__VALUE).prepend[noSpace]
 	}
 
 	def dispatch void format(StepContentVariable stepContentVariable, extension IFormattableDocument document) {

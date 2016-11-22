@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.testeditor.tcl.util
 
+import java.util.LinkedHashMap
 import java.util.List
 import java.util.Map
 import java.util.Set
@@ -26,13 +27,12 @@ import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.Template
+import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.ValueSpaceAssignment
 import org.testeditor.dsl.common.util.CollectionUtils
-import org.testeditor.tcl.AbstractTestStep
 import org.testeditor.tcl.AssertionTestStep
-import org.testeditor.tcl.BinaryExpression
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.Expression
@@ -55,6 +55,8 @@ import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
+
+import static extension org.eclipse.xtext.EcoreUtil2.getContainerOfType
 
 @Singleton
 class TclModelUtil extends TslModelUtil {
@@ -83,37 +85,43 @@ class TclModelUtil extends TslModelUtil {
 				StepContentElement: '''<«value»>'''
 				VariableReferenceMapAccess: '''@«variable?.name»."«key»"'''
 				VariableReference: '''@«variable?.name»'''
-				StepContentValue:
-					value
-				default:
-					'?'
+				StepContentValue: value
+				default: throw new IllegalArgumentException("Unhandled content: " + it)
 			}
-		].join(' ')
+		].join(' ').removeWhitespaceBeforePunctuation
 	}
 
-	def Macro findMacroDefinition(MacroTestStepContext macroCallSite) {
-		val macroCallStep = (macroCallSite.step as TestStep) // call must be a test step
-		macroCallSite.macroCollection?.macros?.findFirst [
-			template.normalize == macroCallStep.normalize
+	private def String removeWhitespaceBeforePunctuation(String input) {
+		return input.replaceAll('''\s+(\.|\?)''', "$1")
+	}
+
+	def TemplateContainer findInteractionOrMacro(TestStep step) {
+		return step.getInteraction ?: step.findMacro
+	}
+
+	def Macro findMacro(TestStep step) {
+		val context = step.macroContext
+		if (context !== null && !context.eIsProxy) {
+			return findMacroDefinition(step, step.macroContext)
+		}
+		return null
+	}
+
+	def Macro findMacroDefinition(TestStep macroCallStep, MacroTestStepContext macroCallSite) {
+		val normalizedMacroCallStep = macroCallStep.normalize
+		return macroCallSite.macroCollection?.macros?.findFirst [
+			template.normalize == normalizedMacroCallStep
 		]
 	}
 	
-	// get the test step that holds this expression
-	def TestStep getTestStep(Expression expression) {
-		var parent = expression.eContainer
-		while (parent != null && !(parent instanceof TestStep)) {
-			parent = parent.eContainer
-		}
-		return parent as TestStep
-	}
-
 	def InteractionType getInteraction(TestStep step) {
 		// TODO this should be solved by using an adapter (so that we don't need to recalculate it over and over again)
 		val component = step.componentContext?.component
-		if (component !== null) {
+		if (component !== null && !component.eIsProxy) {
 			val allElementInteractions = component.elements.map[type.interactionTypes].flatten.filterNull
 			val interactionTypes = component.type.interactionTypes + allElementInteractions
-			return interactionTypes.findFirst[matches(step)]
+			val normalizedTestStep = step.normalize
+			return interactionTypes.findFirst[template.normalize == normalizedTestStep]
 		}
 		return null
 	}
@@ -125,7 +133,7 @@ class TclModelUtil extends TslModelUtil {
 				TemplateVariable: '""'
 				TemplateText: value.trim
 			}
-		].join(' ')
+		].join(' ').removeWhitespaceBeforePunctuation
 		return normalizedTemplate
 	}
 
@@ -135,44 +143,46 @@ class TclModelUtil extends TslModelUtil {
 				StepContentElement: '<>'
 				StepContentVariable: '""'
 				VariableReference: '""'
-				StepContentText: value.trim
+				StepContentValue: value.trim
+				default: throw new IllegalArgumentException("Unhandled content: " + it)
 			}
-		].join(' ')
+		].join(' ').removeWhitespaceBeforePunctuation
 		return normalizedStepContent
 	}
 
-	protected def boolean matches(InteractionType interaction, TestStep step) {
-		return interaction.template.normalize == step.normalize
-	}
-
-	// TODO we need a common super class for StepContentElement and StepContentVariable and StepContentDereferencedVariable
-	def Map<TemplateVariable, StepContent> getVariableToValueMapping(TestStep step, Template template) {
-		val map = newHashMap
+	/**
+	 * Maps the non-text contents of a step to the variables used in the passed template.
+	 * The result is ordered by appearance in the {@link TestStep}.
+	 */
+	def LinkedHashMap<StepContent, TemplateVariable> getStepContentToTemplateVariablesMapping(TestStep step, Template template) {
+		val stepContentElements = step.contents.filter[!(it instanceof StepContentText)]
 		val templateVariables = template.contents.filter(TemplateVariable)
-		val stepContentVariables = step.contents.filter [!(it instanceof StepContentText)]
-		if (templateVariables.size !== stepContentVariables.size) {
-			val message = '''Variables for '«step.contents.restoreString»' did not match the parameters of template '«template.normalize»' (normalized).'''
+		if (stepContentElements.size !== templateVariables.size) {
+			val message = '''
+				Variables for '«step.contents.restoreString»' did not match the parameters of template '«template.normalize»' (normalized).
+			'''
 			throw new IllegalArgumentException(message)
 		}
+		val map = newLinkedHashMap
 		for (var i = 0; i < templateVariables.size; i++) {
-			map.put(templateVariables.get(i), stepContentVariables.get(i))
+			map.put(stepContentElements.get(i), templateVariables.get(i))
 		}
 		return map
 	}
 	
 	def ComponentElement getComponentElement(StepContentElement contentElement) {
-		val container = EcoreUtil2.getContainerOfType(contentElement, TestStep)
-		if (container !== null) {
-			val component = container.componentContext?.component
+		val containingTestStep = EcoreUtil2.getContainerOfType(contentElement, TestStep)
+		if (containingTestStep !== null) {
+			val component = containingTestStep.componentContext?.component
 			return component?.elements?.findFirst[name == contentElement.value]
 		}
 		return null
 	}
 	
 	def Template getMacroTemplate(StepContentElement contentElement) {
-		val container = EcoreUtil2.getContainerOfType(contentElement, TestStep)
-		if (container !== null) {
-			val macro = container.macroContext?.findMacroDefinition
+		val containingTestStep = EcoreUtil2.getContainerOfType(contentElement, TestStep)
+		if (containingTestStep !== null) {
+			val macro = containingTestStep.findMacroDefinition(containingTestStep.macroContext)
 			return macro?.template
 		}
 		return null
@@ -222,8 +232,18 @@ class TclModelUtil extends TslModelUtil {
 	}
 
 	def ValueSpaceAssignment getValueSpaceAssignment(ComponentElement element, TestStep container) {
-		val foo = element.valueSpaceAssignments
-		return foo.findFirst[variable.template.interactionType.name == container.interaction?.name]
+		val containerName = container.interaction?.name
+		if (containerName !== null) {
+			return element.valueSpaceAssignments.findFirst[
+				val interaction = variable.template.getContainerOfType(InteractionType)
+				if (interaction !== null) {
+					return interaction.name == containerName
+				} else {
+					return false
+				}
+			]
+		}
+		return null
 	}
 
 	def Set<TemplateVariable> getEnclosingMacroParameters(EObject object) {
@@ -295,14 +315,6 @@ class TclModelUtil extends TslModelUtil {
 		]
 	}
 
-	def dispatch Iterable<AbstractTestStep> getTestSteps(ComponentTestStepContext context) {
-		return context.steps
-	}
-
-	def dispatch Iterable<AbstractTestStep> getTestSteps(MacroTestStepContext context) {
-		return #[context.step]
-	}
-
 	def Iterable<EnvironmentVariable> getEnvParams(EObject object) {
 		val root = EcoreUtil2.getContainerOfType(object, TclModel)
 		if (root !== null && root.environmentVariables != null) {
@@ -315,7 +327,7 @@ class TclModelUtil extends TslModelUtil {
 	 * does the given context make use of (one of the) variables passed via variable reference?
 	 */
 	def dispatch boolean makesUseOfVariablesViaReference(TestStepContext context, Set<String> variables) {
-		return context.testSteps.exists [
+		return context.steps.exists [
 			switch (it) {
 				TestStep: contents.exists[makesUseOfVariablesViaReference(variables)]
 				AssertionTestStep: assertExpression.makesUseOfVariablesViaReference(variables)
@@ -345,7 +357,7 @@ class TclModelUtil extends TslModelUtil {
 	 */
 	def dispatch Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(TestStepContext context) {
 		val result = newHashMap
-		context.testSteps.map[collectDeclaredVariablesTypeMap].forEach[result.putAll(it)]
+		context.steps.map[collectDeclaredVariablesTypeMap].forEach[result.putAll(it)]
 		return result
 	}
 
@@ -362,41 +374,31 @@ class TclModelUtil extends TslModelUtil {
 		return emptyMap
 	}
 
-	def Iterable<VariableReference> collectVariableUsage(Expression expression) {
-		switch (expression) {
-			BinaryExpression:
-				return expression.left.collectVariableUsage + expression.right.collectVariableUsage
-			VariableReference:
-				return #[expression]
-			default:
-				return #[]
-		}
-	}
-
 	/** 
 	 * get the actual jvm types from the fixtures that are transitively used and to which this variable/parameter is passed to.
 	 * Since a parameter can be used in multiple parameter positions of subsequent fixture calls, the size of the set of types can be > 1
 	 */
 	def dispatch Set<JvmTypeReference> getAllTypeUsagesOfVariable(MacroTestStepContext callingMacroTestStepContext,
 		String variable) {
-		val macroCalled = callingMacroTestStepContext.findMacroDefinition
-		if (macroCalled != null) {
-			val callingMacroStep = callingMacroTestStepContext.step as TestStep // must be a TestStep
-			val templateParamToVarRefMap = mapCalledTemplateParamToCallingVariableReference(
-				callingMacroStep, macroCalled.template, variable)
-			val calledMacroTemplateParameters = templateParamToVarRefMap.keySet.map[name].toSet
-			val contextsUsingAnyOfTheseParameters = macroCalled.contexts.filter [
-				makesUseOfVariablesViaReference(calledMacroTemplateParameters)
-			]
-			val typesOfAllParametersUsed = contextsUsingAnyOfTheseParameters.map [ context |
-				context.getAllTypeUsagesOfVariables(calledMacroTemplateParameters)
-			].flatten.toSet
-			return typesOfAllParametersUsed
-		} else {
-			return #{}
-		}
+		callingMacroTestStepContext.steps.filter(TestStep).map[ step |
+			val macroCalled = step.findMacroDefinition(callingMacroTestStepContext)
+			if (macroCalled != null) {
+				val templateParamToVarRefMap = mapCalledTemplateParamToCallingVariableReference(
+					step, macroCalled.template, variable)
+				val calledMacroTemplateParameters = templateParamToVarRefMap.values.map[name].toSet
+				val contextsUsingAnyOfTheseParameters = macroCalled.contexts.filter [
+					makesUseOfVariablesViaReference(calledMacroTemplateParameters)
+				]
+				val typesOfAllParametersUsed = contextsUsingAnyOfTheseParameters.map [ context |
+					context.getAllTypeUsagesOfVariables(calledMacroTemplateParameters)
+				].flatten.toSet
+				return typesOfAllParametersUsed
+			} else {
+				return #{}
+			}		
+		].flatten.toSet
 	}
-
+	
 	/** 
 	 * get the actual jvm types from the fixtures that are transitively used and to which this variable/parameter is passed to
 	 */
@@ -411,19 +413,18 @@ class TclModelUtil extends TslModelUtil {
 		return typesUsages
 	}
 
-	def Iterable<JvmTypeReference> getAllTypeUsagesOfVariables(TestStepContext context, Iterable<String> variables) {
+	private def Iterable<JvmTypeReference> getAllTypeUsagesOfVariables(TestStepContext context, Iterable<String> variables) {
 		variables.map [ parameter |
 			context.getAllTypeUsagesOfVariable(parameter)
 		].flatten
 	}
 
-	def Map<TemplateVariable, StepContent> mapCalledTemplateParamToCallingVariableReference(TestStep callingStep,
+	private def Map<StepContent, TemplateVariable> mapCalledTemplateParamToCallingVariableReference(TestStep callingStep,
 		Template calledMacroTemplate, String callingVariableReference) {
-		val varMap = getVariableToValueMapping(callingStep, calledMacroTemplate)
-		return varMap.filter [ key, stepContent |
+		val varMap = getStepContentToTemplateVariablesMapping(callingStep, calledMacroTemplate)
+		return varMap.filter [ stepContent, templateVariable  |
 			stepContent.makesUseOfVariablesViaReference(#{callingVariableReference})
 		]
 	}
-
 
 }

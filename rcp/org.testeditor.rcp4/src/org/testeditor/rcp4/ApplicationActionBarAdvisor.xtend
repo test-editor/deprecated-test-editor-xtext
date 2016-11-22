@@ -15,7 +15,10 @@ package org.testeditor.rcp4
 import org.eclipse.e4.core.contexts.ContextInjectionFactory
 import org.eclipse.e4.core.contexts.IEclipseContext
 import org.eclipse.e4.core.di.annotations.Execute
+import org.eclipse.e4.ui.model.application.MApplication
+import org.eclipse.e4.ui.model.application.ui.basic.MTrimmedWindow
 import org.eclipse.jface.action.Action
+import org.eclipse.jface.action.ICoolBarManager
 import org.eclipse.jface.action.IMenuManager
 import org.eclipse.jface.action.MenuManager
 import org.eclipse.swt.SWT
@@ -23,14 +26,18 @@ import org.eclipse.ui.IWorkbenchWindow
 import org.eclipse.ui.PlatformUI
 import org.eclipse.ui.application.ActionBarAdvisor
 import org.eclipse.ui.application.IActionBarConfigurer
+import org.testeditor.dsl.common.util.EclipseContextHelper
 import org.testeditor.rcp4.handlers.OpenNetworkConfigurationHandler
+import org.testeditor.rcp4.handlers.ResetUIHandler
 import org.testeditor.rcp4.handlers.RestartAndResetUIHandler
+import org.testeditor.rcp4.handlers.SaveUIHandler
 
 /** dummy class */
 class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 
 	IMenuManager mainMenu
 	IMenuManager configMenu
+	ICoolBarManager toolBar
 
 	new(IActionBarConfigurer configurer) {
 		super(configurer)
@@ -45,6 +52,13 @@ class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		menuBar.add(configMenu)
 		configMenu.add(createActionFor("&NetworkConfig", OpenNetworkConfigurationHandler))
 		configMenu.add(createActionFor("&Reset UI", RestartAndResetUIHandler))
+		configMenu.add(createActionFor("R&eset UI - soft", ResetUIHandler))
+		configMenu.add(createActionFor("&Save UI - soft", SaveUIHandler))
+		
+	}
+
+	override protected fillCoolBar(ICoolBarManager coolBar) {
+		toolBar = coolBar
 	}
 
 	def Action createActionFor(String actionLabel, Class<?> hanlderClass) {
@@ -59,8 +73,18 @@ class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		}
 	}
 
-	def removeUnwantedMenus() {
+	def void removeUnwantedMenus() {
 		mainMenu.items.filter[it != configMenu].forEach[visible = false]
+		val contextHelper = new EclipseContextHelper()
+		val context = contextHelper.eclipseContext
+		val mApplication = context.getParent().get(MApplication)
+		val coolBarItems = mApplication.children.filter(MTrimmedWindow).head.trimBars.filter [
+			elementId.equals("org.eclipse.ui.main.toolbar")
+		].head.children
+		coolBarItems.filter [
+			!(elementId.startsWith("org.testeditor") ||
+				elementId.equals("org.eclipse.ui.edit.text.actionSet.navigation"))
+		].forEach[toBeRendered = false]
 	}
 
 }

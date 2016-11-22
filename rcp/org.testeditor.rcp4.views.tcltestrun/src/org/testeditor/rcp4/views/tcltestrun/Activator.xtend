@@ -12,37 +12,43 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.tcltestrun
 
+import org.eclipse.e4.core.contexts.ContextInjectionFactory
+import org.eclipse.e4.core.contexts.EclipseContextFactory
+import org.eclipse.equinox.http.servlet.ExtendedHttpService
 import org.eclipse.ui.plugin.AbstractUIPlugin
 import org.osgi.framework.BundleContext
+import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionManager
+import org.testeditor.rcp4.views.tcltestrun.rest.AllowCrossOriginWebFilter
+import org.testeditor.rcp4.views.tcltestrun.rest.BundleHttpContext
+import org.testeditor.rcp4.views.tcltestrun.rest.TestExecutionLogService
 
 class Activator extends AbstractUIPlugin {
-	// $NON-NLS-1$
+
 	// The shared instance
 	private static var Activator plugin
 
-	/**
-	 * The constructor
-	 */
-	new() {
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see AbstractUIPlugin#start(org.osgi.framework.
-	 * BundleContext)
-	 */
 	override void start(BundleContext context) throws Exception {
 		super.start(context)
 		plugin = this
+		registerServices(context)
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see AbstractUIPlugin#stop(org.osgi.framework.
-	 * BundleContext)
-	 */
+	private def void registerServices(BundleContext context) {
+		// Register TestExecutionLogService
+		val eclipseContext = EclipseContextFactory.create
+		val restService = ContextInjectionFactory.make(TestExecutionLogService, eclipseContext)
+		restService.testExecutionManager = ContextInjectionFactory.make(TestExecutionManager, eclipseContext)
+		context.registerService(TestExecutionLogService, restService, null)
+
+		// Register TestEditorWebFilter
+		val serviceReference = context.getServiceReference(ExtendedHttpService)
+		if (serviceReference !== null) {
+			val httpService = context.getService(serviceReference)
+			httpService.registerResources("/testlogs", "/", new BundleHttpContext(bundle))
+			httpService.registerFilter("/services/*", new AllowCrossOriginWebFilter, null, null)
+		}
+	}
+
 	override void stop(BundleContext context) throws Exception {
 		plugin = null
 		super.stop(context)
@@ -55,4 +61,5 @@ class Activator extends AbstractUIPlugin {
 	def static Activator getDefault() {
 		return plugin
 	}
+
 }

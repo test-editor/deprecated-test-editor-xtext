@@ -19,13 +19,14 @@ import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jface.viewers.ITreeContentProvider
 import org.eclipse.jface.viewers.Viewer
+import org.testeditor.dsl.common.util.WorkspaceHelper
 
 /**
  * Content Provider to extend the cnf navigator with the TE specific elements. The provider replaces folders of the classpath entry with one entry.
  */
 class TEContentProvider implements ITreeContentProvider {
 
-	@Inject WorkspaceRootHelper workspaceRootHelper
+	@Inject WorkspaceHelper workspaceHelper
 	@Inject JavaCoreHelper javaCoreHelper
 
 	override getChildren(Object parentElement) {
@@ -36,7 +37,7 @@ class TEContentProvider implements ITreeContentProvider {
 			}
 		}
 		if (parentElement instanceof IClasspathEntry) {
-			return workspaceRootHelper.getRoot.getFolder(parentElement.path).members
+			return workspaceHelper.getRoot.getFolder(parentElement.path).members
 		}
 		return null;
 	}
@@ -53,7 +54,7 @@ class TEContentProvider implements ITreeContentProvider {
 			}
 		}
 		if (element instanceof IClasspathEntry) {
-			return workspaceRootHelper.getRoot.getFolder(element.path).project
+			return workspaceHelper.root.getFolder(element.path).project
 		}
 		return null
 	}
@@ -64,7 +65,7 @@ class TEContentProvider implements ITreeContentProvider {
 	def private IClasspathEntry getParentClasspathEntry(IResource element) {
 		if (element.project != null) {
 			val parentClasspathEntries = getChildren(element.project).filter(IClasspathEntry).filter [
-				workspaceRootHelper.getRoot.getFolder(it.path).members.contains(element)
+				workspaceHelper.root.getFolder(path).members.contains(element)
 			]
 			return parentClasspathEntries.head
 		}
@@ -73,7 +74,7 @@ class TEContentProvider implements ITreeContentProvider {
 
 	override hasChildren(Object element) {
 		if (element instanceof IClasspathEntry) {
-			return workspaceRootHelper.getRoot.getFolder(element.path).members.length > 0
+			return workspaceHelper.root.getFolder(element.path).members.length > 0
 		}
 		return false
 	}

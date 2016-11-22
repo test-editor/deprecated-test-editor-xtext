@@ -2,6 +2,8 @@ package org.testeditor.tcl.dsl.jvmmodel.builder
 
 import org.junit.Test
 import org.testeditor.dsl.common.testing.DummyFixture
+import org.testeditor.dsl.common.testing.DummyLocatorStrategy
+import org.testeditor.fixture.core.AbstractTestCase
 
 class TestCaseWithSeparateConfigTest extends AbstractStandaloneBuilderTest {
 
@@ -36,6 +38,8 @@ class TestCaseWithSeparateConfigTest extends AbstractStandaloneBuilderTest {
 		writeFile("src/com/example/MyConfig.config", configSource)
 		writeFile("src/com/example/SimpleTest.tcl", testSource)
 		classPathEntries += DummyFixture.classPathEntry
+		classPathEntries += DummyLocatorStrategy.classPathEntry
+		classPathEntries += AbstractTestCase.classPathEntry
 
 		// when
 		builder.launch
@@ -49,26 +53,28 @@ class TestCaseWithSeparateConfigTest extends AbstractStandaloneBuilderTest {
 			import org.junit.After;
 			import org.junit.Before;
 			import org.testeditor.dsl.common.testing.DummyFixture;
+			import org.testeditor.fixture.core.AbstractTestCase;
+			import org.testeditor.fixture.core.TestRunReporter;
 			
 			@SuppressWarnings("all")
-			public abstract class MyConfig {
+			public abstract class MyConfig extends AbstractTestCase {
 			  protected DummyFixture dummyFixture = new DummyFixture();
 			  
 			  @Before
 			  public void setupMyConfig() throws Exception {
 			    
-			    // Component: GreetingApplication
+			    reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
 			    
-			    // - Start application "org.testeditor.swing.exammple.Greetings"
+			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Start application \"org.testeditor.swing.exammple.Greetings\"");
 			    dummyFixture.startApplication("org.testeditor.swing.exammple.Greetings");
 			  }
 			  
 			  @After
 			  public void cleanupMyConfig() throws Exception {
 			    
-			    // Component: GreetingApplication
+			    reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
 			    
-			    // - Stop application
+			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Stop application");
 			    dummyFixture.stopApplication();
 			  }
 			}
@@ -78,17 +84,18 @@ class TestCaseWithSeparateConfigTest extends AbstractStandaloneBuilderTest {
 			
 			import com.example.MyConfig;
 			import org.junit.Test;
+			import org.testeditor.fixture.core.TestRunReporter;
 			
 			@SuppressWarnings("all")
 			public class SimpleTest extends MyConfig {
 			  @Test
 			  public void execute() throws Exception {
 			    
-			    /* Test Step */
+			    reporter.enter(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "Test Step");
 			    
-			    // Component: GreetingApplication
+			    reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
 			    
-			    // - Wait for "3" seconds
+			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Wait for \"3\" seconds");
 			    dummyFixture.waitSeconds(3);
 			  }
 			}

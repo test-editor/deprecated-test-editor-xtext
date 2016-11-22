@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <application:Application xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:advanced="http://www.eclipse.org/ui/2010/UIModel/application/ui/advanced" xmlns:application="http://www.eclipse.org/ui/2010/UIModel/application" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_VnmacNSzEeGBn6dQ9VPexA" elementId="application" bindingContexts="_VnmacdSzEeGBn6dQ9VPexA">
   <children xsi:type="basic:TrimmedWindow" xmi:id="_Vnmah9SzEeGBn6dQ9VPexA" elementId="main.window" label="Testeditor" iconURI="platform:/plugin/org.testeditor.rcp4/icons/test_editor.png" width="800" height="600">
-    <children xsi:type="advanced:PerspectiveStack" xmi:id="_Vnmaj9SzEeGBn6dQ9VPexA" selectedElement="_VnmakNSzEeGBn6dQ9VPexA">
+    <children xsi:type="advanced:PerspectiveStack" xmi:id="_Vnmaj9SzEeGBn6dQ9VPexA" elementId="org.testeditor.rcp4.perspectivestack" selectedElement="_VnmakNSzEeGBn6dQ9VPexA">
       <children xsi:type="advanced:Perspective" xmi:id="_VnmakNSzEeGBn6dQ9VPexA" elementId="org.testeditor.rcp4.perspective" selectedElement="_VnnBgNSzEeGBn6dQ9VPexA" label="My Perspective" iconURI="platform:/plugin/org.testeditor.rcp4/icons/test_editor.png">
         <tags>Perspective</tags>
         <tags>categoryTag:General</tags>
@@ -18,9 +18,9 @@
                 <tags>org.eclipse.e4.secondaryDataStack</tags>
               </children>
             </children>
-            <children xsi:type="basic:PartStack" xmi:id="_waEMYPsvEeWT-dB_tFBORw" elementId="org.testeditor.rcp4.partstack.0" visible="false" selectedElement="_b7Pr0OElEeWvgIi1MgxYeQ">
+            <children xsi:type="basic:PartStack" xmi:id="_waEMYPsvEeWT-dB_tFBORw" elementId="org.testeditor.rcp4.partstack.0" visible="false">
               <tags>Minimized</tags>
-              <children xsi:type="advanced:Placeholder" xmi:id="_b7Pr0OElEeWvgIi1MgxYeQ" elementId="org.eclipse.buildship.ui.views.taskview" ref="_l7Ed8PsvEeWT-dB_tFBORw"/>
+              <children xsi:type="basic:Part" xmi:id="_ThfP4IC4EeaAC5RAwySr2w" elementId="org.eclipse.ui.console.ConsoleView" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="Console" iconURI="platform:/plugin/org.testeditor.rcp4/icons/console_view.png"/>
             </children>
           </children>
         </children>
@@ -30,6 +30,8 @@
       <children xsi:type="menu:Menu" xmi:id="_W2z6EOFQEeWWe9PhIDRxcQ" elementId="org.testeditor.rcp4.menu.configuration" label="&amp;Configuration">
         <children xsi:type="menu:DirectMenuItem" xmi:id="_bPgYoOFQEeWWe9PhIDRxcQ" elementId="org.testeditor.rcp4.directmenuitem.resetui" label="Reset UI" contributionURI="bundleclass://org.testeditor.rcp4/org.testeditor.rcp4.handlers.RestartAndResetUIHandler"/>
         <children xsi:type="menu:DirectMenuItem" xmi:id="_JBbKsCDiEeaGROnl_j-36A" elementId="org.testeditor.rcp4.directmenuitem.networkconfiguration" label="Network configuration" contributionURI="bundleclass://org.testeditor.rcp4/org.testeditor.rcp4.handlers.OpenNetworkConfigurationHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_qPumkICxEeaeoqAqZJyHCQ" elementId="org.testeditor.rcp4.directmenuitem.resetui-soft" label="Reset UI - soft" contributionURI="bundleclass://org.testeditor.rcp4/org.testeditor.rcp4.handlers.ResetUIHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_voVC8ICxEeaeoqAqZJyHCQ" elementId="org.testeditor.rcp4.directmenuitem.saveui-soft" label="Save UI - soft" contributionURI="bundleclass://org.testeditor.rcp4/org.testeditor.rcp4.handlers.SaveUIHandler"/>
       </children>
     </mainMenu>
     <sharedElements xsi:type="advanced:Area" xmi:id="_Hmg4kNSjEeGwXp2p959l3w" elementId="org.eclipse.ui.editorss">
@@ -39,8 +41,12 @@
         <tags>EditorStack</tags>
       </children>
     </sharedElements>
-    <sharedElements xsi:type="basic:Part" xmi:id="_l7Ed8PsvEeWT-dB_tFBORw" elementId="org.eclipse.ui.console.ConsoleView" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" iconURI="platform:/plugin/org.eclipse.ui.console//icons/full/cview16/console_view.gif"/>
-    <trimBars xmi:id="_VOV6ANTAEeGTY-uOtVc6Mg" elementId="org.eclipse.ui.main.toolbar"/>
+    <trimBars xmi:id="_VOV6ANTAEeGTY-uOtVc6Mg" elementId="org.eclipse.ui.main.toolbar">
+      <children xsi:type="menu:ToolBar" xmi:id="_5fgX0HLZEeaIOZyrnWUBVA" elementId="org.testeditor.rcp4.toolbar.0" accessibilityPhrase="">
+        <children xsi:type="menu:HandledToolItem" xmi:id="_ybnYgHNAEeaIOZyrnWUBVA" elementId="org.testeditor.rcp4.handledtoolitem." label="" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/save_edit.png" tooltip="Save active editor" command="_BHRIgHLcEeaIOZyrnWUBVA"/>
+        <children xsi:type="menu:HandledToolItem" xmi:id="_X_iksHN0Eeage6Ozf2Rocw" elementId="org.testeditor.rcp4.handledtoolitem.0" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/saveall_edit.png" tooltip="Save all changes" command="_RjP2sHN0Eeage6Ozf2Rocw"/>
+      </children>
+    </trimBars>
     <trimBars xmi:id="_VP1HwNTAEeGTY-uOtVc6Mg" elementId="org.eclipse.ui.trim.status" side="Bottom">
       <children xsi:type="menu:ToolControl" xmi:id="_VP1u0NTAEeGTY-uOtVc6Mg" elementId="org.eclipse.ui.StatusLine" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.StandardTrim">
         <tags>stretch</tags>
@@ -52,23 +58,13 @@
       </children>
     </trimBars>
   </children>
-  <bindingTables xmi:id="_VnmafNSzEeGBn6dQ9VPexA" bindingContext="_VnmacdSzEeGBn6dQ9VPexA"/>
+  <bindingTables xmi:id="_VnmafNSzEeGBn6dQ9VPexA" elementId="org.testeditor.bindingTable" bindingContext="_VnmacdSzEeGBn6dQ9VPexA"/>
   <rootContext xmi:id="_VnmacdSzEeGBn6dQ9VPexA" elementId="org.eclipse.ui.contexts.dialogAndWindow" name="In Dialog and Windows">
     <children xmi:id="_VnmactSzEeGBn6dQ9VPexA" elementId="org.eclipse.ui.contexts.window" name="In Windows"/>
     <children xmi:id="_Vnmac9SzEeGBn6dQ9VPexA" elementId="org.eclipse.ui.contexts.dialog" name="In Dialogs"/>
   </rootContext>
-  <descriptors xmi:id="_W6yT4NSjEeGgKvWHVYtRxQ" elementId="org.eclipse.ui.console.ConsoleView" label="Console" iconURI="platform:/plugin/org.eclipse.ui.console//icons/full/cview16/console_view.gif" allowMultiple="true" category="org.eclipse.e4.secondaryDataStack" closeable="true" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView">
-    <tags>View</tags>
-    <tags>categoryTag:General</tags>
-  </descriptors>
-  <descriptors xmi:id="_W6ziANSjEeGgKvWHVYtRxQ" elementId="org.eclipse.ui.views.ProgressView" label="Progress" iconURI="platform:/plugin/org.eclipse.ui.ide//icons/full/eview16/pview.gif" category="org.eclipse.e4.secondaryDataStack" closeable="true" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView">
-    <tags>View</tags>
-    <tags>categoryTag:General</tags>
-  </descriptors>
-  <descriptors xmi:id="_W63zcdSjEeGgKvWHVYtRxQ" elementId="org.eclipse.ui.views.PropertySheet" label="Properties" iconURI="platform:/plugin/org.eclipse.ui.views//icons/full/eview16/prop_ps.gif" allowMultiple="true" category="org.eclipse.e4.secondaryDataStack" closeable="true" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView">
-    <tags>View</tags>
-    <tags>categoryTag:General</tags>
-  </descriptors>
+  <commands xmi:id="_BHRIgHLcEeaIOZyrnWUBVA" elementId="org.eclipse.ui.file.save" commandName="%command.commandname.save.command"/>
+  <commands xmi:id="_RjP2sHN0Eeage6Ozf2Rocw" elementId="org.eclipse.ui.file.saveAll" commandName="%command.commandname.saveAll.command"/>
   <addons xmi:id="_VnmadNSzEeGBn6dQ9VPexA" elementId="org.eclipse.e4.core.commands.service" contributionURI="bundleclass://org.eclipse.e4.core.commands/org.eclipse.e4.core.commands.CommandServiceAddon"/>
   <addons xmi:id="_VnmaddSzEeGBn6dQ9VPexA" elementId="org.eclipse.e4.ui.contexts.service" contributionURI="bundleclass://org.eclipse.e4.ui.services/org.eclipse.e4.ui.services.ContextServiceAddon"/>
   <addons xmi:id="_VnmadtSzEeGBn6dQ9VPexA" elementId="org.eclipse.e4.ui.bindings.service" contributionURI="bundleclass://org.eclipse.e4.ui.bindings/org.eclipse.e4.ui.bindings.BindingServiceAddon"/>
@@ -76,4 +72,5 @@
   <addons xmi:id="_VnmaeNSzEeGBn6dQ9VPexA" elementId="org.eclipse.e4.ui.workbench.contexts.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.ContextProcessingAddon"/>
   <addons xmi:id="_VnmaedSzEeGBn6dQ9VPexA" elementId="org.eclipse.e4.ui.workbench.bindings.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.swt/org.eclipse.e4.ui.workbench.swt.util.BindingProcessingAddon"/>
   <addons xmi:id="_p3hyIMkLEeWnMKdeCKyEvA" elementId="dragAndDropAddon" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.addons.swt/org.eclipse.e4.ui.workbench.addons.dndaddon.DnDAddon"/>
+  <addons xmi:id="__lJeoHTBEeabuNODuaXByQ" elementId="org.eclipse.e4.ui.workbench.handler.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.HandlerProcessingAddon"/>
 </application:Application>

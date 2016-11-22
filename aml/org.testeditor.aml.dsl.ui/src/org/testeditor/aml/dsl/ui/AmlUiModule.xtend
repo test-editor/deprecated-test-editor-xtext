@@ -13,6 +13,7 @@
 package org.testeditor.aml.dsl.ui
 
 import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
+import org.testeditor.aml.dsl.ui.contentassist.AmlTemplateProposalProvider
 import org.testeditor.aml.dsl.ui.highlighting.AmlHighlightingConfiguration
 
 /**
@@ -23,6 +24,10 @@ class AmlUiModule extends AbstractAmlUiModule {
 
 	override bindIHighlightingConfiguration() {
 		return AmlHighlightingConfiguration
+	}
+
+	override bindITemplateProposalProvider() {
+		return AmlTemplateProposalProvider
 	}
 
 }

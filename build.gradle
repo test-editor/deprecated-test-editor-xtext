@@ -1,0 +1,81 @@
+plugins {
+	id 'com.moowork.node' version '0.13'
+}
+
+node {
+	version = '6.9.1'
+	npmVersion = '3.10.8'
+	workDir file("rcp/org.testeditor.web.testexecutionlogview/node")
+	download = true
+}
+
+def targetPlatform = "$projectDir/target-platform"
+
+task npmInstallDep(type: NpmTask, dependsOn: npmSetup){
+	group 'Node'
+	workingDir file("rcp/org.testeditor.web.testexecutionlogview")
+	description 'Installs the NodeJS packages'
+    args = [ 'install' ]    
+}
+
+task npmInstallTeLogView(type: NpmTask, dependsOn: npmInstallDep) {
+	group 'Node'
+	workingDir file("rcp/org.testeditor.web.testexecutionlogview")
+	description 'Typescript compile'
+	args = [ 'run-script', 'tsc' ]
+}
+
+task copyTeLogViewToRcp(type: Copy, dependsOn: npmInstallTeLogView) {
+    from 'rcp/org.testeditor.web.testexecutionlogview'
+    into 'rcp/org.testeditor.rcp4.views.tcltestrun/web-app'
+    exclude 'node'
+    exclude 'typings'
+    exclude 'pom.xml'
+    exclude 'package.json'
+}
+
+task buildTarget(type: MavenExec) {
+    inputs.files fileTree(dir: targetPlatform, exclude: '**/target/**')
+    outputs.dir file("$targetPlatform/org.testeditor.releng.target.updatesite/target/site")
+    workingDir targetPlatform
+    args 'clean', 'install'
+}
+
+task cleanTarget(type: MavenExec) {
+    workingDir targetPlatform
+    args 'clean'
+}
+
+// TODO define inputs and outputs
+task install(type: MavenExec, dependsOn: buildTarget) {
+    workingDir projectDir
+    args 'clean', 'install', '-Dmaven.test.failure.ignore', '-Dsurefire.useFile=false', '-Dtycho.localArtifacts=ignore'
+}
+
+task deploy(type: MavenExec, dependsOn: buildTarget) {
+    workingDir projectDir
+    args 'clean', 'deploy', '-Dmaven.test.failure.ignore', '-Dsurefire.useFile=false', '-Dtycho.localArtifacts=ignore'
+}
+
+// TODO should be dependent on build (but build needs to be incremental for that)
+task buildProduct(type: MavenExec) {
+    workingDir projectDir
+    args 'package' , '-Pproduct', '-DskipTests', '-Dtycho.localArtifacts=ignore'
+}
+
+/**
+ * Prefills the commandLine with the Maven executable.
+ */
+class MavenExec extends Exec {
+    
+    MavenExec() {
+        super()
+        def isWindows = org.gradle.internal.os.OperatingSystem.current().windows
+        if (isWindows) {
+            commandLine 'cmd', '/c', 'mvn'
+        } else {
+            commandLine 'mvn'
+        }
+    }
+    
+}

@@ -1,6 +1,6 @@
 package org.testeditor.rcp4
 
-import org.testeditor.rcp4.*
+import org.testeditor.fixture.swt.*
 
 # PDEUnitBasedSmokeTest implements SmokeTest
 
@@ -8,13 +8,13 @@ config TestEditorConfig
 	
 * Validate initial views
 
-	Component: HauptFenster
+	Component: MainWindow
 	- Is view <ProjektBaum> visible
 	- Is view <TestStepSelector> visible
 
-	Component: TestEditor
+	Component: TestEditorServices
 	- Create simple project
 
 	Component: ProjectExplorer
-	- Select element "DemoProject" in tree <ProjektBaum>
+	- Select element "DemoProject" in tree <ProjectTree>
 

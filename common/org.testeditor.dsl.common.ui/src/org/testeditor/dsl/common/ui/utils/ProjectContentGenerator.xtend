@@ -32,8 +32,8 @@ import org.eclipse.xtext.util.StringInputStream
 import org.osgi.framework.FrameworkUtil
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ide.util.FileUtils
-import org.testeditor.dsl.common.ui.gradle.GradleHelper
 import org.testeditor.dsl.common.ui.wizards.SwingDemoContentGenerator
+import org.testeditor.dsl.common.util.GradleHelper
 
 import static org.eclipse.xtext.xbase.lib.StringExtensions.isNullOrEmpty
 
@@ -43,6 +43,8 @@ import static org.eclipse.xtext.xbase.lib.StringExtensions.isNullOrEmpty
 class ProjectContentGenerator {
 
 	static public val TEST_EDITOR_VERSION = "1.1.0" // TODO this sucks - extract to VersionHelper and use the newest version
+	
+	static public val String TEST_EDITOR_MVN_GEN_OUTPUT = 'src-gen/test/java'
 
 	static public val String MAVEN = "Maven"
 	static public val String GRADLE = "Gradle"
@@ -145,12 +147,12 @@ class ProjectContentGenerator {
 	}
 
 	def String getProxyProperties()  '''
-		systemProp.http.proxyHost=«System.getProperties().getProperty("http.proxyHost")»
-		systemProp.http.proxyPort=«System.getProperties().getProperty("http.proxyPort")»
-		systemProp.http.proxyUser=«System.getProperties().getProperty("http.proxyUser")»
-		systemProp.http.proxyPassword=«System.getProperties().getProperty("http.proxyPassword")»
-		systemProp.https.proxyHost=«System.getProperties().getProperty("https.proxyHost")»
-		systemProp.https.proxyPort=«System.getProperties().getProperty("https.proxyPort")»
+		systemProp.http.proxyHost=«System.properties.getProperty("http.proxyHost")»
+		systemProp.http.proxyPort=«System.properties.getProperty("http.proxyPort")»
+		systemProp.http.proxyUser=«System.properties.getProperty("http.proxyUser")»
+		systemProp.http.proxyPassword=«System.properties.getProperty("http.proxyPassword")»
+		systemProp.https.proxyHost=«System.properties.getProperty("https.proxyHost")»
+		systemProp.https.proxyPort=«System.properties.getProperty("https.proxyPort")»
 	'''
 
 	protected def void setupMavenProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
@@ -166,6 +168,16 @@ class ProjectContentGenerator {
 		configuration.selectedProfiles = ""
 		project.addNature(XtextProjectHelper.NATURE_ID)
 		configurationManager.enableMavenNature(project, configuration, monitor)
+		project.setupMavenTclGeneratorPreferences
+	}
+	
+	private def void setupMavenTclGeneratorPreferences(IProject project) {
+		val tclPrefs = instanceScope.getPrefsNode('org.testeditor.tcl.dsl.Tcl')
+		tclPrefs => [
+			put('outlet.DEFAULT_OUTPUT.directory', './' + TEST_EDITOR_MVN_GEN_OUTPUT)
+			putBoolean('BuilderConfiguration.is_project_specific', true)
+			save
+		]
 	}
 
 	private def void createApplicationCode(String fixture, IProject project, String srcFolder, IProgressMonitor monitor) {
@@ -247,14 +259,14 @@ class ProjectContentGenerator {
 		* Start browser and navigate to Google
 		
 			Component: WebBrowser
-			- start browser <Firefox>
+			- Start <Firefox>
 			- Browse to "http://www.google.de"
 		
 		* Search ^for "testeditor"
 		
 			Component: Searchsite
 			- Type in <Searchfield> value "testeditor"
-			- press enter in <Searchfield>
+			- Press enter on <Searchfield>
 		
 		* Close browser
 		
@@ -338,6 +350,7 @@ class ProjectContentGenerator {
 
 			// In this section you declare the dependencies for your production and test code
 			dependencies {
+				compile 'org.testeditor.fixture:core-fixture:3.1.0'
 			    «FOR s : fixtureNames»
 			    	«getGradleDependency(s)»
 				«ENDFOR»
@@ -349,12 +362,12 @@ class ProjectContentGenerator {
 	def String getGradleDependency(String fixtureName) {
 		if (fixtureName == WEBFIXTURE) {
 			return '''
-				compile 'org.testeditor.fixture:web-fixture:3.0.0-PROTO'
+				compile 'org.testeditor.fixture:web-fixture:3.1.0'
 			'''
 		}
 		if (fixtureName == SWINGFIXTURE) {
 			return '''
-				compile 'org.testeditor.fixture:swing-fixture:3.0.0-PROTO'
+				compile 'org.testeditor.fixture:swing-fixture:3.1.0'
 			'''
 		}
 	}
@@ -383,7 +396,7 @@ class ProjectContentGenerator {
 					<xtend.version>${xtext.version}</xtend.version>
 
 					<testeditor.version>«TEST_EDITOR_VERSION»</testeditor.version>
-					<testeditor.output>src-gen/test/java</testeditor.output>
+					<testeditor.output>«TEST_EDITOR_MVN_GEN_OUTPUT»</testeditor.output>
 				</properties>
 
 				<repositories>
@@ -433,6 +446,11 @@ class ProjectContentGenerator {
 						<groupId>junit</groupId>
 						<artifactId>junit</artifactId>
 						<version>4.12</version>
+					</dependency>
+					<dependency>
+						<groupId>org.testeditor.fixture</groupId>
+						<artifactId>core-fixture</artifactId>
+						<version>3.1.0</version>
 					</dependency>
 					«FOR s : fixtureNames»
 						«getMavenDependency(s)»
@@ -547,6 +565,11 @@ class ProjectContentGenerator {
 								</configuration>
 								<dependencies>
 									<dependency>
+										<groupId>org.apache.commons</groupId>
+										<artifactId>commons-lang3</artifactId>
+										<version>3.4</version>
+									</dependency>
+									<dependency>
 										<groupId>org.testeditor</groupId>
 										<artifactId>org.testeditor.dsl.common</artifactId>
 										<version>${testeditor.version}</version>
@@ -590,6 +613,11 @@ class ProjectContentGenerator {
 										<groupId>org.testeditor</groupId>
 										<artifactId>org.testeditor.aml.dsl</artifactId>
 										<version>${testeditor.version}</version>
+									</dependency>
+									<dependency>
+										<groupId>org.gradle</groupId>
+										<artifactId>gradle-tooling-api</artifactId>
+										<version>2.14</version>
 									</dependency>
 								</dependencies>
 							</plugin>
@@ -641,7 +669,7 @@ class ProjectContentGenerator {
 				<dependency>
 					<groupId>org.testeditor.fixture</groupId>
 					<artifactId>web-fixture</artifactId>
-					<version>3.0.0-PROTO</version>
+					<version>3.1.0</version>
 				</dependency>
 			'''
 		}
@@ -650,7 +678,7 @@ class ProjectContentGenerator {
 				<dependency>
 					<groupId>org.testeditor.fixture</groupId>
 					<artifactId>swing-fixture</artifactId>
-					<version>3.0.0-PROTO</version>
+					<version>3.1.0</version>
 				</dependency>
 			'''
 		}

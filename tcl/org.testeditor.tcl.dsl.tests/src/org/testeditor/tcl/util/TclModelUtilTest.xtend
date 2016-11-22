@@ -51,6 +51,21 @@ class TclModelUtilTest extends AbstractParserTest {
 	}
 
 	@Test
+	def void restoreStringWithPunctuation() {
+		// given
+		val questionMark = parse('- Hello World?', grammarAccess.testStepRule, TestStep)
+		val questionMarkAndWhitespace = parse('- Hello World  ?', grammarAccess.testStepRule, TestStep)
+		val dot = parse('- Hello World  .', grammarAccess.testStepRule, TestStep)
+		val dotAndWhitespace = parse('- Hello World.', grammarAccess.testStepRule, TestStep)
+
+		// then
+		tclModelUtil.restoreString(questionMark.contents).assertEquals('Hello World?')
+		tclModelUtil.restoreString(questionMarkAndWhitespace.contents).assertEquals('Hello World?')
+		tclModelUtil.restoreString(dot.contents).assertEquals('Hello World.')
+		tclModelUtil.restoreString(dotAndWhitespace.contents).assertEquals('Hello World.')
+	}
+
+	@Test
 	def void testFindMacroDefinition() {
 		// given
 		val tmlModel = parseTcl( '''
@@ -73,7 +88,7 @@ class TclModelUtilTest extends AbstractParserTest {
 		val macroTestStepContext = macroCall.contexts.head as MacroTestStepContext
 
 		// when
-		val macro = tclModelUtil.findMacroDefinition(macroTestStepContext)
+		val macro = tclModelUtil.findMacroDefinition(macroTestStepContext.steps.filter(TestStep).head, macroTestStepContext)
 
 		// then
 		macro.assertSame(macroCalled)
@@ -83,50 +98,51 @@ class TclModelUtilTest extends AbstractParserTest {
 	def void testNormalizeTemplate() {
 		// given
 		val template = parse('''
-			"start with" ${somevar} "and more" ${othervar}
+			"start with" ${somevar} "and more" ${othervar} "?"
 		''', grammarAccess.templateRule, Template)
 
 		// when
 		val normalizedTemplate = tclModelUtil.normalize(template)
 
 		// then
-		normalizedTemplate.assertEquals('start with "" and more ""')
+		normalizedTemplate.assertEquals('start with "" and more ""?')
 	}
 
 	@Test
 	def void testNormalizeTestStep() {
 		// given
 		val testStep = parse('''
-			- start with "some" and more @other
+			- start with "some" and more @other ?
 		''', grammarAccess.testStepRule, TestStep)
 
 		// when
 		val normalizedTestStep = tclModelUtil.normalize(testStep)
 
 		// then
-		normalizedTestStep.assertEquals('start with "" and more ""')
+		normalizedTestStep.assertEquals('start with "" and more ""?')
 	}
 
 	@Test
-	def void testVariableToValueMapping() {
+	def void testStepContentToTemplateVariablesMapping() {
 		// given
 		val testStep = parse('''
 			- start with "some" and more @other
 		''', grammarAccess.testStepRule, TestStep)
-
 		val template = parse('''
 			"start with" ${somevar} "and more" ${othervar}
 		''', grammarAccess.templateRule, Template)
+		val someValue = testStep.contents.filter(StepContentVariable).head
+		val otherRef = testStep.contents.filter(VariableReference).head
 		val somevar = template.contents.get(1)
 		val othervar = template.contents.get(3)
 
 		// when
-		val varValueMap = tclModelUtil.getVariableToValueMapping(testStep, template)
+		val map = tclModelUtil.getStepContentToTemplateVariablesMapping(testStep, template)
 
 		// then
-		varValueMap.keySet.assertSize(2)
-		varValueMap.get(somevar).assertInstanceOf(StepContentVariable).value.assertEquals("some")
-		varValueMap.get(othervar).assertInstanceOf(VariableReference)
+		map.entrySet.assertSize(2)
+		map.get(someValue).assertSame(somevar)
+		map.get(otherRef).assertSame(othervar)
 	}
 
 	@Test
@@ -257,7 +273,7 @@ class TclModelUtilTest extends AbstractParserTest {
 				it.steps += specificationStep("spec") => [
 					steps.forEach [ step |
 						contexts += macroTestStepContext(macroCollection) => [
-							it.step = step
+							it.steps += step
 						]
 					]
 				]
@@ -319,7 +335,7 @@ class TclModelUtilTest extends AbstractParserTest {
 						template = template("stepNext" + index).withParameter("paramNext" + index)
 						val templateVar = template.contents.last as TemplateVariable
 						contexts += macroTestStepContext(macroCollection) => [
-							it.step = testStep("step" + index).withReferenceToVariable(templateVar)
+							it.steps += testStep("step" + index).withReferenceToVariable(templateVar)
 						]
 					]
 				]

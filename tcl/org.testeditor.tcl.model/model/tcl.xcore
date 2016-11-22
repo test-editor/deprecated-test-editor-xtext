@@ -19,11 +19,12 @@ package org.testeditor.tcl
 
 import org.eclipse.xtext.xtype.XImportSection
 import org.testeditor.aml.Component
-import org.testeditor.aml.Template
+import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.Variable
 import org.testeditor.dsl.common.NamedElement
 import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContent
+import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.TestSpecification
 
@@ -33,7 +34,7 @@ class TclModel {
 	contains EnvironmentVariable[0..*] environmentVariables
 	contains TestCase test opposite model
 	contains MacroCollection macroCollection opposite model
-	contains TestConfiguration config
+	contains TestConfiguration config opposite model
 }
 
 /*
@@ -53,6 +54,7 @@ class TestCase extends SetupAndCleanupProvider {
 }
 
 class TestConfiguration extends SetupAndCleanupProvider {
+	container derived TclModel model opposite config
 }
 
 class SpecificationStepImplementation extends SpecificationStep, StepContainer {
@@ -83,21 +85,19 @@ class MacroCollection extends NamedElement {
 	contains Macro[0..*] macros
 }
 
-class Macro extends StepContainer, NamedElement {
-	contains Template template
+class Macro extends StepContainer, NamedElement, TemplateContainer {
 }
 
 abstract class TestStepContext {
+	contains AbstractTestStep[0..*] steps
 }
 
 class ComponentTestStepContext extends TestStepContext {
 	refers Component component
-	contains AbstractTestStep[0..*] steps
 }
 
 class MacroTestStepContext extends TestStepContext {
 	refers MacroCollection macroCollection
-	contains AbstractTestStep step
 }
 
 abstract class AbstractTestStep {	
@@ -150,6 +150,9 @@ class AssignmentVariable extends Variable {
 class StepContentElement extends StepContentValue {
 }
 
+class StepContentPunctuation extends StepContentText {
+}
+
 abstract class Comparator {
 	boolean negated = "false"
 }
@@ -160,10 +163,10 @@ class ComparatorEquals extends Comparator {
 class ComparatorMatches extends Comparator {
 }
 
-class ComparatorLessThen extends Comparator {
+class ComparatorLessThan extends Comparator {
 }
 
-class ComparatorGreaterThen extends Comparator {
+class ComparatorGreaterThan extends Comparator {
 }
 
 

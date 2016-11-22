@@ -26,27 +26,24 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 	@Test
 	def void testMinimalGeneration() {
 		// given
-		val tcl = '''
-			package com.example
-			
-			# SimpleTest
-		'''
-		val tclModel = parseTcl(tcl, "SimpleTest.tcl")
+		// empty tcl as package and name are added by parseAndGenerate
+		val tcl = ''
 
 		// when
-		val generatedCode = tclModel.generate
+		val generatedCode = tcl.parseAndGenerate
 
 		// then
 		generatedCode.assertEquals('''
 			package com.example;
 			
 			import org.junit.Test;
+			import org.testeditor.fixture.core.AbstractTestCase;
 			
 			/**
 			 * Generated from SimpleTest.tcl
 			 */
 			@SuppressWarnings("all")
-			public class SimpleTest {
+			public class SimpleTest extends AbstractTestCase {
 			  @Test
 			  public void execute() throws Exception {
 			    
@@ -56,12 +53,78 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 	}
 
 	@Test
+	def void testAssertionGeneration() {
+		// given
+		val tcl = '''
+			* Test assertions in the famous greeting application
+				Mask: GreetingApplication
+				- foo = Read list from <bar>
+				- baz = Read value from <bar>
+				- book = Read bool from <bar>
+				- mak = Read map from <bar>
+				- assert foo
+				- assert baz = "fix"
+				- assert book
+				- assert mak."key with spaces" = "fox"
+				- assert ! foo
+				- assert baz <> "fix"
+				- assert ! book
+				- assert mak."key with spaces" <> "fox"
+				- assert mak."key with spaces"
+				- assert ! mak."key with spaces"
+				- assert baz = mak.otherkey
+		'''
+
+		// when
+		val generatedCode = tcl.parseAndGenerate
+
+		// then
+		generatedCode.assertContains('''
+			@Test
+			public void execute() throws Exception {
+			  
+			  reporter.enter(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "Test assertions in the famous greeting application");
+			  
+			  reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
+			  
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "java.util.List<? extends java.lang.Object> foo = Read list from <bar>");
+			  java.util.List<? extends java.lang.Object> foo = dummyFixture.getList("label.greet");
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "java.lang.String baz = Read value from <bar>");
+			  java.lang.String baz = dummyFixture.getValue("label.greet");
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "boolean book = Read bool from <bar>");
+			  boolean book = dummyFixture.getBool("label.greet");
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "java.util.Map<? extends java.lang.Object, ? extends java.lang.Object> mak = Read map from <bar>");
+			  java.util.Map<? extends java.lang.Object, ? extends java.lang.Object> mak = dummyFixture.getMap("label.greet");
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert foo");
+			  org.junit.Assert.assertNotNull("foo", foo);
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert baz = \"fix\"");
+			  org.junit.Assert.assertEquals("baz = \"fix\"", "fix", baz);
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert book");
+			  org.junit.Assert.assertTrue("book", book);
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert mak.\"key with spaces\" = \"fox\"");
+			  org.junit.Assert.assertEquals("mak.\"key with spaces\" = \"fox\"", "fox", mak.get("key with spaces"));
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert ! foo");
+			  org.junit.Assert.assertNull("! foo", foo);
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert baz <> \"fix\"");
+			  org.junit.Assert.assertNotEquals("baz <> \"fix\"", "fix", baz);
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert ! book");
+			  org.junit.Assert.assertFalse("! book", book);
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert mak.\"key with spaces\" <> \"fox\"");
+			  org.junit.Assert.assertNotEquals("mak.\"key with spaces\" <> \"fox\"", "fox", mak.get("key with spaces"));
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert mak.\"key with spaces\"");
+			  org.junit.Assert.assertNotNull("mak.\"key with spaces\"", mak.get("key with spaces"));
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert ! mak.\"key with spaces\"");
+			  org.junit.Assert.assertNull("! mak.\"key with spaces\"", mak.get("key with spaces"));
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert baz = mak.otherkey");
+			  org.junit.Assert.assertEquals("baz = mak.otherkey", mak.get("otherkey"), baz);
+			}
+		'''.indent(1))
+	}
+
+	@Test
 	def void testDefaultGeneration() {
 		// given
 		val tcl = '''
-			package com.example
-			
-			# SimpleTest
 			* Start the famous greetings application
 				Mask: GreetingApplication
 				- Start application "org.testeditor.swing.exammple.Greetings"
@@ -70,43 +133,96 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			
 			* Do something different
 		'''
-		val tclModel = parseTcl(tcl, "SimpleTest.tcl")
 
 		// when
-		val generatedCode = tclModel.generate
+		val generatedCode = tcl.parseAndGenerate
 
 		// then
-		generatedCode.assertEquals('''
-			package com.example;
-			
-			import org.junit.Test;
-			import org.testeditor.dsl.common.testing.DummyFixture;
-			
-			/**
-			 * Generated from SimpleTest.tcl
-			 */
-			@SuppressWarnings("all")
-			public class SimpleTest {
-			  private DummyFixture dummyFixture = new DummyFixture();
+		generatedCode.assertContains('''
+			@Test
+			public void execute() throws Exception {
 			  
-			  @Test
-			  public void execute() throws Exception {
-			    
-			    /* Start the famous greetings application */
-			    
-			    // Component: GreetingApplication
-			    
-			    // - Start application "org.testeditor.swing.exammple.Greetings"
-			    dummyFixture.startApplication("org.testeditor.swing.exammple.Greetings");
-			    // - Read list from <bar>
-			    java.util.List<? extends java.lang.Object> foo = dummyFixture.getList("label.greet");
-			    // - Stop application
-			    dummyFixture.stopApplication();
-			    /* Do something different */
-			    
-			  }
+			  reporter.enter(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "Start the famous greetings application");
+			  
+			  reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
+			  
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "Start application \"org.testeditor.swing.exammple.Greetings\"");
+			  dummyFixture.startApplication("org.testeditor.swing.exammple.Greetings");
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "java.util.List<? extends java.lang.Object> foo = Read list from <bar>");
+			  java.util.List<? extends java.lang.Object> foo = dummyFixture.getList("label.greet");
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "Stop application");
+			  dummyFixture.stopApplication();
+			  reporter.enter(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "Do something different");
+			  
 			}
-		'''.toString)
+		'''.indent(1))
 	}
+
+	@Test
+	def void testStepWithQuestionMark() {
+		// given
+		val tcl = '''
+			* Start the famous greetings application
+				Mask: GreetingApplication
+				- Is <bar> visible?
+		'''
+
+		// when
+		val generatedCode = tcl.parseAndGenerate
+
+		// then
+		generatedCode.assertContains('''
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "Is <bar> visible?");
+			dummyFixture.isVisible("label.greet");
+		'''.indent(2))
+	}
+
+	@Test
+	def void interactionCallWithValueAndLocator() {
+		// given
+		val tcl = '''
+			* Some step
+				Mask: GreetingApplication
+				- Set value of <Input> to "theValue"
+		'''
+
+		// when
+		val generatedCode = tcl.parseAndGenerate
+
+		// then
+		generatedCode.assertContains('''
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "Set value of <Input> to \"theValue\"");
+			dummyFixture.setValue("text.input", "theValue");
+		'''.indent(2))
+	}
+
+	/**
+	 * The AML template has a different order than the parameters in the fixture method.
+	 *
+	 * <pre>
+	 * interaction type setValueReversed {
+	 *    template = "Set value" ${value} "to" ${element}
+	 *    method = DummyFixture.setValue(element, value)
+	 * }
+	 * </pre>
+	 */
+	@Test
+	def void interactionCallWithValueAndLocatorInReverseOrder() {
+		// given
+		val tcl = '''
+			* Some step
+				Mask: GreetingApplication
+				- Set value "theValue" to <Input>
+		'''
+
+		// when
+		val generatedCode = tcl.parseAndGenerate
+
+		// then
+		generatedCode.assertContains('''
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "Set value \"theValue\" to <Input>");
+			dummyFixture.setValue("text.input", "theValue");
+		'''.indent(2))
+	}	
 
 }

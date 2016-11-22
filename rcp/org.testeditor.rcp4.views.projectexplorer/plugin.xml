@@ -5,11 +5,30 @@
          point="org.eclipse.ui.views">
       <view
             allowMultiple="false"
-            class="org.eclipse.ui.navigator.CommonNavigator"
+            class="org.testeditor.rcp4.views.projectexplorer.ProjectExplorerExtensionFactory:org.testeditor.rcp4.views.projectexplorer.ProjectExplorer"
             icon="icons/test_explorer.gif"
             id="org.testeditor.rcp4.views.ProjectExplorer"
-            name="Test Project Explorer">
+            name="Test Project Explorer"
+            restorable="true">
       </view>
+   </extension>
+   <extension 
+         point="org.eclipse.ui.decorators">
+      <decorator
+            id="org.testeditor.rcp4.views.projectexplorer.ResourceDecorator" 
+            label="ResourceDecorator"
+            state="true"
+            class= "org.testeditor.rcp4.views.projectexplorer.ProjectExplorerExtensionFactory:org.testeditor.rcp4.views.projectexplorer.ResourceDecorator"
+            adaptable="true"
+            lightweight="true">
+         <enablement>
+             <or>
+                <objectClass name="org.eclipse.core.resources.IResource"/>
+                <objectClass name="org.eclipse.jdt.core.IClasspathEntry"/>
+             </or>
+         </enablement>
+         <description>resource decoration e.g. in test navigator</description>
+      </decorator>
    </extension>
    <extension
          point="org.eclipse.ui.navigator.viewer">
@@ -17,13 +36,17 @@
             helpContext="org.eclipse.ui.project_explorer_context"
             viewerId="org.testeditor.rcp4.views.ProjectExplorer">
          <popupMenu
-               allowsPlatformContributions="true"
+               allowsPlatformContributions="false"
                id="org.testeditor.rcp4.views.ProjectExplorer#PopupMenu">
             <insertionPoint
                   name="group.new">
             </insertionPoint>
             <insertionPoint
                   name="group.open"
+                  separator="true">
+            </insertionPoint>
+            <insertionPoint
+                  name="group.openwith"
                   separator="true">
             </insertionPoint>
             <insertionPoint
@@ -97,6 +120,7 @@
          id="org.testeditor.rcp4.views.projectexplorer.fragment"
          point="org.eclipse.e4.workbench.model">
       <fragment
+            apply="notexists"
             uri="fragment.e4xmi">
       </fragment>
    </extension>
@@ -207,6 +231,9 @@
 			      <instanceof value="java.lang.Object" />
 			   </or>
 			</possibleChildren>
+			<actionProvider
+				class="org.testeditor.rcp4.views.projectexplorer.ProjectExplorerExtensionFactory:org.testeditor.rcp4.views.projectexplorer.TEActionProvider"
+				id="org.testeditor.rcp4.views.projectexplorer.TEActionProvider" />
 	   </navigatorContent>
    </extension>
 

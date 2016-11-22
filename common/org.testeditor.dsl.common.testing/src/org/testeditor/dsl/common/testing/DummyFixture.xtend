@@ -60,11 +60,22 @@ public class DummyFixture {
 	def void clickOn(String locator, DummyLocatorStrategy locatorStragety) {
 	}
 
+	@FixtureMethod
+	def boolean isVisible(String locator) {
+		return true
+	}
+
+	@FixtureMethod
+	def boolean getBool(String locator){
+		return true
+	}
+
 	static def String getAmlModel() '''
 		«val dummyFixture = DummyFixture.simpleName»
 		package com.example
 		
 		import «DummyFixture.name»
+		import «DummyLocatorStrategy.name»
 		
 		component type Application {
 			interactions = start, stop, wait
@@ -88,12 +99,26 @@ public class DummyFixture {
 			template = "Set value of" ${element} "to" ${value}
 			method = «dummyFixture».setValue(element, value)
 		}
+
+		interaction type setValueReversed {
+			template = "Set value" ${value} "to" ${element}
+			method = «dummyFixture».setValue(element, value)
+		}
 		
 		interaction type getValue {
 			template = "Read value from" ${element}
 			method = «dummyFixture».getValue(element)
 		}
-		 
+		
+		interaction type getBool {
+			template = "Read bool from" ${element}
+			method = «dummyFixture».getBool(element)
+		}
+		
+		interaction type isVisible {
+			template = "Is" ${element} "visible?"
+			method = «dummyFixture».isVisible(element)
+		}
 		
 		interaction type getList {
 			template = "Read list from" ${element}
@@ -111,13 +136,28 @@ public class DummyFixture {
 		}
 		
 		element type Label {
-			interactions = getList
+			interactions = getList, getValue, getBool, getMap, isVisible
 		}
-					
+		
+		element type Text {
+			interactions = getValue, isVisible, setValue, setValueReversed
+		}
+
+		element type Button {
+			interactions = clickOn, isVisible
+		}
+		
 		component GreetingApplication is Application {
 			element bar is Label {
 				label = "Label"
 				locator = "label.greet"
+			}
+			element Input is Text {
+				locator = "text.input"
+			}
+			element Ok is Button {
+				locator = "button.ok"
+				locatorStrategy = DummyLocatorStrategy.ID
 			}
 		}
 	'''

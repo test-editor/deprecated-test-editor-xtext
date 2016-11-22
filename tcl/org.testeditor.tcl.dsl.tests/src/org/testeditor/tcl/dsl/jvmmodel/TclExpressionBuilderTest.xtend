@@ -7,9 +7,9 @@ import org.testeditor.tcl.dsl.tests.TclModelGenerator
 
 class TclExpressionBuilderTest extends AbstractTclTest {
 
-	@Inject TclExpressionBuilder expressionBuilder
+	@Inject TclExpressionBuilder expressionBuilder 
 	@Inject extension TclModelGenerator
-
+	
 	@Test
 	def void testMatches() {
 		// given
