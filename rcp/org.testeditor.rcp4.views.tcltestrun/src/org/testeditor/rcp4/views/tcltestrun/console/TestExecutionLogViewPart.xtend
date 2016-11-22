@@ -26,8 +26,8 @@ class TestExecutionLogViewPart {
 	@PostConstruct
 	def void buildUI(Composite parent) {
 		browser = new Browser(parent, SWT.NORMAL)
-		val url = "http://localhost:" + System.getProperty("org.osgi.service.http.port") +
-			"/testlogs/web-app/index.html"
+		val port = System.getProperty("org.osgi.service.http.port")
+		val url = '''http://localhost:«port»/testlogs/web-app/index.html'''
 		browser.setUrl(url)
 	}
 
