@@ -60,7 +60,7 @@
         <repository>
             <id>bintray</id>
             <name>test-editor-maven</name>
-            <url>https://api.bintray.com/maven/test-editor/test-editor-maven/test-editor/;publish=1</url>
+            <url>https://api.bintray.com/maven/test-editor/maven/test-editor/;publish=1</url>
         </repository>
     </distributionManagement>
 
