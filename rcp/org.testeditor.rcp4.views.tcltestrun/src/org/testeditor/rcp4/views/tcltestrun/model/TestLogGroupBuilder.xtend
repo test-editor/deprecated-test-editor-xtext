@@ -16,8 +16,13 @@ import java.util.List
 
 class TestLogGroupBuilder {
 
-	TestLogGroup currentLogGroup
+	// see also org.testeditor.fixture.core.DefaultLoggingListener (in core-fixture)
+	static val String SPEC_STEP_LOG_ENTRY = "[Spec step]" // log entry to watch out for specification steps
+	static val String COMPONENT_LOG_ENTRY = "[Component]" // log entry to watch out for component/mask steps
+	static val String TEST_STEP_LOG_ENTRY = "[Test step]" // log entry to watch out for test steps
 
+	TestLogGroup currentLogGroup
+	
 	public def List<TestLogGroup> build(List<String> logLines) {
 		val result = newArrayList
 		logLines.forEach [
@@ -40,9 +45,9 @@ class TestLogGroupBuilder {
 
 	def void updateCurrentEntryAfterLogGroup(String logLine, List<TestLogGroup> result) {
 		if (logLine.contains("[TE-Test:")) {
-			if (logLine.contains("[Component]")) {
+			if (logLine.contains(COMPONENT_LOG_ENTRY)) {
 				val cmp = new TestLogGroupComposite(TestElementType.TestComponentGroup)
-				cmp.name = logLine.substring(logLine.indexOf("[Component]"))
+				cmp.name = logLine.substring(logLine.indexOf(COMPONENT_LOG_ENTRY))
 				var parentFound = false
 				if (currentLogGroup.type === TestElementType.TestSpecGroup) {
 					(currentLogGroup as TestLogGroupComposite).add(cmp)
@@ -65,9 +70,9 @@ class TestLogGroupBuilder {
 				}
 				currentLogGroup = cmp
 			}
-			if (logLine.contains("[Test step]")) {
+			if (logLine.contains(TEST_STEP_LOG_ENTRY)) {
 				val step = new TestLogGroup(TestElementType.TestStepGroup)
-				step.name = logLine.substring(logLine.indexOf("[Test step]"))
+				step.name = logLine.substring(logLine.indexOf(TEST_STEP_LOG_ENTRY))
 				if (currentLogGroup.type === TestElementType.TestStepGroup) {
 					currentLogGroup.parent.add(step)
 				} else {
@@ -77,14 +82,14 @@ class TestLogGroupBuilder {
 				}
 				currentLogGroup = step
 			}
-			if (logLine.contains("[Test specification]")) {
-				val specName = logLine.substring(logLine.indexOf("[Test specification]"))
+			if (logLine.contains(SPEC_STEP_LOG_ENTRY)) {
+				val specName = logLine.substring(logLine.indexOf(SPEC_STEP_LOG_ENTRY))
 				var tsg = result.filter(TestLogGroupComposite).filter [
 					type === TestElementType.TestSpecGroup && name.equals(specName)
 				].head
 				if (tsg === null) {
 					tsg = new TestLogGroupComposite(TestElementType.TestSpecGroup)
-					tsg.name = logLine.substring(logLine.indexOf("[Test specification]"))
+					tsg.name = specName
 					result.add(tsg)
 				}
 				currentLogGroup = tsg
