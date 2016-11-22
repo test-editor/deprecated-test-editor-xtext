@@ -7,9 +7,10 @@ nodeWithProperWorkspace {
         sh "git checkout $env.BRANCH_NAME" // workaround for https://issues.jenkins-ci.org/browse/JENKINS-31924
         sh 'git fetch --prune origin +refs/tags/*:refs/tags/*' // delete all local tags
         sh "git reset --hard origin/master"
-        if (isTag()) {
+        if (isVersionTag()) {
             // Workaround: we don't want infinite releases.
             echo "Aborting build as the current commit on master is already tagged."
+            currentBuild.displayName = "checkout-only"
             return
         }
         sh "git clean -ffdx"
@@ -113,19 +114,6 @@ void postRelease(String preReleaseVersion) {
         } else {
             echo "Version on develop not incremented as it differs from the preReleaseVersion."
         }
-}
-
-boolean isTag() {
-    try {
-        sh '''\
-            #!/bin/sh
-            git describe --exact-match --tags
-        '''.stripIndent()
-        return true
-    } catch (Exception e) {
-        echo e.toString()
-        return false
-    }
 }
 
 void setVersion(String newVersion, String rootPom = null, String artifacts = null) {

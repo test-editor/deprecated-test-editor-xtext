@@ -57,7 +57,7 @@ class TestExecutionLogService {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	def Response getTestLogExeutionContent(@PathParam("filename") String filename) {
-		val log = testExecutionManager.gettestExecutionLogFor(filename)
+		val log = testExecutionManager.getTestExecutionLogFor(filename)
 		log.links = createLinks(filename)
 		val gson = new Gson
 		return Response.ok(gson.toJson(log)).build
