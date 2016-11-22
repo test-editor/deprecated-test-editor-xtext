@@ -47,7 +47,10 @@ class ModelUtil {
 	 * @return all interaction types of the {@link Component} as well as its elements.
 	 */
 	def Set<InteractionType> getAllInteractionTypes(Component component) {
-		return (component.componentInteractionTypes + component.componentElementsInteractionTypes).toSet
+		if(component != null){
+			return (component.componentInteractionTypes + component.componentElementsInteractionTypes).toSet
+		}
+		newHashSet
 	}
 
 	/**
