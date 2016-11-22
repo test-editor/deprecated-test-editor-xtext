@@ -7,6 +7,7 @@ import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.CoreException
 import org.eclipse.core.runtime.IPath
 import org.eclipse.jdt.core.IClasspathEntry
+import org.eclipse.jface.resource.ImageDescriptor
 import org.eclipse.jface.viewers.IDecoration
 import org.eclipse.jface.viewers.ILightweightLabelDecorator
 import org.eclipse.jface.viewers.LabelProvider
@@ -40,6 +41,8 @@ class ResourceDecorator extends LabelProvider implements ILightweightLabelDecora
 					decoration.addOverlay(errorIcon, IDecoration.BOTTOM_LEFT)
 				case IMarker.SEVERITY_WARNING:
 					decoration.addOverlay(warningIcon, IDecoration.BOTTOM_LEFT)
+				case IMarker.SEVERITY_INFO:
+					decoration.addOverlay(infoIcon, IDecoration.BOTTOM_LEFT)
 				default: {
 				} // ignore, that is no decoration
 			}
@@ -89,12 +92,16 @@ class ResourceDecorator extends LabelProvider implements ILightweightLabelDecora
 	}
 
 	// only descriptors, need not be disposed => no cleanup necessary
-	private def getErrorIcon() {
+	private def ImageDescriptor getErrorIcon() {
 		return imagesHelper.getImageDescriptor(ISharedImages.IMG_DEC_FIELD_ERROR)
 	}
 
-	private def getWarningIcon() {
+	private def ImageDescriptor getWarningIcon() {
 		return imagesHelper.getImageDescriptor(ISharedImages.IMG_DEC_FIELD_WARNING)
+	}
+	
+	private def ImageDescriptor getInfoIcon() {
+		return ImageDescriptor.createFromFile(ResourceDecorator,"/icons/info_ovr.gif")
 	}
 
 }
