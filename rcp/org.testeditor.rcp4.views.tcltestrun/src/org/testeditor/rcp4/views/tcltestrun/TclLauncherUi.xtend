@@ -49,6 +49,7 @@ import org.testeditor.tcl.dsl.ui.util.TclIndexHelper
 import org.testeditor.tcl.dsl.ui.util.TclInjectorProvider
 import org.eclipse.e4.ui.workbench.modeling.EPartService
 import org.eclipse.swt.widgets.Display
+import org.testeditor.rcp4.tcltestrun.LaunchResult
 
 class TclLauncherUi implements Launcher {
 
@@ -127,16 +128,23 @@ class TclLauncherUi implements Launcher {
 				monitor.beginTask("Test execution: " + testLaunchInformation.project.name, IProgressMonitor.UNKNOWN)
 			}
 			val con = consoleFactory.createAndShowConsole
-			val list = testLaunchInformation.testCasesCommaList?:#[]
+			val list = testLaunchInformation.testCasesCommaList ?: #[]
 			val execLog = testExecutionManager.createTestExecutionLog(list)
-			val output = new TeeOutputStream(con.newOutputStream, testExecutionManager.createOutputStreamFor(execLog))
 			partHelper.showView(TEST_EXECUTION_RESULT_VIEW)
 			val viewPart = eclipseContextHelper.eclipseContext.get(EPartService).findPart(TEST_EXECUTION_RESULT_VIEW)
 			val teExecView = viewPart.object as TestExecutionLogViewPart
 			Display.^default.syncExec[teExecView?.showLog(execLog)]
-			val result = testLaunchInformation.launcher.launchTest(testLaunchInformation.testCasesCommaList,
-				testLaunchInformation.project, monitor, output, testLaunchInformation.options)
-			output.close
+			var LaunchResult result = null
+			var output = new TeeOutputStream(con.newOutputStream, testExecutionManager.createOutputStreamFor(execLog))
+			try {
+				result = testLaunchInformation.launcher.launchTest(testLaunchInformation.testCasesCommaList,
+					testLaunchInformation.project, monitor, output, testLaunchInformation.options)
+			} finally {
+				if (output !== null) {
+					output.close
+					output=null
+				}
+			}
 			testLaunchInformation.project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
 			if (result.expectedFileRoot == null) {
 				logger.error("resulting expectedFile must not be null")
