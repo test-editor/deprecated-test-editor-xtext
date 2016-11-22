@@ -44,27 +44,22 @@ class TEContentProviderTest extends AbstractTest {
 	@Mock IJavaProject javaProject
 	
 	@Before
-	def void setupJavaProject() {
+	def void setupMocks() {
+		// setup project
 		when(javaCoreHelper.create(any)).thenReturn(javaProject)
 		when(project.hasNature(JavaCore.NATURE_ID)).thenReturn(true)
-	}
-	
-	@Before
-	def void setupRoot() {
+		
+		// setup root
 		when(workspaceHelper.root).thenReturn(root)
 		when(root.getFolder(any)).thenReturn(folder)
-	}
-
-	@Before
-	def void setupRelevantClasspathSources() {
+		
+		// setup relevantClasspathSource
 		when(relevantClasspathSource.entryKind).thenReturn(IClasspathEntry.CPE_SOURCE)
 		val relevantPath = mock(IPath)
 		when(relevantClasspathSource.path).thenReturn(relevantPath)
 		when(relevantPath.segments).thenReturn(#["src", "main", "java"])
-	}
-
-	@Before
-	def void setupIrrelevantClasspathSources() {
+		
+		// setup irrelevantClasspathSource
 		when(irrelevantClasspathSource.entryKind).thenReturn(IClasspathEntry.CPE_SOURCE)
 		val irrelevantPath = mock(IPath)
 		when(irrelevantClasspathSource.path).thenReturn(irrelevantPath)
@@ -82,9 +77,7 @@ class TEContentProviderTest extends AbstractTest {
 		val cpEntries = contentProvider.getChildren(project)
 
 		// then
-		assertNotNull(cpEntries)
-		cpEntries.assertSize(1)
-		cpEntries.head.assertEquals(relevantClasspathSource)
+		cpEntries.assertSingleElement.assertEquals(relevantClasspathSource)
 	}
 
 	@Test
@@ -97,8 +90,7 @@ class TEContentProviderTest extends AbstractTest {
 		val children = contentProvider.getChildren(relevantClasspathSource)
 
 		// then
-		children.assertSize(1)
-		children.head.assertEquals(resource)
+		children.assertSingleElement.assertEquals(resource)
 	}
 
 	@Test
