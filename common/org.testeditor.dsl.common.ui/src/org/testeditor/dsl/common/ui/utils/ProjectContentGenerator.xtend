@@ -177,11 +177,16 @@ class ProjectContentGenerator {
 		project.setupClasspathFileExclusions
 	}
 
-	// Eclipse build tries to copy files that are possibly already existent in the target folder. 
-	// Excluding these from the copy job keeps stdout somewhat cleaner, removing all that 
-	// noisy exceptions that report this mismatch
+	/**
+	 * Add file exclusions to classpaths to avoid copy errors during eclipse build steps.<br/><br/>
+	 * 
+	 * Eclipse build tries to copy files that are possibly already existent in the target folder. 
+	 * Excluding these from the copy job keeps stdout somewhat cleaner, removing all that 
+	 * noisy exceptions that report this mismatch.
+	 */	
 	private def void setupClasspathFileExclusions(IProject project) {
-		val fileExclusions = #["aml", "tcl", "tsl", "config", "tml", "_trace"].map[new Path('''**/*.«it»''')]
+		val fileExtensions = #["aml", "tcl", "tsl", "config", "tml", "_trace"]
+		val fileExclusions = fileExtensions.map[new Path('''**/*.«it»''')]
 
 		project.transformClasspathEntries [
 			if (path.segments.exists[matches("src(-gen)?")]) {

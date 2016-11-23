@@ -22,7 +22,6 @@ import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jdt.internal.core.JavaProject
 import org.eclipse.xtext.EcoreUtil2
-import org.eclipse.xtext.xbase.lib.Functions.Function1
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.util.WorkspaceHelper
 
@@ -67,7 +66,7 @@ class ClasspathUtil {
 		val classpathEntries = getSourceClasspathEntries(workspaceHelper.root.getFile(path).project)
 		return classpathEntries.filter[it.path.isPrefixOf(path)].head.path
 	}
-	
+
 	def Iterable<IClasspathEntry> getSourceClasspathEntries(IProject project) {
 		if (JavaProject.hasJavaNature(project)) {
 			val javaProject = JavaCore.create(project)
@@ -76,16 +75,19 @@ class ClasspathUtil {
 			return emptyList
 		}
 	}
-	
-	/** get all classpath entries of this java-project, apply the transformation 
-	 *  and set the classpaths of this project to the transformed classpath entries
-	 *  removing nulls if exsitent*/
-	def void transformClasspathEntries(IProject project,
-		Function1<? super IClasspathEntry, ? extends IClasspathEntry> transformation) {
+
+	/** 
+	 * get all classpath entries of this java-project, apply the transformation 
+	 * and set the classpaths of this project to the transformed classpath entries
+	 * removing nulls if exsitent
+	 */
+	def void transformClasspathEntries(IProject project, (IClasspathEntry)=>IClasspathEntry transformation) {
 		if (JavaProject.hasJavaNature(project)) {
 			val javaProject = JavaCore.create(project)
-			val transformedClasspaths=javaProject.rawClasspath.map(transformation).filterNull
+			val transformedClasspaths = javaProject.rawClasspath.map(transformation).filterNull
 			javaProject.setRawClasspath(transformedClasspaths, new NullProgressMonitor)
+		} else {
+			throw new IllegalArgumentException('Passed project must have the java project nature.')
 		}
 	}
 
