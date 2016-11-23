@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.tcltestrun.rest
 
-import java.io.File
+import com.google.gson.Gson
 import java.io.StringReader
 import java.nio.file.Files
 import org.junit.Rule
@@ -21,13 +21,14 @@ import org.junit.rules.TemporaryFolder
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.testeditor.dsl.common.testing.AbstractTest
+import org.testeditor.rcp4.views.tcltestrun.LogLocationHelper
 import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionLog
 import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionLogList
 import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionManager
 
 import static org.mockito.Mockito.*
-import com.google.gson.Gson
-import org.testeditor.rcp4.views.tcltestrun.LogLocationHelper
+import java.io.File
+import org.testeditor.rcp4.views.tcltestrun.model.TestRunUtility
 
 class TestExecutionLogServiceTest extends AbstractTest {
 
@@ -44,20 +45,20 @@ class TestExecutionLogServiceTest extends AbstractTest {
 	public TemporaryFolder tempFolder = new TemporaryFolder
 
 	@Test
-	def void testGetTestLogExeutionList() {
+	def void testGetTestLogExecutionList() {
 		// given
 		val executionManagerMock = mock(TestExecutionManager)
 		testExecLogService.testExecutionManager = executionManagerMock
 		val teLog1 = new TestExecutionLog
 		teLog1.name = "17.10.16 08:18"
-		teLog1.logFile = new File("te-1476685123287.log")
+		teLog1.logDir = new File(new File("testrun-2016.10.17-08.18"),"testrun.log")
 		val teLog2 = new TestExecutionLog
+		teLog2.logDir = new File(new File("testrun-2016.10.17-21.30"),"testrun.log")
 		teLog2.name = "17.10.16 21:30"
-		teLog2.logFile = new File("te-1476732656343.log")
 		when(executionManagerMock.testExecutionLogs).thenReturn(new TestExecutionLogList(#[teLog1, teLog2]))
 
 		// when
-		val listString = testExecLogService.testLogExeutionsList.entity as String
+		val listString = testExecLogService.testLogExecutionsList.entity as String
 		val gson = new Gson
 		val list = gson.fromJson(new StringReader(listString), TestExecutionLogList)
 
@@ -70,27 +71,54 @@ class TestExecutionLogServiceTest extends AbstractTest {
 	@Test
 	def void testFullLogsFromListItem() {
 		// given
-		testExecLogService.testExecutionManager = executionManager
-		val teLog = new TestExecutionLog
-		teLog.logFile = tempFolder.newFile("te-2016.11.16.-22:24.log")
-		Files.write(teLog.logFile.toPath, "Log content".bytes)
-		when(logLocationHelper.logLocation).thenReturn(tempFolder.root)
+		createTestLogServiceEnvironmentWithLogContent("Log Content")		
 
 		// when
-		val listString = testExecLogService.testLogExeutionsList.entity as String
+		val listString = testExecLogService.testLogExecutionsList.entity as String
 		val gson = new Gson
 		val json = gson.fromJson(new StringReader(listString), TestExecutionLogList)
 		val links = json.entries.get(0).links
-		val logString = testExecLogService.getTestLogExeutionContent("te-2016.11.16.-22:24.log").entity as String
+		val logString = testExecLogService.getTestLogExecutionContent("testrun-2016.11.16-22.24").entity as String
 		val log = gson.fromJson(new StringReader(logString), TestExecutionLog)
 
 		// then
 		assertEquals(links.length, 3)
 		assertEquals(links.get(0).href,
-			TestExecutionLogService.SERVICE_PATH + "/te-2016.11.16.-22:24.log/fullLogs")
+			TestExecutionLogService.SERVICE_PATH + "/testrun-2016.11.16-22.24/fullLogs")
 		assertEquals(links.get(1).href,
-			TestExecutionLogService.SERVICE_PATH + "/te-2016.11.16.-22:24.log/logGroups")
-		log.content.assertEquals("Log content")
+			TestExecutionLogService.SERVICE_PATH + "/testrun-2016.11.16-22.24/logGroups")
+		log.content.assertEquals("Log Content")
 	}
-
+	
+	@Test
+	def void testGetTestLogExecutionTestStepTree() {
+		// given
+		val logString = '''
+			[INFO] --- xtend-maven-plugin:2.10.0:testCompile (default) @ org.testeditor.rcp4.uatests ---
+			18:49:10 INFO  [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Spec step] * Given
+			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] ** TestEditorServices		
+		'''
+		createTestLogServiceEnvironmentWithLogContent(logString)
+		
+		// when
+		val response = testExecLogService.getTestLogExecutionTestStepTree("testrun-2016.11.16-22.24")
+		val gson = new Gson
+		val log = gson.fromJson(new StringReader(response.entity as String), TestExecutionLog)
+		
+		// then
+		log.logGroups.assertNotNull
+		log.logGroups.assertSize(2)
+	}
+	
+	def private void createTestLogServiceEnvironmentWithLogContent(String logContent) {
+		testExecLogService.testExecutionManager = executionManager
+		val teLog = new TestExecutionLog
+		val baseDir = tempFolder.newFolder("testrun-2016.11.16-22.24")
+		teLog.logDir = new File(baseDir,"testrun.log")
+		Files.write(teLog.getLogDir.toPath, logContent.bytes)
+		teLog.logDir = new File(baseDir,"testSummary.xml")
+		Files.write(teLog.getLogDir.toPath, TestRunUtility.testResult.bytes)
+		when(logLocationHelper.logLocation).thenReturn(tempFolder.root)
+	}
+	
 }

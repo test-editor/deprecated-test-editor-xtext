@@ -40,8 +40,12 @@ class TestExecutionManagerTest extends AbstractTest {
 		// given
 		val dir = tempFolder.root
 		Files.createFile(new File(dir, "foo.bar").toPath)
-		Files.createFile(new File(dir, "te-2016.11.16.-22:24.log").toPath)
-		Files.createFile(new File(dir, "te-2016.11.16.-23:24.log").toPath)
+		val runDir1 = Files.createDirectory(new File(dir, "testrun-2016.11.16-22.24").toPath)
+		val runDir2 = Files.createDirectory(new File(dir, "testrun-2016.11.16-23.24").toPath)
+		Files.write(Files.createFile(new File(runDir1.toFile, "testSummary.xml").toPath),
+			TestRunUtility.testResult.bytes)
+		Files.write(Files.createFile(new File(runDir2.toFile, "testSummary.xml").toPath),
+			TestRunUtility.testResult.bytes)
 		when(logLocationHelper.logLocation).thenReturn(dir)
 
 		// when
@@ -49,10 +53,24 @@ class TestExecutionManagerTest extends AbstractTest {
 
 		// then
 		list.assertSize(2)
-		list.get(0).logFile.name.assertEquals("te-2016.11.16.-23:24.log")
+		list.get(0).getLogDir.parentFile.name.assertEquals("testrun-2016.11.16-23.24")
 		list.get(0).name.assertEquals("16.11.16 23:24")
-		list.get(1).logFile.name.assertEquals("te-2016.11.16.-22:24.log")
+		list.get(1).getLogDir.parentFile.name.assertEquals("testrun-2016.11.16-22.24")
 		list.get(1).name.assertEquals("16.11.16 22:24")
 	}
 
+	@Test
+	def void testReadTestStatistic() {
+		// given
+		val testSummaryFile = new File(tempFolder.root, "testSummary.xml")
+		Files.write(testSummaryFile.toPath, TestRunUtility.testResult.bytes)
+
+		// when
+		val statistic = testExecutionManager.readTestStatistic(testSummaryFile.parentFile)
+
+		// then
+		assertEquals(statistic.errors, 0)
+		assertEquals(statistic.failures, 0)
+		assertEquals(statistic.tests, 1)
+	}
 }

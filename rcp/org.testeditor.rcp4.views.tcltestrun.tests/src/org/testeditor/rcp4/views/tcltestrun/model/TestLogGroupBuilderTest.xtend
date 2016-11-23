@@ -41,7 +41,7 @@ class TestLogGroupBuilderTest extends AbstractTest {
 		// given
 		val log = '''
 			[INFO] --- xtend-maven-plugin:2.10.0:testCompile (default) @ org.testeditor.rcp4.uatests ---
-			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] TestEditorServices
+			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] ** TestEditorServices
 		'''
 
 		// when
@@ -56,7 +56,7 @@ class TestLogGroupBuilderTest extends AbstractTest {
 		// given
 		val log = '''
 			[INFO] --- xtend-maven-plugin:2.10.0:testCompile (default) @ org.testeditor.rcp4.uatests ---
-			18:49:10 INFO  [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test specification] * Given
+			18:49:10 INFO  [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Spec step] * Given
 		'''
 
 		// when
@@ -71,8 +71,8 @@ class TestLogGroupBuilderTest extends AbstractTest {
 		// given
 		val log = '''
 			[INFO] --- xtend-maven-plugin:2.10.0:testCompile (default) @ org.testeditor.rcp4.uatests ---
-			18:49:10 INFO  [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test specification] * Given
-			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] TestEditorServices
+			18:49:10 INFO  [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Spec step] * Given
+			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] ** TestEditorServices
 		'''
 
 		// when
@@ -85,16 +85,8 @@ class TestLogGroupBuilderTest extends AbstractTest {
 			parent.children.head.assertInstanceOf(TestLogGroup) =>[
 				type.assertEquals(TestElementType.TestComponentGroup)
 				it.parent.assertSame(parent)
-				//assertTrue(it.parent.type === TestElementType.TestSpecGroup)
-				//assertTrue(it.parent.children.contains(it))
 			]
 		]
-//		assertTrue(group.get(1) instanceof TestLogGroupComposite)
-//		val tlGroup = group.get(1) as TestLogGroupComposite
-//		assertTrue(tlGroup.children.get(0).type === TestElementType.TestComponentGroup)
-//		val cmpGroup = tlGroup.children.get(0) as TestLogGroup
-//		assertTrue(cmpGroup.parent.type === TestElementType.TestSpecGroup)
-//		assertTrue((cmpGroup.parent).children.contains(cmpGroup))
 	}
 
 	@Test
@@ -102,8 +94,8 @@ class TestLogGroupBuilderTest extends AbstractTest {
 		// given
 		val log = '''
 			[INFO] --- xtend-maven-plugin:2.10.0:testCompile (default) @ org.testeditor.rcp4.uatests ---
-			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] TestEditorServices
-			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] - Click on <NextButton>
+			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] ** TestEditorServices
+			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] *** Click on <NextButton>
 		'''
 
 		// when
@@ -124,9 +116,9 @@ class TestLogGroupBuilderTest extends AbstractTest {
 		// given
 		val log = '''
 			[INFO] --- xtend-maven-plugin:2.10.0:testCompile (default) @ org.testeditor.rcp4.uatests ---
-			18:49:10 INFO  [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test specification] * Given
-			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] TestEditorServices
-			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] - Click on <NextButton>
+			18:49:10 INFO  [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Spec step] * Given
+			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] ** TestEditorServices
+			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] *** Click on <NextButton>
 		'''
 
 		// when
@@ -149,10 +141,10 @@ class TestLogGroupBuilderTest extends AbstractTest {
 		// given
 		val log = '''
 			[INFO] --- xtend-maven-plugin:2.10.0:testCompile (default) @ org.testeditor.rcp4.uatests ---
-			18:49:10 INFO  [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test specification] * Given
-			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] TestEditorServices
-			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] - Click on <NextButton>
-			18:49:12 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] - Click on <FinishButton>
+			18:49:10 INFO  [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Spec step] * Given
+			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] ** TestEditorServices
+			18:49:10 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] *** Click on <NextButton>
+			18:49:12 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] *** Click on <FinishButton>
 		'''
 
 		// when
@@ -178,27 +170,27 @@ class TestLogGroupBuilderTest extends AbstractTest {
 		// given
 		val log = '''
 			[INFO] --- xtend-maven-plugin:2.10.0:testCompile (default) @ org.testeditor.rcp4.uatests ---
-			08:28:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] TestEditorServices
-			08:28:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] - Save UI State
+			08:28:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] ** TestEditorServices
+			08:28:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] *** Save UI State
 			08:28:52 INFO  [main] ResetUIHandler Saved current UI (perspective) for reset.
-			08:28:52 INFO  [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test specification] * Given
-			08:28:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] ProjectExplorer
-			08:28:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] - Execute menu item "New/Project..." in tree <ProjectTree>
+			08:28:52 INFO  [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Spec step] * Given
+			08:28:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] ** ProjectExplorer
+			08:28:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] *** Execute menu item "New/Project..." in tree <ProjectTree>
 			08:28:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] SWTFixture Search for view with title: Test Project Explorer
 			08:28:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] SWTFixture Click on menu item: New/Project...
-			08:28:52 INFO  [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test specification] * Given
-			08:28:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] NewProjectDialog
-			08:28:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] - Select element "Test-Editor Project" in tree <ProjectType>
+			08:28:52 INFO  [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Spec step] * Given
+			08:28:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] ** NewProjectDialog
+			08:28:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] *** Select element "Test-Editor Project" in tree <ProjectType>
 			08:28:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] SWTFixture search for view with title:  to get the default tree
 			08:28:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] SWTFixture Open item with path: Test-Editor Project
-			08:28:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] - Click on <NextButton>
+			08:28:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] *** Click on <NextButton>
 			08:28:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] SWTFixture search for button with: &Next >
 			0    [main] WARN  org.eclipse.swtbot.swt.finder.widgets.SWTBotButton  - Widget is not enabled: (of type 'Button' and with mnemonic 'Next >' and with style 'SWT.PUSH')
 			9    [main] WARN  org.eclipse.swtbot.swt.finder.widgets.SWTBotButton  - Widget is not enabled: (of type 'Button' and with mnemonic 'Next >' and with style 'SWT.PUSH')
 			10   [main] WARN  org.eclipse.swtbot.swt.finder.widgets.SWTBotButton  - Widget is not enabled: (of type 'Button' and with mnemonic 'Next >' and with style 'SWT.PUSH')
 			11   [main] WARN  org.eclipse.swtbot.swt.finder.widgets.SWTBotButton  - Widget is not enabled: (of type 'Button' and with mnemonic 'Next >' and with style 'SWT.PUSH')
 			11   [main] WARN  org.eclipse.swtbot.swt.finder.widgets.SWTBotButton  - Widget is not enabled: (of type 'Button' and with mnemonic 'Next >' and with style 'SWT.PUSH')
-			08:28:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] - Type "MyFirstWebProject" into <ProjectName>
+			08:28:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] *** Type "MyFirstWebProject" into <ProjectName>
 			08:28:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] SWTFixture search for text with title: 
 		'''
 
