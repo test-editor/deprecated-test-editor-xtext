@@ -12,27 +12,14 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.tcltestrun.model
 
-import java.io.File
-import java.util.Date
-import java.util.List
-import org.eclipse.xtend.lib.annotations.Accessors
+class TestRunUtility {
 
-@Accessors
-class TestExecutionLog {
-
-	String name
-	Date executionDate
-	List<TestCaseExecution> testCases
-	String testRunTimestamp
-	File logDir
-	Link[] links
-	String content
-	TestLogGroup[] logGroups
-	TestRunStatistic testStatistic
-		
-	def void setLogDir(File file) {
-		logDir = file
-		testRunTimestamp = logDir.name
+	def static public String getTestResult() {
+		'''
+		<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+		<testrun errors="0" failures="0" ignored="0" name="java" project="org.testeditor.rcp4.uatests" started="1" tests="1">
+		</testrun>
+		'''
 	}
 		
 }
