@@ -36,20 +36,17 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
 		if (System.getProperty(OSGI_HTTP_PORT) != null) {
-			int retryCounter = 0;
-			boolean portIsInUse = true;
-			while (portIsInUse && retryCounter < 10) {
-				try {
-					retryCounter++;
-					ServerSocket socket = new ServerSocket(Integer.parseInt(System.getProperty(OSGI_HTTP_PORT)));
-					portIsInUse = false;
-					socket.close();
-				} catch (BindException e) {
-					int newPort = Integer.parseInt(System.getProperty(OSGI_HTTP_PORT)) + retryCounter;
-					System.setProperty(OSGI_HTTP_PORT, Integer.toString(newPort));
-				}
+			try {
+				ServerSocket socket = new ServerSocket(Integer.parseInt(System.getProperty(OSGI_HTTP_PORT)));
+				socket.close();
+			} catch (BindException e) {
+				ServerSocket socket = new ServerSocket(0);
+				System.setProperty(OSGI_HTTP_PORT, Integer.toString(socket.getLocalPort()));
+				System.out.println("port: " + socket.getLocalPort());
+				socket.close();
 			}
-		}
+		} // else: the property is expected to be set in the testeditor.ini. If
+			// someone removes the property we don't set a port.
 	}
 
 	/*
