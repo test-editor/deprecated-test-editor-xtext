@@ -8,15 +8,10 @@ import org.eclipse.swt.dnd.TextTransfer
 import org.eclipse.swt.dnd.DropTargetListener
 import org.eclipse.ui.dnd.IDragAndDropService
 import javax.inject.Inject
-import org.testeditor.tcl.impl.TclFactoryImpl
-import org.testeditor.tsl.impl.TslFactoryImpl
 
 class DropTargetXtextEditor extends XtextEditor {
 
 	var ISourceViewer viewer
-	@Inject protected TclFactoryImpl tclFactory
-	@Inject protected TslFactoryImpl tslFactory
-
 	@Inject DropTargetXtextEditorListener dropTargetListener
 
 	override protected installTextDragAndDrop(ISourceViewer viewer) {

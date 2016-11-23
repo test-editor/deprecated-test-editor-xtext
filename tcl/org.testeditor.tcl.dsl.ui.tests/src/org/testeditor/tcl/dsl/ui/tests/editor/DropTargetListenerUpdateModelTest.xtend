@@ -21,6 +21,11 @@ import com.google.common.io.ByteStreams
 
 class DropTargetListenerUpdateModelTest extends AbstractTest {
 
+
+	@Inject DropTargetXtextEditorListener listener
+
+	@Inject protected extension DslParseHelper parserHelper
+	var ISerializer serializer
 	var AmlModel amlModel = null
 	var TclModel tclModel = null
 
@@ -32,10 +37,6 @@ class DropTargetListenerUpdateModelTest extends AbstractTest {
 		val tclInjector = (new TclStandaloneSetup).createInjectorAndDoEMFRegistration
 		serializer = tclInjector.getInstance(ISerializer)
 	}
-
-	@Inject protected extension DslParseHelper parserHelper
-	@Inject DropTargetXtextEditorListener listener
-	var ISerializer serializer
 
 	@Test
 	def void testDropTestStepOnFirstTestStepContext() {

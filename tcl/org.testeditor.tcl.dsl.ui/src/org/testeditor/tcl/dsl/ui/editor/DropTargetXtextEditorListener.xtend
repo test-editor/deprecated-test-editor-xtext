@@ -84,10 +84,11 @@ class DropTargetXtextEditorListener extends DropTargetAdapter {
 		new IUnitOfWork.Void<XtextResource>() {
 
 			override process(XtextResource resource) throws Exception {
+				
 				if (resource.contents.head instanceof TclModel) {
-					val List<EObject> toFormatEObject = newArrayList
-					val TclModel tclModel = resource.contents.head as TclModel
-					var EObject dropTarget = findDropTarget(resource)
+					val toFormatEObject = newArrayList
+					val tclModel = resource.contents.head as TclModel
+					val dropTarget = findDropTarget(resource)
 
 					val ComponentTestStepContext droppedTestStepContext = createDroppedTestStepContext(getDroppedObjectAs(InteractionType),
 						getDroppedObjectAs(ComponentElement), getDroppedObjectAs(Component))

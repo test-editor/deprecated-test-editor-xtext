@@ -112,7 +112,7 @@ class TestStepSelector {
 
 	private def internalUpdateView() {
 		// Initial call to the selector
-		if (viewer.input == null) {
+		if (viewer.input === null) {
 			viewer.input = models
 		} else {
 			// update the view model and conserve the expansion
