@@ -2,7 +2,12 @@
 <b>Test execution logs:</b>
     <ul>
         <li *ngFor="let logexec of testruns" (click)="onSelect(logexec)">
-            <span class="badge" style="white-space: nowrap">{{logexec.name}}</span>
+            <div *ngIf="logexec.testStatistic.errors == 0 && logexec.testStatistic.failures == 0">
+                <button type="button" class="btn btn-success">{{logexec.name}}</button>
+            </div>
+            <div *ngIf="logexec.testStatistic.errors > 0 || logexec.testStatistic.failures > 0">
+                <button type="button" class="btn btn-danger">{{logexec.name}}</button>
+            </div>
         </li>
     </ul>
 </nav>

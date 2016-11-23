@@ -22,9 +22,9 @@ export class TestLogService {
         ).catch(this.handleError);
     }
 
-    getTestExecutionLogGroups(testExecLog: TestExecutionLog): Promise<LogGroup[]> {
+    getTestExecutionLogGroups(testExecLog: TestExecutionLog): Promise<TestExecutionLog> {
         return this.http.get('http://localhost:' + window.location.port + '/services' + testExecLog.links[1].href).toPromise().then(response =>
-            response.json().logGroups as LogGroup[]
+            response.json() as TestExecutionLog
         ).catch(this.handleError);
     }
 

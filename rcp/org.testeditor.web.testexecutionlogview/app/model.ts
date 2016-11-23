@@ -8,6 +8,8 @@ export class LogGroup {
 export class TestExecutionLog {
 
     links: Link[]
+    testStatistic: TestRunStatistic
+    logGroups: LogGroup[]
     name: String
     filename: String
     
@@ -16,4 +18,10 @@ export class TestExecutionLog {
 export class Link {
     rel: String
     href: String
+}
+
+export class TestRunStatistic {
+    tests: number 
+    errors: number
+    failures: number
 }

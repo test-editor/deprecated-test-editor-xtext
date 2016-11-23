@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jface.viewers.ITreeContentProvider
 import org.eclipse.jface.viewers.Viewer
 import org.testeditor.dsl.common.util.WorkspaceHelper
+import org.eclipse.core.runtime.CoreException
 
 /**
  * Content Provider to extend the cnf navigator with the TE specific elements. The provider replaces folders of the classpath entry with one entry.
@@ -48,8 +49,10 @@ class TEContentProvider implements ITreeContentProvider {
 
 	private def boolean isRelevantClasspathEntry(IClasspathEntry entry) {
 		return entry !== null //
-		&& entry.entryKind == IClasspathEntry.CPE_SOURCE //
-		&& !entry.path.segments.exists[matches('(src|xtend)-gen')]
+		&& entry.entryKind == IClasspathEntry.CPE_SOURCE // only source folder are potentially relevant for test explorer
+		&& !entry.path.segments.exists[matches('(src|xtend)-gen')] // generated source class path entries are not relevant for test explorer
+		&& entry.path.segments.indexOf('build') != 1 // gradle build folder (index = 1, since project root has index 0) is irrelevant for test explorer
+		&& entry.path.segments.indexOf('target') != 1 // maven target folder (index = 1, since project root has index 0) is irrelevant for test explorer
 	}
 
 	override getParent(Object element) {
