@@ -36,7 +36,4 @@ class DropTargetXtextEditor extends XtextEditor {
 		dndService.addMergedDropTarget(st, DND.DROP_MOVE.bitwiseOr(DND.DROP_COPY), #[TextTransfer.instance],
 			dropTargetListener);
 	}
-	public def ISourceViewer getSourceViewerPublic() {
-		super.getSourceViewer
-	}
 }

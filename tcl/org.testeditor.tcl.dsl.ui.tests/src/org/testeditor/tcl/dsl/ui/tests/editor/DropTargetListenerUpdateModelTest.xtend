@@ -1,8 +1,6 @@
 package org.testeditor.tcl.dsl.ui.tests.editor
 
 import com.google.common.base.Strings
-import java.nio.file.Files
-import java.nio.file.Paths
 import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.serializer.ISerializer
