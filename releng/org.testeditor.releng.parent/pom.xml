@@ -29,6 +29,7 @@
 		<xtext-target>file:///${basedir}/../../target-platform/org.testeditor.releng.target.updatesite/target/site</xtext-target>
 
 		<!-- other properties -->
+		<deploy.skip>false</deploy.skip>
 		<tycho-surefire-argline>-Xms40m -Xmx1G -Dorg.testeditor.ignoreConnectionState=true</tycho-surefire-argline>
 		<os-jvm-flags></os-jvm-flags>
 		<argLine>${tycho-surefire-argline} ${os-jvm-flags}</argLine>
@@ -171,6 +172,7 @@
 					<version>2.8.2</version>
 					<configuration>
 						<deployAtEnd>true</deployAtEnd>
+						<skip>${deploy.skip}</skip>
 						<updateReleaseInfo>false</updateReleaseInfo>
 					</configuration>
 				</plugin>

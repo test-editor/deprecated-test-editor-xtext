@@ -13,4 +13,8 @@
 	<artifactId>org.testeditor.aml.sdk</artifactId>
 	<packaging>eclipse-feature</packaging>
 
+	<properties>
+		<deploy.skip>true</deploy.skip>
+	</properties>
+
 </project>

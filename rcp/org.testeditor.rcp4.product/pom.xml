@@ -13,6 +13,10 @@
 	<artifactId>org.testeditor.rcp4.product</artifactId>
 	<packaging>eclipse-repository</packaging>
 
+	<properties>
+		<deploy.skip>true</deploy.skip>
+	</properties>
+
 	<build>
 		<plugins>
 			<plugin>
