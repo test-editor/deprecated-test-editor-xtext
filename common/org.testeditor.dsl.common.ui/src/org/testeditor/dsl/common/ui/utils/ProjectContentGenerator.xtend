@@ -46,6 +46,7 @@ import static org.eclipse.xtext.xbase.lib.StringExtensions.isNullOrEmpty
 class ProjectContentGenerator {
 
 	static public val TEST_EDITOR_VERSION = "1.1.0" // TODO this sucks - extract to VersionHelper and use the newest version
+	static public val TEST_EDITOR_MAVEN_PLUGIN_VERSION = "1.0"
 	
 	static public val String TEST_EDITOR_MVN_GEN_OUTPUT = 'src-gen/test/java'
 
@@ -418,9 +419,6 @@ class ProjectContentGenerator {
 					<maven-resources-plugin.version>2.7</maven-resources-plugin.version>
 					<maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
 
-					<xtext.version>2.9.1</xtext.version>
-					<xtend.version>${xtext.version}</xtend.version>
-
 					<testeditor.version>«TEST_EDITOR_VERSION»</testeditor.version>
 					<testeditor.output>«TEST_EDITOR_MVN_GEN_OUTPUT»</testeditor.output>
 				</properties>
@@ -446,7 +444,7 @@ class ProjectContentGenerator {
 						<snapshots>
 							<enabled>false</enabled>
 						</snapshots>
-						<id>test-editor-maven</id>
+						<id>test-editor-maven-old</id>
 						<name>test-editor-maven</name>
 						<url>http://dl.bintray.com/test-editor/test-editor-maven</url>
 					</repository>
@@ -456,18 +454,21 @@ class ProjectContentGenerator {
 						<snapshots>
 							<enabled>false</enabled>
 						</snapshots>
-						<id>bintray-test-editor-maven</id>
+						<id>test-editor-maven-old</id>
 						<name>bintray-plugins</name>
 						<url>http://dl.bintray.com/test-editor/test-editor-maven</url>
+					</pluginRepository>
+					<pluginRepository>
+						<snapshots>
+							<enabled>false</enabled>
+						</snapshots>
+						<id>test-editor-maven</id>
+						<name>bintray-plugins</name>
+						<url>http://dl.bintray.com/test-editor/maven</url>
 					</pluginRepository>
 				</pluginRepositories>
 
 				<dependencies>
-					<dependency>
-						<groupId>org.eclipse.xtend</groupId>
-						<artifactId>org.eclipse.xtend.lib</artifactId>
-						<version>${xtend.version}</version>
-					</dependency>
 					<dependency>
 						<groupId>junit</groupId>
 						<artifactId>junit</artifactId>
@@ -549,14 +550,31 @@ class ProjectContentGenerator {
 													</execute>
 												</action>
 											</pluginExecution>
+											<pluginExecution>
+												<pluginExecutionFilter>
+													<groupId>org.testeditor</groupId>
+													<artifactId>testeditor-maven-plugin</artifactId>
+													<versionRange>[1.0,)</versionRange>
+													<goals>
+														<goal>generate</goal>
+													</goals>
+												</pluginExecutionFilter>
+												<action>
+													<ignore></ignore>
+												</action>
+											</pluginExecution>
 										</pluginExecutions>
 							          </lifecycleMappingMetadata>
 								</configuration>
 							</plugin>
 							<plugin>
-								<groupId>org.eclipse.xtext</groupId>
-								<artifactId>xtext-maven-plugin</artifactId>
-								<version>${xtext.version}</version>
+								<groupId>org.testeditor</groupId>
+								<artifactId>testeditor-maven-plugin</artifactId>
+								<version>«TEST_EDITOR_MAVEN_PLUGIN_VERSION»</version>
+								<configuration>
+									<testEditorVersion>${testeditor.version}</testEditorVersion>
+									<testEditorOutput>${testeditor.output}</testEditorOutput>
+								</configuration>
 								<executions>
 									<execution>
 										<goals>
@@ -564,106 +582,19 @@ class ProjectContentGenerator {
 										</goals>
 									</execution>
 								</executions>
-								<configuration>
-								<sourceRoots>
-									<sourceRoot>«SRC_TEST_FOLDER»</sourceRoot>
-									<sourceRoot>«SRC_FOLDER»</sourceRoot>
-								</sourceRoots>
-									<languages>
-										<language>
-											<setup>org.testeditor.tsl.dsl.TslStandaloneSetup</setup>
-										</language>
-										<language>
-											<setup>org.testeditor.tml.dsl.TmlStandaloneSetup</setup>
-										</language>
-										<language>
-											<setup>org.testeditor.tcl.dsl.TclStandaloneSetup</setup>
-											<outputConfigurations>
-												<outputConfiguration>
-													<outputDirectory>${testeditor.output}</outputDirectory>
-												</outputConfiguration>
-											</outputConfigurations>
-										</language>
-										<language>
-											<setup>org.testeditor.aml.dsl.AmlStandaloneSetup</setup>
-										</language>
-									</languages>
-								</configuration>
-								<dependencies>
-									<dependency>
-										<groupId>org.apache.commons</groupId>
-										<artifactId>commons-lang3</artifactId>
-										<version>3.4</version>
-									</dependency>
-									<dependency>
-										<groupId>org.testeditor</groupId>
-										<artifactId>org.testeditor.dsl.common</artifactId>
-										<version>${testeditor.version}</version>
-									</dependency>
-									<dependency>
-										<groupId>org.testeditor</groupId>
-										<artifactId>org.testeditor.tsl.model</artifactId>
-										<version>${testeditor.version}</version>
-									</dependency>
-									<dependency>
-										<groupId>org.testeditor</groupId>
-										<artifactId>org.testeditor.tsl.dsl</artifactId>
-										<version>${testeditor.version}</version>
-									</dependency>
-									<dependency>
-										<groupId>org.testeditor</groupId>
-										<artifactId>org.testeditor.tml.model</artifactId>
-										<version>${testeditor.version}</version>
-									</dependency>
-									<dependency>
-										<groupId>org.testeditor</groupId>
-										<artifactId>org.testeditor.tml.dsl</artifactId>
-										<version>${testeditor.version}</version>
-									</dependency>
-									<dependency>
-										<groupId>org.testeditor</groupId>
-										<artifactId>org.testeditor.tcl.model</artifactId>
-										<version>${testeditor.version}</version>
-									</dependency>
-									<dependency>
-										<groupId>org.testeditor</groupId>
-										<artifactId>org.testeditor.tcl.dsl</artifactId>
-										<version>${testeditor.version}</version>
-									</dependency>
-									<dependency>
-										<groupId>org.testeditor</groupId>
-										<artifactId>org.testeditor.aml.model</artifactId>
-										<version>${testeditor.version}</version>
-									</dependency>
-									<dependency>
-										<groupId>org.testeditor</groupId>
-										<artifactId>org.testeditor.aml.dsl</artifactId>
-										<version>${testeditor.version}</version>
-									</dependency>
-									<dependency>
-										<groupId>org.gradle</groupId>
-										<artifactId>gradle-tooling-api</artifactId>
-										<version>2.14</version>
-									</dependency>
-								</dependencies>
-							</plugin>
-							<plugin>
-								<groupId>org.eclipse.xtend</groupId>
-								<artifactId>xtend-maven-plugin</artifactId>
-								<version>${xtend.version}</version>
 							</plugin>
 						</plugins>
 					</pluginManagement>
 					<plugins>
 						<plugin>
-							<groupId>org.eclipse.xtext</groupId>
-							<artifactId>xtext-maven-plugin</artifactId>
+							<groupId>org.testeditor</groupId>
+							<artifactId>testeditor-maven-plugin</artifactId>
 						</plugin>
 						<plugin>
-							<groupId>org.eclipse.xtend</groupId>
-							<artifactId>xtend-maven-plugin</artifactId>
-						</plugin>
-						<plugin>
+							<!--
+							     This is required until we have a separate task for this in the test-editor-maven-plugin.
+							     We need it for the m2e lifecycle mapping (discovery of testeditor.output as a source folder).
+							  -->
 						    <groupId>org.codehaus.mojo</groupId>
 						    <artifactId>build-helper-maven-plugin</artifactId>
 						    <version>1.7</version>
