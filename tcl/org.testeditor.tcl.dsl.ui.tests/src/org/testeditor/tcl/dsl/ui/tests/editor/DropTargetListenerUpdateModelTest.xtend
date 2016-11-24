@@ -37,10 +37,13 @@ class DropTargetListenerUpdateModelTest extends AbstractTest {
 	}
 
 	@Test
-	def void testDropTestStepOnFirstTestStepContext() {
+	def void dropTestStepOnFirstTestStepContext() {
 
+		// given
+		val droppedTestStep = createDroppedTestStepContext("GreetingApplication", "test")
 		val codeToBeInserted = '- Inserted step "path"'
 		
+		// then		
 		val testCase = '''
 			package SwingDemo
 			
@@ -61,10 +64,9 @@ class DropTargetListenerUpdateModelTest extends AbstractTest {
 				Mask: GreetingApplication2
 				- Starte2 application "path"
 		'''
-		setTclModel(testCase)
 
-		var target = getTestStep(testCase, "GreetingApplication", null)
-		var droppedTestStep = createDroppedTestStepContext("GreetingApplication", "test")
+		setTclModel(testCase)
+		val target = getTestStep(testCase, "GreetingApplication", null)
 
 		executeTest(droppedTestStep, target, testCase, codeToBeInserted)
 
@@ -72,10 +74,13 @@ class DropTargetListenerUpdateModelTest extends AbstractTest {
 	
 
 	@Test
-	def void testDropTestStepOnFirstTestStep() {
+	def void dropTestStepOnFirstTestStep() {
 
+		// given
 		val codeToBeInserted = '- Inserted step "path"'
+		val droppedTestStep = createDroppedTestStepContext("GreetingApplication", "test")
 
+		// then			
 		val testCase = '''
 		package SwingDemo
 		
@@ -96,19 +101,21 @@ class DropTargetListenerUpdateModelTest extends AbstractTest {
 			Mask: GreetingApplication2
 			- Starte2 application "path"
 		'''
-		setTclModel(testCase)
 
-		var dropTarget = getTestStep(testCase, "GreetingApplication", 0)
-		var droppedTestStep = createDroppedTestStepContext("GreetingApplication", "test")
+		setTclModel(testCase)
+		val dropTarget = getTestStep(testCase, "GreetingApplication", 0)
 
 		executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
 	}
 
 	@Test
-	def void testDropTestSetpOnThirdTestStep() {
+	def void dropTestSetpOnThirdTestStep() {
 
+		// given
+		val droppedTestStep = createDroppedTestStepContext("GreetingApplication", "test")
 		val codeToBeInserted = '- Inserted step "path"'
 
+		// then			
 		val testCase = '''
 			package SwingDemo
 			
@@ -129,19 +136,21 @@ class DropTargetListenerUpdateModelTest extends AbstractTest {
 				Mask: GreetingApplication2
 				- Starte2 application "path"
 		'''
-		setTclModel(testCase)
 
-		var dropTarget = getTestStep(testCase, "GreetingApplication", 2)
-		var droppedTestStep = createDroppedTestStepContext("GreetingApplication", "test")
+		setTclModel(testCase)
+		val dropTarget = getTestStep(testCase, "GreetingApplication", 2)
 
 		executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
 	}
 
 	@Test
-	def void testDropTestStepOnLastTestStep() {
+	def void dropTestStepOnLastTestStep() {
 
+		// given
+		val droppedTestStep = createDroppedTestStepContext("GreetingApplication", "test")
 		val codeToBeInserted = '- Inserted step "path"'
 
+		// then			
 		val testCase = '''
 			package SwingDemo
 			
@@ -162,17 +171,18 @@ class DropTargetListenerUpdateModelTest extends AbstractTest {
 				Mask: GreetingApplication2
 				- Starte2 application "path"
 		'''
-		setTclModel(testCase)
 
-		var target = getTestStep(testCase, "GreetingApplication", 6)
-		var droppedTestStep = createDroppedTestStepContext("GreetingApplication", "test")
+		setTclModel(testCase)
+		val target = getTestStep(testCase, "GreetingApplication", 6)
 
 		executeTest(droppedTestStep, target, testCase, codeToBeInserted)
 	}
 
 	@Test
-	def void testDropTestStepWithDifferenComponentOnFirstTestStep() {
+	def void dropTestStepWithDifferenComponentOnFirstTestStep() {
 
+		// given
+		val droppedTestStep = createDroppedTestStepContext("GreetingApplication2", "Input", "insertIntoTextField")
 		val codeToBeInserted = '''			
 			
 			Mask: GreetingApplication2
@@ -180,6 +190,7 @@ class DropTargetListenerUpdateModelTest extends AbstractTest {
 			
 			Mask: GreetingApplication''' 
 
+		// then			
 		val testCase = '''
 			package SwingDemo
 			
@@ -200,22 +211,24 @@ class DropTargetListenerUpdateModelTest extends AbstractTest {
 				Mask: GreetingApplication2
 				- Starte2 application "path"
 		'''
-		setTclModel(testCase)
 
-		var target = getTestStep(testCase, "GreetingApplication", 0)
-		var droppedTestStep = createDroppedTestStepContext("GreetingApplication2", "Input", "insertIntoTextField")
+		setTclModel(testCase)
+		val target = getTestStep(testCase, "GreetingApplication", 0)
 		
 		
 		executeTest(droppedTestStep, target, testCase, codeToBeInserted)
 	}
 
 	@Test
-	def void testDropTestStepWithDifferenComponentOnLastTestStep() {
+	def void dropTestStepWithDifferenComponentOnLastTestStep() {
 
+		// given
+		val droppedTestStep = createDroppedTestStepContext("GreetingApplication2", "Input", "insertIntoTextField")
 		val codeToBeInserted = '''
 			Mask: GreetingApplication2
 			- Insert "text" into field <Input>'''
 
+		// then			
 		val testCase = '''
 			package SwingDemo
 			
@@ -237,22 +250,24 @@ class DropTargetListenerUpdateModelTest extends AbstractTest {
 				Mask: GreetingApplication2
 				- Starte2 application "path"
 		'''
-		setTclModel(testCase)
 
-		var target = getTestStep(testCase, "GreetingApplication", 6)
-		var droppedTestStep = createDroppedTestStepContext("GreetingApplication2", "Input", "insertIntoTextField")
+		setTclModel(testCase)
+		val target = getTestStep(testCase, "GreetingApplication", 6)
 
 		executeTest(droppedTestStep, target, testCase, codeToBeInserted)
 	}
 
 	@Test
-	def void testDropTestStepWithDifferenComponentOnComponent() {
+	def void dropTestStepWithDifferenComponentOnComponent() {
 
+		// given
+		val droppedTestStep = createDroppedTestStepContext("GreetingApplication2", "Input", "insertIntoTextField")
 		val codeToBeInserted = '''
 			Mask: GreetingApplication2
 			- Insert "text" into field <Input>
 			'''
 
+		// then			
 		val testCase = '''
 			package SwingDemo
 			
@@ -273,57 +288,59 @@ class DropTargetListenerUpdateModelTest extends AbstractTest {
 				Mask: GreetingApplication2
 				- Starte2 application "path"
 		'''
+
 		setTclModel(testCase)
+		val target = getTestStep(testCase, "GreetingApplication", null)
+
+		executeTest(droppedTestStep, target, testCase, codeToBeInserted)
+	}
+
+	@Test
+	def void dropTestStepOnTclModel() {
+
+		// given
+		var droppedTestStep = createDroppedTestStepContext("GreetingApplication2", "Input", "insertIntoTextField")
+		val codeToBeInserted = '''
+			Mask: GreetingApplication2
+			- Insert "text" into field <Input>
+			'''
+
+		// then			
+		val testCase = '''
+			package SwingDemo
+			
+			# SwingDemoEins
+			
+			*
+			
+			-->INSERT HERE
+				Mask: GreetingApplication
+				- Start application "path"
+				- Stop application
+				- Start application "path"
+				- Stop application
+				- Start application "path"
+				- Stop application
+				- Wait "miliSeconds" ms
+			
+				Mask: GreetingApplication2
+				- Starte2 application "path"
+		'''
 		
-		var droppedTestStep = createDroppedTestStepContext("GreetingApplication2", "Input", "insertIntoTextField")
-		var target = getTestStep(testCase, "GreetingApplication", null)
-
-		executeTest(droppedTestStep, target, testCase, codeToBeInserted)
-	}
-
-	@Test
-	def void testDropTestStepOnTclModel() {
-
-		val codeToBeInserted = '''
-			Mask: GreetingApplication2
-			- Insert "text" into field <Input>
-			'''
-
-		val testCase = '''
-			package SwingDemo
-			
-			# SwingDemoEins
-			
-			*
-			
-			-->INSERT HERE
-				Mask: GreetingApplication
-				- Start application "path"
-				- Stop application
-				- Start application "path"
-				- Stop application
-				- Start application "path"
-				- Stop application
-				- Wait "miliSeconds" ms
-			
-				Mask: GreetingApplication2
-				- Starte2 application "path"
-		'''
 		setTclModel(testCase)
-
-		var droppedTestStep = createDroppedTestStepContext("GreetingApplication2", "Input", "insertIntoTextField")
-		var target = tclModel
+		val target = tclModel
 
 		executeTest(droppedTestStep, target, testCase, codeToBeInserted)
 	}
 	@Test
-	def void testDropTestStepOnTestSpecification() {
-
+	def void dropTestStepOnTestSpecification() {
+		// given
+		val droppedTestStep = createDroppedTestStepContext("GreetingApplication2", "Input", "insertIntoTextField")
 		val codeToBeInserted = '''			
 			Mask: GreetingApplication2
 			- Insert "text" into field <Input>
 			'''
-
+		// then			
 		val testCase = '''
 			package SwingDemo
 			
@@ -339,12 +356,10 @@ class DropTargetListenerUpdateModelTest extends AbstractTest {
 			-->INSERT HERE
 				Mask: GreetingApplication
 				- Start application "path"
-		'''
+		'''.toString().replaceAll("\r\n", "\n")
+		
 		setTclModel(testCase)
-
-		var droppedTestStep = createDroppedTestStepContext("GreetingApplication2", "Input", "insertIntoTextField")
-		var target = tclModel.test.steps.last
-
+		val target = tclModel.test.steps.last
 		executeTest(droppedTestStep, target, testCase, codeToBeInserted)
 	}
 
@@ -396,10 +411,11 @@ class DropTargetListenerUpdateModelTest extends AbstractTest {
 
 	def executeTest(ComponentTestStepContext droptedTestStepContext, EObject dropTarget, String testCase,
 		String insertedCode) {
-		val expectedTestCase = testCase.replaceAll("-->INSERT HERE", insertedCode.indent(1))
+		val expectedTestCase = testCase.replaceAll("-->INSERT HERE", insertedCode.indent(1)).replace("\r\n", "\n")
 
 		listener.updateTestModel(droptedTestStepContext, tclModel.test, dropTarget, newArrayList);
-		serializer.serialize(tclModel).assertEquals(expectedTestCase)
+		val actualTestCase = serializer.serialize(tclModel).replace("\r\n", "\n") 
+		actualTestCase.assertEquals(expectedTestCase)
 	}
 
 	def getComponentElement(String componentName, String elementName) {
