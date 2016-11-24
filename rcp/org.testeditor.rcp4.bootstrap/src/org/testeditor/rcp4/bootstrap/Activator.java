@@ -42,7 +42,6 @@ public class Activator implements BundleActivator {
 			} catch (BindException e) {
 				ServerSocket socket = new ServerSocket(0);
 				System.setProperty(OSGI_HTTP_PORT, Integer.toString(socket.getLocalPort()));
-				System.out.println("port: " + socket.getLocalPort());
 				socket.close();
 			}
 		} // else: the property is expected to be set in the testeditor.ini. If
