@@ -22,7 +22,7 @@ export class TestLogService {
         ).catch(this.handleError);
     }
 
-    getTestExecutionLogGroups(testExecLog: TestExecutionLog): Promise<TestExecutionLog> {
+    getTestExecutionLogWithContent(testExecLog: TestExecutionLog): Promise<TestExecutionLog> {
         return this.http.get('http://localhost:' + window.location.port + '/services' + testExecLog.links[1].href).toPromise().then(response =>
             response.json() as TestExecutionLog
         ).catch(this.handleError);
