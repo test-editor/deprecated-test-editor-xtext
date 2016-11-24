@@ -50,7 +50,7 @@ class ModelUtil {
 		if (component !== null) {
 			return (component.componentInteractionTypes + component.componentElementsInteractionTypes).toSet
 		}
-		return newHashSet
+		return emptySet
 	}
 
 	/**
