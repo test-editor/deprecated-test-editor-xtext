@@ -446,7 +446,7 @@ class DropTargetListenerUpdateModelTest extends AbstractTest {
 
 	protected def String indent(CharSequence input, int level) {
 		val indentation = Strings.repeat('\t', level)
-		val value = input.toString.replaceAll("(?m)^(?!\r\n)", indentation)
+		val value = input.toString.replaceAll("(?m)^(?!\r?\n)", indentation)
 		return value
 	}
 	def setTclModel(String testCase) {
