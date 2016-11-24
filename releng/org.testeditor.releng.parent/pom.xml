@@ -15,7 +15,7 @@
 		<xtend.version>${xtext.version}</xtend.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<tycho-version>0.25.0</tycho-version>
+		<tycho-version>0.26.0</tycho-version>
 		<maven-clean-plugin.version>3.0.0</maven-clean-plugin.version>
 		<maven-resources-plugin.version>2.7</maven-resources-plugin.version>
 		<maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
@@ -57,6 +57,11 @@
 		</repository>
 	</repositories>
 
+	<scm>
+		<developerConnection>scm:git:https://github.com/test-editor/test-editor-xtext.git</developerConnection>
+		<url>https://github.com/test-editor/test-editor-xtext</url>
+	</scm>
+
     <distributionManagement>
         <repository>
             <id>bintray</id>
@@ -64,6 +69,13 @@
             <url>https://api.bintray.com/maven/test-editor/maven/test-editor/;publish=1</url>
         </repository>
     </distributionManagement>
+
+	<licenses>
+		<license>
+			<name>Eclipse Public License - v 1.0</name>
+			<url>https://www.eclipse.org/legal/epl-v10.html</url>
+		</license>
+	</licenses>
 
 	<build>
 		<pluginManagement>
@@ -213,6 +225,19 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-compiler-plugin</artifactId>
 				<version>${tycho-version}</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>3.0.1</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.jacoco</groupId>
