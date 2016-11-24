@@ -316,6 +316,7 @@
       <plugin id="org.testeditor.dsl.common.ui"/>
       <plugin id="org.testeditor.logging"/>
       <plugin id="org.testeditor.rcp4"/>
+      <plugin id="org.testeditor.rcp4.bootstrap"/>
       <plugin id="org.testeditor.rcp4.tcltestrun"/>
       <plugin id="org.testeditor.rcp4.views.projectexplorer"/>
       <plugin id="org.testeditor.rcp4.views.tcltestrun"/>
@@ -346,14 +347,15 @@
    </features>
 
    <configurations>
-      <plugin id="com.eclipsesource.jaxrs.publisher" autoStart="true" startLevel="2" />
+      <plugin id="com.eclipsesource.jaxrs.publisher" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="2" />
-      <plugin id="org.eclipse.equinox.http.jetty" autoStart="true" startLevel="1" />
+      <plugin id="org.eclipse.equinox.http.jetty" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
+      <plugin id="org.testeditor.rcp4.bootstrap" autoStart="true" startLevel="1" />
    </configurations>
 
    <preferencesInfo>

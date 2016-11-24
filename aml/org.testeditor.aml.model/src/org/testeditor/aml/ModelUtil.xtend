@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -47,7 +47,10 @@ class ModelUtil {
 	 * @return all interaction types of the {@link Component} as well as its elements.
 	 */
 	def Set<InteractionType> getAllInteractionTypes(Component component) {
-		return (component.componentInteractionTypes + component.componentElementsInteractionTypes).toSet
+		if (component !== null) {
+			return (component.componentInteractionTypes + component.componentElementsInteractionTypes).toSet
+		}
+		return emptySet
 	}
 
 	/**
@@ -122,7 +125,7 @@ class ModelUtil {
 		val jvmTypeEClass = jvmTypeReference.type.eClass
 		val typeRefQName = jvmTypeReference.qualifiedName
 		if (jvmTypeEClass != TypesPackage.Literals.JVM_PRIMITIVE_TYPE) {
-			return (clazz.isAssignableFrom(Class.forName(typeRefQName.replaceAll('<.*$',''))))
+			return (clazz.isAssignableFrom(Class.forName(typeRefQName.replaceAll('<.*$', ''))))
 		} else { // primitive types need to have identical name (no widening)
 			return jvmTypeReference.qualifiedName == clazz.canonicalName
 		}
