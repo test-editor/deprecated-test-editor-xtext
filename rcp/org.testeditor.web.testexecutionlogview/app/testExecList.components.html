@@ -1,5 +1,5 @@
 <nav>
-<b>Test execution logs:</b>
+<b>Test executions</b>
     <ul>
         <li *ngFor="let logexec of testruns" (click)="onSelect(logexec)">
             <div *ngIf="logexec.testStatistic.errors == 0 && logexec.testStatistic.failures == 0">
