@@ -13,6 +13,10 @@
 	<artifactId>org.testeditor.tcl.dsl.ide</artifactId>
 	<packaging>eclipse-plugin</packaging>
 
+	<properties>
+		<deploy.skip>true</deploy.skip>
+	</properties>
+
 	<build>
 		<plugins>
 			<plugin>
