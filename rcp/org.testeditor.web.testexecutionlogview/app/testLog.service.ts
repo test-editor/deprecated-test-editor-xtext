@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Http,  Headers } from '@angular/http';
+import { Http, Headers } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
-import {LogGroup} from "./model";
-import {TestExecutionLog, Link} from "./model";
+import { LogGroup } from "./model";
+import { TestExecutionLog, Link } from "./model";
 
 @Injectable()
 export class TestLogService {
@@ -11,26 +11,26 @@ export class TestLogService {
     }
 
     getTestExecutionLogs(): Promise<TestExecutionLog[]> {
-        return this.http.get('http://localhost:19091/services/testruns').toPromise().then(response =>
+        return this.http.get('http://localhost:' + window.location.port + '/services/testruns').toPromise().then(response =>
             response.json().entries as TestExecutionLog[]
         ).catch(this.handleError);
     }
 
     getTestExecutionLogContent(testExecLog: TestExecutionLog): Promise<String> {
-        return this.http.get('http://localhost:19091/services'+ testExecLog.links[0].href).toPromise().then(response =>
+        return this.http.get('http://localhost:' + window.location.port + '/services' + testExecLog.links[0].href).toPromise().then(response =>
             response.json().content as String
-        ).catch(this.handleError);        
+        ).catch(this.handleError);
     }
 
-    getTestExecutionLogGroups(testExecLog: TestExecutionLog): Promise<TestExecutionLog> {
-        return this.http.get('http://localhost:19091/services' + testExecLog.links[1].href).toPromise().then(response =>
+    getTestExecutionLogWithContent(testExecLog: TestExecutionLog): Promise<TestExecutionLog> {
+        return this.http.get('http://localhost:' + window.location.port + '/services' + testExecLog.links[1].href).toPromise().then(response =>
             response.json() as TestExecutionLog
-        ).catch(this.handleError);        
+        ).catch(this.handleError);
     }
 
     private handleError(error: any): Promise<any> {
         console.error('An error occurred', error); // for development purposes only
         return Promise.reject(error.message || error);
     }
-    
+
 }

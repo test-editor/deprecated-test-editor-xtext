@@ -13,6 +13,10 @@
 	<artifactId>org.testeditor.product</artifactId>
 	<packaging>pom</packaging>
 
+	<properties>
+		<deploy.skip>true</deploy.skip>
+	</properties>
+
 	<profiles>
 		<profile>
 			<id>product</id>
@@ -22,11 +26,11 @@
 		</profile>
 	</profiles>
 
-
 	<modules>
 		<module>org.testeditor.rcp4.platform.feature</module>
 		<module>org.testeditor.rcp4.updatesite</module>
 		<module>org.testeditor.rcp4.feature</module>
+		<module>org.testeditor.rcp4.bootstrap</module>
 		<module>org.testeditor.rcp4.tcltestrun</module>
 		<module>org.testeditor.rcp4.views.tcltestrun</module>
 		<module>org.testeditor.rcp4.tcltestrun.tests</module>
