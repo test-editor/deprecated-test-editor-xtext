@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import {LogGroup, TestExecutionLog} from "./model";
-import {AppComponent} from "./app.component"
+import { LogGroup, TestExecutionLog } from "./model";
+import { AppComponent } from "./app.component"
 
 @Component({
     moduleId: module.id,
@@ -8,10 +8,6 @@ import {AppComponent} from "./app.component"
     templateUrl: 'testExecList.components.html'
 })
 export class TestExecutionListComponent {
-    @Input() testruns:TestExecutionLog[] = [];
-    @Input() app: AppComponent;
+    @Input() testruns: TestExecutionLog[] = [];
 
-    onSelect(testExecLog: TestExecutionLog) {
-        this.app.onSelect(testExecLog);
-    }
 }

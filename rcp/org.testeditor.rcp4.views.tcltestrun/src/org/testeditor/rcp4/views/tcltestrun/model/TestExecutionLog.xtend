@@ -32,7 +32,7 @@ class TestExecutionLog {
 		
 	def void setLogDir(File file) {
 		logDir = file
-		testRunTimestamp = logDir.name
+		testRunTimestamp = logDir.parentFile.name
 	}
 		
 }

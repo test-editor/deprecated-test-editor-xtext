@@ -46,6 +46,7 @@ class TestExecutionManager {
 	def File createTestlogDirectoryFor(TestExecutionLog execLog) {
 		val location = logLocationHelper.logLocation
 		val newLog = new File(location, TEST_RUN_DIRECTORY_PREFIX + fileDateFormat.format(execLog.executionDate))
+		execLog.testRunTimestamp = newLog.name
 		if (newLog.mkdir) {
 			logger.info("Create new test execution log file {}.", newLog.absolutePath)
 		}

@@ -6,18 +6,10 @@ export class LogGroup {
 }
 
 export class TestExecutionLog {
-
-    links: Link[]
     testStatistic: TestRunStatistic
     logGroups: LogGroup[]
     name: String
-    filename: String
-    
-}
-
-export class Link {
-    rel: String
-    href: String
+    testRunTimestamp: String
 }
 
 export class TestRunStatistic {

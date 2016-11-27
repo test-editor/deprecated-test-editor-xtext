@@ -15,17 +15,18 @@ import { TestRunView } from './testRunView.component';
     NgbModule.forRoot(),
     BrowserModule,
     HttpModule,
-/*    RouterModule.forRoot([
-      {
-        path: '',
-        component: AppComponent
-      }
+    RouterModule.forRoot([
       {
         path: 'testrun/:id',
         component: TestRunView
       }
-    ])
-*/  ],
+      ,
+      {
+        path: '',
+        component: TestRunView
+      }
+    ],{ useHash: true })
+  ],
   declarations: [
     AppComponent,
     TestExecutionListComponent,
