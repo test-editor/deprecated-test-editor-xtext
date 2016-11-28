@@ -24,7 +24,7 @@ export class AppComponent {
     onSelect(testExecLog: TestExecutionLog) {
         this.currentSelection = testExecLog
         if(this.useLogGroup) {
-            this.logService.getTestExecutionLogGroups(testExecLog).then(testRunLog => {
+            this.logService.getTestExecutionLogWithContent(testExecLog).then(testRunLog => {
                 this.logGroups = testRunLog.logGroups
                 this.testStatistic = testRunLog.testStatistic
                 if(this.testStatistic.errors == 0 && this.testStatistic.failures == 0) { 

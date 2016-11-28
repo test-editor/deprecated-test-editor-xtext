@@ -12,6 +12,10 @@
 	<artifactId>org.testeditor.tsl.dsl.web</artifactId>
 	<packaging>war</packaging>
 
+	<properties>
+		<deploy.skip>true</deploy.skip>
+	</properties>
+
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<resources>
