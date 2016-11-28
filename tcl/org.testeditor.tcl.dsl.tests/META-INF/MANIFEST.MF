@@ -21,4 +21,5 @@ Require-Bundle: org.eclipse.xtext,
 Import-Package: javax.inject,
  org.junit,
  org.junit.runner
-Export-Package: org.testeditor.tcl.dsl.tests
+Export-Package: org.testeditor.tcl.dsl.tests,
+ org.testeditor.tcl.dsl.tests.parser
