@@ -2,28 +2,27 @@ import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
 import { LogGroup } from "./model";
-import { TestExecutionLog, Link } from "./model";
+import { TestExecutionLog } from "./model";
 
 @Injectable()
 export class TestLogService {
 
+    port: String
+
     constructor(private http: Http) {
+        this.port = window.location.port
+        // Use this for local setup with nodejs for development cycle
+        //this.port = "19091"
     }
 
     getTestExecutionLogs(): Promise<TestExecutionLog[]> {
-        return this.http.get('http://localhost:' + window.location.port + '/services/testruns').toPromise().then(response =>
+        return this.http.get('http://localhost:' + this.port + '/services/testruns').toPromise().then(response =>
             response.json().entries as TestExecutionLog[]
         ).catch(this.handleError);
     }
 
-    getTestExecutionLogContent(testExecLog: TestExecutionLog): Promise<String> {
-        return this.http.get('http://localhost:' + window.location.port + '/services' + testExecLog.links[0].href).toPromise().then(response =>
-            response.json().content as String
-        ).catch(this.handleError);
-    }
-
-    getTestExecutionLogWithContent(testExecLog: TestExecutionLog): Promise<TestExecutionLog> {
-        return this.http.get('http://localhost:' + window.location.port + '/services' + testExecLog.links[1].href).toPromise().then(response =>
+    getTestExecutionLogWithContent(filename: String): Promise<TestExecutionLog> {
+        return this.http.get('http://localhost:' + this.port + '/services/testruns/' + filename + "/logGroups").toPromise().then(response =>
             response.json() as TestExecutionLog
         ).catch(this.handleError);
     }

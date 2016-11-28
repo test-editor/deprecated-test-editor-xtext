@@ -1,5 +1,6 @@
-import { Component, Input } from '@angular/core';
-import {LogGroup} from "./model";
+import { Component, Input, OnInit } from '@angular/core';
+import { LogGroup } from "./model";
+import { TestLogService } from "./testLog.service"
 
 
 @Component({
@@ -8,6 +9,6 @@ import {LogGroup} from "./model";
     templateUrl: 'LogGroupView.components.html'
 })
 export class LogGroupView {
-    @Input() testruns:LogGroup[] = [];
+    @Input() testruns: LogGroup[] = [];
 
 }

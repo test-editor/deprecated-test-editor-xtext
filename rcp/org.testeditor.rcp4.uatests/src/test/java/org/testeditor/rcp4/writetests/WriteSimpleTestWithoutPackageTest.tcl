@@ -31,6 +31,7 @@ config TestEditorConfig
 	- Type "MyTestcase.tcl" into <TestCaseName>
 	- Click on <FinishButton>
 
+* When remove packagename from file and save
 //when
 	Component: ActiveEditor
 	- Remove line "1" from editor
@@ -39,6 +40,7 @@ config TestEditorConfig
 	Component: MainWindow
 	- Wait until all jobs finished
 
+* Then expect generated java file contains packagename based ondirectory structure of testcase 
 //then
 	Component: ActiveEditor
 	- isTclPackage = Contains editor "package MyFirstWebProject"
