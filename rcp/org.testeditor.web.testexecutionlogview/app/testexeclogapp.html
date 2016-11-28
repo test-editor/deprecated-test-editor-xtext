@@ -1,20 +1,11 @@
-<h1>Test-Editor execution logs</h1>
 <div class="container-fluid">
   <div class="row">
     <div class="col-sm-2">
-        <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off" (click)="onToggle()">
-          Tree view
-        </button>
-        <testExecList [testruns]="testRuns" [app]='this'> </testExecList>
+      <testExecList [testruns]="testRuns"> </testExecList>
     </div>
     <div class="col-sm-10">
-      <div *ngIf="!useLogGroup">
-        {{testRunLog}}
-      </div>
-      <div *ngIf="useLogGroup">
-        <te-log-groups-view [testruns]="logGroups" >
-        </te-log-groups-view>
-      </div>
+      <router-outlet></router-outlet>
+      <te-run-view></te-run-view>
     </div>
   </div>
 </div>

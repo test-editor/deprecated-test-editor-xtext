@@ -15,6 +15,10 @@
 	<artifactId>org.testeditor.logging</artifactId>
 	<packaging>eclipse-plugin</packaging>
 
+	<properties>
+		<deploy.skip>true</deploy.skip>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>

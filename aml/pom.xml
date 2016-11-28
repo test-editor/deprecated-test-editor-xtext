@@ -13,6 +13,10 @@
 	<artifactId>org.testeditor.aml.build</artifactId>
 	<packaging>pom</packaging>
 
+	<properties>
+		<deploy.skip>true</deploy.skip>
+	</properties>
+
 	<modules>
 		<module>org.testeditor.aml.model</module>
 		<module>org.testeditor.aml.dsl</module>

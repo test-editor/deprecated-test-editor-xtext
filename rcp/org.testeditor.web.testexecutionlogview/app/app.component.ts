@@ -1,35 +1,19 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TestLogService } from './testLog.service';
-import {TestExecutionLog, LogGroup} from './model';
+import { TestExecutionLog, LogGroup, TestRunStatistic } from './model';
 
 @Component({
     selector: 'testexeclog-app',
     templateUrl: 'app/testexeclogapp.html'
 })
-export class AppComponent {
-    testRuns: TestExecutionLog[];
-    testRunLog: String;
-    logGroups: LogGroup[];
-    useLogGroup: boolean;
-    currentSelection: TestExecutionLog;
+export class AppComponent implements OnInit {
+    testRuns: TestExecutionLog[]
 
     constructor(private logService: TestLogService) {
-        this.logService.getTestExecutionLogs().then(testExecLogs => this.testRuns=testExecLogs)
-        this.testRunLog = '';
-        this.useLogGroup = true;
     }
 
-    onSelect(testExecLog: TestExecutionLog) {
-        this.currentSelection = testExecLog
-        if(this.useLogGroup) {
-            this.logService.getTestExecutionLogGroups(testExecLog).then(logGroups => this.logGroups=logGroups)
-        }else{
-            this.logService.getTestExecutionLogContent(testExecLog).then(content => this.testRunLog=content)
-        }
+    ngOnInit(): void {
+        this.logService.getTestExecutionLogs().then(testExecLogs => this.testRuns = testExecLogs)
     }
 
-    onToggle() {
-        this.useLogGroup = !this.useLogGroup
-        this.onSelect(this.currentSelection)
-    }
- }
+}

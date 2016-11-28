@@ -49,6 +49,8 @@ import org.testeditor.tcl.dsl.ui.util.TclIndexHelper
 import org.testeditor.tcl.dsl.ui.util.TclInjectorProvider
 import org.eclipse.e4.ui.workbench.modeling.EPartService
 import org.eclipse.swt.widgets.Display
+import java.io.FileOutputStream
+import java.nio.file.Files
 import org.testeditor.rcp4.tcltestrun.LaunchResult
 
 class TclLauncherUi implements Launcher {
@@ -129,13 +131,12 @@ class TclLauncherUi implements Launcher {
 			}
 			val con = consoleFactory.createAndShowConsole
 			val list = testLaunchInformation.testCasesCommaList ?: #[]
-			val execLog = testExecutionManager.createTestExecutionLog(list)
 			partHelper.showView(TEST_EXECUTION_RESULT_VIEW)
-			val viewPart = eclipseContextHelper.eclipseContext.get(EPartService).findPart(TEST_EXECUTION_RESULT_VIEW)
-			val teExecView = viewPart.object as TestExecutionLogViewPart
-			Display.^default.syncExec[teExecView?.showLog(execLog)]
+			val execLog = testExecutionManager.createTestExecutionLog(list)
+			val testResultDir = testExecutionManager.createTestlogDirectoryFor(execLog)
+			val logFileStream = new FileOutputStream(new File(testResultDir, "testrun.log"))
+			val output = new TeeOutputStream(con.newOutputStream, logFileStream)
 			var LaunchResult result = null
-			val output = new TeeOutputStream(con.newOutputStream, testExecutionManager.createOutputStreamFor(execLog))
 			try {
 				result = testLaunchInformation.launcher.launchTest(testLaunchInformation.testCasesCommaList,
 					testLaunchInformation.project, monitor, output, testLaunchInformation.options)
@@ -147,11 +148,19 @@ class TclLauncherUi implements Launcher {
 				logger.error("resulting expectedFile must not be null")
 			} else {
 				safeUpdateJunitTestView(result.expectedFileRoot, testLaunchInformation.project.name)
+				Files.copy(new File(result.expectedFileRoot, "te-testCompose.xml").toPath,
+					new File(testResultDir, "testSummary.xml").toPath)
 			}
 			monitor.done
 			partHelper.showView(TEST_EXECUTION_RESULT_VIEW)
+			Display.^default.syncExec[testExecutionLogViewPart?.showLog(execLog)]
 		])
 		return true
+	}
+	
+	private def TestExecutionLogViewPart getTestExecutionLogViewPart() {
+		val viewPart = eclipseContextHelper.eclipseContext.get(EPartService).findPart(TEST_EXECUTION_RESULT_VIEW)
+		return viewPart.object as TestExecutionLogViewPart
 	}
 
 	def storeTestParameterAsLastTestExecution(TestLaunchInformation testLaunchInformation) {

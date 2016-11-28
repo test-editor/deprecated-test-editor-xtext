@@ -13,6 +13,10 @@
 	<artifactId>org.testeditor.rcp4</artifactId>
 	<packaging>eclipse-plugin</packaging>
 
+	<properties>
+		<deploy.skip>true</deploy.skip>
+	</properties>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -21,4 +25,5 @@
 			</plugin>
 		</plugins>
 	</build>
+
 </project>

@@ -13,6 +13,10 @@
 	<artifactId>org.testeditor.aml.dsl.ui.tests</artifactId>
 	<packaging>eclipse-test-plugin</packaging>
 
+	<properties>
+		<deploy.skip>true</deploy.skip>
+	</properties>
+
 	<build>
 		<plugins>
 			<plugin>

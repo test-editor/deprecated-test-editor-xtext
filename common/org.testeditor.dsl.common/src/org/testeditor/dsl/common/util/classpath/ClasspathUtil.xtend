@@ -13,7 +13,10 @@
 package org.testeditor.dsl.common.util.classpath
 
 import javax.inject.Inject
+import org.eclipse.core.resources.IProject
+import org.eclipse.core.runtime.CoreException
 import org.eclipse.core.runtime.IPath
+import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.jdt.core.IClasspathEntry
@@ -21,8 +24,6 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.xtext.EcoreUtil2
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.util.WorkspaceHelper
-import org.eclipse.core.resources.IProject
-import org.eclipse.jdt.internal.core.JavaProject
 
 class ClasspathUtil {
 
@@ -65,13 +66,28 @@ class ClasspathUtil {
 		val classpathEntries = getSourceClasspathEntries(workspaceHelper.root.getFile(path).project)
 		return classpathEntries.filter[it.path.isPrefixOf(path)].head.path
 	}
-	
+
 	def Iterable<IClasspathEntry> getSourceClasspathEntries(IProject project) {
-		if (JavaProject.hasJavaNature(project)) {
+		if (project.hasJavaNature) {
 			val javaProject = JavaCore.create(project)
 			return javaProject.rawClasspath.filter[entryKind == IClasspathEntry.CPE_SOURCE]
 		} else {
 			return emptyList
+		}
+	}
+
+	/** 
+	 * get all classpath entries of this java-project, apply the transformation 
+	 * and set the classpaths of this project to the transformed classpath entries
+	 * removing nulls if exsitent
+	 */
+	def void transformClasspathEntries(IProject project, (IClasspathEntry)=>IClasspathEntry transformation) {
+		if (project.hasJavaNature) {
+			val javaProject = JavaCore.create(project)
+			val transformedClasspaths = javaProject.rawClasspath.map(transformation).filterNull
+			javaProject.setRawClasspath(transformedClasspaths, new NullProgressMonitor)
+		} else {
+			throw new IllegalArgumentException('Passed project must have the java project nature.')
 		}
 	}
 
@@ -87,6 +103,14 @@ class ClasspathUtil {
 			return getBuildProjectBaseDir(new Path(path.toFile.parent))
 		}
 		return null
+	}
+
+	private def boolean hasJavaNature(IProject project) {
+		try {
+			return project.hasNature(JavaCore.NATURE_ID)
+		} catch (CoreException e) {
+			return false
+		}
 	}
 
 }

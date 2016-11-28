@@ -13,4 +13,8 @@
 	<artifactId>org.testeditor.rcp4.feature</artifactId>
 	<packaging>eclipse-feature</packaging>
 
+	<properties>
+		<deploy.skip>true</deploy.skip>
+	</properties>
+
 </project>

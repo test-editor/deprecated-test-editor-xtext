@@ -13,6 +13,10 @@
 	<artifactId>org.testeditor.dsl.common.testing</artifactId>
 	<packaging>eclipse-plugin</packaging>
 
+	<properties>
+		<deploy.skip>true</deploy.skip>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.mockito</groupId>

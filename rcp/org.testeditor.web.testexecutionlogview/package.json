@@ -36,7 +36,7 @@
     "@angular/platform-browser-dynamic": "~2.1.0",
     "@angular/router": "~3.1.0",
     "@angular/upgrade": "~2.1.0",
-    "@ng-bootstrap/ng-bootstrap": "^1.0.0-alpha.11",
+    "@ng-bootstrap/ng-bootstrap": "^1.0.0-alpha.13",
     "angular-in-memory-web-api": "~0.1.5",
     "bootstrap": "^4.0.0-alpha.5",
     "core-js": "^2.4.1",

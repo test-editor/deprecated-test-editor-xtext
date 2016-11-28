@@ -10,6 +10,10 @@
 		<relativePath>../../releng/org.testeditor.releng.parent</relativePath>
 	</parent>
 
+	<properties>
+		<deploy.skip>true</deploy.skip>
+	</properties>
+
 	<artifactId>org.testeditor.aml.legacy.feature</artifactId>
 	<packaging>eclipse-feature</packaging>
 
