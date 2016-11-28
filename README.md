@@ -27,6 +27,10 @@ After checking out the source code we first need to build the Eclipse target pla
     
 This will take some time for the first run but should be fast afterwards.
 
+The RCP contains some web based views, which are developed in a seperate cycle. They can be build with:
+
+    gradlew preBuildWeb
+
 After building the target platform, we can simply build the test editor with:
 
     mvn clean install
