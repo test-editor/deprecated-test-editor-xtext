@@ -26,8 +26,6 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.jface.viewers.TreeViewer
 import org.eclipse.swt.SWT
 import org.eclipse.swt.dnd.DND
-import org.eclipse.swt.dnd.DragSourceEvent
-import org.eclipse.swt.dnd.DragSourceListener
 import org.eclipse.swt.dnd.TextTransfer
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Display
@@ -52,9 +50,9 @@ class TestStepSelector {
 
 	@Inject IEventBroker broker
 	@Inject AmlInjectorProvider amlInjectorProvider
-	@Inject AmlDropSupport amlDropSupport
-	@Inject TestStepSelectorDropTextProvider dropTextProvider
+	@Inject TestStepSelectorLabelProvider labelProvider
 	@Inject ICommandService commandService
+	TestStepSelectorTreeContentProvider contentProvider
 	AmlQualifiedNameProvider amlQualifiedNameProvider
 	TreeViewer viewer
 
@@ -62,7 +60,7 @@ class TestStepSelector {
 
 	@PostConstruct
 	def void postConstruct(Composite parent, TestStepSelectorExecutionListener executionListener,
-		TestStepSelectorPartListener partListener, TestStepSelectorLabelProvider labelProvider) {
+		TestStepSelectorPartListener partListener, TestStepSelectorDragSourceListener dragSourceListener) {
 
 		val amlInjector = amlInjectorProvider.get
 		amlQualifiedNameProvider = amlInjector.getInstance(AmlQualifiedNameProvider)
@@ -71,28 +69,9 @@ class TestStepSelector {
 		page.addPartListener(partListener)
 
 		viewer = newTreeViewer(parent, SWT.V_SCROLL) [
-			addDragSupport((DND.DROP_COPY.bitwiseOr(DND.DROP_MOVE)), #[TextTransfer.instance],
-				new DragSourceListener {
-
-					override dragFinished(DragSourceEvent event) {
-						logger.trace("drag stop")
-					}
-
-					override dragSetData(DragSourceEvent event) {
-						if (TextTransfer.instance.isSupportedType(event.dataType) &&
-							amlDropSupport.dropSupported(viewer.structuredSelection.firstElement as EObject)) {
-							event.data = dropTextProvider.getText(viewer.structuredSelection)
-						} else {
-							event.data = ""
-						}
-					}
-
-					override dragStart(DragSourceEvent event) {
-						logger.trace("drag start")
-					}
-
-				})
+			addDragSupport((DND.DROP_COPY.bitwiseOr(DND.DROP_MOVE)), #[TextTransfer.instance], dragSourceListener)
 		]
+		dragSourceListener.viewer = viewer
 		viewer.contentProvider = amlInjectorProvider.get.getInstance(TestStepSelectorTreeContentProvider)
 		viewer.labelProvider = labelProvider
 		

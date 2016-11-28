@@ -37,6 +37,7 @@ import org.testeditor.tsl.TslPackage
 import static org.eclipse.xtext.formatting2.IHiddenRegionFormatter.LOW_PRIORITY
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
 import static org.testeditor.tcl.TclPackage.Literals.*
+import org.testeditor.tcl.AbstractTestStep
 
 class TclFormatter extends XbaseFormatter {
 
@@ -127,9 +128,12 @@ class TclFormatter extends XbaseFormatter {
 		macroTestStepContext.steps.forEach[format]
 	}
 
-	def dispatch void format(TestStep testStep, extension IFormattableDocument document) {
+	def dispatch void format(AbstractTestStep testStep, extension IFormattableDocument document) {
 		testStep.regionFor.keyword("-").prepend[newLine]
-		testStep.contents.forEach[format]
+		if (testStep instanceof TestStep) {
+			testStep.contents.forEach[format]
+			testStep.regionFor.keyword(".").prepend[noSpace]
+		}
 	}
 
 	def dispatch void format(StepContentText stepContentText, extension IFormattableDocument document) {
@@ -146,16 +150,18 @@ class TclFormatter extends XbaseFormatter {
 
 	def dispatch void format(StepContentElement stepContentElement, extension IFormattableDocument document) {
 		stepContentElement.regionFor.keywords("<", "<>").forEach[prepend[oneSpace]]
+		stepContentElement.regionFor.keyword("<").append[noSpace]
+		stepContentElement.regionFor.keyword(">").prepend[noSpace]
 	}
 
 	def dispatch void format(VariableReference variableReference, extension IFormattableDocument document) {
-		variableReference.regionFor.keyword('@').prepend[oneSpace].append[noSpace]		
-		variableReference.variable.append[oneSpace;priority=LOW_PRIORITY]
+		variableReference.regionFor.keyword('@').prepend[oneSpace].append[noSpace]
+		variableReference.variable.append[oneSpace; priority = LOW_PRIORITY]
 	}
 
 	def dispatch void format(VariableReferenceMapAccess variableReferenceMapAccess,
 		extension IFormattableDocument document) {
-		variableReferenceMapAccess.regionFor.keyword('@').prepend[oneSpace].append[noSpace]		
+		variableReferenceMapAccess.regionFor.keyword('@').prepend[oneSpace].append[noSpace]
 		variableReferenceMapAccess.regionFor.keyword('.').prepend[noSpace].append[noSpace]
 		variableReferenceMapAccess.variable.append[noSpace]
 		variableReferenceMapAccess.regionFor.feature(VARIABLE_REFERENCE_MAP_ACCESS__KEY).prepend[noSpace]
