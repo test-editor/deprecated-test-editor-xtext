@@ -22,11 +22,13 @@ import org.eclipse.e4.ui.di.Focus
 class TestExecutionLogViewPart {
 
 	Browser browser
+	
+	String port
 
 	@PostConstruct
 	def void buildUI(Composite parent) {
 		browser = new Browser(parent, SWT.NORMAL)
-		val port = System.getProperty("org.osgi.service.http.port")
+		port = System.getProperty("org.osgi.service.http.port")
 		val url = '''http://localhost:«port»/testlogs/web-app/index.html'''
 		browser.setUrl(url)
 	}
@@ -39,8 +41,8 @@ class TestExecutionLogViewPart {
 	}
 
 	def void showLog(TestExecutionLog log) {
-		// TODO update browser with new navigation content
-		browser.refresh
+		val url = '''http://localhost:«port»/testlogs/web-app/index.html#/testrun/«log.testRunTimestamp»'''
+		browser.setUrl(url)
 	}
 
 }

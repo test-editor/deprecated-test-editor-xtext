@@ -133,7 +133,6 @@ class TclLauncherUi implements Launcher {
 			val list = testLaunchInformation.testCasesCommaList ?: #[]
 			partHelper.showView(TEST_EXECUTION_RESULT_VIEW)
 			val execLog = testExecutionManager.createTestExecutionLog(list)
-			Display.^default.syncExec[testExecutionLogViewPart?.showLog(execLog)]
 			val testResultDir = testExecutionManager.createTestlogDirectoryFor(execLog)
 			val logFileStream = new FileOutputStream(new File(testResultDir, "testrun.log"))
 			val output = new TeeOutputStream(con.newOutputStream, logFileStream)
@@ -154,6 +153,7 @@ class TclLauncherUi implements Launcher {
 			}
 			monitor.done
 			partHelper.showView(TEST_EXECUTION_RESULT_VIEW)
+			Display.^default.syncExec[testExecutionLogViewPart?.showLog(execLog)]
 		])
 		return true
 	}
