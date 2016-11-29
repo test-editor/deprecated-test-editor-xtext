@@ -119,7 +119,7 @@ void postRelease(String preReleaseVersion) {
             def nextSnapshotVersion = '\\${parsedVersion.majorVersion}.\\${parsedVersion.nextMinorVersion}.0-SNAPSHOT'
             setVersion(nextSnapshotVersion, 'target-platform/org.testeditor.releng.target.parent/pom.xml', 'org.testeditor.releng.target.parent')
             setVersion(nextSnapshotVersion, 'pom.xml', 'org.testeditor.releng.parent')
-            sh "git add *"
+            sh "git add ."
             sh "git commit -m '[release] set version ${getCurrentVersion()}'"
             sh "git push origin develop"
         } else {
