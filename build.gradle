@@ -42,7 +42,7 @@ task buildTarget(type: MavenExec) {
     inputs.files fileTree(dir: targetPlatform, exclude: '**/target/**')
     outputs.dir file("$targetPlatform/org.testeditor.releng.target.updatesite/target/site")
     workingDir targetPlatform
-    args 'clean', 'install'
+    args 'clean', 'verify'
 }
 
 task cleanTarget(type: MavenExec) {
@@ -51,14 +51,14 @@ task cleanTarget(type: MavenExec) {
 }
 
 // TODO define inputs and outputs
-task install(type: MavenExec, dependsOn: buildTarget) {
+task verify(type: MavenExec, dependsOn: buildTarget) {
     workingDir projectDir
-    args 'clean', 'install', '-Dmaven.test.failure.ignore', '-Dsurefire.useFile=false', '-Dtycho.localArtifacts=ignore'
+    args 'clean', 'verify', '-Dmaven.test.failure.ignore', '-Dsurefire.useFile=false', '-Dtycho.localArtifacts=ignore'
 }
 
-task deploy(type: MavenExec, dependsOn: buildTarget) {
+task deploy(type: MavenExec) {
     workingDir projectDir
-    args 'clean', 'deploy', '-Dmaven.test.failure.ignore', '-Dsurefire.useFile=false', '-Dtycho.localArtifacts=ignore'
+    args 'deploy', '-DskipTests', '-Dtycho.localArtifacts=ignore'
 }
 
 // TODO should be dependent on build (but build needs to be incremental for that)
