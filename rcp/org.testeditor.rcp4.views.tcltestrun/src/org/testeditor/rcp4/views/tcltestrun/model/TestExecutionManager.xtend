@@ -30,9 +30,8 @@ class TestExecutionManager {
 	static val logger = LoggerFactory.getLogger(TestExecutionManager)
 
 	static val String TEST_RUN_DIRECTORY_PREFIX = "testrun-"
-	
-	val fileDateFormat = new SimpleDateFormat("yyyy.MM.dd-HH.mm")
 
+	val fileDateFormat = new SimpleDateFormat("yyyy.MM.dd-HH.mm")
 
 	@Inject LogLocationHelper logLocationHelper
 
@@ -96,6 +95,7 @@ class TestExecutionManager {
 	}
 
 	def private String getTestExecutionLogName(String teLogFileName) {
+		logger.debug("Parsing log name from {}", teLogFileName)
 		val date = fileDateFormat.parse(teLogFileName.substring(8))
 		val sdf = new SimpleDateFormat("dd.MM.yy HH:mm")
 		return sdf.format(date)

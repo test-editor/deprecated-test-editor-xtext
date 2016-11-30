@@ -82,7 +82,7 @@ class TestLogGroupBuilderTest extends AbstractTest {
 		group.assertSize(2)
 		group.get(1).assertInstanceOf(TestLogGroupComposite) => [ parent |
 			parent.type.assertEquals(TestElementType.TestSpecGroup)
-			parent.children.head.assertInstanceOf(TestLogGroup) =>[
+			parent.children.head.assertInstanceOf(TestLogGroup) => [
 				type.assertEquals(TestElementType.TestComponentGroup)
 				it.parent.assertSame(parent)
 			]
@@ -198,11 +198,58 @@ class TestLogGroupBuilderTest extends AbstractTest {
 		val group = logGroupBuilder.build(wrap(log).readLines)
 
 		// then	
-		assertEquals(group.size, 3)
+		group.assertSize(3)
 		assertTrue(group.get(2).type === TestElementType.TestSpecGroup)
 		val tspecGroup = group.get(2) as TestLogGroupComposite
 		assertEquals(tspecGroup.children.size, 2)
 		assertTrue(tspecGroup.children.get(0).type === TestElementType.TestComponentGroup)
+	}
+
+	@Test
+	def void testCreateTestCaseGorupFromLog() {
+		// given
+		val log = '''
+			[INFO] --- xtend-maven-plugin:2.10.0:testCompile (default) @ org.testeditor.rcp4.uatests ---
+			Running org.testeditor.rcp4.writetests.WriteSimpleTestWithoutPackageTest 
+			22:15:09 DEBUG [EventAdmin Async Event Dispatcher Thread] TestStepSelector updateModelAndView 
+			22:15:09 INFO [WorkbenchTestable] [TE-Test: WriteSimpleTestWithoutPackageTest] AbstractTestCase ****************************************************
+			22:15:09 INFO [WorkbenchTestable] [TE-Test: WriteSimpleTestWithoutPackageTest] AbstractTestCase Running test for org.testeditor.rcp4.writetests.WriteSimpleTestWithoutPackageTest
+			22:15:09 INFO [WorkbenchTestable] [TE-Test: WriteSimpleTestWithoutPackageTest] AbstractTestCase ****************************************************
+			22:15:09 INFO [WorkbenchTestable] [TE-Test: WriteSimpleTestWithoutPackageTest] SWTFixture Wrote screenshot to file='screenshots/org.testeditor.rcp4.writetests.WriteSimpleTestWithoutPackageTest.png'.
+		'''
+		// when
+		val group = logGroupBuilder.build(wrap(log).readLines)
+
+		// then
+		group.assertSize(2)
+		assertSame(group.get(0).type, TestElementType.SystemGroup)
+		assertSame(group.get(1).type, TestElementType.TestCase)
+	}
+
+	@Test
+	def void testCreateTestCaseGorupFromLogWithTestSpec() {
+		// given
+		val log = '''
+			[INFO] --- xtend-maven-plugin:2.10.0:testCompile (default) @ org.testeditor.rcp4.uatests ---
+			Running org.testeditor.rcp4.writetests.WriteSimpleTestWithoutPackageTest 
+			22:15:09 DEBUG [EventAdmin Async Event Dispatcher Thread] TestStepSelector updateModelAndView 
+			22:15:09 INFO [WorkbenchTestable] [TE-Test: WriteSimpleTestWithoutPackageTest] AbstractTestCase ****************************************************
+			22:15:09 INFO [WorkbenchTestable] [TE-Test: WriteSimpleTestWithoutPackageTest] AbstractTestCase Running test for org.testeditor.rcp4.writetests.WriteSimpleTestWithoutPackageTest
+			22:15:09 INFO [WorkbenchTestable] [TE-Test: WriteSimpleTestWithoutPackageTest] AbstractTestCase ****************************************************
+			22:15:09 INFO [WorkbenchTestable] [TE-Test: WriteSimpleTestWithoutPackageTest] SWTFixture Wrote screenshot to file='screenshots/org.testeditor.rcp4.writetests.WriteSimpleTestWithoutPackageTest.png'.
+			22:15:52 INFO  [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Spec step] * Given
+			22:15:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Component] ** ProjectExplorer
+			22:15:52 TRACE [WorkbenchTestable] [TE-Test: AmlTemplateTest] AbstractTestCase  [Test step] *** Execute menu item "New/Project..." in tree <ProjectTree>
+		'''
+		// when
+		val group = logGroupBuilder.build(wrap(log).readLines)
+
+		// then
+		group.assertSize(2)
+		assertSame(group.get(0).type, TestElementType.SystemGroup)
+		assertSame(group.get(1).type, TestElementType.TestCase)
+		val testCase = group.get(1) as TestLogGroupComposite
+		assertSame(testCase.children.get(0).type, TestElementType.TestSpecGroup)
 	}
 
 }
