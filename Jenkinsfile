@@ -32,9 +32,9 @@ nodeWithProperWorkspace {
         }
     }
 
-    stage('Build Web TE-Log-View') {
+    stage('Build Web Components') {
         withMavenEnv {
-            gradle 'copyTeLogViewToRcp'
+            gradle 'preBuildWeb'
         }
     }
 
