@@ -128,7 +128,6 @@ class TestStepSelector {
 
 		viewer.input = editor.document.readOnly[readCurrentAMLModel]
 
-
 		if (currentProject === null || currentProject != projectName) {
 			expandedElementsPerProject.put(currentProject, previouslyExpandedElements)
 			previouslyExpandedElements = expandedElementsPerProject.get(projectName)
@@ -141,14 +140,14 @@ class TestStepSelector {
 
 	private def readCurrentAMLModel(XtextResource resource) {
 		val List<AmlModel> currentModels = newArrayList
-		
+
 		rs = amlInjectorProvider.get.getInstance(ResourceSet)
 		val resourceDescription = resourcenManger.getResourceDescription(resource)
 		val IResourceDescriptions resourceDescriptions = resourceDescriptionsProvider.createResourceDescriptions();
-		
+
 		val visibleContainers = containerManager.getVisibleContainers(resourceDescription, resourceDescriptions)
 		for (visibleContainer : visibleContainers) {
-			if(visibleContainer instanceof StateBasedContainer){
+			if (visibleContainer instanceof StateBasedContainer) {
 				val amlDescriptions = visibleContainer.getExportedObjectsByType(AML_MODEL)
 				currentModels.addAll(amlDescriptions.map[EObjectOrProxy].map[EcoreUtil2.resolve(it, rs) as AmlModel])
 			}
