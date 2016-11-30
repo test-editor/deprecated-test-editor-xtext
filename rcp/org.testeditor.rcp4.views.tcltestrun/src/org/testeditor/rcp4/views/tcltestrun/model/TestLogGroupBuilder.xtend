@@ -49,7 +49,7 @@ class TestLogGroupBuilder {
 			if (logLine.contains("Running test") &&
 				lastLine.contains(" ****************************************************")) {
 				val cmp = new TestLogGroupComposite(TestElementType.TestCase)
-				cmp.name = logLine.substring(logLine.indexOf("Running test"))
+				cmp.name = logLine.substring(logLine.lastIndexOf(" "))
 				currentLogGroup = cmp
 				result.add(cmp)
 			}
