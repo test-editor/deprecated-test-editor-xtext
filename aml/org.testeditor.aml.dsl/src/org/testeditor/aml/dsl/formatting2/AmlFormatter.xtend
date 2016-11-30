@@ -20,32 +20,32 @@ import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.IntegerRange
 import org.testeditor.aml.StringLiterals
+import org.testeditor.aml.ValueSpaceAssignment
 
-// import static org.testeditor.aml.ModelPackage.Literals.*
+ import static org.testeditor.aml.AmlPackage.Literals.*
+ 
 /**
  * Defines the formatting (pretty-print) for AML.
  */
 class AmlFormatter extends XbaseFormatter {
 
-	// TODO work in progress
 	def dispatch void format(AmlModel model, extension IFormattableDocument document) {
 		model.eContents.forEach [
 			prepend[setNewLines(2, 2, 2)] // at least one empty line between elements
 			formatBrackets(document)
 			formatKeywords(document)
-			format
 		]
+		model.eAllContents.forEach[format]
 	}
 
 	def dispatch void format(Component component, extension IFormattableDocument document) {
 		component.regionFor.keyword("abstract").append[oneSpace]
 		component.regionFor.keyword("includes").append[oneSpace].prepend[oneSpace]
-		component.elements.forEach[format]
 	}
 
 	def dispatch void format(StringLiterals element, extension IFormattableDocument document) {
 		element.regionFor.keywords(",").forEach[prepend[noSpace].append[oneSpace]]
-		element.regionFor.keyword("#[").surround[oneSpace]		
+		element.regionFor.keyword("#[").surround[oneSpace]
 		element.regionFor.keyword("]").prepend[oneSpace]
 	}
 
@@ -54,9 +54,15 @@ class AmlFormatter extends XbaseFormatter {
 	}
 
 	def dispatch void format(ComponentElement element, extension IFormattableDocument document) {
-		element.interior[indent] 
+		element.interior[indent]
 		element.formatBrackets(document, false)
-		element.valueSpaceAssignments.forEach[prepend[setNewLines(1, 1, 2)]] // <-- has to correspond to closing bracket in formatBrackets to match short/long syntax formatting
+	}
+
+	def dispatch void format(ValueSpaceAssignment element, extension IFormattableDocument document) {
+		element.prepend[setNewLines(1, 1, 2)] // <-- has to correspond to closing bracket in formatBrackets to match short/long syntax formatting
+		element.regionFor.keyword('restrict').append[oneSpace]
+		element.regionFor.keyword('to').surround[oneSpace]
+		element.regionFor.feature(VALUE_SPACE_ASSIGNMENT__VARIABLE).append[oneSpace]
 	}
 
 	private def void formatBrackets(EObject element, extension IFormattableDocument document, boolean doIndent) {
@@ -66,7 +72,7 @@ class AmlFormatter extends XbaseFormatter {
 		}
 		element.regionFor.keyword("}").prepend[setNewLines(1, 1, 2)]
 	}
-	
+
 	private def void formatBrackets(EObject element, extension IFormattableDocument document) {
 		formatBrackets(element, document, true)
 	}
@@ -76,7 +82,7 @@ class AmlFormatter extends XbaseFormatter {
 		element.regionFor.keyword("type").surround[oneSpace]
 		element.regionFor.keyword("is").surround[oneSpace]
 		element.regionFor.keyword("=").surround[oneSpace]
-	 	element.regionFor.keywords("label", "template").forEach[prepend[setNewLines(1, 1, 2)]]
+		element.regionFor.keywords("label", "template").forEach[prepend[setNewLines(1, 1, 2)]]
 	}
 
 }
