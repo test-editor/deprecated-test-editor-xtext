@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/org.testeditor.tcl.sdk_1.2.0.qualifier.jar" id="org.testeditor.tcl.sdk" version="1.2.0.qualifier">
+   <feature url="features/org.testeditor.tcl.sdk_1.3.0.qualifier.jar" id="org.testeditor.tcl.sdk" version="1.3.0.qualifier">
       <category name="Testeditor"/>
    </feature>
-   <feature url="features/org.testeditor.aml.sdk_1.2.0.qualifier.jar" id="org.testeditor.aml.sdk" version="1.2.0.qualifier">
+   <feature url="features/org.testeditor.aml.sdk_1.3.0.qualifier.jar" id="org.testeditor.aml.sdk" version="1.3.0.qualifier">
       <category name="Testeditor"/>
    </feature>
-   <feature url="features/org.testeditor.tsl.sdk_1.2.0.qualifier.jar" id="org.testeditor.tsl.sdk" version="1.2.0.qualifier">
+   <feature url="features/org.testeditor.tsl.sdk_1.3.0.qualifier.jar" id="org.testeditor.tsl.sdk" version="1.3.0.qualifier">
       <category name="Testeditor"/>
    </feature>
-   <feature url="features/org.testeditor.rcp4.platform.feature_1.2.0.qualifier.jar" id="org.testeditor.rcp4.platform.feature" version="1.2.0.qualifier">
+   <feature url="features/org.testeditor.rcp4.platform.feature_1.3.0.qualifier.jar" id="org.testeditor.rcp4.platform.feature" version="1.3.0.qualifier">
       <category name="platform"/>
    </feature>
    <category-def name="Testeditor" label="Testeditor"/>
