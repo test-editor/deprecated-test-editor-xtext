@@ -70,7 +70,6 @@ class TestStepSelector {
 	IContainer.Manager containerManager
 	ResourceDescriptionsProvider resourceDescriptionsProvider
 	IResourceDescription.Manager resourcenManger;
-	ResourceSet rs
 	String currentProject
 	TreeViewer viewer
 
@@ -115,7 +114,7 @@ class TestStepSelector {
 	@Inject
 	@Optional
 	def void updateView(@EventTopic(SELECTOR_UPDATE_VIEW) Object data) {
-		logger.debug("updateView for " + data)
+		logger.debug("updateView for data='{}'", data)
 		if (data instanceof XtextEditor) {
 			Display.^default.syncExec[updateViewForXtextEditor(data)]
 		}
@@ -126,24 +125,24 @@ class TestStepSelector {
 
 		var previouslyExpandedElements = viewer.expandedElements.map[toStringPath].toSet
 
-		viewer.input = editor.document.readOnly[readCurrentAMLModel]
+		viewer.input = editor.document.readOnly[readVisibleAMLModels]
 
-		if (currentProject === null || currentProject != projectName) {
+		if (currentProject != projectName) {
 			expandedElementsPerProject.put(currentProject, previouslyExpandedElements)
 			previouslyExpandedElements = expandedElementsPerProject.get(projectName)
 			currentProject = projectName
 		}
-		if (previouslyExpandedElements !== null && !previouslyExpandedElements.empty) {
+		if (!previouslyExpandedElements.empty) {
 			viewer.expandedElements = elementsToExpand(previouslyExpandedElements, viewer.input as Iterable<AmlModel>)
 		}
 	}
 
-	private def readCurrentAMLModel(XtextResource resource) {
+	private def readVisibleAMLModels(XtextResource resource) {
 		val List<AmlModel> currentModels = newArrayList
 
-		rs = amlInjectorProvider.get.getInstance(ResourceSet)
+		val rs = amlInjectorProvider.get.getInstance(ResourceSet)
 		val resourceDescription = resourcenManger.getResourceDescription(resource)
-		val IResourceDescriptions resourceDescriptions = resourceDescriptionsProvider.createResourceDescriptions();
+		val IResourceDescriptions resourceDescriptions = resourceDescriptionsProvider.createResourceDescriptions()
 
 		val visibleContainers = containerManager.getVisibleContainers(resourceDescription, resourceDescriptions)
 		for (visibleContainer : visibleContainers) {
