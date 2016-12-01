@@ -10,6 +10,8 @@ import org.testeditor.tcl.SpecificationStepImplementation
 import org.eclipse.xtext.EcoreUtil2
 import org.testeditor.tcl.TestCase
 import com.google.inject.Inject
+import org.eclipse.xtext.xtype.XImportDeclaration
+import org.testeditor.aml.AmlModel
 
 class UpdateTestModelByDropTarget {
 
@@ -25,11 +27,12 @@ class UpdateTestModelByDropTarget {
 			val dropTarget = dropUtils.findDropTarget(editor, resource)
 
 			val ComponentTestStepContext newTestStepContext = dropUtils.createDroppedTestStepContext()
+			val newTestStep = newTestStepContext.steps.head
 
 			updateTestModel(tclModel.test, dropTarget, newTestStepContext, toFormatEObject)
 
 			toFormat.addAll(toFormatEObject.map[EcoreUtil.getRelativeURIFragmentPath(tclModel, it)])
-			currentElement.add(EcoreUtil.getRelativeURIFragmentPath(tclModel, newTestStepContext.steps.head))
+			currentElement.add(EcoreUtil.getRelativeURIFragmentPath(tclModel, newTestStep))
 		}
 	}
 
@@ -45,7 +48,7 @@ class UpdateTestModelByDropTarget {
 		} else {
 			testStepIndex = dropUtils.getInsertionIndex(targetTestStepContext, dropTarget)
 
-			if (targetTestStepContext.component.name != newTestStepContext.component.name) {
+			if (targetTestStepContext.isNewTestStepContextNeeded(newTestStepContext)) {
 				var targetTestStepContextIndex = (targetTestStepContext.eContainer as SpecificationStepImplementation).
 					contexts.indexOf(targetTestStepContext)
 
@@ -70,8 +73,17 @@ class UpdateTestModelByDropTarget {
 
 	}
 
+	private def isNewTestStepContextNeeded(ComponentTestStepContext targetTestStepContext,
+		ComponentTestStepContext newTestStepContext) {
+		return targetTestStepContext.component.name != newTestStepContext.component.name ||
+			(targetTestStepContext.component.eContainer as AmlModel).package !=
+				(newTestStepContext.component.eContainer as AmlModel).package
+	}
+
 	private def void insertTargetTestStepContext(TestCase test, ComponentTestStepContext droppedTestStepContext,
 		EObject dropTarget, int contextIndex, List<EObject> toFormatEObject) {
+
+		handleImportSection(test.eContainer as TclModel)
 
 		var SpecificationStepImplementation specification = null
 		if (test.steps.size() == 0) {
@@ -91,6 +103,26 @@ class UpdateTestModelByDropTarget {
 			}
 		}
 		specification.contexts.add(contextIndex, droppedTestStepContext)
+	}
+
+	private def handleImportSection(TclModel tclModel) {
+		// TODO: refactoring needed after the import section was fixed
+		val XImportDeclaration newImportDeclaration = dropUtils.createXImportDeclaration => [
+			it.importedNamespace = dropUtils.getDroppedObjectAs(String) + ".*"
+		]
+
+		if (tclModel.hasImportFor(newImportDeclaration.importedNamespace)) {
+			if (tclModel.importSection === null) {
+				tclModel.importSection = dropUtils.createXImportSection
+			}
+			tclModel.importSection.importDeclarations.add(newImportDeclaration)
+		}
+	}
+
+	def hasImportFor(TclModel tclModel, String namespace) {
+		// TODO: refactoring needed after the import section was fixed
+		return dropUtils.getDroppedObjectAs(String) != tclModel.package && (tclModel.importSection === null ||
+			!tclModel.importSection.importDeclarations.exists[it.importedNamespace == namespace])
 	}
 
 	private def splitedTargetTestStepContext(ComponentTestStepContext targetTestStepContext,
