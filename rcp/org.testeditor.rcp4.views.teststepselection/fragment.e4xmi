@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="ASCII"?>
+<fragment:ModelFragments xmi:version="2.0"
+	xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic"
+	xmlns:basic_1="http://www.eclipse.org/ui/2010/UIModel/application/descriptor/basic"
+	xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment"
+	xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu"
+	xmi:id="_XRMr4MNHEeWQa6b5MYvMYA">
+
+	<fragments xsi:type="fragment:StringModelFragment" xmi:id="_bFv7kMNHEeWQa6b5MYvMYA"
+		featurename="children" parentElementId="org.eclipse.ui.views.PropertySheetMStack">
+
+		<elements xsi:type="basic:Part" xmi:id="_xq908MNHEeWQa6b5MYvMYA"
+			elementId="org.testeditor.rcp4.views.part.maskStepSelector4rcp"
+			contributionURI="bundleclass://org.testeditor.rcp4.views.teststepselector/org.testeditor.rcp4.views.teststepselector.TestStepSelector"
+			label="Test Step Selector">
+
+			<toolbar xmi:id="_7jEdoNV-EeWSfZhKqjrmtQ"
+				elementId="org.testeditor.rcp4.views.part.testStepSelector4rcp.toolbar">
+
+			</toolbar>
+
+		</elements>
+
+	</fragments>
+
+	<fragments xsi:type="fragment:StringModelFragment" xmi:id="_g4VfEMNkEeWCuobkUCiHUg"
+		featurename="descriptors" parentElementId="org.eclipse.e4.legacy.ide.application">
+
+		<elements xsi:type="basic_1:PartDescriptor" xmi:id="_-MAtIMNnEeWCuobkUCiHUg"
+			elementId="org.testeditor.rcp4.views.partdescriptor.testStepSelector4ide"
+			label="Test Step Selector"
+			contributionURI="bundleclass://org.testeditor.rcp4.views.teststepselector/org.testeditor.rcp4.views.teststepselector.TestStepSelector">
+
+			<tags>View</tags>
+
+			<toolbar xmi:id="_eSA0YN-wEeWvOuMd6mzxuw"
+				elementId="org.testeditor.rcp4.views.teststepselector.toolbar.0">
+
+			</toolbar>
+
+		</elements>
+
+	</fragments>
+
+</fragment:ModelFragments>
+ 

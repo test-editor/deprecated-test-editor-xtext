@@ -126,7 +126,9 @@ class TestStepSelector {
 		var previouslyExpandedElements = viewer.expandedElements.map[toStringPath].toSet
 
 		viewer.input = editor.document.readOnly[readVisibleAMLModels]
-
+		if(currentProject === null){
+			currentProject = projectName
+		}
 		if (currentProject != projectName) {
 			expandedElementsPerProject.put(currentProject, previouslyExpandedElements)
 			previouslyExpandedElements = expandedElementsPerProject.get(projectName)

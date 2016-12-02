@@ -4,6 +4,10 @@
    <extension
          id="org.testeditor.rcp4.views.teststepselector.fragment"
          point="org.eclipse.e4.workbench.model">
-   </extension>
+	 	<fragment
+            apply="notexists"
+            uri="fragment.e4xmi">
+      	</fragment>   
+    </extension>
 
 </plugin>
