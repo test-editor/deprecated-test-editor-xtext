@@ -52,6 +52,7 @@ import org.eclipse.swt.widgets.Display
 import java.io.FileOutputStream
 import java.nio.file.Files
 import org.testeditor.rcp4.tcltestrun.LaunchResult
+import org.testeditor.dsl.common.ide.util.FileUtils
 
 class TclLauncherUi implements Launcher {
 
@@ -148,8 +149,7 @@ class TclLauncherUi implements Launcher {
 				logger.error("resulting expectedFile must not be null")
 			} else {
 				safeUpdateJunitTestView(result.expectedFileRoot, testLaunchInformation.project.name)
-				Files.copy(new File(result.expectedFileRoot, "te-testCompose.xml").toPath,
-					new File(testResultDir, "testSummary.xml").toPath)
+				collectTestResultFiles(result.expectedFileRoot, testResultDir)
 			}
 			monitor.done
 			partHelper.showView(TEST_EXECUTION_RESULT_VIEW)
@@ -157,7 +157,29 @@ class TclLauncherUi implements Launcher {
 		])
 		return true
 	}
-	
+
+	private def collectTestResultFiles(File resultRoot, File testResultDir) {
+		Files.copy(new File(resultRoot, "te-testCompose.xml").toPath, new File(testResultDir, "testSummary.xml").toPath)
+		val screenshotDir = lookUpScreenShotDir(resultRoot)
+		if(screenshotDir !== null) {
+			FileUtils.copyFolder(screenshotDir, new File(testResultDir,"screenshots"))
+		}
+	}
+
+	private def File lookUpScreenShotDir(File file) {
+		return file.parentFile.parentFile.getDirWithName("screenshots")
+	}
+
+	private def File getDirWithName(File file, String name) {
+		file.listFiles(new FileFilter() {
+
+			override accept(File pathname) {
+				pathname.name == name
+			}
+
+		}).head		
+	}
+
 	private def TestExecutionLogViewPart getTestExecutionLogViewPart() {
 		val viewPart = eclipseContextHelper.eclipseContext.get(EPartService).findPart(TEST_EXECUTION_RESULT_VIEW)
 		return viewPart.object as TestExecutionLogViewPart

@@ -38,7 +38,7 @@ public class TclMavenLauncher implements TclLauncher {
 	@Inject extension ProjectUtils
 	@Inject MavenExecutor mavenExecutor
 
-	override launchTest(List<String> testCases, IProject project, IProgressMonitor monitor, OutputStream out,
+	override LaunchResult launchTest(List<String> testCases, IProject project, IProgressMonitor monitor, OutputStream out,
 		Map<String, Object> options) {
 		val parameters = if (options.containsKey(
 				PROFILE)) {
