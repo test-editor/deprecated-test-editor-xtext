@@ -25,7 +25,7 @@ import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.MethodReference
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.RegExValueSpace
-import org.testeditor.aml.ValueSpaceAssignment
+import org.testeditor.aml.ValueSpaceAssignmentContainer
 import org.testeditor.aml.Variable
 
 import static org.testeditor.aml.AmlPackage.Literals.*
@@ -91,18 +91,17 @@ class AmlValidator extends AbstractAmlValidator {
 	 * Checks that value spaces are not assigned twice within an element.
 	 */
 	@Check
-	def void checkValueSpaceAssignmentUnique(ValueSpaceAssignment assignment) {
-		val element = assignment.element
-		val duplicate = element.valueSpaceAssignments.findFirst [
-			it !== assignment && variable === assignment.variable
-		]
-		if (duplicate !== null) {
+	def void checkValueSpaceAssignmentUnique(ValueSpaceAssignmentContainer container) {
+		val variableToAssignment = container.valueSpaceAssignments.groupBy[variable]
+		// those entries in the map with more than one value are duplicates
+		variableToAssignment.entrySet.filter[value.size > 1].forEach[
+			// TODO maybe improve position of error marker
 			error(
 				Validation_ValueSpaceAssignment_NonUnique,
 				VALUE_SPACE_ASSIGNMENT__VARIABLE,
 				VALUE_SPACE_ASSIGNMENT__VARIABLE__NON_UNIQUE
 			)
-		}
+		]
 	}
 
 	/**
