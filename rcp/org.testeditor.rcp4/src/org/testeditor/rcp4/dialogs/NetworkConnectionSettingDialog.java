@@ -353,7 +353,7 @@ public class NetworkConnectionSettingDialog extends Dialog {
 
 	@Override
 	protected Point getInitialSize() {
-		return new Point(500, 450);
+		return new Point(550, 500);
 	}
 
 	@Override
