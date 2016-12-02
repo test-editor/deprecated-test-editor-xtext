@@ -20,6 +20,8 @@ class TestLogGroupBuilder {
 	static val String SPEC_STEP_LOG_ENTRY = "[Spec step]" // log entry to watch out for specification steps
 	static val String COMPONENT_LOG_ENTRY = "[Component]" // log entry to watch out for component/mask steps
 	static val String TEST_STEP_LOG_ENTRY = "[Test step]" // log entry to watch out for test steps
+	static val String TEST_CASE_HEADER_1 = " ****************************************************" // log entry to watch out for test case
+	static val String TEST_CASE_HEADER_2 = "Running test" // log entry to watch out for test case
 	TestLogGroup currentLogGroup
 	String lastLine
 
@@ -46,8 +48,7 @@ class TestLogGroupBuilder {
 
 	def void updateCurrentEntryAfterLogGroup(String logLine, List<TestLogGroup> result) {
 		if (logLine.contains("[TE-Test:")) {
-			if (logLine.contains("Running test") &&
-				lastLine.contains(" ****************************************************")) {
+			if (logLine.contains(TEST_CASE_HEADER_2) && lastLine.contains(TEST_CASE_HEADER_1)) {
 				val cmp = new TestLogGroupComposite(TestElementType.TestCase)
 				cmp.name = logLine.substring(logLine.lastIndexOf(" "))
 				currentLogGroup = cmp
@@ -118,11 +119,7 @@ class TestLogGroupBuilder {
 		if (logGroup.type === TestElementType.TestCase) {
 			return logGroup as TestLogGroupComposite
 		} else {
-			if (logGroup.parent === null) {
-				return null
-			} else {
-				return logGroup.parent.testCaseRoot
-			}
+			return logGroup.parent?.testCaseRoot
 		}
 	}
 
