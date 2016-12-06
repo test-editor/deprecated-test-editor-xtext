@@ -20,14 +20,17 @@ class TestLogGroupBuilder {
 	static val String SPEC_STEP_LOG_ENTRY = "[Spec step]" // log entry to watch out for specification steps
 	static val String COMPONENT_LOG_ENTRY = "[Component]" // log entry to watch out for component/mask steps
 	static val String TEST_STEP_LOG_ENTRY = "[Test step]" // log entry to watch out for test steps
-
+	static val String TEST_CASE_HEADER_1 = " ****************************************************" // log entry to watch out for test case
+	static val String TEST_CASE_HEADER_2 = "Running test" // log entry to watch out for test case
 	TestLogGroup currentLogGroup
-	
+	String lastLine
+
 	public def List<TestLogGroup> build(List<String> logLines) {
 		val result = newArrayList
 		logLines.forEach [
 			updateCurrentLogEntry(result)
 			currentLogGroup.addLogLine(it)
+			lastLine = it
 		]
 		return result
 	}
@@ -45,10 +48,20 @@ class TestLogGroupBuilder {
 
 	def void updateCurrentEntryAfterLogGroup(String logLine, List<TestLogGroup> result) {
 		if (logLine.contains("[TE-Test:")) {
+			if (logLine.contains(TEST_CASE_HEADER_2) && lastLine.contains(TEST_CASE_HEADER_1)) {
+				val cmp = new TestLogGroupComposite(TestElementType.TestCase)
+				cmp.name = logLine.substring(logLine.lastIndexOf(" "))
+				currentLogGroup = cmp
+				result.add(cmp)
+			}
 			if (logLine.contains(COMPONENT_LOG_ENTRY)) {
 				val cmp = new TestLogGroupComposite(TestElementType.TestComponentGroup)
 				cmp.name = logLine.substring(logLine.indexOf(COMPONENT_LOG_ENTRY))
 				var parentFound = false
+				if (currentLogGroup.type === TestElementType.TestCase) {
+					(currentLogGroup as TestLogGroupComposite).add(cmp)
+					parentFound = true
+				}
 				if (currentLogGroup.type === TestElementType.TestSpecGroup) {
 					(currentLogGroup as TestLogGroupComposite).add(cmp)
 					parentFound = true
@@ -90,10 +103,23 @@ class TestLogGroupBuilder {
 				if (tsg === null) {
 					tsg = new TestLogGroupComposite(TestElementType.TestSpecGroup)
 					tsg.name = specName
-					result.add(tsg)
+					val parent = currentLogGroup.getTestCaseRoot
+					if (parent !== null) {
+						parent.add(tsg)
+					} else {
+						result.add(tsg)
+					}
 				}
 				currentLogGroup = tsg
 			}
+		}
+	}
+
+	def TestLogGroupComposite getTestCaseRoot(TestLogGroup logGroup) {
+		if (logGroup.type === TestElementType.TestCase) {
+			return logGroup as TestLogGroupComposite
+		} else {
+			return logGroup.parent?.testCaseRoot
 		}
 	}
 
