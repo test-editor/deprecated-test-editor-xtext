@@ -19,6 +19,7 @@ import javax.inject.Inject
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.xtype.XImportSection
+import org.testeditor.aml.TemplateVariable
 import org.testeditor.dsl.common.util.CollectionUtils
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.ComponentTestStepContext
@@ -40,7 +41,7 @@ import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
 
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
-import org.testeditor.aml.TemplateVariable
+import org.testeditor.tcl.util.ValueSpaceHelper
 
 class TclValidator extends AbstractTclValidator {
 
@@ -60,6 +61,8 @@ class TclValidator extends AbstractTclValidator {
 
 	@Inject extension TclModelUtil
 	@Inject extension CollectionUtils
+	
+	@Inject ValueSpaceHelper valueSpaceHelper
 
 	private static val ERROR_MESSAGE_FOR_INVALID_VAR_REFERENCE = "Dereferenced variable must be a required environment variable or a previously assigned variable"
 
@@ -166,10 +169,10 @@ class TclValidator extends AbstractTclValidator {
 	}
 
 	@Check
-	def checkValueInValueSpace(StepContentVariable stepContentVariable) {
-		val valueSpace = stepContentVariable.valueSpaceAssignment?.valueSpace
-		if (valueSpace !== null && !valueSpace.isValidValue(stepContentVariable.value)) {
-			val message = '''Value is not allowed in this step. Allowed values: '«valueSpace»'.'''
+	def void checkValueInValueSpace(StepContentVariable stepContentVariable) {
+		val valueSpace = valueSpaceHelper.getValueSpace(stepContentVariable)
+		if (valueSpace.present && !valueSpace.get.isValidValue(stepContentVariable.value)) {
+			val message = '''Value is not allowed in this step. Allowed values: '«valueSpace.get»'.'''
 			warning(message, TslPackage.Literals.STEP_CONTENT_VALUE__VALUE, UNALLOWED_VALUE);
 		}
 	}
