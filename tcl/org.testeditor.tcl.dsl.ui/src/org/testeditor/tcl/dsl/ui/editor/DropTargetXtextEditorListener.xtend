@@ -37,6 +37,7 @@ class DropTargetXtextEditorListener extends DropTargetAdapter {
 		val List<String> toFormat = newArrayList
 		val List<String> currentElement = newArrayList
 
+		editor.document.modify[updateImports(currentElement)]
 		editor.document.modify[updateModel(toFormat, currentElement)]
 		editor.document.modify [
 			formatRelevantRegion(toFormat)
@@ -47,6 +48,9 @@ class DropTargetXtextEditorListener extends DropTargetAdapter {
 
 	}
 
+	private def updateImports(XtextResource resource, List<String> currentElement) {
+		updateTestModelByDropTarget.updateImports(resource, editor, currentElement)		
+	}
 	private def updateModel(XtextResource resource, List<String> toFormat, List<String> currentElement) {
 		updateTestModelByDropTarget.updateModel(resource, editor, toFormat, currentElement)
 

@@ -16,6 +16,9 @@ import org.eclipse.xtext.common.types.JvmDeclaredType
 import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.testeditor.aml.AmlModel
+import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
+import javax.inject.Inject
+import org.eclipse.xtext.naming.IQualifiedNameProvider
 
 // TODO this is not used, yet - instead we generate the old XML files for now
 class AmlJvmModelInferrer extends AbstractModelInferrer {
@@ -23,7 +26,8 @@ class AmlJvmModelInferrer extends AbstractModelInferrer {
     /**
      * convenience API to build and initialize JVM types and their members.
      */
-	// @Inject extension JvmTypesBuilder
+	@Inject extension JvmTypesBuilder
+	@Inject IQualifiedNameProvider nameProvider
 
 	/**
 	 * The dispatch method {@code infer} is called for each instance of the
@@ -51,6 +55,11 @@ class AmlJvmModelInferrer extends AbstractModelInferrer {
 	 *            <code>true</code>.
 	 */
    	def dispatch void infer(AmlModel element, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
+   		element.components.forEach[acceptor.accept(toInterface(nameProvider.getFullyQualifiedName(it).toString)[documentation = '''Generated from «element.eResource.URI»'''])[]]
+   		element.componentTypes.forEach[acceptor.accept(toInterface(nameProvider.getFullyQualifiedName(it).toString)[documentation = '''Generated from «element.eResource.URI»'''])[]]
+   		element.componentElementTypes.forEach[acceptor.accept(toInterface(nameProvider.getFullyQualifiedName(it).toString)[documentation = '''Generated from «element.eResource.URI»'''])[]]
+   		element.interactionTypes.forEach[acceptor.accept(toInterface(nameProvider.getFullyQualifiedName(it).toString)[documentation = '''Generated from «element.eResource.URI»'''])[]]
+   		element.valueSpaces.forEach[acceptor.accept(toInterface(nameProvider.getFullyQualifiedName(it).toString)[documentation = '''Generated from «element.eResource.URI»'''])[]]
    		// Here you explain how your model is mapped to Java elements, by writing the actual translation code.
    		
    		// An implementation for the initial hello world example could look like this:

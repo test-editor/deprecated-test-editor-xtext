@@ -1,21 +1,26 @@
 package org.testeditor.tcl.dsl.ui.editor
 
-import org.eclipse.xtext.resource.XtextResource
-import java.util.List
-import org.testeditor.tcl.TclModel
-import org.testeditor.tcl.ComponentTestStepContext
-import org.eclipse.emf.ecore.util.EcoreUtil
-import org.eclipse.emf.ecore.EObject
-import org.testeditor.tcl.SpecificationStepImplementation
-import org.eclipse.xtext.EcoreUtil2
-import org.testeditor.tcl.TestCase
 import com.google.inject.Inject
-import org.eclipse.xtext.xtype.XImportDeclaration
+import java.util.List
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.util.EcoreUtil
+import org.eclipse.xtext.EcoreUtil2
+import org.eclipse.xtext.common.types.util.TypeReferences
+import org.eclipse.xtext.naming.IQualifiedNameProvider
+import org.eclipse.xtext.resource.XtextResource
+import org.eclipse.xtext.xbase.imports.RewritableImportSection
 import org.testeditor.aml.AmlModel
+import org.testeditor.aml.Component
+import org.testeditor.tcl.ComponentTestStepContext
+import org.testeditor.tcl.SpecificationStepImplementation
+import org.testeditor.tcl.TclModel
+import org.testeditor.tcl.TestCase
 
 class UpdateTestModelByDropTarget {
 
-	@Inject private DropUtils dropUtils
+	@Inject DropUtils dropUtils
+	@Inject RewritableImportSection.Factory importSectionFactory
+	@Inject TypeReferences references
 
 	protected def updateModel(XtextResource resource, DropTargetXtextEditor editor, List<String> toFormat,
 		List<String> currentElement) {
@@ -34,6 +39,11 @@ class UpdateTestModelByDropTarget {
 			toFormat.addAll(toFormatEObject.map[EcoreUtil.getRelativeURIFragmentPath(tclModel, it)])
 			currentElement.add(EcoreUtil.getRelativeURIFragmentPath(tclModel, newTestStep))
 		}
+	}
+
+	protected def updateImports(XtextResource resource, DropTargetXtextEditor editor, List<String> currentElement) {
+		handleImportSection(resource)
+		return resource
 	}
 
 	public def void updateTestModel(TestCase test, EObject dropTarget, ComponentTestStepContext newTestStepContext,
@@ -83,8 +93,6 @@ class UpdateTestModelByDropTarget {
 	private def void insertTargetTestStepContext(TestCase test, ComponentTestStepContext droppedTestStepContext,
 		EObject dropTarget, int contextIndex, List<EObject> toFormatEObject) {
 
-		handleImportSection(test.eContainer as TclModel)
-
 		var SpecificationStepImplementation specification = null
 		if (test.steps.size() == 0) {
 			specification = dropUtils.createSpecification
@@ -105,24 +113,59 @@ class UpdateTestModelByDropTarget {
 		specification.contexts.add(contextIndex, droppedTestStepContext)
 	}
 
-	private def handleImportSection(TclModel tclModel) {
-		// TODO: refactoring needed after the import section was fixed
-		val XImportDeclaration newImportDeclaration = dropUtils.createXImportDeclaration => [
-			it.importedNamespace = dropUtils.getDroppedObjectAs(String) + ".*"
-		]
-
-		if (tclModel.hasImportFor(newImportDeclaration.importedNamespace)) {
-			if (tclModel.importSection === null) {
-				tclModel.importSection = dropUtils.createXImportSection
-			}
-			tclModel.importSection.importDeclarations.add(newImportDeclaration)
+	@Inject IQualifiedNameProvider qualifiedNameProvider
+	
+	private def boolean removeSuspiciousWildcardImports(TclModel tclModel, String simpleName){
+		if (tclModel.importSection !== null) {
+			val wildcardImports = tclModel.importSection.importDeclarations.filter [
+				importedNamespace !== null && importedNamespace.endsWith("*")
+			]
+			val suspiciousWildcardImports = wildcardImports.filter [
+				references.findDeclaredType(importedNamespace.substring(0, importedNamespace.length - 1) + simpleName,
+					tclModel) !== null
+			].toList // toList to prevent modification exception on (lazy) iterable!
+			suspiciousWildcardImports.forEach[tclModel.importSection.importDeclarations.remove(it)]
+			return !suspiciousWildcardImports.empty
 		}
+		return false
 	}
 
-	def hasImportFor(TclModel tclModel, String namespace) {
-		// TODO: refactoring needed after the import section was fixed
-		return dropUtils.getDroppedObjectAs(String) != tclModel.package && (tclModel.importSection === null ||
-			!tclModel.importSection.importDeclarations.exists[it.importedNamespace == namespace])
+	private def void handleImportSection(XtextResource resource) {
+		val tclModel = resource.contents.head as TclModel
+		val droppedObject = dropUtils.getDroppedObjectAs(Component)
+		val qualifiedName = qualifiedNameProvider.getFullyQualifiedName(droppedObject).toString
+		val simpleName = droppedObject.name
+
+		val wildcardRemoveTookPlace = removeSuspiciousWildcardImports(tclModel, simpleName)
+		val importSection = importSectionFactory.parse(resource)
+
+		val clashingImportedTypes = importSection.getImportedTypes(simpleName)
+		if (clashingImportedTypes.nullOrEmpty && !wildcardRemoveTookPlace) {
+			val added = importSection.addImport(qualifiedName)
+			if (!added) {
+				return // no further rewrite of import section necessary
+			}
+		} else if (!clashingImportedTypes.nullOrEmpty) {
+			clashingImportedTypes.forEach[importSection.removeImport(it)]
+		}
+		importSection.update
+		// make sure that importSection is null since it may not be empty (syntax rule '+')
+		if (tclModel.importSection.importDeclarations.empty) {
+			tclModel.importSection = null
+		}
+		markComponentsForUpdate(tclModel, simpleName)
+	}
+	
+	private def void markComponentsForUpdate(TclModel tclModel, String simpleName){
+		// make sure that clashing components are updated (with full qualified name)
+		val clashingComponents = tclModel.test.steps.map[contexts].flatten.filter(ComponentTestStepContext).filter [
+			component.name == simpleName
+		]
+		clashingComponents.forEach [
+			// make dirty, so that the serializer puts it out with full qualified name
+			steps.add(0, dropUtils.createDroppedTestStepContext.steps.head)
+			steps.remove(0)
+		]		
 	}
 
 	private def splitedTargetTestStepContext(ComponentTestStepContext targetTestStepContext,
