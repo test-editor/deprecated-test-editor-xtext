@@ -19,7 +19,7 @@ import org.testeditor.tcl.dsl.ui.editor.UpdateTestModelByDropTarget
 
 class AbstractTestModelByDropTargetTest extends AbstractTest {
 
-	@Inject UpdateTestModelByDropTarget updateTestModelByDropTarget
+	var UpdateTestModelByDropTarget updateTestModelByDropTarget // TODO: is not injected correctly
 	@Inject DropUtils dropUtils
 
 	@Inject protected extension DslParseHelper parserHelper
@@ -34,6 +34,10 @@ class AbstractTestModelByDropTargetTest extends AbstractTest {
 
 		val tclInjector = (new TclStandaloneSetup).createInjectorAndDoEMFRegistration
 		serializer = tclInjector.getInstance(ISerializer)
+		
+		// TODO: workaround, since @Inject does not work
+		updateTestModelByDropTarget = new UpdateTestModelByDropTarget
+		tclInjector.injectMembers(updateTestModelByDropTarget)
 	}
 
 	def protected getComponent(String componentName) {
