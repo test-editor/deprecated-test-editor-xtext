@@ -34,7 +34,7 @@ class ComponentElementParserTest extends AbstractParserTest {
 		'''.surroundWithComponentAndElementType
 
 		// When + Then
-		#[withoutBrackets, withBrackets].map[parseAmlWithStdPackage(ComponentElement)].forEach [
+		#[withoutBrackets, withBrackets].map[parseAmlWithUniquePackage(ComponentElement)].forEach [
 			assertNoErrors
 			name.assertEquals("MyButton")
 			type.assertNotNull.name.assertEquals(typeName)

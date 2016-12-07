@@ -34,7 +34,7 @@ class ComponentParserTest extends AbstractParserTest {
 		'''.addType
 
 		// When + Then
-		#[withoutBrackets, withBrackets].map[parseAmlWithStdPackage(Component)].forEach [
+		#[withoutBrackets, withBrackets].map[parseAmlWithUniquePackage(Component)].forEach [
 			assertNoErrors
 			name.assertEquals("MyDialog")
 			type.assertNotNull.name.assertEquals(typeName)

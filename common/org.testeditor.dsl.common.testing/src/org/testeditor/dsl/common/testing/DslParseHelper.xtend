@@ -74,8 +74,17 @@ class DslParseHelper {
 	 * @return {@code model.eAllContents.filter(elementClass).head}
 	 */
 	def <T extends ModelElement> T parseAmlWithStdPackage(CharSequence input, Class<T> elementClass) {
+		return parseAmlWithPackage(input, 'com.example', elementClass)
+	}
+
+	def <T extends ModelElement> T parseAmlWithUniquePackage(CharSequence input, Class<T> elementClass) {
+		return parseAmlWithPackage(input, '''com.example«Math.abs(input.hashCode).toString»''', elementClass)
+	}
+
+
+	def <T extends ModelElement> T parseAmlWithPackage(CharSequence input, String ^package, Class<T> elementClass) {
 		val newInput = '''
-			package com.example
+			package «^package»
 			
 			«input»
 		'''
