@@ -8,10 +8,13 @@ import org.eclipse.emf.ecore.InternalEObject
 import org.eclipse.emf.ecore.impl.ENotificationImpl
 import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.xtext.EcoreUtil2
+import org.eclipse.xtext.common.types.JvmType
 import org.eclipse.xtext.common.types.util.TypeReferences
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.resource.XtextResource
 import org.eclipse.xtext.xbase.imports.RewritableImportSection
+import org.eclipse.xtext.xtype.XImportDeclaration
+import org.eclipse.xtext.xtype.impl.XtypeFactoryImpl
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.Component
 import org.testeditor.tcl.ComponentTestStepContext
@@ -23,8 +26,10 @@ import org.testeditor.tcl.TestCase
 class UpdateTestModelByDropTarget {
 
 	@Inject DropUtils dropUtils
-	@Inject RewritableImportSection.Factory importSectionFactory
+	@Inject RewritableImportSection.Factory rewritableImportSectionFactory
 	@Inject TypeReferences references
+	@Inject XtypeFactoryImpl xtypeFactory
+	@Inject IQualifiedNameProvider qualifiedNameProvider
 
 	protected def updateModel(XtextResource resource, DropTargetXtextEditor editor, List<String> toFormat,
 		List<String> currentElement) {
@@ -117,58 +122,88 @@ class UpdateTestModelByDropTarget {
 		specification.contexts.add(contextIndex, droppedTestStepContext)
 	}
 
-	@Inject IQualifiedNameProvider qualifiedNameProvider
-	
-	private def boolean removeSuspiciousWildcardImports(TclModel tclModel, String simpleName){
-		if (tclModel.importSection !== null) {
-			val wildcardImports = tclModel.importSection.importDeclarations.filter [
-				importedNamespace !== null && importedNamespace.endsWith("*")
-			]
-			val suspiciousWildcardImports = wildcardImports.filter [
-				references.findDeclaredType(importedNamespace.substring(0, importedNamespace.length - 1) + simpleName,
-					tclModel) !== null
-			].toList // toList to prevent modification exception on (lazy) iterable!
-			suspiciousWildcardImports.forEach[tclModel.importSection.importDeclarations.remove(it)]
-			return !suspiciousWildcardImports.empty
-		}
-		return false
+	/**
+	 * make sure that wildcard imports are removed so that potential name clashes with simpleName
+	 * are prevented
+	 */
+	private def boolean removeSuspiciousWildcardImports(TclModel tclModel, String simpleName, String qualifiedName) {
+		val suspiciousWildcardImports = tclModel.wildcardImports.filter [
+			val type = resolveType(tclModel, simpleName)
+			return type !== null && type.qualifiedName != qualifiedName // type can be resolved, but resulting qualified name is different
+		].toList // explcitily create list to prevent modification exception on (lazy) iterable during the following remove!
+		suspiciousWildcardImports.forEach[tclModel.importSection.importDeclarations.remove(it)]
+		return !suspiciousWildcardImports.empty
 	}
 
+	private def JvmType resolveType(XImportDeclaration wildcardImport, TclModel tclModel, String simpleName) {
+		val packageAndDot = wildcardImport.importedNamespace.substring(0, wildcardImport.importedNamespace.length - 1)
+		return references.findDeclaredType('''«packageAndDot»«simpleName»''', tclModel)
+	}
+
+	private def Iterable<XImportDeclaration> getWildcardImports(TclModel tclModel) {
+		if (tclModel.importSection !== null) {
+			return tclModel.importSection.importDeclarations.filter [
+				importedNamespace !== null && importedNamespace.endsWith("*")
+			]
+		}
+		return emptyList
+	}
+
+	/**
+	 * make sure that the import section is modified such that no name clashes exist and the 
+	 * dropped component context can then reference the given component correctly (preferably via short name,
+	 * but fully qualified in case of ambiguities
+	 * 
+	 * the modification of the import section must take place before actually adding the new
+	 * test step component.
+	 */
 	private def void handleImportSection(XtextResource resource) {
 		val tclModel = resource.contents.head as TclModel
 		val droppedObject = dropUtils.getDroppedObjectAs(Component)
 		val qualifiedName = qualifiedNameProvider.getFullyQualifiedName(droppedObject).toString
 		val simpleName = droppedObject.name
 
-		val wildcardRemoveTookPlace = removeSuspiciousWildcardImports(tclModel, simpleName)
-		val importSection = importSectionFactory.parse(resource)
+		// handle suspicious wildcard imports before actually using the rewritable import section utils
+		val wildcardRemovalTookPlace = tclModel.removeSuspiciousWildcardImports(simpleName, qualifiedName)
 
+		val importSection = rewritableImportSectionFactory.parse(resource)
 		val clashingImportedTypes = importSection.getImportedTypes(simpleName)
-		if (clashingImportedTypes.nullOrEmpty && !wildcardRemoveTookPlace) {
+		val importWanted = clashingImportedTypes.nullOrEmpty && !wildcardRemovalTookPlace &&
+			!tclModel.wildcardImports.exists[resolveType(tclModel, simpleName)?.qualifiedName == qualifiedName]
+
+		if (importWanted) {
 			val added = importSection.addImport(qualifiedName)
-			if (!added) {
+			if (!added) { // e.g. this import already exists
 				return // no further rewrite of import section necessary
 			}
 		} else if (!clashingImportedTypes.nullOrEmpty) {
+			// remove all imports for the given clashing types (no wildcards)
 			clashingImportedTypes.forEach[importSection.removeImport(it)]
 		}
-		importSection.update
-		// make sure that importSection is null since it may not be empty (syntax rule '+')
+		if (tclModel.importSection === null && importWanted) {
+			// importSection.update does not automatically create the import section itself
+			tclModel.importSection = xtypeFactory.createXImportSection
+		}
+		importSection.update // makes an update on tclModel
+		// make sure that importSection is null (if empty after update) since it may not be empty (syntax rule '+')
 		if (tclModel.importSection !== null && tclModel.importSection.importDeclarations.empty) {
 			tclModel.importSection = null
 		}
-		markComponentsForUpdate(tclModel, simpleName)
+		markComponentContextsForQualifiedNameUpdate(tclModel, simpleName)
 	}
-	
-	private def void markComponentsForUpdate(TclModel tclModel, String simpleName) {
-		// make sure that clashing components are updated (with full qualified name)
+
+	/** 
+	 * make sure that component contexts are updated with (fully qualified) component names,
+	 * if necessary after the modification of the import section 
+	 */
+	private def void markComponentContextsForQualifiedNameUpdate(TclModel tclModel, String simpleName) {
 		val clashingContexts = tclModel.test.steps.map[contexts].flatten.filter(ComponentTestStepContext).filter [
 			component.name == simpleName
 		]
 		clashingContexts.forEach [
 			eNotify( // notification of a relevant change (which never really took place)
-				new ENotificationImpl(it as InternalEObject, Notification.REMOVE,
-					TclPackage.COMPONENT_TEST_STEP_CONTEXT__STEPS, null, null, 0))
+			new ENotificationImpl(it as InternalEObject, Notification.REMOVE,
+				TclPackage.COMPONENT_TEST_STEP_CONTEXT__STEPS, null, null, 0))
 		]
 	}
 

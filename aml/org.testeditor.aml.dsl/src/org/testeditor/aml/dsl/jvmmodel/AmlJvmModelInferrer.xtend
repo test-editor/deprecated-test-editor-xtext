@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -12,20 +12,20 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.jvmmodel
 
+import javax.inject.Inject
 import org.eclipse.xtext.common.types.JvmDeclaredType
+import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
-import org.testeditor.aml.AmlModel
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
-import javax.inject.Inject
-import org.eclipse.xtext.naming.IQualifiedNameProvider
+import org.testeditor.aml.AmlModel
 
 // TODO this is not used, yet - instead we generate the old XML files for now
 class AmlJvmModelInferrer extends AbstractModelInferrer {
 
-    /**
-     * convenience API to build and initialize JVM types and their members.
-     */
+	/**
+	 * convenience API to build and initialize JVM types and their members.
+	 */
 	@Inject extension JvmTypesBuilder
 	@Inject IQualifiedNameProvider nameProvider
 
@@ -54,24 +54,16 @@ class AmlJvmModelInferrer extends AbstractModelInferrer {
 	 *            rely on linking using the index if isPreIndexingPhase is
 	 *            <code>true</code>.
 	 */
-   	def dispatch void infer(AmlModel element, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
-   		element.components.forEach[acceptor.accept(toInterface(nameProvider.getFullyQualifiedName(it).toString)[documentation = '''Generated from «element.eResource.URI»'''])[]]
-   		element.componentTypes.forEach[acceptor.accept(toInterface(nameProvider.getFullyQualifiedName(it).toString)[documentation = '''Generated from «element.eResource.URI»'''])[]]
-   		element.componentElementTypes.forEach[acceptor.accept(toInterface(nameProvider.getFullyQualifiedName(it).toString)[documentation = '''Generated from «element.eResource.URI»'''])[]]
-   		element.interactionTypes.forEach[acceptor.accept(toInterface(nameProvider.getFullyQualifiedName(it).toString)[documentation = '''Generated from «element.eResource.URI»'''])[]]
-   		element.valueSpaces.forEach[acceptor.accept(toInterface(nameProvider.getFullyQualifiedName(it).toString)[documentation = '''Generated from «element.eResource.URI»'''])[]]
-   		// Here you explain how your model is mapped to Java elements, by writing the actual translation code.
-   		
-   		// An implementation for the initial hello world example could look like this:
-//   		acceptor.accept(element.toClass("my.company.greeting.MyGreetings")) [
-//   			for (greeting : element.greetings) {
-//   				members += greeting.toMethod("hello" + greeting.name, typeRef(String)) [
-//   					body = '''
-//							return "Hello «greeting.name»";
-//   					'''
-//   				]
-//   			}
-//   		]
-   	}
+	def dispatch void infer(AmlModel element, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
+		element => [
+			val importableNames = components + componentTypes + componentElementTypes + interactionTypes + valueSpaces
+			// create interfaces (fully qualified) to be able to import these as jvm types in other sources
+			importableNames.forEach [
+				acceptor.accept(toInterface(nameProvider.getFullyQualifiedName(it).toString) [
+					documentation = '''Generated from «element.eResource.URI»'''
+				])
+			]
+		]
+	}
+	
 }
-
