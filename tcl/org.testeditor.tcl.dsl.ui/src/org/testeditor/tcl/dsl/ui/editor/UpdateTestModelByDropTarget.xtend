@@ -2,7 +2,10 @@ package org.testeditor.tcl.dsl.ui.editor
 
 import com.google.inject.Inject
 import java.util.List
+import org.eclipse.emf.common.notify.Notification
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.InternalEObject
+import org.eclipse.emf.ecore.impl.ENotificationImpl
 import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.common.types.util.TypeReferences
@@ -14,6 +17,7 @@ import org.testeditor.aml.Component
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.TclModel
+import org.testeditor.tcl.TclPackage
 import org.testeditor.tcl.TestCase
 
 class UpdateTestModelByDropTarget {
@@ -150,22 +154,22 @@ class UpdateTestModelByDropTarget {
 		}
 		importSection.update
 		// make sure that importSection is null since it may not be empty (syntax rule '+')
-		if (tclModel.importSection.importDeclarations.empty) {
+		if (tclModel.importSection !== null && tclModel.importSection.importDeclarations.empty) {
 			tclModel.importSection = null
 		}
 		markComponentsForUpdate(tclModel, simpleName)
 	}
 	
-	private def void markComponentsForUpdate(TclModel tclModel, String simpleName){
+	private def void markComponentsForUpdate(TclModel tclModel, String simpleName) {
 		// make sure that clashing components are updated (with full qualified name)
-		val clashingComponents = tclModel.test.steps.map[contexts].flatten.filter(ComponentTestStepContext).filter [
+		val clashingContexts = tclModel.test.steps.map[contexts].flatten.filter(ComponentTestStepContext).filter [
 			component.name == simpleName
 		]
-		clashingComponents.forEach [
-			// make dirty, so that the serializer puts it out with full qualified name
-			steps.add(0, dropUtils.createDroppedTestStepContext.steps.head)
-			steps.remove(0)
-		]		
+		clashingContexts.forEach [
+			eNotify( // notification of a relevant change (which never really took place)
+				new ENotificationImpl(it as InternalEObject, Notification.REMOVE,
+					TclPackage.COMPONENT_TEST_STEP_CONTEXT__STEPS, null, null, 0))
+		]
 	}
 
 	private def splitedTargetTestStepContext(ComponentTestStepContext targetTestStepContext,
