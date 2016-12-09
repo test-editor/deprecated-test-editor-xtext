@@ -12,12 +12,20 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.teststepselector
 
+import java.util.List
+import java.util.Map
 import java.util.Set
 import javax.annotation.PostConstruct
 import javax.inject.Inject
+import org.eclipse.core.runtime.jobs.IJobChangeEvent
+import org.eclipse.core.runtime.jobs.Job
+import org.eclipse.core.runtime.jobs.JobChangeAdapter
 import org.eclipse.e4.core.di.annotations.Optional
+import org.eclipse.e4.core.di.extensions.EventTopic
+import org.eclipse.e4.core.services.events.IEventBroker
 import org.eclipse.e4.ui.di.Focus
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.jface.viewers.TreeViewer
 import org.eclipse.swt.SWT
 import org.eclipse.swt.dnd.DND
@@ -26,30 +34,20 @@ import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Display
 import org.eclipse.ui.PlatformUI
 import org.eclipse.ui.commands.ICommandService
+import org.eclipse.xtext.EcoreUtil2
+import org.eclipse.xtext.resource.IContainer
+import org.eclipse.xtext.resource.IResourceDescription
+import org.eclipse.xtext.resource.IResourceDescriptions
+import org.eclipse.xtext.resource.XtextResource
+import org.eclipse.xtext.resource.containers.StateBasedContainer
+import org.eclipse.xtext.resource.impl.ResourceDescriptionsProvider
+import org.eclipse.xtext.ui.editor.XtextEditor
 import org.slf4j.LoggerFactory
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.dsl.naming.AmlQualifiedNameProvider
 
-import static org.testeditor.rcp4.views.teststepselector.XtendSWTLib.*
-import java.util.List
-import org.eclipse.xtext.ui.editor.XtextEditor
-import org.eclipse.xtext.util.concurrent.IUnitOfWork
-import org.eclipse.xtext.resource.XtextResource
-import org.eclipse.xtext.resource.impl.ResourceDescriptionsProvider
-
 import static org.testeditor.aml.AmlPackage.Literals.AML_MODEL
-import org.eclipse.xtext.resource.IContainer
-import org.eclipse.xtext.resource.IResourceDescription
-import org.eclipse.xtext.resource.IResourceDescriptions
-import org.eclipse.xtext.EcoreUtil2
-import org.eclipse.emf.ecore.resource.ResourceSet
-import org.eclipse.e4.core.di.extensions.EventTopic
-import java.util.Map
-import org.eclipse.core.runtime.jobs.Job
-import org.eclipse.core.runtime.jobs.IJobChangeEvent
-import org.eclipse.core.runtime.jobs.JobChangeAdapter
-import org.eclipse.e4.core.services.events.IEventBroker
-import org.eclipse.xtext.resource.containers.StateBasedContainer
+import static org.testeditor.rcp4.views.teststepselector.XtendSWTLib.*
 
 /** 
  * part that display a tree view with drag and drop elements of the aml model which can be inserted into
@@ -69,11 +67,11 @@ class TestStepSelector {
 	AmlQualifiedNameProvider amlQualifiedNameProvider
 	IContainer.Manager containerManager
 	ResourceDescriptionsProvider resourceDescriptionsProvider
-	IResourceDescription.Manager resourcenManger;
+	IResourceDescription.Manager resourcenDescriptionManger
 	String currentProject
 	TreeViewer viewer
 
-	Map<Object, Set<String>> expandedElementsPerProject = newHashMap
+	Map<String, Set<String>> expandedElementsPerProject = newHashMap
 
 	@PostConstruct
 	def void postConstruct(Composite parent, TestStepSelectorExecutionListener executionListener,
@@ -82,7 +80,7 @@ class TestStepSelector {
 		val amlInjector = amlInjectorProvider.get
 		amlQualifiedNameProvider = amlInjector.getInstance(AmlQualifiedNameProvider)
 		containerManager = amlInjector.getInstance(IContainer.Manager)
-		resourcenManger = amlInjector.getInstance(IResourceDescription.Manager)
+		resourcenDescriptionManger = amlInjector.getInstance(IResourceDescription.Manager)
 		resourceDescriptionsProvider = amlInjector.getInstance(ResourceDescriptionsProvider)
 
 		commandService.addExecutionListener(executionListener)
@@ -99,7 +97,10 @@ class TestStepSelector {
 			override done(IJobChangeEvent event) {
 				if (event.job.name.equals("Building workspace")) {
 					logger.info("Building workspace completed. Trigger update TestStepSelector")
-					broker.post(TestStepSelector.SELECTOR_UPDATE_VIEW, null)
+					if (PlatformUI.workbench.activeWorkbenchWindow !== null) {
+						val page = PlatformUI.workbench.activeWorkbenchWindow.activePage
+						broker.post(TestStepSelector.SELECTOR_UPDATE_VIEW, page.activeEditor)
+					}
 				}
 			}
 		})
@@ -125,8 +126,8 @@ class TestStepSelector {
 
 		var previouslyExpandedElements = viewer.expandedElements.map[toStringPath].toSet
 
-		viewer.input = editor.document.readOnly[readVisibleAMLModels]
-		if(currentProject === null){
+		viewer.input = editor.document.readOnly[getVisibleAMLModels]
+		if (currentProject === null) {
 			currentProject = projectName
 		}
 		if (currentProject != projectName) {
@@ -139,21 +140,28 @@ class TestStepSelector {
 		}
 	}
 
-	private def readVisibleAMLModels(XtextResource resource) {
-		val List<AmlModel> currentModels = newArrayList
+	private def List<AmlModel> getVisibleAMLModels(XtextResource resource) {
+		val currentModels = newArrayList
 
-		val rs = amlInjectorProvider.get.getInstance(ResourceSet)
-		val resourceDescription = resourcenManger.getResourceDescription(resource)
-		val IResourceDescriptions resourceDescriptions = resourceDescriptionsProvider.createResourceDescriptions()
+		val resourceSet = amlInjectorProvider.get.getInstance(ResourceSet)
+		val resourceDescription = resourcenDescriptionManger.getResourceDescription(resource)
+		val IResourceDescriptions resourceDescriptions = resourceDescriptionsProvider.createResourceDescriptions
 
 		val visibleContainers = containerManager.getVisibleContainers(resourceDescription, resourceDescriptions)
-		for (visibleContainer : visibleContainers) {
-			if (visibleContainer instanceof StateBasedContainer) {
-				val amlDescriptions = visibleContainer.getExportedObjectsByType(AML_MODEL)
-				currentModels.addAll(amlDescriptions.map[EObjectOrProxy].map[EcoreUtil2.resolve(it, rs) as AmlModel])
-			}
-		}
-		return currentModels;
+
+		visibleContainers.filter(StateBasedContainer).forEach [
+			currentModels += it.getAmlModels(resourceSet)
+		]
+		
+		return currentModels
+	}
+
+	private def List<AmlModel> getAmlModels(StateBasedContainer container, ResourceSet resourceSet) {
+		val amlDescriptions = container.getExportedObjectsByType(AML_MODEL)
+
+		 amlDescriptions.map[EObjectOrProxy].map [
+					EcoreUtil2.resolve(it, resourceSet) as AmlModel
+				].toList
 	}
 
 	private def Object[] elementsToExpand(Set<String> previouslyExpandedElements, Iterable<AmlModel> model) {
