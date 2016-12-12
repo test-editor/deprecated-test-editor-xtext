@@ -24,7 +24,6 @@ class DropTargetXtextEditor extends XtextEditor {
 			return;
 
 		// Install drag target
-		dropTargetListener.editor = this
 		dndService.addMergedDropTarget(viewer.getTextWidget(), DND.DROP_MOVE.bitwiseOr(DND.DROP_COPY),
 			#[TextTransfer.instance], dropTargetListener);
 	}

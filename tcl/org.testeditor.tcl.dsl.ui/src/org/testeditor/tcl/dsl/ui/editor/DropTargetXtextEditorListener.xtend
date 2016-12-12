@@ -3,12 +3,12 @@ package org.testeditor.tcl.dsl.ui.editor
 import java.util.List
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
+import org.eclipse.emf.ecore.EObject
 import org.eclipse.jface.text.source.ISourceViewer
 import org.eclipse.jface.text.source.SourceViewer
 import org.eclipse.swt.dnd.DND
 import org.eclipse.swt.dnd.DropTargetAdapter
 import org.eclipse.swt.dnd.DropTargetEvent
-import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.resource.ILocationInFileProvider
 import org.eclipse.xtext.resource.XtextResource
@@ -21,8 +21,7 @@ class DropTargetXtextEditorListener extends DropTargetAdapter {
 	@Inject private DropUtils dropUtils
 	@Inject private UpdateTestModelByDropTarget updateTestModelByDropTarget
 
-	@Accessors(PUBLIC_SETTER)
-	private DropTargetXtextEditor editor
+	@Inject private DropTargetXtextEditor editor
 
 	override void dragEnter(DropTargetEvent event) {
 		if ("org.testeditor.tcl.dsl.Tcl" != editor.languageName) {
@@ -34,58 +33,57 @@ class DropTargetXtextEditorListener extends DropTargetAdapter {
 	}
 
 	override void drop(DropTargetEvent event) {
-
 		val List<String> elementPathsToFormat = newArrayList
 		val insertedTestStepPath = new AtomicReference<String>
 
 		editor.document => [
-			modify[updateModel(elementPathsToFormat, insertedTestStepPath)]
-			modify[formatRelevantRegion(elementPathsToFormat)]
-			modify[setCursorAfterInsertedStep(insertedTestStepPath)]
+			modify[withTclModel[it, dropTarget|updateModel(dropTarget, elementPathsToFormat, insertedTestStepPath)]]
+			modify[withTclModel[formatRelevantRegion(elementPathsToFormat)]]
+			modify[withTclModel[setCursorAfterInsertedStep(insertedTestStepPath)]]
 		]
 	}
 
-	private def XtextResource updateModel(XtextResource resource, List<String> toFormat,
+	private def void updateModel(TclModel tclModel, EObject dropTarget, List<String> eObjectPathsToFormat,
 		AtomicReference<String> eObjectPath) {
-		val dropTarget = editor.findDropTarget(resource)
+		val droppedTestStepContext = dropUtils.createDroppedTestStepContext
+		updateTestModelByDropTarget.updateModel(tclModel, dropTarget, droppedTestStepContext, eObjectPathsToFormat,
+			eObjectPath)
+	}
+
+	private def void setCursorAfterInsertedStep(TclModel tclModel, AtomicReference<String> eObjectPath) {
+		val eObject = EcoreUtil2.getEObject(tclModel, eObjectPath.get)
+		val currentRegion = eObject.fullTextRegion
+		editor => [
+			(internalSourceViewer as SourceViewer).setSelectedRange(currentRegion.offset + currentRegion.length, 0)
+			setFocus
+		]
+	}
+
+	private def void formatRelevantRegion(TclModel tclModel, List<String> eObjectPathsToFormat) {
+		val textRegion = eObjectPathsToFormat //
+		.map[EcoreUtil2.getEObject(tclModel, it)] //
+		.map[fullTextRegion] //
+		.reduce[textRegion1, textRegion2|textRegion1.merge(textRegion2)]
+
+		(editor.internalSourceViewer as SourceViewer) => [
+			setSelectedRange(textRegion.offset, textRegion.length)
+			doOperation(ISourceViewer.FORMAT)
+		]
+	}
+
+	private def XtextResource withTclModel(XtextResource resource, (TclModel)=>void consumer) {
 		val model = resource.contents.head
 		if (model instanceof TclModel) {
-			val droppedTestStepContext = dropUtils.createDroppedTestStepContext
-			updateTestModelByDropTarget.updateModel(model, dropTarget, droppedTestStepContext, toFormat, eObjectPath)
+			consumer.apply(model)
 		}
 		return resource
 	}
 
-	private def XtextResource setCursorAfterInsertedStep(XtextResource resource, AtomicReference<String> eObjectPath) {
-		val tclModel = resource.contents.head
-		if (tclModel instanceof TclModel) {
-			val eObject = EcoreUtil2.getEObject(tclModel, eObjectPath.get)
-			val currentRegion = eObject.fullTextRegion
-			editor => [
-				(internalSourceViewer as SourceViewer). //
-				setSelectedRange(currentRegion.offset + currentRegion.length, 0)
-				setFocus
-			]
+	private def XtextResource withTclModel(XtextResource resource, (TclModel, EObject)=>void consumer) {
+		val model = resource.contents.head
+		if (model instanceof TclModel) {
+			consumer.apply(model, editor.findDropTarget(resource))
 		}
-		return resource
-	}
-
-	private def XtextResource formatRelevantRegion(XtextResource resource, List<String> eObjectPathsToFormat) {
-
-		val tclModel = resource.contents.head
-		if (tclModel instanceof TclModel) {
-
-			val textRegion = eObjectPathsToFormat //
-			.map[EcoreUtil2.getEObject(tclModel, it)] //
-			.map[fullTextRegion] //
-			.reduce[textRegion1, textRegion2|textRegion1.merge(textRegion2)]
-
-			(editor.internalSourceViewer as SourceViewer) => [
-				setSelectedRange(textRegion.offset, textRegion.length)
-				doOperation(ISourceViewer.FORMAT)
-			]
-		}
-
 		return resource
 	}
 
