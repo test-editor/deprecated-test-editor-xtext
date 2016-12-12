@@ -19,6 +19,8 @@ import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
 import org.testeditor.aml.AmlModel
+import org.eclipse.emf.ecore.EObject
+import org.testeditor.aml.ModelElement
 
 // TODO this is not used, yet - instead we generate the old XML files for now
 class AmlJvmModelInferrer extends AbstractModelInferrer {
@@ -56,7 +58,7 @@ class AmlJvmModelInferrer extends AbstractModelInferrer {
 	 */
 	def dispatch void infer(AmlModel element, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		element => [
-			val importableNames = components + componentTypes + componentElementTypes + interactionTypes + valueSpaces
+			val Iterable<EObject> importableNames = components + componentTypes + componentElementTypes + interactionTypes + valueSpaces
 			// create interfaces (fully qualified) to be able to import these as jvm types in other sources
 			importableNames.forEach [
 				acceptor.accept(toInterface(nameProvider.getFullyQualifiedName(it).toString) [

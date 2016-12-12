@@ -2,6 +2,7 @@ package org.testeditor.tcl.dsl.ui.editor
 
 import com.google.inject.Inject
 import java.util.List
+import java.util.concurrent.atomic.AtomicReference
 import org.eclipse.emf.common.notify.Notification
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.InternalEObject
@@ -14,7 +15,7 @@ import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.resource.XtextResource
 import org.eclipse.xtext.xbase.imports.RewritableImportSection
 import org.eclipse.xtext.xtype.XImportDeclaration
-import org.eclipse.xtext.xtype.impl.XtypeFactoryImpl
+import org.eclipse.xtext.xtype.XtypeFactory
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.Component
 import org.testeditor.tcl.ComponentTestStepContext
@@ -28,42 +29,33 @@ class UpdateTestModelByDropTarget {
 	@Inject DropUtils dropUtils
 	@Inject RewritableImportSection.Factory rewritableImportSectionFactory
 	@Inject TypeReferences references
-	@Inject XtypeFactoryImpl xtypeFactory
+	@Inject XtypeFactory xtypeFactory
 	@Inject IQualifiedNameProvider qualifiedNameProvider
 
-	protected def updateModel(XtextResource resource, DropTargetXtextEditor editor, List<String> toFormat,
-		List<String> currentElement) {
+	def void updateModel(TclModel tclModel, EObject dropTarget, ComponentTestStepContext droppedTestStepContext, List<String> eObjectPathsToFormat,
+		AtomicReference<String> insertedTestStepPath) {
 
-		val tclModel = resource.contents.head
-		val toFormatEObject = newArrayList
+		val eObjectsToFormat = newArrayList
+		val stepToInsert = droppedTestStepContext.steps.head
 
-		if (tclModel instanceof TclModel) {
-			val dropTarget = dropUtils.findDropTarget(editor, resource)
+		// hereafter newTestStepContex.steps may be cleared, since a context may be reused
+		updateTestModel(tclModel.test, dropTarget, droppedTestStepContext, eObjectsToFormat)
 
-			val ComponentTestStepContext newTestStepContext = dropUtils.createDroppedTestStepContext()
-			val newTestStep = newTestStepContext.steps.head
-
-			updateTestModel(tclModel.test, dropTarget, newTestStepContext, toFormatEObject)
-
-			toFormat.addAll(toFormatEObject.map[EcoreUtil.getRelativeURIFragmentPath(tclModel, it)])
-			currentElement.add(EcoreUtil.getRelativeURIFragmentPath(tclModel, newTestStep))
-		}
-	}
-
-	protected def updateImports(XtextResource resource, DropTargetXtextEditor editor, List<String> currentElement) {
-		handleImportSection(resource)
-		return resource
+		// transform eObjects to paths in order to find them in the transformed model (after several editor modifications => reparse)
+		eObjectPathsToFormat.addAll(eObjectsToFormat.map[EcoreUtil.getRelativeURIFragmentPath(tclModel, it)])
+		// tclModel is ancestor after insertion => get path after insertion
+		insertedTestStepPath.set(EcoreUtil.getRelativeURIFragmentPath(tclModel, stepToInsert))
 	}
 
 	public def void updateTestModel(TestCase test, EObject dropTarget, ComponentTestStepContext newTestStepContext,
-		List<EObject> toFormatEObject) {
+		List<EObject> eObjectsToFormat) {
 
 		var testStepIndex = 0
 		val ComponentTestStepContext targetTestStepContext = dropUtils.searchTargetTestStepContext(test, dropTarget)
 
 		if (targetTestStepContext === null) {
-			insertTargetTestStepContext(test, newTestStepContext, dropTarget, 0, toFormatEObject)
-			toFormatEObject.add(newTestStepContext)
+			insertTargetTestStepContext(test, newTestStepContext, dropTarget, 0, eObjectsToFormat)
+			eObjectsToFormat.add(newTestStepContext)
 		} else {
 			testStepIndex = dropUtils.getInsertionIndex(targetTestStepContext, dropTarget)
 
@@ -74,19 +66,19 @@ class UpdateTestModelByDropTarget {
 				// Insert in the middle of an existing TestStepContext
 				if (testStepIndex > 0 && testStepIndex < targetTestStepContext.steps.size()) {
 					splitedTargetTestStepContext(targetTestStepContext, targetTestStepContextIndex, testStepIndex,
-						toFormatEObject)
+						eObjectsToFormat)
 				}
 				// If it is not dropped at the top, insert new TestSepContext after the existing TestStepContext
 				if (testStepIndex > 0) {
 					targetTestStepContextIndex++
-					toFormatEObject.add(targetTestStepContext.steps.last)
+					eObjectsToFormat.add(targetTestStepContext.steps.last)
 				}
 				insertTargetTestStepContext(test, newTestStepContext, dropTarget, targetTestStepContextIndex,
-					toFormatEObject)
-				toFormatEObject.add(newTestStepContext)
+					eObjectsToFormat)
+				eObjectsToFormat.add(newTestStepContext)
 			} else {
 				dropUtils.addTestStepToModel(testStepIndex, targetTestStepContext, newTestStepContext.steps.head)
-				toFormatEObject.add(targetTestStepContext)
+				eObjectsToFormat.add(targetTestStepContext)
 			}
 		}
 
@@ -145,8 +137,9 @@ class UpdateTestModelByDropTarget {
 			return tclModel.importSection.importDeclarations.filter [
 				importedNamespace !== null && importedNamespace.endsWith("*")
 			]
+		} else {
+			return emptyList		
 		}
-		return emptyList
 	}
 
 	/**
@@ -157,8 +150,7 @@ class UpdateTestModelByDropTarget {
 	 * the modification of the import section must take place before actually adding the new
 	 * test step component.
 	 */
-	private def void handleImportSection(XtextResource resource) {
-		val tclModel = resource.contents.head as TclModel
+	protected def void updateImports(TclModel tclModel) {
 		val droppedObject = dropUtils.getDroppedObjectAs(Component)
 		val qualifiedName = qualifiedNameProvider.getFullyQualifiedName(droppedObject).toString
 		val simpleName = droppedObject.name
@@ -166,7 +158,7 @@ class UpdateTestModelByDropTarget {
 		// handle suspicious wildcard imports before actually using the rewritable import section utils
 		val wildcardRemovalTookPlace = tclModel.removeSuspiciousWildcardImports(simpleName, qualifiedName)
 
-		val importSection = rewritableImportSectionFactory.parse(resource)
+		val importSection = rewritableImportSectionFactory.parse(tclModel.eResource as XtextResource)
 		val clashingImportedTypes = importSection.getImportedTypes(simpleName)
 		val importWanted = clashingImportedTypes.nullOrEmpty && !wildcardRemovalTookPlace &&
 			!tclModel.wildcardImports.exists[resolveType(tclModel, simpleName)?.qualifiedName == qualifiedName]

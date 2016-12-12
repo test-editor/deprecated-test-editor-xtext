@@ -22,7 +22,6 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.common.types.util.TypeReferences
-import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
@@ -30,7 +29,6 @@ import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
-import org.testeditor.aml.ValueSpaceAssignment
 import org.testeditor.dsl.common.util.CollectionUtils
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.ComponentTestStepContext
@@ -55,8 +53,6 @@ import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
-
-import static extension org.eclipse.xtext.EcoreUtil2.getContainerOfType
 
 @Singleton
 class TclModelUtil extends TslModelUtil {
@@ -170,6 +166,15 @@ class TclModelUtil extends TslModelUtil {
 		return map
 	}
 	
+	def ComponentElement getComponentElement(TestStep testStep) {
+		val contentElement = testStep.contents.filter(StepContentElement).head
+		if (contentElement !== null) {
+			val component = testStep.componentContext?.component
+			return component?.elements?.findFirst[name == contentElement.value]
+		}
+		return null
+	}
+
 	def ComponentElement getComponentElement(StepContentElement contentElement) {
 		val containingTestStep = EcoreUtil2.getContainerOfType(contentElement, TestStep)
 		if (containingTestStep !== null) {
@@ -188,20 +193,6 @@ class TclModelUtil extends TslModelUtil {
 		return null
 	}
 
-	def ValueSpaceAssignment getValueSpaceAssignment(StepContentVariable contentElement) {
-		val container = EcoreUtil2.getContainerOfType(contentElement, TestStep)
-		if (container !== null) {
-			val component = container.componentContext?.component
-			if (component != null) {
-				val valueSpace = getValueSpaceAssignment(component, container)
-				if (valueSpace != null) {
-					return valueSpace
-				}
-			}
-		}
-		return null
-	}
-
 	def boolean hasComponentContext(TestStep step) {
 		return step.componentContext != null
 	}
@@ -216,34 +207,6 @@ class TclModelUtil extends TslModelUtil {
 
 	def MacroTestStepContext getMacroContext(TestStep step) {
 		return EcoreUtil2.getContainerOfType(step, MacroTestStepContext)
-	}
-
-	def ValueSpaceAssignment getValueSpaceAssignment(Component component, TestStep container) {
-		for (element : component.elements) {
-			val stepContentElementsStrings = container.contents.filter(StepContentElement).map[value]
-			if (stepContentElementsStrings.exists[equals(element.name)]) {
-				val valueSpace = getValueSpaceAssignment(element, container)
-				if (valueSpace != null) {
-					return valueSpace
-				}
-			}
-		}
-		return null
-	}
-
-	def ValueSpaceAssignment getValueSpaceAssignment(ComponentElement element, TestStep container) {
-		val containerName = container.interaction?.name
-		if (containerName !== null) {
-			return element.valueSpaceAssignments.findFirst[
-				val interaction = variable.template.getContainerOfType(InteractionType)
-				if (interaction !== null) {
-					return interaction.name == containerName
-				} else {
-					return false
-				}
-			]
-		}
-		return null
 	}
 
 	def Set<TemplateVariable> getEnclosingMacroParameters(EObject object) {
