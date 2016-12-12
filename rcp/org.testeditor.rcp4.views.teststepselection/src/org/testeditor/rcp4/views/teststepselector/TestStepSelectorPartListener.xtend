@@ -14,11 +14,14 @@ class TestStepSelectorPartListener implements IPartListener {
 
 	override partActivated(IWorkbenchPart part) {
 		if (part instanceof ITextEditor) {
-			broker.post(TestStepSelector.SELECTOR_UPDATE_VIEW, null)
+			broker.post(TestStepSelector.SELECTOR_UPDATE_VIEW, part)
 		}
 	}
 
 	override partBroughtToTop(IWorkbenchPart part) {
+		if (part instanceof ITextEditor) {
+			broker.post(TestStepSelector.SELECTOR_UPDATE_VIEW, part)
+		}
 	}
 
 	override partClosed(IWorkbenchPart part) {
