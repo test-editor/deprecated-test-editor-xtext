@@ -46,7 +46,7 @@ class InteractionScopingTest extends AbstractScopingTest {
 			import com.example.*
 			
 			component MyDialog is Dialog {
-				Resize.size restrict to ResizePercent
+				restrict Resize.size to ResizePercent
 			}
 			
 			value-space ResizePercent = 10 .. 100

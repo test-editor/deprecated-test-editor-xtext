@@ -10,6 +10,7 @@
 package org.testeditor.dsl.common.testing
 
 import java.math.BigDecimal
+import java.util.Optional
 import java.util.regex.Pattern
 import javax.inject.Singleton
 import org.junit.Assert
@@ -36,6 +37,19 @@ class AssertionHelper {
 	// Methods not included in Assert below
 	//////////////////////////////////////////////
 	
+	def void assertAbsent(Optional<?> optional) {
+		if (optional.isPresent) {
+			fail(format("", optional, Optional.empty))
+		}
+	}
+
+	def <T> T assertPresent(Optional<T> optional) {
+		if (!optional.isPresent) {
+			fail(format("", optional, "any value"))
+		}
+		return optional.get
+	}
+
 	/**
 	 * Asserts that an iterable is empty.
 	 * If it isn't it throws an {@link AssertionError}.

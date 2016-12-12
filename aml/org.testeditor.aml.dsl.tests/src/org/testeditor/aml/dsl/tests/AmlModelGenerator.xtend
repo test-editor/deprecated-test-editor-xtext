@@ -17,10 +17,11 @@ import org.testeditor.aml.ComponentElementType
 import org.testeditor.aml.ComponentType
 import org.testeditor.aml.InteractionType
 import org.testeditor.aml.MethodReference
+import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.ValueSpace
+import org.testeditor.aml.ValueSpaceAssignment
 import org.testeditor.aml.impl.AmlFactoryImpl
-import org.testeditor.aml.Template
 
 class AmlModelGenerator {
 	@Inject AmlFactoryImpl amlFactory
@@ -130,8 +131,23 @@ class AmlModelGenerator {
 		return amlFactory.createComponent => [it.name = name]
 	}
 
+	def ValueSpace integerRange(String name, int from, int to) {
+		return amlFactory.createIntegerRange => [
+			it.name = name
+			it.from = from
+			it.to = to
+		]
+	}
+
 	def ValueSpace regExValueSpace(String expression) {
 		amlFactory.createRegExValueSpace => [it.expression = expression]
+	}
+
+	def ValueSpaceAssignment restrictTo(TemplateVariable variable, ValueSpace valueSpace) {
+		return amlFactory.createValueSpaceAssignment => [
+			it.variable = variable
+			it.valueSpace = valueSpace
+		]
 	}
 
 }

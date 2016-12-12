@@ -13,5 +13,5 @@
 package org.testeditor.rcp4.views.tcltestrun.model;
 
 public enum TestElementType {
-	SystemGroup, TestComponentGroup, TestStepGroup, TestSpecGroup;
+	SystemGroup, TestComponentGroup, TestStepGroup, TestSpecGroup, TestCase;
 }
