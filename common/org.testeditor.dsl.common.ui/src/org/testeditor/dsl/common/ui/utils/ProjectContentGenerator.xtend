@@ -45,8 +45,9 @@ import static org.eclipse.xtext.xbase.lib.StringExtensions.isNullOrEmpty
  */
 class ProjectContentGenerator {
 
-	static public val TEST_EDITOR_VERSION = "1.1.0" // TODO this sucks - extract to VersionHelper and use the newest version
-	static public val TEST_EDITOR_MAVEN_PLUGIN_VERSION = "1.0"
+	static public val TEST_EDITOR_VERSION = "1.2.0" // TODO this sucks - extract to VersionHelper and use the newest version
+	static public val TEST_EDITOR_MAVEN_PLUGIN_VERSION = "1.1"
+	static public val TEST_EDITOR_GRADLE_PLUGIN_VERSION = "0.4"
 	
 	static public val String TEST_EDITOR_MVN_GEN_OUTPUT = 'src-gen/test/java'
 
@@ -355,7 +356,7 @@ class ProjectContentGenerator {
 	def String getBuildGradleContent(String[] fixtureNames) {
 		'''
 			plugins {
-			    id 'org.testeditor.gradle-plugin' version '0.3'
+			    id 'org.testeditor.gradle-plugin' version '«TEST_EDITOR_GRADLE_PLUGIN_VERSION»'
 			    id 'maven'
 			    id 'eclipse'
 			}
@@ -367,13 +368,16 @@ class ProjectContentGenerator {
 			repositories {
 			    jcenter()
 			    maven { url "http://dl.bintray.com/test-editor/Fixtures" }
-			    maven { url "http://dl.bintray.com/test-editor/test-editor-maven/" }
+			    maven { url "http://dl.bintray.com/test-editor/maven/" }
 			}
 
 			// Configure the testeditor plugin
 			testeditor {
 				version '«TEST_EDITOR_VERSION»'
 			}
+			
+			// show standard out during test to see logging output
+			test.testLogging.showStandardStreams = true
 
 			// In this section you declare the dependencies for your production and test code
 			dependencies {
@@ -394,7 +398,7 @@ class ProjectContentGenerator {
 		}
 		if (fixtureName == SWINGFIXTURE) {
 			return '''
-				compile 'org.testeditor.fixture:swing-fixture:3.1.0'
+				compile 'org.testeditor.fixture:swing-fixture:3.1.1'
 			'''
 		}
 	}
@@ -440,24 +444,8 @@ class ProjectContentGenerator {
 						<name>test-editor-Fixtures</name>
 						<url>http://dl.bintray.com/test-editor/Fixtures</url>
 					</repository>
-					<repository>
-						<snapshots>
-							<enabled>false</enabled>
-						</snapshots>
-						<id>test-editor-maven-old</id>
-						<name>test-editor-maven</name>
-						<url>http://dl.bintray.com/test-editor/test-editor-maven</url>
-					</repository>
 				</repositories>
 				<pluginRepositories>
-					<pluginRepository>
-						<snapshots>
-							<enabled>false</enabled>
-						</snapshots>
-						<id>test-editor-maven-old</id>
-						<name>bintray-plugins</name>
-						<url>http://dl.bintray.com/test-editor/test-editor-maven</url>
-					</pluginRepository>
 					<pluginRepository>
 						<snapshots>
 							<enabled>false</enabled>
