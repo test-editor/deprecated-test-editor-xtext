@@ -53,7 +53,9 @@ class ProjectContentGenerator {
 	static public val String WEBFIXTURE = "Web Fixture"
 	static public val String SWINGFIXTURE = "Swing Fixture"
 	static public val String SRC_FOLDER = 'src/main/java'
+	static public val String RESOURCES_FOLDER = 'src/main/resources'
 	static public val String SRC_TEST_FOLDER = 'src/test/java'
+	static public val String RESOURCES_TEST_FOLDER = 'src/test/resources'
 
 	private static val logger = LoggerFactory.getLogger(ProjectContentGenerator)
 
@@ -77,23 +79,25 @@ class ProjectContentGenerator {
 	def void createProjectContent(IProject project, String[] fixtures, String buildsystem, boolean demo,
 		IProgressMonitor monitor) throws CoreException{
 		project => [
-			// setup project structure
-			val srcMain = SRC_FOLDER + "/" + name
-			val srcTest = SRC_TEST_FOLDER + "/" + name
+			// setup folder structure
+			createSourceFolder
+			createLoggingConfig(monitor)
+			
+			// setup buildsystem
 			if (buildsystem == MAVEN) {
 				setupMavenProject(fixtures, monitor)
 			}
 			if (buildsystem == GRADLE) {
 				setupGradleProject(fixtures, monitor)
 			}
-			createOrGetDeepFolder(srcMain)
-			createOrGetDeepFolder(srcTest)
 			
 			// fill project with sample code
 			if (demo) {
-				fixtures.forEach[createApplicationCode(project, srcMain, monitor)]
-				fixtures.forEach[createAmlCode(project, srcTest, monitor)]
-				fixtures.forEach[createDemoTestCase(project, srcTest, monitor)]
+				val mainSourceRoot = SRC_FOLDER + "/" + name
+				val testSourceRoot = SRC_TEST_FOLDER + "/" + name
+				fixtures.forEach[createApplicationCode(project, mainSourceRoot, monitor)]
+				fixtures.forEach[createAmlCode(project, testSourceRoot, monitor)]
+				fixtures.forEach[createDemoTestCase(project, testSourceRoot, monitor)]
 			}
 			
 			// some more technical project setup
@@ -102,6 +106,13 @@ class ProjectContentGenerator {
 			}
 			filterTechnicalProjectFiles(monitor)
 		]
+	}
+
+	private def void createSourceFolder(IProject project) {
+		createOrGetDeepFolder(project, SRC_FOLDER)
+		createOrGetDeepFolder(project, RESOURCES_FOLDER)
+		createOrGetDeepFolder(project, SRC_TEST_FOLDER)
+		createOrGetDeepFolder(project, RESOURCES_TEST_FOLDER)
 	}
 
 	private def filterTechnicalProjectFiles(IProject project, IProgressMonitor monitor) {
@@ -279,8 +290,9 @@ class ProjectContentGenerator {
 		}
 	}
 
-	private def IFile write(CharSequence contents, IProject project, String srcFolder, String fileName, IProgressMonitor monitor) {
-		val file = project.getFile('''«srcFolder»/«fileName»''')
+	private def IFile write(CharSequence contents, IProject project, String folder, String fileName, IProgressMonitor monitor) {
+		createOrGetDeepFolder(project, folder)
+		val file = project.getFile('''«folder»/«fileName»''')
 		file.create(new StringInputStream(contents.toString), false, monitor)
 		return file
 	}
@@ -618,5 +630,29 @@ class ProjectContentGenerator {
 			newProject.setDescription(description, null)
 		}
 	}
+
+	private def void createLoggingConfig(IProject project, IProgressMonitor monitor) {
+		val contents = getLoggingConfigContents
+		contents.write(project, RESOURCES_TEST_FOLDER, "log4j2.xml", monitor)
+	}
+
+	private def String getLoggingConfigContents() '''
+		<?xml version="1.0" encoding="UTF-8"?>
+		<Configuration status="INFO">
+			<Appenders>
+				<Console name="Console" target="SYSTEM_OUT">
+					<PatternLayout pattern="%d{HH:mm:ss} %-5level [%t] %X{context} [%X{TestName}] %c{1} %msg%n" />
+				</Console>
+			</Appenders>
+			<Loggers>
+				<Logger name="org.testeditor" level="debug" additivity="false">
+					<AppenderRef ref="Console" />
+				</Logger>
+				<Root level="info">
+					<AppenderRef ref="Console" />
+				</Root>
+			</Loggers>
+		</Configuration>
+	'''
 
 }
