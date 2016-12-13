@@ -1,7 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { LogGroup } from "./model";
-import { TestLogService } from "./testLog.service"
-
+import { TestLogService } from "./testLog.service";
 
 @Component({
     moduleId: module.id,
@@ -10,5 +9,9 @@ import { TestLogService } from "./testLog.service"
 })
 export class LogGroupView {
     @Input() testruns: LogGroup[] = [];
+    @Input() testRun: String = "";
+
+    constructor(private logService: TestLogService) {
+    }
 
 }

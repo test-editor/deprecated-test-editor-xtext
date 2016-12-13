@@ -72,6 +72,14 @@ class TestExecutionManager {
 		return null
 
 	}
+	def File getScreenshotFor(String fileName, String testcasename, String screenshotPath) {		
+		val location = logLocationHelper.logLocation
+		val log = location.listFiles.findFirst[it.name.matches(fileName)]
+		if (log !== null) {
+			return new File(new File (new File(log,"screenshots"),testcasename),screenshotPath)
+		}
+		return null
+	}
 
 	def private TestExecutionLog createTestExecutionLog(String teLogFileName) {
 		val log = new TestExecutionLog
