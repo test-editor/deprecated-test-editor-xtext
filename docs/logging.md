@@ -51,6 +51,8 @@
 
 ## where are logs generated
 
+The information how to make use of the defaults given by the core fixture should be documented there (which definitely is another todo!).
+
 -   logging is done using loggers provided by slf4j
 -   tests may inherit AbstractTestCase which initializes a DefaultTestRunReporter (accessible via instance variable "reporter")
 ```
@@ -74,7 +76,7 @@ public class SomeFixture implements TestRunListener, TestRunReportable {
 	}
 
     
-    // is called whenever the reporter is called from the generated test calss. 
+    // is called whenever the reporter is called from the generated test class. 
     // the method must ignore messages it is not interested in
 	@Override
 	public void reported(SemanticUnit unit, Action action, String msg) {
