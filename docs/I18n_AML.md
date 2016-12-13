@@ -216,7 +216,7 @@ project can, for instance, use German names.
 
 ### Macros
 
-Macros share the sample templating mechanism but are part of the TCL. The mechanisms that are applied to
+Macros share the same templating mechanism but are part of the TCL. The mechanisms that are applied to
 AML interaction type templates should be applicable to macros as well.
 
 ### Value spaces
