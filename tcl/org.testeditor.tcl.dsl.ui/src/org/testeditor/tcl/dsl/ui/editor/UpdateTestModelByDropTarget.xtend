@@ -25,11 +25,12 @@ class UpdateTestModelByDropTarget {
 			val dropTarget = dropUtils.findDropTarget(editor, resource)
 
 			val ComponentTestStepContext newTestStepContext = dropUtils.createDroppedTestStepContext()
+			val newTestStep = newTestStepContext.steps.head
 
 			updateTestModel(tclModel.test, dropTarget, newTestStepContext, toFormatEObject)
 
 			toFormat.addAll(toFormatEObject.map[EcoreUtil.getRelativeURIFragmentPath(tclModel, it)])
-			currentElement.add(EcoreUtil.getRelativeURIFragmentPath(tclModel, newTestStepContext.steps.head))
+			currentElement.add(EcoreUtil.getRelativeURIFragmentPath(tclModel, newTestStep))
 		}
 	}
 

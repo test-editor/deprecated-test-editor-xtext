@@ -19,6 +19,7 @@ import org.eclipse.xtext.naming.IQualifiedNameConverter
 import org.eclipse.xtext.scoping.IScope
 import org.eclipse.xtext.scoping.Scopes
 import org.eclipse.xtext.xbase.scoping.batch.XbaseBatchScopeProvider
+import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.ElementTypeWithInteractions
 import org.testeditor.aml.ElementWithInteractions
 import org.testeditor.aml.InteractionType
@@ -28,7 +29,6 @@ import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.ValueSpaceAssignment
 
 import static org.testeditor.aml.AmlPackage.Literals.*
-import org.testeditor.aml.ComponentElement
 
 class AmlScopeProvider extends XbaseBatchScopeProvider {
 
@@ -41,10 +41,11 @@ class AmlScopeProvider extends XbaseBatchScopeProvider {
 	override getScope(EObject context, EReference reference) {
 		if (reference == VALUE_SPACE_ASSIGNMENT__VARIABLE) {
 			if (context instanceof ElementWithInteractions<?>) {
-				return context.interactionsScope
+				// TODO do we ever enter this if-block
+				return context.type.interactionsTemplateVariablesScope
 			}
 			if (context instanceof ValueSpaceAssignment) {
-				return context.element.interactionsScope
+				return context.valueSpaceAssignmentVariableScope
 			}
 		}
 
@@ -72,13 +73,13 @@ class AmlScopeProvider extends XbaseBatchScopeProvider {
 	}
 
 	/**
-	 * Provides the proper scope for template variables.
+	 * Provides the scoping for template variables of visible interactions.
 	 */
-	def IScope getInteractionsScope(ElementWithInteractions<?> element) {
-		if (element?.type === null) {
+	private def IScope getInteractionsTemplateVariablesScope(ElementTypeWithInteractions type) {
+		if (type === null) {
 			return IScope.NULLSCOPE
 		}
-		val variables = element.type.templateVariablesInScope
+		val variables = type.templateVariablesInScope
 		// Calculate a "partially qualified name" here to reference as InteractionType.variable
 		return Scopes.scopeFor(variables, [ variable |
 			val interactionType = variable.eContainer?.eContainer
@@ -90,9 +91,25 @@ class AmlScopeProvider extends XbaseBatchScopeProvider {
 	}
 
 	/**
+	 * Provides scoping for referenceable variables for a {@link ValueSpaceAssignment}.
+	 */
+	private def IScope getValueSpaceAssignmentVariableScope(ValueSpaceAssignment context) {
+		val container = context.eContainer
+		if (container instanceof ElementWithInteractions<?>) {
+			return container.type.interactionsTemplateVariablesScope
+		} else if (container instanceof ElementTypeWithInteractions) {
+			return container.interactionsTemplateVariablesScope
+		} else if (container instanceof InteractionType) {
+			val referenceableVariables = container.template.referenceableVariables
+			return Scopes.scopeFor(referenceableVariables, IScope.NULLSCOPE)
+		}
+		return IScope.NULLSCOPE
+	}
+
+	/**
 	 * @return the {@link TemplateVariable variables} that can be referenced from the passed type
 	 */
-	protected def Iterable<TemplateVariable> getTemplateVariablesInScope(ElementTypeWithInteractions type) {
+	private def Iterable<TemplateVariable> getTemplateVariablesInScope(ElementTypeWithInteractions type) {
 		val templates = type.interactionTypes.map[template].filterNull
 		val variables = templates.map[referenceableVariables].flatten
 		return variables

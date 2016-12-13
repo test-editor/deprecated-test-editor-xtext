@@ -90,13 +90,12 @@ class ComponentElement extends ElementWithInteractions<ComponentElementType> {
 	// TODO support overriding of elements
 }
 
-abstract class ElementTypeWithInteractions extends ModelElement {
+abstract class ElementTypeWithInteractions extends ModelElement, ValueSpaceAssignmentContainer {
 	refers InteractionType[0..*] interactionTypes
 }
 
-abstract class ElementWithInteractions<Type extends ElementTypeWithInteractions> extends ModelElement {
+abstract class ElementWithInteractions<Type extends ElementTypeWithInteractions> extends ModelElement, ValueSpaceAssignmentContainer {
 	refers Type ^type
-	contains ValueSpaceAssignment[0..*] valueSpaceAssignments opposite element
 }
 
 /* <p> 
@@ -132,7 +131,7 @@ abstract class TemplateContainer {
  * as well as a label.
  * </p>
  */
-class InteractionType extends ModelElement, TemplateContainer {
+class InteractionType extends ModelElement, TemplateContainer, ValueSpaceAssignmentContainer {
 	contains MethodReference defaultMethod
 	refers JvmEnumerationLiteral locatorStrategy // default strategy
 }
@@ -217,7 +216,7 @@ class IntegerRange extends ValueSpace {
 		return from <= Integer.parseInt(possibleValue) && Integer.parseInt(possibleValue) <= to
 	}
 	op String toString() {
-		return from + " <= <x> <= " + to
+		return from + " <= x <= " + to
 	}
 }
 
@@ -233,8 +232,11 @@ class RegExValueSpace extends ValueSpace {
 	
 }
 
+class ValueSpaceAssignmentContainer {
+	contains ValueSpaceAssignment[0..*] valueSpaceAssignments
+}
+
 class ValueSpaceAssignment {
-	container ElementWithInteractions<?> element opposite valueSpaceAssignments
 	refers TemplateVariable variable
 	refers ValueSpace valueSpace
 }

@@ -117,7 +117,7 @@ void postRelease(String preReleaseVersion) {
         if (developVersion == preReleaseVersion) {
             sh "git merge origin/master"
             def nextSnapshotVersion = '\\${parsedVersion.majorVersion}.\\${parsedVersion.nextMinorVersion}.0-SNAPSHOT'
-            setVersion(nextSnapshotVersion, 'target-platform/org.testeditor.releng.target.parent/pom.xml', 'org.testeditor.releng.target.parent')
+            setVersion(nextSnapshotVersion, 'target-platform/pom.xml', 'org.testeditor.releng.target.parent')
             setVersion(nextSnapshotVersion, 'pom.xml', 'org.testeditor.releng.parent')
             sh "git add ."
             sh "git commit -m '[release] set version ${getCurrentVersion()}'"
