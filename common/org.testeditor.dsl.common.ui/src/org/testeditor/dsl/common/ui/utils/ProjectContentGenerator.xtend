@@ -15,7 +15,6 @@ package org.testeditor.dsl.common.ui.utils
 import com.google.common.annotations.VisibleForTesting
 import java.io.File
 import java.util.List
-import java.util.Properties
 import javax.inject.Inject
 import org.eclipse.core.resources.FileInfoMatcherDescription
 import org.eclipse.core.resources.IFile
@@ -37,8 +36,6 @@ import org.testeditor.dsl.common.ide.util.FileUtils
 import org.testeditor.dsl.common.ui.wizards.SwingDemoContentGenerator
 import org.testeditor.dsl.common.util.GradleHelper
 import org.testeditor.dsl.common.util.classpath.ClasspathUtil
-
-import static org.eclipse.xtext.xbase.lib.StringExtensions.isNullOrEmpty
 
 /**
  * Generator to generate content to a new test project.
@@ -68,6 +65,14 @@ class ProjectContentGenerator {
 	
 	@Accessors(PUBLIC_GETTER) 
 	IFile demoTclFile
+
+	def List<String> getAvailableBuildSystems() {
+		return #[GRADLE, MAVEN]
+	}
+
+	def List<String> getAvailableFixtureNames() {
+		return #[WEBFIXTURE, SWINGFIXTURE]
+	}
 
 	def void createProjectContent(IProject project, String[] fixtures, String buildsystem, boolean demo,
 		IProgressMonitor monitor) throws CoreException{
@@ -123,14 +128,40 @@ class ProjectContentGenerator {
 		logger.debug("Refreshed project='{}'.", project)
 	}
 
-	protected def void setupGradleProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
-		var IFile buildFile = project.getFile("build.gradle")
-		createGradleSettings(project, monitor)
-		buildFile.create(new StringInputStream(getBuildGradleContent(fixtures)), IResource.NONE, monitor)
+	private def void setupGradleProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
+		createGradleBuildFile(project, fixtures, monitor)
+		maybeCreateGradleSettings(project, monitor)
+		createGradleWrapper(project)
+	}
+
+	private def void createGradleBuildFile(IProject project, String[] fixtures, IProgressMonitor monitor) {
+		val buildFile = project.getFile("build.gradle")
+		val contents = getBuildGradleContent(fixtures)
+		buildFile.create(new StringInputStream(contents), IResource.NONE, monitor)
+	}
+
+	private def void maybeCreateGradleSettings(IProject project, IProgressMonitor monitor) {
+		val isHttpProxySet = !System.getProperty("http.proxyHost").nullOrEmpty
+		if (isHttpProxySet) {
+			val gradleProperties = project.getFile("gradle.properties")
+			gradleProperties.create(new StringInputStream(getProxyProperties()), IResource.NONE, monitor)
+		}
+	}
+
+	private def String getProxyProperties()  '''
+		systemProp.http.proxyHost=«System.properties.getProperty("http.proxyHost")»
+		systemProp.http.proxyPort=«System.properties.getProperty("http.proxyPort")»
+		systemProp.http.proxyUser=«System.properties.getProperty("http.proxyUser")»
+		systemProp.http.proxyPassword=«System.properties.getProperty("http.proxyPassword")»
+		systemProp.https.proxyHost=«System.properties.getProperty("https.proxyHost")»
+		systemProp.https.proxyPort=«System.properties.getProperty("https.proxyPort")»
+	'''
+	
+	private def void createGradleWrapper(IProject project) {
 		val name = FrameworkUtil.getBundle(ProjectContentGenerator).symbolicName
 		val bundleLocation = fileLocatorService.findBundleFileLocationAsString(name)
-		val dest = project.location.toFile
 		logger.info("using bundleLocation='{}' to copy gradlewrapper", bundleLocation)
+		val dest = project.location.toFile
 		if (bundleLocation.endsWith(".jar")) {
 			FileUtils.unpackZipFile(new File(bundleLocation), dest, "gradlewrapper/")
 		} else {
@@ -144,23 +175,6 @@ class ProjectContentGenerator {
 			}
 		]
 	}
-
-	private def void createGradleSettings(IProject project, IProgressMonitor monitor) {
-		var Properties props = System.getProperties();
-		if (!isNullOrEmpty(props.getProperty("http.proxyHost"))) {
-			var IFile gradleProperties = project.getFile("gradle.properties")
-			gradleProperties.create(new StringInputStream(getProxyProperties()), IResource.NONE, monitor)
-		}
-	}
-
-	def String getProxyProperties()  '''
-		systemProp.http.proxyHost=«System.properties.getProperty("http.proxyHost")»
-		systemProp.http.proxyPort=«System.properties.getProperty("http.proxyPort")»
-		systemProp.http.proxyUser=«System.properties.getProperty("http.proxyUser")»
-		systemProp.http.proxyPassword=«System.properties.getProperty("http.proxyPassword")»
-		systemProp.https.proxyHost=«System.properties.getProperty("https.proxyHost")»
-		systemProp.https.proxyPort=«System.properties.getProperty("https.proxyPort")»
-	'''
 
 	protected def void setupMavenProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
 		var IFile buildFile = project.getFile("pom.xml")
@@ -271,7 +285,7 @@ class ProjectContentGenerator {
 		return file
 	}
 
-	def String getGoogleTestCase() '''
+	private def String getGoogleTestCase() '''
 		/**
 		* This is a  demo test case. It is executable and uses the test-editor webfixture to automate a Google search.
 		* The Google search mask is modelled in an AML file. You can navigate to the aml definitions of fixture code,
@@ -303,38 +317,8 @@ class ProjectContentGenerator {
 			- Close browser
 	'''
 
-	def String getDemoAMLContent(String[] fixtures, String packageName) '''
-		package «packageName»
-
-		«FOR fixture : fixtures»
-			import «getPackage(fixture)»
-		«ENDFOR»
-		«FOR fixture : fixtures»
-			«getDemoAMLComponentsContent(fixture)»
-		«ENDFOR»
-	'''
-
-	def String getDemoAMLComponentsContent(String fixture) {
-		if (fixture == WEBFIXTURE) {
-			return '''
-				/**
-				 * Application model for the google search site. It contains only the search field and
-				 * binds it to the test-editor web fixture field element.
-				 */
-				component Searchsite is Page {
-					element Searchfield is field {
-						label = "Search field"
-						locator = "q"
-					}
-				}
-			'''
-		} else if (fixture == SWINGFIXTURE) {
-			return swingDemoContentGenerator.amlContents
-		}
-		return ""
-	}
-
-	def String getInitialFileContents(String packageName, String... fixturesToImport) '''
+	@VisibleForTesting
+	protected def String getInitialFileContents(String packageName, String... fixturesToImport) '''
 		package «packageName»
 
 		«FOR fixture : fixturesToImport»
@@ -353,44 +337,42 @@ class ProjectContentGenerator {
 		throw new IllegalArgumentException("Unknown fixture with name: " + fixtureName)
 	}
 
-	def String getBuildGradleContent(String[] fixtureNames) {
-		'''
-			plugins {
-			    id 'org.testeditor.gradle-plugin' version '«TEST_EDITOR_GRADLE_PLUGIN_VERSION»'
-			    id 'maven'
-			    id 'eclipse'
-			}
+	private def String getBuildGradleContent(String[] fixtureNames) '''
+		plugins {
+		    id 'org.testeditor.gradle-plugin' version '«TEST_EDITOR_GRADLE_PLUGIN_VERSION»'
+		    id 'maven'
+		    id 'eclipse'
+		}
 
-			group = 'org.testeditor.demo'
-			version = '1.0.0-SNAPSHOT'
+		group = 'org.testeditor.demo'
+		version = '1.0.0-SNAPSHOT'
 
-			// In this section you declare where to find the dependencies of your project
-			repositories {
-			    jcenter()
-			    maven { url "http://dl.bintray.com/test-editor/Fixtures" }
-			    maven { url "http://dl.bintray.com/test-editor/maven/" }
-			}
+		// In this section you declare where to find the dependencies of your project
+		repositories {
+		    jcenter()
+		    maven { url "http://dl.bintray.com/test-editor/Fixtures" }
+		    maven { url "http://dl.bintray.com/test-editor/maven/" }
+		}
 
-			// Configure the testeditor plugin
-			testeditor {
-				version '«TEST_EDITOR_VERSION»'
-			}
-			
-			// show standard out during test to see logging output
-			test.testLogging.showStandardStreams = true
+		// Configure the testeditor plugin
+		testeditor {
+			version '«TEST_EDITOR_VERSION»'
+		}
+		
+		// show standard out during test to see logging output
+		test.testLogging.showStandardStreams = true
 
-			// In this section you declare the dependencies for your production and test code
-			dependencies {
-				compile 'org.testeditor.fixture:core-fixture:3.1.0'
-			    «FOR s : fixtureNames»
-			    	«getGradleDependency(s)»
-				«ENDFOR»
-			    testCompile 'junit:junit:4.12'
-			}
-		'''
-	}
+		// In this section you declare the dependencies for your production and test code
+		dependencies {
+			compile 'org.testeditor.fixture:core-fixture:3.1.0'
+		    «FOR s : fixtureNames»
+		    	«getGradleDependency(s)»
+			«ENDFOR»
+		    testCompile 'junit:junit:4.12'
+		}
+	'''
 
-	def String getGradleDependency(String fixtureName) {
+	private def String getGradleDependency(String fixtureName) {
 		if (fixtureName == WEBFIXTURE) {
 			return '''
 				compile 'org.testeditor.fixture:web-fixture:3.1.0'
@@ -403,212 +385,212 @@ class ProjectContentGenerator {
 		}
 	}
 
-	def String getPomContent(String[] fixtureNames, String projectName) {
-		'''
-			<?xml version="1.0" encoding="UTF-8"?>
-			<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-				xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-				<modelVersion>4.0.0</modelVersion>
+	@VisibleForTesting
+	protected def String getPomContent(String[] fixtureNames, String projectName) '''
+		<?xml version="1.0" encoding="UTF-8"?>
+		<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+			<modelVersion>4.0.0</modelVersion>
 
-				<groupId>org.testeditor.project</groupId>
-				<artifactId>«projectName»</artifactId>
-				<version>1.0.0-SNAPSHOT</version>
+			<groupId>org.testeditor.project</groupId>
+			<artifactId>«projectName»</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
 
-				<properties>
-					<!-- Version definitions below -->
-					<java.version>1.8</java.version>
-					<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+			<properties>
+				<!-- Version definitions below -->
+				<java.version>1.8</java.version>
+				<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-					<maven-clean-plugin.version>2.5</maven-clean-plugin.version>
-					<maven-resources-plugin.version>2.7</maven-resources-plugin.version>
-					<maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
+				<maven-clean-plugin.version>2.5</maven-clean-plugin.version>
+				<maven-resources-plugin.version>2.7</maven-resources-plugin.version>
+				<maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
 
-					<testeditor.version>«TEST_EDITOR_VERSION»</testeditor.version>
-					<testeditor.output>«TEST_EDITOR_MVN_GEN_OUTPUT»</testeditor.output>
-				</properties>
+				<testeditor.version>«TEST_EDITOR_VERSION»</testeditor.version>
+				<testeditor.output>«TEST_EDITOR_MVN_GEN_OUTPUT»</testeditor.output>
+			</properties>
 
-				<repositories>
-					<repository>
-						<snapshots>
-							<enabled>false</enabled>
-						</snapshots>
-						<id>central</id>
-						<name>bintray</name>
-						<url>http://jcenter.bintray.com</url>
-					</repository>
-					<repository>
-						<snapshots>
-							<enabled>false</enabled>
-						</snapshots>
-						<id>test-editor-Fixtures</id>
-						<name>test-editor-Fixtures</name>
-						<url>http://dl.bintray.com/test-editor/Fixtures</url>
-					</repository>
-				</repositories>
-				<pluginRepositories>
-					<pluginRepository>
-						<snapshots>
-							<enabled>false</enabled>
-						</snapshots>
-						<id>test-editor-maven</id>
-						<name>bintray-plugins</name>
-						<url>http://dl.bintray.com/test-editor/maven</url>
-					</pluginRepository>
-				</pluginRepositories>
+			<repositories>
+				<repository>
+					<snapshots>
+						<enabled>false</enabled>
+					</snapshots>
+					<id>central</id>
+					<name>bintray</name>
+					<url>http://jcenter.bintray.com</url>
+				</repository>
+				<repository>
+					<snapshots>
+						<enabled>false</enabled>
+					</snapshots>
+					<id>test-editor-Fixtures</id>
+					<name>test-editor-Fixtures</name>
+					<url>http://dl.bintray.com/test-editor/Fixtures</url>
+				</repository>
+			</repositories>
+			<pluginRepositories>
+				<pluginRepository>
+					<snapshots>
+						<enabled>false</enabled>
+					</snapshots>
+					<id>test-editor-maven</id>
+					<name>bintray-plugins</name>
+					<url>http://dl.bintray.com/test-editor/maven</url>
+				</pluginRepository>
+			</pluginRepositories>
 
-				<dependencies>
-					<dependency>
-						<groupId>junit</groupId>
-						<artifactId>junit</artifactId>
-						<version>4.12</version>
-					</dependency>
-					<dependency>
-						<groupId>org.testeditor.fixture</groupId>
-						<artifactId>core-fixture</artifactId>
-						<version>3.1.0</version>
-					</dependency>
-					«FOR s : fixtureNames»
-						«getMavenDependency(s)»
-					«ENDFOR»
-				</dependencies>
+			<dependencies>
+				<dependency>
+					<groupId>junit</groupId>
+					<artifactId>junit</artifactId>
+					<version>4.12</version>
+				</dependency>
+				<dependency>
+					<groupId>org.testeditor.fixture</groupId>
+					<artifactId>core-fixture</artifactId>
+					<version>3.1.0</version>
+				</dependency>
+				«FOR s : fixtureNames»
+					«getMavenDependency(s)»
+				«ENDFOR»
+			</dependencies>
 
-				<build>
-					<pluginManagement>
-						<plugins>
-							<plugin>
-								<groupId>org.apache.maven.plugins</groupId>
-								<artifactId>maven-resources-plugin</artifactId>
-								<version>${maven-resources-plugin.version}</version>
-								<configuration>
-									<encoding>${project.build.sourceEncoding}</encoding>
-								</configuration>
-							</plugin>
-							<plugin>
-								<groupId>org.apache.maven.plugins</groupId>
-								<artifactId>maven-compiler-plugin</artifactId>
-								<version>${maven-compiler-plugin.version}</version>
-								<configuration>
-									<source>${java.version}</source>
-									<target>${java.version}</target>
-								</configuration>
-							</plugin>
-							<plugin>
-								<groupId>org.apache.maven.plugins</groupId>
-								<artifactId>maven-clean-plugin</artifactId>
-								<version>${maven-clean-plugin.version}</version>
-								<configuration>
-									<filesets>
-										<fileset>
-											<directory>${testeditor.output}</directory>
-											<includes>
-												<include>**</include>
-											</includes>
-											<excludes>
-												<exclude>.gitignore</exclude>
-											</excludes>
-										</fileset>
-									</filesets>
-								</configuration>
-							</plugin>
-							<plugin>
-								<groupId>org.eclipse.m2e</groupId>
-								<artifactId>lifecycle-mapping</artifactId>
-								<version>1.0.0</version>
-								<configuration>
-									<lifecycleMappingMetadata>
-										<pluginExecutions>
-											<pluginExecution>
-												<pluginExecutionFilter>
-													<groupId>org.codehaus.mojo</groupId>
-													<artifactId>build-helper-maven-plugin</artifactId>
-													<versionRange>[1.0,)</versionRange>
-													<goals>
-														<goal>parse-version</goal>
-														<goal>add-source</goal>
-														<goal>maven-version</goal>
-														<goal>add-resource</goal>
-														<goal>add-test-resource</goal>
-														<goal>add-test-source</goal>
-													</goals>
-												</pluginExecutionFilter>
-												<action>
-													<execute>
-														<runOnConfiguration>true</runOnConfiguration>
-														<runOnIncremental>true</runOnIncremental>
-													</execute>
-												</action>
-											</pluginExecution>
-											<pluginExecution>
-												<pluginExecutionFilter>
-													<groupId>org.testeditor</groupId>
-													<artifactId>testeditor-maven-plugin</artifactId>
-													<versionRange>[1.0,)</versionRange>
-													<goals>
-														<goal>generate</goal>
-													</goals>
-												</pluginExecutionFilter>
-												<action>
-													<ignore></ignore>
-												</action>
-											</pluginExecution>
-										</pluginExecutions>
-							          </lifecycleMappingMetadata>
-								</configuration>
-							</plugin>
-							<plugin>
-								<groupId>org.testeditor</groupId>
-								<artifactId>testeditor-maven-plugin</artifactId>
-								<version>«TEST_EDITOR_MAVEN_PLUGIN_VERSION»</version>
-								<configuration>
-									<testEditorVersion>${testeditor.version}</testEditorVersion>
-									<testEditorOutput>${testeditor.output}</testEditorOutput>
-								</configuration>
-								<executions>
-									<execution>
-										<goals>
-											<goal>generate</goal>
-										</goals>
-									</execution>
-								</executions>
-							</plugin>
-						</plugins>
-					</pluginManagement>
+			<build>
+				<pluginManagement>
 					<plugins>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-resources-plugin</artifactId>
+							<version>${maven-resources-plugin.version}</version>
+							<configuration>
+								<encoding>${project.build.sourceEncoding}</encoding>
+							</configuration>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-compiler-plugin</artifactId>
+							<version>${maven-compiler-plugin.version}</version>
+							<configuration>
+								<source>${java.version}</source>
+								<target>${java.version}</target>
+							</configuration>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-clean-plugin</artifactId>
+							<version>${maven-clean-plugin.version}</version>
+							<configuration>
+								<filesets>
+									<fileset>
+										<directory>${testeditor.output}</directory>
+										<includes>
+											<include>**</include>
+										</includes>
+										<excludes>
+											<exclude>.gitignore</exclude>
+										</excludes>
+									</fileset>
+								</filesets>
+							</configuration>
+						</plugin>
+						<plugin>
+							<groupId>org.eclipse.m2e</groupId>
+							<artifactId>lifecycle-mapping</artifactId>
+							<version>1.0.0</version>
+							<configuration>
+								<lifecycleMappingMetadata>
+									<pluginExecutions>
+										<pluginExecution>
+											<pluginExecutionFilter>
+												<groupId>org.codehaus.mojo</groupId>
+												<artifactId>build-helper-maven-plugin</artifactId>
+												<versionRange>[1.0,)</versionRange>
+												<goals>
+													<goal>parse-version</goal>
+													<goal>add-source</goal>
+													<goal>maven-version</goal>
+													<goal>add-resource</goal>
+													<goal>add-test-resource</goal>
+													<goal>add-test-source</goal>
+												</goals>
+											</pluginExecutionFilter>
+											<action>
+												<execute>
+													<runOnConfiguration>true</runOnConfiguration>
+													<runOnIncremental>true</runOnIncremental>
+												</execute>
+											</action>
+										</pluginExecution>
+										<pluginExecution>
+											<pluginExecutionFilter>
+												<groupId>org.testeditor</groupId>
+												<artifactId>testeditor-maven-plugin</artifactId>
+												<versionRange>[1.0,)</versionRange>
+												<goals>
+													<goal>generate</goal>
+												</goals>
+											</pluginExecutionFilter>
+											<action>
+												<ignore></ignore>
+											</action>
+										</pluginExecution>
+									</pluginExecutions>
+						          </lifecycleMappingMetadata>
+							</configuration>
+						</plugin>
 						<plugin>
 							<groupId>org.testeditor</groupId>
 							<artifactId>testeditor-maven-plugin</artifactId>
-						</plugin>
-						<plugin>
-							<!--
-							     This is required until we have a separate task for this in the test-editor-maven-plugin.
-							     We need it for the m2e lifecycle mapping (discovery of testeditor.output as a source folder).
-							  -->
-						    <groupId>org.codehaus.mojo</groupId>
-						    <artifactId>build-helper-maven-plugin</artifactId>
-						    <version>1.7</version>
-						    <executions>
-						        <execution>
-						            <id>add-test-source</id>
-						            <phase>generate-test-sources</phase>
-						            <goals>
-						                <goal>add-test-source</goal>
-						            </goals>
-						            <configuration>
-						                <sources>
-						                    <source>${testeditor.output}</source>
-						                </sources>
-						            </configuration>
-						        </execution>
-						    </executions>
+							<version>«TEST_EDITOR_MAVEN_PLUGIN_VERSION»</version>
+							<configuration>
+								<testEditorVersion>${testeditor.version}</testEditorVersion>
+								<testEditorOutput>${testeditor.output}</testEditorOutput>
+							</configuration>
+							<executions>
+								<execution>
+									<goals>
+										<goal>generate</goal>
+									</goals>
+								</execution>
+							</executions>
 						</plugin>
 					</plugins>
-				</build>
+				</pluginManagement>
+				<plugins>
+					<plugin>
+						<groupId>org.testeditor</groupId>
+						<artifactId>testeditor-maven-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<!--
+						     This is required until we have a separate task for this in the test-editor-maven-plugin.
+						     We need it for the m2e lifecycle mapping (discovery of testeditor.output as a source folder).
+						  -->
+					    <groupId>org.codehaus.mojo</groupId>
+					    <artifactId>build-helper-maven-plugin</artifactId>
+					    <version>1.7</version>
+					    <executions>
+					        <execution>
+					            <id>add-test-source</id>
+					            <phase>generate-test-sources</phase>
+					            <goals>
+					                <goal>add-test-source</goal>
+					            </goals>
+					            <configuration>
+					                <sources>
+					                    <source>${testeditor.output}</source>
+					                </sources>
+					            </configuration>
+					        </execution>
+					    </executions>
+					</plugin>
+				</plugins>
+			</build>
 
-			</project>
-		'''
-	}
+		</project>
+	'''
 
-	def String getMavenDependency(String fixtureName) {
+	@VisibleForTesting
+	protected def String getMavenDependency(String fixtureName) {
 		if (fixtureName == WEBFIXTURE) {
 			return '''
 				<dependency>
@@ -629,14 +611,6 @@ class ProjectContentGenerator {
 		}
 	}
 	
-	def List<String> getAvailableBuildSystems() {
-		return #[GRADLE, MAVEN]
-	}
-
-	def List<String> getAvailableFixtureNames() {
-		return #[WEBFIXTURE, SWINGFIXTURE]
-	}
-
 	private def void addNature(IProject newProject, String nature) {
 		if (!newProject.hasNature(nature)) {
 			val description = newProject.getDescription
