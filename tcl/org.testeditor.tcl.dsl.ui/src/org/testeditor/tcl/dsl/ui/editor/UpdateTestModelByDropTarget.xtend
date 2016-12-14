@@ -11,7 +11,6 @@ import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.common.types.JvmType
 import org.eclipse.xtext.common.types.util.TypeReferences
-import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.resource.XtextResource
 import org.eclipse.xtext.xbase.imports.RewritableImportSection
 import org.eclipse.xtext.xtype.XImportDeclaration
@@ -30,7 +29,6 @@ class UpdateTestModelByDropTarget {
 	@Inject RewritableImportSection.Factory rewritableImportSectionFactory
 	@Inject TypeReferences references
 	@Inject XtypeFactory xtypeFactory
-	@Inject IQualifiedNameProvider qualifiedNameProvider
 
 	def void updateModel(TclModel tclModel, EObject dropTarget, ComponentTestStepContext droppedTestStepContext, List<String> eObjectPathsToFormat,
 		AtomicReference<String> insertedTestStepPath) {
@@ -150,16 +148,14 @@ class UpdateTestModelByDropTarget {
 	 * the modification of the import section must take place before actually adding the new
 	 * test step component.
 	 */
-	protected def void updateImports(TclModel tclModel) {
-		val droppedObject = dropUtils.getDroppedObjectAs(Component)
-		val qualifiedName = qualifiedNameProvider.getFullyQualifiedName(droppedObject).toString
+	public def void updateImports(TclModel tclModel, Component droppedObject, String qualifiedName) {
 		val simpleName = droppedObject.name
 
 		// handle suspicious wildcard imports before actually using the rewritable import section utils
 		val wildcardRemovalTookPlace = tclModel.removeSuspiciousWildcardImports(simpleName, qualifiedName)
 
 		val importSection = rewritableImportSectionFactory.parse(tclModel.eResource as XtextResource)
-		val clashingImportedTypes = importSection.getImportedTypes(simpleName)
+		val clashingImportedTypes = importSection.getImportedTypes(simpleName)?.filter[it.qualifiedName != qualifiedName]
 		val importWanted = clashingImportedTypes.nullOrEmpty && !wildcardRemovalTookPlace &&
 			!tclModel.wildcardImports.exists[resolveType(tclModel, simpleName)?.qualifiedName == qualifiedName]
 

@@ -14,14 +14,17 @@ import org.eclipse.xtext.resource.ILocationInFileProvider
 import org.eclipse.xtext.resource.XtextResource
 import org.testeditor.aml.InteractionType
 import org.testeditor.tcl.TclModel
+import org.testeditor.aml.Component
+import org.eclipse.xtext.naming.IQualifiedNameProvider
 
 class DropTargetXtextEditorListener extends DropTargetAdapter {
 
 	@Inject extension ILocationInFileProvider
-	@Inject private DropUtils dropUtils
-	@Inject private UpdateTestModelByDropTarget updateTestModelByDropTarget
+	@Inject DropUtils dropUtils
+	@Inject UpdateTestModelByDropTarget updateTestModelByDropTarget
+	@Inject IQualifiedNameProvider qualifiedNameProvider
 
-	@Inject private DropTargetXtextEditor editor
+	@Inject DropTargetXtextEditor editor
 
 	override void dragEnter(DropTargetEvent event) {
 		if ("org.testeditor.tcl.dsl.Tcl" != editor.languageName) {
@@ -45,7 +48,8 @@ class DropTargetXtextEditorListener extends DropTargetAdapter {
 	}
 
 	private def void updateImports(TclModel tclModel) {
-		updateTestModelByDropTarget.updateImports(tclModel)		
+		val droppedObject = dropUtils.getDroppedObjectAs(Component)
+		updateTestModelByDropTarget.updateImports(tclModel, droppedObject, qualifiedNameProvider.getFullyQualifiedName(droppedObject).toString)		
 	}
 
 	private def void updateModel(TclModel tclModel, EObject dropTarget, List<String> eObjectPathsToFormat,
