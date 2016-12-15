@@ -1,30 +1,37 @@
 package org.testeditor.tcl.dsl.ui.editor
 
-import org.eclipse.jface.viewers.ISelection
+import javax.inject.Inject
+import org.eclipse.emf.common.util.EList
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.jface.text.TextSelection
 import org.eclipse.jface.util.LocalSelectionTransfer
+import org.eclipse.jface.viewers.ISelection
 import org.eclipse.jface.viewers.TreeSelection
+import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.resource.XtextResource
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
-import javax.inject.Inject
-import org.eclipse.jface.text.TextSelection
-import org.testeditor.tcl.TclFactory
-import org.testeditor.tsl.TslFactory
-import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.aml.Component
-import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ComponentElement
+import org.testeditor.aml.InteractionType
 import org.testeditor.aml.TemplateText
-import org.testeditor.tsl.StepContentText
 import org.testeditor.aml.TemplateVariable
-import org.testeditor.tsl.StepContentVariable
-import org.testeditor.tcl.StepContentElement
-import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.AbstractTestStep
+import org.testeditor.tcl.ComponentTestStepContext
+import org.testeditor.tcl.Macro
+import org.testeditor.tcl.MacroTestStepContext
+import org.testeditor.tcl.SpecificationStepImplementation
+import org.testeditor.tcl.StepContainer
+import org.testeditor.tcl.StepContentElement
+import org.testeditor.tcl.TclFactory
+import org.testeditor.tcl.TclModel
+import org.testeditor.tcl.TestStepContext
+import org.testeditor.tcl.impl.MacroTestStepContextImpl
 import org.testeditor.tcl.impl.SpecificationStepImplementationImpl
+import org.testeditor.tcl.impl.TestStepImpl
+import org.testeditor.tsl.StepContentText
+import org.testeditor.tsl.StepContentVariable
+import org.testeditor.tsl.TslFactory
 import org.testeditor.tsl.impl.StepContentTextImpl
-import org.eclipse.xtext.EcoreUtil2
-import org.testeditor.tcl.TestCase
-import org.eclipse.emf.ecore.EObject
 
 class DropUtils {
 
@@ -34,7 +41,7 @@ class DropUtils {
 	@Inject protected ContentAssistContext.Factory contentAssistFactory
 
 	protected def <T> T getDroppedObjectAs(Class<T> clazz) {
-		val ISelection sel = LocalSelectionTransfer.getTransfer().getSelection();
+		val ISelection sel = LocalSelectionTransfer.getTransfer().getSelection()
 		if (sel instanceof TreeSelection) {
 			val treeSelection = sel.paths.head
 			for (var index = 0; index < treeSelection.segmentCount; index++) {
@@ -98,6 +105,10 @@ class DropUtils {
 		return tclFactory.createSpecificationStepImplementation
 	}
 
+	protected def Macro createMacro() {
+		return tclFactory.createMacro
+	}
+
 	protected def createComponentTestStepContext() {
 		return tclFactory.createComponentTestStepContext
 	}
@@ -111,13 +122,14 @@ class DropUtils {
 		}
 	}
 
-	protected def ComponentTestStepContext searchTargetTestStepContext(TestCase test, EObject dropTarget) {
+	protected def ComponentTestStepContext searchTargetTestStepContext(TclModel tclModel, EObject dropTarget) {
 
 		if (dropTarget == null) {
-			if (test.steps.empty) { // empty
+			val stepContainer = getLastStepContext(tclModel)
+			if (stepContainer == null) {
 				return null
 			}
-			return test.steps.last.contexts.last as ComponentTestStepContext
+			return stepContainer.contexts.last as ComponentTestStepContext
 		}
 		if (dropTarget instanceof SpecificationStepImplementationImpl) {
 			return dropTarget.getContexts.head as ComponentTestStepContext
@@ -127,15 +139,43 @@ class DropUtils {
 			return (dropTarget.eContainer as SpecificationStepImplementationImpl).getContexts().
 				head as ComponentTestStepContext
 		}
+		if (dropTarget instanceof MacroTestStepContextImpl || (dropTarget instanceof TestStepImpl &&
+			dropTarget.eContainer instanceof MacroTestStepContextImpl)) {
+			val macroTestStepContext = EcoreUtil2.getContainerOfType(dropTarget, MacroTestStepContext)
+			val EList<TestStepContext> contexts = EcoreUtil2.getContainerOfType(dropTarget, StepContainer).contexts
 
+			var contextIndex = contexts.indexOf(macroTestStepContext)
+			while (contextIndex < contexts.size()) {
+				if (contexts.get(contextIndex) instanceof ComponentTestStepContext) {
+					return contexts.get(contextIndex) as ComponentTestStepContext
+				}
+				contextIndex++
+			}
+			return null
+		}
 		return EcoreUtil2.getContainerOfType(dropTarget, ComponentTestStepContext)
+	}
+
+	protected def StepContainer getLastStepContext(TclModel tclModel) {
+		if (tclModel.test != null) {
+			if (tclModel.test.steps.empty) { // empty
+				return null
+			}
+			return tclModel.test.steps.last
+		}
+		if (tclModel.macroCollection != null) {
+			if (tclModel.macroCollection.macros.empty) { // empty
+				return null
+			}
+			return tclModel.macroCollection.macros.last
+		}
 	}
 
 	protected def int getInsertionIndex(ComponentTestStepContext testStepContext, EObject dropTarget) {
 		if (dropTarget == null) {
 			return testStepContext.steps.size
 		}
-		var AbstractTestStep selectedTestStep = EcoreUtil2.getContainerOfType(dropTarget, AbstractTestStep)
+		val AbstractTestStep selectedTestStep = EcoreUtil2.getContainerOfType(dropTarget, AbstractTestStep)
 		return testStepContext.steps.indexOf(selectedTestStep) + 1
 	}
 

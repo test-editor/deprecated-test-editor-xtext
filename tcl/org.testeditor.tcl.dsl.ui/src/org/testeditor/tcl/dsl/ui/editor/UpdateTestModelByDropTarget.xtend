@@ -1,15 +1,14 @@
 package org.testeditor.tcl.dsl.ui.editor
 
-import org.eclipse.xtext.resource.XtextResource
-import java.util.List
-import org.testeditor.tcl.TclModel
-import org.testeditor.tcl.ComponentTestStepContext
-import org.eclipse.emf.ecore.util.EcoreUtil
-import org.eclipse.emf.ecore.EObject
-import org.testeditor.tcl.SpecificationStepImplementation
-import org.eclipse.xtext.EcoreUtil2
-import org.testeditor.tcl.TestCase
 import com.google.inject.Inject
+import java.util.List
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.util.EcoreUtil
+import org.eclipse.xtext.EcoreUtil2
+import org.eclipse.xtext.resource.XtextResource
+import org.testeditor.tcl.ComponentTestStepContext
+import org.testeditor.tcl.StepContainer
+import org.testeditor.tcl.TclModel
 
 class UpdateTestModelByDropTarget {
 
@@ -27,28 +26,29 @@ class UpdateTestModelByDropTarget {
 			val ComponentTestStepContext newTestStepContext = dropUtils.createDroppedTestStepContext()
 			val newTestStep = newTestStepContext.steps.head
 
-			updateTestModel(tclModel.test, dropTarget, newTestStepContext, toFormatEObject)
+			updateTestModel(tclModel, dropTarget, newTestStepContext, toFormatEObject)
 
 			toFormat.addAll(toFormatEObject.map[EcoreUtil.getRelativeURIFragmentPath(tclModel, it)])
 			currentElement.add(EcoreUtil.getRelativeURIFragmentPath(tclModel, newTestStep))
 		}
 	}
 
-	public def void updateTestModel(TestCase test, EObject dropTarget, ComponentTestStepContext newTestStepContext,
+	public def void updateTestModel(TclModel tclModel, EObject dropTarget, ComponentTestStepContext newTestStepContext,
 		List<EObject> toFormatEObject) {
 
 		var testStepIndex = 0
-		val ComponentTestStepContext targetTestStepContext = dropUtils.searchTargetTestStepContext(test, dropTarget)
+
+		val ComponentTestStepContext targetTestStepContext = dropUtils.searchTargetTestStepContext(tclModel, dropTarget)
 
 		if (targetTestStepContext === null) {
-			insertTargetTestStepContext(test, newTestStepContext, dropTarget, 0, toFormatEObject)
+			insertTargetTestStepContext(tclModel, newTestStepContext, dropTarget, -1, toFormatEObject)
 			toFormatEObject.add(newTestStepContext)
 		} else {
 			testStepIndex = dropUtils.getInsertionIndex(targetTestStepContext, dropTarget)
 
 			if (targetTestStepContext.component.name != newTestStepContext.component.name) {
-				var targetTestStepContextIndex = (targetTestStepContext.eContainer as SpecificationStepImplementation).
-					contexts.indexOf(targetTestStepContext)
+				var targetTestStepContextIndex = (targetTestStepContext.eContainer as StepContainer).contexts.indexOf(
+					targetTestStepContext)
 
 				// Insert in the middle of an existing TestStepContext
 				if (testStepIndex > 0 && testStepIndex < targetTestStepContext.steps.size()) {
@@ -60,38 +60,47 @@ class UpdateTestModelByDropTarget {
 					targetTestStepContextIndex++
 					toFormatEObject.add(targetTestStepContext.steps.last)
 				}
-				insertTargetTestStepContext(test, newTestStepContext, dropTarget, targetTestStepContextIndex,
+				insertTargetTestStepContext(tclModel, newTestStepContext, dropTarget, targetTestStepContextIndex,
 					toFormatEObject)
 				toFormatEObject.add(newTestStepContext)
 			} else {
 				dropUtils.addTestStepToModel(testStepIndex, targetTestStepContext, newTestStepContext.steps.head)
 				toFormatEObject.add(targetTestStepContext)
 			}
-		}
 
+		}
 	}
 
-	private def void insertTargetTestStepContext(TestCase test, ComponentTestStepContext droppedTestStepContext,
+	private def void insertTargetTestStepContext(TclModel tclModel, ComponentTestStepContext droppedTestStepContext,
 		EObject dropTarget, int contextIndex, List<EObject> toFormatEObject) {
 
-		var SpecificationStepImplementation specification = null
-		if (test.steps.size() == 0) {
-			specification = dropUtils.createSpecification
-			toFormatEObject.add(specification)
-			test.steps.add(specification)
-		} else if (test.steps.last.contexts.size() == 0) {
-			specification = test.steps.last
-			toFormatEObject.add(specification)
-		} else {
-			if (dropTarget === null) {
-				specification = test.steps.last
-				toFormatEObject.add(specification.contexts.last)
-			} else {
-				specification = EcoreUtil2.getContainerOfType(dropTarget, SpecificationStepImplementation) ?:
-					test.steps.head
+		var StepContainer specification = null
+		if (tclModel.test != null) {
+			if (tclModel.test.steps.size() == 0) {
+				tclModel.test.steps.add(dropUtils.createSpecification)
 			}
+			specification = EcoreUtil2.getContainerOfType(dropTarget, StepContainer) ?: tclModel.test.steps.last
 		}
-		specification.contexts.add(contextIndex, droppedTestStepContext)
+		if (tclModel.macroCollection != null) {
+
+			if (tclModel.macroCollection.macros.size() == 0) {
+				tclModel.macroCollection.macros.add(dropUtils.createMacro)
+			}
+			specification = EcoreUtil2.getContainerOfType(dropTarget, StepContainer) ?:
+				tclModel.macroCollection.macros.last
+		}
+
+		if (specification.contexts.size() == 0) {
+			toFormatEObject.add(specification)
+		}
+		if (contextIndex < 0) {
+			if (specification.contexts.size > 0) {
+				toFormatEObject.add(specification.contexts.last.steps.last)
+			}
+			specification.contexts.add(droppedTestStepContext)
+		} else {
+			specification.contexts.add(contextIndex, droppedTestStepContext)
+		}
 	}
 
 	private def splitedTargetTestStepContext(ComponentTestStepContext targetTestStepContext,
@@ -99,7 +108,7 @@ class UpdateTestModelByDropTarget {
 
 		val newComponentTestStepContext = dropUtils.createComponentTestStepContext
 		newComponentTestStepContext.component = targetTestStepContext.component
-		val specification = EcoreUtil2.getContainerOfType(targetTestStepContext, SpecificationStepImplementation)
+		val specification = EcoreUtil2.getContainerOfType(targetTestStepContext, StepContainer)
 
 		specification.contexts.add(targetTestStepContextIndex + 1, newComponentTestStepContext)
 

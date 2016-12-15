@@ -1,6 +1,7 @@
 package org.testeditor.tcl.dsl.ui.tests.editor
 
 import com.google.common.base.Strings
+import com.google.common.io.ByteStreams
 import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.serializer.ISerializer
@@ -13,7 +14,6 @@ import org.testeditor.dsl.common.testing.DslParseHelper
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.dsl.TclStandaloneSetup
-import com.google.common.io.ByteStreams
 import org.testeditor.tcl.dsl.ui.editor.DropUtils
 import org.testeditor.tcl.dsl.ui.editor.UpdateTestModelByDropTarget
 
@@ -29,8 +29,8 @@ class AbstractTestModelByDropTargetTest extends AbstractTest {
 
 	@Before
 	def void parseAmlModel() {
-		var byte[] encoded = ByteStreams.toByteArray(this.getClass().getClassLoader().getResourceAsStream("test.aml"))
-		amlModel = parserHelper.parseAml(new String(encoded));
+		val byte[] encoded = ByteStreams.toByteArray(this.getClass().getClassLoader().getResourceAsStream("test.aml"))
+		amlModel = parserHelper.parseAml(new String(encoded))
 
 		val tclInjector = (new TclStandaloneSetup).createInjectorAndDoEMFRegistration
 		serializer = tclInjector.getInstance(ISerializer)
@@ -87,7 +87,7 @@ class AbstractTestModelByDropTargetTest extends AbstractTest {
 		String insertedCode) {
 		val expectedTestCase = testCase.replaceAll("-->INSERT HERE", insertedCode.indent(1)).replace("\r\n", "\n")
 
-		updateTestModelByDropTarget.updateTestModel(tclModel.test, dropTarget, newTestStepContext, newArrayList);
+		updateTestModelByDropTarget.updateTestModel(tclModel, dropTarget, newTestStepContext, newArrayList)
 		val actualTestCase = serializer.serialize(tclModel).replace("\r\n", "\n")
 		actualTestCase.assertEquals(expectedTestCase)
 	}
@@ -110,7 +110,7 @@ class AbstractTestModelByDropTargetTest extends AbstractTest {
 		for (context : tclModel.test.steps.head.contexts) {
 			if ((context as ComponentTestStepContext).component.name == componentTestStepName) {
 				if (position === null) {
-					return (context as ComponentTestStepContext);
+					return (context as ComponentTestStepContext)
 				}
 				return (context as ComponentTestStepContext).steps.get(position)
 			}
