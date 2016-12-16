@@ -21,7 +21,7 @@ class DropTargetXtextEditorListener extends DropTargetAdapter {
 
 	@Inject extension ILocationInFileProvider
 	@Inject DropUtils dropUtils
-	@Inject UpdateTestModelByDropTarget updateTestModelByDropTarget
+	@Inject UpdateTclModelByDropTarget updateTestModelByDropTarget
 	@Inject IQualifiedNameProvider qualifiedNameProvider
 
 	@Inject DropTargetXtextEditor editor
@@ -30,7 +30,7 @@ class DropTargetXtextEditorListener extends DropTargetAdapter {
 		if ("org.testeditor.tcl.dsl.Tcl" != editor.languageName) {
 			event.detail = DND.DROP_NONE
 		}
-		if (dropUtils.getDroppedObjectAs(InteractionType) == null) {
+		if (dropUtils.getDroppedObjectAs(InteractionType) === null) {
 			event.detail = DND.DROP_NONE
 		}
 	}
@@ -40,7 +40,7 @@ class DropTargetXtextEditorListener extends DropTargetAdapter {
 		val insertedTestStepPath = new AtomicReference<String>
 
 		editor.document => [
-            modify[withTclModel[updateImports]]
+			modify[withTclModel[updateImports]]
 			modify[withTclModel[it, dropTarget|updateModel(dropTarget, elementPathsToFormat, insertedTestStepPath)]]
 			modify[withTclModel[formatRelevantRegion(elementPathsToFormat)]]
 			modify[withTclModel[setCursorAfterInsertedStep(insertedTestStepPath)]]
@@ -49,7 +49,8 @@ class DropTargetXtextEditorListener extends DropTargetAdapter {
 
 	private def void updateImports(TclModel tclModel) {
 		val droppedObject = dropUtils.getDroppedObjectAs(Component)
-		updateTestModelByDropTarget.updateImports(tclModel, droppedObject, qualifiedNameProvider.getFullyQualifiedName(droppedObject).toString)		
+		updateTestModelByDropTarget.updateImports(tclModel, droppedObject,
+			qualifiedNameProvider.getFullyQualifiedName(droppedObject).toString)
 	}
 
 	private def void updateModel(TclModel tclModel, EObject dropTarget, List<String> eObjectPathsToFormat,
@@ -80,6 +81,9 @@ class DropTargetXtextEditorListener extends DropTargetAdapter {
 		]
 	}
 
+	/**
+	 * apply the closure if the resource contents head is of type TclModel, else do nothing
+	 */
 	private def XtextResource withTclModel(XtextResource resource, (TclModel)=>void consumer) {
 		val model = resource.contents.head
 		if (model instanceof TclModel) {
@@ -88,6 +92,10 @@ class DropTargetXtextEditorListener extends DropTargetAdapter {
 		return resource
 	}
 
+	/**
+	 * apply the closure if the resource contents head is of type TclModel using the drop target as 
+	 * second parameter (EObject), else do nothing
+	 */
 	private def XtextResource withTclModel(XtextResource resource, (TclModel, EObject)=>void consumer) {
 		val model = resource.contents.head
 		if (model instanceof TclModel) {

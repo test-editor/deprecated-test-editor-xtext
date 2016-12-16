@@ -23,15 +23,15 @@ import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TclPackage
 import org.testeditor.tcl.TestCase
 
-class UpdateTestModelByDropTarget {
+class UpdateTclModelByDropTarget {
 
 	@Inject DropUtils dropUtils
 	@Inject RewritableImportSection.Factory rewritableImportSectionFactory
 	@Inject TypeReferences references
 	@Inject XtypeFactory xtypeFactory
 
-	def void updateModel(TclModel tclModel, EObject dropTarget, ComponentTestStepContext droppedTestStepContext, List<String> eObjectPathsToFormat,
-		AtomicReference<String> insertedTestStepPath) {
+	def void updateModel(TclModel tclModel, EObject dropTarget, ComponentTestStepContext droppedTestStepContext,
+		List<String> eObjectPathsToFormat, AtomicReference<String> insertedTestStepPath) {
 
 		val eObjectsToFormat = newArrayList
 		val stepToInsert = droppedTestStepContext.steps.head
@@ -113,18 +113,21 @@ class UpdateTestModelByDropTarget {
 	}
 
 	/**
-	 * make sure that wildcard imports are removed so that potential name clashes with simpleName
-	 * are prevented
+	 * make sure that all wildcard imports are removed that have name clashes with simpleName
 	 */
 	private def boolean removeSuspiciousWildcardImports(TclModel tclModel, String simpleName, String qualifiedName) {
 		val suspiciousWildcardImports = tclModel.wildcardImports.filter [
 			val type = resolveType(tclModel, simpleName)
 			return type !== null && type.qualifiedName != qualifiedName // type can be resolved, but resulting qualified name is different
-		].toList // explcitily create list to prevent modification exception on (lazy) iterable during the following remove!
+		].toList // explicitly create list to prevent modification exception on (lazy) iterable during the following remove!
 		suspiciousWildcardImports.forEach[tclModel.importSection.importDeclarations.remove(it)]
 		return !suspiciousWildcardImports.empty
 	}
 
+	/**
+	 * (try) to resolve the simple name to a type using the given wildcardImport (to complete the simple name) within the given tclModel.
+	 * return null if the type cannot be resolved.
+	 */
 	private def JvmType resolveType(XImportDeclaration wildcardImport, TclModel tclModel, String simpleName) {
 		val packageAndDot = wildcardImport.importedNamespace.substring(0, wildcardImport.importedNamespace.length - 1)
 		return references.findDeclaredType('''«packageAndDot»«simpleName»''', tclModel)
@@ -136,7 +139,7 @@ class UpdateTestModelByDropTarget {
 				importedNamespace !== null && importedNamespace.endsWith("*")
 			]
 		} else {
-			return emptyList		
+			return emptyList
 		}
 	}
 
@@ -151,33 +154,45 @@ class UpdateTestModelByDropTarget {
 	public def void updateImports(TclModel tclModel, Component droppedObject, String qualifiedName) {
 		val simpleName = droppedObject.name
 
-		// handle suspicious wildcard imports before actually using the rewritable import section utils
+		// handle suspicious wildcard imports before actually using the rewritable import section utils, since they do not handle wildcard imports
 		val wildcardRemovalTookPlace = tclModel.removeSuspiciousWildcardImports(simpleName, qualifiedName)
 
 		val importSection = rewritableImportSectionFactory.parse(tclModel.eResource as XtextResource)
-		val clashingImportedTypes = importSection.getImportedTypes(simpleName)?.filter[it.qualifiedName != qualifiedName]
+		val clashingImportedTypes = importSection.getImportedTypes(simpleName)?.filter [
+			it.qualifiedName != qualifiedName // simple name is the same, but qualified name differs
+		]
+		val droppedAlreadyImportedViaWildcard = tclModel.wildcardImports.exists [
+			resolveType(tclModel, simpleName)?.qualifiedName == qualifiedName
+		]
 		val importWanted = clashingImportedTypes.nullOrEmpty && !wildcardRemovalTookPlace &&
-			!tclModel.wildcardImports.exists[resolveType(tclModel, simpleName)?.qualifiedName == qualifiedName]
+			!droppedAlreadyImportedViaWildcard
 
 		if (importWanted) {
 			val added = importSection.addImport(qualifiedName)
 			if (!added) { // e.g. this import already exists
 				return // no further rewrite of import section necessary
 			}
-		} else if (!clashingImportedTypes.nullOrEmpty) {
-			// remove all imports for the given clashing types (no wildcards)
-			clashingImportedTypes.forEach[importSection.removeImport(it)]
 		}
-		if (tclModel.importSection === null && importWanted) {
+		// remove all imports for the given clashing types (no wildcards)
+		clashingImportedTypes?.forEach[importSection.removeImport(it)]
+		importSection.saveUpdate(tclModel)
+		markComponentContextsForQualifiedNameUpdate(tclModel, simpleName)
+	}
+
+	/**
+	 * make a safe update of the import section of this tcl model and ensure that 
+	 * the tclModel.importSection is null, if no imports remain 
+	 */
+	private def void saveUpdate(RewritableImportSection importSection, TclModel tclModel) {
+		if (tclModel.importSection === null) {
 			// importSection.update does not automatically create the import section itself
 			tclModel.importSection = xtypeFactory.createXImportSection
 		}
-		importSection.update // makes an update on tclModel
-		// make sure that importSection is null (if empty after update) since it may not be empty (syntax rule '+')
+		importSection.update // makes an update on tclModel (additions works only if the importSection is not null)
+		// make sure that importSection is null (if empty after update) since it may not be empty (xtypes syntax rule '+')
 		if (tclModel.importSection !== null && tclModel.importSection.importDeclarations.empty) {
 			tclModel.importSection = null
 		}
-		markComponentContextsForQualifiedNameUpdate(tclModel, simpleName)
 	}
 
 	/** 

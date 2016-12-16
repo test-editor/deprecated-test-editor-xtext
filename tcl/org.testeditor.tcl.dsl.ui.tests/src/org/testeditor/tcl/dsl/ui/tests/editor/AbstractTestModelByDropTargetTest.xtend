@@ -15,11 +15,11 @@ import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.dsl.TclStandaloneSetup
 import com.google.common.io.ByteStreams
 import org.testeditor.tcl.dsl.ui.editor.DropUtils
-import org.testeditor.tcl.dsl.ui.editor.UpdateTestModelByDropTarget
+import org.testeditor.tcl.dsl.ui.editor.UpdateTclModelByDropTarget
 
 class AbstractTestModelByDropTargetTest extends AbstractTest {
 
-	var UpdateTestModelByDropTarget updateTestModelByDropTarget // TODO: is not injected correctly
+	var UpdateTclModelByDropTarget updateTestModelByDropTarget // TODO: is not injected correctly
 	@Inject DropUtils dropUtils
 
 	@Inject protected extension DslParseHelper parserHelper
@@ -36,7 +36,7 @@ class AbstractTestModelByDropTargetTest extends AbstractTest {
 		serializer = tclInjector.getInstance(ISerializer)
 		
 		// TODO: workaround, since @Inject does not work
-		updateTestModelByDropTarget = new UpdateTestModelByDropTarget
+		updateTestModelByDropTarget = new UpdateTclModelByDropTarget
 		tclInjector.injectMembers(updateTestModelByDropTarget)
 	}
 
