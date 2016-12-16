@@ -36,25 +36,14 @@ class UpdateTestModelByDropTargetUnitTest extends AbstractParserTest {
 			'''
 				«DummyFixture.amlModel»
 				
-				component GreetingApplication2 is Application {
-					element bar is Label {
-						label = "Label"
-						locator = "label.greet"
-					}
-					element Input is Text {
-						locator = "text.input"
-					}
-					element Ok is Button {
-						locator = "button.ok"
-						locatorStrategy = DummyLocatorStrategy.ID
-					}
-				}
+				component GreetingApplication2 is Application { }
 			'''
 		)
 		amlModel.addToResourceSet("com/example/dummy.aml")
-
-		greetingApplication = amlModel.components.findFirst[name == "GreetingApplication"]
-		greetingApplication2 = amlModel.components.findFirst[name == "GreetingApplication2"]
+		amlModel.components => [
+			greetingApplication = findFirst[name == "GreetingApplication"]
+			greetingApplication2 = findFirst[name == "GreetingApplication2"]
+		]
 	}
 
 	def void givenTclModelWithImportedNamespaces(String... namespaces) {
@@ -72,7 +61,7 @@ class UpdateTestModelByDropTargetUnitTest extends AbstractParserTest {
 
 		tclModel.addToResourceSet("com/my-test.tcl")
 		namespaces.forEach [
-			tclModel.withImport(it) // must be added after adding to resource set, otherwise types cannot be resolved
+			tclModel.withImport(it) // must be added after adding to resource set, otherwise imported types cannot be resolved
 		]
 
 		dropTargetContext = tclModel.test.steps.head.contexts.head
@@ -211,12 +200,12 @@ class UpdateTestModelByDropTargetUnitTest extends AbstractParserTest {
 		tclModel.importSection.importDeclarations.assertSingleElement.importedNamespace.assertEquals(
 			"com.example.GreetingApplication")
 	}
-	
-	@Test 
+
+	@Test
 	def void testWithNoImport() {
 		givenTclModelWithImportedNamespaces(#[])
 		givenDropComponentBasedOn(greetingApplication)
-		
+
 		// when
 		// first element dropped
 		classUnderTest.updateImports(tclModel, droppedComponent, "com.example.GreetingApplication")
