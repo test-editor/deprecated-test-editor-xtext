@@ -9,6 +9,7 @@ import org.eclipse.xtext.resource.XtextResource
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.StepContainer
 import org.testeditor.tcl.TclModel
+import org.testeditor.tcl.MacroTestStepContext
 
 class UpdateTestModelByDropTarget {
 
@@ -94,10 +95,15 @@ class UpdateTestModelByDropTarget {
 			toFormatEObject.add(specification)
 		}
 		if (contextIndex < 0) {
-			if (specification.contexts.size > 0) {
-				toFormatEObject.add(specification.contexts.last.steps.last)
+			// Call to a macro at the end of the testcase - add at the end
+			if (EcoreUtil2.getContainerOfType(dropTarget, MacroTestStepContext) != null) {
+				if (specification.contexts.size > 0) {
+					toFormatEObject.add(specification.contexts.last.steps.last)
+				}
+				specification.contexts.add(droppedTestStepContext)
+			} else { // drop on the import section. Add at the beginning
+				specification.contexts.add(0, droppedTestStepContext)
 			}
-			specification.contexts.add(droppedTestStepContext)
 		} else {
 			specification.contexts.add(contextIndex, droppedTestStepContext)
 		}
