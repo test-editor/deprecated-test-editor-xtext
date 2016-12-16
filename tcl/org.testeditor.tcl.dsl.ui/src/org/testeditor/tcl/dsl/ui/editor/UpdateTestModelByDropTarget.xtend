@@ -1,48 +1,44 @@
 package org.testeditor.tcl.dsl.ui.editor
 
-import org.eclipse.xtext.resource.XtextResource
-import java.util.List
-import org.testeditor.tcl.TclModel
-import org.testeditor.tcl.ComponentTestStepContext
-import org.eclipse.emf.ecore.util.EcoreUtil
-import org.eclipse.emf.ecore.EObject
-import org.testeditor.tcl.SpecificationStepImplementation
-import org.eclipse.xtext.EcoreUtil2
-import org.testeditor.tcl.TestCase
 import com.google.inject.Inject
+import java.util.List
+import java.util.concurrent.atomic.AtomicReference
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.util.EcoreUtil
+import org.eclipse.xtext.EcoreUtil2
+import org.testeditor.tcl.ComponentTestStepContext
+import org.testeditor.tcl.SpecificationStepImplementation
+import org.testeditor.tcl.TclModel
+import org.testeditor.tcl.TestCase
 
 class UpdateTestModelByDropTarget {
 
 	@Inject private DropUtils dropUtils
 
-	protected def updateModel(XtextResource resource, DropTargetXtextEditor editor, List<String> toFormat,
-		List<String> currentElement) {
+	def void updateModel(TclModel tclModel, EObject dropTarget, ComponentTestStepContext droppedTestStepContext, List<String> eObjectPathsToFormat,
+		AtomicReference<String> insertedTestStepPath) {
 
-		val tclModel = resource.contents.head
-		val toFormatEObject = newArrayList
+		val eObjectsToFormat = newArrayList
+		val stepToInsert = droppedTestStepContext.steps.head
 
-		if (tclModel instanceof TclModel) {
-			val dropTarget = dropUtils.findDropTarget(editor, resource)
+		// hereafter newTestStepContex.steps may be cleared, since a context may be reused
+		updateTestModel(tclModel.test, dropTarget, droppedTestStepContext, eObjectsToFormat)
 
-			val ComponentTestStepContext newTestStepContext = dropUtils.createDroppedTestStepContext()
-			val newTestStep = newTestStepContext.steps.head
-
-			updateTestModel(tclModel.test, dropTarget, newTestStepContext, toFormatEObject)
-
-			toFormat.addAll(toFormatEObject.map[EcoreUtil.getRelativeURIFragmentPath(tclModel, it)])
-			currentElement.add(EcoreUtil.getRelativeURIFragmentPath(tclModel, newTestStep))
-		}
+		// transform eObjects to paths in order to find them in the transformed model (after several editor modifications => reparse)
+		eObjectPathsToFormat.addAll(eObjectsToFormat.map[EcoreUtil.getRelativeURIFragmentPath(tclModel, it)])
+		// tclModel is ancestor after insertion => get path after insertion
+		insertedTestStepPath.set(EcoreUtil.getRelativeURIFragmentPath(tclModel, stepToInsert))
 	}
 
 	public def void updateTestModel(TestCase test, EObject dropTarget, ComponentTestStepContext newTestStepContext,
-		List<EObject> toFormatEObject) {
+		List<EObject> eObjectsToFormat) {
 
 		var testStepIndex = 0
 		val ComponentTestStepContext targetTestStepContext = dropUtils.searchTargetTestStepContext(test, dropTarget)
 
 		if (targetTestStepContext === null) {
-			insertTargetTestStepContext(test, newTestStepContext, dropTarget, 0, toFormatEObject)
-			toFormatEObject.add(newTestStepContext)
+			insertTargetTestStepContext(test, newTestStepContext, dropTarget, 0, eObjectsToFormat)
+			eObjectsToFormat.add(newTestStepContext)
 		} else {
 			testStepIndex = dropUtils.getInsertionIndex(targetTestStepContext, dropTarget)
 
@@ -53,19 +49,19 @@ class UpdateTestModelByDropTarget {
 				// Insert in the middle of an existing TestStepContext
 				if (testStepIndex > 0 && testStepIndex < targetTestStepContext.steps.size()) {
 					splitedTargetTestStepContext(targetTestStepContext, targetTestStepContextIndex, testStepIndex,
-						toFormatEObject)
+						eObjectsToFormat)
 				}
 				// If it is not dropped at the top, insert new TestSepContext after the existing TestStepContext
 				if (testStepIndex > 0) {
 					targetTestStepContextIndex++
-					toFormatEObject.add(targetTestStepContext.steps.last)
+					eObjectsToFormat.add(targetTestStepContext.steps.last)
 				}
 				insertTargetTestStepContext(test, newTestStepContext, dropTarget, targetTestStepContextIndex,
-					toFormatEObject)
-				toFormatEObject.add(newTestStepContext)
+					eObjectsToFormat)
+				eObjectsToFormat.add(newTestStepContext)
 			} else {
 				dropUtils.addTestStepToModel(testStepIndex, targetTestStepContext, newTestStepContext.steps.head)
-				toFormatEObject.add(targetTestStepContext)
+				eObjectsToFormat.add(targetTestStepContext)
 			}
 		}
 
