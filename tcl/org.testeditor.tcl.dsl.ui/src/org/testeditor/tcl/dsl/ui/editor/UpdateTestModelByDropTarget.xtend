@@ -73,21 +73,21 @@ class UpdateTestModelByDropTarget {
 
 		var StepContainer specification = null
 		if (tclModel.test != null) {
-			if (tclModel.test.steps.size() == 0) {
+			if (tclModel.test.steps.empty) {
 				tclModel.test.steps.add(dropUtils.createSpecification)
 			}
 			specification = EcoreUtil2.getContainerOfType(dropTarget, StepContainer) ?: tclModel.test.steps.last
 		}
 		if (tclModel.macroCollection != null) {
 
-			if (tclModel.macroCollection.macros.size() == 0) {
+			if (tclModel.macroCollection.macros.empty) {
 				tclModel.macroCollection.macros.add(dropUtils.createMacro)
 			}
 			specification = EcoreUtil2.getContainerOfType(dropTarget, StepContainer) ?:
 				tclModel.macroCollection.macros.last
 		}
 
-		if (specification.contexts.size() == 0) {
+		if (specification.contexts.empty) {
 			toFormatEObject.add(specification)
 		}
 		if (contextIndex < 0) {

@@ -134,13 +134,7 @@ class DropUtils {
 			val EList<TestStepContext> contexts = EcoreUtil2.getContainerOfType(dropTarget, StepContainer).contexts
 
 			var contextIndex = contexts.indexOf(macroTestStepContext)
-			while (contextIndex < contexts.size()) {
-				if (contexts.get(contextIndex) instanceof ComponentTestStepContext) {
-					return contexts.get(contextIndex) as ComponentTestStepContext
-				}
-				contextIndex++
-			}
-			return null
+			return contexts.drop(contextIndex).filter(ComponentTestStepContext).head
 		}
 		return EcoreUtil2.getContainerOfType(dropTarget, ComponentTestStepContext)
 	}
