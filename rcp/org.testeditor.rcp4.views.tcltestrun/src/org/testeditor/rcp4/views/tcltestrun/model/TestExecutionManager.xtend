@@ -18,10 +18,10 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.List
 import javax.inject.Inject
+import javax.xml.parsers.DocumentBuilderFactory
 import org.eclipse.e4.core.di.annotations.Creatable
 import org.slf4j.LoggerFactory
 import org.testeditor.rcp4.views.tcltestrun.LogLocationHelper
-import javax.xml.parsers.DocumentBuilderFactory
 import org.w3c.dom.NamedNodeMap
 
 @Creatable
@@ -71,11 +71,12 @@ class TestExecutionManager {
 		return null
 
 	}
-	def File getScreenshotFor(String fileName, String testcasename, String screenshotPath) {		
+
+	def File getScreenshotFor(String fileName, String testcasename, String screenshotPath) {
 		val location = logLocationHelper.logLocation
 		val log = location.listFiles.findFirst[it.name.matches(fileName)]
 		if (log !== null) {
-			return new File(new File (new File(log,"screenshots"),testcasename),screenshotPath)
+			return new File(log, '''screenshots«File.separator»«testcasename»«File.separator»«screenshotPath»''')
 		}
 		return null
 	}
