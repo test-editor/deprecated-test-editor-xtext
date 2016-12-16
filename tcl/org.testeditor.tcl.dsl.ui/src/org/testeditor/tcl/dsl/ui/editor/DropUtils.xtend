@@ -1,15 +1,11 @@
 package org.testeditor.tcl.dsl.ui.editor
 
-import javax.inject.Inject
 import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.ecore.EObject
-import org.eclipse.jface.text.TextSelection
 import org.eclipse.jface.util.LocalSelectionTransfer
 import org.eclipse.jface.viewers.ISelection
 import org.eclipse.jface.viewers.TreeSelection
 import org.eclipse.xtext.EcoreUtil2
-import org.eclipse.xtext.resource.XtextResource
-import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
 import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.InteractionType
@@ -38,8 +34,6 @@ class DropUtils {
 	static val private TclFactory tclFactory = TclFactory.eINSTANCE
 	static val private TslFactory tslFactory = TslFactory.eINSTANCE
 
-	@Inject protected ContentAssistContext.Factory contentAssistFactory
-
 	protected def <T> T getDroppedObjectAs(Class<T> clazz) {
 		val ISelection sel = LocalSelectionTransfer.getTransfer().getSelection()
 		if (sel instanceof TreeSelection) {
@@ -51,11 +45,6 @@ class DropUtils {
 			}
 		}
 		return null
-	}
-
-	protected def findDropTarget(DropTargetXtextEditor editor, XtextResource resource) {
-		val offset = (editor.selectionProvider.selection as TextSelection).offset
-		return contentAssistFactory.create(editor.internalSourceViewer, offset, resource).head.currentModel
 	}
 
 	public def ComponentTestStepContext createDroppedTestStepContext() {
