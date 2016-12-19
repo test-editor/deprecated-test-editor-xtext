@@ -24,6 +24,7 @@ import org.eclipse.xtend.lib.annotations.Accessors
 import org.testeditor.rcp4.views.tcltestrun.model.Link
 import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionManager
 import org.testeditor.rcp4.views.tcltestrun.model.TestLogGroupBuilder
+import javax.ws.rs.DELETE
 
 @Path(TestExecutionLogService.SERVICE_PATH)
 class TestExecutionLogService {
@@ -73,6 +74,12 @@ class TestExecutionLogService {
 		log.links = createLinks(filename)
 		val gson = new Gson
 		return Response.ok(gson.toJson(log)).build
+	}
+	
+	@Path("/{filename}")
+	@DELETE
+	def void deleteTestRun(@PathParam("filename") String filename) {
+		testExecutionManager.delete(filename)
 	}
 
 }

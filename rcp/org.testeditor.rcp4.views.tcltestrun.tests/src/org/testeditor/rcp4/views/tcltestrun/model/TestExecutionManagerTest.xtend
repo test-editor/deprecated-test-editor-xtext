@@ -10,6 +10,18 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
+/*******************************************************************************
+ * Copyright (c) 2012 - 2016 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
 package org.testeditor.rcp4.views.tcltestrun.model
 
 import java.io.File
@@ -73,4 +85,22 @@ class TestExecutionManagerTest extends AbstractTest {
 		assertEquals(statistic.failures, 0)
 		assertEquals(statistic.tests, 1)
 	}
+	
+	@Test
+	def void testDeleteTestRun() {
+		// given
+		val dir = tempFolder.root
+		Files.createDirectory(new File(dir, "testrun-2016.11.16-22.24").toPath)
+		Files.createDirectory(new File(dir, "testrun-2016.11.16-23.24").toPath)
+		when(logLocationHelper.logLocation).thenReturn(dir)
+
+		// when	
+		testExecutionManager.delete("testrun-2016.11.16-23.24")
+		
+		// then	
+		val testRuns = dir.list
+		testRuns.assertSize(1)
+		assertEquals("testrun-2016.11.16-22.24",testRuns.get(0))
+	}
+	
 }
