@@ -155,7 +155,7 @@ class ProjectContentGenerator {
 		val isHttpProxySet = !System.getProperty("http.proxyHost").nullOrEmpty
 		if (isHttpProxySet) {
 			val gradleProperties = project.getFile("gradle.properties")
-			gradleProperties.create(new StringInputStream(getProxyProperties()), IResource.NONE, monitor)
+			gradleProperties.create(new StringInputStream(proxyProperties), IResource.NONE, monitor)
 		}
 	}
 
@@ -377,10 +377,10 @@ class ProjectContentGenerator {
 		// In this section you declare the dependencies for your production and test code
 		dependencies {
 			compile 'org.testeditor.fixture:core-fixture:3.1.0'
-		    «FOR s : fixtureNames»
-		    	«getGradleDependency(s)»
+			«FOR s : fixtureNames»
+				«getGradleDependency(s)»
 			«ENDFOR»
-		    testCompile 'junit:junit:4.12'
+			testCompile 'junit:junit:4.12'
 		}
 	'''
 
