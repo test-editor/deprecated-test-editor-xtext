@@ -21,6 +21,7 @@ class TestLogGroup {
 	transient TestLogGroupComposite parent
 	TestElementType type
 	String name
+	String screenshotPath
 	@Accessors(PUBLIC_GETTER) List<String> logLines = newArrayList
 
 	new(TestElementType type) {
@@ -36,5 +37,5 @@ class TestLogGroup {
 	override toString() {
 		return '''«type.name»: «name»'''
 	}
-
+	
 }

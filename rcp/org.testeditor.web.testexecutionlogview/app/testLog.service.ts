@@ -12,7 +12,7 @@ export class TestLogService {
     constructor(private http: Http) {
         this.port = window.location.port
         // Use this for local setup with nodejs for development cycle
-        //this.port = "19091"
+        // this.port = "19091"
     }
 
     getTestExecutionLogs(): Promise<TestExecutionLog[]> {
@@ -25,6 +25,10 @@ export class TestLogService {
         return this.http.get('http://localhost:' + this.port + '/services/testruns/' + filename + "/logGroups").toPromise().then(response =>
             response.json() as TestExecutionLog
         ).catch(this.handleError);
+    }
+
+    getScreenshotURL(testRun: String, path: String): String {
+        return 'http://localhost:' + this.port + '/services/testruns/'+ testRun+ "/" + path
     }
 
     private handleError(error: any): Promise<any> {

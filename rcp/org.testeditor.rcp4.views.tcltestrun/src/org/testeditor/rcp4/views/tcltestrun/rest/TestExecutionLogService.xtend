@@ -24,6 +24,7 @@ import org.eclipse.xtend.lib.annotations.Accessors
 import org.testeditor.rcp4.views.tcltestrun.model.Link
 import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionManager
 import org.testeditor.rcp4.views.tcltestrun.model.TestLogGroupBuilder
+import java.io.FileInputStream
 
 @Path(TestExecutionLogService.SERVICE_PATH)
 class TestExecutionLogService {
@@ -73,6 +74,15 @@ class TestExecutionLogService {
 		log.links = createLinks(filename)
 		val gson = new Gson
 		return Response.ok(gson.toJson(log)).build
+	}
+
+	@Path("/{filename}/screenshots/{testcasename}/{screenshotpath}")
+	@GET
+	@Produces("image/png")
+	def Response getScreenshot(@PathParam("filename") String filename, @PathParam("testcasename") String testcasename,
+		@PathParam("screenshotpath") String screenshotpath) {
+		val screenshot = testExecutionManager.getScreenshotFor(filename, testcasename, screenshotpath)
+		return Response.ok(new FileInputStream(screenshot)).build
 	}
 
 }
