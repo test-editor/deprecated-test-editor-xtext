@@ -142,7 +142,7 @@ interaction type select {
 :-1: Harder to add a new language<br/>
 :-1: Not possible to use project specific vocabulary<br/>
 
-#### Option 2: separate translation
+#### Option 2: separate translation (discarded)
 
 First, we would need to name the file. Let's say the name of the AML would be `WebDriverFixture.aml`.
 A properties file could be named `WebDriverFixture_de.properties` and include definitions such as:
@@ -154,6 +154,8 @@ select = "Wähle" ${value} "für" ${element}
 :+1: Possible to use project specific vocabulary<br/>
 :-1: Harder to maintain<br/>
 :-1: No editor support in properties file <br/>
+
+__Decision:__ We will go for option 1 as we plan to allow inheritance. This way we can easily add new languages and change the existing vocabulary.
 
 #### Translating variables
 
@@ -178,6 +180,8 @@ This could be done by introducing a new syntax such as:
 // or
 "Für" ${element} "wähle den Wert" ${wert->value} 
 ```
+
+__Decision:__ Variables will not be translated right now.
 
 ### Completion proposals
 
@@ -211,6 +215,7 @@ them translatable.
 It should be sufficient to adapt the parser rules to allow those special characters so that a specific
 project can, for instance, use German names.
 
+__Decision:__ Object names will not be translated.
 
 ## Other topics
 
@@ -219,11 +224,17 @@ project can, for instance, use German names.
 Macros share the same templating mechanism but are part of the TCL. The mechanisms that are applied to
 AML interaction type templates should be applicable to macros as well.
 
+__Decision:__ Macros should be translatable.
+
 ### Value spaces
 
 Value spaces are rather project specific and not fixture specific. The reasoning of the object names
 applies here as well, there is no need to make them translatable.
 
+__Decision:__ Value spaces will not be translated.
+
 ### Labels
 
 We should remove labels entirely as they are not used.
+
+__Decision:__ Labels will be removed, for descriptions the comment mechanism should be used.
