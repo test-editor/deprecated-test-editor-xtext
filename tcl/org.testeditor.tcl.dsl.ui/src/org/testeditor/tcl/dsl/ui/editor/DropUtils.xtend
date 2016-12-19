@@ -113,9 +113,9 @@ class DropUtils {
 
 	protected def ComponentTestStepContext searchTargetTestStepContext(TclModel tclModel, EObject dropTarget) {
 
-		if (dropTarget == null) {
+		if (dropTarget === null) {
 			val stepContainer = getLastStepContext(tclModel)
-			if (stepContainer == null) {
+			if (stepContainer === null) {
 				return null
 			}
 			return stepContainer.contexts.last as ComponentTestStepContext
@@ -140,22 +140,16 @@ class DropUtils {
 	}
 
 	protected def StepContainer getLastStepContext(TclModel tclModel) {
-		if (tclModel.test != null) {
-			if (tclModel.test.steps.empty) { // empty
-				return null
-			}
+		if (tclModel.test !== null) {
 			return tclModel.test.steps.last
 		}
-		if (tclModel.macroCollection != null) {
-			if (tclModel.macroCollection.macros.empty) { // empty
-				return null
-			}
+		if (tclModel.macroCollection !== null) {
 			return tclModel.macroCollection.macros.last
 		}
 	}
 
 	protected def int getInsertionIndex(ComponentTestStepContext testStepContext, EObject dropTarget) {
-		if (dropTarget == null) {
+		if (dropTarget === null) {
 			return testStepContext.steps.size
 		}
 		val AbstractTestStep selectedTestStep = EcoreUtil2.getContainerOfType(dropTarget, AbstractTestStep)

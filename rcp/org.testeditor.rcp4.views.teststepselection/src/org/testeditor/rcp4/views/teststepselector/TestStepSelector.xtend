@@ -97,10 +97,15 @@ class TestStepSelector {
 			override done(IJobChangeEvent event) {
 				if (event.job.name.equals("Building workspace")) {
 					logger.info("Building workspace completed. Trigger update TestStepSelector")
-					if (PlatformUI.workbench.activeWorkbenchWindow !== null) {
-						val page = PlatformUI.workbench.activeWorkbenchWindow.activePage
-						broker.post(TestStepSelector.SELECTOR_UPDATE_VIEW, page.activeEditor)
-					}
+					val workbench = PlatformUI.workbench
+
+					logger.debug("active Window: " + workbench)
+					Display.^default.syncExec [
+						if (PlatformUI.workbench.activeWorkbenchWindow !== null) {
+							val page = PlatformUI.workbench.activeWorkbenchWindow.activePage
+							broker.post(TestStepSelector.SELECTOR_UPDATE_VIEW, page.activeEditor)
+						}
+					]
 				}
 			}
 		})
@@ -135,7 +140,7 @@ class TestStepSelector {
 			previouslyExpandedElements = expandedElementsPerProject.get(projectName)
 			currentProject = projectName
 		}
-		if (!previouslyExpandedElements.empty) {
+		if (previouslyExpandedElements !== null && !previouslyExpandedElements.empty) {
 			viewer.expandedElements = elementsToExpand(previouslyExpandedElements, viewer.input as Iterable<AmlModel>)
 		}
 	}
@@ -152,16 +157,16 @@ class TestStepSelector {
 		visibleContainers.filter(StateBasedContainer).forEach [
 			currentModels += it.getAmlModels(resourceSet)
 		]
-		
+
 		return currentModels
 	}
 
 	private def List<AmlModel> getAmlModels(StateBasedContainer container, ResourceSet resourceSet) {
 		val amlDescriptions = container.getExportedObjectsByType(AML_MODEL)
 
-		 amlDescriptions.map[EObjectOrProxy].map [
-					EcoreUtil2.resolve(it, resourceSet) as AmlModel
-				].toList
+		amlDescriptions.map[EObjectOrProxy].map [
+			EcoreUtil2.resolve(it, resourceSet) as AmlModel
+		].toList
 	}
 
 	private def Object[] elementsToExpand(Set<String> previouslyExpandedElements, Iterable<AmlModel> model) {
