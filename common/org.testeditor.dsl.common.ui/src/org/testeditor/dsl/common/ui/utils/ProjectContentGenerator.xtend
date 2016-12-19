@@ -44,7 +44,7 @@ class ProjectContentGenerator {
 
 	static public val TEST_EDITOR_VERSION = "1.2.0" // TODO this sucks - extract to VersionHelper and use the newest version
 	static public val TEST_EDITOR_MAVEN_PLUGIN_VERSION = "1.1"
-	static public val TEST_EDITOR_GRADLE_PLUGIN_VERSION = "0.4"
+	static public val TEST_EDITOR_GRADLE_PLUGIN_VERSION = "0.5"
 	
 	static public val String TEST_EDITOR_MVN_GEN_OUTPUT = 'src-gen/test/java'
 
