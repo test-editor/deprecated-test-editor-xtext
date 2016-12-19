@@ -13,7 +13,6 @@
 package org.testeditor.aml.dsl.scoping
 
 import javax.inject.Inject
-import org.junit.Ignore
 import org.junit.Test
 import org.testeditor.dsl.common.testing.DslParseHelper
 
@@ -85,7 +84,7 @@ class SimpleImportScopingTest extends AbstractScopingTest {
 	 * JvmTypes. As soon as we do that this won't be an issue any longer.
 	 * (XBases's XImportDeclaration requires a JvmDeclaredType for importedType). 
 	 */
-	@Test @Ignore
+	@Test
 	def void testQualifiedImportWorks() {
 		// Given
 		val file2 = '''
