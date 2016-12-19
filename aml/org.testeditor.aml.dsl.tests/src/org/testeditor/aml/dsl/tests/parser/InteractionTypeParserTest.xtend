@@ -34,7 +34,7 @@ class InteractionTypeParserTest extends AbstractParserTest {
 		'''
 
 		// When + Then
-		#[withoutBrackets, withBrackets].map[parseAmlWithStdPackage(InteractionType)].forEach [
+		#[withoutBrackets, withBrackets].map[parseAmlWithUniquePackage(InteractionType)].forEach [
 			assertNoErrors
 			name.assertEquals("MyInteractionType")
 		]

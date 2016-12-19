@@ -32,7 +32,7 @@ class ComponentTypeParserTest extends AbstractParserTest {
 		'''
 		
 		// When + Then
-		#[withoutBrackets, withBrackets].map[parseAmlWithStdPackage(ComponentType)].forEach[
+		#[withoutBrackets, withBrackets].map[parseAmlWithUniquePackage(ComponentType)].forEach[
 			assertNoErrors
 			name.assertEquals("MyComponentType")
 		]
