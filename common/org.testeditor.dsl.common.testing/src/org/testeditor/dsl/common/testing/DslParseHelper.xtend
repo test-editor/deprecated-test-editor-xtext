@@ -79,13 +79,13 @@ class DslParseHelper {
 	}
 
 	def <T extends ModelElement> T parseAmlWithUniquePackage(CharSequence input, Class<T> elementClass) {
-		val uuidString=UUID.randomUUID.toString.replace('-','')
-		return parseAmlWithPackage(input, '''com.example«uuidString»''', elementClass)
+		val uuid = UUID.randomUUID.toString.replace('-', '')
+		return parseAmlWithPackage(input, '''com.example«uuid»''', elementClass)
 	}
 
-	def <T extends ModelElement> T parseAmlWithPackage(CharSequence input, String ^package, Class<T> elementClass) {
+	def <T extends ModelElement> T parseAmlWithPackage(CharSequence input, String thePackage, Class<T> elementClass) {
 		val newInput = '''
-			package «^package»
+			package «thePackage»
 			
 			«input»
 		'''
