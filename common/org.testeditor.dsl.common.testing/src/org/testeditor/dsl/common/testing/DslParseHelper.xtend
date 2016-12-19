@@ -2,6 +2,7 @@ package org.testeditor.dsl.common.testing
 
 import com.google.inject.Provider
 import java.io.StringReader
+import java.util.UUID
 import javax.inject.Inject
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EObject
@@ -29,7 +30,7 @@ class DslParseHelper {
 	@Inject public InMemoryFileSystemAccess fsa
 
 	@Inject extension XtextAssertionHelper
-	
+
 	@Inject protected IParser iparser
 
 	protected ParseHelper<AmlModel> amlParseHelper
@@ -40,10 +41,10 @@ class DslParseHelper {
 	new(Provider<XtextResourceSet> resourceSetProvider) {
 		this.resourceSetProvider = resourceSetProvider
 		this.resourceSet = resourceSetProvider.get
-		
+
 		// make sure all classes in this classpath are accessible for the resource set (e.g. DummyFixture ...)
 		this.resourceSet.classpathURIContext = this
-		
+
 		// register all languages
 		val amlInjector = (new AmlStandaloneSetup).createInjectorAndDoEMFRegistration
 		amlParseHelper = amlInjector.getInstance(ParseHelper)
@@ -74,8 +75,17 @@ class DslParseHelper {
 	 * @return {@code model.eAllContents.filter(elementClass).head}
 	 */
 	def <T extends ModelElement> T parseAmlWithStdPackage(CharSequence input, Class<T> elementClass) {
+		return parseAmlWithPackage(input, 'com.example', elementClass)
+	}
+
+	def <T extends ModelElement> T parseAmlWithUniquePackage(CharSequence input, Class<T> elementClass) {
+		val uuid = UUID.randomUUID.toString.replace('-', '')
+		return parseAmlWithPackage(input, '''com.example«uuid»''', elementClass)
+	}
+
+	def <T extends ModelElement> T parseAmlWithPackage(CharSequence input, String thePackage, Class<T> elementClass) {
 		val newInput = '''
-			package com.example
+			package «thePackage»
 			
 			«input»
 		'''
@@ -157,5 +167,5 @@ class DslParseHelper {
 	private def <T extends EObject> String tclModelName(TclModel model) {
 		model.macroCollection?.name ?: model.test?.name ?: model.config?.name
 	}
-	
+
 }
