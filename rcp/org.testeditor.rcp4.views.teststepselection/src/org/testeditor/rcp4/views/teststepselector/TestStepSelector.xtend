@@ -97,9 +97,7 @@ class TestStepSelector {
 			override done(IJobChangeEvent event) {
 				if (event.job.name.equals("Building workspace")) {
 					logger.info("Building workspace completed. Trigger update TestStepSelector")
-					val workbench = PlatformUI.workbench
 
-					logger.debug("active Window: " + workbench)
 					Display.^default.syncExec [
 						if (PlatformUI.workbench.activeWorkbenchWindow !== null) {
 							val page = PlatformUI.workbench.activeWorkbenchWindow.activePage
