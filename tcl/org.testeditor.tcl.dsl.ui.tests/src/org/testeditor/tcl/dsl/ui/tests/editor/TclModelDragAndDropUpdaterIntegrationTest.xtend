@@ -1,8 +1,15 @@
 package org.testeditor.tcl.dsl.ui.tests.editor
 
+import javax.inject.Inject
+import org.eclipse.emf.ecore.EObject
 import org.junit.Test
+import org.testeditor.tcl.ComponentTestStepContext
+import org.testeditor.tcl.TclModel
+import org.testeditor.tcl.dsl.ui.editor.TclModelDragAndDropUpdater
 
 class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndDropUpdaterTest {
+
+	@Inject TclModelDragAndDropUpdater classUnderTest
 
 	@Test
 	def void dropTestStepOnFirstTestStepContext() {
@@ -19,7 +26,7 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 			
 			*
 			
-				Mask: GreetingApplication
+				Mask: GreetingApplication           // <-- drop target
 			-->INSERT HERE
 				- Start application "path"
 				- Stop application
@@ -33,11 +40,10 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 				- Starte2 application "path"
 		'''
 
-		setTclModel(testCase)
-		val target = getTestStep(testCase, "GreetingApplication", null)
+		val tclModel = parseTclModel(testCase)
+		val target = tclModel.getTestStepContext("GreetingApplication")
 
-		executeTest(droppedTestStep, target, testCase, codeToBeInserted)
-
+		tclModel.executeTest(droppedTestStep, target, testCase, codeToBeInserted)
 	}
 
 	@Test
@@ -56,7 +62,7 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 			*
 			
 				Mask: GreetingApplication
-				- Start application "path"
+				- Start application "path"       // <-- drop target
 			-->INSERT HERE
 				- Stop application
 				- Start application "path"
@@ -69,10 +75,10 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 				- Starte2 application "path"
 		'''
 
-		setTclModel(testCase)
-		val dropTarget = getTestStep(testCase, "GreetingApplication", 0)
+		val tclModel = parseTclModel(testCase)
+		val dropTarget = tclModel.getTestStep("GreetingApplication", 0)
 
-		executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
+		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
 	}
 
 	@Test
@@ -93,7 +99,7 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 				Mask: GreetingApplication
 				- Start application "path"
 				- Stop application
-				- Start application "path"
+				- Start application "path"         // <-- drop target
 			-->INSERT HERE
 				- Stop application
 				- Start application "path"
@@ -104,10 +110,10 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 				- Starte2 application "path"
 		'''
 
-		setTclModel(testCase)
-		val dropTarget = getTestStep(testCase, "GreetingApplication", 2)
+		val tclModel = parseTclModel(testCase)
+		val dropTarget = tclModel.getTestStep("GreetingApplication", 2)
 
-		executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
+		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
 	}
 
 	@Test
@@ -132,17 +138,17 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 				- Stop application
 				- Start application "path"
 				- Stop application
-				- Wait "miliSeconds" ms
+				- Wait "miliSeconds" ms           // <-- drop target
 			-->INSERT HERE
 			
 				Mask: GreetingApplication2
 				- Starte2 application "path"
 		'''
 
-		setTclModel(testCase)
-		val target = getTestStep(testCase, "GreetingApplication", 6)
+		val tclModel = parseTclModel(testCase)
+		val target = tclModel.getTestStep("GreetingApplication", 6)
 
-		executeTest(droppedTestStep, target, testCase, codeToBeInserted)
+		tclModel.executeTest(droppedTestStep, target, testCase, codeToBeInserted)
 	}
 
 	@Test
@@ -166,7 +172,7 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 			*
 			
 				Mask: GreetingApplication
-				- Start application "path"
+				- Start application "path"        // <-- drop target
 			-->INSERT HERE
 				- Stop application
 				- Start application "path"
@@ -179,10 +185,10 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 				- Starte2 application "path"
 		'''
 
-		setTclModel(testCase)
-		val target = getTestStep(testCase, "GreetingApplication", 0)
+		val tclModel = parseTclModel(testCase)
+		val target = tclModel.getTestStep("GreetingApplication", 0)
 
-		executeTest(droppedTestStep, target, testCase, codeToBeInserted)
+		tclModel.executeTest(droppedTestStep, target, testCase, codeToBeInserted)
 	}
 
 	@Test
@@ -209,7 +215,7 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 				- Stop application
 				- Start application "path"
 				- Stop application
-				- Wait "miliSeconds" ms
+				- Wait "miliSeconds" ms          // <-- drop target
 			
 			-->INSERT HERE
 			
@@ -217,10 +223,10 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 				- Starte2 application "path"
 		'''
 
-		setTclModel(testCase)
-		val target = getTestStep(testCase, "GreetingApplication", 6)
+		val tclModel = parseTclModel(testCase)
+		val target = tclModel.getTestStep("GreetingApplication", 6)
 
-		executeTest(droppedTestStep, target, testCase, codeToBeInserted)
+		tclModel.executeTest(droppedTestStep, target, testCase, codeToBeInserted)
 	}
 
 	@Test
@@ -242,7 +248,7 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 			*
 			
 			-->INSERT HERE
-				Mask: GreetingApplication
+				Mask: GreetingApplication        // <-- drop target
 				- Start application "path"
 				- Stop application
 				- Start application "path"
@@ -255,10 +261,10 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 				- Starte2 application "path"
 		'''
 
-		setTclModel(testCase)
-		val target = getTestStep(testCase, "GreetingApplication", null)
+		val tclModel = parseTclModel(testCase)
+		val target = tclModel.getTestStepContext("GreetingApplication")
 
-		executeTest(droppedTestStep, target, testCase, codeToBeInserted)
+		tclModel.executeTest(droppedTestStep, target, testCase, codeToBeInserted)
 	}
 
 	@Test
@@ -273,7 +279,7 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 
 		// then			
 		val testCase = '''
-			package SwingDemo
+			package SwingDemo                   // <-- drop target
 			
 			# SwingDemoEins
 			
@@ -293,10 +299,10 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 				- Starte2 application "path"
 		'''
 
-		setTclModel(testCase)
+		val tclModel = parseTclModel(testCase)
 		val target = tclModel
 
-		executeTest(droppedTestStep, target, testCase, codeToBeInserted)
+		tclModel.executeTest(droppedTestStep, target, testCase, codeToBeInserted)
 	}
 
 	@Test
@@ -318,16 +324,32 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 				Mask: GreetingApplication
 				- Start application "path"
 			
-			* zwei
+			* zwei                              // <-- drop target
 			
 			-->INSERT HERE
 				Mask: GreetingApplication
 				- Start application "path"
-		'''.toString().replaceAll("\r\n", "\n")
+		'''.toString.replace('\r', '')
 
-		setTclModel(testCase)
+		val tclModel = parseTclModel(testCase)
 		val target = tclModel.test.steps.last
-		executeTest(droppedTestStep, target, testCase, codeToBeInserted)
+
+		tclModel.executeTest(droppedTestStep, target, testCase, codeToBeInserted)
 	}
+
+	def private executeTest(TclModel tclModel, ComponentTestStepContext newTestStepContext, EObject dropTarget,
+		String testCase, String insertedCode) {
+		val expectedTestCase = testCase.replaceAll('-->INSERT HERE', insertedCode.indent(1)).replace('\r', '').replaceAll(' *// <-- drop target','')
+
+		classUnderTest.updateTestModel(tclModel.test, dropTarget, newTestStepContext, newArrayList)
+		val actualTestCase = serializer.serialize(tclModel).replace('\r', '')
+		actualTestCase.assertEquals(expectedTestCase)
+	}
+	
+	def private TclModel parseTclModel(String testCase) {
+		parserHelper.parseTcl(testCase.replace('-->INSERT HERE', ''))
+	}
+
+	
 
 }

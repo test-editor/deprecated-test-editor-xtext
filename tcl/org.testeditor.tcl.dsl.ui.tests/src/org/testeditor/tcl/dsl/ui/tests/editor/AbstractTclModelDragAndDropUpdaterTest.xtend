@@ -2,6 +2,9 @@ package org.testeditor.tcl.dsl.ui.tests.editor
 
 import com.google.common.base.Strings
 import com.google.common.io.ByteStreams
+import com.google.inject.Module
+import java.nio.charset.StandardCharsets
+import java.util.List
 import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.serializer.ISerializer
@@ -9,55 +12,32 @@ import org.junit.Before
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
+import org.testeditor.aml.dsl.AmlRuntimeModule
 import org.testeditor.dsl.common.testing.AbstractTest
 import org.testeditor.dsl.common.testing.DslParseHelper
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.TclModel
-import org.testeditor.tcl.dsl.TclStandaloneSetup
+import org.testeditor.tcl.dsl.TclRuntimeModule
 import org.testeditor.tcl.dsl.ui.editor.DropUtils
-import org.testeditor.tcl.dsl.ui.editor.TclModelDragAndDropUpdater
 
 class AbstractTclModelDragAndDropUpdaterTest extends AbstractTest {
 
-	var TclModelDragAndDropUpdater updateTestModelByDropTarget // TODO: is not injected correctly
 	@Inject DropUtils dropUtils
 
 	@Inject protected extension DslParseHelper parserHelper
-	var ISerializer serializer
-	var AmlModel amlModel = null
-	var TclModel tclModel = null
+	@Inject protected ISerializer serializer
+	var AmlModel amlModel
+
+	override protected collectModules(List<Module> modules) {
+		super.collectModules(modules)
+		modules += new AmlRuntimeModule
+		modules += new TclRuntimeModule
+	}
 
 	@Before
 	def void parseAmlModel() {
-		var byte[] encoded = ByteStreams.toByteArray(this.getClass().getClassLoader().getResourceAsStream("test.aml"))
-		amlModel = parserHelper.parseAml(new String(encoded));
-
-		val tclInjector = (new TclStandaloneSetup).createInjectorAndDoEMFRegistration
-		serializer = tclInjector.getInstance(ISerializer)
-		
-		// TODO: workaround, since @Inject does not work
-		updateTestModelByDropTarget = new TclModelDragAndDropUpdater
-		tclInjector.injectMembers(updateTestModelByDropTarget)
-	}
-
-	def protected getComponent(String componentName) {
-		for (component : amlModel.components) {
-			if (component.name == componentName) {
-				return component
-			}
-		}
-		throw new Exception("No component found for '" + componentName + "'")
-	}
-
-	def protected getInteractionType(Component component, String interactionTypeName) {
-		for (interactionType : component.type.interactionTypes) {
-			if (interactionType.name == interactionTypeName) {
-				return interactionType
-			}
-		}
-		throw new Exception(
-			"No interactiontype found for component '" + component.name + "' and interactionType '" +
-				interactionTypeName + "'")
+		var encoded = ByteStreams.toByteArray(class.classLoader.getResourceAsStream("test.aml"))
+		amlModel = parserHelper.parseAml(new String(encoded, StandardCharsets.UTF_8))
 	}
 
 	def protected createDroppedTestStepContext(String componentName, String interacionType) {
@@ -71,69 +51,42 @@ class AbstractTclModelDragAndDropUpdaterTest extends AbstractTest {
 		String interacionType) {
 		val component = getComponent(componentName)
 		val componentElement = getComponentElement(componentName, componentElementName)
-		val interactionType = getInteractionTypeForComponentElement(componentElement, interacionType)
+		val interactionType = getInteractionType(componentElement, interacionType)
 
 		dropUtils.createDroppedTestStepContext(component, componentElement, interactionType)
 	}
 
-	def protected getInteractionTypeForComponentElement(ComponentElement componentElement, String interactionTypeName) {
-		for (interactionType : componentElement.type.interactionTypes) {
-			if (interactionType.name == interactionTypeName) {
-				return interactionType
-			}
-		}
-		throw new Exception(
-			"No element found for interactionTypeName: '" + interactionTypeName + "' in componentElement: '" +
-				componentElement.name + "'")
+	def protected getComponent(String componentName) {
+		return amlModel.components.findFirst[name == componentName].assertNotNull
 	}
 
-	def protected executeTest(ComponentTestStepContext newTestStepContext, EObject dropTarget, String testCase,
-		String insertedCode) {
-		val expectedTestCase = testCase.replaceAll("-->INSERT HERE", insertedCode.indent(1)).replace("\r\n", "\n")
-
-		updateTestModelByDropTarget.updateTestModel(tclModel.test, dropTarget, newTestStepContext, newArrayList);
-		val actualTestCase = serializer.serialize(tclModel).replace("\r\n", "\n")
-		actualTestCase.assertEquals(expectedTestCase)
+	def protected getInteractionType(Component component, String interactionTypeName) {
+		return component.type.interactionTypes.findFirst[name == interactionTypeName].assertNotNull
 	}
 
-	def protected getComponentElement(String componentName, String elementName) {
-		for (component : amlModel.components) {
-			if (component.name == componentName) {
-				for (element : component.elements) {
-					if (element.name == elementName) {
-						return element
-					}
-				}
-			}
-		}
-		throw new Exception("Not element found for component: '" + componentName + "' element: '" + elementName + "'")
+	def protected getInteractionType(ComponentElement componentElement, String interactionTypeName) {
+		return componentElement.type.interactionTypes.findFirst[name == interactionTypeName].assertNotNull
 	}
 
-	def protected getTestStep(String testCase, String componentTestStepName, Integer position) {
+	def protected ComponentElement getComponentElement(String componentName, String elementName) {
+		return amlModel.components.findFirst[name == componentName]?.elements?.findFirst[name == elementName].
+			assertNotNull
+	}
 
-		for (context : tclModel.test.steps.head.contexts) {
-			if ((context as ComponentTestStepContext).component.name == componentTestStepName) {
-				if (position === null) {
-					return (context as ComponentTestStepContext);
-				}
-				return (context as ComponentTestStepContext).steps.get(position)
-			}
-		}
-		throw new Exception("component with name '" + componentTestStepName + "' not found")
+	def protected ComponentTestStepContext getTestStepContext(TclModel tclModel, String componentTestStepName) {
+		val contexts = tclModel.test.steps.head.contexts
+		return contexts.filter(ComponentTestStepContext).findFirst[component.name == componentTestStepName].assertNotNull		
+	}
+
+	def protected EObject getTestStep(TclModel tclModel, String componentTestStepName, Integer position) {
+		val context = getTestStepContext(tclModel, componentTestStepName)
+		return context.steps.get(position)
 	}
 
 	def protected String indent(CharSequence input, int level) {
 		val indentation = Strings.repeat('\t', level)
-		val value = input.toString.replaceAll("(?m)^(?!\r?\n)", indentation)
+		val value = input.toString.replaceAll('(?m)^(?!\r?\n)', indentation)
 		return value
-	}
-
-	def protected setTclModel(String testCase) {
-		tclModel = parserHelper.parseTcl(testCase.replaceAll("-->INSERT HERE", ""), "SwingDemoEins.tcl")
-	}
-
-	def protected TclModel getTclModel() {
-		return tclModel
 	}
 
 }
