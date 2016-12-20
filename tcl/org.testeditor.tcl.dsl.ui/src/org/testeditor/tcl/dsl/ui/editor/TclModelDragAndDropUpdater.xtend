@@ -23,7 +23,8 @@ import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TclPackage
 import org.testeditor.tcl.TestCase
 
-class UpdateTclModelByDropTarget {
+class TclModelDragAndDropUpdater {
+
 
 	@Inject DropUtils dropUtils
 	@Inject RewritableImportSection.Factory rewritableImportSectionFactory

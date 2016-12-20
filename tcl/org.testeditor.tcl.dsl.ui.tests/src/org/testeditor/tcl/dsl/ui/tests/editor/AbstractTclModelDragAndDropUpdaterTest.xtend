@@ -1,6 +1,7 @@
 package org.testeditor.tcl.dsl.ui.tests.editor
 
 import com.google.common.base.Strings
+import com.google.common.io.ByteStreams
 import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.serializer.ISerializer
@@ -13,13 +14,12 @@ import org.testeditor.dsl.common.testing.DslParseHelper
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.dsl.TclStandaloneSetup
-import com.google.common.io.ByteStreams
 import org.testeditor.tcl.dsl.ui.editor.DropUtils
-import org.testeditor.tcl.dsl.ui.editor.UpdateTclModelByDropTarget
+import org.testeditor.tcl.dsl.ui.editor.TclModelDragAndDropUpdater
 
-class AbstractTestModelByDropTargetTest extends AbstractTest {
+class AbstractTclModelDragAndDropUpdaterTest extends AbstractTest {
 
-	var UpdateTclModelByDropTarget updateTestModelByDropTarget // TODO: is not injected correctly
+	var TclModelDragAndDropUpdater updateTestModelByDropTarget // TODO: is not injected correctly
 	@Inject DropUtils dropUtils
 
 	@Inject protected extension DslParseHelper parserHelper
@@ -36,7 +36,7 @@ class AbstractTestModelByDropTargetTest extends AbstractTest {
 		serializer = tclInjector.getInstance(ISerializer)
 		
 		// TODO: workaround, since @Inject does not work
-		updateTestModelByDropTarget = new UpdateTclModelByDropTarget
+		updateTestModelByDropTarget = new TclModelDragAndDropUpdater
 		tclInjector.injectMembers(updateTestModelByDropTarget)
 	}
 

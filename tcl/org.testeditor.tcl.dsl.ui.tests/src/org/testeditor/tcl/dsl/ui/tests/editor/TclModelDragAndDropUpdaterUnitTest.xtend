@@ -13,11 +13,11 @@ import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
-import org.testeditor.tcl.dsl.ui.editor.UpdateTclModelByDropTarget
+import org.testeditor.tcl.dsl.ui.editor.TclModelDragAndDropUpdater
 
-class UpdateTestModelByDropTargetUnitTest extends AbstractParserTest {
+class TclModelDragAndDropUpdaterUnitTest extends AbstractParserTest {
 
-	@Inject UpdateTclModelByDropTarget classUnderTest
+	@Inject TclModelDragAndDropUpdater classUnderTest
 	@Inject extension TclModelGenerator
 
 	var Component greetingApplication
