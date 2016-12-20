@@ -15,11 +15,11 @@ import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.dsl.TclStandaloneSetup
 import com.google.common.io.ByteStreams
 import org.testeditor.tcl.dsl.ui.editor.DropUtils
-import org.testeditor.tcl.dsl.ui.editor.UpdateTestModelByDropTarget
+import org.testeditor.tcl.dsl.ui.editor.TclModelDragNDropUpdater
 
-class AbstractTestModelByDropTargetTest extends AbstractTest {
+class AbstractTclModelDragNDropUpdaterTest extends AbstractTest {
 
-	@Inject UpdateTestModelByDropTarget updateTestModelByDropTarget
+	@Inject TclModelDragNDropUpdater updateTestModelByDropTarget
 	@Inject DropUtils dropUtils
 
 	@Inject protected extension DslParseHelper parserHelper

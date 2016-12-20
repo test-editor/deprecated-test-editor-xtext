@@ -2,7 +2,7 @@ package org.testeditor.tcl.dsl.ui.tests.editor
 
 import org.junit.Test
 
-class UpdateTestModelByDropTargetTest extends AbstractTestModelByDropTargetTest {
+class TclModelDragNDropUpdaterIntegrationTest extends AbstractTclModelDragNDropUpdaterTest {
 
 	@Test
 	def void dropTestStepOnFirstTestStepContext() {
