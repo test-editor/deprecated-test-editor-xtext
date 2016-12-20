@@ -19,7 +19,7 @@ class DropTargetXtextEditorListener extends DropTargetAdapter {
 
 	@Inject extension ILocationInFileProvider
 	@Inject private DropUtils dropUtils
-	@Inject private TclModelDragNDropUpdater updateTestModelByDropTarget
+	@Inject private TclModelDragAndDropUpdater updateTestModelByDropTarget
 
 	@Inject private DropTargetXtextEditor editor
 
