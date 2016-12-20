@@ -13,7 +13,9 @@
 package org.testeditor.rcp4.views.tcltestrun.rest
 
 import com.google.gson.Gson
+import java.io.FileInputStream
 import java.nio.file.Files
+import javax.ws.rs.DELETE
 import javax.ws.rs.GET
 import javax.ws.rs.Path
 import javax.ws.rs.PathParam
@@ -24,7 +26,6 @@ import org.eclipse.xtend.lib.annotations.Accessors
 import org.testeditor.rcp4.views.tcltestrun.model.Link
 import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionManager
 import org.testeditor.rcp4.views.tcltestrun.model.TestLogGroupBuilder
-import javax.ws.rs.DELETE
 
 @Path(TestExecutionLogService.SERVICE_PATH)
 class TestExecutionLogService {
@@ -80,6 +81,15 @@ class TestExecutionLogService {
 	@DELETE
 	def void deleteTestRun(@PathParam("filename") String filename) {
 		testExecutionManager.delete(filename)
+	}
+
+	@Path("/{filename}/screenshots/{testcasename}/{screenshotpath}")
+	@GET
+	@Produces("image/png")
+	def Response getScreenshot(@PathParam("filename") String filename, @PathParam("testcasename") String testcasename,
+		@PathParam("screenshotpath") String screenshotpath) {
+		val screenshot = testExecutionManager.getScreenshotFor(filename, testcasename, screenshotpath)
+		return Response.ok(new FileInputStream(screenshot)).build
 	}
 
 }

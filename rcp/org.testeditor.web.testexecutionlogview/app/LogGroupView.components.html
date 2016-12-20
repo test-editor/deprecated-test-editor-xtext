@@ -1,10 +1,11 @@
 <ngb-accordion #acc="ngbAccordion" >
     <ngb-panel *ngFor="let loggroup of testruns" title="{{ loggroup.type }}: {{loggroup.name}}">
         <template ngbPanelContent>
+            <img class="img-thumbnail" src="{{ logService.getScreenshotURL(testRun, loggroup.screenshotPath) }}">
             <span *ngFor="let logentry of loggroup.logLines">
                     <span style="white-space: nowrap"> {{logentry}}</span> <br>
                 </span>
-            <te-log-groups-view [testruns]="loggroup.children"></te-log-groups-view>
+            <te-log-groups-view [testruns]="loggroup.children" [testRun]="testRun"></te-log-groups-view>
         </template>
     </ngb-panel>
 </ngb-accordion>

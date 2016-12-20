@@ -28,8 +28,11 @@ export class TestLogService {
     }
 
     deleteTestRun(filename: String) {
-        console.log('http://localhost:' + this.port + '/services/testruns/' + filename)
         this.http.delete('http://localhost:' + this.port + '/services/testruns/' + filename).toPromise().catch(this.handleError)
+    }
+
+    getScreenshotURL(testRun: String, path: String): String {
+        return 'http://localhost:' + this.port + '/services/testruns/'+ testRun+ "/" + path
     }
 
     private handleError(error: any): Promise<any> {

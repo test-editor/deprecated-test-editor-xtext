@@ -15,6 +15,7 @@ export class TestRunView implements OnInit {
     testStatistic: TestRunStatistic
     resultTableStyle: String
     runName: String
+    testRunName: String
 
     constructor(private route: ActivatedRoute, private logService: TestLogService) {
     }
@@ -26,6 +27,7 @@ export class TestRunView implements OnInit {
                     this.logGroups = testRunLog.logGroups
                     this.testStatistic = testRunLog.testStatistic
                     this.runName = testRunLog.name
+                    this.testRunName = testRunLog.testRunTimestamp
                     if (this.testStatistic.errors == 0 && this.testStatistic.failures == 0) {
                         this.resultTableStyle = 'table table-success'
                     }
