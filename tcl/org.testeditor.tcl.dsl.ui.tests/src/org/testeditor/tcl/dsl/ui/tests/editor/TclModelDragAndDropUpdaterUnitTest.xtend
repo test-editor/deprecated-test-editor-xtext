@@ -10,11 +10,11 @@ import org.testeditor.aml.Component
 import org.testeditor.dsl.common.testing.DummyFixture
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
-import org.testeditor.tcl.dsl.ui.editor.UpdateTestModelByDropTarget
+import org.testeditor.tcl.dsl.ui.editor.TclModelDragAndDropUpdater
 
-class UpdateTestModelByDropTargetUnitTest extends AbstractParserTest {
+class TclModelDragAndDropUpdaterUnitTest extends AbstractParserTest {
 
-	@Inject UpdateTestModelByDropTarget classUnderTest
+	@Inject TclModelDragAndDropUpdater classUnderTest
 	@Inject extension TclModelGenerator
 
 	var AmlModel amlModel

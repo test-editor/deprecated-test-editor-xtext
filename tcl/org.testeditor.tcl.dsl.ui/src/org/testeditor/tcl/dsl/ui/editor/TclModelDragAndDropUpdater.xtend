@@ -11,7 +11,7 @@ import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 
-class UpdateTestModelByDropTarget {
+class TclModelDragAndDropUpdater {
 
 	@Inject private DropUtils dropUtils
 
