@@ -1,6 +1,5 @@
-import { Component, Input } from '@angular/core';
-import { LogGroup, TestExecutionLog } from "./model";
-import { AppComponent } from "./app.component"
+import { Component, OnInit } from '@angular/core';
+import { TestExecutionLog } from "./model";
 import { TestLogService } from './testLog.service';
 
 @Component({
@@ -8,16 +7,20 @@ import { TestLogService } from './testLog.service';
     selector: 'testExecList',
     templateUrl: 'testExecList.components.html'
 })
-export class TestExecutionListComponent {
+export class TestExecutionListComponent implements OnInit {
+
+    testruns: TestExecutionLog[]
 
     constructor(private logService: TestLogService) {
     }
 
-    @Input() testruns: TestExecutionLog[] = [];
+    deleteTestRun(testLog: TestExecutionLog) {
+        this.logService.deleteTestRun(testLog.testRunTimestamp)
+        this.testruns.splice(this.testruns.indexOf(testLog,0),1)
+    }
 
-    deleteTestRun(filename: String) {
-        this.logService.deleteTestRun(filename)
-        this.logService.getTestExecutionLogs().then(testRuns => this.testruns = testRuns)
+    ngOnInit(): void {
+        this.logService.getTestExecutionLogs().then(testExecLogs => this.testruns = testExecLogs)
     }
 
 }
