@@ -2,6 +2,7 @@ package org.testeditor.tcl.dsl.ui.tests.editor
 
 import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.xtext.serializer.ISerializer
 import org.junit.Test
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.TclModel
@@ -10,6 +11,7 @@ import org.testeditor.tcl.dsl.ui.editor.TclModelDragAndDropUpdater
 class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndDropUpdaterTest {
 
 	@Inject TclModelDragAndDropUpdater classUnderTest
+	@Inject ISerializer serializer
 
 	@Test
 	def void dropTestStepOnFirstTestStepContext() {
@@ -41,9 +43,9 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 		'''
 
 		val tclModel = parseTclModel(testCase)
-		val target = tclModel.getTestStepContext("GreetingApplication")
+		val dropTarget = tclModel.getTestStepContext("GreetingApplication")
 
-		tclModel.executeTest(droppedTestStep, target, testCase, codeToBeInserted)
+		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
 	}
 
 	@Test
@@ -146,9 +148,9 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 		'''
 
 		val tclModel = parseTclModel(testCase)
-		val target = tclModel.getTestStep("GreetingApplication", 6)
+		val dropTarget = tclModel.getTestStep("GreetingApplication", 6)
 
-		tclModel.executeTest(droppedTestStep, target, testCase, codeToBeInserted)
+		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
 	}
 
 	@Test
@@ -186,9 +188,9 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 		'''
 
 		val tclModel = parseTclModel(testCase)
-		val target = tclModel.getTestStep("GreetingApplication", 0)
+		val dropTarget = tclModel.getTestStep("GreetingApplication", 0)
 
-		tclModel.executeTest(droppedTestStep, target, testCase, codeToBeInserted)
+		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
 	}
 
 	@Test
@@ -224,9 +226,9 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 		'''
 
 		val tclModel = parseTclModel(testCase)
-		val target = tclModel.getTestStep("GreetingApplication", 6)
+		val dropTarget = tclModel.getTestStep("GreetingApplication", 6)
 
-		tclModel.executeTest(droppedTestStep, target, testCase, codeToBeInserted)
+		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
 	}
 
 	@Test
@@ -262,9 +264,9 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 		'''
 
 		val tclModel = parseTclModel(testCase)
-		val target = tclModel.getTestStepContext("GreetingApplication")
+		val dropTarget = tclModel.getTestStepContext("GreetingApplication")
 
-		tclModel.executeTest(droppedTestStep, target, testCase, codeToBeInserted)
+		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
 	}
 
 	@Test
@@ -300,9 +302,9 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 		'''
 
 		val tclModel = parseTclModel(testCase)
-		val target = tclModel
+		val dropTarget = tclModel
 
-		tclModel.executeTest(droppedTestStep, target, testCase, codeToBeInserted)
+		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
 	}
 
 	@Test
@@ -332,9 +334,9 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 		'''.toString.replace('\r', '')
 
 		val tclModel = parseTclModel(testCase)
-		val target = tclModel.test.steps.last
+		val dropTarget = tclModel.test.steps.last
 
-		tclModel.executeTest(droppedTestStep, target, testCase, codeToBeInserted)
+		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
 	}
 
 	def private executeTest(TclModel tclModel, ComponentTestStepContext newTestStepContext, EObject dropTarget,
@@ -347,7 +349,7 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 	}
 	
 	def private TclModel parseTclModel(String testCase) {
-		parserHelper.parseTcl(testCase.replace('-->INSERT HERE', ''))
+		parseTcl(testCase.replace('-->INSERT HERE', ''))
 	}
 
 	

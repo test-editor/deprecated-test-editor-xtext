@@ -6,15 +6,15 @@ import com.google.inject.Module
 import java.nio.charset.StandardCharsets
 import java.util.List
 import javax.inject.Inject
-import org.eclipse.emf.ecore.EObject
-import org.eclipse.xtext.serializer.ISerializer
 import org.junit.Before
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
+import org.testeditor.aml.InteractionType
 import org.testeditor.aml.dsl.AmlRuntimeModule
 import org.testeditor.dsl.common.testing.AbstractTest
 import org.testeditor.dsl.common.testing.DslParseHelper
+import org.testeditor.tcl.AbstractTestStep
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.dsl.TclRuntimeModule
@@ -22,12 +22,11 @@ import org.testeditor.tcl.dsl.ui.editor.DropUtils
 
 class AbstractTclModelDragAndDropUpdaterTest extends AbstractTest {
 
+	@Inject protected extension DslParseHelper
+
 	@Inject DropUtils dropUtils
-
-	@Inject protected extension DslParseHelper parserHelper
-	@Inject protected ISerializer serializer
 	var AmlModel amlModel
-
+	
 	override protected collectModules(List<Module> modules) {
 		super.collectModules(modules)
 		modules += new AmlRuntimeModule
@@ -37,40 +36,39 @@ class AbstractTclModelDragAndDropUpdaterTest extends AbstractTest {
 	@Before
 	def void parseAmlModel() {
 		var encoded = ByteStreams.toByteArray(class.classLoader.getResourceAsStream("test.aml"))
-		amlModel = parserHelper.parseAml(new String(encoded, StandardCharsets.UTF_8))
+		amlModel = parseAml(new String(encoded, StandardCharsets.UTF_8))
 	}
 
-	def protected createDroppedTestStepContext(String componentName, String interacionType) {
-		val component = getComponent(componentName)
-		val interactionType = getInteractionType(component, interacionType)
+	def protected ComponentTestStepContext createDroppedTestStepContext(String componentName, String interacionTypeName) {
+		val component = amlModel.getComponent(componentName)
+		val interactionType = component.getInteractionType(interacionTypeName)
 
-		dropUtils.createDroppedTestStepContext(component, null, interactionType)
+		return dropUtils.createDroppedTestStepContext(component, null, interactionType)
 	}
 
-	def protected createDroppedTestStepContext(String componentName, String componentElementName,
-		String interacionType) {
-		val component = getComponent(componentName)
-		val componentElement = getComponentElement(componentName, componentElementName)
-		val interactionType = getInteractionType(componentElement, interacionType)
+	def protected ComponentTestStepContext createDroppedTestStepContext(String componentName, String componentElementName,
+		String interacionTypeName) {
+		val component = amlModel.getComponent(componentName)
+		val componentElement = component.getComponentElement(componentElementName)
+		val interactionType = componentElement.getInteractionType(interacionTypeName)
 
-		dropUtils.createDroppedTestStepContext(component, componentElement, interactionType)
+		return dropUtils.createDroppedTestStepContext(component, componentElement, interactionType)
 	}
 
-	def protected getComponent(String componentName) {
+	def protected Component getComponent(AmlModel amlModel, String componentName) {
 		return amlModel.components.findFirst[name == componentName].assertNotNull
 	}
 
-	def protected getInteractionType(Component component, String interactionTypeName) {
+	def protected InteractionType getInteractionType(Component component, String interactionTypeName) {
 		return component.type.interactionTypes.findFirst[name == interactionTypeName].assertNotNull
 	}
 
-	def protected getInteractionType(ComponentElement componentElement, String interactionTypeName) {
+	def protected InteractionType getInteractionType(ComponentElement componentElement, String interactionTypeName) {
 		return componentElement.type.interactionTypes.findFirst[name == interactionTypeName].assertNotNull
 	}
 
-	def protected ComponentElement getComponentElement(String componentName, String elementName) {
-		return amlModel.components.findFirst[name == componentName]?.elements?.findFirst[name == elementName].
-			assertNotNull
+	def protected ComponentElement getComponentElement(Component component, String elementName) {
+		return component.elements.findFirst[name == elementName].assertNotNull
 	}
 
 	def protected ComponentTestStepContext getTestStepContext(TclModel tclModel, String componentTestStepName) {
@@ -78,8 +76,8 @@ class AbstractTclModelDragAndDropUpdaterTest extends AbstractTest {
 		return contexts.filter(ComponentTestStepContext).findFirst[component.name == componentTestStepName].assertNotNull		
 	}
 
-	def protected EObject getTestStep(TclModel tclModel, String componentTestStepName, Integer position) {
-		val context = getTestStepContext(tclModel, componentTestStepName)
+	def protected AbstractTestStep getTestStep(TclModel tclModel, String componentTestStepName, int position) {
+		val context = tclModel.getTestStepContext(componentTestStepName)
 		return context.steps.get(position)
 	}
 
