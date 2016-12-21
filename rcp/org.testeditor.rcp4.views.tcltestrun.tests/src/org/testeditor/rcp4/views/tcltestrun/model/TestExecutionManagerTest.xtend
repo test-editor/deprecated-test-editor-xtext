@@ -73,4 +73,21 @@ class TestExecutionManagerTest extends AbstractTest {
 		assertEquals(statistic.failures, 0)
 		assertEquals(statistic.tests, 1)
 	}
+	
+	@Test
+	def void testDeleteTestRun() {
+		// given
+		val dir = tempFolder.root
+		Files.createDirectory(new File(dir, "testrun-2016.11.16-22.24").toPath)
+		Files.createDirectory(new File(dir, "testrun-2016.11.16-23.24").toPath)
+		when(logLocationHelper.logLocation).thenReturn(dir)
+
+		// when	
+		testExecutionManager.delete("testrun-2016.11.16-23.24")
+		
+		// then	
+		val testRuns = dir.list
+		testRuns.assertSingleElement.assertEquals("testrun-2016.11.16-22.24")
+	}
+	
 }

@@ -23,6 +23,7 @@ import org.eclipse.e4.core.di.annotations.Creatable
 import org.slf4j.LoggerFactory
 import org.testeditor.rcp4.views.tcltestrun.LogLocationHelper
 import org.w3c.dom.NamedNodeMap
+import org.apache.commons.io.FileUtils
 
 @Creatable
 class TestExecutionManager {
@@ -108,6 +109,14 @@ class TestExecutionManager {
 		val date = fileDateFormat.parse(teLogFileName.substring(8))
 		val sdf = new SimpleDateFormat("dd.MM.yy HH:mm")
 		return sdf.format(date)
+	}
+	
+	def delete(String fileName) {
+		val location = logLocationHelper.logLocation
+		val log = location.listFiles.findFirst[it.name.matches(fileName)]
+		if (log !== null) {
+			FileUtils.deleteDirectory(log)
+		}
 	}
 
 }

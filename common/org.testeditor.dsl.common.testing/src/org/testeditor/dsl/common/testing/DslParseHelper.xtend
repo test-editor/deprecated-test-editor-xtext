@@ -14,6 +14,7 @@ import org.eclipse.xtext.junit4.util.ParseHelper
 import org.eclipse.xtext.parser.IParseResult
 import org.eclipse.xtext.parser.IParser
 import org.eclipse.xtext.resource.XtextResourceSet
+import org.eclipse.xtext.serializer.ISerializer
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.ModelElement
 import org.testeditor.aml.dsl.AmlStandaloneSetup
@@ -27,6 +28,7 @@ class DslParseHelper {
 	// the publics are used by several abstract parser test classes (should be read only)
 	public Provider<XtextResourceSet> resourceSetProvider
 	public XtextResourceSet resourceSet
+	public ISerializer tclSerializer
 	@Inject public InMemoryFileSystemAccess fsa
 
 	@Inject extension XtextAssertionHelper
@@ -52,6 +54,9 @@ class DslParseHelper {
 		tclParseHelper = tclInjector.getInstance(ParseHelper)
 		val tslInjector = (new TslStandaloneSetup).createInjectorAndDoEMFRegistration
 		tslParseHelper = tslInjector.getInstance(ParseHelper)
+		
+		// inject serializer(s)
+		tclSerializer = tclInjector.getInstance(ISerializer)
 	}
 
 	def AmlModel parseAml(CharSequence input) {
