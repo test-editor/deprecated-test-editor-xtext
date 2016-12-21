@@ -102,7 +102,8 @@ class AmlProposalProvider extends AbstractAmlProposalProvider {
 
 	private def boolean isRuleCallTo(EObject grammarElement, AbstractRule rule) {
 		if (grammarElement instanceof RuleCall) {
-			return grammarElement.rule == rule
+			// Need to compare against the name here so that we can reuse this in TCL
+			return grammarElement.rule.name == rule.name
 		}
 		return false
 	}
