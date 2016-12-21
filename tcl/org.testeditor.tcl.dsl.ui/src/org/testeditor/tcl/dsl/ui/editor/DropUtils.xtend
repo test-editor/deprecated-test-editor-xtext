@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2012 - 2016 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
 package org.testeditor.tcl.dsl.ui.editor
 
 import org.eclipse.emf.ecore.EObject
@@ -13,28 +25,24 @@ import org.testeditor.aml.TemplateVariable
 import org.testeditor.tcl.AbstractTestStep
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
-import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclFactory
 import org.testeditor.tcl.TestCase
-import org.testeditor.tcl.impl.SpecificationStepImplementationImpl
 import org.testeditor.tsl.StepContentText
-import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslFactory
-import org.testeditor.tsl.impl.StepContentTextImpl
 
 class DropUtils {
 
 	static val private TclFactory tclFactory = TclFactory.eINSTANCE
 	static val private TslFactory tslFactory = TslFactory.eINSTANCE
 
-
 	protected def <T> T getDroppedObjectAs(Class<T> clazz) {
-		val ISelection sel = LocalSelectionTransfer.getTransfer().getSelection();
+		val ISelection sel = LocalSelectionTransfer.transfer.selection
 		if (sel instanceof TreeSelection) {
 			val treeSelection = sel.paths.head
 			for (var index = 0; index < treeSelection.segmentCount; index++) {
-				if (clazz.isInstance(treeSelection.getSegment(index))) {
-					return treeSelection.getSegment(index) as T
+				val segment = treeSelection.getSegment(index)
+				if (clazz.isInstance(segment)) {
+					return segment as T
 				}
 			}
 		}
@@ -61,17 +69,17 @@ class DropUtils {
 		interactionType.template.contents.forEach [
 			switch (it) {
 				TemplateText: {
-					val StepContentText stepContentText = tslFactory.createStepContentText
+					val stepContentText = tslFactory.createStepContentText
 					stepContentText.value = value
 					newTestStep.contents.add(stepContentText)
 				}
 				TemplateVariable: {
 					if (name != 'element') {
-						val StepContentVariable stepContentVariable = tslFactory.createStepContentVariable
+						val stepContentVariable = tslFactory.createStepContentVariable
 						stepContentVariable.value = name
 						newTestStep.contents.add(stepContentVariable)
 					} else {
-						val StepContentElement stepContentElement = tclFactory.createStepContentElement
+						val stepContentElement = tclFactory.createStepContentElement
 						stepContentElement.value = componentElement.name
 						newTestStep.contents.add(stepContentElement)
 					}
@@ -94,7 +102,7 @@ class DropUtils {
 
 	protected def addTestStepToModel(int insertionIndex, ComponentTestStepContext testStepContext,
 		AbstractTestStep droppedTestStep) {
-		if (insertionIndex < 0 || insertionIndex >= testStepContext.steps.size()) {
+		if (insertionIndex < 0 || insertionIndex >= testStepContext.steps.size) {
 			testStepContext.steps.add(droppedTestStep)
 		} else {
 			testStepContext.steps.add(insertionIndex, droppedTestStep)
@@ -109,13 +117,11 @@ class DropUtils {
 			}
 			return test.steps.last.contexts.last as ComponentTestStepContext
 		}
-		if (dropTarget instanceof SpecificationStepImplementationImpl) {
+		if (dropTarget instanceof SpecificationStepImplementation) {
 			return dropTarget.getContexts.head as ComponentTestStepContext
 		}
-		if (dropTarget instanceof StepContentTextImpl &&
-			dropTarget.eContainer instanceof SpecificationStepImplementationImpl) {
-			return (dropTarget.eContainer as SpecificationStepImplementationImpl).getContexts().
-				head as ComponentTestStepContext
+		if (dropTarget instanceof StepContentText && dropTarget.eContainer instanceof SpecificationStepImplementation) {
+			return (dropTarget.eContainer as SpecificationStepImplementation).contexts.head as ComponentTestStepContext
 		}
 
 		return EcoreUtil2.getContainerOfType(dropTarget, ComponentTestStepContext)
@@ -125,7 +131,7 @@ class DropUtils {
 		if (dropTarget == null) {
 			return testStepContext.steps.size
 		}
-		var AbstractTestStep selectedTestStep = EcoreUtil2.getContainerOfType(dropTarget, AbstractTestStep)
+		val selectedTestStep = EcoreUtil2.getContainerOfType(dropTarget, AbstractTestStep)
 		return testStepContext.steps.indexOf(selectedTestStep) + 1
 	}
 

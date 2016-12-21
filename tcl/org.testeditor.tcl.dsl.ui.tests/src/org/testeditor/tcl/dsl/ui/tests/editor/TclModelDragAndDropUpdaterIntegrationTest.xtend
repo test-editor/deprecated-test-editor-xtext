@@ -362,5 +362,5 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 	def private TclModel parseTclModel(String testCase) {
 		parseTcl(testCase.replaceAll('-->INSERT HERE', '').replaceAll(' *// <-- drop target',''))
 	}
-
+	
 }
