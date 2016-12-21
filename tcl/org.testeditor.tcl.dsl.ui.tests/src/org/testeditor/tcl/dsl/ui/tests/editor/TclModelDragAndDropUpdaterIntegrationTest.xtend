@@ -14,7 +14,7 @@ package org.testeditor.tcl.dsl.ui.tests.editor
 
 import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
-import org.eclipse.xtext.serializer.ISerializer
+import org.eclipse.xtext.resource.SaveOptions
 import org.junit.Test
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.TclModel
@@ -23,8 +23,7 @@ import org.testeditor.tcl.dsl.ui.editor.TclModelDragAndDropUpdater
 class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndDropUpdaterTest {
 
 	@Inject TclModelDragAndDropUpdater classUnderTest
-	@Inject ISerializer serializer
-
+	
 	@Test
 	def void dropTestStepOnFirstTestStepContext() {
 
@@ -356,12 +355,12 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 		val expectedTestCase = testCase.replaceAll('-->INSERT HERE', insertedCode.indent(1)).replace('\r', '').replaceAll(' *// <-- drop target','')
 
 		classUnderTest.updateTestModel(tclModel.test, dropTarget, newTestStepContext, newArrayList)
-		val actualTestCase = serializer.serialize(tclModel).replace('\r', '')
+		val actualTestCase = tclSerializer.serialize(tclModel, SaveOptions.newBuilder.format.options).replace('\r', '')
 		actualTestCase.assertEquals(expectedTestCase)
 	}
 	
 	def private TclModel parseTclModel(String testCase) {
-		parseTcl(testCase.replace('-->INSERT HERE', ''))
+		parseTcl(testCase.replaceAll('-->INSERT HERE', '').replaceAll(' *// <-- drop target',''))
 	}
 
 }

@@ -14,36 +14,26 @@ package org.testeditor.tcl.dsl.ui.tests.editor
 
 import com.google.common.base.Strings
 import com.google.common.io.ByteStreams
-import com.google.inject.Module
 import java.nio.charset.StandardCharsets
-import java.util.List
 import javax.inject.Inject
 import org.junit.Before
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.InteractionType
-import org.testeditor.aml.dsl.AmlRuntimeModule
-import org.testeditor.dsl.common.testing.AbstractTest
 import org.testeditor.dsl.common.testing.DslParseHelper
 import org.testeditor.tcl.AbstractTestStep
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.TclModel
-import org.testeditor.tcl.dsl.TclRuntimeModule
+import org.testeditor.tcl.dsl.tests.AbstractTclTest
 import org.testeditor.tcl.dsl.ui.editor.DropUtils
 
-class AbstractTclModelDragAndDropUpdaterTest extends AbstractTest {
+class AbstractTclModelDragAndDropUpdaterTest extends AbstractTclTest {
 
 	@Inject protected extension DslParseHelper
 
 	@Inject DropUtils dropUtils
 	var AmlModel amlModel
-	
-	override protected collectModules(List<Module> modules) {
-		super.collectModules(modules)
-		modules += new AmlRuntimeModule
-		modules += new TclRuntimeModule
-	}
 
 	@Before
 	def void parseAmlModel() {
