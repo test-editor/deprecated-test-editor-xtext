@@ -13,7 +13,8 @@
 package org.testeditor.rcp4.views.tcltestrun
 
 import java.io.File
-import java.io.FileFilter
+import java.io.FileOutputStream
+import java.nio.file.Files
 import java.util.ArrayList
 import java.util.List
 import java.util.Map
@@ -25,18 +26,22 @@ import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.IProgressMonitor
+import org.eclipse.e4.ui.workbench.modeling.EPartService
 import org.eclipse.emf.common.util.URI
 import org.eclipse.jdt.core.IJavaElement
 import org.eclipse.jdt.junit.JUnitCore
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.eclipse.jface.viewers.LabelProvider
 import org.eclipse.jface.window.Window
+import org.eclipse.swt.widgets.Display
 import org.eclipse.ui.PlatformUI
 import org.eclipse.ui.dialogs.ElementListSelectionDialog
 import org.slf4j.LoggerFactory
+import org.testeditor.dsl.common.ide.util.FileUtils
 import org.testeditor.dsl.common.ui.utils.ProgressMonitorRunner
 import org.testeditor.dsl.common.ui.workbench.PartHelper
 import org.testeditor.dsl.common.util.EclipseContextHelper
+import org.testeditor.rcp4.tcltestrun.LaunchResult
 import org.testeditor.rcp4.tcltestrun.TclGradleLauncher
 import org.testeditor.rcp4.tcltestrun.TclMavenLauncher
 import org.testeditor.rcp4.views.tcltestrun.console.TCLConsoleFactory
@@ -47,11 +52,6 @@ import org.testeditor.tcl.dsl.ui.testlaunch.LaunchShortcutUtil
 import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
 import org.testeditor.tcl.dsl.ui.util.TclIndexHelper
 import org.testeditor.tcl.dsl.ui.util.TclInjectorProvider
-import org.eclipse.e4.ui.workbench.modeling.EPartService
-import org.eclipse.swt.widgets.Display
-import java.io.FileOutputStream
-import java.nio.file.Files
-import org.testeditor.rcp4.tcltestrun.LaunchResult
 
 class TclLauncherUi implements Launcher {
 
@@ -148,8 +148,7 @@ class TclLauncherUi implements Launcher {
 				logger.error("resulting expectedFile must not be null")
 			} else {
 				safeUpdateJunitTestView(result.expectedFileRoot, testLaunchInformation.project.name)
-				Files.copy(new File(result.expectedFileRoot, "te-testCompose.xml").toPath,
-					new File(testResultDir, "testSummary.xml").toPath)
+				collectTestResultFiles(result.expectedFileRoot, testResultDir)
 			}
 			monitor.done
 			partHelper.showView(TEST_EXECUTION_RESULT_VIEW)
@@ -157,7 +156,23 @@ class TclLauncherUi implements Launcher {
 		])
 		return true
 	}
-	
+
+	private def collectTestResultFiles(File resultRoot, File testResultDir) {
+		Files.copy(new File(resultRoot, "te-testCompose.xml").toPath, new File(testResultDir, "testSummary.xml").toPath)
+		val screenshotDir = lookUpScreenShotDir(resultRoot)
+		if (screenshotDir !== null) {
+			FileUtils.copyFolder(screenshotDir, new File(testResultDir, "screenshots"))
+		}
+	}
+
+	private def File lookUpScreenShotDir(File file) {
+		return file.parentFile.parentFile.getDirWithName("screenshots")
+	}
+
+	private def File getDirWithName(File file, String name) {
+		file.listFiles[it.name == name].head
+	}
+
 	private def TestExecutionLogViewPart getTestExecutionLogViewPart() {
 		val viewPart = eclipseContextHelper.eclipseContext.get(EPartService).findPart(TEST_EXECUTION_RESULT_VIEW)
 		return viewPart.object as TestExecutionLogViewPart
@@ -241,13 +256,7 @@ class TclLauncherUi implements Launcher {
 	 * */
 	private def void safeUpdateJunitTestView(File expectedFileRoot, String projectName) {
 		logger.debug("Test result parentPir={}", expectedFileRoot)
-		val xmlResults = expectedFileRoot.listFiles(new FileFilter() {
-
-			override accept(File pathname) {
-				return pathname.isFile && pathname.name.endsWith(".xml")
-			}
-
-		})
+		val xmlResults = expectedFileRoot.listFiles[it.isFile && it.name.endsWith(".xml")]
 		val resultFile = new File(expectedFileRoot, "te-testCompose.xml")
 		if (xmlResults != null && xmlResults.length > 0) {
 			testResultFileWriter.writeTestResultFile(projectName, resultFile, xmlResults)

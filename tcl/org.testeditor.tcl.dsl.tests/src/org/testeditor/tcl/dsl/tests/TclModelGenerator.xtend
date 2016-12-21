@@ -1,6 +1,20 @@
+/*******************************************************************************
+ * Copyright (c) 2012 - 2016 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
 package org.testeditor.tcl.dsl.tests
 
 import javax.inject.Inject
+import org.eclipse.xtext.common.types.JvmDeclaredType
+import org.eclipse.xtext.common.types.util.TypeReferences
 import org.eclipse.xtext.xtype.XtypeFactory
 import org.testeditor.aml.Component
 import org.testeditor.aml.Variable
@@ -34,6 +48,7 @@ class TclModelGenerator {
 	@Inject protected AmlFactoryImpl amlFactory
 	@Inject protected TslFactoryImpl tslFactory
 	@Inject protected XtypeFactory xtypeFactory
+	@Inject TypeReferences references
 
 	def TclModel tclModel() {
 		return tclFactory.createTclModel => [
@@ -63,12 +78,16 @@ class TclModelGenerator {
 		]
 	}
 
-	def TclModel withNamespaceImport(TclModel me, String namespace) {
+	def TclModel withImport(TclModel me, String namespace) {
 		if (me.importSection == null) {
 			me.importSection = xtypeFactory.createXImportSection
 		}
 		me.importSection.importDeclarations += xtypeFactory.createXImportDeclaration => [
 			it.importedNamespace = namespace
+			val type = references.findDeclaredType(namespace, me)
+			if (type instanceof JvmDeclaredType) {
+				it.importedType = type
+			}
 		]
 		return me
 	}
@@ -77,16 +96,6 @@ class TclModelGenerator {
 		return tclFactory.createSpecificationStepImplementation => [
 			texts.forEach[text|contents.add(tslFactory.createStepContentText => [value = text])]
 		]
-	}
-
-	def TclModel withImportNamespace(TclModel me, String namespace) {
-		if (me.importSection == null) {
-			me.importSection = xtypeFactory.createXImportSection
-		}
-		me.importSection.importDeclarations += xtypeFactory.createXImportDeclaration => [
-			it.importedNamespace = namespace
-		]
-		return me
 	}
 
 	def MacroCollection macroCollection() {

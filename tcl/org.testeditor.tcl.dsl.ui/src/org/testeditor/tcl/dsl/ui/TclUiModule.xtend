@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -12,7 +12,10 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.ui
 
+import com.google.inject.Binder
 import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
+import org.testeditor.aml.dsl.ui.contentassist.AmlProposalProvider
+import org.testeditor.aml.dsl.ui.internal.DslActivator
 import org.testeditor.tcl.dsl.ide.highlighting.TclSemanticHighlightingCalculator
 import org.testeditor.tcl.dsl.jvmmodel.TclBuilderParticipant
 import org.testeditor.tcl.dsl.ui.contentassist.TclTemplateProposalProvider
@@ -41,13 +44,20 @@ class TclUiModule extends AbstractTclUiModule {
 	override bindITemplateProposalProvider() {
 		return TclTemplateProposalProvider
 	}
-				
+
 	override bindIRenameStrategy() {
 		return TclJvmModelRenameStrategy
 	}
-						
+
 	override bindIXtextBuilderParticipant() {
 		return TclBuilderParticipant
+	}
+
+	def void configureAmlProposalProvider(Binder binder) {
+		binder.bind(AmlProposalProvider).toProvider [
+			val amlInjector = DslActivator.instance.getInjector(DslActivator.ORG_TESTEDITOR_AML_DSL_AML)
+			return amlInjector.getInstance(AmlProposalProvider)
+		]
 	}
 
 }

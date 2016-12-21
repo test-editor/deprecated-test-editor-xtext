@@ -18,11 +18,12 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.List
 import javax.inject.Inject
+import javax.xml.parsers.DocumentBuilderFactory
 import org.eclipse.e4.core.di.annotations.Creatable
 import org.slf4j.LoggerFactory
 import org.testeditor.rcp4.views.tcltestrun.LogLocationHelper
-import javax.xml.parsers.DocumentBuilderFactory
 import org.w3c.dom.NamedNodeMap
+import org.apache.commons.io.FileUtils
 
 @Creatable
 class TestExecutionManager {
@@ -72,6 +73,15 @@ class TestExecutionManager {
 
 	}
 
+	def File getScreenshotFor(String fileName, String testcasename, String screenshotPath) {
+		val location = logLocationHelper.logLocation
+		val log = location.listFiles.findFirst[it.name.matches(fileName)]
+		if (log !== null) {
+			return new File(log, '''screenshots«File.separator»«testcasename»«File.separator»«screenshotPath»''')
+		}
+		return null
+	}
+
 	def private TestExecutionLog createTestExecutionLog(String teLogFileName) {
 		val log = new TestExecutionLog
 		val location = logLocationHelper.logLocation
@@ -99,6 +109,14 @@ class TestExecutionManager {
 		val date = fileDateFormat.parse(teLogFileName.substring(8))
 		val sdf = new SimpleDateFormat("dd.MM.yy HH:mm")
 		return sdf.format(date)
+	}
+	
+	def delete(String fileName) {
+		val location = logLocationHelper.logLocation
+		val log = location.listFiles.findFirst[it.name.matches(fileName)]
+		if (log !== null) {
+			FileUtils.deleteDirectory(log)
+		}
 	}
 
 }

@@ -20,6 +20,7 @@ class TestLogGroupBuilder {
 	static val String SPEC_STEP_LOG_ENTRY = "[Spec step]" // log entry to watch out for specification steps
 	static val String COMPONENT_LOG_ENTRY = "[Component]" // log entry to watch out for component/mask steps
 	static val String TEST_STEP_LOG_ENTRY = "[Test step]" // log entry to watch out for test steps
+	static val String SCREENSHOT_LOG_ENTRY = "Wrote screenshot to file=" // log entry to watch out for test steps
 	static val String TEST_CASE_HEADER_1 = " ****************************************************" // log entry to watch out for test case
 	static val String TEST_CASE_HEADER_2 = "Running test" // log entry to watch out for test case
 	TestLogGroup currentLogGroup
@@ -30,6 +31,10 @@ class TestLogGroupBuilder {
 		logLines.forEach [
 			updateCurrentLogEntry(result)
 			currentLogGroup.addLogLine(it)
+			if (it.contains(SCREENSHOT_LOG_ENTRY)) {
+				val start = it.indexOf("Wrote screenshot to file=") + "Wrote screenshot to file=".length + 1
+				currentLogGroup.screenshotPath = it.substring(start, it.length - 2)
+			}
 			lastLine = it
 		]
 		return result

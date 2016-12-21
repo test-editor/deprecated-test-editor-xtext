@@ -1,9 +1,29 @@
+/*******************************************************************************
+ * Copyright (c) 2012 - 2016 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
 package org.testeditor.tcl.dsl.ui.tests.editor
 
+import javax.inject.Inject
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.xtext.resource.SaveOptions
 import org.junit.Test
+import org.testeditor.tcl.ComponentTestStepContext
+import org.testeditor.tcl.TclModel
+import org.testeditor.tcl.dsl.ui.editor.TclModelDragAndDropUpdater
 
-class UpdateTestModelByDropTargetTest extends AbstractTestModelByDropTargetTest {
+class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndDropUpdaterTest {
 
+	@Inject TclModelDragAndDropUpdater classUnderTest
+	
 	@Test
 	def void dropTestStepOnFirstTestStepContext() {
 
@@ -19,7 +39,7 @@ class UpdateTestModelByDropTargetTest extends AbstractTestModelByDropTargetTest 
 			
 			*
 			
-				Mask: GreetingApplication
+				Mask: GreetingApplication           // <-- drop target
 			-->INSERT HERE
 				- Start application "path"
 				- Stop application
@@ -33,11 +53,10 @@ class UpdateTestModelByDropTargetTest extends AbstractTestModelByDropTargetTest 
 				- Starte2 application "path"
 		'''
 
-		setTclModel(testCase)
-		val target = getTestStep(testCase, "GreetingApplication", null)
+		val tclModel = parseTclModel(testCase)
+		val dropTarget = tclModel.getTestStepContext("GreetingApplication")
 
-		executeTest(droppedTestStep, target, testCase, codeToBeInserted)
-
+		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
 	}
 
 	@Test
@@ -56,7 +75,7 @@ class UpdateTestModelByDropTargetTest extends AbstractTestModelByDropTargetTest 
 			*
 			
 				Mask: GreetingApplication
-				- Start application "path"
+				- Start application "path"       // <-- drop target
 			-->INSERT HERE
 				- Stop application
 				- Start application "path"
@@ -69,10 +88,10 @@ class UpdateTestModelByDropTargetTest extends AbstractTestModelByDropTargetTest 
 				- Starte2 application "path"
 		'''
 
-		setTclModel(testCase)
-		val dropTarget = getTestStep(testCase, "GreetingApplication", 0)
+		val tclModel = parseTclModel(testCase)
+		val dropTarget = tclModel.getTestStep("GreetingApplication", 0)
 
-		executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
+		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
 	}
 
 	@Test
@@ -93,7 +112,7 @@ class UpdateTestModelByDropTargetTest extends AbstractTestModelByDropTargetTest 
 				Mask: GreetingApplication
 				- Start application "path"
 				- Stop application
-				- Start application "path"
+				- Start application "path"         // <-- drop target
 			-->INSERT HERE
 				- Stop application
 				- Start application "path"
@@ -104,10 +123,10 @@ class UpdateTestModelByDropTargetTest extends AbstractTestModelByDropTargetTest 
 				- Starte2 application "path"
 		'''
 
-		setTclModel(testCase)
-		val dropTarget = getTestStep(testCase, "GreetingApplication", 2)
+		val tclModel = parseTclModel(testCase)
+		val dropTarget = tclModel.getTestStep("GreetingApplication", 2)
 
-		executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
+		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
 	}
 
 	@Test
@@ -132,17 +151,17 @@ class UpdateTestModelByDropTargetTest extends AbstractTestModelByDropTargetTest 
 				- Stop application
 				- Start application "path"
 				- Stop application
-				- Wait "miliSeconds" ms
+				- Wait "miliSeconds" ms           // <-- drop target
 			-->INSERT HERE
 			
 				Mask: GreetingApplication2
 				- Starte2 application "path"
 		'''
 
-		setTclModel(testCase)
-		val target = getTestStep(testCase, "GreetingApplication", 6)
+		val tclModel = parseTclModel(testCase)
+		val dropTarget = tclModel.getTestStep("GreetingApplication", 6)
 
-		executeTest(droppedTestStep, target, testCase, codeToBeInserted)
+		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
 	}
 
 	@Test
@@ -166,7 +185,7 @@ class UpdateTestModelByDropTargetTest extends AbstractTestModelByDropTargetTest 
 			*
 			
 				Mask: GreetingApplication
-				- Start application "path"
+				- Start application "path"        // <-- drop target
 			-->INSERT HERE
 				- Stop application
 				- Start application "path"
@@ -179,10 +198,10 @@ class UpdateTestModelByDropTargetTest extends AbstractTestModelByDropTargetTest 
 				- Starte2 application "path"
 		'''
 
-		setTclModel(testCase)
-		val target = getTestStep(testCase, "GreetingApplication", 0)
+		val tclModel = parseTclModel(testCase)
+		val dropTarget = tclModel.getTestStep("GreetingApplication", 0)
 
-		executeTest(droppedTestStep, target, testCase, codeToBeInserted)
+		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
 	}
 
 	@Test
@@ -209,7 +228,7 @@ class UpdateTestModelByDropTargetTest extends AbstractTestModelByDropTargetTest 
 				- Stop application
 				- Start application "path"
 				- Stop application
-				- Wait "miliSeconds" ms
+				- Wait "miliSeconds" ms          // <-- drop target
 			
 			-->INSERT HERE
 			
@@ -217,10 +236,10 @@ class UpdateTestModelByDropTargetTest extends AbstractTestModelByDropTargetTest 
 				- Starte2 application "path"
 		'''
 
-		setTclModel(testCase)
-		val target = getTestStep(testCase, "GreetingApplication", 6)
+		val tclModel = parseTclModel(testCase)
+		val dropTarget = tclModel.getTestStep("GreetingApplication", 6)
 
-		executeTest(droppedTestStep, target, testCase, codeToBeInserted)
+		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
 	}
 
 	@Test
@@ -242,7 +261,7 @@ class UpdateTestModelByDropTargetTest extends AbstractTestModelByDropTargetTest 
 			*
 			
 			-->INSERT HERE
-				Mask: GreetingApplication
+				Mask: GreetingApplication        // <-- drop target
 				- Start application "path"
 				- Stop application
 				- Start application "path"
@@ -255,10 +274,10 @@ class UpdateTestModelByDropTargetTest extends AbstractTestModelByDropTargetTest 
 				- Starte2 application "path"
 		'''
 
-		setTclModel(testCase)
-		val target = getTestStep(testCase, "GreetingApplication", null)
+		val tclModel = parseTclModel(testCase)
+		val dropTarget = tclModel.getTestStepContext("GreetingApplication")
 
-		executeTest(droppedTestStep, target, testCase, codeToBeInserted)
+		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
 	}
 
 	@Test
@@ -273,7 +292,7 @@ class UpdateTestModelByDropTargetTest extends AbstractTestModelByDropTargetTest 
 
 		// then			
 		val testCase = '''
-			package SwingDemo
+			package SwingDemo                   // <-- drop target
 			
 			# SwingDemoEins
 			
@@ -293,10 +312,10 @@ class UpdateTestModelByDropTargetTest extends AbstractTestModelByDropTargetTest 
 				- Starte2 application "path"
 		'''
 
-		setTclModel(testCase)
-		val target = tclModel
+		val tclModel = parseTclModel(testCase)
+		val dropTarget = tclModel
 
-		executeTest(droppedTestStep, target, testCase, codeToBeInserted)
+		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
 	}
 
 	@Test
@@ -318,16 +337,30 @@ class UpdateTestModelByDropTargetTest extends AbstractTestModelByDropTargetTest 
 				Mask: GreetingApplication
 				- Start application "path"
 			
-			* zwei
+			* zwei                              // <-- drop target
 			
 			-->INSERT HERE
 				Mask: GreetingApplication
 				- Start application "path"
-		'''.toString().replaceAll("\r\n", "\n")
+		'''.toString.replace('\r', '')
 
-		setTclModel(testCase)
-		val target = tclModel.test.steps.last
-		executeTest(droppedTestStep, target, testCase, codeToBeInserted)
+		val tclModel = parseTclModel(testCase)
+		val dropTarget = tclModel.test.steps.last
+
+		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
 	}
 
+	def private executeTest(TclModel tclModel, ComponentTestStepContext newTestStepContext, EObject dropTarget,
+		String testCase, String insertedCode) {
+		val expectedTestCase = testCase.replaceAll('-->INSERT HERE', insertedCode.indent(1)).replace('\r', '').replaceAll(' *// <-- drop target','')
+
+		classUnderTest.updateTestModel(tclModel, dropTarget, newTestStepContext, newArrayList)
+		val actualTestCase = tclSerializer.serialize(tclModel, SaveOptions.newBuilder.format.options).replace('\r', '')
+		actualTestCase.assertEquals(expectedTestCase)
+	}
+	
+	def private TclModel parseTclModel(String testCase) {
+		parseTcl(testCase.replaceAll('-->INSERT HERE', '').replaceAll(' *// <-- drop target',''))
+	}
+	
 }

@@ -19,12 +19,15 @@ import org.eclipse.xtext.RuleCall
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
 import org.testeditor.aml.ModelUtil
+import org.testeditor.aml.dsl.ui.contentassist.AmlProposalProvider
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.util.TclModelUtil
 
 class TclProposalProvider extends AbstractTclProposalProvider {
+
 	@Inject extension TclModelUtil
 	@Inject extension ModelUtil
+	@Inject AmlProposalProvider amlProposalProvider
 
 	override completeTestCase_Steps(EObject model, Assignment assignment, ContentAssistContext context,
 		ICompletionProposalAcceptor acceptor) {
@@ -75,6 +78,16 @@ class TclProposalProvider extends AbstractTclProposalProvider {
 				]
 			}
 		}
+	}
+	
+	/** Proposals for macro templates => should be same as in AML */
+	override complete_TemplateText(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		amlProposalProvider.complete_TemplateText(model, ruleCall, context, acceptor)
+	}
+
+	/** Proposals for macro templates => should be same as in AML */
+	override complete_TemplateVariable(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		amlProposalProvider.complete_TemplateVariable(model, ruleCall, context, acceptor)
 	}
 
 }
