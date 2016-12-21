@@ -37,7 +37,7 @@ class AbstractTclModelDragAndDropUpdaterTest extends AbstractTclTest {
 
 	@Before
 	def void parseAmlModel() {
-		var encoded = ByteStreams.toByteArray(class.classLoader.getResourceAsStream("test.aml"))
+		val encoded = ByteStreams.toByteArray(class.classLoader.getResourceAsStream("test.aml"))
 		amlModel = parseAml(new String(encoded, StandardCharsets.UTF_8))
 	}
 
