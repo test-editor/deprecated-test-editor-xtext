@@ -52,6 +52,8 @@ import org.testeditor.tcl.dsl.ui.testlaunch.LaunchShortcutUtil
 import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
 import org.testeditor.tcl.dsl.ui.util.TclIndexHelper
 import org.testeditor.tcl.dsl.ui.util.TclInjectorProvider
+import org.eclipse.core.runtime.jobs.Job
+import org.eclipse.core.runtime.Status
 
 class TclLauncherUi implements Launcher {
 
@@ -59,7 +61,7 @@ class TclLauncherUi implements Launcher {
 	static val TEST_EXECUTION_RESULT_VIEW = "org.testeditor.rcp4.views.tcltestrun.part.testexecutionconsole"
 	static val logger = LoggerFactory.getLogger(TclLauncherUi)
 
-	@Inject ProgressMonitorRunner progressRunner
+ 	@Inject ProgressMonitorRunner progressRunner
 	@Inject TclMavenLauncher mavenLauncher
 	@Inject TclGradleLauncher gradleLauncher
 	@Inject TestResultFileWriter testResultFileWriter
@@ -122,38 +124,45 @@ class TclLauncherUi implements Launcher {
 		logger.info("Trying to launch launcherClass='{}' test execution for elementId='{}' in project='{}'",
 			testLaunchInformation.launcher.class.simpleName, testLaunchInformation.testCasesCommaList?.head,
 			testLaunchInformation.project)
-		progressRunner.run([ monitor |
-			if (testLaunchInformation.testCasesCommaList != null) {
-				monitor.beginTask("Test execution: " + testLaunchInformation.testCasesCommaList.head,
-					IProgressMonitor.UNKNOWN)
-			} else {
-				monitor.beginTask("Test execution: " + testLaunchInformation.project.name, IProgressMonitor.UNKNOWN)
+		val job = new Job("Test execution") {
+
+			override protected run(IProgressMonitor monitor) {
+				if (testLaunchInformation.testCasesCommaList != null) {
+					monitor.beginTask("Test execution: " + testLaunchInformation.testCasesCommaList.head,
+						IProgressMonitor.UNKNOWN)
+				} else {
+					monitor.beginTask("Test execution: " + testLaunchInformation.project.name, IProgressMonitor.UNKNOWN)
+				}
+				val con = consoleFactory.createAndShowConsole
+				val list = testLaunchInformation.testCasesCommaList ?: #[]
+				partHelper.showView(TEST_EXECUTION_RESULT_VIEW)
+				val execLog = testExecutionManager.createTestExecutionLog(list)
+				val testResultDir = testExecutionManager.createTestlogDirectoryFor(execLog)
+				val logFileStream = new FileOutputStream(new File(testResultDir, "testrun.log"))
+				val output = new TeeOutputStream(con.newOutputStream, logFileStream)
+				var LaunchResult result = null
+				try {
+					result = testLaunchInformation.launcher.launchTest(testLaunchInformation.testCasesCommaList,
+						testLaunchInformation.project, monitor, output, testLaunchInformation.options)
+				} finally {
+					output.close
+				}
+				testLaunchInformation.project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
+				if (result.expectedFileRoot == null) {
+					logger.error("resulting expectedFile must not be null")
+				} else {
+					safeUpdateJunitTestView(result.expectedFileRoot, testLaunchInformation.project.name)
+					collectTestResultFiles(result.expectedFileRoot, testResultDir)
+				}
+				monitor.done
+				partHelper.showView(TEST_EXECUTION_RESULT_VIEW)
+				Display.^default.syncExec[testExecutionLogViewPart?.showLog(execLog)]
+				return Status.OK_STATUS
 			}
-			val con = consoleFactory.createAndShowConsole
-			val list = testLaunchInformation.testCasesCommaList ?: #[]
-			partHelper.showView(TEST_EXECUTION_RESULT_VIEW)
-			val execLog = testExecutionManager.createTestExecutionLog(list)
-			val testResultDir = testExecutionManager.createTestlogDirectoryFor(execLog)
-			val logFileStream = new FileOutputStream(new File(testResultDir, "testrun.log"))
-			val output = new TeeOutputStream(con.newOutputStream, logFileStream)
-			var LaunchResult result = null
-			try {
-				result = testLaunchInformation.launcher.launchTest(testLaunchInformation.testCasesCommaList,
-					testLaunchInformation.project, monitor, output, testLaunchInformation.options)
-			} finally {
-				output.close
-			}
-			testLaunchInformation.project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
-			if (result.expectedFileRoot == null) {
-				logger.error("resulting expectedFile must not be null")
-			} else {
-				safeUpdateJunitTestView(result.expectedFileRoot, testLaunchInformation.project.name)
-				collectTestResultFiles(result.expectedFileRoot, testResultDir)
-			}
-			monitor.done
-			partHelper.showView(TEST_EXECUTION_RESULT_VIEW)
-			Display.^default.syncExec[testExecutionLogViewPart?.showLog(execLog)]
-		])
+
+		}
+		job.user = true
+		job.schedule
 		return true
 	}
 
