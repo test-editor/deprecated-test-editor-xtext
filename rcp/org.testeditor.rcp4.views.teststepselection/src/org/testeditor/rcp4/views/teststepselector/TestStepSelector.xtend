@@ -16,6 +16,7 @@ import java.util.List
 import java.util.Map
 import java.util.Set
 import javax.annotation.PostConstruct
+import javax.annotation.PreDestroy
 import javax.inject.Inject
 import org.eclipse.core.runtime.jobs.IJobChangeEvent
 import org.eclipse.core.runtime.jobs.Job
@@ -72,6 +73,16 @@ class TestStepSelector {
 	TreeViewer viewer
 
 	Map<String, Set<String>> expandedElementsPerProject = newHashMap
+	
+	val triggerViewUpdate = buildingWorkpaceCompleted [
+			displaySyncExec [
+				val workbenchWindow = PlatformUI.workbench.activeWorkbenchWindow
+				if (workbenchWindow !== null) {
+					logger.info("Trigger update TestStepSelector.")
+					broker.post(TestStepSelector.SELECTOR_UPDATE_VIEW, workbenchWindow.activePage?.activeEditor)
+				}
+			]
+		]
 
 	@PostConstruct
 	def void postConstruct(Composite parent, TestStepSelectorExecutionListener executionListener,
@@ -84,8 +95,8 @@ class TestStepSelector {
 		resourceDescriptionsProvider = amlInjector.getInstance(ResourceDescriptionsProvider)
 
 		commandService.addExecutionListener(executionListener)
-		val page = PlatformUI.workbench.activeWorkbenchWindow.activePage
-		page.addPartListener(partListener)
+		val activePage = PlatformUI.workbench.activeWorkbenchWindow.activePage
+		activePage.addPartListener(partListener)
 
 		viewer = newTreeViewer(parent, SWT.V_SCROLL) [
 			addDragSupport((DND.DROP_COPY.bitwiseOr(DND.DROP_MOVE)), #[TextTransfer.instance], dragSourceListener)
@@ -93,21 +104,37 @@ class TestStepSelector {
 		dragSourceListener.viewer = viewer
 		viewer.contentProvider = amlInjectorProvider.get.getInstance(TestStepSelectorTreeContentProvider)
 		viewer.labelProvider = labelProvider
-		Job.jobManager.addJobChangeListener(new JobChangeAdapter {
+		Job.jobManager.addJobChangeListener(triggerViewUpdate)
+	}
+	
+	@PreDestroy
+	def void preDestroy() {
+		Job.jobManager.removeJobChangeListener(triggerViewUpdate)
+	}
+
+	/**
+	 * register code to be run after workspace build job has completed
+	 */
+	def private JobChangeAdapter buildingWorkpaceCompleted(()=>void closure) {
+		return new JobChangeAdapter {
 			override done(IJobChangeEvent event) {
 				if (event.job.name.equals("Building workspace")) {
-					logger.info("Building workspace completed. Trigger update TestStepSelector")
-
-					//Display.^default.syncExec [
-						if (PlatformUI.workbench.activeWorkbenchWindow !== null) {
-							val page = PlatformUI.workbench.activeWorkbenchWindow.activePage
-							broker.post(TestStepSelector.SELECTOR_UPDATE_VIEW, page.activeEditor)
-						}
-					//]
+					logger.info("Building workspace completed.")
+					closure.apply
 				}
 			}
-		})
+		}
+	}
 
+	/**
+	 * run code within ui thread, only if display has not been disposed yet
+	 */
+	def private void displaySyncExec(()=>void closure) {
+		Display.^default => [
+			if (!isDisposed) {
+				syncExec(closure)
+			}
+		]
 	}
 
 	@Focus
