@@ -27,6 +27,7 @@ import org.eclipse.xtext.resource.XtextResource
 import org.eclipse.xtext.xbase.imports.RewritableImportSection
 import org.eclipse.xtext.xtype.XImportDeclaration
 import org.eclipse.xtext.xtype.XtypeFactory
+import org.testeditor.aml.AmlModel
 import org.testeditor.aml.Component
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.MacroTestStepContext
@@ -69,7 +70,7 @@ class TclModelDragAndDropUpdater {
 		} else {
 			testStepIndex = dropUtils.getInsertionIndex(targetTestStepContext, dropTarget)
 
-			if (targetTestStepContext.component.name != newTestStepContext.component.name) {
+			if (targetTestStepContext.isNewTestStepContextNeeded(newTestStepContext)) {
 				var targetTestStepContextIndex = (targetTestStepContext.eContainer as StepContainer).contexts.indexOf(
 					targetTestStepContext)
 
@@ -94,6 +95,13 @@ class TclModelDragAndDropUpdater {
 		}
 	}
 
+	private def isNewTestStepContextNeeded(ComponentTestStepContext targetTestStepContext,
+		ComponentTestStepContext newTestStepContext) {
+		return targetTestStepContext.component.name != newTestStepContext.component.name ||
+			(targetTestStepContext.component.eContainer as AmlModel).package !=
+				(newTestStepContext.component.eContainer as AmlModel).package
+	}
+ 	
 	private def void insertTargetTestStepContext(TclModel tclModel, ComponentTestStepContext droppedTestStepContext,
 		EObject dropTarget, int contextIndex, List<EObject> toFormatEObject) {
 
