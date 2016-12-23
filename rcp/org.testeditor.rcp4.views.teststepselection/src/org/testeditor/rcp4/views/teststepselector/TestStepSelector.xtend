@@ -98,12 +98,12 @@ class TestStepSelector {
 				if (event.job.name.equals("Building workspace")) {
 					logger.info("Building workspace completed. Trigger update TestStepSelector")
 
-					Display.^default.syncExec [
+					//Display.^default.syncExec [
 						if (PlatformUI.workbench.activeWorkbenchWindow !== null) {
 							val page = PlatformUI.workbench.activeWorkbenchWindow.activePage
 							broker.post(TestStepSelector.SELECTOR_UPDATE_VIEW, page.activeEditor)
 						}
-					]
+					//]
 				}
 			}
 		})
