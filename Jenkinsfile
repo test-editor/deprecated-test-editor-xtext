@@ -41,7 +41,7 @@ nodeWithProperWorkspace {
     stage('Build') {
         withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g"]) {
             withXvfb {
-                gradle 'verify'
+                gradle 'build'
             }
         }
     }
