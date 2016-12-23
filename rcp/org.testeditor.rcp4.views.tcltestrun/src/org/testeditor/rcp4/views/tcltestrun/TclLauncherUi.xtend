@@ -26,6 +26,8 @@ import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.IProgressMonitor
+import org.eclipse.core.runtime.Status
+import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.e4.ui.workbench.modeling.EPartService
 import org.eclipse.emf.common.util.URI
 import org.eclipse.jdt.core.IJavaElement
@@ -52,8 +54,6 @@ import org.testeditor.tcl.dsl.ui.testlaunch.LaunchShortcutUtil
 import org.testeditor.tcl.dsl.ui.testlaunch.Launcher
 import org.testeditor.tcl.dsl.ui.util.TclIndexHelper
 import org.testeditor.tcl.dsl.ui.util.TclInjectorProvider
-import org.eclipse.core.runtime.jobs.Job
-import org.eclipse.core.runtime.Status
 
 class TclLauncherUi implements Launcher {
 
@@ -61,7 +61,7 @@ class TclLauncherUi implements Launcher {
 	static val TEST_EXECUTION_RESULT_VIEW = "org.testeditor.rcp4.views.tcltestrun.part.testexecutionconsole"
 	static val logger = LoggerFactory.getLogger(TclLauncherUi)
 
- 	@Inject ProgressMonitorRunner progressRunner
+	@Inject ProgressMonitorRunner progressRunner
 	@Inject TclMavenLauncher mavenLauncher
 	@Inject TclGradleLauncher gradleLauncher
 	@Inject TestResultFileWriter testResultFileWriter
@@ -76,7 +76,7 @@ class TclLauncherUi implements Launcher {
 	override boolean launch(IStructuredSelection selection, IProject project, String mode, boolean parameterize) {
 		eclipseContextHelper.eclipseContext.set(TclLauncherUi, this)
 		val options = newHashMap
-		tslIndex = indexHelper.createTestCaseIndex()
+		tslIndex = indexHelper.createTestCaseIndex
 		if (project.getFile("build.gradle").exists) {
 			return launchTest(
 				new TestLaunchInformation(createGradleTestCasesList(selection), project, gradleLauncher, options))
@@ -95,28 +95,6 @@ class TclLauncherUi implements Launcher {
 		logger.warn("gradle based launching test for tcl element='{}' failed, since file='build.gradle' was not found.",
 			selection.firstElement)
 		return false
-	}
-
-	private def String selectMavenProfile(IProject project) {
-		val mavenProfiles = project.collectMavenProfilesWithProgress
-		val dialog = new ElementListSelectionDialog(PlatformUI.workbench.activeWorkbenchWindow.shell, new LabelProvider)
-		dialog.setElements(mavenProfiles)
-		dialog.setTitle("Which maven profile should be used?")
-		if (dialog.open == Window.OK) {
-			return dialog.result.head.toString
-		} else {
-			return null // cancelled
-		}
-	}
-
-	private def Iterable<String> collectMavenProfilesWithProgress(IProject project) {
-		val result = new AtomicReference<Iterable<String>>
-		progressRunner.run([ monitor |
-			monitor.beginTask("Collect maven profiles", IProgressMonitor.UNKNOWN)
-			result.set(mavenLauncher.getProfiles(project))
-			monitor.done
-		])
-		return result.get
 	}
 
 	def boolean launchTest(TestLaunchInformation testLaunchInformation) {
@@ -166,37 +144,16 @@ class TclLauncherUi implements Launcher {
 		return true
 	}
 
-	private def collectTestResultFiles(File resultRoot, File testResultDir) {
-		Files.copy(new File(resultRoot, "te-testCompose.xml").toPath, new File(testResultDir, "testSummary.xml").toPath)
-		val screenshotDir = lookUpScreenShotDir(resultRoot)
-		if (screenshotDir !== null) {
-			FileUtils.copyFolder(screenshotDir, new File(testResultDir, "screenshots"))
-		}
-	}
-
-	private def File lookUpScreenShotDir(File file) {
-		return file.parentFile.parentFile.getDirWithName("screenshots")
-	}
-
-	private def File getDirWithName(File file, String name) {
-		file.listFiles[it.name == name].head
-	}
-
-	private def TestExecutionLogViewPart getTestExecutionLogViewPart() {
-		val viewPart = eclipseContextHelper.eclipseContext.get(EPartService).findPart(TEST_EXECUTION_RESULT_VIEW)
-		return viewPart.object as TestExecutionLogViewPart
-	}
-
-	def storeTestParameterAsLastTestExecution(TestLaunchInformation testLaunchInformation) {
+	def void storeTestParameterAsLastTestExecution(TestLaunchInformation testLaunchInformation) {
 		logger.debug("Storing test execution as last launch")
 		eclipseContextHelper.eclipseContext.set(TestLaunchInformation, testLaunchInformation)
 	}
 
 	def List<String> createGradleTestCasesList(IStructuredSelection selection) {
-		val result = new ArrayList<String>()
+		val result = newArrayList
 		result += selection.toList.filter(IResource).map [ resource |
 			if (resource instanceof IFolder) {
-				val javaElement = resource.getAdapter(IJavaElement) as IJavaElement
+				val javaElement = resource.getAdapter(IJavaElement)
 				if (javaElement != null) {
 					return javaElement.elementName + "*"
 				} else {
@@ -224,39 +181,57 @@ class TclLauncherUi implements Launcher {
 			return selection.firstElement.testCaseListFromSelection.toList
 		}
 	}
+	
+	def Iterable<String> getTestCasesFromFolder(IFolder folder) {
+		val extension launchShortcutUtil = tclInjectorProvider.get.getInstance(LaunchShortcutUtil)
+		val members = folder.members
+		val tclFiles = members.filter(IFile).filter[fileExtension.equalsIgnoreCase('tcl')].map [
+			qualifiedNameForTestInTcl.toString
+		]
+		val fromRecursionIntoSubfolders = members.filter(IFolder).map[testCasesFromFolder].flatten
+		return tclFiles + fromRecursionIntoSubfolders
+	}
 
-	def Iterable<String> getTestCaseListFromSelection(Object sel) {
-		if (sel instanceof IFolder) {
-			return sel.testCasesFromFolder
+	private def String selectMavenProfile(IProject project) {
+		val mavenProfiles = project.collectMavenProfilesWithProgress
+		val dialog = new ElementListSelectionDialog(PlatformUI.workbench.activeWorkbenchWindow.shell, new LabelProvider)
+		dialog.setElements(mavenProfiles)
+		dialog.setTitle("Which maven profile should be used?")
+		if (dialog.open == Window.OK) {
+			return dialog.result.head.toString
 		} else {
-			if (sel instanceof IResource) {
-				if (sel.fileExtension.equalsIgnoreCase("tsl")) {
-					val uri = URI.createPlatformResourceURI(sel.locationURI.toString, true).deresolve(
-						URI.createPlatformResourceURI(sel.project.locationURI.toString, true))
-					val secondURI = URI.createPlatformResourceURI(uri.toString, true)
-					return tslIndex.get(secondURI).map[it.model.package + "." + it.name]
-				} else {
-					val launchShortcutUtil = tclInjectorProvider.get.getInstance(LaunchShortcutUtil)
-					return #[launchShortcutUtil.getQualifiedNameForTestInTcl(sel).toString]
-				}
-			}
+			return null // cancelled
 		}
 	}
 
-	def List<String> getTestCasesFromFolder(IFolder folder) {
-		val result = newArrayList()
-		val launchShortcutUtil = tclInjectorProvider.get.getInstance(LaunchShortcutUtil)
-		for (IResource res : folder.members) {
-			if (res instanceof IFile) {
-				if (res.fileExtension.equalsIgnoreCase("tcl")) {
-					result.add(launchShortcutUtil.getQualifiedNameForTestInTcl(res).toString)
-				}
-			}
-			if (res instanceof IFolder) {
-				result.addAll(res.testCasesFromFolder)
-			}
+	private def dispatch Iterable<String> getTestCaseListFromSelection(IFolder folder) {
+		return folder.testCasesFromFolder
+	}
+
+	private def dispatch Iterable<String> getTestCaseListFromSelection(IResource resource) {
+		if (resource.fileExtension.equalsIgnoreCase("tsl")) {
+			val uri = URI.createPlatformResourceURI(resource.locationURI.toString, true).deresolve(
+				URI.createPlatformResourceURI(resource.project.locationURI.toString, true))
+			val secondURI = URI.createPlatformResourceURI(uri.toString, true)
+			return tslIndex.get(secondURI).map[it.model.package + "." + it.name]
+		} else {
+			val launchShortcutUtil = tclInjectorProvider.get.getInstance(LaunchShortcutUtil)
+			return #[launchShortcutUtil.getQualifiedNameForTestInTcl(resource).toString]
 		}
-		return result
+	}
+
+	private def dispatch Iterable<String> getTestCaseListFromSelection(Object object) {
+		return emptyList
+	}
+
+	private def Iterable<String> collectMavenProfilesWithProgress(IProject project) {
+		val result = new AtomicReference<Iterable<String>>
+		progressRunner.run [
+			beginTask("Collect maven profiles", IProgressMonitor.UNKNOWN)
+			result.set(mavenLauncher.getProfiles(project))
+			done
+		]
+		return result.get
 	}
 
 	/** 
@@ -274,6 +249,27 @@ class TclLauncherUi implements Launcher {
 		}
 		JUnitCore.importTestRunSession(resultFile)
 		partHelper.showView(RESULT_VIEW)
+	}
+
+	private def collectTestResultFiles(File resultRoot, File testResultDir) {
+		Files.copy(new File(resultRoot, "te-testCompose.xml").toPath, new File(testResultDir, "testSummary.xml").toPath)
+		val screenshotDir = lookUpScreenShotDir(resultRoot)
+		if (screenshotDir !== null) {
+			FileUtils.copyFolder(screenshotDir, new File(testResultDir, "screenshots"))
+		}
+	}
+
+	private def File lookUpScreenShotDir(File file) {
+		return file.parentFile.parentFile.getDirWithName("screenshots")
+	}
+
+	private def File getDirWithName(File file, String name) {
+		file.listFiles[it.name == name].head
+	}
+
+	private def TestExecutionLogViewPart getTestExecutionLogViewPart() {
+		val viewPart = eclipseContextHelper.eclipseContext.get(EPartService).findPart(TEST_EXECUTION_RESULT_VIEW)
+		return viewPart.object as TestExecutionLogViewPart
 	}
 
 }
