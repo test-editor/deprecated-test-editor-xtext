@@ -54,7 +54,7 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 		'''
 
 		val tclModel = parseTclModel(testCase)
-		val dropTarget = tclModel.getTestStepContext("GreetingApplication")
+		val dropTarget = tclModel.getComponentTestStepContext("GreetingApplication")
 
 		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
 	}
@@ -275,7 +275,7 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 		'''
 
 		val tclModel = parseTclModel(testCase)
-		val dropTarget = tclModel.getTestStepContext("GreetingApplication")
+		val dropTarget = tclModel.getComponentTestStepContext("GreetingApplication")
 
 		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
 	}
@@ -349,6 +349,107 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 
 		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
 	}
+
+	@Test
+	def void dropTestStepOnMacroCall() {
+		// given
+		val droppedTestStep = createDroppedTestStepContext("GreetingApplication2", "Input", "insertIntoTextField")
+		val codeToBeInserted = '''			
+			Mask: GreetingApplication2
+			- Insert "text" into field <Input>
+			'''
+		
+		// then			
+		val testCase = '''
+			package SwingDemo
+			
+			# SwingDemoEins
+			
+			*
+			
+				Mask: GreetingApplication
+				- Start application "path"
+
+				Macro: MacroCall
+				- Call to macro    // <-- drop target
+			
+			-->INSERT HERE
+				Mask: GreetingApplication2
+				- Starte2 application "path"
+		'''.toString.replace('\r', '')
+
+		val tclModel = parseTclModel(testCase)
+		val dropTarget = tclModel.getMarcoCall("MacroCall", 0)
+
+		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
+	}
+	@Test
+	def void dropTestStepOnMacroCallsAndSplitCallSection() {
+		// given
+		val droppedTestStep = createDroppedTestStepContext("GreetingApplication2", "Input", "insertIntoTextField")
+		val codeToBeInserted = '''
+			
+			Mask: GreetingApplication2
+			- Insert "text" into field <Input>
+			
+			Macro: MacroCall'''
+		
+		// then			
+		val testCase = '''
+			package SwingDemo
+			
+			# SwingDemoEins
+			
+			*
+			
+				Mask: GreetingApplication
+				- Start application "path"
+
+				Macro: MacroCall
+				- Call to macro    // <-- drop target
+			-->INSERT HERE
+				- Call to macro
+			
+				Mask: GreetingApplication2
+				- Starte2 application "path"
+		'''.toString.replace('\r', '')
+
+		val tclModel = parseTclModel(testCase)
+		val dropTarget = tclModel.getMarcoCall("MacroCall", 0)
+
+		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
+	}
+
+	@Test
+	def void dropTestStepAtEndOnATestCaseEndingWithAMacroCall() {
+		// given
+		val droppedTestStep = createDroppedTestStepContext("GreetingApplication2", "Input", "insertIntoTextField")
+		val codeToBeInserted = '''
+			
+			Mask: GreetingApplication2
+			- Insert "text" into field <Input>'''
+		
+		// then			
+		val testCase = '''
+			package SwingDemo
+			
+			# SwingDemoEins
+			
+			*
+			
+				Mask: GreetingApplication
+				- Start application "path"
+
+				Macro: MacroCall
+				- Call to macro    // <-- drop target
+			-->INSERT HERE'''.toString.replace('\r', '')
+
+		val tclModel = parseTclModel(testCase)
+		val dropTarget = tclModel.getMarcoCall("MacroCall", 0)
+
+		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
+	}
+	
 
 	def private executeTest(TclModel tclModel, ComponentTestStepContext newTestStepContext, EObject dropTarget,
 		String testCase, String insertedCode) {

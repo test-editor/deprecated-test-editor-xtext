@@ -111,7 +111,11 @@ class DropUtils {
 		return tclFactory.createComponentTestStepContext
 	}
 
-	protected def addTestStepToModel(int insertionIndex, ComponentTestStepContext testStepContext,
+	protected def createMacroTestStepContext() {
+		return tclFactory.createMacroTestStepContext
+	}
+
+	protected def addTestStepToModel(int insertionIndex, TestStepContext testStepContext,
 		AbstractTestStep droppedTestStep) {
 		if (insertionIndex < 0 || insertionIndex >= testStepContext.steps.size) {
 			testStepContext.steps.add(droppedTestStep)
@@ -120,7 +124,7 @@ class DropUtils {
 		}
 	}
 
-	protected def ComponentTestStepContext searchTargetTestStepContext(TclModel tclModel, EObject dropTarget) {
+	protected def TestStepContext searchTargetTestStepContext(TclModel tclModel, EObject dropTarget) {
 
 		if (dropTarget === null) {
 			val stepContainer = getLastStepContext(tclModel)
@@ -137,11 +141,7 @@ class DropUtils {
 		}
 		if (dropTarget instanceof MacroTestStepContextImpl || (dropTarget instanceof TestStepImpl &&
 			dropTarget.eContainer instanceof MacroTestStepContextImpl)) {
-			val macroTestStepContext = EcoreUtil2.getContainerOfType(dropTarget, MacroTestStepContext)
-			val EList<TestStepContext> contexts = EcoreUtil2.getContainerOfType(dropTarget, StepContainer).contexts
-
-			var contextIndex = contexts.indexOf(macroTestStepContext)
-			return contexts.drop(contextIndex).filter(ComponentTestStepContext).head
+			return EcoreUtil2.getContainerOfType(dropTarget, MacroTestStepContext)
 		}
 		return EcoreUtil2.getContainerOfType(dropTarget, ComponentTestStepContext)
 	}
@@ -155,7 +155,7 @@ class DropUtils {
 		}
 	}
 
-	protected def int getInsertionIndex(ComponentTestStepContext testStepContext, EObject dropTarget) {
+	protected def int getInsertionIndex(TestStepContext testStepContext, EObject dropTarget) {
 		if (dropTarget === null) {
 			return testStepContext.steps.size
 		}
