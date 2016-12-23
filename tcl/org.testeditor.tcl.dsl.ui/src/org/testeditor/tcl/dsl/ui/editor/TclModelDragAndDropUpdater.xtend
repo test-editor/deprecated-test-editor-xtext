@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -27,6 +27,7 @@ import org.eclipse.xtext.resource.XtextResource
 import org.eclipse.xtext.xbase.imports.RewritableImportSection
 import org.eclipse.xtext.xtype.XImportDeclaration
 import org.eclipse.xtext.xtype.XtypeFactory
+import org.testeditor.aml.AmlModel
 import org.testeditor.aml.Component
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.MacroTestStepContext
@@ -70,7 +71,7 @@ class TclModelDragAndDropUpdater {
 		} else {
 			testStepIndex = dropUtils.getInsertionIndex(targetTestStepContext, dropTarget)
 
-			if (!isDropOnMatchingContext(targetTestStepContext, newTestStepContext)) {
+			if (targetTestStepContext.isNewTestStepContextNeeded(newTestStepContext)) {
 				var targetTestStepContextIndex = (targetTestStepContext.eContainer as StepContainer).contexts.indexOf(
 					targetTestStepContext)
 
@@ -94,12 +95,17 @@ class TclModelDragAndDropUpdater {
 
 		}
 	}
-	private def isDropOnMatchingContext(TestStepContext targetTestStepContext, ComponentTestStepContext newTestStepContext) {
-		if(targetTestStepContext instanceof ComponentTestStepContext){
-			return targetTestStepContext.component.name == newTestStepContext.component.name
+
+	private def isNewTestStepContextNeeded(TestStepContext targetTestStepContext,
+		ComponentTestStepContext newTestStepContext) {
+		if (targetTestStepContext instanceof ComponentTestStepContext) {
+			return targetTestStepContext.component.name != newTestStepContext.component.name ||
+				(targetTestStepContext.component.eContainer as AmlModel).package !=
+					(newTestStepContext.component.eContainer as AmlModel).package
 		}
-		return false
+		return true
 	}
+
 	private def void insertTargetTestStepContext(TclModel tclModel, ComponentTestStepContext droppedTestStepContext,
 		EObject dropTarget, int contextIndex, List<EObject> toFormatEObject) {
 
@@ -235,15 +241,15 @@ class TclModelDragAndDropUpdater {
 		]
 	}
 
-	private def splitedTargetTestStepContext(TestStepContext targetTestStepContext,
-		int targetTestStepContextIndex, int insertionIndex, List<EObject> toFormatEObject) {
+	private def splitedTargetTestStepContext(TestStepContext targetTestStepContext, int targetTestStepContextIndex,
+		int insertionIndex, List<EObject> toFormatEObject) {
 
 		var TestStepContext newTestStepContext = null
-		if(targetTestStepContext instanceof ComponentTestStepContext){
+		if (targetTestStepContext instanceof ComponentTestStepContext) {
 			newTestStepContext = dropUtils.createComponentTestStepContext;
 			(newTestStepContext as ComponentTestStepContext).component = targetTestStepContext.component
 		}
-		if(targetTestStepContext instanceof MacroTestStepContext){
+		if (targetTestStepContext instanceof MacroTestStepContext) {
 			newTestStepContext = dropUtils.createMacroTestStepContext;
 			(newTestStepContext as MacroTestStepContext).macroCollection = targetTestStepContext.macroCollection
 		}

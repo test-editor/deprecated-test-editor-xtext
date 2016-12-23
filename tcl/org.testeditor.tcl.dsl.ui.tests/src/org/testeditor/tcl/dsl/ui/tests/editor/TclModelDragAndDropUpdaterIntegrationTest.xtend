@@ -19,6 +19,7 @@ import org.junit.Test
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.dsl.ui.editor.TclModelDragAndDropUpdater
+import org.testeditor.tcl.TestStepWithAssignment
 
 class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndDropUpdaterTest {
 
@@ -446,6 +447,36 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 
 		val tclModel = parseTclModel(testCase)
 		val dropTarget = tclModel.getMarcoCall("MacroCall", 0)
+
+		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
+	}
+	@Test
+	def void dropTestStepVariableName() {
+
+		// given
+		val codeToBeInserted = '- Inserted step "path"'
+		val droppedTestStep = createDroppedTestStepContext("GreetingApplication", "test")
+
+		// then			
+		val testCase = '''
+			package SwingDemo
+			
+			# SwingDemoEins
+			
+			*
+			
+				Mask: GreetingApplication
+				- Start application "path"
+				- test = Wait "miliSeconds" ms // <-- drop target
+			-->INSERT HERE
+			
+				Mask: GreetingApplication2
+				- Starte2 application "path"
+		'''
+
+		val tclModel = parseTclModel(testCase)
+		val TestStepWithAssignment testStepWithAssignment = tclModel.getTestStep("GreetingApplication", 1)  as TestStepWithAssignment
+		val dropTarget = testStepWithAssignment.variable
 
 		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)
 	}
