@@ -128,6 +128,8 @@ public class NetworkConnectionSettingDialog extends Dialog {
 		createProxySettingsWidgets(container);
 		offlineSwtich = new Button(container, SWT.CHECK);
 		offlineSwtich.setText("Work offline");
+		offlineSwtich.setToolTipText(
+				"Offline mode means no lookup for modules from the inernet. If a module is missing test execution will fail.");
 		offlineSwtich.setSelection(workOffline);
 		offlineSwtich.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -138,6 +140,8 @@ public class NetworkConnectionSettingDialog extends Dialog {
 		});
 		ignoreConnectionStateSwitch = new Button(container, SWT.CHECK);
 		ignoreConnectionStateSwitch.setText("Ignore network test on startup");
+		ignoreConnectionStateSwitch.setToolTipText(
+				"The TestEditor validates the internet conneciton on startup. This box disables this tests.");
 		ignoreConnectionStateSwitch.setSelection(ignoreConnectionState);
 		ignoreConnectionStateSwitch.addSelectionListener(new SelectionAdapter() {
 			@Override
