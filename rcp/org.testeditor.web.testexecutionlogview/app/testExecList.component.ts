@@ -21,6 +21,7 @@ export class TestExecutionListComponent implements OnInit {
 
     ngOnInit(): void {
         this.logService.getTestExecutionLogs().then(testExecLogs => this.testruns = testExecLogs)
+        this.logService.testExecutionLogsChanged.subscribe((log: TestExecutionLog) => this.testruns.unshift(log))
     }
 
 }
