@@ -27,6 +27,7 @@ import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
 import org.testeditor.tcl.dsl.ui.editor.DropUtils
+import org.testeditor.tcl.MacroTestStepContext
 
 class AbstractTclModelDragAndDropUpdaterTest extends AbstractTclTest {
 
@@ -37,8 +38,17 @@ class AbstractTclModelDragAndDropUpdaterTest extends AbstractTclTest {
 
 	@Before
 	def void parseAmlModel() {
-		val encoded = ByteStreams.toByteArray(class.classLoader.getResourceAsStream("test.aml"))
-		amlModel = parseAml(new String(encoded, StandardCharsets.UTF_8))
+		val encodedAML = ByteStreams.toByteArray(class.classLoader.getResourceAsStream("test.aml"))
+		amlModel = parseAml(new String(encodedAML, StandardCharsets.UTF_8))
+		val tml = '''
+			package SwingDemo
+			
+			# MacroCall
+			
+			## MacroCall
+			template = "Call to macro"
+		'''
+		parseTcl(tml)
 	}
 
 	def protected ComponentTestStepContext createDroppedTestStepContext(String componentName, String interacionTypeName) {
@@ -73,20 +83,29 @@ class AbstractTclModelDragAndDropUpdaterTest extends AbstractTclTest {
 		return component.elements.findFirst[name == elementName].assertNotNull
 	}
 
-	def protected ComponentTestStepContext getTestStepContext(TclModel tclModel, String componentTestStepName) {
+	def protected ComponentTestStepContext getComponentTestStepContext(TclModel tclModel, String componentTestStepName) {
 		val contexts = tclModel.test.steps.head.contexts
 		return contexts.filter(ComponentTestStepContext).findFirst[component.name == componentTestStepName].assertNotNull		
 	}
 
 	def protected AbstractTestStep getTestStep(TclModel tclModel, String componentTestStepName, int position) {
-		val context = tclModel.getTestStepContext(componentTestStepName)
+		val context = tclModel.getComponentTestStepContext(componentTestStepName)
 		return context.steps.get(position)
+	}
+
+	def protected MacroTestStepContext getMacroTestStepContext(TclModel tclModel, String macroTestStepContextName) {
+		val contexts = tclModel.test.steps.head.contexts
+		return contexts.filter(MacroTestStepContext).findFirst[macroCollection.name == macroTestStepContextName].assertNotNull		
 	}
 
 	def protected String indent(CharSequence input, int level) {
 		val indentation = Strings.repeat('\t', level)
 		val value = input.toString.replaceAll('(?m)^(?!\r?\n)', indentation)
 		return value
+	}
+	def protected AbstractTestStep getMarcoCall(TclModel model, String contextName, int position) {
+		val context  = getMacroTestStepContext(model, contextName)
+		return context.steps.get(position)
 	}
 
 }

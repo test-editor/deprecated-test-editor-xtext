@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -30,13 +30,13 @@ import org.eclipse.xtext.xtype.XtypeFactory
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.Component
 import org.testeditor.tcl.ComponentTestStepContext
-import org.testeditor.tcl.SpecificationStepImplementation
+import org.testeditor.tcl.MacroTestStepContext
+import org.testeditor.tcl.StepContainer
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TclPackage
-import org.testeditor.tcl.TestCase
+import org.testeditor.tcl.TestStepContext
 
 class TclModelDragAndDropUpdater {
-
 
 	@Inject DropUtils dropUtils
 	@Inject RewritableImportSection.Factory rewritableImportSectionFactory
@@ -50,7 +50,7 @@ class TclModelDragAndDropUpdater {
 		val stepToInsert = droppedTestStepContext.steps.head
 
 		// hereafter newTestStepContex.steps may be cleared, since a context may be reused
-		updateTestModel(tclModel.test, dropTarget, droppedTestStepContext, eObjectsToFormat)
+		updateTestModel(tclModel, dropTarget, droppedTestStepContext, eObjectsToFormat)
 
 		// transform eObjects to paths in order to find them in the transformed model (after several editor modifications => reparse)
 		eObjectPathsToFormat.addAll(eObjectsToFormat.map[EcoreUtil.getRelativeURIFragmentPath(tclModel, it)])
@@ -58,21 +58,22 @@ class TclModelDragAndDropUpdater {
 		insertedTestStepPath.set(EcoreUtil.getRelativeURIFragmentPath(tclModel, stepToInsert))
 	}
 
-	public def void updateTestModel(TestCase test, EObject dropTarget, ComponentTestStepContext newTestStepContext,
+	public def void updateTestModel(TclModel tclModel, EObject dropTarget, ComponentTestStepContext newTestStepContext,
 		List<EObject> eObjectsToFormat) {
 
 		var testStepIndex = 0
-		val ComponentTestStepContext targetTestStepContext = dropUtils.searchTargetTestStepContext(test, dropTarget)
+
+		val TestStepContext targetTestStepContext = dropUtils.searchTargetTestStepContext(tclModel, dropTarget)
 
 		if (targetTestStepContext === null) {
-			insertTargetTestStepContext(test, newTestStepContext, dropTarget, 0, eObjectsToFormat)
+			insertTargetTestStepContext(tclModel, newTestStepContext, dropTarget, -1, eObjectsToFormat)
 			eObjectsToFormat.add(newTestStepContext)
 		} else {
 			testStepIndex = dropUtils.getInsertionIndex(targetTestStepContext, dropTarget)
 
 			if (targetTestStepContext.isNewTestStepContextNeeded(newTestStepContext)) {
-				var targetTestStepContextIndex = (targetTestStepContext.eContainer as SpecificationStepImplementation).
-					contexts.indexOf(targetTestStepContext)
+				var targetTestStepContextIndex = (targetTestStepContext.eContainer as StepContainer).contexts.indexOf(
+					targetTestStepContext)
 
 				// Insert in the middle of an existing TestStepContext
 				if (testStepIndex > 0 && testStepIndex < targetTestStepContext.steps.size()) {
@@ -84,45 +85,62 @@ class TclModelDragAndDropUpdater {
 					targetTestStepContextIndex++
 					eObjectsToFormat.add(targetTestStepContext.steps.last)
 				}
-				insertTargetTestStepContext(test, newTestStepContext, dropTarget, targetTestStepContextIndex,
+				insertTargetTestStepContext(tclModel, newTestStepContext, dropTarget, targetTestStepContextIndex,
 					eObjectsToFormat)
 				eObjectsToFormat.add(newTestStepContext)
 			} else {
 				dropUtils.addTestStepToModel(testStepIndex, targetTestStepContext, newTestStepContext.steps.head)
 				eObjectsToFormat.add(targetTestStepContext)
 			}
+
 		}
-
 	}
 
-	private def isNewTestStepContextNeeded(ComponentTestStepContext targetTestStepContext,
+	private def isNewTestStepContextNeeded(TestStepContext targetTestStepContext,
 		ComponentTestStepContext newTestStepContext) {
-		return targetTestStepContext.component.name != newTestStepContext.component.name ||
-			(targetTestStepContext.component.eContainer as AmlModel).package !=
-				(newTestStepContext.component.eContainer as AmlModel).package
+		if (targetTestStepContext instanceof ComponentTestStepContext) {
+			return targetTestStepContext.component.name != newTestStepContext.component.name ||
+				(targetTestStepContext.component.eContainer as AmlModel).package !=
+					(newTestStepContext.component.eContainer as AmlModel).package
+		}
+		return true
 	}
 
-	private def void insertTargetTestStepContext(TestCase test, ComponentTestStepContext droppedTestStepContext,
+	private def void insertTargetTestStepContext(TclModel tclModel, ComponentTestStepContext droppedTestStepContext,
 		EObject dropTarget, int contextIndex, List<EObject> toFormatEObject) {
 
-		var SpecificationStepImplementation specification = null
-		if (test.steps.size() == 0) {
-			specification = dropUtils.createSpecification
-			toFormatEObject.add(specification)
-			test.steps.add(specification)
-		} else if (test.steps.last.contexts.size() == 0) {
-			specification = test.steps.last
-			toFormatEObject.add(specification)
-		} else {
-			if (dropTarget === null) {
-				specification = test.steps.last
-				toFormatEObject.add(specification.contexts.last)
-			} else {
-				specification = EcoreUtil2.getContainerOfType(dropTarget, SpecificationStepImplementation) ?:
-					test.steps.head
+		var StepContainer specification = null
+		if (tclModel.test != null) {
+			if (tclModel.test.steps.empty) {
+				tclModel.test.steps.add(dropUtils.createSpecification)
 			}
+			specification = EcoreUtil2.getContainerOfType(dropTarget, StepContainer) ?: tclModel.test.steps.last
 		}
-		specification.contexts.add(contextIndex, droppedTestStepContext)
+		if (tclModel.macroCollection != null) {
+
+			if (tclModel.macroCollection.macros.empty) {
+				tclModel.macroCollection.macros.add(dropUtils.createMacro)
+			}
+			specification = EcoreUtil2.getContainerOfType(dropTarget, StepContainer) ?:
+				tclModel.macroCollection.macros.last
+		}
+
+		if (specification.contexts.empty) {
+			toFormatEObject.add(specification)
+		}
+		if (contextIndex < 0) {
+			// Call to a macro at the end of the testcase - add at the end
+			if (EcoreUtil2.getContainerOfType(dropTarget, MacroTestStepContext) != null) {
+				if (specification.contexts.size > 0) {
+					toFormatEObject.add(specification.contexts.last.steps.last)
+				}
+				specification.contexts.add(droppedTestStepContext)
+			} else { // drop on the import section. Add at the beginning
+				specification.contexts.add(0, droppedTestStepContext)
+			}
+		} else {
+			specification.contexts.add(contextIndex, droppedTestStepContext)
+		}
 	}
 
 	/**
@@ -213,7 +231,8 @@ class TclModelDragAndDropUpdater {
 	 * if necessary after the modification of the import section 
 	 */
 	private def void markComponentContextsForQualifiedNameUpdate(TclModel tclModel, String simpleName) {
-		val clashingContexts = tclModel.test.steps.map[contexts].flatten.filter(ComponentTestStepContext).filter [
+		val contexts = tclModel.test?.steps?.map[contexts]?:#[] + tclModel.macroCollection?.macros?.map[contexts]?:#[]
+		val clashingContexts = contexts.filterNull.flatten.filter(ComponentTestStepContext).filter [
 			component.name == simpleName
 		]
 		clashingContexts.forEach [
@@ -223,20 +242,27 @@ class TclModelDragAndDropUpdater {
 		]
 	}
 
-	private def splitedTargetTestStepContext(ComponentTestStepContext targetTestStepContext,
-		int targetTestStepContextIndex, int insertionIndex, List<EObject> toFormatEObject) {
+	private def splitedTargetTestStepContext(TestStepContext targetTestStepContext, int targetTestStepContextIndex,
+		int insertionIndex, List<EObject> toFormatEObject) {
 
-		val newComponentTestStepContext = dropUtils.createComponentTestStepContext
-		newComponentTestStepContext.component = targetTestStepContext.component
-		val specification = EcoreUtil2.getContainerOfType(targetTestStepContext, SpecificationStepImplementation)
+		var TestStepContext newTestStepContext = null
+		if (targetTestStepContext instanceof ComponentTestStepContext) {
+			newTestStepContext = dropUtils.createComponentTestStepContext;
+			(newTestStepContext as ComponentTestStepContext).component = targetTestStepContext.component
+		}
+		if (targetTestStepContext instanceof MacroTestStepContext) {
+			newTestStepContext = dropUtils.createMacroTestStepContext;
+			(newTestStepContext as MacroTestStepContext).macroCollection = targetTestStepContext.macroCollection
+		}
+		val specification = EcoreUtil2.getContainerOfType(targetTestStepContext, StepContainer)
 
-		specification.contexts.add(targetTestStepContextIndex + 1, newComponentTestStepContext)
+		specification.contexts.add(targetTestStepContextIndex + 1, newTestStepContext)
 
 		val stepsBeingMoved = targetTestStepContext.steps.subList(insertionIndex, targetTestStepContext.steps.size())
-		newComponentTestStepContext.steps.addAll(stepsBeingMoved)
+		newTestStepContext.steps.addAll(stepsBeingMoved)
 
 		toFormatEObject.add(targetTestStepContext.steps.last)
-		toFormatEObject.add(newComponentTestStepContext.steps.head)
+		toFormatEObject.add(newTestStepContext.steps.head)
 	}
 
 }

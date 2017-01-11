@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.ui.editor
 
+import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.jface.util.LocalSelectionTransfer
 import org.eclipse.jface.viewers.ISelection
@@ -24,9 +25,15 @@ import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.tcl.AbstractTestStep
 import org.testeditor.tcl.ComponentTestStepContext
+import org.testeditor.tcl.Macro
+import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
+import org.testeditor.tcl.StepContainer
 import org.testeditor.tcl.TclFactory
-import org.testeditor.tcl.TestCase
+import org.testeditor.tcl.TclModel
+import org.testeditor.tcl.TestStepContext
+import org.testeditor.tcl.impl.MacroTestStepContextImpl
+import org.testeditor.tcl.impl.TestStepImpl
 import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.TslFactory
 
@@ -96,11 +103,19 @@ class DropUtils {
 		return tclFactory.createSpecificationStepImplementation
 	}
 
+	protected def Macro createMacro() {
+		return tclFactory.createMacro
+	}
+
 	protected def createComponentTestStepContext() {
 		return tclFactory.createComponentTestStepContext
 	}
 
-	protected def addTestStepToModel(int insertionIndex, ComponentTestStepContext testStepContext,
+	protected def createMacroTestStepContext() {
+		return tclFactory.createMacroTestStepContext
+	}
+
+	protected def addTestStepToModel(int insertionIndex, TestStepContext testStepContext,
 		AbstractTestStep droppedTestStep) {
 		if (insertionIndex < 0 || insertionIndex >= testStepContext.steps.size) {
 			testStepContext.steps.add(droppedTestStep)
@@ -109,13 +124,14 @@ class DropUtils {
 		}
 	}
 
-	protected def ComponentTestStepContext searchTargetTestStepContext(TestCase test, EObject dropTarget) {
+	protected def TestStepContext searchTargetTestStepContext(TclModel tclModel, EObject dropTarget) {
 
-		if (dropTarget == null) {
-			if (test.steps.empty) { // empty
+		if (dropTarget === null) {
+			val stepContainer = getLastStepContext(tclModel)
+			if (stepContainer === null) {
 				return null
 			}
-			return test.steps.last.contexts.last as ComponentTestStepContext
+			return stepContainer.contexts.last as ComponentTestStepContext
 		}
 		if (dropTarget instanceof SpecificationStepImplementation) {
 			return dropTarget.getContexts.head as ComponentTestStepContext
@@ -123,12 +139,24 @@ class DropUtils {
 		if (dropTarget instanceof StepContentText && dropTarget.eContainer instanceof SpecificationStepImplementation) {
 			return (dropTarget.eContainer as SpecificationStepImplementation).contexts.head as ComponentTestStepContext
 		}
-
+		if (dropTarget instanceof MacroTestStepContextImpl || (dropTarget instanceof TestStepImpl &&
+			dropTarget.eContainer instanceof MacroTestStepContextImpl)) {
+			return EcoreUtil2.getContainerOfType(dropTarget, MacroTestStepContext)
+		}
 		return EcoreUtil2.getContainerOfType(dropTarget, ComponentTestStepContext)
 	}
 
-	protected def int getInsertionIndex(ComponentTestStepContext testStepContext, EObject dropTarget) {
-		if (dropTarget == null) {
+	protected def StepContainer getLastStepContext(TclModel tclModel) {
+		if (tclModel.test !== null) {
+			return tclModel.test.steps.last
+		}
+		if (tclModel.macroCollection !== null) {
+			return tclModel.macroCollection.macros.last
+		}
+	}
+
+	protected def int getInsertionIndex(TestStepContext testStepContext, EObject dropTarget) {
+		if (dropTarget === null) {
 			return testStepContext.steps.size
 		}
 		val selectedTestStep = EcoreUtil2.getContainerOfType(dropTarget, AbstractTestStep)
