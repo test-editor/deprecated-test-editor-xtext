@@ -475,7 +475,7 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 		'''
 
 		val tclModel = parseTclModel(testCase)
-		val TestStepWithAssignment testStepWithAssignment = tclModel.getTestStep("GreetingApplication", 1)  as TestStepWithAssignment
+		val testStepWithAssignment = tclModel.getTestStep("GreetingApplication", 1)  as TestStepWithAssignment
 		val dropTarget = testStepWithAssignment.variable
 
 		tclModel.executeTest(droppedTestStep, dropTarget, testCase, codeToBeInserted)

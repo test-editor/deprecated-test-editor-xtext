@@ -22,8 +22,6 @@ import org.eclipse.xtext.resource.EObjectAtOffsetHelper
 import org.eclipse.xtext.resource.XtextResource
 import org.eclipse.xtext.ui.editor.XtextEditor
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
-import org.testeditor.tcl.AssignmentVariable
-import org.testeditor.tcl.AssertionTestStep
 
 class DropTargetXtextEditor extends XtextEditor {
 
@@ -46,10 +44,6 @@ class DropTargetXtextEditor extends XtextEditor {
 
 	def findDropTarget(XtextResource resource) {
 		val offset = (selectionProvider.selection as TextSelection).offset
-		val eObject = eObjectAtOffsetHelper.resolveElementAt(resource, offset)
-		if(eObject instanceof AssignmentVariable || eObject instanceof  AssertionTestStep){
-			return eObject
-		}
 		val contentAssistContexts = contentAssistFactory.create(internalSourceViewer, offset, resource)
 		if (contentAssistContexts.isEmpty) {
 			return eObjectAtOffsetHelper.resolveContainedElementAt(resource, offset)
