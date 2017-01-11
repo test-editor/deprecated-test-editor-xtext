@@ -1,7 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { TestLogService } from './testLog.service';
-import { TestExecutionLog, LogGroup, TestRunStatistic } from './model';
+import { LogGroup, TestRunStatistic } from './model';
 import 'rxjs/add/operator/switchMap';
 
 @Component({
