@@ -227,7 +227,8 @@ class TclModelDragAndDropUpdater {
 	 * if necessary after the modification of the import section 
 	 */
 	private def void markComponentContextsForQualifiedNameUpdate(TclModel tclModel, String simpleName) {
-		val clashingContexts = tclModel.test.steps.map[contexts].flatten.filter(ComponentTestStepContext).filter [
+		val contexts = tclModel.test?.steps?.map[contexts]?:#[] + tclModel.macroCollection?.macros?.map[contexts]?:#[]
+		val clashingContexts = contexts.filterNull.flatten.filter(ComponentTestStepContext).filter [
 			component.name == simpleName
 		]
 		clashingContexts.forEach [
