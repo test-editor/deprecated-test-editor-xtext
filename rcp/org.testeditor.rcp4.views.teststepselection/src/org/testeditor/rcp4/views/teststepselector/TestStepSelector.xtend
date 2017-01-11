@@ -66,7 +66,7 @@ class TestStepSelector {
 	@Inject AmlInjectorProvider amlInjectorProvider
 	@Inject TestStepSelectorLabelProvider labelProvider
 	@Inject ICommandService commandService
-	var extension CollectionUtils collectionUtils
+	var extension CollectionUtils collectionUtils // injected in postConstruct
 
 	AmlQualifiedNameProvider amlQualifiedNameProvider
 	IContainer.Manager containerManager
@@ -77,7 +77,7 @@ class TestStepSelector {
 
 	Map<String, Set<String>> expandedElementsPerProject = newHashMap
 
-	val triggerViewUpdate = buildingWorkpaceCompleted [
+	val triggerViewUpdate = createJobChangeAdapter("Building workspace") [
 		displaySyncExec [
 			val workbenchWindow = PlatformUI.workbench.activeWorkbenchWindow
 			if (workbenchWindow !== null) {
@@ -119,11 +119,11 @@ class TestStepSelector {
 	/**
 	 * register code to be run after workspace build job has completed
 	 */
-	def private JobChangeAdapter buildingWorkpaceCompleted(()=>void closure) {
+	def private JobChangeAdapter createJobChangeAdapter(String expectedJobName, ()=>void closure) {
 		return new JobChangeAdapter {
 			override done(IJobChangeEvent event) {
-				if (event.job.name.equals("Building workspace")) {
-					logger.info("Building workspace completed.")
+				if (event.job.name.equals(expectedJobName)) {
+					logger.info(expectedJobName + " completed.")
 					closure.apply
 				}
 			}
@@ -181,7 +181,7 @@ class TestStepSelector {
 
 		val visibleContainers = containerManager.getVisibleContainers(resourceDescription, resourceDescriptions)
 
-		return visibleContainers.filter(StateBasedContainer).map[getAmlModels(resourceSet)].flatten.toList
+		return visibleContainers.filter(StateBasedContainer).map[it.getAmlModels(resourceSet)].flatten.toList
 	}
 
 	private def Iterable<AmlModel> getAmlModels(StateBasedContainer container, ResourceSet resourceSet) {
@@ -192,19 +192,26 @@ class TestStepSelector {
 	/** 
 	 * get contents + the model itself as iterable collection
 	 */
-	private def Iterable<EObject> allContentsAndSelf(AmlModel amlModel) {
+	private def Iterable<EObject> allContentsAndModel(AmlModel amlModel) {
 		#[amlModel] + amlModel.eAllContents.toIterable
+	}
+
+	/**
+	 * provide an iterable of objects of the given aml model that were previously expanded
+	 */
+	private def Iterable<Object> elementsToExpandPerModel(Set<String> previouslyExpandedElements, AmlModel model) {
+		val expandableModelElements = model.allContentsAndModel.filterByTypes(Component, ComponentElement, AmlModel)
+		val modelElementsPreviouslyExpanded = expandableModelElements.filter [
+			previouslyExpandedElements.contains(it.toStringPath)
+		]
+		return modelElementsPreviouslyExpanded.map[it.toExpandObject]
 	}
 
 	/**
 	 * provide list of objects to be put into viewer.expandedObjects
 	 */
 	private def Object[] elementsToExpand(Set<String> previouslyExpandedElements, Iterable<AmlModel> models) {
-		return models.map [
-			allContentsAndSelf.filterAny(Component, ComponentElement, AmlModel).filter [
-				previouslyExpandedElements.contains(toStringPath)
-			].map[toExpandObject]
-		].flatten.toList.toArray
+		return models.map[elementsToExpandPerModel(previouslyExpandedElements, it)].flatten.toList.toArray
 	}
 
 	/**

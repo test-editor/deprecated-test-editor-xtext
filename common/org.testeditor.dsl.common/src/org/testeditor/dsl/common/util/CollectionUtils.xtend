@@ -25,7 +25,7 @@ class CollectionUtils {
 	/**
 	 * filter against types (must match one of the given types)
 	 */
-	public def Iterable<?> filterAny(Iterable<?> unfiltered, Class<?> ... types) {
+	public def Iterable<?> filterByTypes(Iterable<?> unfiltered, Class<?> ... types) {
 		unfiltered.filter[obj|types.exists[isInstance(obj)]]
 	}
 
