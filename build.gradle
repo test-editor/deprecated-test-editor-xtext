@@ -51,9 +51,9 @@ task cleanTarget(type: MavenExec) {
 }
 
 // TODO define inputs and outputs
-task verify(type: MavenExec, dependsOn: buildTarget) {
+task build(type: MavenExec, dependsOn: buildTarget) {
     workingDir projectDir
-    args 'clean', 'verify', '-Dmaven.test.failure.ignore', '-Dsurefire.useFile=false', '-Dtycho.localArtifacts=ignore'
+    args 'clean', 'install', '-Dmaven.test.failure.ignore', '-Dsurefire.useFile=false', '-Dtycho.localArtifacts=ignore'
 }
 
 task deploy(type: MavenExec) {
