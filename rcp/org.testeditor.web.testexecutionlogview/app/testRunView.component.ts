@@ -1,7 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { TestLogService } from './testLog.service';
-import { TestExecutionLog, LogGroup, TestRunStatistic } from './model';
+import { LogGroup, TestRunStatistic } from './model';
 import 'rxjs/add/operator/switchMap';
 
 @Component({
@@ -14,6 +14,8 @@ export class TestRunView implements OnInit {
     logGroups: LogGroup[]
     testStatistic: TestRunStatistic
     resultTableStyle: String
+    runName: String
+    testRunName: String
 
     constructor(private route: ActivatedRoute, private logService: TestLogService) {
     }
@@ -24,6 +26,8 @@ export class TestRunView implements OnInit {
                 this.logService.getTestExecutionLogWithContent(params['id']).then(testRunLog => {
                     this.logGroups = testRunLog.logGroups
                     this.testStatistic = testRunLog.testStatistic
+                    this.runName = testRunLog.name
+                    this.testRunName = testRunLog.testRunTimestamp
                     if (this.testStatistic.errors == 0 && this.testStatistic.failures == 0) {
                         this.resultTableStyle = 'table table-success'
                     }

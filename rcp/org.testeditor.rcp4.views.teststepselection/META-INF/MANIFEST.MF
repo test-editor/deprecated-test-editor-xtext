@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.testeditor.rcp4.views.teststepselector
 Bundle-SymbolicName: org.testeditor.rcp4.views.teststepselector;singleton:=true
-Bundle-Version: 1.2.0
+Bundle-Version: 1.3.0.qualifier
 Bundle-Vendor: Signal Iduna Corporation
 Export-Package: org.testeditor.rcp4.views.teststepselector;
   uses:="org.eclipse.emf.ecore,
@@ -30,12 +30,12 @@ Require-Bundle: com.google.guava,
  org.eclipse.e4.core.di,
  org.eclipse.emf.ecore,
  org.testeditor.logging,
+ org.testeditor.dsl.common,
  org.testeditor.aml.dsl,
- org.eclipse.ui.workbench
+ org.eclipse.ui.workbench,
+ org.eclipse.xtext.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: com.google.inject,
- javax.inject;version="1.0.0",
- org.eclipse.e4.core.di,
+Import-Package: org.eclipse.e4.core.di,
  org.eclipse.e4.core.di.annotations,
  org.eclipse.e4.core.di.extensions,
  org.eclipse.e4.core.di.internal.extensions,

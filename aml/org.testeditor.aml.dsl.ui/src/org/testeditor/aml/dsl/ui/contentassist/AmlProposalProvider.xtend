@@ -23,9 +23,12 @@ import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
 import org.eclipse.xtext.ui.resource.ProjectByResourceProvider
-import org.testeditor.aml.dsl.services.AmlGrammarAccess
 import org.testeditor.aml.ElementTypeWithInteractions
-import org.testeditor.aml.ElementWithInteractions
+import org.testeditor.aml.ValueSpaceAssignment
+import org.testeditor.aml.ValueSpaceAssignmentContainer
+import org.testeditor.aml.dsl.services.AmlGrammarAccess
+
+import static extension org.eclipse.xtext.EcoreUtil2.getContainerOfType
 
 class AmlProposalProvider extends AbstractAmlProposalProvider {
 
@@ -99,7 +102,8 @@ class AmlProposalProvider extends AbstractAmlProposalProvider {
 
 	private def boolean isRuleCallTo(EObject grammarElement, AbstractRule rule) {
 		if (grammarElement instanceof RuleCall) {
-			return grammarElement.rule == rule
+			// Need to compare against the name here so that we can reuse this in TCL
+			return grammarElement.rule.name == rule.name
 		}
 		return false
 	}
@@ -109,10 +113,11 @@ class AmlProposalProvider extends AbstractAmlProposalProvider {
 	 */
 	override completeValueSpaceAssignment_Variable(EObject model, Assignment assignment, ContentAssistContext context,
 		ICompletionProposalAcceptor acceptor) {
-		if (model instanceof ElementWithInteractions<?>) {
-			val existingElements = model.valueSpaceAssignments.map[variable.fullyQualifiedName].toSet
+		if (model instanceof ValueSpaceAssignment) {
+			val container = model.getContainerOfType(ValueSpaceAssignmentContainer)
+			val alreadyReferencedVariables = container.valueSpaceAssignments.map[variable]
 			lookupCrossReference(assignment.terminal as CrossReference, context, acceptor) [
-				return !existingElements.contains(qualifiedName)
+				return !alreadyReferencedVariables.contains(it.EObjectOrProxy)
 			]
 		}
 	}

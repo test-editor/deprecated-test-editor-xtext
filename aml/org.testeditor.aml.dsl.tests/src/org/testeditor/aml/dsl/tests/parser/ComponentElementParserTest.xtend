@@ -34,7 +34,7 @@ class ComponentElementParserTest extends AbstractParserTest {
 		'''.surroundWithComponentAndElementType
 
 		// When + Then
-		#[withoutBrackets, withBrackets].map[parseAmlWithStdPackage(ComponentElement)].forEach [
+		#[withoutBrackets, withBrackets].map[parseAmlWithUniquePackage(ComponentElement)].forEach [
 			assertNoErrors
 			name.assertEquals("MyButton")
 			type.assertNotNull.name.assertEquals(typeName)
@@ -157,7 +157,7 @@ class ComponentElementParserTest extends AbstractParserTest {
 	def void parseShortFormatWithValueSpace() {
 		// Given
 		val elementInput = '''
-			element TestCaseName is ToDo locate by DummyLocatorStrategy.ID "MyID" doSomething.something restrict to items
+			element TestCaseName is ToDo locate by DummyLocatorStrategy.ID "MyID" restrict doSomething.something to items
 		'''
 		val input = '''
 			import org.testeditor.dsl.common.testing.DummyLocatorStrategy

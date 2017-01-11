@@ -184,7 +184,6 @@ class TclLauncherUiTest extends AbstractTest {
 		val lasTestLaunch = context.get(TestLaunchInformation)
 		assertTrue(lasTestLaunch.testCasesCommaList.contains("mypackage*"))
 		verify(tclIndexHelper).createTestCaseIndex
-		verify(progressRunner).run(any(IRunnableWithProgress))
 	}
 
 }

@@ -26,6 +26,7 @@ class AllowCrossOriginWebFilter implements Filter {
 
 	static val ORIGIN_HEADER = "Origin"
 	static val ACCESS_CONTROL_ALLOW_ORIGIN_HEADER = "Access-Control-Allow-Origin"
+	static val ACCESS_CONTROL_ALLOW_METHODS_HEADER = "Access-Control-Allow-Methods"
 
 	override destroy() {
 		// nothing to do here
@@ -40,6 +41,7 @@ class AllowCrossOriginWebFilter implements Filter {
 	def void handle(HttpServletRequest request, HttpServletResponse response) {
 		val origin = request.getHeader(ORIGIN_HEADER)
 		response.setHeader(ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, origin)
+		response.setHeader(ACCESS_CONTROL_ALLOW_METHODS_HEADER, "GET, POST, DELETE")
 	}
 
 	override init(FilterConfig filterConfig) throws ServletException {

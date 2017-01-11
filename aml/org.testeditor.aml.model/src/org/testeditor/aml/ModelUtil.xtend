@@ -87,9 +87,13 @@ class ModelUtil {
 	 * 	from the outside, i.e. have a name that is not "element"
 	 */
 	def Set<TemplateVariable> getReferenceableVariables(Template template) {
-		return template.contents.filter(TemplateVariable).filter [
-			!name.nullOrEmpty && name != TEMPLATE_VARIABLE_ELEMENT
-		].toSet
+		if (template !== null) {
+			return template.contents.filter(TemplateVariable).filter [
+				!name.nullOrEmpty && name != TEMPLATE_VARIABLE_ELEMENT
+			].toSet
+		} else {
+			return emptySet
+		}
 	}
 
 	/**
