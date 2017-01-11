@@ -35,7 +35,8 @@ export class TestLogService {
             response.json() as TestExecutionLog
         ).catch(this.handleError);
         result.then(log => {
-            if (!(this.knownTestruns.indexOf(log.name) > -1)) {
+            let knownTestrunsContainsLogName = this.knownTestruns.indexOf(log.name) > -1
+            if (!knownTestrunsContainsLogName) {
                 this.knownTestruns.push(log.name)
                 this.testExecutionLogsChanged.emit(log)
             }
