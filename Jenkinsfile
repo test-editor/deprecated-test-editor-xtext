@@ -81,7 +81,7 @@ void prepareRelease() {
         // Remove SNAPSHOT version
         echo 'Removing SNAPSHOT from target platform version'
         def String noSnapshotVersion = '\\${parsedVersion.majorVersion}.\\${parsedVersion.minorVersion}.\\${parsedVersion.incrementalVersion}'
-        setVersion(noSnapshotVersion, 'target-platform/org.testeditor.releng.target.parent/pom.xml', 'org.testeditor.releng.target.parent')
+        setVersion(noSnapshotVersion, 'target-platform/pom.xml', 'org.testeditor.releng.target.parent')
         echo 'Removing SNAPSHOT from test-editor version'
         setVersion(noSnapshotVersion, 'pom.xml', 'org.testeditor.releng.parent')
 
