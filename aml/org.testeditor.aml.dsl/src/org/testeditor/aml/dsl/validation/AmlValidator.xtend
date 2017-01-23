@@ -25,6 +25,8 @@ import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.MethodReference
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.RegExValueSpace
+import org.testeditor.aml.Template
+import org.testeditor.aml.TemplateText
 import org.testeditor.aml.ValueSpaceAssignmentContainer
 import org.testeditor.aml.Variable
 
@@ -41,6 +43,7 @@ class AmlValidator extends AbstractAmlValidator {
 	public static val REG_EX_VALUE_SPACE__EXPRESSION__INVALID = "RegExValueSpace.expression.invalid"
 	public static val COMPONENT_ELEMENT__LOCATOR_STRATEGY__MISSING = "componentElement.locatorStrategy.missing"
 	public static val INTERACTION_NAME_DUPLICATION = "interactionType.name.duplication"
+	public static val INVALID_CHAR_IN_TEMPLATE = "template.string.invalidChar"
 
 	@Inject
 	private extension ModelUtil
@@ -178,6 +181,17 @@ class AmlValidator extends AbstractAmlValidator {
 				val message = '''Interaction has name ('«value.name»') which is used at least twice.'''
 				error(message, value.eContainer, value.eContainingFeature, key, INTERACTION_NAME_DUPLICATION)
 			]
+		]
+	}
+	
+	@Check
+	def void checkTemplateHoldsValidCharacters(Template template) {
+		template.contents.filter(TemplateText).forEach [
+			if (!value.matches("^[ \t]*([a-zA-Z_][a-zA-Z_0-9]*[ \t]*)+[\\.\\?]?$")) {
+				error(
+					'Illegal characters in template. Please use words only (e.g. do not make use of punctuation and the like)',
+					eContainer, eContainingFeature, INVALID_CHAR_IN_TEMPLATE)
+			}
 		]
 	}
 

@@ -219,5 +219,49 @@ class ValidationTest extends AbstractParserTest {
 		// then
 		amlModel.assertNoErrors
 	}
+	
+	@Test
+	def void testInvalidTemplates() {
+		// given		
+		val invalidTemplates = #[
+			'"invalid because containing a comma, which is not valid"',
+			'"invalid because numbers like 123 are not allowed"',
+			'"invalid because" ${param} "exclamation mark ? is not allowed in the middle"'
+		]
+		invalidTemplates.forEach[assertInvalidateTemplate]
+	}
+
+	def private void assertInvalidateTemplate(String template) {
+		// given
+		val input = '''
+			package com.example
+			
+			interaction type abc {
+				template = «template»
+			}
+		'''
+		// when
+		val amlModel = input.parseAml
+
+		// then
+		amlModel.assertError(TEMPLATE, INVALID_CHAR_IN_TEMPLATE, "Illegal character")
+	}
+
+	@Test
+	def void testValidTemplate() {
+		// given
+		val input = '''
+			package com.example
+			
+			interaction type abc {
+				template = "valid    because   " ${param} " only valid02 elements u see?"
+			}
+		'''
+		// when
+		val amlModel = input.parseAml
+
+		// then
+		amlModel.assertNoErrors
+	}
 
 }

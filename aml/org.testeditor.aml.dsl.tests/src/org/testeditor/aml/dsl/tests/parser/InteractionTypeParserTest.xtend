@@ -85,7 +85,7 @@ class InteractionTypeParserTest extends AbstractParserTest {
 		// Given
 		val input = '''
 			interaction type MyInteractionType {
-				template = "Put" ${value} "into field" ${element} "."
+				template = "Put" ${value} "into field" ${element}
 			}
 		'''
 
@@ -100,7 +100,6 @@ class InteractionTypeParserTest extends AbstractParserTest {
 				get(1).assertInstanceOf(TemplateVariable).name.assertEquals("value")
 				get(2).assertInstanceOf(TemplateText).value.assertEquals("into field")
 				get(3).assertInstanceOf(TemplateVariable).name.assertEquals("element")
-				get(4).assertInstanceOf(TemplateText).value.assertEquals(".")
 			]
 		]
 	}
@@ -110,7 +109,7 @@ class InteractionTypeParserTest extends AbstractParserTest {
 		// Given
 		val input = '''
 			interaction type MyAddition {
-				template = "Add" ${x} "and" ${y} "and write into" ${element} "."
+				template = "Add" ${x} "and" ${y} "and write into" ${element}
 				method = MyFixture.addAndWrite(x, y, element)
 			}
 		'''
@@ -127,7 +126,7 @@ class InteractionTypeParserTest extends AbstractParserTest {
 		// Given
 		val input = '''
 			interaction type MyAddition {
-				template = "Add" ${x} "and" ${y} "and write into" ${element} "."
+				template = "Add" ${x} "and" ${y} "and write into" ${element}
 				method = MyFixture.addAndWrite(x, y, element)
 				locatorStrategy = ID
 			}
