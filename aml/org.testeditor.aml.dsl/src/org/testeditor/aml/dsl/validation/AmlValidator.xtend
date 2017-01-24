@@ -29,6 +29,7 @@ import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateText
 import org.testeditor.aml.ValueSpaceAssignmentContainer
 import org.testeditor.aml.Variable
+import org.testeditor.dsl.common.util.CollectionUtils
 
 import static org.testeditor.aml.AmlPackage.Literals.*
 import static org.testeditor.aml.dsl.Messages.*
@@ -47,6 +48,9 @@ class AmlValidator extends AbstractAmlValidator {
 
 	@Inject
 	private extension ModelUtil
+	
+	@Inject
+	private extension CollectionUtils
 
 	/**
 	 * Checks that a {@link Component} does not have a cycle in its parents hierarchy.
@@ -184,14 +188,34 @@ class AmlValidator extends AbstractAmlValidator {
 		]
 	}
 	
+	static val ID_REGEX='\\^?[a-zA-Z\\$_][a-zA-Z\\$_0-9]*'
+	static val VALID_TEMPLATE_WORDS = '''^[ \t]*(«ID_REGEX»[ \t]*)+$'''
+	static val VALID_LAST_TEMPLATE_WORDS = '''^[ \t]*(«ID_REGEX»[ \t]*)*([\\.\\?][ \t]*)?$'''
+	
+	/**
+	 * This validation is tightly coupled with the parser rules for tcl-template usages (see Tcl.xtext:TestStep and Tcl.xtext:TestStepAssignment)
+	 */
 	@Check
 	def void checkTemplateHoldsValidCharacters(Template template) {
-		template.contents.filter(TemplateText).forEach [
-			if (!value.matches("^[ \t]*([a-zA-Z_][a-zA-Z_0-9]*[ \t]*)+[\\.\\?]?$")) {
+		template.contents => [
+			// all text elements must not be empty (checked here to allow index-based error marking)
+			indexed.filterValue(TemplateText).filter[value.value.trim.empty].forEach [
+				error('Template string must not be empty', value.eContainer, value.eContainingFeature, key,
+					INVALID_CHAR_IN_TEMPLATE)
+			]
+			// all but the last text element must match the VALID_TEMPLATE_WORD
+			indexed.butLast.filterValue(TemplateText).filter[!value.value.matches(VALID_TEMPLATE_WORDS)].forEach [
 				error(
-					'Illegal characters in template. Please use words only (e.g. do not make use of punctuation and the like)',
-					eContainer, eContainingFeature, INVALID_CHAR_IN_TEMPLATE)
-			}
+					'Illegal characters in template. Please use ids only (e.g. do not make use of punctuation and the like)',
+					value.eContainer, value.eContainingFeature, key, INVALID_CHAR_IN_TEMPLATE)
+			]
+			// (only) the last element (if it is a text) may end with a punctuation mark '.' | '?'
+			val lastIndex = size - 1
+			drop( /*up to*/ lastIndex).filter(TemplateText).filter[!value.matches(VALID_LAST_TEMPLATE_WORDS)].forEach [
+				error(
+					'Illegal characters in last element of template. Please use ids only (e.g. use punctuation like . or ? only at the very end)',
+					eContainer, eContainingFeature, lastIndex, INVALID_CHAR_IN_TEMPLATE)
+			]
 		]
 	}
 

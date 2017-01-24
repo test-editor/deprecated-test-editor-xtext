@@ -228,10 +228,31 @@ class ValidationTest extends AbstractParserTest {
 			'"invalid because numbers like 123 are not allowed"',
 			'"invalid because" ${param} "exclamation mark ? is not allowed in the middle"'
 		]
-		invalidTemplates.forEach[assertInvalidateTemplate]
+		invalidTemplates.forEach[assertInvalidTemplate("Illegal character")]
 	}
 
-	def private void assertInvalidateTemplate(String template) {
+	@Test
+	def void testInvalidTemplatesInLastText() {
+		// given
+		val invalidTemplates = #[
+			'"a.b"',
+			'"invalid because empty part follows" ${param} "="'
+		]
+		invalidTemplates.forEach[assertInvalidTemplate("last element")]
+	}
+
+	@Test
+	def void testInvalidEmptyTemplates() {
+		// given
+		val invalidTemplates = #[
+			'""',
+			'"       "',
+			'"invalid because empty part follows" ${param} "        "'
+		]
+		invalidTemplates.forEach[assertInvalidTemplate("empty")]
+	}
+
+	def private void assertInvalidTemplate(String template, String errorMsgPart) {
 		// given
 		val input = '''
 			package com.example
@@ -244,7 +265,7 @@ class ValidationTest extends AbstractParserTest {
 		val amlModel = input.parseAml
 
 		// then
-		amlModel.assertError(TEMPLATE, INVALID_CHAR_IN_TEMPLATE, "Illegal character")
+		amlModel.assertError(TEMPLATE, INVALID_CHAR_IN_TEMPLATE, errorMsgPart)
 	}
 
 	@Test
@@ -254,7 +275,7 @@ class ValidationTest extends AbstractParserTest {
 			package com.example
 			
 			interaction type abc {
-				template = "valid    because   " ${param} " only valid02 elements u see?"
+				template = "valid  _1_  ^because  $ot$her " ${param} " only valid02 elements u see?"
 			}
 		'''
 		// when

@@ -28,6 +28,19 @@ class CollectionUtils {
 	public def Iterable<?> filterByTypes(Iterable<?> unfiltered, Class<?> ... types) {
 		unfiltered.filter[obj|types.exists[isInstance(obj)]]
 	}
-
+	
+	/**
+	 * filter a list of pairs on all values that are not null
+	 */
+	public def <A, B> Iterable<Pair<A,B>> filterValuesNull(Iterable<Pair<A,B>> unfiltered) {
+		return Iterables.filter(unfiltered, [value !== null])
+	}
+	
+	/**
+	 * return Iterable exluding the last element
+	 */
+	public def <T> Iterable<T> butLast(Iterable<T> includingLast) {
+		return includingLast.take(includingLast.size-1)
+	}
 
 }
