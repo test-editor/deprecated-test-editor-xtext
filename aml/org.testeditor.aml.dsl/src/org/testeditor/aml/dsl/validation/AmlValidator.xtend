@@ -188,9 +188,9 @@ class AmlValidator extends AbstractAmlValidator {
 		]
 	}
 	
-	static val ID_REGEX='\\^?[a-zA-Z\\$_][a-zA-Z\\$_0-9]*'
+	static val ID_REGEX='\\^?[a-zA-Z$_][a-zA-Z$_0-9]*' 
 	static val VALID_TEMPLATE_WORDS = '''^[ \t]*(«ID_REGEX»[ \t]*)+$'''
-	static val VALID_LAST_TEMPLATE_WORDS = '''^[ \t]*(«ID_REGEX»[ \t]*)*([\\.\\?][ \t]*)?$'''
+	static val VALID_LAST_TEMPLATE_WORDS = '''^[ \t]*(«ID_REGEX»[ \t]*)*([.?][ \t]*)?$'''
 	
 	/**
 	 * This validation is tightly coupled with the parser rules for tcl-template usages (see Tcl.xtext:TestStep and Tcl.xtext:TestStepAssignment)
