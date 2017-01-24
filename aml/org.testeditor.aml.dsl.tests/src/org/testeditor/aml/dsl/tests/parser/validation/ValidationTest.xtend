@@ -235,8 +235,8 @@ class ValidationTest extends AbstractParserTest {
 	def void testInvalidTemplatesInLastText() {
 		// given
 		val invalidTemplates = #[
-			'"a.b"',
-			'"invalid because empty part follows" ${param} "="'
+			'"invalid because . is allowed at the end only"',
+			'"invalid because last element is not valid punctuation at end" ${param} "="'
 		]
 		invalidTemplates.forEach[assertInvalidTemplate("last element")]
 	}
