@@ -19,7 +19,9 @@ import javax.inject.Inject
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.xtype.XImportSection
+import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateVariable
+import org.testeditor.aml.dsl.validation.AmlValidator
 import org.testeditor.dsl.common.util.CollectionUtils
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.ComponentTestStepContext
@@ -35,13 +37,13 @@ import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferenceMapAccess
 import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.tcl.util.ValueSpaceHelper
 import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
 
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
-import org.testeditor.tcl.util.ValueSpaceHelper
 
 class TclValidator extends AbstractTclValidator {
 
@@ -63,6 +65,7 @@ class TclValidator extends AbstractTclValidator {
 	@Inject extension CollectionUtils
 	
 	@Inject ValueSpaceHelper valueSpaceHelper
+	@Inject AmlValidator amlValidator
 
 	private static val ERROR_MESSAGE_FOR_INVALID_VAR_REFERENCE = "Dereferenced variable must be a required environment variable or a previously assigned variable"
 
@@ -362,6 +365,11 @@ class TclValidator extends AbstractTclValidator {
 			return false
 		}
 		return specImplSteps.map[contents.restoreString].containsAll(specSteps.map[contents.restoreString])
+	}
+
+	@Check
+	def void checkTemplateHoldsValidCharacters(Template template) {
+		amlValidator.checkTemplateHoldsValidCharacters(template)
 	}
 
 }
