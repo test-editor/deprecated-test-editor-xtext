@@ -228,6 +228,7 @@ class ValidationTest extends AbstractParserTest {
 			'"invalid because numbers like 123 are not allowed"',
 			'"invalid because" ${param} "exclamation mark ? is not allowed in the middle"'
 		]
+        // when, then
 		invalidTemplates.forEach[assertInvalidTemplate("Illegal character")]
 	}
 
@@ -238,6 +239,7 @@ class ValidationTest extends AbstractParserTest {
 			'"invalid because . is allowed at the end only"',
 			'"invalid because last element is not valid punctuation at end" ${param} "="'
 		]
+        // when, then
 		invalidTemplates.forEach[assertInvalidTemplate("last element")]
 	}
 
@@ -249,6 +251,7 @@ class ValidationTest extends AbstractParserTest {
 			'"       "',
 			'"invalid because empty part follows" ${param} "        "'
 		]
+        // when, then
 		invalidTemplates.forEach[assertInvalidTemplate("empty")]
 	}
 
