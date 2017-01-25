@@ -83,7 +83,7 @@ def String buildNestedParenthesisRegex(int level) {
 
 def String convertToAntlr4(String antlr3) {
     def newContent = antlr3
-    .replaceAll("\\{[^{}]*\\}\\??(?<!')=>","") // replace all code prefix expression
+    .replaceAll("(?<!')\\{[^{}]*\\}\\??(?<!')=>","") // replace all code prefix expression
     .replaceAll(buildNestedParenthesisRegex(7)+"[^()]*\\??(?<!')=>","") // remove all grammar prefix expressions
 
     def index=newContent.indexOf('entryRule')
@@ -93,13 +93,15 @@ def String convertToAntlr4(String antlr3) {
         .replaceAll("finally[ \t\n\r]*\\{[^{}]*\\}","") // finally code block after rule
         .replaceAll("@init","") // init code block
         .replaceAll("@after","") // after code block
-        .replaceAll("\\([ \t\r\n]*\\)","") // empty block of parenthessi
-        .replaceAll("\\{[^{}]*\\}","") // code block
-        .replaceAll("\\{[^{}]*\\}","") // code block (get the outer ones, too)
+        .replaceAll("(?<!')\\([ \t\r\n]*\\)","") // empty block of parenthesis
+        .replaceAll("(?<!')\\{(?!')[^{}]*\\}","") // code block
+        .replaceAll("(?<!')\\{(?!')[^{}]*\\}","") // code block (get the outer ones, too)
         .replaceAll("~\\((\\([^()]+\\))\\)",'~$1') // negation with double parenthesis (antlr4 wants one)
-        .replaceAll("(?<!')//[^\r]*","") // remove comments (probably optional)
+        .replaceAll("//[^\r]*\r","") // comments (probably optional)
         .replaceAll("entryRule[^;]*;", "") // remove all entry rules up to next rule definition
-        .replaceAll("\\([ \t\r\n]*\\)","") // remove comments (probably optional)
+        .replaceAll("(?<!')\\([ \t\r\n]*\\)","") // remove empty block of parenthesis
+        .replaceAll("rule(?=[A-Z])", "") // remove preceeding rule before every syntax rule
+        .replaceAll("returns[ ]*\\[[^\\]]*\\]", "") // remove rule returning commands
         // .replaceAll("RULE_.._COMMENT[^\r]*", "") // remove comment rules
 
     return codeRemoved
@@ -113,15 +115,40 @@ task buildAntlr4Grammars {
         println "generate reduced grammar"
     }
     doLast {
-        String amlFileContents = new File("${projectDir}/aml/org.testeditor.aml.dsl/src-gen/org/testeditor/aml/dsl/parser/antlr/internal/InternalAml.g").getText('UTF-8')
-        new File("${projectDir}/docs/application-modelling-language.g4").write(convertToAntlr4(amlFileContents))
-        String tslFileContents = new File("${projectDir}/tsl/org.testeditor.tsl.dsl/src-gen/org/testeditor/tsl/dsl/parser/antlr/internal/InternalTsl.g").getText('UTF-8')
-        new File("${projectDir}/docs/test-specification-language.g4").write(convertToAntlr4(tslFileContents))
-        String tcllFileContents = new File("${projectDir}/tcl/org.testeditor.tcl.dsl/src-gen/org/testeditor/tcl/dsl/parser/antlr/internal/InternalTcl.g").getText('UTF-8')
-        new File("${projectDir}/docs/test-case-language.g4").write(convertToAntlr4(tcllFileContents))
+        println "project dir = ${projectDir}"
+        println "file exists: "+new File("${projectDir}/aml/org.testeditor.aml.dsl/src-gen/org/testeditor/aml/dsl/parser/antlr/internal/InternalAml.g").exists()
+        def amlFileContents = new File("${projectDir}/aml/org.testeditor.aml.dsl/src-gen/org/testeditor/aml/dsl/parser/antlr/internal/InternalAml.g").getText('UTF-8')
+        println "Lines read " + amlFileContents.count('\r').toString()
+        def amlg4 = new File("${projectDir}/docs/application-modelling-language.g4")
+        amlg4.write(convertToAntlr4(amlFileContents))
+        println "--- Aml.g4"
+        // println amlFileContents
+        // println "---"
+        
+        def tslFileContents = new File("${projectDir}/tsl/org.testeditor.tsl.dsl/src-gen/org/testeditor/tsl/dsl/parser/antlr/internal/InternalTsl.g").getText('UTF-8')
+        println "Lines read " + tslFileContents.count('\r').toString()
+        def tslg4 = new File("${projectDir}/docs/test-specification-language.g4")
+        tslg4.write(convertToAntlr4(tslFileContents))
+        println "--- Tsl.g4"
+        // println tslFileContents
+        // println "---"
+
+        def tclFileContents = new File("${projectDir}/tcl/org.testeditor.tcl.dsl/src-gen/org/testeditor/tcl/dsl/parser/antlr/internal/InternalTcl.g").getText('UTF-8')
+        println "Lines read " + tclFileContents.count('\r').toString()
+        def tclg4 = new File("${projectDir}/docs/test-case-language.g4")
+        tclg4.write(convertToAntlr4(tclFileContents))
+        println "--- Tcl.g4"
+        // println tclFileContents
+        // println "---"
     }
     doLast {
         println "generation finished."
+        def tclg4textLines = new File("${projectDir}/docs/test-case-language.g4").getText('UTF-8').count('\n')
+        println "Tcl grammar contains: ${tclg4textLines} lines"
+        def tslg4textLines = new File("${projectDir}/docs/test-specification-language.g4").getText('UTF-8').count('\n')
+        println "Tsl grammar contains: ${tslg4textLines} lines"
+        def amlg4textLines = new File("${projectDir}/docs/application-modelling-language.g4").getText('UTF-8').count('\n')
+        println "Aml grammar contains: ${amlg4textLines} lines"
     }
 }
 
