@@ -212,16 +212,15 @@ class AmlValidator extends AbstractAmlValidator {
 				error('Illegal characters in template. Please use ids only (e.g. do not make use of punctuation and the like)',
 					value.eContainer, value.eContainingFeature, key, INVALID_CHAR_IN_TEMPLATE)
 			]
-			// (only) the last element (if it is a text) may end with a punctuation mark '.' | '?'
+			// (only) the last template content (if it is a text) may end with a punctuation mark '.' | '?'
+			val lastContent = it.last
 			val lastIndex = size - 1
-			// last element as Iterable, in order to be able to use filter methods on
-			val invalidLastTemplateTexts = drop( /*up to*/ lastIndex).filter(TemplateText).filter [
-				!value.matches(VALID_LAST_TEMPLATE_WORDS)
-			]
-			invalidLastTemplateTexts.forEach [
-				error('Illegal characters in last element of template. Please use ids only (e.g. use punctuation like . or ? only at the very end)',
-					eContainer, eContainingFeature, lastIndex, INVALID_CHAR_IN_TEMPLATE)
-			]
+			if (lastContent instanceof TemplateText) {
+				if (!lastContent.value.matches(VALID_LAST_TEMPLATE_WORDS)) {
+					error('Illegal characters in last element of template. Please use ids only (e.g. use punctuation like . or ? only at the very end)',
+						lastContent.eContainer, lastContent.eContainingFeature, lastIndex, INVALID_CHAR_IN_TEMPLATE)
+				}
+			}
 		]
 	}
 
