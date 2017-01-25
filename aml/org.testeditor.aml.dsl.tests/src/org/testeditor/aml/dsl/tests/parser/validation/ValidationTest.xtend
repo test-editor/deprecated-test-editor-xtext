@@ -219,5 +219,73 @@ class ValidationTest extends AbstractParserTest {
 		// then
 		amlModel.assertNoErrors
 	}
+	
+	@Test
+	def void testInvalidTemplates() {
+		// given		
+		val invalidTemplates = #[
+			'"invalid because containing a comma, which is not valid"',
+			'"invalid because numbers like 123 are not allowed"',
+			'"invalid because" ${param} "exclamation mark ? is not allowed in the middle"'
+		]
+        // when, then
+		invalidTemplates.forEach[assertInvalidTemplate("Illegal character")]
+	}
+
+	@Test
+	def void testInvalidTemplatesInLastText() {
+		// given
+		val invalidTemplates = #[
+			'"invalid because . is allowed at the end only"',
+			'"invalid because last element is not valid punctuation at end" ${param} "="'
+		]
+        // when, then
+		invalidTemplates.forEach[assertInvalidTemplate("last element")]
+	}
+
+	@Test
+	def void testInvalidEmptyTemplates() {
+		// given
+		val invalidTemplates = #[
+			'""',
+			'"       "',
+			'"invalid because empty part follows" ${param} "        "'
+		]
+        // when, then
+		invalidTemplates.forEach[assertInvalidTemplate("empty")]
+	}
+
+	def private void assertInvalidTemplate(String template, String errorMsgPart) {
+		// given
+		val input = '''
+			package com.example
+			
+			interaction type abc {
+				template = «template»
+			}
+		'''
+		// when
+		val amlModel = input.parseAml
+
+		// then
+		amlModel.assertError(TEMPLATE, INVALID_CHAR_IN_TEMPLATE, errorMsgPart)
+	}
+
+	@Test
+	def void testValidTemplate() {
+		// given
+		val input = '''
+			package com.example
+			
+			interaction type abc {
+				template = "valid  _1_  ^because  $ot$her " ${param} " only valid02 elements u see?"
+			}
+		'''
+		// when
+		val amlModel = input.parseAml
+
+		// then
+		amlModel.assertNoErrors
+	}
 
 }
