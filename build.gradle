@@ -11,6 +11,8 @@ node {
 
 def targetPlatform = "$projectDir/target-platform"
 
+def rrdAntlr4 = "rrd-antlr4-0.1.2.jar"
+
 task npmInstallDep(type: NpmTask, dependsOn: npmSetup){
 	group 'Node'
 	workingDir file("rcp/org.testeditor.web.testexecutionlogview")
@@ -65,6 +67,96 @@ task deploy(type: MavenExec) {
 task buildProduct(type: MavenExec) {
     workingDir projectDir
     args 'package' , '-Pproduct', '-DskipTests', '-Dtycho.localArtifacts=ignore'
+}
+
+
+def String buildNestedParenthesisRegex(int level) {
+    def preParen = "(?<!')\\(" // opening braces ( must not be preceeded by a ' to avoid string constant matching
+    def postParen = "\\)" // closing braces
+    def anyNonParenthesis = "[^()]*(('\\(')[^()]*)?" // may hold '(' as an exception to that rule, since this constant appears once in a while in the grammar
+
+    def result  = preParen + anyNonParenthesis + postParen
+    for(int i; i<level; i++) {
+        result = preParen+"("+anyNonParenthesis+result+")*"+anyNonParenthesis+postParen
+    }
+    return result
+}
+
+def String convertToAntlr4(String antlr3) {
+    def newContent = antlr3
+    .replaceAll("\\{[^{}]*\\}\\??(?<!')=>","") // replace all code prefix expression
+    .replaceAll(buildNestedParenthesisRegex(7)+"[^()]*\\??(?<!')=>","") // remove all grammar prefix expressions
+
+    def index=newContent.indexOf('entryRule')
+
+    def codeRemoved = newContent.substring(0,index)+
+        newContent.substring(index)
+        .replaceAll("finally[ \t\n\r]*\\{[^{}]*\\}","") // finally code block after rule
+        .replaceAll("@init","") // init code block
+        .replaceAll("@after","") // after code block
+        .replaceAll("\\([ \t\r\n]*\\)","") // empty block of parenthessi
+        .replaceAll("\\{[^{}]*\\}","") // code block
+        .replaceAll("\\{[^{}]*\\}","") // code block (get the outer ones, too)
+        .replaceAll("~\\((\\([^()]+\\))\\)",'~$1') // negation with double parenthesis (antlr4 wants one)
+        .replaceAll("(?<!')//[^\r]*","") // remove comments (probably optional)
+        .replaceAll("entryRule[^;]*;", "") // remove all entry rules up to next rule definition
+        .replaceAll("\\([ \t\r\n]*\\)","") // remove comments (probably optional)
+        // .replaceAll("RULE_.._COMMENT[^\r]*", "") // remove comment rules
+
+    return codeRemoved
+}
+
+task buildAntlr4Grammars {
+    // dependsOn buildTarget
+    doFirst {
+        println "generate reduced grammar"
+    }
+    doLast {
+        String amlFileContents = new File("${projectDir}/aml/org.testeditor.aml.dsl/src-gen/org/testeditor/aml/dsl/parser/antlr/internal/InternalAml.g").getText('UTF-8')
+        new File("docs/application-modelling-language.g4").write(convertToAntlr4(amlFileContents))
+        String tslFileContents = new File("${projectDir}/tsl/org.testeditor.tsl.dsl/src-gen/org/testeditor/tsl/dsl/parser/antlr/internal/InternalTsl.g").getText('UTF-8')
+        new File("docs/test-specification-language.g4").write(convertToAntlr4(amlFileContents))
+        String tcllFileContents = new File("${projectDir}/tcl/org.testeditor.tcl.dsl/src-gen/org/testeditor/tcl/dsl/parser/antlr/internal/InternalTcl.g").getText('UTF-8')
+        new File("docs/test-case-language.g4").write(convertToAntlr4(amlFileContents))
+    }
+    doLast {
+        println "generation finished."
+    }
+}
+
+
+task createAmlRRD(type: JavaExec) {
+    dependsOn(buildAntlr4Grammars)
+    main="-jar";
+    workingDir="docs"
+    args (
+        rrdAntlr4,
+        "application-modelling-language.g4"
+    )
+}
+
+task createTslRRD(type: JavaExec) {
+    dependsOn(buildAntlr4Grammars)
+    main="-jar";
+    workingDir="docs"
+    args (
+        rrdAntlr4,
+        "test-specification-language.g4"
+    )
+}
+
+task createTclRRD(type: JavaExec) {
+    dependsOn(buildAntlr4Grammars)
+    main="-jar";
+    workingDir="docs"
+    args (
+        rrdAntlr4,
+        "test-case-language.g4"
+    )
+}
+
+task createAllRRDs {
+    dependsOn(createAmlRRD,createTslRRD,createTclRRD)
 }
 
 /**

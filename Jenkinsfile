@@ -52,6 +52,17 @@ nodeWithProperWorkspace {
         stage('Build product') {
             withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g"]) {
                 gradle 'buildProduct'
+                
+                step([$class: 'CopyArtifact',
+                      filter: 'target/rrd*.jar',
+                      fingerprintArtifacts: true,
+                      flatten: true,
+                      projectName: 'rrd-antlr4',
+                      selector: [$class: 'StatusBuildSelector',
+                                 stable: false],
+                      target: 'docs'])
+
+                gradle 'createAllRRDs'
             }
         }
     }
