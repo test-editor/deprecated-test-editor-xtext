@@ -81,7 +81,7 @@ nodeWithProperWorkspace {
         archiveArtifacts artifacts: 'rcp/org.testeditor.rcp4.uatests/screenshots/**/*.png', fingerprint: true
         if (buildProduct) {
             archive '**/target/products/*.zip'
-            archiveArtifacts artifacts: 'docs/output/**/*.*', fingerprint: true
+            archiveArtifacts artifacts: 'docs/output/**/*.png, docs/output/**/*.html, docs/output/**/*.pdf', fingerprint: true
         }
         step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
         codecov('codecov_test-editor-xtext')
