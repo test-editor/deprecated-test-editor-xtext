@@ -106,8 +106,8 @@ def String convertToAntlr4(String antlr3) {
     return codeRemoved
 }
 
+// TODO should be dependent on build (but build needs to be incremental for that)
 task buildAntlr4Grammars {
-    // dependsOn buildTarget
     doFirst {
         println "generate reduced grammar"
     }
