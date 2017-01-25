@@ -199,21 +199,27 @@ class AmlValidator extends AbstractAmlValidator {
 	def void checkTemplateHoldsValidCharacters(Template template) {
 		template.contents => [
 			// all text elements must not be empty (checked here to allow index-based error marking)
-			indexed.filterValue(TemplateText).filter[value.value.trim.empty].forEach [
+			val templateTextsThatAreEmpty = indexed.filterValue(TemplateText).filter[value.value.trim.empty]
+			templateTextsThatAreEmpty.forEach [
 				error('Template string must not be empty', value.eContainer, value.eContainingFeature, key,
 					INVALID_CHAR_IN_TEMPLATE)
 			]
 			// all but the last text element must match the VALID_TEMPLATE_WORD
-			indexed.butLast.filterValue(TemplateText).filter[!value.value.matches(VALID_TEMPLATE_WORDS)].forEach [
-				error(
-					'Illegal characters in template. Please use ids only (e.g. do not make use of punctuation and the like)',
+			val invalidTemplateTextsWithoutLastElement = indexed.butLast.filterValue(TemplateText).filter [
+				!value.value.matches(VALID_TEMPLATE_WORDS)
+			]
+			invalidTemplateTextsWithoutLastElement.forEach [
+				error('Illegal characters in template. Please use ids only (e.g. do not make use of punctuation and the like)',
 					value.eContainer, value.eContainingFeature, key, INVALID_CHAR_IN_TEMPLATE)
 			]
 			// (only) the last element (if it is a text) may end with a punctuation mark '.' | '?'
 			val lastIndex = size - 1
-			drop( /*up to*/ lastIndex).filter(TemplateText).filter[!value.matches(VALID_LAST_TEMPLATE_WORDS)].forEach [
-				error(
-					'Illegal characters in last element of template. Please use ids only (e.g. use punctuation like . or ? only at the very end)',
+			// last element as Iterable, in order to be able to use filter methods on
+			val invalidLastTemplateTexts = drop( /*up to*/ lastIndex).filter(TemplateText).filter [
+				!value.matches(VALID_LAST_TEMPLATE_WORDS)
+			]
+			invalidLastTemplateTexts.forEach [
+				error('Illegal characters in last element of template. Please use ids only (e.g. use punctuation like . or ? only at the very end)',
 					eContainer, eContainingFeature, lastIndex, INVALID_CHAR_IN_TEMPLATE)
 			]
 		]
