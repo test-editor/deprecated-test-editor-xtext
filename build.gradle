@@ -114,24 +114,23 @@ task buildAntlr4Grammars {
     }
     doLast {
         String amlFileContents = new File("${projectDir}/aml/org.testeditor.aml.dsl/src-gen/org/testeditor/aml/dsl/parser/antlr/internal/InternalAml.g").getText('UTF-8')
-        new File("docs/application-modelling-language.g4").write(convertToAntlr4(amlFileContents))
+        new File("${projectDir}/docs/application-modelling-language.g4").write(convertToAntlr4(amlFileContents))
         String tslFileContents = new File("${projectDir}/tsl/org.testeditor.tsl.dsl/src-gen/org/testeditor/tsl/dsl/parser/antlr/internal/InternalTsl.g").getText('UTF-8')
-        new File("docs/test-specification-language.g4").write(convertToAntlr4(amlFileContents))
+        new File("${projectDir}/docs/test-specification-language.g4").write(convertToAntlr4(tslFileContents))
         String tcllFileContents = new File("${projectDir}/tcl/org.testeditor.tcl.dsl/src-gen/org/testeditor/tcl/dsl/parser/antlr/internal/InternalTcl.g").getText('UTF-8')
-        new File("docs/test-case-language.g4").write(convertToAntlr4(amlFileContents))
+        new File("${projectDir}/docs/test-case-language.g4").write(convertToAntlr4(tcllFileContents))
     }
     doLast {
         println "generation finished."
     }
 }
 
-
 task createAmlRRD(type: JavaExec) {
     dependsOn(buildAntlr4Grammars)
     description = "create rail road syntax diagrams for application modelling language"
     group = "Documentation"
     main = "-jar"
-    workingDir = "docs"
+    workingDir = "${projectDir}/docs"
     args (
         rrdAntlr4,
         "application-modelling-language.g4"
@@ -143,7 +142,7 @@ task createTslRRD(type: JavaExec) {
     description = "create rail road syntax diagrams for test specification language"
     group = "Documentation"
     main = "-jar"
-    workingDir = "docs"
+    workingDir = "${projectDir}/docs"
     args (
         rrdAntlr4,
         "test-specification-language.g4"
@@ -155,7 +154,7 @@ task createTclRRD(type: JavaExec) {
     description = "create rail road syntax diagrams for test case language"
     group = "Documentation"
     main = "-jar"
-    workingDir = "docs"
+    workingDir = "${projectDir}/docs"
     args (
         rrdAntlr4,
         "test-case-language.g4"
