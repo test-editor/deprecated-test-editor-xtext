@@ -69,7 +69,6 @@ task buildProduct(type: MavenExec) {
     args 'package' , '-Pproduct', '-DskipTests', '-Dtycho.localArtifacts=ignore'
 }
 
-
 def String buildNestedParenthesisRegex(int level) {
     def preParen = "(?<!')\\(" // opening braces ( must not be preceeded by a ' to avoid string constant matching
     def postParen = "\\)" // closing braces
@@ -108,6 +107,8 @@ def String convertToAntlr4(String antlr3) {
 
 // TODO should be dependent on build (but build needs to be incremental for that)
 task buildAntlr4Grammars {
+    description = "convert grammars of all language from antlr3 to (a reduced) antlr4 format"
+    group = "Documentation"
     doFirst {
         println "generate reduced grammar"
     }
@@ -127,8 +128,10 @@ task buildAntlr4Grammars {
 
 task createAmlRRD(type: JavaExec) {
     dependsOn(buildAntlr4Grammars)
-    main="-jar";
-    workingDir="docs"
+    description = "create rail road syntax diagrams for application modelling language"
+    group = "Documentation"
+    main = "-jar"
+    workingDir = "docs"
     args (
         rrdAntlr4,
         "application-modelling-language.g4"
@@ -137,8 +140,10 @@ task createAmlRRD(type: JavaExec) {
 
 task createTslRRD(type: JavaExec) {
     dependsOn(buildAntlr4Grammars)
-    main="-jar";
-    workingDir="docs"
+    description = "create rail road syntax diagrams for test specification language"
+    group = "Documentation"
+    main = "-jar"
+    workingDir = "docs"
     args (
         rrdAntlr4,
         "test-specification-language.g4"
@@ -147,8 +152,10 @@ task createTslRRD(type: JavaExec) {
 
 task createTclRRD(type: JavaExec) {
     dependsOn(buildAntlr4Grammars)
-    main="-jar";
-    workingDir="docs"
+    description = "create rail road syntax diagrams for test case language"
+    group = "Documentation"
+    main = "-jar"
+    workingDir = "docs"
     args (
         rrdAntlr4,
         "test-case-language.g4"
@@ -157,6 +164,8 @@ task createTclRRD(type: JavaExec) {
 
 task createAllRRDs {
     dependsOn(createAmlRRD,createTslRRD,createTclRRD)
+    description = "create rail road syntax diagrams for all languages"
+    group = "Documentation"
 }
 
 /**
