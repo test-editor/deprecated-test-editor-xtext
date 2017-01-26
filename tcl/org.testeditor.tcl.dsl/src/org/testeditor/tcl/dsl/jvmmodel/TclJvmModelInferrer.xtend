@@ -61,6 +61,7 @@ import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentValue
 
 import static org.testeditor.tcl.TclPackage.Literals.*
+import org.eclipse.xtext.EcoreUtil2
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -352,6 +353,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		val stepLog = step.contents.restoreString
 		logger.debug("generating code line for test step='{}'.", stepLog)
 		val interaction = step.interaction
+		 val testCase=EcoreUtil2.getContainerOfType(step, TestCase)
+   		
 		if (interaction !== null) {
 			logger.debug("derived interaction with method='{}' for test step='{}'.", interaction.defaultMethod?.operation?.qualifiedName, stepLog)
 			val fixtureField = interaction.defaultMethod?.typeReference?.type?.fixtureFieldName
@@ -366,7 +369,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				output.append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
 			}
 		} else if (step.componentContext != null) {
-			output.append('''// TODO could not resolve '«step.componentContext.component.name»' - «stepLog»''')
+			output.append('''throw new RuntimeException("Template '«stepLog»' cannot be resolved with any known macro/fixture. Please check your file '«testCase.name».tcl'");''')
 		} else {
 			output.append('''// TODO could not resolve unknown component - «stepLog»''')
 		}
