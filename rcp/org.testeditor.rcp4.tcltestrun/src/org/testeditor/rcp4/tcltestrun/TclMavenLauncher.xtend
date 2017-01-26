@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.testeditor.rcp4.tcltestrun
 
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.OutputStream
 import java.nio.charset.StandardCharsets
@@ -26,6 +27,9 @@ import org.eclipse.core.runtime.NullProgressMonitor
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
 import org.testeditor.dsl.common.util.MavenExecutor
+import java.util.Scanner
+import javax.swing.JOptionPane
+import javax.swing.ProgressMonitor
 
 public class TclMavenLauncher implements TclLauncher {
 
@@ -38,8 +42,8 @@ public class TclMavenLauncher implements TclLauncher {
 	@Inject extension ProjectUtils
 	@Inject MavenExecutor mavenExecutor
 
-	override LaunchResult launchTest(List<String> testCases, IProject project, IProgressMonitor monitor, OutputStream out,
-		Map<String, Object> options) {
+	override LaunchResult launchTest(List<String> testCases, IProject project, IProgressMonitor monitor,
+		OutputStream out, Map<String, Object> options) {
 		val parameters = if (options.containsKey(
 				PROFILE)) {
 				"clean generate-test-sources org.testeditor:testeditor-maven-plugin:testEnvUp org.testeditor:testeditor-maven-plugin:testExec -P" +
@@ -47,13 +51,17 @@ public class TclMavenLauncher implements TclLauncher {
 			} else {
 				"clean integration-test"
 			}
-			
+
 		var testSelectionArgument = ""
-		if(testCases != null) {
+		if (testCases != null) {
 			testSelectionArgument = "test=" + testCases.join(",")
-		} 
-		val result = mavenExecutor.executeInNewJvm(parameters, project.location.toOSString,
-			testSelectionArgument, monitor, out, false)
+		}
+		if(!checkMavenVersion(project, monitor)) {
+			return new LaunchResult(null, false, null)			
+		}
+
+		val result = mavenExecutor.executeInNewJvm(parameters, project.location.toOSString, testSelectionArgument,
+			monitor, out, false)
 		val testResultFolder = project.createOrGetDeepFolder(MVN_TEST_RESULT_FOLDER).location.toFile
 		if (result == IStatus.OK) {
 			return new LaunchResult(testResultFolder)
@@ -67,6 +75,36 @@ public class TclMavenLauncher implements TclLauncher {
 			return new LaunchResult(testResultFolder, false, null)
 		}
 
+	}
+
+	def checkMavenVersion(IProject project, IProgressMonitor monitor) {
+		val versionOut = new ByteArrayOutputStream()
+		val infoResult = mavenExecutor.executeInNewJvm("-version", project.location.toOSString, "", monitor, versionOut,
+			false)
+		if (infoResult != IStatus.OK) {
+			logger.error("Error during determine maven version")
+			return false
+		}
+		val versionInfoScanner = new Scanner(versionOut.toString).useDelimiter("\n");
+		
+		while (versionInfoScanner.hasNext) {
+			val line = versionInfoScanner.next()
+			if (line.startsWith("Apache Maven ")) {
+				var version = line.substring("Apache Maven ".length)
+				logger.info("Maven Version: {} ", version)
+				if (!version.startsWith("3.2.5")) {
+					version = version.substring(0, version.indexOf(' '))
+					if (JOptionPane.showConfirmDialog(null, "Wrong maven-version '" + version +
+						"' in MAVEN_HOME. For best test execution please use 3.2.5. Start test anyway?") != 0) {
+						return false
+					}
+				}
+			} else if (line.indexOf(':') != -1) {
+				logger.info("Maven Property '{}' : '{}'", line.substring(0, line.indexOf(':')).trim(),
+					line.substring(line.indexOf(':') + 1).trim())
+			}
+		}
+		return true
 	}
 
 	def Iterable<String> getProfiles(IProject project) {

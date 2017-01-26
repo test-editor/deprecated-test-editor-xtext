@@ -12,8 +12,16 @@
  *******************************************************************************/
 package org.testeditor.rcp4;
 
+import java.io.IOException
+import javax.swing.JOptionPane
 import org.eclipse.equinox.app.IApplication
 import org.eclipse.equinox.app.IApplicationContext
+import org.eclipse.swt.SWT
+import org.eclipse.swt.widgets.Button
+import org.eclipse.swt.widgets.Event
+import org.eclipse.swt.widgets.Listener
+import org.eclipse.swt.widgets.MessageBox
+import org.eclipse.swt.widgets.Shell
 import org.eclipse.ui.PlatformUI
 import org.slf4j.LoggerFactory
 
@@ -21,13 +29,20 @@ import org.slf4j.LoggerFactory
  * This class controls all aspects of the application's execution
  */
 public class Application implements IApplication {
-	static val logger=LoggerFactory.getLogger(Application)
+	static val logger = LoggerFactory.getLogger(Application)
 
 	/* (non-Javadoc)
 	 * @see IApplication#start(org.eclipse.equinox.app.IApplicationContext)
 	 */
 	override start(IApplicationContext context) {
 		logger.info("STARTING APPLICATION ..")
+		try {
+			Runtime.getRuntime().exec(#{"javac"})
+		} catch (IOException e) {
+			if(JOptionPane.showConfirmDialog(null, "Application is started with a jre. For test-execution a jdk is needed. Start anyway?")!= 0) {
+				return IApplication.EXIT_OK;
+			}
+		}
 		val display = PlatformUI.createDisplay
 		try {
 			val returnCode = PlatformUI.createAndRunWorkbench(display, new ApplicationWorkbenchAdvisor)
