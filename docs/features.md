@@ -92,13 +92,13 @@ require browserPath
 
 * Enter the question
 
-  Component: QFLPage
+  Component: QOLPage
   - Enter "What's the meaning of life?" into <QuestionField>
-  - Click <EnterButton>
+  - Click <AskButton>
   
 * Validate the correct answer to be _42_
 
-  Component: QFLPage
+  Component: QOLPage
   - answer = Read <AnswerField>
   - assert answer = "42"
 ```
@@ -205,9 +205,9 @@ the two steps of entering the question and clicking the enter button.
 
 ## AskQuestion
 template = "Ask" ${question} 
-  Component: QFLPage
+  Component: QOLPage
   - Enter @question into <QuestionField>
-  - Click <EnterButton>
+  - Click <AskButton>
   
 ```
 
@@ -284,9 +284,125 @@ its parameters.
 ----------
 
 ## Application-Mapping-Language
+
+(see [aml syntax definition](https://ci.testeditor.org/job/test-editor/job/test-editor-xtext/job/feature%252FTE-465_syntax_n_feature_doc-with-product/lastSuccessfulBuild/artifact/docs/output/application-modelling-language/index.html))
+
+The AML is used to define interactions with the application, which are then referenced by test steps within the TCL.  It decouples the
+concrete fixtures on the application model to be tested from the test implementation. 
+
 ### Components / Masks
-### Interactions
+
+Components are elements that resemble an application entity for which a set of interactions are bundled.
+
+```
+component QOLPage is WebPage {
+    element QuestionField is TextField locate by NAME using "QTEXT_FIELD" restrict QuestionField to ValidQuestions
+    element AnswerField is TextField locate by ID using "4711"
+    element AskButton is Button locate by ID using "8000"
+}
+```
+
+This defines a component `QOLPage` that is of type `WebPage` (Component Types will be talked about later on). The `OQLPage` contains three
+elements, `QuestionField`, `AnswerField` and `AskButton`. These three elements can be used within the context of `OQLPage`. 
+
 ### Component Elements
+
+A component element like `element AnswerField is TextField locate by ID using "4711"` defines `AnswerField` of type `TextField`
+that is located within the tested application by its `ID` which is `"4711"`.
+
+Component elements are elements of an application entity that is tightly coupled with it and cannot be used outside of this component. (NEW:
+It is however possible to define (abstract) components that define elements common to several components. These (abstract) components can then
+be declared as parents, thus *inheriting* all elements to the child components.)
+
+Elements are of a define element type. These element types define the possible interactions and available value-spaces for these elements.
+
+Elements can be define using a compact syntax (as in the example above), or alternative the long syntax, which makes some information more explicit.
+
+Short:
+```
+element QuestionField is TextField locate by NAME using "QTEXT_FIELD" restrict QuestionField to ValidQuestions
+```
+Long:
+```
+element QuestionField is TextField {
+  locator = "QTEXT_FIELD"
+  locatorStrategy = NAME
+  restrict QuestionField to ValidQuestions
+}
+```
+
+Short and long version are semantically equal.
+
 ### Component Element Types
+
+Component element types define types of elements, specifying a number of interactions and value space restrictions that apply to this type
+of element.
+
+```
+element type TextField {
+  interactions = ReadTextField, EnterIntoTextField, ClearTextField
+}
+```
+
+This element type does not define any value space restrictions. It does however define that three interactions are valid on elements of this
+type: `ReadTextField`, `EnterIntoTextField` and `ClearTextField`.
+
+### Interactions
+
+Interactions define mappings of a usage pattern (template) to a fixture implementation (method).
+
+```
+interaction type ReadTextField {
+  template = "Read" ${element}
+  method = MyApplicationFixture.ReadFromTextField(element, locatorStrategy)
+}
+```
+
+This interaction defines a template with one `element` parameter. Element parameters are special in that they max exist only once within a
+template and that these template parameters can only be used with component elements applicable to this interaction. Additionally no
+variables can be used in their stead. Whenever this interaction is used, the fixture method `ReadFromTextField` is executed passing the
+locator and the locatorStrategy of the element into the method (see their definition within the long syntax version of the element
+definition). The `locatorStrategy` keyword, as well as the `element` keyword have special meanings. The `locatorStrategy` (if present) must
+follow directly after its element within the call to the fixture method.
+
+```
+interaction type EnterTextField {
+  template = "Enter" ${text} "into" ${element}
+  method = MyApplicationFixture.EnterIntoTextField(text, element, locatorStrategy)
+}
+```
+
+This interaction defines a template with one (regular) parameter `text` and one `element` parameter. As before the `locatorStrategy` is
+passed tot he fixture method as well. The order of parameters in the template need not correspond to the order of their usage in the fixture
+call. However, as stated before, the `locatorStrategy` must follow immediately after the `element` parameter.
+
+The fixture method `EnterIntoTextField` must define `element` to be of type String and `locatorStrategy` to be of the enum type that is used
+as locator strategy. Locator strategies are enum classes defined within the fixture. They allow for different strategies locating elements
+of an applcation (e.g. locating by name, id, xpath ...). The implementation how these locator strategies are interpreted is up to the fixture.
+
 ### Component Types
+
+Component types are abstract definitions of components. It allows the specification of commonly used value spaces restrictions and
+interactions (without element relation). 
+
+```
+component type WebPage {
+  interactions Reload
+}
+```
+
+This component type specifies that all components of this type will have an interaction `Reload` at their disposal.
+
+### Value Spaces
+
+Value spaces are used to restrict valid values for application (intput) elements. Currently value space can be defined to be either a value
+range (e.g. `value-space ValidAge = 0..199`), a regular expression (e.g. `value-space ValidInteger = "[0-9]+"`) or a list of Strings:
+```
+value-space ValidQuestions = #[ "What's the meaning of life?", "Who the f**k is Alice?" ]
+```
+
+Elements can be restricted to value spaces in order to make sure that no illegal values are passed.
+
+----------
+
 ## Test-Specification-Language
