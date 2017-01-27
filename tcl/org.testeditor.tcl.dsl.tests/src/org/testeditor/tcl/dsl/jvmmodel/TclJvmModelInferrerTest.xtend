@@ -22,6 +22,7 @@ class TclJvmModelInferrerTest extends AbstractTclGeneratorIntegrationTest {
 
 	@Test
 	def void testGenerationForResolvedFixture() {
+		//given
 		val tclModel = parseTcl('''
 			package com.example
 			
@@ -33,41 +34,19 @@ class TclJvmModelInferrerTest extends AbstractTclGeneratorIntegrationTest {
 			- Stop application
 		''')
 		tclModel.addToResourceSet
-		
 
+		//when
 		val tclModelCode = tclModel.generate
 
-		tclModelCode.assertEquals('''
-			package com.example;
-			
-			import org.junit.Test;
-			import org.testeditor.dsl.common.testing.DummyFixture;
-			import org.testeditor.fixture.core.AbstractTestCase;
-			import org.testeditor.fixture.core.TestRunReporter;
-			
-			/**
-			 * Generated from MyTest.tcl
-			 */
-			@SuppressWarnings("all")
-			public class MyTest extends AbstractTestCase {
-			  private DummyFixture dummyFixture = new DummyFixture();
-			  
-			  @Test
-			  public void execute() throws Exception {
-			    
-			    reporter.enter(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "test something");
-			    
-			    reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "dummyComponent");
-			    
-			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Stop application");
+		//then
+		tclModelCode.assertContains('''
 			    dummyFixture.stopApplication();
-			  }
-			}
 		'''.toString)
 	}
-	
+
 	@Test
 	def void testGenerationForUnresolvedFixtureAndWithResolvedFixture() {
+		//given
 		val tclModel = parseTcl('''
 			package com.example
 			
@@ -80,42 +59,19 @@ class TclJvmModelInferrerTest extends AbstractTclGeneratorIntegrationTest {
 			- do something
 		''')
 		tclModel.addToResourceSet
-		
 
+		//when
 		val tclModelCode = tclModel.generate
-
-		tclModelCode.assertEquals('''
-			package com.example;
-			
-			import org.junit.Test;
-			import org.testeditor.dsl.common.testing.DummyFixture;
-			import org.testeditor.fixture.core.AbstractTestCase;
-			import org.testeditor.fixture.core.TestRunReporter;
-			
-			/**
-			 * Generated from MyTest.tcl
-			 */
-			@SuppressWarnings("all")
-			public class MyTest extends AbstractTestCase {
-			  private DummyFixture dummyFixture = new DummyFixture();
-			  
-			  @Test
-			  public void execute() throws Exception {
-			    
-			    reporter.enter(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "test something");
-			    
-			    reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "dummyComponent");
-			    
-			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Stop application");
-			    dummyFixture.stopApplication();
-			    throw new RuntimeException("Template 'do something' cannot be resolved with any known macro/fixture. Please check your file 'MyTest.tcl'");
-			  }
-			}
-		'''.toString)
+		
+		//then
+		tclModelCode.assertContains('''dummyFixture.stopApplication();''')
+		tclModelCode.
+			assertContains('''fail("Template 'do something' cannot be resolved with any known macro/fixture. Please check your file 'MyTest' at line 9");''')
 	}
-	
+
 	@Test
 	def void testGenerationForUnresolvedFixture() {
+		//given
 		val tclModel = parseTcl('''
 			package com.example
 			
@@ -127,36 +83,15 @@ class TclJvmModelInferrerTest extends AbstractTclGeneratorIntegrationTest {
 			- do something
 		''')
 		tclModel.addToResourceSet
-		
 
+		//when
 		val tclModelCode = tclModel.generate
-
-		tclModelCode.assertEquals('''
-			package com.example;
-			
-			import org.junit.Test;
-			import org.testeditor.dsl.common.testing.DummyFixture;
-			import org.testeditor.fixture.core.AbstractTestCase;
-			import org.testeditor.fixture.core.TestRunReporter;
-			
-			/**
-			 * Generated from MyTest.tcl
-			 */
-			@SuppressWarnings("all")
-			public class MyTest extends AbstractTestCase {
-			  private DummyFixture dummyFixture = new DummyFixture();
-			  
-			  @Test
-			  public void execute() throws Exception {
-			    
-			    reporter.enter(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "test something");
-			    
-			    reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "dummyComponent");
-			    
-			    throw new RuntimeException("Template 'do something' cannot be resolved with any known macro/fixture. Please check your file 'MyTest.tcl'");
-			  }
+		
+		//then
+		tclModelCode.assertContains(
+			'''fail("Template 'do something' cannot be resolved with any known macro/fixture. Please check your file 'MyTest' at line 8");'''.
+				toString)
 			}
-		'''.toString)
-	}	
 
-}
+		}
+		

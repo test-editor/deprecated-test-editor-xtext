@@ -17,6 +17,7 @@ import java.util.List
 import java.util.Optional
 import java.util.Set
 import org.apache.commons.lang3.StringEscapeUtils
+import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.common.types.JvmConstructor
 import org.eclipse.xtext.common.types.JvmDeclaredType
 import org.eclipse.xtext.common.types.JvmField
@@ -26,6 +27,7 @@ import org.eclipse.xtext.common.types.JvmType
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.common.types.JvmVisibility
 import org.eclipse.xtext.naming.IQualifiedNameProvider
+import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable
 import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
@@ -61,7 +63,6 @@ import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentValue
 
 import static org.testeditor.tcl.TclPackage.Literals.*
-import org.eclipse.xtext.EcoreUtil2
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -369,9 +370,9 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				output.append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
 			}
 		} else if (step.componentContext != null) {
-			output.append('''throw new RuntimeException("Template '«stepLog»' cannot be resolved with any known macro/fixture. Please check your file '«testCase.name».tcl'");''')
+			output.append('''fail("Template '«stepLog»' cannot be resolved with any known macro/fixture. Please check your file '«testCase.name»' at line «NodeModelUtils.findActualNodeFor(step).startLine»");''')
 		} else {
-			output.append('''// TODO could not resolve unknown component - «stepLog»''')
+			output.append('''fail("Template '«stepLog»' cannot be resolved with any known macro/fixture. Please check your file ");''')
 		}
 	}
 
