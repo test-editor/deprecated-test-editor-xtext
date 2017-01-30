@@ -55,6 +55,9 @@ How Test Cases, Configurations and Macro Libraries differ is discussed in greate
 
 (see [tcl syntax definition](https://ci.testeditor.org/job/test-editor/job/test-editor-xtext/job/feature%252FTE-465_syntax_n_feature_doc-with-product/lastSuccessfulBuild/artifact/docs/output/test-case-language/index.html))
 
+All code examples are available in the [doc-example project](https://github.com/test-editor/test-editor-examples) and can be inspected in
+the complete project context.
+
 ```
 # MyFirstTestCase
 
@@ -63,9 +66,9 @@ How Test Cases, Configurations and Macro Libraries differ is discussed in greate
 * Validate the correct answer to be _42_
 ```
 
-Given this simple test I want to successively add and describe feature of the language.
+Given this simple test I want to successively add and describe features of the language.
 
-First of all let's have a look at this *minial* test case.
+First of all let's have a look at this *minimal* test case.
 
 `# MyFirstTestCase` is part of the header of the test case, naming it. This name has to correspond with the file name used for this test
 case. The file name must be `MyFirstTestCase.tcl`.
@@ -130,10 +133,11 @@ the test such that a user should not have to worry about types until type-violat
 
 `- assert answer = "42"` will fail if the variable `answer` does not hold 42. Assertions are used to specify expectations in a test
 case. The expression that follows the assertion cannot make use of recursively nested expression. The following expression are allowed
-* simple boolean check (e.g. `- assert boolVar` or `- assert !boolVar` for negation)
-* simple comparitive check using operators `=`, `!=`, `>=`, `>`, `<`, `<=` (e.g. `- assert answer = "42"`)
-* string matching operations (e.g. `- someString matches "^notmuch.*of.+an$"` or `- someString does not match "[A-Z]+"`)
-* values can be either variables or string constants
+1. simple boolean check (e.g. `- assert boolVar` or `- assert !boolVar` for negation)
+2. simple comparitive check using operators `=`, `!=`, `>=`, `>`, `<`, `<=` (e.g. `- assert answer = "42"`)
+3. string matching operations (e.g. `- assert someString matches "^notmuch.*of.+an$"` or `- assert someString does not match "[A-Z]+"`)
+4. values can be either variables or string constants.
+Assertion steps can be used anywhere within a context (component/macro). 
 
 ### Header
 
@@ -149,7 +153,7 @@ Each test case must reside within a specific namespace. This will allow for
 A test case can explicitly specify its namespace by having e.g. `package my.name.space` at the top of the file. The namespace however must
 correspond to the file system location of the test case. Given the afore mentioned example, the test case must reside in the folder
 `my/name/space` (relative to namespace root). Since the namespace is derived from its location within the file system, the explicit package
-command is optional and its use is discouraged from.
+command is optional and its use is discouraged.
 
 #### Imported Namespaces
 
@@ -215,7 +219,7 @@ This macro can then be used as a regular test step within a macro context `Macro
 
 ```
   Macro: MyMacroLib
-  - ask "What is the meaning of Life?"
+  - Ask "What is the meaning of Life?"
 ```
 
 Currently macros cannot return any values. Thus the reading of the answer is left out of this macro.
@@ -264,9 +268,9 @@ not for the whole file.
 #### Environment Variables
 
 Environment variables are available for test cases only and cannot be used in configurations nor macros. They are declared in the head of
-the file by `require` followed by the variable name (e.g. `require browserPath`). Environment variables are accessible throughout the test
-case they are required in. Before a test gets executed a validation is made to ensure that all required environment variables are known,
-that is, they have to be defined in the environment, they may be empty.
+the file by `require` followed by the variable names separated by commata (e.g. `require browserPath, applicationUrl`). Environment
+variables are accessible throughout the test case they are required in. Before a test gets executed a validation is made to ensure that all
+required environment variables are known, that is, they have to be defined in the environment, they may be empty.
 
 #### Usage
 
@@ -292,11 +296,12 @@ concrete fixtures on the application model to be tested from the test implementa
 
 ### Components / Masks
 
-Components are elements that resemble an application entity for which a set of interactions are bundled.
+Components are elements that resemble an application entity for which a set of interactions are bundled. Following an example using the
+short syntax for element definitions (see next section for the alternate long syntax).
 
 ```
 component QOLPage is WebPage {
-    element QuestionField is TextField locate by NAME using "QTEXT_FIELD" restrict QuestionField to ValidQuestions
+    element QuestionField is TextField locate by NAME using "QTEXT_FIELD" restrict EnterIntoTextField.text to ValidQuestions
     element AnswerField is TextField locate by ID using "4711"
     element AskButton is Button locate by ID using "8000"
 }
@@ -320,14 +325,14 @@ Elements can be define using a compact syntax (as in the example above), or alte
 
 Short:
 ```
-element QuestionField is TextField locate by NAME using "QTEXT_FIELD" restrict QuestionField to ValidQuestions
+element QuestionField is TextField locate by NAME using "QTEXT_FIELD" restrict EnterIntoTextField.text to ValidQuestions
 ```
 Long:
 ```
 element QuestionField is TextField {
   locator = "QTEXT_FIELD"
   locatorStrategy = NAME
-  restrict QuestionField to ValidQuestions
+  restrict EnterIntoTextField.text to ValidQuestions
 }
 ```
 
@@ -366,7 +371,7 @@ definition). The `locatorStrategy` keyword, as well as the `element` keyword hav
 follow directly after its element within the call to the fixture method.
 
 ```
-interaction type EnterTextField {
+interaction type EnterIntoTextField {
   template = "Enter" ${text} "into" ${element}
   method = MyApplicationFixture.EnterIntoTextField(text, element, locatorStrategy)
 }
@@ -387,7 +392,7 @@ interactions (without element relation).
 
 ```
 component type WebPage {
-  interactions Reload
+  interactions = Reload
 }
 ```
 
@@ -406,3 +411,31 @@ Elements can be restricted to value spaces in order to make sure that no illegal
 ----------
 
 ## Test-Specification-Language
+
+The Test-Specification-Language (tsl) is designed to allow writing non formal specifications. Its syntax and semantics are thereby
+minimalistic.
+
+```
+# MySpecification
+
+* Open application and navigate to the question of life
+* Enter the question
+* Validate the correct answer to be _42_
+```
+
+As you might note, the tcl shares exactly this specification part with the specification language. `MySpecification` is the non formal
+definition of a test specification that can be used as an orientation in writing the appropriate concrete tests using the tcl. The test case
+may *implement* a specification. A test case actually implements a specification if it has all specification steps that the test
+specification defined and uses `implements` to reference the respective test specification. A minimal test case would look like this:
+
+```
+# MyFirstTestCase implements MySpecification
+
+* Open application and navigate to the question of life
+* Enter the question
+* Validate the correct answer to be _42_
+```
+
+You might note that no test steps are implemented. A complete test case would include the step implementations of course (see section
+[Steps](#steps) for a more complete example).
+
