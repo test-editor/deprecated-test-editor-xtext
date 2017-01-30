@@ -8,16 +8,7 @@ class TclJvmModelInferrerTest extends AbstractTclGeneratorIntegrationTest {
 
 	@Before
 	def void parseAmlModel() {
-		parseAml(DummyFixture.amlModel + '''
-			component type dummyComponentType {
-				interactions = stop
-			}
-			component dummyComponent is dummyComponentType {
-				element dummyElement is Label {
-					locator = "dummyLocator"
-				}
-			}
-		''').assertNoSyntaxErrors
+		parseAml(DummyFixture.amlModel).assertNoSyntaxErrors
 	}
 
 	@Test
@@ -30,7 +21,7 @@ class TclJvmModelInferrerTest extends AbstractTclGeneratorIntegrationTest {
 			
 			* test something
 			
-			Component: dummyComponent
+			Component: GreetingApplication
 			- Stop application
 		''')
 		tclModel.addToResourceSet
@@ -54,7 +45,7 @@ class TclJvmModelInferrerTest extends AbstractTclGeneratorIntegrationTest {
 			
 			* test something
 			
-			Component: dummyComponent
+			Component: GreetingApplication
 			- Stop application
 			- do something
 		''')
@@ -79,7 +70,7 @@ class TclJvmModelInferrerTest extends AbstractTclGeneratorIntegrationTest {
 			
 			* test something
 			
-			Component: dummyComponent
+			Component: GreetingApplication
 			- do something
 		''')
 		tclModel.addToResourceSet
