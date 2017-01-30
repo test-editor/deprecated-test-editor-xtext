@@ -53,7 +53,7 @@ How Test Cases, Configurations and Macro Libraries differ is discussed in greate
 
 ## Test-Case-Language
 
-(see [tcl syntax definition](https://ci.testeditor.org/job/test-editor/job/test-editor-xtext/job/feature%252FTE-465_syntax_n_feature_doc-with-product/lastSuccessfulBuild/artifact/docs/output/test-case-language/index.html))
+(see [tcl syntax definition](https://ci.testeditor.org/job/test-editor/job/test-editor-xtext/job/develop/lastSuccessfulBuild/artifact/docs/output/test-case-language/index.html))
 
 All code examples are available in the [doc-example project](https://github.com/test-editor/test-editor-examples) and can be inspected in
 the complete project context.
@@ -83,14 +83,14 @@ steps are not formal enough to actually run a test, the test must be elaborated 
 ### Steps
 
 ```
-# MyFirstTestCase
-
 require browserPath
+
+# MyFirstTestCase
 
 * Open application and navigate to the question of life
   
-  Component: WebBrowser
-  - Open browser @browserPath
+  Component: Browser
+  - Start browser @browserPath
   - Navigate to "http://org.question-of-life/index.html"
 
 * Enter the question
@@ -105,6 +105,8 @@ require browserPath
   - answer = Read <AnswerField>
   - assert answer = "42"
 ```
+
+(see [MyFirstTestCase.tcl](https://github.com/test-editor/test-editor-examples/blob/develop/doc-example/src/test/java/root/MyFirstTestCase.tcl))
 
 Now each specification step is *implemented* using appropriate test steps. Each test step is valid only within a context. The context can be
 either a Component / Mask or a Macro. Component and Mask can be used synonymously whereas Macros are somewhat different and will be
@@ -183,6 +185,7 @@ Cleanup:
   Component: Browser
   - Close browser
 ```
+(see [MyFirstConfig.config](https://github.com/test-editor/test-editor-examples/blob/develop/doc-example/src/test/java/root/MyFirstConfig.config))
 
 Explicitly using a configuration (which specifies Setup and Cleanup) in a test case:
 ```
@@ -214,6 +217,7 @@ template = "Ask" ${question}
   - Click <AskButton>
   
 ```
+(see [MyMacroLib.tml](https://github.com/test-editor/test-editor-examples/blob/develop/doc-example/src/test/java/root/MyMacroLib.tml))
 
 This macro can then be used as a regular test step within a macro context `Macro: MyMacroLib` which defines the context for the macro. 
 
@@ -289,7 +293,7 @@ its parameters.
 
 ## Application-Mapping-Language
 
-(see [aml syntax definition](https://ci.testeditor.org/job/test-editor/job/test-editor-xtext/job/feature%252FTE-465_syntax_n_feature_doc-with-product/lastSuccessfulBuild/artifact/docs/output/application-modelling-language/index.html))
+(see [aml syntax definition](https://ci.testeditor.org/job/test-editor/job/test-editor-xtext/job/develop/lastSuccessfulBuild/artifact/docs/output/application-modelling-language/index.html))
 
 The AML is used to define interactions with the application, which are then referenced by test steps within the TCL.  It decouples the
 concrete fixtures on the application model to be tested from the test implementation. 
@@ -306,6 +310,7 @@ component QOLPage is WebPage {
     element AskButton is Button locate by ID using "8000"
 }
 ```
+(see [MyApplicationMapping.aml](https://github.com/test-editor/test-editor-examples/blob/develop/doc-example/src/test/java/root/MyApplicationMapping.aml))
 
 This defines a component `QOLPage` that is of type `WebPage` (Component Types will be talked about later on). The `OQLPage` contains three
 elements, `QuestionField`, `AnswerField` and `AskButton`. These three elements can be used within the context of `OQLPage`. 
@@ -412,6 +417,8 @@ Elements can be restricted to value spaces in order to make sure that no illegal
 
 ## Test-Specification-Language
 
+(see [tsl syntax definition](https://ci.testeditor.org/job/test-editor/job/test-editor-xtext/job/develop/lastSuccessfulBuild/artifact/docs/output/test-specification-language/index.html))
+
 The Test-Specification-Language (tsl) is designed to allow writing non formal specifications. Its syntax and semantics are thereby
 minimalistic.
 
@@ -422,6 +429,7 @@ minimalistic.
 * Enter the question
 * Validate the correct answer to be _42_
 ```
+(see [MySpecification.tsl](https://github.com/test-editor/test-editor-examples/blob/develop/doc-example/src/test/java/root/MySpecification.tsl))
 
 As you might note, the tcl shares exactly this specification part with the specification language. `MySpecification` is the non formal
 definition of a test specification that can be used as an orientation in writing the appropriate concrete tests using the tcl. The test case
@@ -435,7 +443,7 @@ specification defined and uses `implements` to reference the respective test spe
 * Enter the question
 * Validate the correct answer to be _42_
 ```
+(see [MyFirstTestCase.tcl](https://github.com/test-editor/test-editor-examples/blob/develop/doc-example/src/test/java/root/MyFirstTestCase.tcl))
 
 You might note that no test steps are implemented. A complete test case would include the step implementations of course (see section
 [Steps](#steps) for a more complete example).
-
