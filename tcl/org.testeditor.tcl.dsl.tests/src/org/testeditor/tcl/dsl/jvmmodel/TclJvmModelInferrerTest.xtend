@@ -57,7 +57,7 @@ class TclJvmModelInferrerTest extends AbstractTclGeneratorIntegrationTest {
 		//then
 		tclModelCode.assertContains('''dummyFixture.stopApplication();''')
 		tclModelCode.
-			assertContains('''fail("Template 'do something' cannot be resolved with any known macro/fixture. Please check your file 'MyTest' at line 9");''')
+			assertContains('''fail("Template 'do something' cannot be resolved with any known macro/fixture. Please check your Testcase 'MyTest' in line 9.");''')
 	}
 
 	@Test
@@ -80,9 +80,8 @@ class TclJvmModelInferrerTest extends AbstractTclGeneratorIntegrationTest {
 		
 		//then
 		tclModelCode.assertContains(
-			'''fail("Template 'do something' cannot be resolved with any known macro/fixture. Please check your file 'MyTest' at line 8");'''.
+			'''fail("Template 'do something' cannot be resolved with any known macro/fixture. Please check your Testcase 'MyTest' in line 8.");'''.
 				toString)
-			}
-
-		}
+	}
+}
 		

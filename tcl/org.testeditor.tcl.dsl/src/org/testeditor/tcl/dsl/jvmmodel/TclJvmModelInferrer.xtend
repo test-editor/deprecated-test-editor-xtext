@@ -63,6 +63,7 @@ import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentValue
 
 import static org.testeditor.tcl.TclPackage.Literals.*
+import org.testeditor.tcl.MacroCollection
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -354,7 +355,6 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		val stepLog = step.contents.restoreString
 		logger.debug("generating code line for test step='{}'.", stepLog)
 		val interaction = step.interaction
-		 val testCase=EcoreUtil2.getContainerOfType(step, TestCase)
    		
 		if (interaction !== null) {
 			logger.debug("derived interaction with method='{}' for test step='{}'.", interaction.defaultMethod?.operation?.qualifiedName, stepLog)
@@ -370,11 +370,28 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				output.append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
 			}
 		} else if (step.componentContext != null) {
-			output.append('''fail("Template '«stepLog»' cannot be resolved with any known macro/fixture. Please check your file '«testCase.name»' at line «NodeModelUtils.findActualNodeFor(step).startLine»");''')
+				output.append('''fail("Template '«stepLog»' cannot be resolved with any known macro/fixture. Please check your «step.locationInfo»");''')
 		} else {
-			output.append('''fail("Template '«stepLog»' cannot be resolved with any known macro/fixture. Please check your file ");''')
+			output.append('''fail("Template '«stepLog»' cannot be resolved with any known macro/fixture. Please check your  Macro-, Config- or Testcase-File ");''')
 		}
 	}
+	
+	private def String getLocationInfo(TestStep step) {
+		val testCase=EcoreUtil2.getContainerOfType(step, TestCase)
+		val macroLib=EcoreUtil2.getContainerOfType(step, MacroCollection)
+		val config=EcoreUtil2.getContainerOfType(step, TestConfiguration)
+		val lineNumber = NodeModelUtils.findActualNodeFor(step).startLine
+		
+		if (testCase !== null) {
+			return '''Testcase '«testCase.name»' in line «lineNumber».'''
+		}
+		if (macroLib !== null) {
+			return '''Macro '«macroLib.name»' in line «lineNumber».''' 
+		}
+		if (config !== null) {
+			return '''Configuration '«config.name»' in line «lineNumber».'''	
+		}
+	} 
 
 	private def void generateMacroCall(TestStep step, MacroTestStepContext context, ITreeAppendable output) {
 		val stepLog = step.contents.restoreString

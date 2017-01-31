@@ -48,6 +48,12 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 				- Set input to @value
 				Macro: MyMacroCollection
 				- Sleep for @seconds seconds
+			
+			## MacroWithNotExistingFixture
+				template = "stop this"
+				Component: GreetingApplication
+				- Stop application
+				- do something
 		''')
 	}
 
@@ -278,5 +284,34 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 		
 		* step1
 	'''
+
+	@Test
+	def void notExistingFixtureInMacro() {
+		// given
+		val tcl = '''
+			Macro: MyMacroCollection
+			- stop this
+		'''
+
+		// when
+		val generatedCode = tcl.parseAndGenerate
+
+
+		// then
+		generatedCode => [
+			assertContains('''
+				// Macro: MyMacroCollection
+				// - stop this
+				macro_MyMacroCollection_MacroWithNotExistingFixture();
+			'''.indent(2))
+			assertContains('''
+				reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
+				
+				reporter.enter(TestRunReporter.SemanticUnit.STEP, "Stop application");
+				dummyFixture.stopApplication();
+				fail("Template 'do something' cannot be resolved with any known macro/fixture. Please check your Macro 'MyMacroCollection' in line 44.");
+				'''.indent(2))
+		]
+	}
 
 }
