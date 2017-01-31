@@ -30,17 +30,18 @@ class TEContentProvider implements ITreeContentProvider {
 	@Inject WorkspaceHelper workspaceHelper
 	@Inject JavaCoreHelper javaCoreHelper
 
-	override getChildren(Object parentElement) {
+	override Object[] getChildren(Object parentElement) {
 		if (parentElement instanceof IProject) {
 			if (parentElement.hasNature(JavaCore.NATURE_ID)) {
 				val javaProject = javaCoreHelper.create(parentElement);
-				return javaProject.rawClasspath.filter[isRelevantClasspathEntry]
+				// TE-652 remove artificial folders from test project explorer
+				// return javaProject.rawClasspath.filter[isRelevantClasspathEntry]
 			}
 		}
 		if (parentElement instanceof IClasspathEntry) {
 			return workspaceHelper.getRoot.getFolder(parentElement.path).members
 		}
-		return null;
+		return #[];
 	}
 
 	override getElements(Object inputElement) {
@@ -73,7 +74,8 @@ class TEContentProvider implements ITreeContentProvider {
 	 */
 	def private IClasspathEntry getParentClasspathEntry(IResource element) {
 		if (element.project != null) {
-			val parentClasspathEntry = getChildren(element.project).filter(IClasspathEntry).filter [
+			val children = getChildren(element.project)
+			val parentClasspathEntry = children.filter(IClasspathEntry).filter [
 				isRelevantClasspathEntry
 			].findFirst [
 				workspaceHelper.root.getFolder(path).members.contains(element)
