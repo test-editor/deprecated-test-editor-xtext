@@ -1,8 +1,9 @@
+![Test-Editor](http://testeditor.org/wp-content/uploads/2014/04/LogoTesteditor-e1403289032145.png)
 # Test-Editor Language Features
 
 ## Introduction
 
-The Test-Editor is threefold. 
+The [Test-Editor](https://github.com/test-editor/test-editor-xtext) is threefold. 
 * It is a client application (RCP) which enables the Tester to create, edit and execute Tests. 
 * It is a set of plugins for the eclipse workbench which enable the developer to make use of tests, create, edit and execute them in the
 same fashion as the Tester does, without leaving his development environment.
