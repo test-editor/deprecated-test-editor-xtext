@@ -34,7 +34,7 @@ class TEContentProvider implements ITreeContentProvider {
 		if (parentElement instanceof IProject) {
 			if (parentElement.hasNature(JavaCore.NATURE_ID)) {
 				val javaProject = javaCoreHelper.create(parentElement);
-				// TE-652 remove artificial folders from test project explorer
+				// TE-470 remove artificial folders from test project explorer
 				// return javaProject.rawClasspath.filter[isRelevantClasspathEntry]
 			}
 		}

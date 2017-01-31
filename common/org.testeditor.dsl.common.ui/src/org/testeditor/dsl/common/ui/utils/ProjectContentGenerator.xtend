@@ -104,7 +104,7 @@ class ProjectContentGenerator {
 			if (buildsystem == GRADLE) {
 				setupEclipseMetaData(monitor)
 			}
-			// OTA-652 project file filter to allow access to src etc. are not activated
+			// TE-470 project file filter to allow access to src etc. are not activated
 			// filterTechnicalProjectFiles(monitor)
 		]
 	}
