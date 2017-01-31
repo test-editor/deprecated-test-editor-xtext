@@ -144,38 +144,8 @@ class TestCaseWithSeparateConfigTest extends AbstractStandaloneBuilderTest {
 		// then
 		val configOutput = readFile("src-gen/com/example/MyConfig.java").removeJavaDoc
 		val testOutput = readFile("src-gen/com/example/SimpleTest.java").removeJavaDoc
-		configOutput.assertEquals('''
-			package com.example;
-			
-			import org.junit.After;
-			import org.junit.Before;
-			import org.testeditor.dsl.common.testing.DummyFixture;
-			import org.testeditor.fixture.core.AbstractTestCase;
-			import org.testeditor.fixture.core.TestRunReporter;
-			
-			@SuppressWarnings("all")
-			public abstract class MyConfig extends AbstractTestCase {
-			  protected DummyFixture dummyFixture = new DummyFixture();
-			  
-			  @Before
-			  public void setupMyConfig() throws Exception {
-			    
-			    reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
-			    
-			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Start application \"org.testeditor.swing.exammple.Greetings\"");
-			    dummyFixture.startApplication("org.testeditor.swing.exammple.Greetings");
-			    fail("Template 'do something' cannot be resolved with any known macro/fixture. Please check your Configuration 'MyConfig' in line 8.");
-			  }
-			  
-			  @After
-			  public void cleanupMyConfig() throws Exception {
-			    
-			    reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
-			    
-			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Stop application");
-			    dummyFixture.stopApplication();
-			  }
-			}
+		configOutput.assertContains('''
+			fail("Template 'do something' cannot be resolved with any known macro/fixture. Please check your Configuration 'MyConfig' in line 8.");
 		'''.toString)
 	}
 	

@@ -391,6 +391,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		if (config !== null) {
 			return '''Configuration '«config.name»' in line «lineNumber».'''	
 		}
+		
+		throw new IllegalArgumentException;
 	} 
 
 	private def void generateMacroCall(TestStep step, MacroTestStepContext context, ITreeAppendable output) {
