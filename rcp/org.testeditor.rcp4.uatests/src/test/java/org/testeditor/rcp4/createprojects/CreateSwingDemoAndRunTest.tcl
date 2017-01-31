@@ -38,7 +38,7 @@ config TestEditorConfig
 	- Wait until all jobs finished* Run "GreetingTest"
 
 	Component: ProjectExplorer
-	- Select element "swingexecdemo/Tests/swingexecdemo/GreetingTest.tcl" in tree <ProjectTree>
+	- Select element "swingexecdemo/src/test/java/swingexecdemo/GreetingTest.tcl" in tree <ProjectTree>
 	- Execute menu item "Run test" in tree <ProjectTree>
 	- Wait for dialog "Progress Information" to popup and then close after at most "3" respectively "120" seconds  
 
