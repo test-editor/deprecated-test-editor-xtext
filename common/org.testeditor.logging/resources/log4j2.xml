@@ -4,10 +4,17 @@
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout pattern="%d{HH:mm:ss} %-5level [%t] %X{context} [%X{TestName}] %c{1} %msg%n" />
 		</Console>
+		<File name="LogFile" fileName="testeditor.log" immediateFlush="flush" append="true">
+			<PatternLayout pattern="%d{HH:mm:ss} %-5level [%t] %X{context} [%X{TestName}] %c{1} %msg%n" />
+		</File>
 	</Appenders>
 	<Loggers>
 		<Logger name="org.testeditor" level="debug" additivity="false">
 			<AppenderRef ref="Console" />
+			<AppenderRef ref="LogFile" />
+		</Logger>
+		<Logger name="org.eclipse" level="debug" additivity="false">
+			<AppenderRef ref="LogFile" />
 		</Logger>
 		<Root level="info">
 			<AppenderRef ref="Console" />

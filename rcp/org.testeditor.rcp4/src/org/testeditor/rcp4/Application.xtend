@@ -12,10 +12,12 @@
  *******************************************************************************/
 package org.testeditor.rcp4;
 
+import java.io.PrintStream
 import org.eclipse.equinox.app.IApplication
 import org.eclipse.equinox.app.IApplicationContext
 import org.eclipse.ui.PlatformUI
 import org.slf4j.LoggerFactory
+import org.testeditor.logging.LoggerStream
 
 /**
  * This class controls all aspects of the application's execution
@@ -27,6 +29,7 @@ public class Application implements IApplication {
 	 * @see IApplication#start(org.eclipse.equinox.app.IApplicationContext)
 	 */
 	override start(IApplicationContext context) {
+		captureConsoleoutputIntoLogger
 		logger.info("STARTING APPLICATION ..")
 		val display = PlatformUI.createDisplay
 		try {
@@ -57,4 +60,17 @@ public class Application implements IApplication {
 			}
 		]
 	}
+
+	/** 
+	 * Logs all output that is logged (written) to System.out and System.err through
+	 * the logger of this class. This allows the unification of eclipse rcp messages 
+	 * (written to the console through call parameter '-consoleLog') and the log output
+	 * of the test editor itself (through log4j). Configuration of log4j will then apply
+	 * to messages from eclipse and the test editor (e.g. redirection to a file). 
+	 */
+	private def void captureConsoleoutputIntoLogger() {
+		System.setOut(new PrintStream(new LoggerStream(logger, System.out)))
+		System.setErr(new PrintStream(new LoggerStream(logger, System.err))) 
+	}
+
 }

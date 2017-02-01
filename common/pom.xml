@@ -25,6 +25,7 @@
 		<module>org.testeditor.dsl.common.ui</module>
 		<module>org.testeditor.dsl.common.ui.tests</module>
 		<module>org.testeditor.logging</module>
+		<module>org.testeditor.logging.test</module>
 	</modules>
 
 </project>
