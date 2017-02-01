@@ -18,7 +18,7 @@ Setup:
 * Rename "GoogleTest.tcl" to "NewTestCase.tcl"
 
 	Component: ProjectExplorer
-	- Select element "demo/Tests/demo/GoogleTest.tcl" in tree <ProjectTree>
+	- Select element "demo/src/test/java/demo/GoogleTest.tcl" in tree <ProjectTree>
 	- Execute menu item "Rename..." in tree <ProjectTree>
 
 	Component: RenameDialog
