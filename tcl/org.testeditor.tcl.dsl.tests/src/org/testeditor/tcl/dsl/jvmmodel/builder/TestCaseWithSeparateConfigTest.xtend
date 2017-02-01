@@ -8,7 +8,7 @@ import org.testeditor.fixture.core.AbstractTestCase
 class TestCaseWithSeparateConfigTest extends AbstractStandaloneBuilderTest {
 
 	@Test
-	def void generateWithSeparateConfiguration() {
+	def void testGenerateWithSeparateConfiguration() {
 		// given
 		val configSource = '''
 			package com.example
@@ -103,8 +103,8 @@ class TestCaseWithSeparateConfigTest extends AbstractStandaloneBuilderTest {
 	}
 	
 	
-		@Test
-	def void generateConfigurationWithUnknownFixture() {
+	@Test
+	def void testGenerateConfigurationWithUnknownFixture() {
 		// given
 		val configSource = '''
 			package com.example

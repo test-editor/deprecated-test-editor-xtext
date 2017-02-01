@@ -286,7 +286,7 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 	'''
 
 	@Test
-	def void notExistingFixtureInMacro() {
+	def void testNotExistingFixtureInMacro() {
 		// given
 		val tcl = '''
 			Macro: MyMacroCollection
