@@ -140,11 +140,25 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		]
 		return fixtureTypes.filter[!accessibleSuperFieldTypes.contains(it)]
 	}
-	
-	private def Iterable<JvmDeclaredType> getAllInstantiatedTypesImplementingTestRunReportable(SetupAndCleanupProvider element, JvmDeclaredType generatedClass) {
+
+	private def boolean implementsInterface(JvmDeclaredType type, Class<?> ^interface) {
+		val interfaceName=^interface.canonicalName
+		return type.extendedInterfaces.map[qualifiedName].exists[equals(interfaceName)] //
+		|| { // lazy or -> recursion only if necessary
+			val parent = type.extendedClass?.type
+			if (parent !== null && parent instanceof JvmDeclaredType) {
+				(parent as JvmDeclaredType).implementsInterface(^interface)
+			} else {
+				false
+			}
+		}
+	}
+
+	private def Iterable<JvmDeclaredType> getAllInstantiatedTypesImplementingTestRunReportable(
+		SetupAndCleanupProvider element, JvmDeclaredType generatedClass) {
 		return getAllTypesToInstantiate(element, generatedClass) //
-			.filter(JvmDeclaredType) //
-			.filter [extendedInterfaces.map[qualifiedName].exists[equals(TestRunReportable.canonicalName)]]
+		.filter(JvmDeclaredType) //
+		.filter[implementsInterface(TestRunReportable)]
 	}
 	
 	def JvmConstructor createConstructor(SetupAndCleanupProvider element,
