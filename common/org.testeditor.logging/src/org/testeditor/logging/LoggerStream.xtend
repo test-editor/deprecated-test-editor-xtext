@@ -25,23 +25,6 @@ class LoggerStream extends OutputStream {
 		string.addString
 	}
 
-	private def void addString(String string) {
-		if (string.contains('\r')) {
-			val lines = string.split("\r(\n)?")
-			logLineBuffer.append(lines.get(0))
-			val completeString = logLineBuffer.toString.trim
-			if (!completeString.empty) {
-				logger.debug(completeString)
-			}
-			logLineBuffer.setLength(0)
-			if (lines.length > 1) {
-				logLineBuffer.append(lines.get(1))
-			}
-		} else {
-			logLineBuffer.append(string)
-		}
-	}
-
 	override void write(byte[] b, int off, int len) throws IOException {
 		outputStream.write(b, off, len)
 		val string = new String(b, off, len)
@@ -52,6 +35,25 @@ class LoggerStream extends OutputStream {
 		outputStream.write(b)
 		val string = String.valueOf((b as char))
 		string.addString
+	}
+
+	private def void addString(String string) {
+		if (string.contains('\n')) {
+			val lines = string.split("(\r)?\n")
+			if (lines.length > 0) {
+				logLineBuffer.append(lines.get(0))
+				val completeString = logLineBuffer.toString.trim
+				if (!completeString.empty) {
+					logger.debug(completeString)
+				}
+				logLineBuffer.setLength(0)
+				if (lines.length > 1) {
+					logLineBuffer.append(lines.get(1))
+				}
+			}
+		} else {
+			logLineBuffer.append(string)
+		}
 	}
 
 }

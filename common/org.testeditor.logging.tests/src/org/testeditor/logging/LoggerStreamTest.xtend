@@ -39,7 +39,7 @@ class LoggerStreamTest {
 	@Test
 	def void testNewlineLogs() {
 		// given
-		val hello = "Hello\r".bytes
+		val hello = "Hello\n".bytes
 
 		// when		
 		classUnderTest.write(hello)
@@ -53,7 +53,7 @@ class LoggerStreamTest {
 	def void testNewlineWithPreceedingLogs() {
 		// given
 		val world = "World, ".bytes
-		val hello = "Hello\r".bytes
+		val hello = "Hello\n".bytes
 
 		// when		
 		classUnderTest.write(world)
@@ -68,7 +68,7 @@ class LoggerStreamTest {
 	@Test
 	def void testNewLineAtStart() {
 		// given
-		val hello = "\rHello".bytes
+		val hello = "\nHello".bytes
 		
 		// when
 		classUnderTest.write(hello)
@@ -81,7 +81,7 @@ class LoggerStreamTest {
 	@Test
 	def void testNewLineInTheMiddle() {
 		// given
-		val hello = "Hello\r World!".bytes
+		val hello = "Hello\n World!".bytes
 		
 		// when
 		classUnderTest.write(hello)
@@ -89,6 +89,19 @@ class LoggerStreamTest {
 		// then
 		logger.verify.debug("Hello")
 		outputStream.verify.write(hello)
+	}
+	
+	@Test
+	def void testLinefeedOnly() {
+		// given
+		val linefeed="\n".bytes
+		
+		// when
+		classUnderTest.write(linefeed)
+		
+		// then
+		logger.verify(never).debug(any)
+		outputStream.verify.write(linefeed)
 	}
 
 }

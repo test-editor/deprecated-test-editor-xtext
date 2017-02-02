@@ -4,17 +4,22 @@
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout pattern="%d{HH:mm:ss} %-5level [%t] %X{context} [%X{TestName}] %c{1} %msg%n" />
 		</Console>
-		<File name="LogFile" fileName="testeditor.log" immediateFlush="flush" append="true">
+		<RollingFile name="RollingFile" fileName="testeditor.log" filePattern="logs/$${date:yyyy-MM}/testeditor-%d{MM-dd-yyyy}-%i.log.gz">
 			<PatternLayout pattern="%d{HH:mm:ss} %-5level [%t] %X{context} [%X{TestName}] %c{1} %msg%n" />
-		</File>
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="10 MB"/>
+			</Policies>
+			<DefaultRolloverStrategy max="20"/>
+		</RollingFile>
 	</Appenders>
 	<Loggers>
 		<Logger name="org.testeditor" level="debug" additivity="false">
 			<AppenderRef ref="Console" />
-			<AppenderRef ref="LogFile" />
+			<AppenderRef ref="RollingFile" />
 		</Logger>
 		<Logger name="org.eclipse" level="debug" additivity="false">
-			<AppenderRef ref="LogFile" />
+			<AppenderRef ref="RollingFile" />
 		</Logger>
 		<Root level="info">
 			<AppenderRef ref="Console" />
