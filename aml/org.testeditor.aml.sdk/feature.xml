@@ -2,7 +2,7 @@
 <feature
       id="org.testeditor.aml.sdk"
       label="AML SDK Feature"
-      version="1.3.0">
+      version="1.4.0.qualifier">
 
    <copyright>
       Copyright (c) 2012 - 2015 Signal Iduna Corporation and others.

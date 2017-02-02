@@ -1,4 +1,4 @@
-package org.testeditor.core.logging;
+package org.testeditor.logging;
 
 import static org.testeditor.logging.MDCHelper.*;
 
