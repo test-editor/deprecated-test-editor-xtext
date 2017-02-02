@@ -94,7 +94,7 @@ public class Application implements IApplication {
 				if (mavenCommand == "") {
 					return MavenVersionCheck.no_maven
 				}
-				val command = newArrayList("C:\\development\\apache-maven-3.2.5\\bin\\mvn2.bat", "-v")
+				val command = newArrayList(MavenExecutor.getPathToMavenExecutable(SystemUtils.IS_OS_WINDOWS), "-v")
 
 				val processBuilder = new ProcessBuilder()
 				processBuilder.command(command)

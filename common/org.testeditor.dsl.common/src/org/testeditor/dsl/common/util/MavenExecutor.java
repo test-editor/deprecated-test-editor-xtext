@@ -21,8 +21,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.maven.cli.MavenCli;
 import org.eclipse.core.runtime.IProgressMonitor;
