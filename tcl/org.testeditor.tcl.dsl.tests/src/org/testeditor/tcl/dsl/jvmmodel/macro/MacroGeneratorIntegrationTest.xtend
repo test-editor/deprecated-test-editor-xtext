@@ -309,7 +309,7 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 				
 				reporter.enter(TestRunReporter.SemanticUnit.STEP, "Stop application");
 				dummyFixture.stopApplication();
-				fail("Template 'do something' cannot be resolved with any known macro/fixture. Please check your Macro 'MyMacroCollection' in line 44.");
+				org.junit.Assert.fail("Template 'do something' cannot be resolved with any known macro/fixture. Please check your Macro 'MyMacroCollection' in line 44.");
 				'''.indent(2))
 		]
 	}

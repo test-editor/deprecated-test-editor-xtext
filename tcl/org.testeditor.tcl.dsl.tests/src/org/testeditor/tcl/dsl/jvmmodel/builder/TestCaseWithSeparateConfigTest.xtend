@@ -145,7 +145,7 @@ class TestCaseWithSeparateConfigTest extends AbstractStandaloneBuilderTest {
 		val configOutput = readFile("src-gen/com/example/MyConfig.java").removeJavaDoc
 		val testOutput = readFile("src-gen/com/example/SimpleTest.java").removeJavaDoc
 		configOutput.assertContains('''
-			fail("Template 'do something' cannot be resolved with any known macro/fixture. Please check your Configuration 'MyConfig' in line 8.");
+			org.junit.Assert.fail("Template 'do something' cannot be resolved with any known macro/fixture. Please check your Configuration 'MyConfig' in line 8.");
 		'''.toString)
 	}
 	
