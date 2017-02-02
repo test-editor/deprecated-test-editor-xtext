@@ -2,7 +2,7 @@
 <feature
       id="org.testeditor.aml.legacy.feature"
       label="AML Legacy Feature"
-      version="1.4.0.qualifier">
+      version="1.4.0">
 
    <copyright>
       Copyright (c) 2012 - 2015 Signal Iduna Corporation and others.
