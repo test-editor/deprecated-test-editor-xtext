@@ -370,9 +370,9 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				output.append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
 			}
 		} else if (step.componentContext != null) {
-			output.append('''fail("Template '«stepLog»' cannot be resolved with any known macro/fixture. Please check your «step.locationInfo»");''')
+			output.append('''org.junit.Assert.fail("Template '«stepLog»' cannot be resolved with any known macro/fixture. Please check your «step.locationInfo»");''')
 		} else {
-			output.append('''fail("Template '«stepLog»' cannot be resolved with any known macro/fixture. Please check your  Macro-, Config- or Testcase-File ");''')
+			output.append('''org.junit.Assert.fail("Template '«stepLog»' cannot be resolved with any known macro/fixture. Please check your  Macro-, Config- or Testcase-File ");''')
 		}
 	}
 	
@@ -406,7 +406,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			val parameters = generateCallParameters(step, macro)
 			output.append('''«macroHelper.getMethodName(macro)»(«parameters»);''')
 		} else {
-			output.append('''// TODO could not resolve '«context.macroCollection.name»' - «stepLog»''')
+			output.append('''org.junit.Assert.fail("Could not resolve '«context.macroCollection.name»'. Please check your «step.locationInfo»");''')
 		}
 	}
 
