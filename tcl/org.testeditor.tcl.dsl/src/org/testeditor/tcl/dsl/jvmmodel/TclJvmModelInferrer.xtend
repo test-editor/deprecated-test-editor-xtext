@@ -406,7 +406,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			val parameters = generateCallParameters(step, macro)
 			output.append('''«macroHelper.getMethodName(macro)»(«parameters»);''')
 		} else {
-			output.append('''// TODO Macro could not resolve '«context.macroCollection.name»' - «stepLog»''')
+			output.append('''org.junit.Assert.fail("Could not resolve '«context.macroCollection.name»' - «stepLog»");''')
 		}
 	}
 
