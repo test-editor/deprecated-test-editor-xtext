@@ -12,63 +12,43 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.util
 
-import java.io.File
 import org.junit.Test
 import org.mockito.InjectMocks
-import org.mockito.Mock
 import org.testeditor.dsl.common.testing.AbstractTest
-
-import static org.mockito.Mockito.*
 
 class MavenExecutorTest extends AbstractTest {
 
 	@InjectMocks
 	MavenExecutor mavenExecutor
 
-	@Mock
-	OSUtil osUtil
-
 	@Test
 	def void testGetExecuteMavenScriptCommandOnWindows() {
 		// given
-		when(osUtil.isWindows).thenReturn(true)
+		val osIsWindows = true
 
 		// when
-		val commandString = mavenExecutor.getExecuteMavenScriptCommand("package", "output=path")
+		val commandString = mavenExecutor.getExecuteMavenScriptCommand("package", "output=path", osIsWindows)
 
 		// then
-		assertTrue(commandString.get(0).endsWith("bin\\mvn.bat"))
-		assertEquals("package", commandString.get(1))
-		assertEquals("-Doutput=path", commandString.get(2))
+		commandString.get(0).endsWith("bin\\mvn.bat").assertTrue
+		commandString.get(1).assertEquals("package")
+		commandString.get(2).assertEquals("-Doutput=path")
 	}
 
 	@Test
 	def void testGetExecuteMavenScriptCommandOnUnix() {
 		// given
-		when(osUtil.isWindows).thenReturn(false)
+		val osIsWindows = false
 
 		// when
-		val commandString = mavenExecutor.getExecuteMavenScriptCommand("package", "output=path")
+		val commandString = mavenExecutor.getExecuteMavenScriptCommand("package", "output=path", osIsWindows)
 
 		// then
-		assertTrue(commandString.get(0).endsWith("bin/mvn"))
-		assertEquals("package", commandString.get(1))
-		assertEquals("-Doutput=path", commandString.get(2))
+		commandString.get(0).endsWith("bin/mvn").assertTrue
+		commandString.get(1).assertEquals("package")
+		commandString.get(2).assertEquals("-Doutput=path")
 
 	}
 
-	@Test
-	def void testGetExecuteEmbeddedMavenCommand() {
-		// given
-		// when
-		val commandString = mavenExecutor.getExecuteEmbeddedMavenCommand("package", "path/to/pom", "output=path", true)
-
-		// then
-		assertTrue(commandString.get(0).endsWith("bin" + File.separator + "java"))
-		assertEquals("-cp", commandString.get(1))
-		assertTrue(commandString.contains("output=path"))
-		assertTrue(commandString.contains("package"))
-		assertTrue(commandString.contains("path/to/pom"))
-	}
 
 }

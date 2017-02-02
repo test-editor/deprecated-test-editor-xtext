@@ -19,7 +19,9 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.List
 import java.util.Map
+import java.util.Scanner
 import javax.inject.Inject
+import javax.swing.JOptionPane
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.IStatus
@@ -27,9 +29,7 @@ import org.eclipse.core.runtime.NullProgressMonitor
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
 import org.testeditor.dsl.common.util.MavenExecutor
-import java.util.Scanner
-import javax.swing.JOptionPane
-import javax.swing.ProgressMonitor
+import org.gradle.internal.impldep.org.apache.commons.lang.SystemUtils
 
 public class TclMavenLauncher implements TclLauncher {
 
@@ -61,7 +61,7 @@ public class TclMavenLauncher implements TclLauncher {
 		}
 
 		val result = mavenExecutor.executeInNewJvm(parameters, project.location.toOSString, testSelectionArgument,
-			monitor, out, false)
+			monitor, out)
 		val testResultFolder = project.createOrGetDeepFolder(MVN_TEST_RESULT_FOLDER).location.toFile
 		if (result == IStatus.OK) {
 			return new LaunchResult(testResultFolder)
@@ -79,8 +79,7 @@ public class TclMavenLauncher implements TclLauncher {
 
 	def checkMavenVersion(IProject project, IProgressMonitor monitor) {
 		val versionOut = new ByteArrayOutputStream()
-		val infoResult = mavenExecutor.executeInNewJvm("-version", project.location.toOSString, "", monitor, versionOut,
-			false)
+		val infoResult = mavenExecutor.executeInNewJvm("-version", project.location.toOSString, "", monitor, versionOut)
 		if (infoResult != IStatus.OK) {
 			logger.error("Error during determine maven version")
 			return false
@@ -109,7 +108,7 @@ public class TclMavenLauncher implements TclLauncher {
 
 	def Iterable<String> getProfiles(IProject project) {
 		mavenExecutor.executeInNewJvm("help:all-profiles", project.location.toOSString, '''output=«PROFILE_TXT_PATH»''',
-			new NullProgressMonitor, System.out, false)
+			new NullProgressMonitor, System.out)
 		val file = new File('''«project.location.toOSString»/«PROFILE_TXT_PATH»''')
 		val profileOutput = Files.readAllLines(file.toPath, StandardCharsets.UTF_8)
 		return profileOutput.filter[contains("Profile Id:")].map [

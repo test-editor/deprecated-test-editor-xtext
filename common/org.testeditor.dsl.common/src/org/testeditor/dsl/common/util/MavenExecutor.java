@@ -18,20 +18,15 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.maven.cli.MavenCli;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.m2e.core.internal.Bundles;
-import org.eclipse.m2e.core.internal.MavenPluginActivator;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,10 +39,17 @@ import org.slf4j.LoggerFactory;
 public class MavenExecutor {
 
 	private static Logger logger = LoggerFactory.getLogger(MavenExecutor.class);
+	public static int MAVEN_MIMIMUM_MAJOR_VERSION = 3;
+	public static int MAVEN_MIMIMUM_MINOR_VERSION = 2;
+	public static String TE_MAVEN_HOME = "MAVEN_HOME";
 
-	@Inject
-	private OSUtil osUtil;
-
+	public enum MavenVersionCheck {
+		wrong_version,
+		unknown_version,
+		ok,
+		no_maven
+	}
+	
 	/**
 	 * Executes the maven build using maven embedder. It allways starts with a
 	 * clean operation to delete old test results.
@@ -92,8 +94,8 @@ public class MavenExecutor {
 	 *             on failure
 	 */
 	public int executeInNewJvm(String parameters, String pathToPom, String testParam, IProgressMonitor monitor,
-			OutputStream outputStream, boolean useJvmClasspath) throws IOException {
-		List<String> command = createMavenExecCommand(parameters, pathToPom, testParam, useJvmClasspath);
+			OutputStream outputStream) throws IOException {
+		List<String> command = createMavenExecCommand(parameters, pathToPom, testParam);
 		ProcessBuilder processBuilder = new ProcessBuilder();
 		processBuilder.directory(new File(pathToPom));
 		logger.info("Executing maven in new jvm with command={}", command);
@@ -119,90 +121,35 @@ public class MavenExecutor {
 		}
 	}
 
-	private List<String> createMavenExecCommand(String parameters, String pathToPom, String testParam,
-			boolean useJvmClasspath) {
+	private List<String> createMavenExecCommand(String parameters, String pathToPom, String testParam) {
 		List<String> command = new ArrayList<String>();
-		if (useJvmClasspath && System.getenv("MAVEN_HOME") != null) {
-			command.addAll(getExecuteMavenScriptCommand(parameters, testParam));
-		} else {
-			command.addAll(getExecuteEmbeddedMavenCommand(parameters, pathToPom, testParam, useJvmClasspath));
-		}
+		command.addAll(getExecuteMavenScriptCommand(parameters, testParam,SystemUtils.IS_OS_WINDOWS));
 		if (Boolean.getBoolean("te.workOffline")) {
 			command.add("-o");
 		}
 		return command;
 	}
 
-	protected Collection<? extends String> getExecuteEmbeddedMavenCommand(String parameters, String pathToPom,
-			String testParam, boolean useJvmClasspath) {
-		List<String> command = new ArrayList<String>();
-		String jvm = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
-		command.add(jvm);
-		command.add("-cp");
-		String mvnClasspath = getClassPath(useJvmClasspath);
-		logger.info("Using Classpath {} for maven", mvnClasspath);
-		command.add(mvnClasspath);
-		Properties props = System.getProperties();
-		for (String key : props.stringPropertyNames()) {
-			if (key.startsWith("http.") | key.startsWith("TE.") | key.startsWith("https.")) {
-				command.add("-D" + key + "=" + props.getProperty(key));
-			}
-		}
-		command.add(this.getClass().getName());
-		command.add(parameters);
-		command.add(pathToPom);
-		command.add(testParam);
-		return command;
-	}
 
-	protected List<String> getExecuteMavenScriptCommand(String parameters, String testParam) {
+	protected List<String> getExecuteMavenScriptCommand(String parameters, String testParam, boolean isOsWindows) {
 		List<String> command = new ArrayList<String>();
-		if (osUtil.isWindows()) {
-			command.add(System.getenv("MAVEN_HOME") + "\\bin\\mvn.bat");
-		} else {
-			command.add(System.getenv("MAVEN_HOME") + "/bin/mvn");
-		}
+		command.add(getPathToMavenExecutable(isOsWindows));
 		command.add(parameters);
 		command.add("-D" + testParam);
 		return command;
 	}
 
-	/**
-	 * Builds the classpath to maven embedder libs, this class and the
-	 * dependencies.
-	 * 
-	 * @param useJvmClasspath
-	 * 
-	 * @return String with the classpath
-	 */
-	private String getClassPath(boolean useJvmClasspath) {
-		if (useJvmClasspath) {
-			return System.getProperty("java.class.path");
+	public static String getPathToMavenExecutable(boolean isOsWindows) {
+		String mavenHome = System.getenv(TE_MAVEN_HOME);
+		if(mavenHome == null){
+			return "";
 		}
-		List<String> cp = new ArrayList<String>();
-		cp.addAll(Bundles.getClasspathEntries(Bundles
-				.findDependencyBundle(MavenPluginActivator.getDefault().getBundle(), "org.eclipse.m2e.maven.runtime")));
-		cp.addAll(Bundles.getClasspathEntries(Bundles
-				.findDependencyBundle(MavenPluginActivator.getDefault().getBundle(), "org.eclipse.equinox.common")));
-		Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-		cp.addAll(Bundles.getClasspathEntries(bundle));
-		for (String sname : new String[] { "org.slf4j.api", "org.eclipse.m2e.maven.runtime.slf4j.simple",
-				"javax.inject" }) {
-			Bundle dependency = Bundles.findDependencyBundle(Bundles.findDependencyBundle(
-					MavenPluginActivator.getDefault().getBundle(), "org.eclipse.m2e.maven.runtime"), sname);
-			if (dependency != null) {
-				cp.addAll(Bundles.getClasspathEntries(dependency));
-			}
+		if (isOsWindows) {
+			return mavenHome + "\\bin\\mvn.bat";
+		} else {
+			return mavenHome + "/bin/mvn";
 		}
-		StringBuffer sb = new StringBuffer();
-		sb.append("\"");
-		for (String string : cp) {
-			sb.append(string).append(File.pathSeparator);
-		}
-		sb.append("\"");
-		return sb.toString();
 	}
-
 	/**
 	 * Entry point of the new jvm used for the maven build.
 	 * 

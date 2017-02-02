@@ -29,6 +29,7 @@ import org.testeditor.dsl.common.util.MavenExecutor
 import org.w3c.dom.Document
 import org.w3c.dom.Node
 import javax.inject.Singleton
+import org.apache.commons.lang3.SystemUtils
 
 @Singleton
 class MavenClasspathUtil {
@@ -46,7 +47,7 @@ class MavenClasspathUtil {
 	def List<IPath> getMavenClasspathEntries(IPath path) {
 		if (mavenClasspath == null) {
 			mavenCommand.executeInNewJvm("help:effective-pom", path.toOSString,
-				"output=" + path.append(EFFECTIVE_POM_TXT_PATH).toOSString, new NullProgressMonitor(), System.out, true)
+				"output=" + path.append(EFFECTIVE_POM_TXT_PATH).toOSString, new NullProgressMonitor(), System.out)
 			val effectivePom = new File(path.toFile, EFFECTIVE_POM_TXT_PATH)
 			if (effectivePom.exists) {
 				mavenClasspath = readMavenClasspathEntriesFromPom(new FileInputStream(effectivePom))

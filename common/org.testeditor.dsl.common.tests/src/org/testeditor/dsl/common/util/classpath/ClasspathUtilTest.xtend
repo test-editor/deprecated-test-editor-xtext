@@ -29,9 +29,8 @@ import org.mockito.InjectMocks
 import org.testeditor.dsl.common.testing.AbstractTest
 import org.testeditor.dsl.common.util.MavenExecutor
 
-import static org.mockito.Mockito.*
-
 import static org.junit.Assume.*
+import static org.mockito.Mockito.*
 
 class ClasspathUtilTest extends AbstractTest {
 
@@ -145,7 +144,7 @@ class ClasspathUtilTest extends AbstractTest {
 	static class MavenExecutorDummy extends MavenExecutor {
 
 		override executeInNewJvm(String parameters, String pathToPom, String testParam, IProgressMonitor monitor,
-			OutputStream outputStream, boolean useJvmClasspath) throws IOException {
+			OutputStream outputStream) throws IOException {
 			return 0;
 		}
 
