@@ -43,7 +43,7 @@ For building the full RCP product we simply add the Maven profile "`product`":
 
 ### The downloaded application won't start
 
- The editor requires a JDK 1.8 in order to start. If you default system JVM is different, you can set the path to the JDK by opening the `eclipse.ini` file and placing the following at the end:
+ The editor requires a JDK 1.8 in order to start. If your default system JVM is different, you can set the path to the JDK by opening the `eclipse.ini` file and placing the following at the end:
  
     -vm
     <pathToYourJDK8>
