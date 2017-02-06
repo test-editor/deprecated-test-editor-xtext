@@ -8,10 +8,11 @@ An Xtext based editor to specify domain-driven acceptance tests.
 
 ## Users
 
-The latest released version can be found on [bintray](https://bintray.com/test-editor/test-editor/testeditor-app).
+The latest released version of the RCP can be found on the [Test-Editor CI](https://ci.testeditor.org/view/Test-Editor%202/job/test-editor/job/test-editor-xtext/job/master/lastSuccessfulBuild/artifact/rcp/org.testeditor.rcp4.product/target/products/)
 
-The latest development version can be downloaded [here](https://ci.testeditor.org/job/test-editor/job/test-editor-xtext/job/develop/lastSuccessfulBuild/artifact/rcp/org.testeditor.rcp4.product/target/products/).
+The latest released version of the plugins can be found on [bintray](https://bintray.com/test-editor/maven/test-editor).
 
+The latest development version of the RCP can be downloaded from the [Test-Editor CI](https://ci.testeditor.org/job/test-editor/job/test-editor-xtext/job/develop/lastSuccessfulBuild/artifact/rcp/org.testeditor.rcp4.product/target/products/).
 
 
 ## Developers
@@ -31,11 +32,11 @@ The RCP contains some web based views, which are developed in a seperate cycle. 
 
     gradlew preBuildWeb
 
-After building the target platform, we can simply build the test editor with:
+Now the Test-Editor can simply be build with:
 
     mvn clean install
 
-For building the full RCP product we simply add the Maven profile "`product`":
+Alternatively, for building the full RCP product, add the Maven profile "`product`":
 
     mvn clean install -Pproduct
 
@@ -43,7 +44,7 @@ For building the full RCP product we simply add the Maven profile "`product`":
 
 ### The downloaded application won't start
 
- The editor requires a JDK 1.8 in order to start. If your default system JVM is different, you can set the path to the JDK by opening the `eclipse.ini` file and placing the following at the end:
+The editor requires a JDK 1.8 in order to start. If your default system JVM is different, you can set the path to the JDK by opening the `eclipse.ini` file and placing the following at the end:
  
     -vm
     <pathToYourJDK8>
