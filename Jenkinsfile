@@ -18,6 +18,7 @@ nodeWithProperWorkspace {
         // Workaround: we don't want infinite releases.
         echo "Aborting build as the current commit on master is already tagged."
         currentBuild.displayName = "checkout-only"
+        currentBuild.result = 'UNSTABLE' // mark this build run as unstable so that perma-link to stable build artifact points to the last product built
         return
     }
 
