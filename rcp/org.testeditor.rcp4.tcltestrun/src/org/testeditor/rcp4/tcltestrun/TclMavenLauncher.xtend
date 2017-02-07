@@ -56,9 +56,6 @@ public class TclMavenLauncher implements TclLauncher {
 		if (testCases != null) {
 			testSelectionArgument = "test=" + testCases.join(",")
 		}
-		if(!checkMavenVersion(project, monitor)) {
-			return new LaunchResult(null, false, null)			
-		}
 
 		val result = mavenExecutor.executeInNewJvm(parameters, project.location.toOSString, testSelectionArgument,
 			monitor, out)

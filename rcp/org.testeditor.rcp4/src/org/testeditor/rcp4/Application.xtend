@@ -53,7 +53,7 @@ public class Application implements IApplication {
 				"No maven installation was found. Please install maven with minimum version " +
 					MavenExecutor.MAVEN_MIMIMUM_MAJOR_VERSION + "." + MavenExecutor.MAVEN_MIMIMUM_MINOR_VERSION +
 					" and set the variable " + MavenExecutor.TE_MAVEN_HOME +
-					" to the path of the installation.\n\nStart without maven? Test execution will not be possible")) {
+					" to the path of the installation.\n\nStart without maven? Test execution with maven will not be possible")) {
 						return IApplication.EXIT_OK
 					}
 				}
