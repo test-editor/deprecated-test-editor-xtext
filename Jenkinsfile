@@ -39,7 +39,7 @@ nodeWithProperWorkspace {
     }
 
     stage('Build') {
-        withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g"]) {
+        withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g", "TE_MAVEN_HOME=${mvnTool}"]) {
             withXvfb {
                 gradle 'build'
             }
@@ -50,7 +50,7 @@ nodeWithProperWorkspace {
     def buildProduct = env.BRANCH_NAME == "develop" || env.BRANCH_NAME.endsWith("-with-product") || isMaster()
     if (buildProduct) {
         stage('Build product') {
-            withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g"]) {
+            withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g", "TE_MAVEN_HOME=${mvnTool}"]) {
                 gradle 'buildProduct'
             }
         }
