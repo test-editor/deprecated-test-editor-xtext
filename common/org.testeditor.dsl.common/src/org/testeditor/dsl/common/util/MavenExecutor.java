@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -20,11 +21,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.maven.cli.MavenCli;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +37,6 @@ import org.slf4j.LoggerFactory;
  * embedder api allows a maven build without a m2 variable configuration.
  *
  */
-@SuppressWarnings("restriction")
 public class MavenExecutor {
 
 	private static Logger logger = LoggerFactory.getLogger(MavenExecutor.class);
@@ -41,7 +44,7 @@ public class MavenExecutor {
 	public static int MAVEN_MIMIMUM_MINOR_VERSION = 2;
 	public static String TE_MAVEN_HOME = "TE_MAVEN_HOME";
 
-	public enum MavenVersionCheck {
+	public enum MavenVersionValidity {
 		wrong_version, unknown_version, ok, no_maven
 	}
 
@@ -129,13 +132,19 @@ public class MavenExecutor {
 		List<String> command = new ArrayList<String>();
 		command.add(getPathToMavenExecutable(isOsWindows));
 		command.addAll(Arrays.asList(parameters.split(" ")));
-		command.add("-D" + testParam);
+		if (testParam != null && testParam.length() > 0) {
+			command.add("-D" + testParam);
+		}
 		command.add("-V");
 		return command;
 	}
+	
+	private static String getPathToMavenHome() {
+		return System.getenv(TE_MAVEN_HOME);
+	}
 
 	public static String getPathToMavenExecutable(boolean isOsWindows) {
-		String mavenHome = System.getenv(TE_MAVEN_HOME);
+		String mavenHome = getPathToMavenHome();
 		if (mavenHome == null) {
 			return "";
 		}
@@ -171,4 +180,54 @@ public class MavenExecutor {
 		}
 	}
 
+	public MavenVersionValidity getMavenVersionValidity() throws IOException {
+		if (getPathToMavenHome() == null) {
+			return MavenVersionValidity.no_maven;
+		}
+		String[] lines = linesFromMavenVersionCall();
+		String versionLine = null;
+		if (lines == null) {
+			return MavenVersionValidity.no_maven;
+		}
+		for (String line : lines) {
+			if (line.startsWith("Apache Maven ")) {
+				versionLine = line;
+				logger.info("Maven Version: '{}'", versionLine);
+			} else if (line.indexOf(':') != -1) {
+				logger.info("Maven Property '{}' : '{}'", line.substring(0, line.indexOf(':')).trim(),
+						line.substring(line.indexOf(':') + 1).trim());
+			}
+		}
+		if (versionLine == null) {
+			return MavenVersionValidity.unknown_version;
+		}
+		return parseVersionInformation(versionLine);
+	}
+
+	private String[] linesFromMavenVersionCall() throws IOException {
+		OutputStream versionOut = new ByteArrayOutputStream();
+		int infoResult = executeInNewJvm("-version", ".", "", new NullProgressMonitor(), versionOut);
+		if (infoResult != IStatus.OK) {
+			logger.error("Error during determine maven version");
+			return null;
+		}
+		return versionOut.toString().split("(\r)?\n");
+	}
+
+	private MavenVersionValidity parseVersionInformation(String versionLine) {
+		Pattern versionNumber = Pattern.compile("^([A-Za-z ]+)([0-9]+)\\.([0-9]+)(\\.([0-9]+))?.*");
+		Matcher matcher = versionNumber.matcher(versionLine);
+		if (!matcher.matches()) {
+			return MavenVersionValidity.unknown_version;
+		}
+		String major = matcher.group(2);
+		String minor = matcher.group(3);
+		if ((Integer.parseInt(major) > MavenExecutor.MAVEN_MIMIMUM_MAJOR_VERSION)
+				|| (Integer.parseInt(major) == MavenExecutor.MAVEN_MIMIMUM_MAJOR_VERSION
+						&& Integer.parseInt(minor) >= MavenExecutor.MAVEN_MIMIMUM_MINOR_VERSION)) {
+			return MavenVersionValidity.ok;
+		}
+		return MavenVersionValidity.wrong_version;
+	}
+	
 }

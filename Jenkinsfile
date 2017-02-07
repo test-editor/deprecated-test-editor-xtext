@@ -1,6 +1,8 @@
 #!groovy
 nodeWithProperWorkspace {
 
+    String mvnTool = tool name: 'Maven 3.2.5', type: 'hudson.tasks.Maven$MavenInstallation'
+
     stage('Checkout') {
         checkout scm
         if (isMaster()) {
