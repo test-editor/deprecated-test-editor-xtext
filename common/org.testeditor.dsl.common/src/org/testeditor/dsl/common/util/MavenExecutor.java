@@ -39,15 +39,12 @@ public class MavenExecutor {
 	private static Logger logger = LoggerFactory.getLogger(MavenExecutor.class);
 	public static int MAVEN_MIMIMUM_MAJOR_VERSION = 3;
 	public static int MAVEN_MIMIMUM_MINOR_VERSION = 2;
-	public static String TE_MAVEN_HOME = "MAVEN_HOME";
+	public static String TE_MAVEN_HOME = "TE_MAVEN_HOME";
 
 	public enum MavenVersionCheck {
-		wrong_version,
-		unknown_version,
-		ok,
-		no_maven
+		wrong_version, unknown_version, ok, no_maven
 	}
-	
+
 	/**
 	 * Executes the maven build using maven embedder. It allways starts with a
 	 * clean operation to delete old test results.
@@ -121,25 +118,25 @@ public class MavenExecutor {
 
 	private List<String> createMavenExecCommand(String parameters, String pathToPom, String testParam) {
 		List<String> command = new ArrayList<String>();
-		command.addAll(getExecuteMavenScriptCommand(parameters, testParam,SystemUtils.IS_OS_WINDOWS));
+		command.addAll(getExecuteMavenScriptCommand(parameters, testParam, SystemUtils.IS_OS_WINDOWS));
 		if (Boolean.getBoolean("te.workOffline")) {
 			command.add("-o");
 		}
 		return command;
 	}
 
-
 	protected List<String> getExecuteMavenScriptCommand(String parameters, String testParam, boolean isOsWindows) {
 		List<String> command = new ArrayList<String>();
 		command.add(getPathToMavenExecutable(isOsWindows));
-		command.add(parameters);
+		command.addAll(Arrays.asList(parameters.split(" ")));
 		command.add("-D" + testParam);
+		command.add("-V");
 		return command;
 	}
 
 	public static String getPathToMavenExecutable(boolean isOsWindows) {
 		String mavenHome = System.getenv(TE_MAVEN_HOME);
-		if(mavenHome == null){
+		if (mavenHome == null) {
 			return "";
 		}
 		if (isOsWindows) {
@@ -148,6 +145,7 @@ public class MavenExecutor {
 			return mavenHome + "/bin/mvn";
 		}
 	}
+
 	/**
 	 * Entry point of the new jvm used for the maven build.
 	 * 
