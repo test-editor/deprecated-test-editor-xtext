@@ -17,6 +17,7 @@ import java.util.List
 import java.util.Optional
 import java.util.Set
 import org.apache.commons.lang3.StringEscapeUtils
+import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.common.types.JvmConstructor
 import org.eclipse.xtext.common.types.JvmDeclaredType
 import org.eclipse.xtext.common.types.JvmField
@@ -26,6 +27,7 @@ import org.eclipse.xtext.common.types.JvmType
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.common.types.JvmVisibility
 import org.eclipse.xtext.naming.IQualifiedNameProvider
+import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable
 import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
@@ -61,6 +63,7 @@ import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentValue
 
 import static org.testeditor.tcl.TclPackage.Literals.*
+import org.testeditor.tcl.MacroCollection
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -137,11 +140,25 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		]
 		return fixtureTypes.filter[!accessibleSuperFieldTypes.contains(it)]
 	}
-	
-	private def Iterable<JvmDeclaredType> getAllInstantiatedTypesImplementingTestRunReportable(SetupAndCleanupProvider element, JvmDeclaredType generatedClass) {
+
+	private def boolean implementsInterface(JvmDeclaredType type, Class<?> ^interface) {
+		val interfaceName=^interface.canonicalName
+		return type.extendedInterfaces.map[qualifiedName].exists[equals(interfaceName)] //
+		|| { // lazy or -> recursion only if necessary
+			val parent = type.extendedClass?.type
+			if (parent !== null && parent instanceof JvmDeclaredType) {
+				(parent as JvmDeclaredType).implementsInterface(^interface)
+			} else {
+				false
+			}
+		}
+	}
+
+	private def Iterable<JvmDeclaredType> getAllInstantiatedTypesImplementingTestRunReportable(
+		SetupAndCleanupProvider element, JvmDeclaredType generatedClass) {
 		return getAllTypesToInstantiate(element, generatedClass) //
-			.filter(JvmDeclaredType) //
-			.filter [extendedInterfaces.map[qualifiedName].exists[equals(TestRunReportable.canonicalName)]]
+		.filter(JvmDeclaredType) //
+		.filter[implementsInterface(TestRunReportable)]
 	}
 	
 	def JvmConstructor createConstructor(SetupAndCleanupProvider element,
@@ -352,6 +369,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		val stepLog = step.contents.restoreString
 		logger.debug("generating code line for test step='{}'.", stepLog)
 		val interaction = step.interaction
+   		
 		if (interaction !== null) {
 			logger.debug("derived interaction with method='{}' for test step='{}'.", interaction.defaultMethod?.operation?.qualifiedName, stepLog)
 			val fixtureField = interaction.defaultMethod?.typeReference?.type?.fixtureFieldName
@@ -366,11 +384,30 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				output.append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
 			}
 		} else if (step.componentContext != null) {
-			output.append('''// TODO could not resolve '«step.componentContext.component.name»' - «stepLog»''')
+			output.append('''org.junit.Assert.fail("Template '«stepLog»' cannot be resolved with any known macro/fixture. Please check your «step.locationInfo»");''')
 		} else {
-			output.append('''// TODO could not resolve unknown component - «stepLog»''')
+			output.append('''org.junit.Assert.fail("Template '«stepLog»' cannot be resolved with any known macro/fixture. Please check your  Macro-, Config- or Testcase-File ");''')
 		}
 	}
+	
+	private def String getLocationInfo(TestStep step) {
+		val testCase=EcoreUtil2.getContainerOfType(step, TestCase)
+		val macroLib=EcoreUtil2.getContainerOfType(step, MacroCollection)
+		val config=EcoreUtil2.getContainerOfType(step, TestConfiguration)
+		val lineNumber = NodeModelUtils.findActualNodeFor(step).startLine
+		
+		if (testCase !== null) {
+			return '''Testcase '«testCase.name»' in line «lineNumber».'''
+		}
+		if (macroLib !== null) {
+			return '''Macro '«macroLib.name»' in line «lineNumber».''' 
+		}
+		if (config !== null) {
+			return '''Configuration '«config.name»' in line «lineNumber».'''	
+		}
+		
+		throw new IllegalArgumentException;
+	} 
 
 	private def void generateMacroCall(TestStep step, MacroTestStepContext context, ITreeAppendable output) {
 		val stepLog = step.contents.restoreString
@@ -383,7 +420,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			val parameters = generateCallParameters(step, macro)
 			output.append('''«macroHelper.getMethodName(macro)»(«parameters»);''')
 		} else {
-			output.append('''// TODO could not resolve '«context.macroCollection.name»' - «stepLog»''')
+			output.append('''org.junit.Assert.fail("Could not resolve '«context.macroCollection.name»'. Please check your «step.locationInfo»");''')
 		}
 	}
 

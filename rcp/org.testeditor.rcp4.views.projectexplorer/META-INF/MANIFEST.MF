@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Projectexplorer
 Bundle-SymbolicName: org.testeditor.rcp4.views.projectexplorer;singleton:=true
-Bundle-Version: 1.4.0.qualifier
+Bundle-Version: 1.5.0.qualifier
 Bundle-Vendor: Signal Iduna Corporation
 Require-Bundle: org.eclipse.ui.navigator;bundle-version="3.6.0",
  org.eclipse.core.resources;bundle-version="3.10.1",

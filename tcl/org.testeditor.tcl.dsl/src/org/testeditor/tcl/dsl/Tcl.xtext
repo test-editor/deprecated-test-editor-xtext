@@ -102,6 +102,9 @@ MacroTestStepContext returns TestStepContext:
 	'Macro' ':' macroCollection=[MacroCollection|QualifiedName]
 	steps+=TestStep*; // currently macro calls can only be TestSteps!
 
+/**
+ * keep in mind that an aml validator exists that will check templates to be parsable given the following rule
+ */
 TestStep:
 	{TestStep}
 	'-' contents+=StepContent* contents+=StepContentPunctuation?;

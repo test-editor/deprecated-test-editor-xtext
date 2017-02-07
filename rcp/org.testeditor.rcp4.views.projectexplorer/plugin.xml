@@ -128,7 +128,7 @@
    <extension
          point="org.eclipse.ui.navigator.navigatorContent">
          <commonFilter
-               activeByDefault="true"
+               activeByDefault="false"
                class="org.testeditor.rcp4.views.projectexplorer.HideRootFolderFilter"
                description="Hides all folders, which have no test files."
                id="org.testeditor.projectexplorer.rootFolderFilter"
@@ -136,7 +136,7 @@
                visibleInUI="true">
          </commonFilter>         
          <commonFilter
-               activeByDefault="true"
+               activeByDefault="false"
                class="org.testeditor.rcp4.views.projectexplorer.NavFilter"
                description="filter all files not of interest for the test writer"
                id="org.testeditor.projectexplorer.commonFilter"

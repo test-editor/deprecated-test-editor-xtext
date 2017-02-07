@@ -29,7 +29,7 @@ class TestExecutionLogViewPart {
 	def void buildUI(Composite parent) {
 		browser = new Browser(parent, SWT.NORMAL)
 		port = System.getProperty("org.osgi.service.http.port")
-		val url = '''http://localhost:«port»/testlogs/web-app/index.html'''
+		val url = '''http://localhost:«port»/index.html'''
 		browser.setUrl(url)
 	}
 
@@ -41,7 +41,7 @@ class TestExecutionLogViewPart {
 	}
 
 	def void showLog(TestExecutionLog log) {
-		val url = '''http://localhost:«port»/testlogs/web-app/index.html#/testrun/«log.testRunTimestamp»'''
+		val url = '''http://localhost:«port»/index.html#/testrun/«log.testRunTimestamp»'''
 		browser.setUrl(url)
 	}
 

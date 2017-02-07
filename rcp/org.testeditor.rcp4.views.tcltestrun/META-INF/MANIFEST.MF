@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: TcltestrunUi
 Bundle-SymbolicName: org.testeditor.rcp4.views.tcltestrun;singleton:=true
-Bundle-Version: 1.4.0.qualifier
+Bundle-Version: 1.5.0.qualifier
 Bundle-Activator: org.testeditor.rcp4.views.tcltestrun.Activator
 Require-Bundle: org.testeditor.tcl.dsl.ui,
  org.testeditor.rcp4.tcltestrun,

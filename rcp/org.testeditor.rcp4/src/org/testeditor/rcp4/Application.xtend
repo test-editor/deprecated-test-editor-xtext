@@ -14,6 +14,7 @@ package org.testeditor.rcp4;
 
 import java.io.IOException
 import java.util.Scanner
+import java.io.PrintStream
 import org.eclipse.equinox.app.IApplication
 import org.eclipse.equinox.app.IApplicationContext
 import org.eclipse.jface.dialogs.MessageDialog
@@ -24,6 +25,7 @@ import org.gradle.internal.impldep.org.apache.commons.lang.SystemUtils
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.util.MavenExecutor
 import org.testeditor.dsl.common.util.MavenExecutor.MavenVersionCheck
+import org.testeditor.logging.LoggerStream
 
 /**
  * This class controls all aspects of the application's execution
@@ -37,8 +39,7 @@ public class Application implements IApplication {
 	 * @see IApplication#start(org.eclipse.equinox.app.IApplicationContext)
 	 */
 	override start(IApplicationContext context) {
-		
-		
+		captureConsoleoutputIntoLogger
 		logger.info("STARTING APPLICATION ..")
 		if (!checkJdkIsUsed) {
 			if (!continueWithConfigureationMissmatch(
@@ -83,6 +84,7 @@ public class Application implements IApplication {
 					display.dispose
 				}
 			}
+
 
 			def continueWithConfigureationMissmatch(String message) {
 				return new MessageDialog(new Shell(new Display()), "Conifguration-Missmatch", null, message,
@@ -171,5 +173,18 @@ public class Application implements IApplication {
 					}
 				]
 			}
-		}
 		
+	/** 
+	 * Logs all output that is logged (written) to System.out and System.err through
+	 * the logger of this class. This allows the unification of eclipse rcp messages 
+	 * (written to the console through call parameter '-consoleLog') and the log output
+	 * of the test editor itself (through log4j). Configuration of log4j will then apply
+	 * to messages from eclipse and the test editor (e.g. redirection to a file). 
+	 */
+	private def void captureConsoleoutputIntoLogger() {
+		System.setOut(new PrintStream(new LoggerStream(logger, System.out)))
+		System.setErr(new PrintStream(new LoggerStream(logger, System.err))) 
+	}
+
+}
+

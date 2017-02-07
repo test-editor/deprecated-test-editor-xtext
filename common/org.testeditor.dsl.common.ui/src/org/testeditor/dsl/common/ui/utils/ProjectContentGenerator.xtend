@@ -104,7 +104,8 @@ class ProjectContentGenerator {
 			if (buildsystem == GRADLE) {
 				setupEclipseMetaData(monitor)
 			}
-			filterTechnicalProjectFiles(monitor)
+			// TE-470 project file filter to allow access to src etc. are not activated
+			// filterTechnicalProjectFiles(monitor)
 		]
 	}
 
@@ -387,7 +388,7 @@ class ProjectContentGenerator {
 	private def String getGradleDependency(String fixtureName) {
 		if (fixtureName == WEBFIXTURE) {
 			return '''
-				compile 'org.testeditor.fixture:web-fixture:3.1.0'
+				compile 'org.testeditor.fixture:web-fixture:3.1.2'
 			'''
 		}
 		if (fixtureName == SWINGFIXTURE) {
