@@ -95,10 +95,11 @@ public class MavenExecutor {
 	 */
 	public int executeInNewJvm(String parameters, String pathToPom, String testParam, IProgressMonitor monitor,
 			OutputStream outputStream) throws IOException {
-		List<String> command = createMavenExecCommand(parameters, pathToPom, testParam);
+		List<String> command = createMavenExecCommand(parameters, testParam);
 		ProcessBuilder processBuilder = new ProcessBuilder();
 		processBuilder.directory(new File(pathToPom));
-		logger.info("Executing maven in new jvm with command={}", command);
+		logger.info("Executing maven in folder='{}'.", pathToPom);
+		logger.info("Executing maven in new jvm with command='{}'.", command);
 		processBuilder.command(command);
 		Process process = processBuilder.start();
 		PrintStream out = new PrintStream(outputStream);
@@ -125,7 +126,7 @@ public class MavenExecutor {
 		return System.getenv(TE_MAVEN_HOME);
 	}
 
-	private List<String> createMavenExecCommand(String parameters, String pathToPom, String testParam) {
+	private List<String> createMavenExecCommand(String parameters, String testParam) {
 		List<String> command = new ArrayList<String>();
 		command.addAll(getExecuteMavenScriptCommand(getPathToMavenHome(), parameters, testParam, SystemUtils.IS_OS_WINDOWS));
 		if (Boolean.getBoolean("te.workOffline")) {

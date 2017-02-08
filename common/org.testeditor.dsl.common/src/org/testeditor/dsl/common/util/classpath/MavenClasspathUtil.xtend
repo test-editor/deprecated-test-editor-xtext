@@ -18,6 +18,7 @@ import java.io.InputStream
 import java.util.ArrayList
 import java.util.List
 import javax.inject.Inject
+import javax.inject.Singleton
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.xpath.XPathConstants
 import javax.xml.xpath.XPathFactory
@@ -28,8 +29,6 @@ import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.util.MavenExecutor
 import org.w3c.dom.Document
 import org.w3c.dom.Node
-import javax.inject.Singleton
-import org.apache.commons.lang3.SystemUtils
 
 @Singleton
 class MavenClasspathUtil {
