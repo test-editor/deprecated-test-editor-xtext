@@ -32,6 +32,8 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
+
 /**
  * Executes a maven build in a new jvm using the embedded maven. The maven
  * embedder api allows a maven build without a m2 variable configuration.
@@ -119,18 +121,23 @@ public class MavenExecutor {
 		}
 	}
 
+	protected String getPathToMavenHome() {
+		return System.getenv(TE_MAVEN_HOME);
+	}
+
 	private List<String> createMavenExecCommand(String parameters, String pathToPom, String testParam) {
 		List<String> command = new ArrayList<String>();
-		command.addAll(getExecuteMavenScriptCommand(parameters, testParam, SystemUtils.IS_OS_WINDOWS));
+		command.addAll(getExecuteMavenScriptCommand(getPathToMavenHome(), parameters, testParam, SystemUtils.IS_OS_WINDOWS));
 		if (Boolean.getBoolean("te.workOffline")) {
 			command.add("-o");
 		}
 		return command;
 	}
 
-	protected List<String> getExecuteMavenScriptCommand(String parameters, String testParam, boolean isOsWindows) {
+	@VisibleForTesting
+	protected List<String> getExecuteMavenScriptCommand(String mavenHome, String parameters, String testParam, boolean isOsWindows) {
 		List<String> command = new ArrayList<String>();
-		command.add(getPathToMavenExecutable(isOsWindows));
+		command.add(getPathToMavenExecutable(mavenHome, isOsWindows));
 		command.addAll(Arrays.asList(parameters.split(" ")));
 		if (testParam != null && testParam.length() > 0) {
 			command.add("-D" + testParam);
@@ -139,12 +146,7 @@ public class MavenExecutor {
 		return command;
 	}
 	
-	private static String getPathToMavenHome() {
-		return System.getenv(TE_MAVEN_HOME);
-	}
-
-	public static String getPathToMavenExecutable(boolean isOsWindows) {
-		String mavenHome = getPathToMavenHome();
+	private String getPathToMavenExecutable(String mavenHome, boolean isOsWindows) {
 		if (mavenHome == null) {
 			return "";
 		}
@@ -182,49 +184,76 @@ public class MavenExecutor {
 
 	public MavenVersionValidity getMavenVersionValidity() throws IOException {
 		if (getPathToMavenHome() == null) {
+			logger.info("No maven found. Environment variable {}='{}' not set correctly!", TE_MAVEN_HOME, getPathToMavenHome());
 			return MavenVersionValidity.no_maven;
 		}
 		String[] lines = linesFromMavenVersionCall();
-		String versionLine = null;
 		if (lines == null) {
+			logger.info("Maven execution to get the version produced no output!");
 			return MavenVersionValidity.no_maven;
 		}
-		for (String line : lines) {
-			if (line.startsWith("Apache Maven ")) {
-				versionLine = line;
-				logger.info("Maven Version: '{}'", versionLine);
-			} else if (line.indexOf(':') != -1) {
-				logger.info("Maven Property '{}' : '{}'", line.substring(0, line.indexOf(':')).trim(),
-						line.substring(line.indexOf(':') + 1).trim());
-			}
-		}
+		
+		String versionLine = findVersionLine(lines);
 		if (versionLine == null) {
 			return MavenVersionValidity.unknown_version;
 		}
-		return parseVersionInformation(versionLine);
+		logger.info("Maven Version: '{}'", versionLine);
+		logMavenPropertiesIn(lines);
+		
+		int[] version=parseVersionInformation(versionLine);
+		return validateVersionInformation(version);
 	}
-
+	
+	private void logMavenPropertiesIn(String[] lines) {
+		for (String line : lines) {
+			 if (line.indexOf(": ") >= 0) {
+				String[] keyPropPair=line.split(": ", 2);
+				logger.info("Maven Property '{}' : '{}'", keyPropPair[0].trim(), keyPropPair[1].trim());
+			}
+		}
+	}
+	
+	private String findVersionLine(String[] lines){
+		for (String line : lines) {
+			if (line.startsWith("Apache Maven ")) {
+				return line;
+			}
+		}
+		return null;
+	}
+	
 	private String[] linesFromMavenVersionCall() throws IOException {
 		OutputStream versionOut = new ByteArrayOutputStream();
 		int infoResult = executeInNewJvm("-version", ".", "", new NullProgressMonitor(), versionOut);
 		if (infoResult != IStatus.OK) {
-			logger.error("Error during determine maven version");
+			logger.error("Error during determine of maven version");
 			return null;
 		}
 		return versionOut.toString().split("(\r)?\n");
 	}
-
-	private MavenVersionValidity parseVersionInformation(String versionLine) {
+	
+	@VisibleForTesting
+	protected int[] parseVersionInformation(String mavenVersionLine) {
 		Pattern versionNumber = Pattern.compile("^([A-Za-z ]+)([0-9]+)\\.([0-9]+)(\\.([0-9]+))?.*");
-		Matcher matcher = versionNumber.matcher(versionLine);
+		Matcher matcher = versionNumber.matcher(mavenVersionLine);
 		if (!matcher.matches()) {
+			return null;
+		}
+		int[] result=new int[2]; 
+		result[0] = Integer.parseInt(matcher.group(2));
+		result[1] = Integer.parseInt(matcher.group(3));
+		return result;
+	}
+	
+	@VisibleForTesting
+	protected MavenVersionValidity validateVersionInformation(int[] versionNumbers) {
+		if (versionNumbers==null || versionNumbers.length<2) {
 			return MavenVersionValidity.unknown_version;
 		}
-		String major = matcher.group(2);
-		String minor = matcher.group(3);
-		if ((Integer.parseInt(major) > MavenExecutor.MAVEN_MIMIMUM_MAJOR_VERSION)
-				|| (Integer.parseInt(major) == MavenExecutor.MAVEN_MIMIMUM_MAJOR_VERSION
-						&& Integer.parseInt(minor) >= MavenExecutor.MAVEN_MIMIMUM_MINOR_VERSION)) {
+		int major = versionNumbers[0];
+		int minor = versionNumbers[1];
+		if ((major > MAVEN_MIMIMUM_MAJOR_VERSION)
+				|| (major == MAVEN_MIMIMUM_MAJOR_VERSION && minor >= MAVEN_MIMIMUM_MINOR_VERSION)) {
 			return MavenVersionValidity.ok;
 		}
 		return MavenVersionValidity.wrong_version;

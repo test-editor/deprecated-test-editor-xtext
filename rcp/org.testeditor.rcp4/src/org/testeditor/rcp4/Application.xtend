@@ -17,7 +17,6 @@ import java.io.PrintStream
 import org.eclipse.equinox.app.IApplication
 import org.eclipse.equinox.app.IApplicationContext
 import org.eclipse.jface.dialogs.MessageDialog
-import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.Shell
 import org.eclipse.ui.PlatformUI
 import org.slf4j.LoggerFactory
@@ -36,25 +35,26 @@ public class Application implements IApplication {
 		captureConsoleoutputIntoLogger
 		logger.info("STARTING APPLICATION ..")
 		val display = PlatformUI.createDisplay
+		if (!jdkUsed && !answerYesNoMessageDialog(new Shell(display),
+			"Application is started with a jre. For test-execution a jdk is needed. Start anyway?")) {
+			logger.info("STOPPING APPLICATION ..")
+			return IApplication.EXIT_OK
+		}
 		try {
 			val returnCode = PlatformUI.createAndRunWorkbench(display, new ApplicationWorkbenchAdvisor)
 			if (returnCode == PlatformUI.RETURN_RESTART) {
+				logger.info("RESTARTING APPLICATION ..")
 				return IApplication.EXIT_RESTART
 			}
-			if (!jdkUsed) {
-				if (!continueWithConfigureationMissmatch(
-					"Application is started with a jre. For test-execution a jdk is needed. Start anyway?")) {
-					return IApplication.EXIT_OK
-				}
-			}
+			logger.info("STOPPING APPLICATION ..")
 			return IApplication.EXIT_OK
 		} finally {
 			display.dispose
 		}
 	}
-
-	def continueWithConfigureationMissmatch(String message) {
-		return new MessageDialog(new Shell(new Display()), "Conifguration-Missmatch", null, message,
+	
+	def boolean answerYesNoMessageDialog(Shell shell,String message) {
+		return new MessageDialog(shell, "Configuration-Mismatch", null, message,
 			MessageDialog.ERROR, #{"Yes", "No"}, 0).open() > 0
 	}
 
@@ -71,7 +71,7 @@ public class Application implements IApplication {
 	 * @see IApplication#stop()
 	 */
 	override stop() {
-		logger.info("STOPPING APPLICATION ..")
+		logger.info("EXECUTE APPLICATION STOP ..")
 		if (!PlatformUI.isWorkbenchRunning) {
 			return
 		}

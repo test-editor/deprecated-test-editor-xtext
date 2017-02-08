@@ -32,7 +32,6 @@ import org.eclipse.e4.ui.workbench.modeling.EPartService
 import org.eclipse.emf.common.util.URI
 import org.eclipse.jdt.core.IJavaElement
 import org.eclipse.jdt.junit.JUnitCore
-import org.eclipse.jface.dialogs.MessageDialog
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.eclipse.jface.viewers.LabelProvider
 import org.eclipse.jface.window.Window
@@ -42,6 +41,7 @@ import org.eclipse.ui.dialogs.ElementListSelectionDialog
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ide.util.FileUtils
 import org.testeditor.dsl.common.ui.utils.ProgressMonitorRunner
+import org.testeditor.dsl.common.ui.utils.WorkbenchHelper
 import org.testeditor.dsl.common.ui.workbench.PartHelper
 import org.testeditor.dsl.common.util.EclipseContextHelper
 import org.testeditor.dsl.common.util.MavenExecutor
@@ -74,6 +74,7 @@ class TclLauncherUi implements Launcher {
 	@Inject PartHelper partHelper
 	@Inject EclipseContextHelper eclipseContextHelper
 	@Inject TestExecutionManager testExecutionManager
+	@Inject WorkbenchHelper workbenchHelper
 
 	override boolean launch(IStructuredSelection selection, IProject project, String mode, boolean parameterize) {
 		eclipseContextHelper.eclipseContext.set(TclLauncherUi, this)
@@ -274,15 +275,10 @@ class TclLauncherUi implements Launcher {
 		return viewPart.object as TestExecutionLogViewPart
 	}
 
-	private def boolean continueWithConfigureationMissmatch(String message) {
-		new MessageDialog(PlatformUI.workbench.activeWorkbenchWindow.shell, "Configuration-Mismatch", null, message,
-			MessageDialog.ERROR, #{"Yes", "No"}, 0).open() > 0
-	}
-
 	private def boolean continueWithMaven() {
 		switch (mavenLauncher.mavenVersionValidity) {
 			case no_maven:
-				return continueWithConfigureationMissmatch(
+				return workbenchHelper.answerYesNoMessageDialog( "Configuration-Mismatch",
 					'''
 					No maven installation was found. Please install maven with minimum version «MavenExecutor.MAVEN_MIMIMUM_MAJOR_VERSION».«MavenExecutor.MAVEN_MIMIMUM_MINOR_VERSION»
 					and set the variable «MavenExecutor.TE_MAVEN_HOME» to the path of the installation!
@@ -290,10 +286,10 @@ class TclLauncherUi implements Launcher {
 					Try to continue anyway?
 					''')
 			case wrong_version:
-				return continueWithConfigureationMissmatch(
+				return workbenchHelper.answerYesNoMessageDialog( "Configuration-Mismatch",
 					'''Maven is not available in the needed version for test-execution («MavenExecutor.MAVEN_MIMIMUM_MAJOR_VERSION».«MavenExecutor.MAVEN_MIMIMUM_MINOR_VERSION»). Continue anyway?''')
 			case unknown_version:
-				return continueWithConfigureationMissmatch(
+				return workbenchHelper.answerYesNoMessageDialog( "Configuration-Mismatch",
 					"It was not possible to determine the current maven version. Testexecution may not be possible. Continue anyway?")
 			default:
 				return true
