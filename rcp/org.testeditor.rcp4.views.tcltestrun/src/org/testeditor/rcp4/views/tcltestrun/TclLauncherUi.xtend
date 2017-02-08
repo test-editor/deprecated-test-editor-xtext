@@ -278,7 +278,7 @@ class TclLauncherUi implements Launcher {
 	private def boolean continueWithMaven() {
 		switch (mavenLauncher.mavenVersionValidity) {
 			case no_maven:
-				return workbenchHelper.answerYesNoMessageDialog( "Configuration-Mismatch",
+				return workbenchHelper.answerYesNoErrorMessageDialog( "Configuration-Mismatch",
 					'''
 					No maven installation was found. Please install maven with minimum version «MavenExecutor.MAVEN_MIMIMUM_MAJOR_VERSION».«MavenExecutor.MAVEN_MIMIMUM_MINOR_VERSION»
 					and set the variable «MavenExecutor.TE_MAVEN_HOME» to the path of the installation!
@@ -286,10 +286,10 @@ class TclLauncherUi implements Launcher {
 					Try to continue anyway?
 					''')
 			case wrong_version:
-				return workbenchHelper.answerYesNoMessageDialog( "Configuration-Mismatch",
+				return workbenchHelper.answerYesNoErrorMessageDialog( "Configuration-Mismatch",
 					'''Maven is not available in the needed version for test-execution («MavenExecutor.MAVEN_MIMIMUM_MAJOR_VERSION».«MavenExecutor.MAVEN_MIMIMUM_MINOR_VERSION»). Continue anyway?''')
 			case unknown_version:
-				return workbenchHelper.answerYesNoMessageDialog( "Configuration-Mismatch",
+				return workbenchHelper.answerYesNoErrorMessageDialog( "Configuration-Mismatch",
 					"It was not possible to determine the current maven version. Testexecution may not be possible. Continue anyway?")
 			default:
 				return true

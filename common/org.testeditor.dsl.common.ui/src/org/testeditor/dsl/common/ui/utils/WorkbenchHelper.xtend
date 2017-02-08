@@ -22,7 +22,7 @@ class WorkbenchHelper {
 		return workbench.activeWorkbenchWindow
 	}
 
-	def boolean answerYesNoMessageDialog(String title, String message) {
+	def boolean answerYesNoErrorMessageDialog(String title, String message) {
 		new MessageDialog(activeWorkbenchWindow.shell, title, null, message,
 			MessageDialog.ERROR, #{"Yes", "No"}, 0).open > 0
 	}
