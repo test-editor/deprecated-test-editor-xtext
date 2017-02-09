@@ -384,9 +384,9 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				output.append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
 			}
 		} else if (step.componentContext != null) {
-			output.append('''org.junit.Assert.fail("Template '«stepLog»' cannot be resolved with any known macro/fixture. Please check your «step.locationInfo»");''')
+			output.append('''org.junit.Assert.fail("Template '«StringEscapeUtils.escapeJava(stepLog)»' cannot be resolved with any known macro/fixture. Please check your «step.locationInfo»");''')
 		} else {
-			output.append('''org.junit.Assert.fail("Template '«stepLog»' cannot be resolved with any known macro/fixture. Please check your  Macro-, Config- or Testcase-File ");''')
+			output.append('''org.junit.Assert.fail("Template '«StringEscapeUtils.escapeJava(stepLog)»' cannot be resolved with any known macro/fixture. Please check your  Macro-, Config- or Testcase-File ");''')
 		}
 	}
 	
