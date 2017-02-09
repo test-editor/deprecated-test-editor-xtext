@@ -2,7 +2,7 @@
 <feature
       id="org.testeditor.tcl.sdk"
       label="Tcl SDK Feature "
-      version="1.5.0">
+      version="1.6.0.qualifier">
 
    <copyright>
       Copyright (c) 2012 - 2015 Signal Iduna Corporation and others.

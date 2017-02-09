@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.testeditor.aml.dsl.ui
 Bundle-Vendor: Signal Iduna Corporation
-Bundle-Version: 1.5.0
+Bundle-Version: 1.6.0.qualifier
 Bundle-SymbolicName: org.testeditor.aml.dsl.ui; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.testeditor.dsl.common,
