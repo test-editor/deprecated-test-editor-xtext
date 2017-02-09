@@ -82,12 +82,17 @@ class ProjectContentGenerator {
 	}
 	
 	new() {
-		TEST_EDITOR_VERSION = version.toString.replaceAll(".qualifier","-SNAPSHOT")
+		TEST_EDITOR_VERSION = bundleVersion.mapTesteditorVersion
 	}
 
-	def Version getVersion() {
+	def Version getBundleVersion() {
 		val bundle = Platform.getBundle("org.testeditor.dsl.common.ui")
 		return bundle.version
+	}
+	
+	def String mapTesteditorVersion(Version version){
+		val versionString = '''«version.major».«version.minor».«version.micro»«if(!version.qualifier.nullOrEmpty){'-SNAPSHOT'}else{''}»'''
+		return versionString.toString
 	}
 
 	def void createProjectContent(IProject project, String[] fixtures, String buildsystem, boolean demo,
