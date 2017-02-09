@@ -42,7 +42,7 @@ import org.testeditor.dsl.common.util.classpath.ClasspathUtil
  */
 class ProjectContentGenerator {
 
-	static public val TEST_EDITOR_VERSION = "1.2.0" // TODO this sucks - extract to VersionHelper and use the newest version
+	static public val TEST_EDITOR_VERSION = "1.5.0" // TODO this sucks - extract to VersionHelper and use the newest version
 	static public val TEST_EDITOR_MAVEN_PLUGIN_VERSION = "1.1"
 	static public val TEST_EDITOR_GRADLE_PLUGIN_VERSION = "0.5"
 	
@@ -315,12 +315,12 @@ class ProjectContentGenerator {
 		
 			Component: WebBrowser
 			- Start <Firefox>
-			- Browse to "http://www.google.de"
+			- Browse "http://www.google.de"
 		
 		* Search ^for "testeditor"
 		
 			Component: Searchsite
-			- Type in <Searchfield> value "testeditor"
+			- Enter "testeditor" into <Searchfield>
 			- Press enter on <Searchfield>
 		
 		* Close browser
@@ -332,8 +332,6 @@ class ProjectContentGenerator {
 
 	@VisibleForTesting
 	protected def String getInitialFileContents(String packageName, String... fixturesToImport) '''
-		package «packageName»
-
 		«FOR fixture : fixturesToImport»
 			import «fixture.package».*
 		«ENDFOR»
@@ -388,7 +386,7 @@ class ProjectContentGenerator {
 	private def String getGradleDependency(String fixtureName) {
 		if (fixtureName == WEBFIXTURE) {
 			return '''
-				compile 'org.testeditor.fixture:web-fixture:3.1.2'
+				compile 'org.testeditor.fixture:web-fixture:3.1.3'
 			'''
 		}
 		if (fixtureName == SWINGFIXTURE) {
@@ -609,7 +607,7 @@ class ProjectContentGenerator {
 				<dependency>
 					<groupId>org.testeditor.fixture</groupId>
 					<artifactId>web-fixture</artifactId>
-					<version>3.1.0</version>
+					<version>3.1.3</version>
 				</dependency>
 			'''
 		}
@@ -618,7 +616,7 @@ class ProjectContentGenerator {
 				<dependency>
 					<groupId>org.testeditor.fixture</groupId>
 					<artifactId>swing-fixture</artifactId>
-					<version>3.1.0</version>
+					<version>3.1.1</version>
 				</dependency>
 			'''
 		}
