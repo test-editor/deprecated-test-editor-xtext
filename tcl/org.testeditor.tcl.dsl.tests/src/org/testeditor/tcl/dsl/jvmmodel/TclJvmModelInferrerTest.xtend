@@ -47,7 +47,7 @@ class TclJvmModelInferrerTest extends AbstractTclGeneratorIntegrationTest {
 			
 			Component: GreetingApplication
 			- Stop application
-			- do something
+			- do something "with Param"
 		''')
 		tclModel.addToResourceSet
 
@@ -57,7 +57,7 @@ class TclJvmModelInferrerTest extends AbstractTclGeneratorIntegrationTest {
 		//then
 		tclModelCode.assertContains('''dummyFixture.stopApplication();''')
 		tclModelCode.
-			assertContains('''org.junit.Assert.fail("Template 'do something' cannot be resolved with any known macro/fixture. Please check your Testcase 'MyTest' in line 9.");''')
+			assertContains('''org.junit.Assert.fail("Template 'do something \"with Param\"' cannot be resolved with any known macro/fixture. Please check your Testcase 'MyTest' in line 9.");''')
 	}
 
 	@Test

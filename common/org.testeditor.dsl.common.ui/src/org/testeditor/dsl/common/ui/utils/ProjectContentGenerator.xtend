@@ -46,6 +46,9 @@ class ProjectContentGenerator {
 
 	public val String TEST_EDITOR_VERSION
 	static public val TEST_EDITOR_MAVEN_PLUGIN_VERSION = "1.1"
+	static public val TEST_EDITOR_WEB_FIXTURE = "3.1.4"
+	static public val TEST_EDITOR_CORE_FIXTURE = "3.1.0"
+	static public val TEST_EDITOR_SWING_FIXTURE = "3.1.1"
 	static public val TEST_EDITOR_GRADLE_PLUGIN_VERSION = "0.5"
 	
 	static public val String TEST_EDITOR_MVN_GEN_OUTPUT = 'src-gen/test/java'
@@ -256,6 +259,7 @@ class ProjectContentGenerator {
 		if (fixture == WEBFIXTURE) {
 			val google = '''
 				«getInitialFileContents(project.name, fixture)»
+				import static org.testeditor.fixture.web.LocatorStrategy.NAME
 				
 				/**
 				 * Application model for the google search site. It contains only the search field and
@@ -265,6 +269,7 @@ class ProjectContentGenerator {
 					element Searchfield is field {
 						label = "Search field"
 						locator = "q"
+						locatorStrategy = NAME
 					}
 				}
 			'''
@@ -388,7 +393,7 @@ class ProjectContentGenerator {
 
 		// In this section you declare the dependencies for your production and test code
 		dependencies {
-			compile 'org.testeditor.fixture:core-fixture:3.1.0'
+			compile 'org.testeditor.fixture:core-fixture:«TEST_EDITOR_CORE_FIXTURE»'
 			«FOR s : fixtureNames»
 				«getGradleDependency(s)»
 			«ENDFOR»
@@ -399,12 +404,12 @@ class ProjectContentGenerator {
 	private def String getGradleDependency(String fixtureName) {
 		if (fixtureName == WEBFIXTURE) {
 			return '''
-				compile 'org.testeditor.fixture:web-fixture:3.1.3'
+				compile 'org.testeditor.fixture:web-fixture:«TEST_EDITOR_WEB_FIXTURE»'
 			'''
 		}
 		if (fixtureName == SWINGFIXTURE) {
 			return '''
-				compile 'org.testeditor.fixture:swing-fixture:3.1.1'
+				compile 'org.testeditor.fixture:swing-fixture:«TEST_EDITOR_SWING_FIXTURE»'
 			'''
 		}
 	}
@@ -471,7 +476,7 @@ class ProjectContentGenerator {
 				<dependency>
 					<groupId>org.testeditor.fixture</groupId>
 					<artifactId>core-fixture</artifactId>
-					<version>3.1.0</version>
+					<version>«TEST_EDITOR_CORE_FIXTURE»</version>
 				</dependency>
 				«FOR s : fixtureNames»
 					«getMavenDependency(s)»
@@ -620,7 +625,7 @@ class ProjectContentGenerator {
 				<dependency>
 					<groupId>org.testeditor.fixture</groupId>
 					<artifactId>web-fixture</artifactId>
-					<version>3.1.3</version>
+					<version>«TEST_EDITOR_WEB_FIXTURE»</version>
 				</dependency>
 			'''
 		}
@@ -629,7 +634,7 @@ class ProjectContentGenerator {
 				<dependency>
 					<groupId>org.testeditor.fixture</groupId>
 					<artifactId>swing-fixture</artifactId>
-					<version>3.1.1</version>
+					<version>«TEST_EDITOR_SWING_FIXTURE»</version>
 				</dependency>
 			'''
 		}
