@@ -84,7 +84,7 @@ class SwingDemoContentGenerator {
 		* Start the famous greetings application. 
 		 
 		    Mask: GreetingApplication
-		    - Start application "«packageName».GreetingApplication"
+		    - Start application "«packageName».SwingGreetingApplication"
 		 
 		* Send greetings "Hello World" to the world.
 		 
@@ -127,11 +127,11 @@ class SwingDemoContentGenerator {
 		import javax.swing.JTextField;
 		import javax.swing.SwingConstants;
 		
-		public class GreetingApplication extends JFrame {
+		public class SwingGreetingApplication extends JFrame {
 		
 		    private static final long serialVersionUID = 1L;
 		
-		    public GreetingApplication() {
+		    public SwingGreetingApplication() {
 		        JPanel panel = new JPanel(new GridLayout(2, 1));
 		        getContentPane().add(panel);
 		
@@ -168,7 +168,7 @@ class SwingDemoContentGenerator {
 		    }
 		    
 		    public static void main(String[] args) {
-		        new GreetingApplication();
+		        new SwingGreetingApplication();
 		    }
 		    
 		    public String sayHello() {

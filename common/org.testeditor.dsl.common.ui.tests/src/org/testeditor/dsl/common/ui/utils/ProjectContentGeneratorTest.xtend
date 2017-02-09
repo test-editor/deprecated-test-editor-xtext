@@ -153,4 +153,10 @@ class ProjectContentGeneratorTest extends AbstractTest {
 		project.verify.refreshLocal(IProject.DEPTH_INFINITE, monitor)
 	}
 
+	@Test
+	def void testGetVersion() {
+		val version = generator.version
+		version.assertNotNull
+	}
+
 }
