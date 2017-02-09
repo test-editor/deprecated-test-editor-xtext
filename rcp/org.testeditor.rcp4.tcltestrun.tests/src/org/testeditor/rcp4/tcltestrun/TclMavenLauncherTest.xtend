@@ -33,7 +33,7 @@ class TclMavenLauncherTest extends AbstractTest {
 	@InjectMocks TclMavenLauncher launcher
 	@Mock MavenExecutor executor
 	@Rule public TemporaryFolder tempFolder = new TemporaryFolder();
-
+	
 	@Test
 	def void testGetProfiles() {
 		// given
@@ -49,7 +49,7 @@ class TclMavenLauncherTest extends AbstractTest {
 		val profiles = launcher.getProfiles(project)
 
 		// then 
-		verify(executor).executeInNewJvm(any(String),any(String),any(String),any(IProgressMonitor),any(OutputStream), any(Boolean))
+		verify(executor).executeInNewJvm(any(String),any(String),any(String),any(IProgressMonitor),any(OutputStream))
 		assertTrue(profiles.exists[it == "foo"])
 		assertTrue(profiles.exists[it == "bar"])
 		assertFalse(profiles.exists[it == "test"])

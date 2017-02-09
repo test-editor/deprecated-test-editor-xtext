@@ -13,6 +13,12 @@ class LoggerStream extends OutputStream {
 
 	val logLineBuffer = new StringBuffer
 
+	new(Logger logger) {
+		super()
+		this.logger = logger
+		this.outputStream = null
+	}
+
 	new(Logger logger, OutputStream outputStream) {
 		super()
 		this.logger = logger
@@ -20,19 +26,19 @@ class LoggerStream extends OutputStream {
 	}
 
 	override void write(byte[] b) throws IOException {
-		outputStream.write(b)
+		outputStream?.write(b)
 		val string = new String(b)
 		string.addString
 	}
 
 	override void write(byte[] b, int off, int len) throws IOException {
-		outputStream.write(b, off, len)
+		outputStream?.write(b, off, len)
 		val string = new String(b, off, len)
 		string.addString
 	}
 
 	override void write(int b) throws IOException {
-		outputStream.write(b)
+		outputStream?.write(b)
 		val string = String.valueOf((b as char))
 		string.addString
 	}
@@ -40,20 +46,25 @@ class LoggerStream extends OutputStream {
 	private def void addString(String string) {
 		if (string.contains('\n')) {
 			val lines = string.split("(\r)?\n")
-			if (lines.length > 0) {
-				logLineBuffer.append(lines.get(0))
-				val completeString = logLineBuffer.toString.trim
-				if (!completeString.empty) {
-					logger.debug(completeString)
-				}
-				logLineBuffer.setLength(0)
-				if (lines.length > 1) {
-					logLineBuffer.append(lines.get(1))
-				}
+			if (lines.length == 0) {
+				logBuffer
+			}
+			for (String line : lines) {
+				logLineBuffer.append(line)
+				logBuffer
 			}
 		} else {
 			logLineBuffer.append(string)
 		}
+	}
+
+	private def void logBuffer() {
+		val completeString = logLineBuffer.toString.trim
+		if (!completeString.empty) {
+			logger.debug(completeString)
+			logLineBuffer.setLength(0)
+		}
+
 	}
 
 }

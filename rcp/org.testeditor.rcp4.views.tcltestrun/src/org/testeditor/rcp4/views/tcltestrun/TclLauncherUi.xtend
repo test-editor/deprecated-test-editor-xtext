@@ -41,8 +41,10 @@ import org.eclipse.ui.dialogs.ElementListSelectionDialog
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ide.util.FileUtils
 import org.testeditor.dsl.common.ui.utils.ProgressMonitorRunner
+import org.testeditor.dsl.common.ui.utils.WorkbenchHelper
 import org.testeditor.dsl.common.ui.workbench.PartHelper
 import org.testeditor.dsl.common.util.EclipseContextHelper
+import org.testeditor.dsl.common.util.MavenExecutor
 import org.testeditor.rcp4.tcltestrun.LaunchResult
 import org.testeditor.rcp4.tcltestrun.TclGradleLauncher
 import org.testeditor.rcp4.tcltestrun.TclMavenLauncher
@@ -72,6 +74,7 @@ class TclLauncherUi implements Launcher {
 	@Inject PartHelper partHelper
 	@Inject EclipseContextHelper eclipseContextHelper
 	@Inject TestExecutionManager testExecutionManager
+	@Inject WorkbenchHelper workbenchHelper
 
 	override boolean launch(IStructuredSelection selection, IProject project, String mode, boolean parameterize) {
 		eclipseContextHelper.eclipseContext.set(TclLauncherUi, this)
@@ -81,7 +84,7 @@ class TclLauncherUi implements Launcher {
 			return launchTest(
 				new TestLaunchInformation(createGradleTestCasesList(selection), project, gradleLauncher, options))
 		}
-		if (project.getFile("pom.xml").exists) {
+		if (project.getFile("pom.xml").exists && continueWithMaven) {
 			if (parameterize) {
 				val profile = selectMavenProfile(project)
 				if (profile == null) {
@@ -181,7 +184,7 @@ class TclLauncherUi implements Launcher {
 			return selection.firstElement.testCaseListFromSelection.toList
 		}
 	}
-	
+
 	def Iterable<String> getTestCasesFromFolder(IFolder folder) {
 		val extension launchShortcutUtil = tclInjectorProvider.get.getInstance(LaunchShortcutUtil)
 		val members = folder.members
@@ -272,4 +275,26 @@ class TclLauncherUi implements Launcher {
 		return viewPart.object as TestExecutionLogViewPart
 	}
 
+	private def boolean continueWithMaven() {
+		switch (mavenLauncher.mavenVersionValidity) {
+			case no_maven:
+				return workbenchHelper.answerYesNoErrorMessageDialog( "Configuration-Mismatch",
+					'''
+					No maven installation was found. Please install maven with minimum version «MavenExecutor.MAVEN_MIMIMUM_MAJOR_VERSION».«MavenExecutor.MAVEN_MIMIMUM_MINOR_VERSION»
+					and set the variable «MavenExecutor.TE_MAVEN_HOME» to the path of the installation!
+					
+					Try to continue anyway?
+					''')
+			case wrong_version:
+				return workbenchHelper.answerYesNoErrorMessageDialog( "Configuration-Mismatch",
+					'''Maven is not available in the needed version for test-execution («MavenExecutor.MAVEN_MIMIMUM_MAJOR_VERSION».«MavenExecutor.MAVEN_MIMIMUM_MINOR_VERSION»). Continue anyway?''')
+			case unknown_version:
+				return workbenchHelper.answerYesNoErrorMessageDialog( "Configuration-Mismatch",
+					"It was not possible to determine the current maven version. Testexecution may not be possible. Continue anyway?")
+			default:
+				return true
+		}
+	}
+
 }
+		

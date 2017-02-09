@@ -1,6 +1,8 @@
 #!groovy
 nodeWithProperWorkspace {
 
+    String mvnTool = tool name: 'Maven 3.2.5', type: 'hudson.tasks.Maven$MavenInstallation'
+
     stage('Checkout') {
         checkout scm
         if (isMaster()) {
@@ -40,7 +42,7 @@ nodeWithProperWorkspace {
     }
 
     stage('Build') {
-        withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g"]) {
+        withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g", "TE_MAVEN_HOME=${mvnTool}"]) {
             withXvfb {
                 gradle 'build'
             }
@@ -51,7 +53,7 @@ nodeWithProperWorkspace {
     def buildProduct = env.BRANCH_NAME == "develop" || env.BRANCH_NAME.endsWith("-with-product") || isMaster()
     if (buildProduct) {
         stage('Build product') {
-            withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g"]) {
+            withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g", "TE_MAVEN_HOME=${mvnTool}"]) {
                 step([$class: 'CopyArtifact',
                       filter: 'target/rrd*.jar',
                       fingerprintArtifacts: true,
