@@ -1,6 +1,7 @@
 package org.testeditor.dsl.common.util
 
 import com.google.common.collect.Iterables
+import java.util.Optional
 
 class CollectionUtils {
 
@@ -41,6 +42,13 @@ class CollectionUtils {
 	 */
 	public def <T> Iterable<T> butLast(Iterable<T> includingLast) {
 		return includingLast.take(includingLast.size-1)
+	}
+
+	/**
+	 * return the index (0-based) of the first element that satisfies the predicate. -1 if not found.
+	 */
+	public def <A> int indexOfFirst(Iterable <A> iterable, (A)=>Boolean predicate) {
+		return Optional.ofNullable(iterable.indexed.findFirst[predicate.apply(value)]?.key).orElse(-1)
 	}
 
 }
