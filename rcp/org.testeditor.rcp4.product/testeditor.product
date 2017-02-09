@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="TestEditor" uid="testeditor_rcp" id="org.testeditor.rcp4.testeditor_rcp" application="org.testeditor.rcp4.application" version="1.4.0" useFeatures="false" includeLaunchers="true">
+<product name="TestEditor" uid="testeditor_rcp" id="org.testeditor.rcp4.testeditor_rcp" application="org.testeditor.rcp4.application" version="1.5.0.qualifier" useFeatures="false" includeLaunchers="true">
+
 
    <configIni use="default">
    </configIni>
@@ -17,7 +18,8 @@
 
    <windowImages/>
 
-   <launcher>
+
+   <launcher name="testeditor">
       <linux icon="icons/_TE_Icon_all.xpm"/>
       <macosx icon="icons/TE_Icon_all_mac.icns"/>
       <solaris/>
@@ -27,9 +29,11 @@
       </win>
    </launcher>
 
+
    <vm>
       <windows include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</windows>
    </vm>
+
 
    <plugins>
       <plugin id="com.eclipsesource.jaxrs.jersey-min"/>
@@ -338,12 +342,12 @@
    </plugins>
 
    <features>
-      <feature id="org.testeditor.aml.legacy.feature" version="1.4.0"/>
-      <feature id="org.testeditor.aml.sdk" version="1.4.0"/>
-      <feature id="org.testeditor.tcl.sdk" version="1.4.0"/>
-      <feature id="org.testeditor.tsl.sdk" version="1.4.0"/>
-      <feature id="org.testeditor.rcp4.platform.feature" version="1.4.0"/>
-      <feature id="org.testeditor.rcp4.feature" version="1.4.0"/>
+      <feature id="org.testeditor.aml.legacy.feature" version="1.5.0.qualifier"/>
+      <feature id="org.testeditor.aml.sdk" version="1.5.0.qualifier"/>
+      <feature id="org.testeditor.tcl.sdk" version="1.5.0.qualifier"/>
+      <feature id="org.testeditor.tsl.sdk" version="1.5.0.qualifier"/>
+      <feature id="org.testeditor.rcp4.platform.feature" version="1.5.0.qualifier"/>
+      <feature id="org.testeditor.rcp4.feature" version="1.5.0.qualifier"/>
    </features>
 
    <configurations>

@@ -207,6 +207,26 @@ class SimpleTypeComputerTest extends AbstractParserTest {
 		]
 	}
 
+	@Test
+	def void interactionWithLocatorStrategyInNonLastPosition() {
+		// given (interaction with three parameters: element, locatorStrategy, value
+		val interaction = aml.interactionTypes.findFirst[name == "typeInto"].assertNotNull
+
+		// when (called with two parameters, since template defines two, and locatorStrategy is automatically added)
+		val variablesWithTypes = typeComputer.getVariablesWithTypes(interaction)
+
+		// then (make sure that the two parameters are returned with their respective type, skipping locatorStrategy)
+		variablesWithTypes.keySet => [
+			assertSize(2)
+			findFirst[name == "element"].assertNotNull => [
+				variablesWithTypes.get(it).get.type.qualifiedName.assertEquals("java.lang.String")
+			]
+			findFirst[name == "value"].assertNotNull => [
+				variablesWithTypes.get(it).get.type.qualifiedName.assertEquals("java.lang.String")
+			]
+		]
+	}
+
 	private def Macro parseMacro(String macro) {
 		val tcl = '''
 			package com.example

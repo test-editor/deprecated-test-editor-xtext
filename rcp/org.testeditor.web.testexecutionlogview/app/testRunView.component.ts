@@ -34,8 +34,12 @@ export class TestRunView implements OnInit {
                     else {
                         this.resultTableStyle = 'table table-danger'
                     }
+                    if (this.testStatistic.tests == 0) {
+                        this.resultTableStyle = 'table table-warning'
+                    }
                 })
             }
         })
     }
+
 }

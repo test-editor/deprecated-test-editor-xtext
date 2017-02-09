@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IResourceFilterDescription
 import org.eclipse.core.runtime.CoreException
 import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.Path
+import org.eclipse.core.runtime.Platform
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.m2e.core.MavenPlugin
 import org.eclipse.m2e.core.project.ResolverConfiguration
@@ -31,6 +32,7 @@ import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtext.ui.XtextProjectHelper
 import org.eclipse.xtext.util.StringInputStream
 import org.osgi.framework.FrameworkUtil
+import org.osgi.framework.Version
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ide.util.FileUtils
 import org.testeditor.dsl.common.ui.wizards.SwingDemoContentGenerator
@@ -42,8 +44,11 @@ import org.testeditor.dsl.common.util.classpath.ClasspathUtil
  */
 class ProjectContentGenerator {
 
-	static public val TEST_EDITOR_VERSION = "1.2.0" // TODO this sucks - extract to VersionHelper and use the newest version
+	public val String TEST_EDITOR_VERSION
 	static public val TEST_EDITOR_MAVEN_PLUGIN_VERSION = "1.1"
+	static public val TEST_EDITOR_WEB_FIXTURE = "3.1.4"
+	static public val TEST_EDITOR_CORE_FIXTURE = "3.1.0"
+	static public val TEST_EDITOR_SWING_FIXTURE = "3.1.1"
 	static public val TEST_EDITOR_GRADLE_PLUGIN_VERSION = "0.5"
 	
 	static public val String TEST_EDITOR_MVN_GEN_OUTPUT = 'src-gen/test/java'
@@ -74,6 +79,20 @@ class ProjectContentGenerator {
 
 	def List<String> getAvailableFixtureNames() {
 		return #[WEBFIXTURE, SWINGFIXTURE]
+	}
+	
+	new() {
+		TEST_EDITOR_VERSION = bundleVersion.mapTesteditorVersion
+	}
+
+	def Version getBundleVersion() {
+		val bundle = Platform.getBundle("org.testeditor.dsl.common.ui")
+		return bundle.version
+	}
+	
+	def String mapTesteditorVersion(Version version){
+		val versionString = '''«version.major».«version.minor».«version.micro»«if(!version.qualifier.nullOrEmpty){'-SNAPSHOT'}else{''}»'''
+		return versionString.toString
 	}
 
 	def void createProjectContent(IProject project, String[] fixtures, String buildsystem, boolean demo,
@@ -237,7 +256,7 @@ class ProjectContentGenerator {
 	private def void createApplicationCode(String fixture, IProject project, String srcFolder, IProgressMonitor monitor) {
 		if (fixture == SWINGFIXTURE) {
 			val greetingApplication = swingDemoContentGenerator.getSwingApplicationCode(project.name)
-			greetingApplication.write(project, srcFolder, "GreetingApplication.java", monitor)
+			greetingApplication.write(project, srcFolder, "SwingGreetingApplication.java", monitor)
 		}
 	}
 
@@ -245,6 +264,7 @@ class ProjectContentGenerator {
 		if (fixture == WEBFIXTURE) {
 			val google = '''
 				«getInitialFileContents(project.name, fixture)»
+				import static org.testeditor.fixture.web.LocatorStrategy.NAME
 				
 				/**
 				 * Application model for the google search site. It contains only the search field and
@@ -254,6 +274,7 @@ class ProjectContentGenerator {
 					element Searchfield is field {
 						label = "Search field"
 						locator = "q"
+						locatorStrategy = NAME
 					}
 				}
 			'''
@@ -315,12 +336,12 @@ class ProjectContentGenerator {
 		
 			Component: WebBrowser
 			- Start <Firefox>
-			- Browse to "http://www.google.de"
+			- Browse "http://www.google.de"
 		
 		* Search ^for "testeditor"
 		
 			Component: Searchsite
-			- Type in <Searchfield> value "testeditor"
+			- Enter "testeditor" into <Searchfield>
 			- Press enter on <Searchfield>
 		
 		* Close browser
@@ -333,7 +354,7 @@ class ProjectContentGenerator {
 	@VisibleForTesting
 	protected def String getInitialFileContents(String packageName, String... fixturesToImport) '''
 		package «packageName»
-
+		
 		«FOR fixture : fixturesToImport»
 			import «fixture.package».*
 		«ENDFOR»
@@ -377,7 +398,7 @@ class ProjectContentGenerator {
 
 		// In this section you declare the dependencies for your production and test code
 		dependencies {
-			compile 'org.testeditor.fixture:core-fixture:3.1.0'
+			compile 'org.testeditor.fixture:core-fixture:«TEST_EDITOR_CORE_FIXTURE»'
 			«FOR s : fixtureNames»
 				«getGradleDependency(s)»
 			«ENDFOR»
@@ -388,12 +409,12 @@ class ProjectContentGenerator {
 	private def String getGradleDependency(String fixtureName) {
 		if (fixtureName == WEBFIXTURE) {
 			return '''
-				compile 'org.testeditor.fixture:web-fixture:3.1.2'
+				compile 'org.testeditor.fixture:web-fixture:«TEST_EDITOR_WEB_FIXTURE»'
 			'''
 		}
 		if (fixtureName == SWINGFIXTURE) {
 			return '''
-				compile 'org.testeditor.fixture:swing-fixture:3.1.1'
+				compile 'org.testeditor.fixture:swing-fixture:«TEST_EDITOR_SWING_FIXTURE»'
 			'''
 		}
 	}
@@ -460,7 +481,7 @@ class ProjectContentGenerator {
 				<dependency>
 					<groupId>org.testeditor.fixture</groupId>
 					<artifactId>core-fixture</artifactId>
-					<version>3.1.0</version>
+					<version>«TEST_EDITOR_CORE_FIXTURE»</version>
 				</dependency>
 				«FOR s : fixtureNames»
 					«getMavenDependency(s)»
@@ -609,7 +630,7 @@ class ProjectContentGenerator {
 				<dependency>
 					<groupId>org.testeditor.fixture</groupId>
 					<artifactId>web-fixture</artifactId>
-					<version>3.1.0</version>
+					<version>«TEST_EDITOR_WEB_FIXTURE»</version>
 				</dependency>
 			'''
 		}
@@ -618,7 +639,7 @@ class ProjectContentGenerator {
 				<dependency>
 					<groupId>org.testeditor.fixture</groupId>
 					<artifactId>swing-fixture</artifactId>
-					<version>3.1.0</version>
+					<version>«TEST_EDITOR_SWING_FIXTURE»</version>
 				</dependency>
 			'''
 		}

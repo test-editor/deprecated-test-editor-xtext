@@ -25,6 +25,7 @@ import org.testeditor.dsl.common.testing.AbstractTest
 import static extension org.mockito.Matchers.*
 import static extension org.mockito.Mockito.*
 import org.testeditor.dsl.common.util.GradleHelper
+import org.osgi.framework.Version
 
 class ProjectContentGeneratorTest extends AbstractTest {
 
@@ -151,6 +152,54 @@ class ProjectContentGeneratorTest extends AbstractTest {
 		// then
 		gradleHelper.verify.runTasks(project, "eclipse")
 		project.verify.refreshLocal(IProject.DEPTH_INFINITE, monitor)
+	}
+
+	@Test
+	def void testGetVersion() {
+		// given (this is a plugin test)
+		
+		// when
+		val version = generator.bundleVersion
+		
+		// then
+		version.assertNotNull
+		assertTrue(version.major > 0)
+	}
+	
+	@Test
+	def void testVersionMapping() {
+		// given
+		val version = new Version(1,2,3)
+		
+		// when
+		val mapped = generator.mapTesteditorVersion(version)
+		
+		// then
+		mapped.assertEquals("1.2.3")		
+	}
+
+	@Test
+	def void testVersionMappingWithSNAPSHOT() {
+		// given
+		val version = new Version(1,2,3,"SNAPSHOT")
+		
+		// when
+		val mapped = generator.mapTesteditorVersion(version)
+		
+		// then
+		mapped.assertEquals("1.2.3-SNAPSHOT")		
+	}
+
+	@Test
+	def void testVersionMappingWithNumberedQualifier() {
+		// given
+		val version = new Version(1,2,3,"201702091425")
+		
+		// when
+		val mapped = generator.mapTesteditorVersion(version)
+		
+		// then
+		mapped.assertEquals("1.2.3-SNAPSHOT")		
 	}
 
 }
