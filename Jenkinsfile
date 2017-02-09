@@ -71,7 +71,7 @@ nodeWithProperWorkspace {
 
     if (isMaster()) {
         stage('Deploy') {
-            withMavenEnv {
+            withMavenEnv(["TE_MAVEN_HOME=${mvnTool}"]) {
                 gradle 'deploy'
             }
         }
@@ -143,7 +143,8 @@ void postRelease(String preReleaseVersion) {
 }
 
 void setVersion(String newVersion, String rootPom = null, String artifacts = null) {
-    withMavenEnv {
+    String mvnTool = tool name: 'Maven 3.2.5', type: 'hudson.tasks.Maven$MavenInstallation'
+    withMavenEnv(["TE_MAVEN_HOME=${mvnTool}"]) {
         def goals = 'build-helper:parse-version org.eclipse.tycho:tycho-versions-plugin:set-version'
         def pom = rootPom ? "-f $rootPom " : ''
         sh "mvn $pom$goals -Dartifacts=$artifacts -DnewVersion=$newVersion -Dtycho.mode=maven"
