@@ -8,11 +8,11 @@ An Xtext based editor to specify domain-driven acceptance tests.
 
 ## Users
 
-The latest released version of the RCP can be found on the [Test-Editor CI](https://ci.testeditor.org/view/Test-Editor%202/job/test-editor/job/test-editor-xtext/job/master/lastSuccessfulBuild/artifact/rcp/org.testeditor.rcp4.product/target/products/)
+The latest released version of the RCP can be found on the [Test-Editor CI](https://ci.testeditor.org/view/Test-Editor%202/job/test-editor/job/test-editor-xtext/job/master/lastStableBuild/artifact/rcp/org.testeditor.rcp4.product/target/products/)
 
 The latest released version of the plugins can be found on [bintray](https://bintray.com/test-editor/maven/test-editor).
 
-The latest development version of the RCP can be downloaded from the [Test-Editor CI](https://ci.testeditor.org/job/test-editor/job/test-editor-xtext/job/develop/lastSuccessfulBuild/artifact/rcp/org.testeditor.rcp4.product/target/products/).
+The latest (experimental) development version of the RCP can be downloaded from the [Test-Editor CI](https://ci.testeditor.org/job/test-editor/job/test-editor-xtext/job/develop/lastStableBuild/artifact/rcp/org.testeditor.rcp4.product/target/products/).
 
 
 ## Developers
