@@ -1,5 +1,4 @@
 /*******************************************************************************
- * Copyright (c) 2012 - 2016 Signal Iduna Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,7 +12,7 @@
 package org.testeditor.aml.dsl.validation
 
 import java.text.MessageFormat
-import java.util.Set
+import java.util.Map
 import java.util.regex.Pattern
 import java.util.regex.PatternSyntaxException
 import javax.inject.Inject
@@ -22,9 +21,13 @@ import org.eclipse.xtext.xtype.XImportSection
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
+import org.testeditor.aml.ComponentType
+import org.testeditor.aml.ElementTypeWithInteractions
+import org.testeditor.aml.InteractionType
 import org.testeditor.aml.MethodReference
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.RegExValueSpace
+import org.testeditor.aml.TemplateText
 import org.testeditor.aml.ValueSpaceAssignmentContainer
 import org.testeditor.aml.Variable
 
@@ -41,6 +44,7 @@ class AmlValidator extends AbstractAmlValidator {
 	public static val REG_EX_VALUE_SPACE__EXPRESSION__INVALID = "RegExValueSpace.expression.invalid"
 	public static val COMPONENT_ELEMENT__LOCATOR_STRATEGY__MISSING = "componentElement.locatorStrategy.missing"
 	public static val INTERACTION_NAME_DUPLICATION = "interactionType.name.duplication"
+	public static val TEMPLATE_CODE_NOT_UNIQUE = "templateCode.not.unique"
 
 	@Inject
 	private extension ModelUtil
@@ -94,7 +98,7 @@ class AmlValidator extends AbstractAmlValidator {
 	def void checkValueSpaceAssignmentUnique(ValueSpaceAssignmentContainer container) {
 		val variableToAssignment = container.valueSpaceAssignments.groupBy[variable]
 		// those entries in the map with more than one value are duplicates
-		variableToAssignment.entrySet.filter[value.size > 1].forEach[
+		variableToAssignment.entrySet.filter[value.size > 1].forEach [
 			// TODO maybe improve position of error marker
 			error(
 				Validation_ValueSpaceAssignment_NonUnique,
@@ -147,39 +151,54 @@ class AmlValidator extends AbstractAmlValidator {
 		val interactionsExpectingButWithoutStrategy = componentElement.componentElementInteractionTypes.filter [
 			defaultMethod !== null && !defaultMethod.locatorStrategyParameters.empty && locatorStrategy == null
 		]
-		if (elementHasNoStrategy && !interactionsExpectingButWithoutStrategy.empty) {
-			val message = '''Element has interactions ('«interactionsExpectingButWithoutStrategy.map[name].join(', ')»') that require a locator strategy, but none is given.'''
-			error(message, COMPONENT_ELEMENT__LOCATOR_STRATEGY, COMPONENT_ELEMENT__LOCATOR_STRATEGY__MISSING)
-		}
-	}
-
-	override checkImports(XImportSection importSection) {
-		// ignore for now
-	}
-
-	/** get a set of strings that occur more than once in the list passed */
-	private def Set<String> getStringsOccuringMoreThanOnce(Iterable<String> list) {
-		val stringsUnusedYet = list.toSet
-		val stringsOccuringMoreThanOnce = list.dropWhile [
-			val stringWasUnusedUpToNow = stringsUnusedYet.contains(it)
-			if (stringWasUnusedUpToNow) {
-				stringsUnusedYet.remove(it) // now used, remove from unused => if used a second time it is not dropped
+		if (elementHasNoStrategy &&
+			!interactionsExpectingButWithoutStrategy.
+				empty) {
+					val message = '''Element has interactions ('«interactionsExpectingButWithoutStrategy.map[name].join(', ')»') that require a locator strategy, but none is given.'''
+					error(message, COMPONENT_ELEMENT__LOCATOR_STRATEGY, COMPONENT_ELEMENT__LOCATOR_STRATEGY__MISSING)
+				}
 			}
-			return stringWasUnusedUpToNow
-		]
-		return stringsOccuringMoreThanOnce.toSet
-	}
 
-	@Check
-	def void checkInteractionNameIsUnique(AmlModel amlModel) {
-		amlModel.interactionTypes => [
-			val doubleUsedInteractionNames = map[name].getStringsOccuringMoreThanOnce
-			indexed.filter[doubleUsedInteractionNames.contains(value.name)].forEach [
-				val message = '''Interaction has name ('«value.name»') which is used at least twice.'''
-				error(message, value.eContainer, value.eContainingFeature, key, INTERACTION_NAME_DUPLICATION)
-			]
-		]
-	}
+			override checkImports(XImportSection importSection) {
+				// ignore for now
+			}
 
-}
-		
+			@Check
+			def void checkInteractionNameIsUnique(AmlModel amlModel) {
+				val Map<String, InteractionType> interactionNames = newHashMap
+
+				amlModel.interactionTypes.forEach [
+					if (interactionNames.containsKey(it.name)) {
+						val message = MessageFormat.format(Validation_InteractionType_Name_Dublicate, it.name)
+						error(message, interactionNames.get(it.name),
+							interactionNames.get(it.name).eContainer.eContainingFeature, INTERACTION_NAME_DUPLICATION)
+						error(message, it, it.eContainer.eContainingFeature, INTERACTION_NAME_DUPLICATION)
+					} else {
+						interactionNames.put(it.name, it)
+					}
+				]
+			}
+
+			@Check
+			def void checkDupplicateTemplatesInComponentType(ElementTypeWithInteractions componentType) {
+				val Map<String, InteractionType> mapTemplateCode2InteractionType = newHashMap
+
+				componentType.interactionTypes.forEach [
+					var tempalteCode = it.template.contents.filter(TemplateText).map[value].join
+
+					if (mapTemplateCode2InteractionType.containsKey(tempalteCode)) {
+						error(Validation_TemplateCode_NotUnique, componentType,
+								componentType.eContainer.eContainingFeature, TEMPLATE_CODE_NOT_UNIQUE)
+						error(Validation_TemplateCode_NotUnique, mapTemplateCode2InteractionType.get(tempalteCode),
+							mapTemplateCode2InteractionType.get(tempalteCode).eContainer.eContainingFeature,
+							TEMPLATE_CODE_NOT_UNIQUE)
+						error(Validation_TemplateCode_NotUnique, it, it.eContainer.eContainingFeature,
+								TEMPLATE_CODE_NOT_UNIQUE)
+						} else {
+							mapTemplateCode2InteractionType.put(tempalteCode, it)
+						}
+					]
+				}
+
+			}
+			

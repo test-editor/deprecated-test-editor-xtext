@@ -23,6 +23,7 @@ import org.testeditor.dsl.common.testing.DummyLocatorStrategy
 import static org.testeditor.aml.AmlPackage.Literals.*
 import static org.testeditor.aml.dsl.Messages.*
 import static org.testeditor.aml.dsl.validation.AmlValidator.*
+import java.text.MessageFormat
 
 /**
  * Tests for {@link AmlValidator}.
@@ -192,15 +193,58 @@ class ValidationTest extends AbstractParserTest {
 		val startOfSecondAbc = input.indexOf("interaction type abc", startOfFirstAbc + 1)
 		val lengthOfinteractionType = 24
 
+		// when
+		val amlModel = input.parseAml
+
+		// then
+		val message = MessageFormat.format(Validation_InteractionType_Name_Dublicate, "abc")
+
+		amlModel.assertError(INTERACTION_TYPE, INTERACTION_NAME_DUPLICATION, startOfFirstAbc, lengthOfinteractionType,
+			message)
+		amlModel.assertError(INTERACTION_TYPE, INTERACTION_NAME_DUPLICATION, startOfSecondAbc, lengthOfinteractionType,
+			message)
+
+	}
+
+	@Test
+	def void testForDuplicateTempalteCode() {
+		// given (as source to check error marker location)
+		val input = '''
+			package com.example
+			
+			interaction type abc { 
+				template = "templateA"
+			}
+			interaction type efg { 
+				template = "templateB"
+			}
+			interaction type hij { 
+				template = "templateA"
+			}
+			component type noProblem {
+				interactions = abc, efg
+			}
+			component type doublicateTemplateCode {
+				interactions = abc, efg, hij
+			}
+		'''
+		val startOfInteraction1 = input.indexOf("interaction type abc")
+		val startOfInteraction3 = input.indexOf("interaction type hij")
+		val startOfComponent = input.indexOf("component type doublicateTemplateCode")
+		val lengthOfinteractionType = 51
+		val lengthOfComponentType = 73
 
 		// when
 		val amlModel = input.parseAml
 
 		// then
-		amlModel.assertError(AML_MODEL, INTERACTION_NAME_DUPLICATION, startOfFirstAbc, lengthOfinteractionType,
-			"has name ('abc')")
-		amlModel.assertError(AML_MODEL, INTERACTION_NAME_DUPLICATION, startOfSecondAbc, lengthOfinteractionType,
-			"has name ('abc')")
+		val message = Validation_TemplateCode_NotUnique
+
+		amlModel.assertError(INTERACTION_TYPE, TEMPLATE_CODE_NOT_UNIQUE, startOfInteraction3, lengthOfinteractionType,
+			message)
+		amlModel.assertError(INTERACTION_TYPE, TEMPLATE_CODE_NOT_UNIQUE, startOfInteraction1, lengthOfinteractionType,
+			message)
+		amlModel.assertError(COMPONENT_TYPE, TEMPLATE_CODE_NOT_UNIQUE, startOfComponent, lengthOfComponentType, message)
 
 	}
 
