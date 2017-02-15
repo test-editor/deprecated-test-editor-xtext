@@ -88,9 +88,7 @@ class TestExecutionLogService {
 	@Produces("image/png")
 	def Response getScreenshot(@PathParam("filename") String filename, @PathParam("testcasename") String testcasename,
 		@PathParam("screenshotpath") String screenshotpath) {
-			println(screenshotpath)
 		val screenshot = testExecutionManager.getScreenshotFor(filename, testcasename, screenshotpath)
-		println(screenshot.exists)
 		if (screenshot.exists) {
 			return Response.ok(new FileInputStream(screenshot)).build
 		} else {
