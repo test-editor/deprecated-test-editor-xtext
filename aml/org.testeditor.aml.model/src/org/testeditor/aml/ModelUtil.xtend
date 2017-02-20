@@ -135,4 +135,20 @@ class ModelUtil {
 		}
 	}
 
+	def String normalize(Template template) {
+		val normalizedTemplate = template.contents.map [
+			switch (it) {
+				TemplateVariable case name == 'element': '<>'
+				TemplateVariable: '""'
+				TemplateText: value.trim
+			}
+		].join(' ').removeWhitespaceBeforePunctuation
+		return normalizedTemplate
+	}
+
+	def String removeWhitespaceBeforePunctuation(String input) {
+		return input.replaceAll('''\s+(\.|\?)''', "$1")
+	}
+
+
 }

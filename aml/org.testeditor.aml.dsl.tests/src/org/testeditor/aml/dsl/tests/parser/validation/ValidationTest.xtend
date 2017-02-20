@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.tests.parser.validation
 
+import java.text.MessageFormat
 import javax.inject.Inject
 import org.junit.Test
 import org.testeditor.aml.dsl.tests.AmlModelGenerator
@@ -190,17 +191,68 @@ class ValidationTest extends AbstractParserTest {
 		'''
 		val startOfFirstAbc = input.indexOf("interaction type abc")
 		val startOfSecondAbc = input.indexOf("interaction type abc", startOfFirstAbc + 1)
-		val lengthOfinteractionType = 24
-
+		val lengthOfinteractionType = "interaction type abc { }".length
 
 		// when
 		val amlModel = input.parseAml
 
 		// then
-		amlModel.assertError(AML_MODEL, INTERACTION_NAME_DUPLICATION, startOfFirstAbc, lengthOfinteractionType,
-			"has name ('abc')")
-		amlModel.assertError(AML_MODEL, INTERACTION_NAME_DUPLICATION, startOfSecondAbc, lengthOfinteractionType,
-			"has name ('abc')")
+		val message = MessageFormat.format(Validation_InteractionType_Name_Dublicate, "abc")
+
+		amlModel.assertError(INTERACTION_TYPE, INTERACTION_NAME_DUPLICATION, startOfFirstAbc, lengthOfinteractionType,
+			message)
+		amlModel.assertError(INTERACTION_TYPE, INTERACTION_NAME_DUPLICATION, startOfSecondAbc, lengthOfinteractionType,
+			message)
+
+	}
+
+	@Test
+	def void testForDuplicateTempalteCode() {
+		// given (as source to check error marker location)
+		val interactionCodeLength = '''
+		interaction type efg { 
+			template = "templateB"
+		}'''.length
+		val componentCodeLength = '''
+		component type doublicateTemplateCode {
+			interactions = abc, efg, hij
+		}'''.length
+		val input = '''
+			package com.example
+			
+			interaction type abc { 
+				template = "templateA"
+			}
+			interaction type efg { 
+				template = "templateB"
+			}
+			interaction type hij { 
+				template = "templateA"
+			}
+			component type noProblem {
+				interactions = abc, efg
+			}
+			component type doublicateTemplateCode {
+				interactions = abc, efg, hij
+			}
+		'''
+		val startOfInteraction1 = input.indexOf("interaction type abc")
+		val startOfInteraction3 = input.indexOf("interaction type hij")
+		val startOfComponent = input.indexOf("component type doublicateTemplateCode")
+		val lengthOfinteractionType = interactionCodeLength
+		val lengthOfComponentType = componentCodeLength
+
+		// when
+		val amlModel = input.parseAml
+
+		// then
+		val message = Validation_TemplateCode_NotUnique
+
+		amlModel.assertError(INTERACTION_TYPE, TEMPLATE_CODE_NOT_UNIQUE, startOfInteraction3, lengthOfinteractionType,
+			message)
+		amlModel.assertError(INTERACTION_TYPE, TEMPLATE_CODE_NOT_UNIQUE, startOfInteraction1, lengthOfinteractionType,
+			message)
+		amlModel.assertError(COMPONENT_TYPE, TEMPLATE_CODE_NOT_UNIQUE, startOfComponent, lengthOfComponentType, message)
 
 	}
 

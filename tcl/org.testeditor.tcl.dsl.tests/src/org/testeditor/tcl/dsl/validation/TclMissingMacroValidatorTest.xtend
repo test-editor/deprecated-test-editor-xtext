@@ -37,7 +37,7 @@ class TclMissingMacroValidatorTest extends AbstractMockedTclValidatorTest {
 		when(tclModelUtil.hasComponentContext(anyObject)).thenReturn(false)
 		when(tclModelUtil.hasMacroContext(anyObject)).thenReturn(true)
 		when(tclModelUtil.normalize(any(TestStep))).thenReturn("abc")
-		when(tclModelUtil.normalize(any(Template))).thenReturn("abc")
+		when(modelUtil.normalize(any(Template))).thenReturn("abc")
 	}
 
 	@Test
@@ -77,7 +77,7 @@ class TclMissingMacroValidatorTest extends AbstractMockedTclValidatorTest {
 		''')
 		val testStepThatDoesNotMap = tmlModel.macroCollection.macros.head.contexts.head.assertInstanceOf(
 			MacroTestStepContext).steps.head.assertInstanceOf(TestStep)
-		when(tclModelUtil.normalize(any(Template))).thenReturn("cba")
+		when(modelUtil.normalize(any(Template))).thenReturn("cba")
 		when(macroTestStepContextMock.macroCollection).thenReturn(tmlModel.macroCollection)
 
 		// when

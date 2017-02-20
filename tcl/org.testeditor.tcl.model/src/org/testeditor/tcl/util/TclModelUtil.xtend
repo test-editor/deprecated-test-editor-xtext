@@ -27,7 +27,6 @@ import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateContainer
-import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.dsl.common.util.CollectionUtils
 import org.testeditor.tcl.AssertionTestStep
@@ -87,10 +86,6 @@ class TclModelUtil extends TslModelUtil {
 		].join(' ').removeWhitespaceBeforePunctuation
 	}
 
-	private def String removeWhitespaceBeforePunctuation(String input) {
-		return input.replaceAll('''\s+(\.|\?)''', "$1")
-	}
-
 	def TemplateContainer findInteractionOrMacro(TestStep step) {
 		return step.getInteraction ?: step.findMacro
 	}
@@ -120,17 +115,6 @@ class TclModelUtil extends TslModelUtil {
 			return interactionTypes.findFirst[template.normalize == normalizedTestStep]
 		}
 		return null
-	}
-
-	def String normalize(Template template) {
-		val normalizedTemplate = template.contents.map [
-			switch (it) {
-				TemplateVariable case name == 'element': '<>'
-				TemplateVariable: '""'
-				TemplateText: value.trim
-			}
-		].join(' ').removeWhitespaceBeforePunctuation
-		return normalizedTemplate
 	}
 
 	def String normalize(TestStep step) {

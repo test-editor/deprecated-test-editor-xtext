@@ -13,7 +13,7 @@
 package org.testeditor.aml.dsl.validation
 
 import java.text.MessageFormat
-import java.util.Set
+import java.util.Map
 import java.util.regex.Pattern
 import java.util.regex.PatternSyntaxException
 import javax.inject.Inject
@@ -22,6 +22,8 @@ import org.eclipse.xtext.xtype.XImportSection
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
+import org.testeditor.aml.ElementTypeWithInteractions
+import org.testeditor.aml.InteractionType
 import org.testeditor.aml.MethodReference
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.RegExValueSpace
@@ -44,6 +46,7 @@ class AmlValidator extends AbstractAmlValidator {
 	public static val REG_EX_VALUE_SPACE__EXPRESSION__INVALID = "RegExValueSpace.expression.invalid"
 	public static val COMPONENT_ELEMENT__LOCATOR_STRATEGY__MISSING = "componentElement.locatorStrategy.missing"
 	public static val INTERACTION_NAME_DUPLICATION = "interactionType.name.duplication"
+	public static val TEMPLATE_CODE_NOT_UNIQUE = "templateCode.not.unique"
 	public static val INVALID_CHAR_IN_TEMPLATE = "template.string.invalidChar"
 
 	@Inject
@@ -101,7 +104,7 @@ class AmlValidator extends AbstractAmlValidator {
 	def void checkValueSpaceAssignmentUnique(ValueSpaceAssignmentContainer container) {
 		val variableToAssignment = container.valueSpaceAssignments.groupBy[variable]
 		// those entries in the map with more than one value are duplicates
-		variableToAssignment.entrySet.filter[value.size > 1].forEach[
+		variableToAssignment.entrySet.filter[value.size > 1].forEach [
 			// TODO maybe improve position of error marker
 			error(
 				Validation_ValueSpaceAssignment_NonUnique,
@@ -164,27 +167,40 @@ class AmlValidator extends AbstractAmlValidator {
 		// ignore for now
 	}
 
-	/** get a set of strings that occur more than once in the list passed */
-	private def Set<String> getStringsOccuringMoreThanOnce(Iterable<String> list) {
-		val stringsUnusedYet = list.toSet
-		val stringsOccuringMoreThanOnce = list.dropWhile [
-			val stringWasUnusedUpToNow = stringsUnusedYet.contains(it)
-			if (stringWasUnusedUpToNow) {
-				stringsUnusedYet.remove(it) // now used, remove from unused => if used a second time it is not dropped
+	@Check
+	def void checkInteractionNameIsUnique(AmlModel amlModel) {
+		val mapInteractionName2InteractionTypes = newHashMap
+
+		amlModel.interactionTypes.forEach [
+			if (mapInteractionName2InteractionTypes.containsKey(it.name)) {
+				val message = MessageFormat.format(Validation_InteractionType_Name_Dublicate, it.name)
+				error(message, mapInteractionName2InteractionTypes.get(it.name),
+					mapInteractionName2InteractionTypes.get(it.name).eContainer.eContainingFeature, INTERACTION_NAME_DUPLICATION)
+				error(message, it, it.eContainer.eContainingFeature, INTERACTION_NAME_DUPLICATION)
+			} else {
+				mapInteractionName2InteractionTypes.put(it.name, it)
 			}
-			return stringWasUnusedUpToNow
 		]
-		return stringsOccuringMoreThanOnce.toSet
 	}
 
 	@Check
-	def void checkInteractionNameIsUnique(AmlModel amlModel) {
-		amlModel.interactionTypes => [
-			val doubleUsedInteractionNames = map[name].getStringsOccuringMoreThanOnce
-			indexed.filter[doubleUsedInteractionNames.contains(value.name)].forEach [
-				val message = '''Interaction has name ('«value.name»') which is used at least twice.'''
-				error(message, value.eContainer, value.eContainingFeature, key, INTERACTION_NAME_DUPLICATION)
-			]
+	def void checkDupplicateTemplatesInComponentType(ElementTypeWithInteractions componentType) {
+		val mapTemplateCode2InteractionType = newHashMap
+
+		componentType.interactionTypes.forEach [
+			var templateCode = template.normalize 
+
+			if (mapTemplateCode2InteractionType.containsKey(templateCode)) {
+				error(Validation_TemplateCode_NotUnique, componentType,
+						componentType.eContainer.eContainingFeature, TEMPLATE_CODE_NOT_UNIQUE)
+				error(Validation_TemplateCode_NotUnique, mapTemplateCode2InteractionType.get(templateCode),
+					mapTemplateCode2InteractionType.get(templateCode).eContainer.eContainingFeature,
+					TEMPLATE_CODE_NOT_UNIQUE)
+				error(Validation_TemplateCode_NotUnique, it, it.eContainer.eContainingFeature,
+						TEMPLATE_CODE_NOT_UNIQUE)
+			} else {
+				mapTemplateCode2InteractionType.put(templateCode, it)
+			}
 		]
 	}
 	
@@ -223,6 +239,5 @@ class AmlValidator extends AbstractAmlValidator {
 			}
 		]
 	}
-
 }
-		
+			
