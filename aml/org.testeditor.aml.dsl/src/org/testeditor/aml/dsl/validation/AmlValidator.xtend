@@ -1,4 +1,5 @@
 /*******************************************************************************
+ * Copyright (c) 2012 - 2016 Signal Iduna Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +22,6 @@ import org.eclipse.xtext.xtype.XImportSection
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
-import org.testeditor.aml.ComponentType
 import org.testeditor.aml.ElementTypeWithInteractions
 import org.testeditor.aml.InteractionType
 import org.testeditor.aml.MethodReference
@@ -157,54 +157,53 @@ class AmlValidator extends AbstractAmlValidator {
 		val interactionsExpectingButWithoutStrategy = componentElement.componentElementInteractionTypes.filter [
 			defaultMethod !== null && !defaultMethod.locatorStrategyParameters.empty && locatorStrategy == null
 		]
-		if (elementHasNoStrategy &&
-			!interactionsExpectingButWithoutStrategy.
-				empty) {
-					val message = '''Element has interactions ('«interactionsExpectingButWithoutStrategy.map[name].join(', ')»') that require a locator strategy, but none is given.'''
-					error(message, COMPONENT_ELEMENT__LOCATOR_STRATEGY, COMPONENT_ELEMENT__LOCATOR_STRATEGY__MISSING)
-				}
+		if (elementHasNoStrategy && !interactionsExpectingButWithoutStrategy.empty) {
+			val message = '''Element has interactions ('«interactionsExpectingButWithoutStrategy.map[name].join(', ')»') that require a locator strategy, but none is given.'''
+			error(message, COMPONENT_ELEMENT__LOCATOR_STRATEGY, COMPONENT_ELEMENT__LOCATOR_STRATEGY__MISSING)
+		}
+	}
+
+	override checkImports(XImportSection importSection) {
+		// ignore for now
+	}
+
+	@Check
+	def void checkInteractionNameIsUnique(AmlModel amlModel) {
+		val mapInteractionName2InteractionTypes = newHashMap
+
+		amlModel.interactionTypes.forEach [
+			if (mapInteractionName2InteractionTypes.containsKey(it.name)) {
+				val message = MessageFormat.format(Validation_InteractionType_Name_Dublicate, it.name)
+				error(message, mapInteractionName2InteractionTypes.get(it.name),
+					mapInteractionName2InteractionTypes.get(it.name).eContainer.eContainingFeature, INTERACTION_NAME_DUPLICATION)
+				error(message, it, it.eContainer.eContainingFeature, INTERACTION_NAME_DUPLICATION)
+			} else {
+				mapInteractionName2InteractionTypes.put(it.name, it)
 			}
+		]
+	}
 
-			override checkImports(XImportSection importSection) {
-				// ignore for now
+	@Check
+	def void checkDupplicateTemplatesInComponentType(ElementTypeWithInteractions componentType) {
+		val mapTemplateCode2InteractionType = newHashMap
+
+		componentType.interactionTypes.forEach [
+			var templateCode = template.normalize 
+
+			if (mapTemplateCode2InteractionType.containsKey(templateCode)) {
+				error(Validation_TemplateCode_NotUnique, componentType,
+						componentType.eContainer.eContainingFeature, TEMPLATE_CODE_NOT_UNIQUE)
+				error(Validation_TemplateCode_NotUnique, mapTemplateCode2InteractionType.get(templateCode),
+					mapTemplateCode2InteractionType.get(templateCode).eContainer.eContainingFeature,
+					TEMPLATE_CODE_NOT_UNIQUE)
+				error(Validation_TemplateCode_NotUnique, it, it.eContainer.eContainingFeature,
+						TEMPLATE_CODE_NOT_UNIQUE)
+			} else {
+				mapTemplateCode2InteractionType.put(templateCode, it)
 			}
-
-			@Check
-			def void checkInteractionNameIsUnique(AmlModel amlModel) {
-				val Map<String, InteractionType> interactionNames = newHashMap
-
-				amlModel.interactionTypes.forEach [
-					if (interactionNames.containsKey(it.name)) {
-						val message = MessageFormat.format(Validation_InteractionType_Name_Dublicate, it.name)
-						error(message, interactionNames.get(it.name),
-							interactionNames.get(it.name).eContainer.eContainingFeature, INTERACTION_NAME_DUPLICATION)
-						error(message, it, it.eContainer.eContainingFeature, INTERACTION_NAME_DUPLICATION)
-					} else {
-						interactionNames.put(it.name, it)
-					}
-				]
-			}
-
-			@Check
-			def void checkDupplicateTemplatesInComponentType(ElementTypeWithInteractions componentType) {
-				val Map<String, InteractionType> mapTemplateCode2InteractionType = newHashMap
-
-				componentType.interactionTypes.forEach [
-					var tempalteCode = it.template.contents.filter(TemplateText).map[value].join
-
-					if (mapTemplateCode2InteractionType.containsKey(tempalteCode)) {
-						error(Validation_TemplateCode_NotUnique, componentType,
-								componentType.eContainer.eContainingFeature, TEMPLATE_CODE_NOT_UNIQUE)
-						error(Validation_TemplateCode_NotUnique, mapTemplateCode2InteractionType.get(tempalteCode),
-							mapTemplateCode2InteractionType.get(tempalteCode).eContainer.eContainingFeature,
-							TEMPLATE_CODE_NOT_UNIQUE)
-						error(Validation_TemplateCode_NotUnique, it, it.eContainer.eContainingFeature,
-								TEMPLATE_CODE_NOT_UNIQUE)
-						} else {
-							mapTemplateCode2InteractionType.put(tempalteCode, it)
-						}
-					]
-				}
+		]
+	}
+	
 	static val ID_REGEX='\\^?[a-zA-Z$_][a-zA-Z$_0-9]*' 
 	static val VALID_TEMPLATE_WORDS = '''^[ \t]*(«ID_REGEX»[ \t]*)+$'''
 	static val VALID_LAST_TEMPLATE_WORDS = '''^[ \t]*(«ID_REGEX»[ \t]*)*([.?][ \t]*)?$'''
@@ -240,6 +239,5 @@ class AmlValidator extends AbstractAmlValidator {
 			}
 		]
 	}
-
-			}
+}
 			

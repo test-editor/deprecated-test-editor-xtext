@@ -44,6 +44,7 @@ import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
 
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
+import org.testeditor.aml.ModelUtil
 
 class TclValidator extends AbstractTclValidator {
 
@@ -62,6 +63,7 @@ class TclValidator extends AbstractTclValidator {
 	public static val INVALID_MODEL_CONTENT = "invalidModelContent"
 
 	@Inject extension TclModelUtil
+	@Inject extension ModelUtil
 	@Inject extension CollectionUtils
 	
 	@Inject ValueSpaceHelper valueSpaceHelper

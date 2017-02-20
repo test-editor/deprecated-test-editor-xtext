@@ -6,6 +6,7 @@ import javax.inject.Inject
 import org.junit.Before
 import org.junit.Test
 import org.testeditor.aml.AmlModel
+import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.Variable
@@ -30,7 +31,7 @@ class TclModelUtilTest extends AbstractParserTest {
 	@Inject extension AmlModelGenerator
 	@Inject var AmlTestModels amlTestModels
 	@Inject protected TclGrammarAccess grammarAccess
-	@Inject extension TclModelUtil
+	@Inject extension ModelUtil modelUtil
 
 	@Before
 	def void setup() {		
@@ -102,7 +103,7 @@ class TclModelUtilTest extends AbstractParserTest {
 		''', grammarAccess.templateRule, Template)
 
 		// when
-		val normalizedTemplate = tclModelUtil.normalize(template)
+		val normalizedTemplate = modelUtil.normalize(template)
 
 		// then
 		normalizedTemplate.assertEquals('start with "" and more ""?')
@@ -207,7 +208,7 @@ class TclModelUtilTest extends AbstractParserTest {
 		val testStepContext = tclModel.test.steps.head.contexts.head
 
 		// when		
-		val varTypeMap = testStepContext.collectDeclaredVariablesTypeMap
+		val varTypeMap = tclModelUtil.collectDeclaredVariablesTypeMap(testStepContext)
 		val varTypeQualifiedName = varTypeMap.get("newVar").qualifiedName
 		val mapTypeQualifiedNameWOGenerics = varTypeMap.get("newMap").qualifiedName.replaceFirst("<.*", "")
 
@@ -367,8 +368,8 @@ class TclModelUtilTest extends AbstractParserTest {
 		val testStepContext2 = tclModel.test.steps.head.contexts.last
 
 		// when
-		val result1 = testStepContext1.getAllTypeUsagesOfVariable(variable.name)
-		val result2 = testStepContext2.getAllTypeUsagesOfVariable(variable.name)
+		val result1 = tclModelUtil.getAllTypeUsagesOfVariable(testStepContext1, variable.name)
+		val result2 = tclModelUtil.getAllTypeUsagesOfVariable(testStepContext2, variable.name)
 
 		// then
 		val qualifiedNames1 = result1.map[qualifiedName].toSet
@@ -393,7 +394,7 @@ class TclModelUtilTest extends AbstractParserTest {
 		val testStepContext = tclModel.test.steps.head.contexts.head
 
 		// when
-		val result = testStepContext.getAllTypeUsagesOfVariable(variable.name)
+		val result = tclModelUtil.getAllTypeUsagesOfVariable(testStepContext, variable.name)
 
 		// then
 		val qualifiedNames = result.map[qualifiedName].toSet
@@ -420,7 +421,7 @@ class TclModelUtilTest extends AbstractParserTest {
 
 		// when
 		val results = newHashMap
-		expectations.forEach[key, value|results.put(key, context.makesUseOfVariablesViaReference(key))]
+		expectations.forEach[key, value|results.put(key, tclModelUtil.makesUseOfVariablesViaReference(context, key))]
 
 		// then
 		results.assertEquals(expectations)

@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.tests.parser.validation
 
+import java.text.MessageFormat
 import javax.inject.Inject
 import org.junit.Test
 import org.testeditor.aml.dsl.tests.AmlModelGenerator
@@ -23,7 +24,6 @@ import org.testeditor.dsl.common.testing.DummyLocatorStrategy
 import static org.testeditor.aml.AmlPackage.Literals.*
 import static org.testeditor.aml.dsl.Messages.*
 import static org.testeditor.aml.dsl.validation.AmlValidator.*
-import java.text.MessageFormat
 
 /**
  * Tests for {@link AmlValidator}.
@@ -191,7 +191,7 @@ class ValidationTest extends AbstractParserTest {
 		'''
 		val startOfFirstAbc = input.indexOf("interaction type abc")
 		val startOfSecondAbc = input.indexOf("interaction type abc", startOfFirstAbc + 1)
-		val lengthOfinteractionType = 24
+		val lengthOfinteractionType = "interaction type abc { }".length
 
 		// when
 		val amlModel = input.parseAml
@@ -209,6 +209,14 @@ class ValidationTest extends AbstractParserTest {
 	@Test
 	def void testForDuplicateTempalteCode() {
 		// given (as source to check error marker location)
+		val interactionCodeLength = '''
+		interaction type efg { 
+			template = "templateB"
+		}'''.length
+		val componentCodeLength = '''
+		component type doublicateTemplateCode {
+			interactions = abc, efg, hij
+		}'''.length
 		val input = '''
 			package com.example
 			
@@ -231,8 +239,8 @@ class ValidationTest extends AbstractParserTest {
 		val startOfInteraction1 = input.indexOf("interaction type abc")
 		val startOfInteraction3 = input.indexOf("interaction type hij")
 		val startOfComponent = input.indexOf("component type doublicateTemplateCode")
-		val lengthOfinteractionType = 51
-		val lengthOfComponentType = 73
+		val lengthOfinteractionType = interactionCodeLength
+		val lengthOfComponentType = componentCodeLength
 
 		// when
 		val amlModel = input.parseAml
