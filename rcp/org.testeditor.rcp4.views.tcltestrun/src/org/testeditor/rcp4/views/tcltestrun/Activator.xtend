@@ -44,7 +44,7 @@ class Activator extends AbstractUIPlugin {
 		val serviceReference = context.getServiceReference(ExtendedHttpService)
 		if (serviceReference !== null) {
 			val httpService = context.getService(serviceReference)
-			httpService.registerResources("/testlogs", "/", new BundleHttpContext(bundle))
+			httpService.registerResources("/", "/web-app", new BundleHttpContext(bundle))
 			httpService.registerFilter("/services/*", new AllowCrossOriginWebFilter, null, null)
 		}
 	}

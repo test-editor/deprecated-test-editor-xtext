@@ -1,6 +1,7 @@
 package org.testeditor.dsl.common.util
 
 import com.google.common.collect.Iterables
+import java.util.Optional
 
 class CollectionUtils {
 
@@ -28,6 +29,26 @@ class CollectionUtils {
 	public def Iterable<?> filterByTypes(Iterable<?> unfiltered, Class<?> ... types) {
 		unfiltered.filter[obj|types.exists[isInstance(obj)]]
 	}
+	
+	/**
+	 * filter a list of pairs on all values that are not null
+	 */
+	public def <A, B> Iterable<Pair<A,B>> filterValuesNull(Iterable<Pair<A,B>> unfiltered) {
+		return Iterables.filter(unfiltered, [value !== null])
+	}
+	
+	/**
+	 * return Iterable exluding the last element
+	 */
+	public def <T> Iterable<T> butLast(Iterable<T> includingLast) {
+		return includingLast.take(includingLast.size-1)
+	}
 
+	/**
+	 * return the index (0-based) of the first element that satisfies the predicate. -1 if not found.
+	 */
+	public def <A> int indexOfFirst(Iterable <A> iterable, (A)=>Boolean predicate) {
+		return Optional.ofNullable(iterable.indexed.findFirst[predicate.apply(value)]?.key).orElse(-1)
+	}
 
 }

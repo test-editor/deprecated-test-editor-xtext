@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.NullProgressMonitor
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
 import org.testeditor.dsl.common.util.MavenExecutor
+import org.testeditor.dsl.common.util.MavenExecutor.MavenVersionValidity
 
 public class TclMavenLauncher implements TclLauncher {
 
@@ -38,8 +39,8 @@ public class TclMavenLauncher implements TclLauncher {
 	@Inject extension ProjectUtils
 	@Inject MavenExecutor mavenExecutor
 
-	override LaunchResult launchTest(List<String> testCases, IProject project, IProgressMonitor monitor, OutputStream out,
-		Map<String, Object> options) {
+	override LaunchResult launchTest(List<String> testCases, IProject project, IProgressMonitor monitor,
+		OutputStream out, Map<String, Object> options) {
 		val parameters = if (options.containsKey(
 				PROFILE)) {
 				"clean generate-test-sources org.testeditor:testeditor-maven-plugin:testEnvUp org.testeditor:testeditor-maven-plugin:testExec -P" +
@@ -47,13 +48,14 @@ public class TclMavenLauncher implements TclLauncher {
 			} else {
 				"clean integration-test"
 			}
-			
+
 		var testSelectionArgument = ""
-		if(testCases != null) {
+		if (testCases != null) {
 			testSelectionArgument = "test=" + testCases.join(",")
-		} 
-		val result = mavenExecutor.executeInNewJvm(parameters, project.location.toOSString,
-			testSelectionArgument, monitor, out, false)
+		}
+
+		val result = mavenExecutor.executeInNewJvm(parameters, project.location.toOSString, testSelectionArgument,
+			monitor, out)
 		val testResultFolder = project.createOrGetDeepFolder(MVN_TEST_RESULT_FOLDER).location.toFile
 		if (result == IStatus.OK) {
 			return new LaunchResult(testResultFolder)
@@ -71,12 +73,16 @@ public class TclMavenLauncher implements TclLauncher {
 
 	def Iterable<String> getProfiles(IProject project) {
 		mavenExecutor.executeInNewJvm("help:all-profiles", project.location.toOSString, '''output=«PROFILE_TXT_PATH»''',
-			new NullProgressMonitor, System.out, false)
+			new NullProgressMonitor, System.out)
 		val file = new File('''«project.location.toOSString»/«PROFILE_TXT_PATH»''')
 		val profileOutput = Files.readAllLines(file.toPath, StandardCharsets.UTF_8)
 		return profileOutput.filter[contains("Profile Id:")].map [
 			substring(indexOf("Id:") + 3, indexOf("(")).trim
 		].toSet
+	}
+	
+	def MavenVersionValidity getMavenVersionValidity(){
+		return mavenExecutor.mavenVersionValidity
 	}
 
 }

@@ -1,11 +1,17 @@
-<ngb-accordion #acc="ngbAccordion" >
+<ngb-accordion #acc="ngbAccordion">
     <ngb-panel *ngFor="let loggroup of testruns" title="{{ loggroup.type }}: {{loggroup.name}}">
         <template ngbPanelContent>
+            <div style="text-align: right;" id="up{{loggroup.name}}">
+                <a href="#bottom{{loggroup.name}}"><img src="../gfx/down.png" title="bottom of log entry"></a>
+            </div>
             <img class="img-thumbnail" src="{{ logService.getScreenshotURL(testRun, loggroup.screenshotPath) }}">
             <span *ngFor="let logentry of loggroup.logLines">
                     <span style="white-space: nowrap"> {{logentry}}</span> <br>
-                </span>
+            </span>
             <te-log-groups-view [testruns]="loggroup.children" [testRun]="testRun"></te-log-groups-view>
+            <div style="text-align: right;" id="bottom{{loggroup.name}}">
+                <a href="#up{{loggroup.name}}"><img src="../gfx/up.png" title="Top of log entry"></a>
+            </div>
         </template>
     </ngb-panel>
 </ngb-accordion>

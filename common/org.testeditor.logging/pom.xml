@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>org.testeditor</groupId>
 		<artifactId>org.testeditor.releng.parent.dsl</artifactId>
-		<version>1.4.0-SNAPSHOT</version>
+		<version>1.6.0-SNAPSHOT</version>
 		<relativePath>../../releng/org.testeditor.releng.parent.dsl</relativePath>
 	</parent>
 
@@ -80,6 +80,10 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.xtend</groupId>
+				<artifactId>xtend-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>

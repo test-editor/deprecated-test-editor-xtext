@@ -59,6 +59,10 @@ public class DummyFixture {
 	@FixtureMethod
 	def void clickOn(String locator, DummyLocatorStrategy locatorStragety) {
 	}
+	
+	@FixtureMethod
+	def void typeInto(String locator, DummyLocatorStrategy locatorStrategy, String value) {
+	}
 
 	@FixtureMethod
 	def boolean isVisible(String locator) {
@@ -135,12 +139,17 @@ public class DummyFixture {
 			method = «dummyFixture».clickOn(element, locatorStrategy)
 		}
 		
+		interaction type typeInto {
+			template = "Type" ${value} "into" ${element}
+			method = «dummyFixture».typeInto(element, locatorStrategy, value)
+		}
+		
 		element type Label {
 			interactions = getList, getValue, getBool, getMap, isVisible
 		}
 		
 		element type Text {
-			interactions = getValue, isVisible, setValue, setValueReversed
+			interactions = getValue, isVisible, setValue, setValueReversed, typeInto
 		}
 
 		element type Button {
@@ -154,6 +163,7 @@ public class DummyFixture {
 			}
 			element Input is Text {
 				locator = "text.input"
+				locatorStrategy = DummyLocatorStrategy.ID
 			}
 			element Ok is Button {
 				locator = "button.ok"

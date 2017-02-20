@@ -3,10 +3,12 @@ package org.testeditor.tcl.dsl.jvmmodel
 import java.util.Map
 import java.util.Optional
 import javax.inject.Inject
+import org.eclipse.xtext.common.types.JvmEnumerationType
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.testeditor.aml.InteractionType
 import org.testeditor.aml.MethodReference
 import org.testeditor.aml.TemplateVariable
+import org.testeditor.dsl.common.util.CollectionUtils
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.VariableReference
@@ -20,6 +22,7 @@ import static java.util.Optional.*
 class SimpleTypeComputer {
 
 	@Inject extension TclModelUtil
+	@Inject extension CollectionUtils
 
 	def dispatch Map<TemplateVariable, Optional<JvmTypeReference>> getVariablesWithTypes(InteractionType interaction) {
 		return interaction.defaultMethod.interactionTemplateVariablesToMethodParameterTypesMapping
@@ -63,8 +66,18 @@ class SimpleTypeComputer {
 		MethodReference methodReference) {
 		val operationParameters = methodReference.operation.parameters
 		val map = newHashMap
+		val elementIndex = methodReference.parameters.indexOfFirst[name == "element"]
+		val parameterCountDiffersByOne = (operationParameters.size - methodReference.parameters.size == 1)
+		val hasLocatorStrategy = parameterCountDiffersByOne //
+				&& elementIndex >= 0 //
+				&& operationParameters.get(elementIndex + 1).parameterType.type instanceof JvmEnumerationType
 		methodReference.parameters.forEach [ parameter, i |
-			val operationParameter = operationParameters.get(i)
+			val realIndex = if (hasLocatorStrategy && i > elementIndex) {
+					i + 1 // when behind "element", and locatorStrategy is present
+				} else {
+					i
+				}
+			val operationParameter = operationParameters.get(realIndex)
 			map.put(parameter, ofNullable(operationParameter.parameterType))
 		]
 		return map

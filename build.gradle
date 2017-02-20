@@ -11,6 +11,8 @@ node {
 
 def targetPlatform = "$projectDir/target-platform"
 
+def rrdAntlr4 = "rrd-antlr4-0.1.2.jar"
+
 task npmInstallDep(type: NpmTask, dependsOn: npmSetup){
 	group 'Node'
 	workingDir file("rcp/org.testeditor.web.testexecutionlogview")
@@ -65,6 +67,120 @@ task deploy(type: MavenExec) {
 task buildProduct(type: MavenExec) {
     workingDir projectDir
     args 'package' , '-Pproduct', '-DskipTests', '-Dtycho.localArtifacts=ignore'
+}
+
+def String buildNestedParenthesisRegex(int level) {
+    def preParen = "(?<!')\\(" // opening braces ( must not be preceeded by a ' to avoid string constant matching
+    def postParen = "\\)" // closing braces
+    def anyNonParenthesis = "[^()]*(('\\(')[^()]*)?" // may hold '(' as an exception to that rule, since this constant appears once in a while in the grammar
+
+    def result  = preParen + anyNonParenthesis + postParen
+    for(int i; i<level; i++) {
+        result = preParen+"("+anyNonParenthesis+result+")*"+anyNonParenthesis+postParen
+    }
+    return result
+}
+
+def String convertToAntlr4(String antlr3) {
+    def newContent = antlr3
+    .replaceAll("(?<!')\\{[^{}]*\\}\\??(?<!')=>","") // replace all code prefix expression
+    .replaceAll(buildNestedParenthesisRegex(7)+"[^()]*\\??(?<!')=>","") // remove all grammar prefix expressions
+
+    def index=newContent.indexOf('entryRule')
+
+    def codeRemoved = newContent.substring(0,index)+
+        newContent.substring(index)
+        .replaceAll("finally[ \t\n\r]*\\{[^{}]*\\}","") // finally code block after rule
+        .replaceAll("@init","") // init code block
+        .replaceAll("@after","") // after code block
+        .replaceAll("(?<!')\\([ \t\r\n]*\\)","") // empty block of parenthesis
+        .replaceAll("(?<!')\\{(?!')[^{}]*\\}","") // code block
+        .replaceAll("(?<!')\\{(?!')[^{}]*\\}","") // code block (get the outer ones, too)
+        .replaceAll("~\\((\\([^()]+\\))\\)",'~$1') // negation with double parenthesis (antlr4 wants one)
+        .replaceAll("entryRule[^;]*;", "") // remove all entry rules up to next rule definition
+        .replaceAll("(?<!')\\([ \t\r\n]*\\)","") // remove empty block of parenthesis
+        // --- the following two rules reduce the length of each rule name but will result in different graphics
+        //     the rrd-antlr4 converter seems to detect rules by having the prefix 'rule'
+        .replaceAll("rule(?=[A-Z])", '') // remove preceeding rule before every syntax rule name
+        .replaceAll("returns[ ]*\\[[^\\]]*\\]", "") // remove returning commands of each rule (
+
+    return codeRemoved
+}
+
+// TODO should be dependent on build (but build needs to be incremental for that)
+task buildAntlr4Grammars {
+    description = "convert grammars of all language from antlr3 to (a reduced) antlr4 format"
+    group = "Documentation"
+    doFirst {
+        println "generate reduced grammar"
+    }
+    doLast {
+        println "Aml grammar"
+        def amlFileContents = new File("${projectDir}/aml/org.testeditor.aml.dsl/src-gen/org/testeditor/aml/dsl/parser/antlr/internal/InternalAml.g").getText('UTF-8')
+        println "Lines read " + amlFileContents.count('\n').toString()
+        new File("${projectDir}/docs/application-modelling-language.g4").write(convertToAntlr4(amlFileContents))
+
+        println "Tsl Grammar"
+        def tslFileContents = new File("${projectDir}/tsl/org.testeditor.tsl.dsl/src-gen/org/testeditor/tsl/dsl/parser/antlr/internal/InternalTsl.g").getText('UTF-8')
+        println "Lines read: " + tslFileContents.count('\n').toString()
+        new File("${projectDir}/docs/test-specification-language.g4").write(convertToAntlr4(tslFileContents))
+
+        println "Tcl grammar"
+        def tclFileContents = new File("${projectDir}/tcl/org.testeditor.tcl.dsl/src-gen/org/testeditor/tcl/dsl/parser/antlr/internal/InternalTcl.g").getText('UTF-8')
+        println "Lines read: " + tclFileContents.count('\n').toString()
+        new File("${projectDir}/docs/test-case-language.g4").write(convertToAntlr4(tclFileContents))
+    }
+    doLast {
+        println "generation finished."
+        def tclg4textLines = new File("${projectDir}/docs/test-case-language.g4").getText('UTF-8').count('\n')
+        println "Tcl grammar contains: ${tclg4textLines} lines"
+        def tslg4textLines = new File("${projectDir}/docs/test-specification-language.g4").getText('UTF-8').count('\n')
+        println "Tsl grammar contains: ${tslg4textLines} lines"
+        def amlg4textLines = new File("${projectDir}/docs/application-modelling-language.g4").getText('UTF-8').count('\n')
+        println "Aml grammar contains: ${amlg4textLines} lines"
+    }
+}
+
+task createAmlRRD(type: JavaExec) {
+    dependsOn(buildAntlr4Grammars)
+    description = "create rail road syntax diagrams for application modelling language"
+    group = "Documentation"
+    main = "-jar"
+    workingDir = "${projectDir}/docs"
+    args (
+        rrdAntlr4,
+        "application-modelling-language.g4"
+    )
+}
+
+task createTslRRD(type: JavaExec) {
+    dependsOn(buildAntlr4Grammars)
+    description = "create rail road syntax diagrams for test specification language"
+    group = "Documentation"
+    main = "-jar"
+    workingDir = "${projectDir}/docs"
+    args (
+        rrdAntlr4,
+        "test-specification-language.g4"
+    )
+}
+
+task createTclRRD(type: JavaExec) {
+    dependsOn(buildAntlr4Grammars)
+    description = "create rail road syntax diagrams for test case language"
+    group = "Documentation"
+    main = "-jar"
+    workingDir = "${projectDir}/docs"
+    args (
+        rrdAntlr4,
+        "test-case-language.g4"
+    )
+}
+
+task createAllRRDs {
+    dependsOn(createAmlRRD,createTslRRD,createTclRRD)
+    description = "create rail road syntax diagrams for all languages (Aml, Tsl, Tcl)"
+    group = "Documentation"
 }
 
 /**

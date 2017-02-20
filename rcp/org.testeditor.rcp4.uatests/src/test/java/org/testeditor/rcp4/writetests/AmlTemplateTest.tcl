@@ -23,7 +23,7 @@ config TestEditorConfig
 	- Wait for dialog "Progress Information" to popup and then close after at most "3" respectively "120" seconds  
 
 	Component: ProjectExplorer
-	- Select element "MyFirstWebProject/Tests/MyFirstWebProject" in tree <ProjectTree>
+	- Select element "MyFirstWebProject/src/test/java/MyFirstWebProject" in tree <ProjectTree>
 	- Execute menu item "New/Application Mapping" in tree <ProjectTree>
 
 	Component: NewTestCaseDialog

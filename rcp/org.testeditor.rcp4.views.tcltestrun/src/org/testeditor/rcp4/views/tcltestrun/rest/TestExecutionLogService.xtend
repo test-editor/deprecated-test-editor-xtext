@@ -76,20 +76,24 @@ class TestExecutionLogService {
 		val gson = new Gson
 		return Response.ok(gson.toJson(log)).build
 	}
-	
+
 	@Path("/{filename}")
 	@DELETE
 	def void deleteTestRun(@PathParam("filename") String filename) {
 		testExecutionManager.delete(filename)
 	}
 
-	@Path("/{filename}/screenshots/{testcasename}/{screenshotpath}")
+	@Path("/{filename}/screenshots/{testcasename}/{screenshotpath: (.+)?}")
 	@GET
 	@Produces("image/png")
 	def Response getScreenshot(@PathParam("filename") String filename, @PathParam("testcasename") String testcasename,
 		@PathParam("screenshotpath") String screenshotpath) {
 		val screenshot = testExecutionManager.getScreenshotFor(filename, testcasename, screenshotpath)
-		return Response.ok(new FileInputStream(screenshot)).build
+		if (screenshot.exists) {
+			return Response.ok(new FileInputStream(screenshot)).build
+		} else {
+			return Response.serverError.build
+		}
 	}
 
 }

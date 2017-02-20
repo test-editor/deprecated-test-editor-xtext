@@ -77,7 +77,9 @@ class TEContentProviderTest extends AbstractTest {
 		val cpEntries = contentProvider.getChildren(project)
 
 		// then
-		cpEntries.assertSingleElement.assertEquals(relevantClasspathSource)
+		cpEntries.assertEmpty
+		// TE-470 remove artificial folders
+		// cpEntries.assertSingleElement.assertEquals(relevantClasspathSource)
 	}
 
 	@Test
@@ -105,7 +107,9 @@ class TEContentProviderTest extends AbstractTest {
 		val parent = contentProvider.getParent(resource)
 
 		// then
-		parent.assertEquals(relevantClasspathSource)
+		parent.assertNull
+		// TE-470 remove artificial folders
+		// parent.assertEquals(relevantClasspathSource)
 	}
 
 	@Test

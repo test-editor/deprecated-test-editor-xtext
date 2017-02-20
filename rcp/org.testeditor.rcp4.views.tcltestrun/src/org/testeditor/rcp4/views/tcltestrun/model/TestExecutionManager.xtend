@@ -93,8 +93,12 @@ class TestExecutionManager {
 	}
 
 	def TestRunStatistic readTestStatistic(File parentDir) {
-		val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder
-		val xml = docBuilder.parse(new File(parentDir, "testSummary.xml"))
+		val resultFile = new File(parentDir, "testSummary.xml")
+		if (!resultFile.exists) {
+			return new TestRunStatistic(0, 0, 0)
+		}
+		val docBuilder = DocumentBuilderFactory.newInstance.newDocumentBuilder
+		val xml = docBuilder.parse(resultFile)
 		val testStatistic = xml.firstChild.attributes
 		return new TestRunStatistic(testStatistic.readIntFor("tests"), testStatistic.readIntFor("failures"),
 			testStatistic.readIntFor("errors"))
@@ -110,7 +114,7 @@ class TestExecutionManager {
 		val sdf = new SimpleDateFormat("dd.MM.yy HH:mm")
 		return sdf.format(date)
 	}
-	
+
 	def delete(String fileName) {
 		val location = logLocationHelper.logLocation
 		val log = location.listFiles.findFirst[it.name.matches(fileName)]

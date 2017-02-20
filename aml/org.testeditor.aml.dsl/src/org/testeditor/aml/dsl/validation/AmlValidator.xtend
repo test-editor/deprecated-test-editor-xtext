@@ -27,9 +27,11 @@ import org.testeditor.aml.InteractionType
 import org.testeditor.aml.MethodReference
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.RegExValueSpace
+import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateText
 import org.testeditor.aml.ValueSpaceAssignmentContainer
 import org.testeditor.aml.Variable
+import org.testeditor.dsl.common.util.CollectionUtils
 
 import static org.testeditor.aml.AmlPackage.Literals.*
 import static org.testeditor.aml.dsl.Messages.*
@@ -45,9 +47,13 @@ class AmlValidator extends AbstractAmlValidator {
 	public static val COMPONENT_ELEMENT__LOCATOR_STRATEGY__MISSING = "componentElement.locatorStrategy.missing"
 	public static val INTERACTION_NAME_DUPLICATION = "interactionType.name.duplication"
 	public static val TEMPLATE_CODE_NOT_UNIQUE = "templateCode.not.unique"
+	public static val INVALID_CHAR_IN_TEMPLATE = "template.string.invalidChar"
 
 	@Inject
 	private extension ModelUtil
+	
+	@Inject
+	private extension CollectionUtils
 
 	/**
 	 * Checks that a {@link Component} does not have a cycle in its parents hierarchy.
@@ -199,6 +205,41 @@ class AmlValidator extends AbstractAmlValidator {
 						}
 					]
 				}
+	static val ID_REGEX='\\^?[a-zA-Z$_][a-zA-Z$_0-9]*' 
+	static val VALID_TEMPLATE_WORDS = '''^[ \t]*(«ID_REGEX»[ \t]*)+$'''
+	static val VALID_LAST_TEMPLATE_WORDS = '''^[ \t]*(«ID_REGEX»[ \t]*)*([.?][ \t]*)?$'''
+	
+	/**
+	 * This validation is tightly coupled with the parser rules for tcl-template usages (see Tcl.xtext:TestStep and Tcl.xtext:TestStepAssignment)
+	 */
+	@Check
+	def void checkTemplateHoldsValidCharacters(Template template) {
+		template.contents => [
+			// all text elements must not be empty (checked here to allow index-based error marking)
+			val templateTextsThatAreEmpty = indexed.filterValue(TemplateText).filter[value.value.trim.empty]
+			templateTextsThatAreEmpty.forEach [
+				error('Template string must not be empty', value.eContainer, value.eContainingFeature, key,
+					INVALID_CHAR_IN_TEMPLATE)
+			]
+			// all but the last text element must match the VALID_TEMPLATE_WORD
+			val invalidTemplateTextsWithoutLastElement = indexed.butLast.filterValue(TemplateText).filter [
+				!value.value.matches(VALID_TEMPLATE_WORDS)
+			]
+			invalidTemplateTextsWithoutLastElement.forEach [
+				error('Illegal characters in template. Please use ids only (e.g. do not make use of punctuation and the like)',
+					value.eContainer, value.eContainingFeature, key, INVALID_CHAR_IN_TEMPLATE)
+			]
+			// (only) the last template content (if it is a text) may end with a punctuation mark '.' | '?'
+			val lastContent = it.last
+			val lastIndex = size - 1
+			if (lastContent instanceof TemplateText) {
+				if (!lastContent.value.matches(VALID_LAST_TEMPLATE_WORDS)) {
+					error('Illegal characters in last element of template. Please use ids only (e.g. use punctuation like . or ? only at the very end)',
+						lastContent.eContainer, lastContent.eContainingFeature, lastIndex, INVALID_CHAR_IN_TEMPLATE)
+				}
+			}
+		]
+	}
 
 			}
 			

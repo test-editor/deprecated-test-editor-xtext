@@ -2,9 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Logging
 Bundle-SymbolicName: org.testeditor.logging
-Bundle-Version: 1.4.0.qualifier
-Require-Bundle: org.eclipse.core.runtime
+Bundle-Version: 1.6.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.eclipse.core.runtime,
+ com.google.guava,
+ org.eclipse.xtext.xbase.lib,
+ org.eclipse.xtend.lib,
+ org.eclipse.xtend.lib.macro
 Bundle-ClassPath: .,
  lib/log4j-api-2.5.jar,
  lib/log4j-core-2.5.jar,
@@ -12,3 +16,4 @@ Bundle-ClassPath: .,
  lib/slf4j-api-1.7.18.jar
 Export-Package: org.slf4j,
  org.testeditor.logging
+

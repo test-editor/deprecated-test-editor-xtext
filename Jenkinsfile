@@ -1,6 +1,8 @@
 #!groovy
 nodeWithProperWorkspace {
 
+    String mvnTool = tool name: 'Maven 3.2.5', type: 'hudson.tasks.Maven$MavenInstallation'
+
     stage('Checkout') {
         checkout scm
         if (isMaster()) {
@@ -18,6 +20,7 @@ nodeWithProperWorkspace {
         // Workaround: we don't want infinite releases.
         echo "Aborting build as the current commit on master is already tagged."
         currentBuild.displayName = "checkout-only"
+        currentBuild.result = 'UNSTABLE' // mark this build run as unstable so that perma-link to stable build artifact points to the last product built
         return
     }
 
@@ -39,7 +42,7 @@ nodeWithProperWorkspace {
     }
 
     stage('Build') {
-        withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g"]) {
+        withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g", "TE_MAVEN_HOME=${mvnTool}"]) {
             withXvfb {
                 gradle 'build'
             }
@@ -50,7 +53,17 @@ nodeWithProperWorkspace {
     def buildProduct = env.BRANCH_NAME == "develop" || env.BRANCH_NAME.endsWith("-with-product") || isMaster()
     if (buildProduct) {
         stage('Build product') {
-            withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g"]) {
+            withMavenEnv(["MAVEN_OPTS=-Xms512m -Xmx2g", "TE_MAVEN_HOME=${mvnTool}"]) {
+                step([$class: 'CopyArtifact',
+                      filter: 'target/rrd*.jar',
+                      fingerprintArtifacts: true,
+                      flatten: true,
+                      projectName: 'rrd-antlr4',
+                      selector: [$class: 'StatusBuildSelector',
+                                 stable: false],
+                      target: 'docs'])
+
+                gradle 'createAllRRDs'
                 gradle 'buildProduct'
             }
         }
@@ -58,7 +71,7 @@ nodeWithProperWorkspace {
 
     if (isMaster()) {
         stage('Deploy') {
-            withMavenEnv {
+            withMavenEnv(["TE_MAVEN_HOME=${mvnTool}"]) {
                 gradle 'deploy'
             }
         }
@@ -70,6 +83,7 @@ nodeWithProperWorkspace {
         archiveArtifacts artifacts: 'rcp/org.testeditor.rcp4.uatests/screenshots/**/*.png', fingerprint: true
         if (buildProduct) {
             archive '**/target/products/*.zip'
+            archiveArtifacts artifacts: 'docs/output/**/*.png, docs/output/**/*.html', fingerprint: true
         }
         step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
         codecov('codecov_test-editor-xtext')
@@ -129,7 +143,8 @@ void postRelease(String preReleaseVersion) {
 }
 
 void setVersion(String newVersion, String rootPom = null, String artifacts = null) {
-    withMavenEnv {
+    String mvnTool = tool name: 'Maven 3.2.5', type: 'hudson.tasks.Maven$MavenInstallation'
+    withMavenEnv(["TE_MAVEN_HOME=${mvnTool}"]) {
         def goals = 'build-helper:parse-version org.eclipse.tycho:tycho-versions-plugin:set-version'
         def pom = rootPom ? "-f $rootPom " : ''
         sh "mvn $pom$goals -Dartifacts=$artifacts -DnewVersion=$newVersion -Dtycho.mode=maven"
