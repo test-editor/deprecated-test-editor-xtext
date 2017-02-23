@@ -52,6 +52,7 @@ import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
+import org.eclipse.xtext.common.types.JvmEnumerationType
 
 @Singleton
 class TclModelUtil extends TslModelUtil {
@@ -225,11 +226,19 @@ class TclModelUtil extends TslModelUtil {
 	def Iterable<Pair<StepContent, JvmTypeReference>> getStepVariableFixtureParameterTypePairs(TestStep step) {
 		val parameters = step.stepContentVariables
 		val result = newLinkedList
-		parameters.forEach [ stepContent, index |
-			result.add(new Pair(stepContent, step.interaction?.getTypeOfFixtureParameter(index)))
+		val fixtureParameters = step.interaction.defaultMethod.parameters
+		val indexOfElement = fixtureParameters.indexOfFirst[it.name == "element"]
+		step.interaction.defaultMethod.operation.parameters.forEach [ parameter, index |
+			val indexShift = if ((index > indexOfElement ) && (parameter.parameterType.type instanceof JvmEnumerationType)) {
+					1
+				} else {
+					0
+				}
+			if (parameters.length > index) {
+				result.add(new Pair(parameters.get(index), step.interaction.getTypeOfFixtureParameter(index + indexShift)))
+			}
 		]
 		return result
-
 	}
 
 	/** 

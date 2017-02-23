@@ -13,15 +13,18 @@ import org.testeditor.aml.Variable
 import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.aml.dsl.tests.AmlModelGenerator
 import org.testeditor.aml.dsl.tests.common.AmlTestModels
+import org.testeditor.dsl.common.testing.DummyFixture
 import org.testeditor.tcl.AbstractTestStep
 import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
+import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.dsl.services.TclGrammarAccess
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
+import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.StepContentVariable
 
 class TclModelUtilTest extends AbstractParserTest {
@@ -262,6 +265,34 @@ class TclModelUtilTest extends AbstractParserTest {
 		// construct a simple test case that calls fixtures with the given var and check whether the types
 		// of this variable are determined correctly
 		testGetAllTypeUsagesOfVariable(templateVar)
+	}
+	
+	@Test
+	def void testStepVariableFixtureParameterTypePairs() {
+		// given
+		parseAml(DummyFixture.amlModel)
+		
+		val tclModel = parseTcl('''
+			package com.example
+			
+			# MyTest
+
+			* some fixture usage
+			Component: GreetingApplication
+			- Type "something" into <Input>
+		''')
+		 
+		
+		// when
+		val testStep = tclModel.test.steps.head.contexts.head.steps.filter(TestStep).head
+		val result = tclModelUtil.getStepVariableFixtureParameterTypePairs(testStep)
+
+		// then
+		result.assertSize(2)
+		result.get(0).key.assertInstanceOf(StepContentValue)
+		result.get(0).value.qualifiedName.assertEquals("java.lang.String")
+		result.get(1).key.assertInstanceOf(StepContentElement)
+		result.get(1).value.qualifiedName.assertEquals("java.lang.String")
 	}
 
 	/**

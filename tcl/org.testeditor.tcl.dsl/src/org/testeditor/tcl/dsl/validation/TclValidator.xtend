@@ -45,6 +45,8 @@ import org.testeditor.tsl.TslPackage
 
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
 import org.testeditor.aml.ModelUtil
+import org.testeditor.tcl.AbstractTestStep
+import org.testeditor.tcl.dsl.jvmmodel.SimpleTypeComputer
 
 class TclValidator extends AbstractTclValidator {
 
@@ -68,6 +70,7 @@ class TclValidator extends AbstractTclValidator {
 	
 	@Inject ValueSpaceHelper valueSpaceHelper
 	@Inject AmlValidator amlValidator
+	@Inject SimpleTypeComputer simpleTypeComputer
 
 	private static val ERROR_MESSAGE_FOR_INVALID_VAR_REFERENCE = "Dereferenced variable must be a required environment variable or a previously assigned variable"
 
@@ -372,6 +375,30 @@ class TclValidator extends AbstractTclValidator {
 	@Check
 	def void checkTemplateHoldsValidCharacters(Template template) {
 		amlValidator.checkTemplateHoldsValidCharacters(template)
+	}
+	
+	
+
+	@Check
+	def void checkStepParameterTypes(TestStep step){
+		val interaction=step.interaction
+		val variablesTypes= simpleTypeComputer.getVariablesWithTypes(interaction)
+
+		val fixtureParamTypes = step.stepVariableFixtureParameterTypePairs
+		val parameters = step.stepContentVariables
+
+		fixtureParamTypes.forEach [
+			val content=key			
+			val type=value
+						
+			switch (content) {
+				StepContentText: { }
+				StepContentVariable: { }
+				VariableReferenceMapAccess: { }
+				VariableReference: { }
+				default: { }
+			}
+		]
 	}
 
 }
