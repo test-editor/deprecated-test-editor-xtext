@@ -76,6 +76,19 @@ class ClasspathUtil {
 		}
 	}
 
+	/**
+	 * add a list of additional class path entries to this project (if it has the java nature)
+	 */
+	def void addClasspathEntries(IProject project, Iterable<IClasspathEntry> entriesToAdd) {
+		if (project.hasJavaNature) {
+			val javaProject = JavaCore.create(project)
+			val existingClasspath = javaProject.rawClasspath
+			val newClasspathEntries = newArrayOfSize(existingClasspath.length + entriesToAdd.size)
+			val result = (entriesToAdd + existingClasspath).toList.toArray(newClasspathEntries)
+			javaProject.setRawClasspath(result, NullProgressMonitor.newInstance)
+		}
+	}
+
 	/** 
 	 * get all classpath entries of this java-project, apply the transformation 
 	 * and set the classpaths of this project to the transformed classpath entries
