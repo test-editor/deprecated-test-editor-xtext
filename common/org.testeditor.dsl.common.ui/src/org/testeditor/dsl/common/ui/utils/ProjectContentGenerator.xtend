@@ -122,6 +122,7 @@ class ProjectContentGenerator {
 			// some more technical project setup
 			if (buildsystem == GRADLE) {
 				setupEclipseMetaData(monitor)
+				setupGradleSourceClassPaths
 			}
 			// TE-470 project file filter to allow access to src etc. are not activated
 			// filterTechnicalProjectFiles(monitor)
@@ -165,6 +166,28 @@ class ProjectContentGenerator {
 		createGradleWrapper(project)
 	}
 
+	private def void setupGradleSourceClassPaths(IProject project) {
+		val wantedSourceClassPaths = #[ //
+			"src/main/java",
+			"src/main/resources", // main source paths
+			"src/test/java",
+			"src/test/resources", // test source paths
+			"build/tcl", // generated test cases
+			"build/tclConfig", // generated test configurations
+			"build/tclMacro" // generated test macros
+		]
+
+		val classPathPrefix = '''/«project.name»/'''
+		val existingSourcePaths = project.sourceClasspathEntries.map[path.toPortableString]
+
+		val pathsToAdd = wantedSourceClassPaths.filter [ wantedPath |
+			!existingSourcePaths.exists[endsWith(wantedPath)]
+		]
+
+		val classPathEntriesToAdd = pathsToAdd.map[JavaCore.newSourceEntry(Path.fromPortableString('''«classPathPrefix»«it»'''))]
+		project.addClasspathEntries(classPathEntriesToAdd)
+	}
+
 	private def void createGradleBuildFile(IProject project, String[] fixtures, IProgressMonitor monitor) {
 		val buildFile = project.getFile("build.gradle")
 		val contents = getBuildGradleContent(fixtures)
@@ -186,6 +209,7 @@ class ProjectContentGenerator {
 		systemProp.http.proxyPassword=«System.properties.getProperty("http.proxyPassword")»
 		systemProp.https.proxyHost=«System.properties.getProperty("https.proxyHost")»
 		systemProp.https.proxyPort=«System.properties.getProperty("https.proxyPort")»
+		systemProp.http.nonProxyHosts=«System.properties.getProperty("https.nonProxyHosts")»
 	'''
 	
 	private def void createGradleWrapper(IProject project) {
@@ -403,6 +427,25 @@ class ProjectContentGenerator {
 				«getGradleDependency(s)»
 			«ENDFOR»
 			testCompile 'junit:junit:4.12'
+		}
+		
+		if (System.properties.containsKey('http.proxyHost')) {
+		    test.doFirst {
+		        println 'Configuring System Properties for Proxy'
+		        systemProperty 'http.nonProxyHosts', System.properties['http.nonProxyHosts']
+		        systemProperty 'http.proxyHost', System.properties['http.proxyHost']
+		        systemProperty 'http.proxyPort', System.properties['http.proxyPort']
+		        systemProperty 'http.proxyUser', System.properties['http.proxyUser']
+		        systemProperty 'http.proxyPassword', System.properties['http.proxyPassword']
+		        systemProperty 'https.proxyHost', System.properties['https.proxyHost']
+		        systemProperty 'https.proxyPort', System.properties['https.proxyPort']
+		    }
+		}
+		
+		configurations.all {
+		  resolutionStrategy {
+		    forcedModules = ['org.seleniumhq.selenium:selenium-java:2.53.0'] // currently a must because of incompatibilities with more recent version
+		  }
 		}
 	'''
 
