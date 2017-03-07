@@ -18,6 +18,7 @@ import org.testeditor.tcl.util.TclModelUtil
 
 import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
+import java.util.Optional
 
 class TclAssertCallBuilderTest extends AbstractTclTest {
 
@@ -25,6 +26,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 	@Mock ModelUtil amlModelUtil // injected into class under test
 	@Mock protected TclModelUtil tclModelUtil // injected into class under test
 	@Mock TclExpressionBuilder expressionBuilder // injected into class under test
+	@Mock protected TclSimpleTypeUtils tclSimpleTypeUtils // injected into class under test
 	@Inject extension TclModelGenerator
 	@Inject protected Provider<XtextResourceSet> resourceSetProvider
 		
@@ -200,7 +202,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 		val jvmTypeReferenceBuilder = jvmTypeReferenceBuilderFactory.create(resourceSetProvider.get)
 		val jvmType = jvmTypeReferenceBuilder.typeRef(clazz)
 
-		when(tclModelUtil.collectDeclaredVariablesTypeMap(any)).thenReturn(#{VARIABLE_NAME->jvmType})
+		when(tclSimpleTypeUtils.collectDeclaredVariablesTypeMap(any)).thenReturn(#{VARIABLE_NAME->jvmType})
 		when(amlModelUtil.isAssignableWithoutConversion(clazz, jvmType)).thenReturn(true)
 	}
 

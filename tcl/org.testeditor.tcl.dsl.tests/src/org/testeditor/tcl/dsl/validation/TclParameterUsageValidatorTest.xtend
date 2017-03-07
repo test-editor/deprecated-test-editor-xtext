@@ -19,17 +19,18 @@ import org.testeditor.aml.dsl.tests.AmlModelGenerator
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestStepContext
+import org.testeditor.tcl.dsl.jvmmodel.TclSimpleTypeUtils
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
-import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.tcl.dsl.tests.parser.AbstractParserTestWithDummyComponent
 
 import static org.testeditor.tcl.TclPackage.Literals.*
-import org.testeditor.tcl.dsl.tests.parser.AbstractParserTestWithDummyComponent
 
 class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponent {
 	
 	@Inject extension AmlModelGenerator
+
 	@Inject extension TclModelGenerator
-	@Inject TclModelUtil tclModelUtil
+	@Inject TclSimpleTypeUtils tclSimpleTypeUtils
 	@Inject protected TclValidator tclValidator // class under test (not mocked)
 	@Inject protected ValidationTestHelper validator
 
@@ -254,7 +255,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 			test = testCase("MyTest") => [
 				steps += specificationStep("test", "something") => [
 					contexts += componentTestStepContext(dummyComponent) => [
-						val assignment=testStepWithAssignment("mapvar", "getMap").withElement("element")
+						val assignment=testStepWithAssignment("mapvar", "getMap").withElement("dummyElement")
 						val mapvar=assignment.variable
 						steps += assignment
 						steps += testStep("wait").withReferenceToVariable(mapvar) 
@@ -275,7 +276,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 			test = testCase("MyTest") => [
 				steps += specificationStep("test", "something") => [
 					contexts += componentTestStepContext(dummyComponent) => [
-						val assignment=testStepWithAssignment("mapvar", "getMap")
+						val assignment=testStepWithAssignment("mapvar", "getMap").withElement("dummyElement")
 						val mappedRef=assignment.variable.mappedReference
 						steps += assignment
 						steps += testStep("wait").withReference(mappedRef) 
@@ -325,7 +326,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 	 * verify model to have the expected type usages when querying for a certain variable in a given context
 	 */
 	private def void verifyVariableTypeUsage(TestStepContext context, String variable, Iterable<String> types) {
-		val typeSet = tclModelUtil.getAllTypeUsagesOfVariable(context, variable).map[simpleName].toSet
+		val typeSet = tclSimpleTypeUtils.getAllTypeUsagesOfVariable(context, variable).filter[present].map[get.simpleName].toSet
 		typeSet.assertSize(types.size)
 		types.forEach[ assertTrue(typeSet.contains(it)) ]
 	}

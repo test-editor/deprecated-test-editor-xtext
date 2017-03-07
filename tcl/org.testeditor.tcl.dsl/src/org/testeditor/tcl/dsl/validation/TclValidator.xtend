@@ -48,6 +48,8 @@ import org.testeditor.tsl.TslPackage
 
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
 import org.testeditor.tsl.StepContent
+import org.testeditor.tcl.dsl.jvmmodel.TclSimpleTypeUtils
+import java.util.Optional
 
 class TclValidator extends AbstractTclValidator {
 
@@ -67,6 +69,7 @@ class TclValidator extends AbstractTclValidator {
 	public static val INVALID_PARAMETER_TYPE = "invalidParameterType"
 
 	@Inject extension TclModelUtil
+	@Inject extension TclSimpleTypeUtils
 	@Inject extension ModelUtil
 	@Inject extension CollectionUtils
 	
@@ -334,7 +337,7 @@ class TclValidator extends AbstractTclValidator {
 		]
 	}
 	
-	private def checkVariableReferenceIsWellTyped(VariableReference variableReference, Set<JvmTypeReference> typeUsageSet, JvmTypeReference typeDeclared, String variableName, Integer errorIndex) {
+	private def checkVariableReferenceIsWellTyped(VariableReference variableReference, Set<Optional<JvmTypeReference>> typeUsageSet, JvmTypeReference typeDeclared, String variableName, Integer errorIndex) {
 		if (variableReference.variable instanceof TemplateVariable) {
 			// do not type check variables that are passed via parameters (are templateVariables),
 			// since they are typeless until actually used by a call, 
@@ -352,11 +355,11 @@ class TclValidator extends AbstractTclValidator {
 			VariableReference: {
 				// currently this is a naive check, expecting the types
 				// TODO typeUsageSet is empty for assertions because TclModelUtil.getAllTypeUsagesOfVariable is not implemented for them
-				val longCoercionPossible = typeDeclared.qualifiedName.equals(String.name) && typeUsageSet.size == 1 &&
-					typeUsageSet.get(0).type.qualifiedName.equals(long.name)
-				val typesMatch = typeDeclared !== null && (typeUsageSet.isEmpty || typeUsageSet.identicalSingleTypeInSet(typeDeclared))
+				val longCoercionPossible = typeDeclared.qualifiedName.equals(String.name) && typeUsageSet.filter[present].size == 1 &&
+					typeUsageSet.findFirst[present].get.type.qualifiedName.equals(long.name)
+				val typesMatch = typeDeclared !== null && (typeUsageSet.isEmpty || typeUsageSet.filter[present].map[get].toSet.identicalSingleTypeInSet(typeDeclared))
 				if (!(longCoercionPossible || typesMatch)) {
-					error('''Variable='«variableName»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in a position that expects type(s)='«typeUsageSet.map[qualifiedName].join(", ")»'.''',
+					error('''Variable='«variableName»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in a position that expects type(s)='«typeUsageSet.filter[present].map[get.qualifiedName].join(", ")»'.''',
 						variableReference.eContainer, variableReference.eContainingFeature, errorIndex,
 						INVALID_TYPED_VAR_DEREF)
 					}
@@ -395,29 +398,36 @@ class TclValidator extends AbstractTclValidator {
 			// reduce to absolutely necessary check (constant -> value, since parameters are already checked all right)
 			val fixtureCallParamTypes = step.stepVariableFixtureParameterTypePairs // Input->String, @value->String
 			val fixtureDefinitionParameters = interaction.defaultMethod.operation.parameters // param0:String, param1:String
-			val elementIndex = fixtureCallParamTypes.indexOfFirst[key instanceof StepContentElement]
-			val possiblyWithLocatorStrategy = elementIndex >= 0 && fixtureDefinitionParameters.size == fixtureCallParamTypes.size + 1
-
-			fixtureCallParamTypes.forEach [ pair, index |
-				val correctedIndex = if (possiblyWithLocatorStrategy &&
-						index > elementIndex) {
-						index + 1
-					} else {
-						index
+			if (fixtureCallParamTypes.size <= fixtureDefinitionParameters.size && !fixtureDefinitionParameters.empty) {
+				val elementIndex = fixtureCallParamTypes.indexOfFirst[key instanceof StepContentElement]
+				val possiblyWithLocatorStrategy = elementIndex >= 0 && fixtureDefinitionParameters.size == fixtureCallParamTypes.size + 1
+	
+				fixtureCallParamTypes.forEach [ pair, index |
+					val correctedIndex = if (possiblyWithLocatorStrategy &&
+							index > elementIndex) {
+							index + 1
+						} else {
+							index
+						}
+					val content = pair.key
+					val contentIndex = step.contents.indexOfFirst[content.equals(it)]
+					val expectedType = fixtureDefinitionParameters.get(correctedIndex).parameterType
+					if(!pair.value.present){
+							error('Type unknown. Expected \'' + expectedType + '\'.',
+								content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
+					}else{
+						val type = pair.value.get				
+						val matches = type.type.qualifiedName.equals(expectedType.type.qualifiedName)
+						if (expectedType.qualifiedName.equals(long.name)) {
+							content.checkThatUseAsTypedLongIsOk(contentIndex)
+						} 
+						if (!matches) {
+							error('Type mismatch. Expected \'' + expectedType + '\' got \'' + type + '\'.',
+								content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
+						}				
 					}
-				val type = pair.value
-				val expectedType = fixtureDefinitionParameters.get(correctedIndex).parameterType
-				val matches = type.type.qualifiedName.equals(expectedType.type.qualifiedName)
-				val content = pair.key
-				val contentIndex = step.contents.indexOfFirst[content.equals(it)]
-				if (expectedType.qualifiedName.equals(long.name)) {
-					content.checkThatUseAsTypedLongIsOk(contentIndex)
-				} 
-				if (!matches) {
-					error('Type mismatch. Expected \'' + expectedType + '\' got \'' + type + '\'.',
-						content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
-				}
-			]
+				]			
+			}
 		}else{
 			val macroContext=step.macroContext
 			val macro = step.findMacroDefinition(macroContext)

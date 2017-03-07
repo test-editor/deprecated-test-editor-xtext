@@ -65,6 +65,10 @@ public class DummyFixture {
 	}
 
 	@FixtureMethod
+	def void typeLongInto(String locator, DummyLocatorStrategy locatorStrategy, long value) {
+	}
+
+	@FixtureMethod
 	def boolean isVisible(String locator) {
 		return true
 	}
@@ -72,6 +76,11 @@ public class DummyFixture {
 	@FixtureMethod
 	def boolean getBool(String locator){
 		return true
+	}
+
+	@FixtureMethod
+	def long getLong(String locator){
+		return 0l
 	}
 
 	static def String getAmlModel() '''
@@ -89,6 +98,7 @@ public class DummyFixture {
 			template = "Start application" ${path}
 			method = «dummyFixture».startApplication(path)
 		}
+		
 		interaction type stop {
 			template = "Stop application"
 			method = «dummyFixture».stopApplication()
@@ -107,6 +117,11 @@ public class DummyFixture {
 		interaction type setValueReversed {
 			template = "Set value" ${value} "to" ${element}
 			method = «dummyFixture».setValue(element, value)
+		}
+		
+		interaction type getLong {
+			template = "Read long from" ${element}
+			method = «dummyFixture».getLong(element)
 		}
 		
 		interaction type getValue {
@@ -144,12 +159,17 @@ public class DummyFixture {
 			method = «dummyFixture».typeInto(element, locatorStrategy, value)
 		}
 		
+		interaction type typeLongInto {
+			template = "TypeLong" ${value} "into" ${element}
+			method = «dummyFixture».typeLongInto(element, locatorStrategy, value)
+		}
+		
 		element type Label {
 			interactions = getList, getValue, getBool, getMap, isVisible
 		}
 		
 		element type Text {
-			interactions = getValue, isVisible, setValue, setValueReversed, typeInto
+			interactions = getValue, isVisible, setValue, setValueReversed, typeInto, getLong, typeLongInto
 		}
 
 		element type Button {

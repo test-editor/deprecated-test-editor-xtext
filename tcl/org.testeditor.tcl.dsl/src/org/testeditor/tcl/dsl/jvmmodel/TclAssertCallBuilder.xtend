@@ -29,7 +29,6 @@ import org.testeditor.tcl.NullOrBoolCheck
 import org.testeditor.tcl.StringConstant
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.VariableReference
-import org.testeditor.tcl.util.TclModelUtil
 
 import static extension org.eclipse.xtext.EcoreUtil2.getContainerOfType
 
@@ -37,7 +36,7 @@ class TclAssertCallBuilder {
 
 	static val logger = LoggerFactory.getLogger(TclAssertCallBuilder)
 
-	@Inject extension TclModelUtil
+	@Inject extension TclSimpleTypeUtils
 	@Inject extension ModelUtil
 	
 	@Inject TclExpressionBuilder expressionBuilder

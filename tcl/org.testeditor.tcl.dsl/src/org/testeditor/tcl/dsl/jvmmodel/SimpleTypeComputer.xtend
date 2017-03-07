@@ -66,20 +66,22 @@ class SimpleTypeComputer {
 		MethodReference methodReference) {
 		val operationParameters = methodReference.operation.parameters
 		val map = newHashMap
-		val elementIndex = methodReference.parameters.indexOfFirst[name == "element"]
-		val parameterCountDiffersByOne = (operationParameters.size - methodReference.parameters.size == 1)
-		val hasLocatorStrategy = parameterCountDiffersByOne //
-				&& elementIndex >= 0 //
-				&& operationParameters.get(elementIndex + 1).parameterType.type instanceof JvmEnumerationType
-		methodReference.parameters.forEach [ parameter, i |
-			val realIndex = if (hasLocatorStrategy && i > elementIndex) {
-					i + 1 // when behind "element", and locatorStrategy is present
-				} else {
-					i
-				}
-			val operationParameter = operationParameters.get(realIndex)
-			map.put(parameter, ofNullable(operationParameter.parameterType))
-		]
+		if (!operationParameters.empty) {
+			val elementIndex = methodReference.parameters.indexOfFirst[name == "element"]
+			val parameterCountDiffersByOne = (operationParameters.size - methodReference.parameters.size == 1)
+			val hasLocatorStrategy = parameterCountDiffersByOne //
+					&& elementIndex >= 0 //
+					&& operationParameters.get(elementIndex + 1).parameterType.type instanceof JvmEnumerationType
+			methodReference.parameters.forEach [ parameter, methodCallParameterIndex |
+				val methodDefinitionParameterIndex = if (hasLocatorStrategy && methodCallParameterIndex > elementIndex) {
+						methodCallParameterIndex + 1 // when behind "element", and locatorStrategy is present
+					} else {
+						methodCallParameterIndex
+					}
+				val operationParameter = operationParameters.get(methodDefinitionParameterIndex)
+				map.put(parameter, ofNullable(operationParameter.parameterType))
+			]		
+		}
 		return map
 	}
 

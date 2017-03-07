@@ -20,7 +20,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.EcoreUtil2
-import org.eclipse.xtext.common.types.JvmEnumerationType
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.common.types.util.TypeReferences
 import org.testeditor.aml.ComponentElement
@@ -31,7 +30,6 @@ import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.dsl.common.util.CollectionUtils
 import org.testeditor.tcl.AssertionTestStep
-import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.Expression
@@ -45,7 +43,6 @@ import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestConfiguration
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepContext
-import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferenceMapAccess
 import org.testeditor.tsl.SpecificationStep
@@ -220,27 +217,29 @@ class TclModelUtil extends TslModelUtil {
 		}
 		return envParameterVariablesTypeMap
 	}
-
-	/**
-	 * provide an iterable with all step content variables as key and their respective fixture parameter type as value
-	 */
-	def Iterable<Pair<StepContent, JvmTypeReference>> getStepVariableFixtureParameterTypePairs(TestStep step) {
-		val parameters = step.stepContentVariables
-		val result = newLinkedList
-		val fixtureParameters = step.interaction.defaultMethod.parameters
-		val indexOfElement = fixtureParameters.indexOfFirst[it.name == "element"]
-		step.interaction.defaultMethod.operation.parameters.forEach [ parameter, index |
-			val indexShift = if ((index > indexOfElement ) && (parameter.parameterType.type instanceof JvmEnumerationType)) {
-					1
-				} else {
-					0
-				}
-			if (parameters.length > index) {
-				result.add(new Pair(parameters.get(index), step.interaction.getTypeOfFixtureParameter(index + indexShift)))
-			}
-		]
-		return result
-	}
+	
+//	def Iterable<Pair<StepContent, JvmTypeReference>> getStepVariableFixtureParameterTypePairs(TestStep step) {
+//		val callParameters = step.getStepContentVariables
+//		val templateParameters = step.interaction.template.contents.filter(TemplateVariable)
+//		val result = newLinkedList
+//		val fixtureCallParameters = step.interaction.defaultMethod.parameters
+//		val indexOfElement = fixtureCallParameters.indexOfFirst[it.name == "element"]
+//		val fixtureDefinitionParameters = step.interaction.defaultMethod.operation.parameters
+//		val fixtureHasLocatorStrategy = indexOfElement >= 0 &&
+//			fixtureDefinitionParameters.length > indexOfElement + 1 &&
+//			fixtureDefinitionParameters.get(indexOfElement + 1).parameterType.type instanceof JvmEnumerationType
+//		templateParameters.forEach[ templateParameter, templateParameterIndex |
+//			val fixtureIndex = fixtureCallParameters.indexOfFirst[name == templateParameter.name]
+//			val parameterIsBehindUsageOfElement = fixtureIndex > indexOfElement			
+//			val correctedFixtureIndex = if (parameterIsBehindUsageOfElement && fixtureHasLocatorStrategy) {
+//					fixtureIndex + 1
+//				} else {
+//					fixtureIndex
+//				}
+//			result.add(new Pair(callParameters.get(templateParameterIndex), step.interaction.getTypeOfFixtureParameter(correctedFixtureIndex)))
+//		]
+//		return result
+//	}
 
 	/** 
 	 * get all variables, variable references and elements that are used as parameters in this test step
@@ -306,86 +305,6 @@ class TclModelUtil extends TslModelUtil {
 		}
 		return expression.eAllContents.filter(VariableReference).exists [
 			variables.contains(variable.name)
-		]
-	}
-
-	/**
-	 * collect all variables declared (e.g. through assignment)
-	 */
-	def dispatch Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(TestStepContext context) {
-		val result = newHashMap
-		context.steps.map[collectDeclaredVariablesTypeMap].forEach[result.putAll(it)]
-		return result
-	}
-
-	def dispatch Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(TestStep testStep) {
-		if (testStep instanceof TestStepWithAssignment) {
-			val typeReference = testStep.interaction?.defaultMethod?.operation?.returnType
-			return #{testStep.variable.name -> typeReference}
-		}
-		return emptyMap
-	}
-	
-	def dispatch Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(AssertionTestStep testStep) {
-		// Assertion test steps cannot contain variable declarations
-		return emptyMap
-	}
-	
-	def JvmTypeReference determineType(AssignmentVariable assignmentVariable) {
-		val testStep = EcoreUtil2.getContainerOfType(assignmentVariable, TestStep)
-		return testStep.collectDeclaredVariablesTypeMap.values.head
-	}
-
-	/** 
-	 * get the actual jvm types from the fixtures that are transitively used and to which this variable/parameter is passed to.
-	 * Since a parameter can be used in multiple parameter positions of subsequent fixture calls, the size of the set of types can be > 1
-	 */
-	def dispatch Set<JvmTypeReference> getAllTypeUsagesOfVariable(MacroTestStepContext callingMacroTestStepContext,
-		String variable) {
-		callingMacroTestStepContext.steps.filter(TestStep).map[ step |
-			val macroCalled = step.findMacroDefinition(callingMacroTestStepContext)
-			if (macroCalled != null) {
-				val templateParamToVarRefMap = mapCalledTemplateParamToCallingVariableReference(
-					step, macroCalled.template, variable)
-				val calledMacroTemplateParameters = templateParamToVarRefMap.values.map[name].toSet
-				val contextsUsingAnyOfTheseParameters = macroCalled.contexts.filter [
-					makesUseOfVariablesViaReference(calledMacroTemplateParameters)
-				]
-				val typesOfAllParametersUsed = contextsUsingAnyOfTheseParameters.map [ context |
-					context.getAllTypeUsagesOfVariables(calledMacroTemplateParameters)
-				].flatten.toSet
-				return typesOfAllParametersUsed
-			} else {
-				return #{}
-			}		
-		].flatten.toSet
-	}
-	
-	/** 
-	 * get the actual jvm types from the fixtures that are transitively used and to which this variable/parameter is passed to
-	 */
-	def dispatch Set<JvmTypeReference> getAllTypeUsagesOfVariable(ComponentTestStepContext componentTestStepContext, String variableName) {
-		// type derivation of variable usage within assertions is not implemented "yet" => filter on test steps only
-		// TODO this has to be implemented if the check is to be performed on assertions!
-		val typesUsages = componentTestStepContext.steps.filter(TestStep).map [ step |
-			step.stepVariableFixtureParameterTypePairs.filterKey(VariableReference).filter [
-				key.variable.name == variableName
-			].map[value]
-		].flatten.filterNull.toSet
-		return typesUsages
-	}
-
-	private def Iterable<JvmTypeReference> getAllTypeUsagesOfVariables(TestStepContext context, Iterable<String> variables) {
-		variables.map [ parameter |
-			context.getAllTypeUsagesOfVariable(parameter)
-		].flatten
-	}
-
-	private def Map<StepContent, TemplateVariable> mapCalledTemplateParamToCallingVariableReference(TestStep callingStep,
-		Template calledMacroTemplate, String callingVariableReference) {
-		val varMap = getStepContentToTemplateVariablesMapping(callingStep, calledMacroTemplate)
-		return varMap.filter [ stepContent, templateVariable  |
-			stepContent.makesUseOfVariablesViaReference(#{callingVariableReference})
 		]
 	}
 
