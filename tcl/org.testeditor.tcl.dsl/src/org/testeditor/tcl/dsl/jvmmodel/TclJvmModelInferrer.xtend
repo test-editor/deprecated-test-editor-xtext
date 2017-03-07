@@ -26,6 +26,7 @@ import org.eclipse.xtext.common.types.JvmOperation
 import org.eclipse.xtext.common.types.JvmType
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.common.types.JvmVisibility
+import org.eclipse.xtext.generator.trace.ILocationData
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable
@@ -46,6 +47,7 @@ import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.Macro
+import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.SetupAndCleanupProvider
 import org.testeditor.tcl.SpecificationStepImplementation
@@ -63,7 +65,6 @@ import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentValue
 
 import static org.testeditor.tcl.TclPackage.Literals.*
-import org.testeditor.tcl.MacroCollection
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -296,7 +297,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	private def void generateEnvironmentVariableAssertion(EnvironmentVariable environmentVariable,
 		ITreeAppendable output) {
-		output.append('''org.junit.Assert.assertNotNull(«expressionBuilder.variableToVarName(environmentVariable)»);''')
+		val varName = expressionBuilder.variableToVarName(environmentVariable)
+		output.append('''org.junit.Assert.assertNotNull("environment variable '«environmentVariable.name»' must not be null", «varName»);''')
 		output.newLine
 	}
 	
@@ -360,9 +362,18 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	private def dispatch void toUnitTestCodeLine(AssertionTestStep step, ITreeAppendable output) {
-		logger.debug("generating code line for assertion test step.")
+		val locationString = '''«output.traceRegion.associatedSrcRelativePath.toString»:«output.traceRegion.associatedLocations.map[toReportableString].join(", ")»'''
+		logger.debug('''generating code line for assertion test step at «locationString».''')
 		output.appendReporterEnterCall(SemanticUnit.STEP, '''assert «assertCallBuilder.assertionText(step.assertExpression)»''')
-		output.append(assertCallBuilder.build(step.assertExpression))
+		output.append(assertCallBuilder.build(step.assertExpression, locationString))
+	}
+	
+	private def String toReportableString(ILocationData locationData) {
+		if (locationData.lineNumber == locationData.endLineNumber) {
+			return Integer.toString(locationData.lineNumber + 1)
+		} else {
+			return '''«locationData.lineNumber + 1»-«locationData.endLineNumber + 1»'''.toString
+		}
 	}
 
 	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output) {

@@ -417,8 +417,11 @@ class ProjectContentGenerator {
 			version '«TEST_EDITOR_VERSION»'
 		}
 		
+		// configure logging within tests (see https://docs.gradle.org/current/dsl/org.gradle.api.tasks.testing.logging.TestLogging.html)
 		// show standard out during test to see logging output
 		test.testLogging.showStandardStreams = true
+		// make sure that assertion failures are reported more verbose!
+		test.testLogging.exceptionFormat = 'full'
 
 		// In this section you declare the dependencies for your production and test code
 		dependencies {
@@ -429,7 +432,14 @@ class ProjectContentGenerator {
 			testCompile 'junit:junit:4.12'
 		}
 		
-		if (System.properties.containsKey('http.proxyHost')) {
+		// add environmental variables needed by the test (for any 'require <var-name>' in tcl)
+		// test.doFirst {
+		//	environment 'requiredVariable', 'value'
+		// }
+		
+		// add proxy settings to the environment, if present (e.g. in gradle.properties)
+		// keep in mind that gradle.properties w/i user ~/.gradle/gradle.properties might override project settings
+		if (System.properties.containsKey('http.proxyHost')) { // set proxy properties only if present
 		    test.doFirst {
 		        println 'Configuring System Properties for Proxy'
 		        systemProperty 'http.nonProxyHosts', System.properties['http.nonProxyHosts']
