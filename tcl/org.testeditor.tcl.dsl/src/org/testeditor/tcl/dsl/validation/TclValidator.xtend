@@ -19,11 +19,13 @@ import javax.inject.Inject
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.xtype.XImportSection
+import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.dsl.validation.AmlValidator
 import org.testeditor.dsl.common.util.CollectionUtils
 import org.testeditor.tcl.AssertionTestStep
+import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroCollection
@@ -36,6 +38,7 @@ import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferenceMapAccess
+import org.testeditor.tcl.dsl.jvmmodel.SimpleTypeComputer
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tcl.util.ValueSpaceHelper
 import org.testeditor.tsl.SpecificationStep
@@ -44,9 +47,7 @@ import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
 
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
-import org.testeditor.aml.ModelUtil
-import org.testeditor.tcl.AbstractTestStep
-import org.testeditor.tcl.dsl.jvmmodel.SimpleTypeComputer
+import org.testeditor.tsl.StepContent
 
 class TclValidator extends AbstractTclValidator {
 
@@ -63,6 +64,7 @@ class TclValidator extends AbstractTclValidator {
 	public static val MISSING_MACRO = 'missingMacro'
 	public static val INVALID_VAR_DEREF = "invalidVariableDereference"
 	public static val INVALID_MODEL_CONTENT = "invalidModelContent"
+	public static val INVALID_PARAMETER_TYPE = "invalidParameterType"
 
 	@Inject extension TclModelUtil
 	@Inject extension ModelUtil
@@ -167,10 +169,13 @@ class TclValidator extends AbstractTclValidator {
 		]		
 	}
 
-	private def isNotAssignableToMap(JvmTypeReference type) {
+	private def isAssignableToMap(JvmTypeReference type) {
+		if (type === null) {
+			return false
+		}
 		try {
 			val qualifiedTypeNameWithoutGenerics = type.qualifiedName.replaceFirst("<.*", "")
-			return !typeof(Map).isAssignableFrom(Class.forName(qualifiedTypeNameWithoutGenerics))
+			return typeof(Map).isAssignableFrom(Class.forName(qualifiedTypeNameWithoutGenerics))
 		} catch (ClassNotFoundException e) {
 			return false
 		}
@@ -339,18 +344,22 @@ class TclValidator extends AbstractTclValidator {
 		switch variableReference {
 			VariableReferenceMapAccess:
 				// do no type checking on values retrieved from a map, but check whether this is actually a map
-				if (typeDeclared == null || isNotAssignableToMap(typeDeclared)) {
+				if (!typeDeclared.assignableToMap) {
 					error('''Variable='«variableName»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in a position that expects type(s)='«Map.canonicalName»'.''',
-							variableReference.eContainer, variableReference.eContainingFeature, errorIndex,
-							INVALID_MAP_ACCESS)
+						variableReference.eContainer, variableReference.eContainingFeature, errorIndex,
+						INVALID_MAP_ACCESS)
 				}
-			VariableReference:
+			VariableReference: {
 				// currently this is a naive check, expecting the types
 				// TODO typeUsageSet is empty for assertions because TclModelUtil.getAllTypeUsagesOfVariable is not implemented for them
-				if (typeDeclared == null || (!typeUsageSet.isEmpty && !typeUsageSet.identicalSingleTypeInSet(typeDeclared))) {
+				val longCoercionPossible = typeDeclared.qualifiedName.equals(String.name) && typeUsageSet.size == 1 &&
+					typeUsageSet.get(0).type.qualifiedName.equals(long.name)
+				val typesMatch = typeDeclared !== null && (typeUsageSet.isEmpty || typeUsageSet.identicalSingleTypeInSet(typeDeclared))
+				if (!(longCoercionPossible || typesMatch)) {
 					error('''Variable='«variableName»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in a position that expects type(s)='«typeUsageSet.map[qualifiedName].join(", ")»'.''',
-							variableReference.eContainer, variableReference.eContainingFeature, errorIndex,
-							INVALID_TYPED_VAR_DEREF)
+						variableReference.eContainer, variableReference.eContainingFeature, errorIndex,
+						INVALID_TYPED_VAR_DEREF)
+					}
 				}
 			default:
 				throw new RuntimeException('''Unknown variable reference type='«variableReference.class.canonicalName»'.''')
@@ -376,29 +385,83 @@ class TclValidator extends AbstractTclValidator {
 	def void checkTemplateHoldsValidCharacters(Template template) {
 		amlValidator.checkTemplateHoldsValidCharacters(template)
 	}
-	
-	
 
+
+	// TODO make it beautiful!!! add some tests (for macros, too)
 	@Check
-	def void checkStepParameterTypes(TestStep step){
-		val interaction=step.interaction
-		val variablesTypes= simpleTypeComputer.getVariablesWithTypes(interaction)
+	def void checkStepParameterTypes(TestStep step) {
+		val interaction = step.interaction
+		if (interaction !== null) {
+			// reduce to absolutely necessary check (constant -> value, since parameters are already checked all right)
+			val fixtureCallParamTypes = step.stepVariableFixtureParameterTypePairs // Input->String, @value->String
+			val fixtureDefinitionParameters = interaction.defaultMethod.operation.parameters // param0:String, param1:String
+			val elementIndex = fixtureCallParamTypes.indexOfFirst[key instanceof StepContentElement]
+			val possiblyWithLocatorStrategy = elementIndex >= 0 && fixtureDefinitionParameters.size == fixtureCallParamTypes.size + 1
 
-		val fixtureParamTypes = step.stepVariableFixtureParameterTypePairs
-		val parameters = step.stepContentVariables
-
-		fixtureParamTypes.forEach [
-			val content=key			
-			val type=value
-						
-			switch (content) {
-				StepContentText: { }
-				StepContentVariable: { }
-				VariableReferenceMapAccess: { }
-				VariableReference: { }
-				default: { }
+			fixtureCallParamTypes.forEach [ pair, index |
+				val correctedIndex = if (possiblyWithLocatorStrategy &&
+						index > elementIndex) {
+						index + 1
+					} else {
+						index
+					}
+				val type = pair.value
+				val expectedType = fixtureDefinitionParameters.get(correctedIndex).parameterType
+				val matches = type.type.qualifiedName.equals(expectedType.type.qualifiedName)
+				val content = pair.key
+				val contentIndex = step.contents.indexOfFirst[content.equals(it)]
+				if (expectedType.qualifiedName.equals(long.name)) {
+					content.checkThatUseAsTypedLongIsOk(contentIndex)
+				} 
+				if (!matches) {
+					error('Type mismatch. Expected \'' + expectedType + '\' got \'' + type + '\'.',
+						content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
+				}
+			]
+		}else{
+			val macroContext=step.macroContext
+			val macro = step.findMacroDefinition(macroContext)
+			if (macro !== null) {
+				// val macroParameters = macro.enclosingMacroParameters
+				val types = simpleTypeComputer.getVariablesWithTypes(macro)
+				val contentTemplateVarmap = step.getStepContentToTemplateVariablesMapping(macro.template)
+				// do some checking
+				contentTemplateVarmap.forEach [ content, templateVar |
+					val expectedType = types.get(templateVar)
+					expectedType.ifPresent [
+						if (expectedType.get.type.qualifiedName.equals(long.name)) {
+							val contentIndex = step.contents.indexOfFirst[content.equals(it)]
+							content.checkThatUseAsTypedLongIsOk(contentIndex)
+						}
+					]
+				]
 			}
-		]
+		}
+	}
+	
+	
+	private def void checkThatUseAsTypedLongIsOk(StepContent content, int contentIndex) {
+		switch (content) {
+			StepContentVariable:
+				try {
+					Integer.parseInt(content.value)
+				} catch (NumberFormatException nfe) {
+					error('Type mismatch. Expected \'long\' got \'String\' that cannot be converted to long.',
+						content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
+				}
+			VariableReferenceMapAccess: {
+				// allowed, must be here before 'VariableReference' because it's a subtype
+			}
+			VariableReference: {
+				if (content.variable instanceof AssignmentVariable) {
+					val varType = (content.variable as AssignmentVariable).determineType
+					if (varType.isAssignableToMap) {
+						error('Type mismatch. Expected \'long\' got a \'Map\'.', content.eContainer,
+							content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
+					}
+				}
+			}
+		}
 	}
 
 }

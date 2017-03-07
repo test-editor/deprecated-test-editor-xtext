@@ -20,6 +20,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.EcoreUtil2
+import org.eclipse.xtext.common.types.JvmEnumerationType
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.common.types.util.TypeReferences
 import org.testeditor.aml.ComponentElement
@@ -30,6 +31,7 @@ import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.dsl.common.util.CollectionUtils
 import org.testeditor.tcl.AssertionTestStep
+import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.Expression
@@ -52,7 +54,6 @@ import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
-import org.eclipse.xtext.common.types.JvmEnumerationType
 
 @Singleton
 class TclModelUtil extends TslModelUtil {
@@ -328,6 +329,11 @@ class TclModelUtil extends TslModelUtil {
 	def dispatch Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(AssertionTestStep testStep) {
 		// Assertion test steps cannot contain variable declarations
 		return emptyMap
+	}
+	
+	def JvmTypeReference determineType(AssignmentVariable assignmentVariable) {
+		val testStep = EcoreUtil2.getContainerOfType(assignmentVariable, TestStep)
+		return testStep.collectDeclaredVariablesTypeMap.values.head
 	}
 
 	/** 

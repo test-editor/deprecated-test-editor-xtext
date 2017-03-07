@@ -377,6 +377,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			if (fixtureField !== null && operation !== null) {
 				step.maybeCreateAssignment(operation, output, stepLog)
 				output.trace(interaction.defaultMethod) => [
+					// TODO: write code guard for long values that cannot be statically typed checked
 					val codeLine = '''«fixtureField».«operation.simpleName»(«generateCallParameters(step, interaction)»);'''
 					append(codeLine) // please call with string, since tests checks against expected string which fails for passing ''' directly
 				]
@@ -417,6 +418,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		output.newLine
 		val macro = step.findMacroDefinition(context)
 		if (macro !== null) {
+			// TODO: write code guard for long parameters that cannot be statically type checked
 			val parameters = generateCallParameters(step, macro)
 			output.append('''«macroHelper.getMethodName(macro)»(«parameters»);''')
 		} else {
