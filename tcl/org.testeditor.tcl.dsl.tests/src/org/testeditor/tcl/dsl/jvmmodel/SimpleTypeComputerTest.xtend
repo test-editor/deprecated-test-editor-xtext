@@ -227,6 +227,27 @@ class SimpleTypeComputerTest extends AbstractParserTest {
 		]
 	}
 
+	@Test
+	def void testCollectDeclaredVariablesTypeMap() {
+		// given
+		val tcl = '''
+			package com.example
+			
+			# MyTest
+			
+			* do some
+				Component: GreetingApplication
+				- boolVar = Read long from <bar>
+		'''
+		val tclModel = tcl.parseTcl('MyTest.tcl')
+		tclModel.assertNoErrors
+		
+		val declaredVariables = typeComputer.collectDeclaredVariablesTypeMap(tclModel.test.steps.head.contexts.head)
+
+		declaredVariables.keySet.assertSize(1)
+		declaredVariables.get("boolVar").qualifiedName.assertEquals(long.name)
+	}
+
 	private def Macro parseMacro(String macro) {
 		val tcl = '''
 			package com.example

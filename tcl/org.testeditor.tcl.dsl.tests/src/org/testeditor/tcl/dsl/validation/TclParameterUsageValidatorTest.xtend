@@ -19,7 +19,6 @@ import org.testeditor.aml.dsl.tests.AmlModelGenerator
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestStepContext
-import org.testeditor.tcl.dsl.jvmmodel.TclSimpleTypeUtils
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTestWithDummyComponent
 
@@ -30,13 +29,14 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 	@Inject extension AmlModelGenerator
 
 	@Inject extension TclModelGenerator
-	@Inject TclSimpleTypeUtils tclSimpleTypeUtils
+	@Inject TclTypeValidationUtil tclSimpleTypeUtils
 	@Inject protected TclValidator tclValidator // class under test (not mocked)
 	@Inject protected ValidationTestHelper validator
 
 
 	@Test
 	def void testDirectCallVariableTypeChecks() {
+		// given
 		val macroModel = tclModel => [
 			macroCollection = macroCollection("MacroCollection") => [
 				// macro calls (directly) the aml interaction "start" (which expects the parameter to be of type String)
@@ -164,7 +164,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 		]
 		macroModel.addToResourceSet("test.tml")
 		// since tcl calls mycall Macro with environment variable (which always has type String)
-		// and this parameter is transitively used for calls expecting type String ... (no errors expected)
+		// and this parameter is transitively used for calls expecting type long ... (no errors expected)
 		val tclModel = tclCallingMyCallMacroWithOneEnvParam("myEnvString", macroModel, #[String.simpleName])
 
 		// then
@@ -258,7 +258,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 						val assignment=testStepWithAssignment("mapvar", "getMap").withElement("dummyElement")
 						val mapvar=assignment.variable
 						steps += assignment
-						steps += testStep("wait").withReferenceToVariable(mapvar) 
+						steps += testStep("wait").withReferenceToVariable(mapvar) // directly use map variable here 
 					]
 				]
 			]
@@ -266,7 +266,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 		tclModel.addToResourceSet('MyTest.tcl')
 		
 		// when then
-		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_PARAMETER_TYPE)
+		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_PARAMETER_TYPE) // since long is expected, and map is provided
 	}
 	
 	@Test
@@ -279,7 +279,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 						val assignment=testStepWithAssignment("mapvar", "getMap").withElement("dummyElement")
 						val mappedRef=assignment.variable.mappedReference
 						steps += assignment
-						steps += testStep("wait").withReference(mappedRef) 
+						steps += testStep("wait").withReference(mappedRef) // use map dereferenced variable (e.g. mavar."key") 
 					]
 				]
 			]
@@ -287,10 +287,14 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 		tclModel.addToResourceSet('MyTest.tcl')
 		
 		// when then
-		validator.assertNoErrors(tclModel)
+		validator.assertNoErrors(tclModel) // no error, since element in map is (or may be parsed to) long
 	}
 	
 	
+	/**
+	 * create a macro with two parameters (secs, strParam) that will transitively result in types (long, String) 
+	 * with template "othercall" ${secs} "with" ${strPara} 
+	 */
 	private def Macro otherCallMacroWithTwoParamsWithTypeLongAndStringRespectively() {
 		return macro("OtherCallMacro") => [
 			template = template("othercall").withParameter("secs").withText("with").withParameter("strParam")
@@ -328,7 +332,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 	private def void verifyVariableTypeUsage(TestStepContext context, String variable, Iterable<String> types) {
 		val typeSet = tclSimpleTypeUtils.getAllTypeUsagesOfVariable(context, variable).filter[present].map[get.simpleName].toSet
 		typeSet.assertSize(types.size)
-		types.forEach[ assertTrue(typeSet.contains(it)) ]
+		types.forEach[assertTrue(typeSet.contains(it))]
 	}
 
 }

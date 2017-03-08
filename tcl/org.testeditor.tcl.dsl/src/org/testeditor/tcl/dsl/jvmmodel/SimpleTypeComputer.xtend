@@ -9,8 +9,11 @@ import org.testeditor.aml.InteractionType
 import org.testeditor.aml.MethodReference
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.dsl.common.util.CollectionUtils
+import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.TestStep
+import org.testeditor.tcl.TestStepContext
+import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.util.TclModelUtil
 
@@ -43,6 +46,31 @@ class SimpleTypeComputer {
 			}
 		}
 		return result
+	}
+	
+	/**
+	 * collect all variables (and their types) declared (e.g. through assignment)
+	 */
+	def dispatch Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(TestStepContext context) {
+		val result = newHashMap
+		context.steps.map[collectDeclaredVariablesTypeMap].forEach[result.putAll(it)]
+		return result
+	}
+	
+	def dispatch Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(TestStepWithAssignment testStep) {
+		// must be declared before dispatch method collectDeclaredVariablesTypeMap(TestStep)
+		val typeReference = testStep.interaction?.defaultMethod?.operation?.returnType
+		return #{testStep.variable.name -> typeReference}
+	}
+	
+	def dispatch Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(TestStep testStep) {
+		// TestSteps (not TestStepAssignments) do not introduce any variables 
+		return emptyMap
+	}
+	
+	def dispatch Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(AssertionTestStep testStep) {
+		// Assertion test steps cannot contain variable declarations
+		return emptyMap
 	}
 
 	private def Map<TemplateVariable, Optional<JvmTypeReference>> getVariablesWithTypes(TestStep step, Iterable<TemplateVariable> variables) {
@@ -80,7 +108,7 @@ class SimpleTypeComputer {
 					}
 				val operationParameter = operationParameters.get(methodDefinitionParameterIndex)
 				map.put(parameter, ofNullable(operationParameter.parameterType))
-			]		
+			]
 		}
 		return map
 	}

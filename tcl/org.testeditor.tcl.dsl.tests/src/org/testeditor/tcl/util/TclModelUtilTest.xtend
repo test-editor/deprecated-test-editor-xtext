@@ -21,10 +21,12 @@ import org.testeditor.tsl.StepContentVariable
 class TclModelUtilTest extends AbstractParserTest {
 
 	@Inject var TclModelUtil tclModelUtil // class under test
+	
 	@Inject extension TclModelGenerator
 	@Inject extension AmlModelGenerator
-	@Inject protected TclGrammarAccess grammarAccess
-	@Inject extension ModelUtil modelUtil
+
+	@Inject ModelUtil modelUtil	
+	@Inject TclGrammarAccess grammarAccess
 
 	@Before
 	def void setup() {		
@@ -52,7 +54,7 @@ class TclModelUtilTest extends AbstractParserTest {
 		val dot = parse('- Hello World  .', grammarAccess.testStepRule, TestStep)
 		val dotAndWhitespace = parse('- Hello World.', grammarAccess.testStepRule, TestStep)
 
-		// then
+		// when, then
 		tclModelUtil.restoreString(questionMark.contents).assertEquals('Hello World?')
 		tclModelUtil.restoreString(questionMarkAndWhitespace.contents).assertEquals('Hello World?')
 		tclModelUtil.restoreString(dot.contents).assertEquals('Hello World.')

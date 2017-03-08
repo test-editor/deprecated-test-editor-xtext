@@ -10,7 +10,7 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.tcl.dsl.jvmmodel
+package org.testeditor.tcl.dsl.validation
 
 import java.util.Map
 import javax.inject.Inject
@@ -33,9 +33,9 @@ import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 import org.testeditor.tsl.StepContentValue
 
-class TclSimpleTypeUtilsTest  extends AbstractParserTest {
+class TclTypeValidationUtilTest  extends AbstractParserTest {
 
-	@Inject var TclSimpleTypeUtils tclSimpleTypeUtils // class under test
+	@Inject var TclTypeValidationUtil tclSimpleTypeUtils // class under test
 	@Inject extension TclModelGenerator
 	@Inject extension AmlModelGenerator
 	@Inject var AmlTestModels amlTestModels
@@ -46,30 +46,6 @@ class TclSimpleTypeUtilsTest  extends AbstractParserTest {
 		(new AmlStandaloneSetup).createInjectorAndDoEMFRegistration
 	}
 
-
-	@Test
-	def void testCollectDeclaredVariablesTypeMap() {
-		// given
-		// given
-		val amlModel = amlTestModels.dummyComponent(resourceSet)
-		amlModel.addToResourceSet
-		val tclModel = createComponentTestStepsBasedOnDummy(
-			amlModel,
-			testStepWithAssignment("newVar", "getValue").withElement("dummyElement"),
-			testStepWithAssignment("newMap", "getMap").withElement("dummyElement")
-		)
-		val testStepContext = tclModel.test.steps.head.contexts.head
-
-		// when		
-		val varTypeMap = tclSimpleTypeUtils.collectDeclaredVariablesTypeMap(testStepContext)
-		val varTypeQualifiedName = varTypeMap.get("newVar").qualifiedName
-		val mapTypeQualifiedNameWOGenerics = varTypeMap.get("newMap").qualifiedName.replaceFirst("<.*", "")
-
-		// then
-		varTypeQualifiedName.assertEquals(String.canonicalName)
-		mapTypeQualifiedNameWOGenerics.assertEquals(Map.canonicalName)
-		assertSize(varTypeMap.keySet, 2) // only this variable is declared
-	}
 
 	@Test
 	def void testStepVariableFixtureParameterTypePairs() {
@@ -83,20 +59,20 @@ class TclSimpleTypeUtilsTest  extends AbstractParserTest {
 
 			* some fixture usage
 			Component: GreetingApplication
-			- TypeLong "42" into <Input>  // maps to: DummyFixture.typeInto(element, locatorStrategy, value)
+			- TypeLong "42" into <Input>  // maps to: DummyFixture.typeInto(String element, Enum locatorStrategy, long value)
 		''')
 		 
 		
 		// when
 		val testStep = tclModel.test.steps.head.contexts.head.steps.filter(TestStep).last
-		val result = tclSimpleTypeUtils.getStepVariableFixtureParameterTypePairs(testStep)
+		val stepContentTypePairs = tclSimpleTypeUtils.getStepVariableFixtureParameterTypePairs(testStep)
 
 		// then
-		result.assertSize(2)
-		result.get(0).key.assertInstanceOf(StepContentValue)
-		result.get(0).value.get.qualifiedName.assertEquals(long.name)
-		result.get(1).key.assertInstanceOf(StepContentElement)
-		result.get(1).value.get.qualifiedName.assertEquals(String.name)
+		stepContentTypePairs.assertSize(2)
+		stepContentTypePairs.get(0).key.assertInstanceOf(StepContentValue)
+		stepContentTypePairs.get(0).value.get.qualifiedName.assertEquals(long.name)
+		stepContentTypePairs.get(1).key.assertInstanceOf(StepContentElement)
+		stepContentTypePairs.get(1).value.get.qualifiedName.assertEquals(String.name)
 	}
 
 	@Test

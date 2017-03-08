@@ -65,6 +65,10 @@ public class DummyFixture {
 	}
 
 	@FixtureMethod
+	def void typeIntoAndWait(String locator, DummyLocatorStrategy locatorStrategy, String value, long seconds) {
+	}
+
+	@FixtureMethod
 	def void typeLongInto(String locator, DummyLocatorStrategy locatorStrategy, long value) {
 	}
 
@@ -159,6 +163,11 @@ public class DummyFixture {
 			method = «dummyFixture».typeInto(element, locatorStrategy, value)
 		}
 		
+		interaction type typeIntoAndWait {
+			template = "Type" ${value} "into" ${element} "and wait" ${seconds}
+			method = «dummyFixture».typeIntoAndWait(element, locatorStrategy, value, seconds)
+		}
+		
 		interaction type typeLongInto {
 			template = "TypeLong" ${value} "into" ${element}
 			method = «dummyFixture».typeLongInto(element, locatorStrategy, value)
@@ -169,7 +178,7 @@ public class DummyFixture {
 		}
 		
 		element type Text {
-			interactions = getValue, isVisible, setValue, setValueReversed, typeInto, getLong, typeLongInto
+			interactions = getValue, isVisible, setValue, setValueReversed, typeInto, getLong, typeLongInto, typeIntoAndWait
 		}
 
 		element type Button {

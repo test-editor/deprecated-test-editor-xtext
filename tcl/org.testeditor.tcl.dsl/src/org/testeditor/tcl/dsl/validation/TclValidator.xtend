@@ -14,6 +14,7 @@ package org.testeditor.tcl.dsl.validation
 
 import java.util.List
 import java.util.Map
+import java.util.Optional
 import java.util.Set
 import javax.inject.Inject
 import org.eclipse.xtext.common.types.JvmTypeReference
@@ -42,14 +43,13 @@ import org.testeditor.tcl.dsl.jvmmodel.SimpleTypeComputer
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tcl.util.ValueSpaceHelper
 import org.testeditor.tsl.SpecificationStep
+import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
 
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
-import org.testeditor.tsl.StepContent
-import org.testeditor.tcl.dsl.jvmmodel.TclSimpleTypeUtils
-import java.util.Optional
+import org.testeditor.aml.InteractionType
 
 class TclValidator extends AbstractTclValidator {
 
@@ -69,7 +69,7 @@ class TclValidator extends AbstractTclValidator {
 	public static val INVALID_PARAMETER_TYPE = "invalidParameterType"
 
 	@Inject extension TclModelUtil
-	@Inject extension TclSimpleTypeUtils
+	@Inject extension TclTypeValidationUtil
 	@Inject extension ModelUtil
 	@Inject extension CollectionUtils
 	
@@ -133,7 +133,7 @@ class TclValidator extends AbstractTclValidator {
 				completedKnownVariableNames.addAll(knownVariableNames)
 				context.steps.forEach [ step, index |
 					step.checkAllReferencedVariablesAreKnown(completedKnownVariableNames, errorMessage)
-					val declaredVariables = step.collectDeclaredVariablesTypeMap.keySet
+					val declaredVariables = simpleTypeComputer.collectDeclaredVariablesTypeMap(step).keySet
 					val alreadyKnown=declaredVariables.filter[completedKnownVariableNames.contains(it)]
 					if(!alreadyKnown.empty) {
 						error('''The variable(s)='«alreadyKnown.join(',')»' is (are) already known''', step, null, VARIABLE_ASSIGNED_MORE_THAN_ONCE)
@@ -230,7 +230,7 @@ class TclValidator extends AbstractTclValidator {
 		testCase.steps.map[contexts].flatten.forEach [
 			checkAllReferencedVariablesAreKnown(declaredVariableNames, ERROR_MESSAGE_FOR_INVALID_VAR_REFERENCE)
 			// add the variables declared by this step to be known for subsequent steps
-			declaredVariableNames.addAll(collectDeclaredVariablesTypeMap.keySet)
+			declaredVariableNames.addAll(simpleTypeComputer.collectDeclaredVariablesTypeMap(it).keySet)
 		]
 	}
 	
@@ -249,7 +249,7 @@ class TclValidator extends AbstractTclValidator {
 		macro.contexts.forEach [
 			checkAllReferencedVariablesAreKnown(declaredVariableNames, ERROR_MESSAGE_FOR_INVALID_VAR_REFERENCE)
 			// add the variables declared by this step to be known for subsequent steps within this macro !! 
-			declaredVariableNames.addAll(collectDeclaredVariablesTypeMap.keySet)
+			declaredVariableNames.addAll(simpleTypeComputer.collectDeclaredVariablesTypeMap(it).keySet)
 		]
 	}
 
@@ -269,7 +269,7 @@ class TclValidator extends AbstractTclValidator {
 				amlModelUtil.getReferenceableVariables(macro.template).map[name].toSet
 			} 
 		val knownVariablesTypeMapWithinMacro = newHashMap
-		macro.contexts.forEach[knownVariablesTypeMapWithinMacro.putAll(collectDeclaredVariablesTypeMap)]
+		macro.contexts.forEach[knownVariablesTypeMapWithinMacro.putAll(simpleTypeComputer.collectDeclaredVariablesTypeMap(it))]
 		macro.contexts.forEach [
 			checkReferencedVariablesAreUsedWellTypedExcluding(knownVariablesTypeMapWithinMacro, macroParameterNames)
 		]
@@ -283,7 +283,7 @@ class TclValidator extends AbstractTclValidator {
 	def void checkVariableUsageIsWellTyped(TestCase testCase) {
 		val knownVariablesTypeMap = testCase.model.envParams.environmentVariablesTypeMap
 		testCase.steps.map[contexts].flatten => [
-			forEach[knownVariablesTypeMap.putAll(collectDeclaredVariablesTypeMap)]
+			forEach[knownVariablesTypeMap.putAll(simpleTypeComputer.collectDeclaredVariablesTypeMap(it))]
 			forEach[checkAllReferencedVariablesAreUsedWellTyped(knownVariablesTypeMap)]
 		]
 	}
@@ -357,7 +357,7 @@ class TclValidator extends AbstractTclValidator {
 				// TODO typeUsageSet is empty for assertions because TclModelUtil.getAllTypeUsagesOfVariable is not implemented for them
 				val longCoercionPossible = typeDeclared.qualifiedName.equals(String.name) && typeUsageSet.filter[present].size == 1 &&
 					typeUsageSet.findFirst[present].get.type.qualifiedName.equals(long.name)
-				val typesMatch = typeDeclared !== null && (typeUsageSet.isEmpty || typeUsageSet.filter[present].map[get].toSet.identicalSingleTypeInSet(typeDeclared))
+				val typesMatch = typeDeclared !== null && (typeUsageSet.isEmpty || typeUsageSet.filter[present].map[get.qualifiedName.replaceFirst("<.*","")].toSet.identicalSingleTypeInSet(typeDeclared.qualifiedName.replaceFirst("<.*","")))
 				if (!(longCoercionPossible || typesMatch)) {
 					error('''Variable='«variableName»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in a position that expects type(s)='«typeUsageSet.filter[present].map[get.qualifiedName].join(", ")»'.''',
 						variableReference.eContainer, variableReference.eContainingFeature, errorIndex,
@@ -372,8 +372,8 @@ class TclValidator extends AbstractTclValidator {
 	/**
 	 * both sets hold only one type and this type is equal
 	 */
-	private def boolean identicalSingleTypeInSet(Set<JvmTypeReference> typeSet, JvmTypeReference type) {
-		typeSet.size == 1 && typeSet.head.qualifiedName == type.qualifiedName
+	private def boolean identicalSingleTypeInSet(Set<String> qualifiedTypeNameSet, String qualifiedTypeName) {
+		qualifiedTypeNameSet.size == 1 && qualifiedTypeNameSet.head == qualifiedTypeName
 	}
 
 	private def boolean matches(List<SpecificationStep> specSteps,
@@ -389,66 +389,77 @@ class TclValidator extends AbstractTclValidator {
 		amlValidator.checkTemplateHoldsValidCharacters(template)
 	}
 
+	private def void checkStepParameter(TestStep step, InteractionType interaction) {
+		// reduce to absolutely necessary check (constant -> value, since parameters are already checked all right)
+		val fixtureCallParamTypes = step.stepVariableFixtureParameterTypePairs // Input->String, @value->String
+		val fixtureDefinitionParameters = interaction.defaultMethod.operation.parameters // param0:String, param1:String
+		if (fixtureCallParamTypes.size <= fixtureDefinitionParameters.size && !fixtureDefinitionParameters.empty) {
+			val elementIndex = fixtureCallParamTypes.indexOfFirst[key instanceof StepContentElement]
+			val possiblyWithLocatorStrategy = elementIndex >= 0 && fixtureDefinitionParameters.size == fixtureCallParamTypes.size + 1
+
+			fixtureCallParamTypes.forEach [ pair, index |
+				val correctedIndex = if (possiblyWithLocatorStrategy &&
+						index > elementIndex) {
+						index + 1
+					} else {
+						index
+					}
+				val content = pair.key
+				val contentIndex = step.contents.indexOfFirst[content.equals(it)]
+				val expectedType = fixtureDefinitionParameters.get(correctedIndex).parameterType
+				if(!pair.value.present){
+						error('Type unknown. Expected \'' + expectedType + '\'.',
+							content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
+				}else{
+					val type = pair.value.get				
+					val matches = type.type.qualifiedName.equals(expectedType.type.qualifiedName)
+					if (expectedType.qualifiedName.equals(long.name)) {
+						content.checkThatUseAsTypedLongIsOk(contentIndex)
+					} 
+					if (!matches) {
+						error('Type mismatch. Expected \'' + expectedType + '\' got \'' + type + '\'.',
+							content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
+					}				
+				}
+			]			
+		}
+	}
+	
+	private def void checkStepParameter(TestStep step, Macro macro) {
+		// val macroParameters = macro.enclosingMacroParameters
+		val types = simpleTypeComputer.getVariablesWithTypes(macro)
+		val contentTemplateVarmap = step.getStepContentToTemplateVariablesMapping(macro.template)
+		// do some checking
+		contentTemplateVarmap.forEach [ content, templateVar |
+			val expectedType = types.get(templateVar)
+			expectedType.ifPresent [
+				if (expectedType.get.type.qualifiedName.equals(long.name)) {
+					val contentIndex = step.contents.indexOfFirst[content.equals(it)]
+					content.checkThatUseAsTypedLongIsOk(contentIndex)
+				}
+			]
+		]
+	}
 
 	// TODO make it beautiful!!! add some tests (for macros, too)
 	@Check
 	def void checkStepParameterTypes(TestStep step) {
-		val interaction = step.interaction
-		if (interaction !== null) {
-			// reduce to absolutely necessary check (constant -> value, since parameters are already checked all right)
-			val fixtureCallParamTypes = step.stepVariableFixtureParameterTypePairs // Input->String, @value->String
-			val fixtureDefinitionParameters = interaction.defaultMethod.operation.parameters // param0:String, param1:String
-			if (fixtureCallParamTypes.size <= fixtureDefinitionParameters.size && !fixtureDefinitionParameters.empty) {
-				val elementIndex = fixtureCallParamTypes.indexOfFirst[key instanceof StepContentElement]
-				val possiblyWithLocatorStrategy = elementIndex >= 0 && fixtureDefinitionParameters.size == fixtureCallParamTypes.size + 1
-	
-				fixtureCallParamTypes.forEach [ pair, index |
-					val correctedIndex = if (possiblyWithLocatorStrategy &&
-							index > elementIndex) {
-							index + 1
-						} else {
-							index
-						}
-					val content = pair.key
-					val contentIndex = step.contents.indexOfFirst[content.equals(it)]
-					val expectedType = fixtureDefinitionParameters.get(correctedIndex).parameterType
-					if(!pair.value.present){
-							error('Type unknown. Expected \'' + expectedType + '\'.',
-								content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
-					}else{
-						val type = pair.value.get				
-						val matches = type.type.qualifiedName.equals(expectedType.type.qualifiedName)
-						if (expectedType.qualifiedName.equals(long.name)) {
-							content.checkThatUseAsTypedLongIsOk(contentIndex)
-						} 
-						if (!matches) {
-							error('Type mismatch. Expected \'' + expectedType + '\' got \'' + type + '\'.',
-								content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
-						}				
-					}
-				]			
+		switch step {
+			case step.hasComponentContext: { 
+				val interaction = step.interaction
+				if (interaction !== null) {
+					checkStepParameter(step, interaction)
+				}			
 			}
-		}else{
-			val macroContext=step.macroContext
-			val macro = step.findMacroDefinition(macroContext)
-			if (macro !== null) {
-				// val macroParameters = macro.enclosingMacroParameters
-				val types = simpleTypeComputer.getVariablesWithTypes(macro)
-				val contentTemplateVarmap = step.getStepContentToTemplateVariablesMapping(macro.template)
-				// do some checking
-				contentTemplateVarmap.forEach [ content, templateVar |
-					val expectedType = types.get(templateVar)
-					expectedType.ifPresent [
-						if (expectedType.get.type.qualifiedName.equals(long.name)) {
-							val contentIndex = step.contents.indexOfFirst[content.equals(it)]
-							content.checkThatUseAsTypedLongIsOk(contentIndex)
-						}
-					]
-				]
+			case step.hasMacroContext: { 				
+				val macro = step.findMacroDefinition(step.macroContext)
+				if (macro !== null) {
+					checkStepParameter(step, macro)		
+				}
 			}
+			default: throw new RuntimeException("TestStep has unknown context (neither component nor macro).")
 		}
 	}
-	
 	
 	private def void checkThatUseAsTypedLongIsOk(StepContent content, int contentIndex) {
 		switch (content) {
@@ -462,7 +473,7 @@ class TclValidator extends AbstractTclValidator {
 			VariableReferenceMapAccess: {
 				// allowed, must be here before 'VariableReference' because it's a subtype
 			}
-			VariableReference: {
+			VariableReference: {			
 				if (content.variable instanceof AssignmentVariable) {
 					val varType = (content.variable as AssignmentVariable).determineType
 					if (varType.isAssignableToMap) {

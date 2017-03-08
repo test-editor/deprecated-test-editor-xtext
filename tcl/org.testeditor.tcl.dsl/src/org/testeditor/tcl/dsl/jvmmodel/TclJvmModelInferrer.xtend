@@ -453,12 +453,12 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	 */
 	// TODO return type is only an iterable because of the locator strategy
 	private def Iterable<String> toParameterString(StepContent stepContent, Optional<JvmTypeReference> parameterType, TemplateContainer templateContainer) {
-		val isStringParameterOrUnspecified = parameterType.map[qualifiedName == String.name].orElse(true) 
+		val isStringParameter = parameterType.map[qualifiedName == String.name].orElse(false) 
 		// stepContent can be a reference to a variable or a value
 		if (stepContent instanceof VariableReference) {
 			// if variable reference forward the call to expressionBuilder
 			val parameterString = expressionBuilder.buildExpression(stepContent)
-			if (isStringParameterOrUnspecified && stepContent instanceof VariableReferenceMapAccess) {
+			if (isStringParameter && stepContent instanceof VariableReferenceMapAccess) {
 				// TODO this is not very nice, we should get the type of the referenced variable
 				return #['''String.valueOf(«parameterString»)''']
 			}
@@ -472,11 +472,24 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		}
 		if (stepContent instanceof StepContentValue) {
 			// if value, check if type is String, if yes put it in quotes
-			if (isStringParameterOrUnspecified) {
-				return #['''"«StringEscapeUtils.escapeJava(stepContent.value)»"''']
+			if (!isStringParameter && (coercionToBoolPossible(stepContent.value) || coercionToLongPossible(stepContent.value))) {
+				return #[stepContent.value] // this may happen only, if the value is a boolean or a long
 			} else {
-				return #[stepContent.value]
+				return #['''"«StringEscapeUtils.escapeJava(stepContent.value)»"''']
 			}
+		}
+	}
+	
+	private def boolean coercionToBoolPossible(String possiblyBool) {
+		return possiblyBool == "true" || possiblyBool == "false"
+	}
+	
+	private def boolean coercionToLongPossible(String possiblyLong) {
+		try {
+			Long.parseLong(possiblyLong)
+			return true			
+		} catch (NumberFormatException e) {
+			return false
 		}
 	}
 

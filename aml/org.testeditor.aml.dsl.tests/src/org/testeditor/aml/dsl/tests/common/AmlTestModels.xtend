@@ -41,6 +41,12 @@ class AmlTestModels {
 			]					
 			interactionTypes += interactionTypeForWait
 
+			val interactionTypeIntoAndWait = interactionType("typeIntoAndWait") => [
+				defaultMethod = methodReference(resourceSet, DummyFixture, "typeIntoAndWait", "element", "locatorStrategy", "value", "seconds")
+				template = template("type").withParameter(defaultMethod.parameters.findFirst[name=='value']).withText("into").withParameter("element").withText("and wait").withParameter(defaultMethod.parameters.findFirst[name=='seconds'])				
+			]					
+			interactionTypes += interactionTypeIntoAndWait
+
 			val interactionTypeForGetMap = interactionType("getMap") => [
 				defaultMethod = methodReference(resourceSet, DummyFixture, "getMap", "element")
 				template = template("getMap").withParameter(defaultMethod.parameters.head)
@@ -52,6 +58,7 @@ class AmlTestModels {
 				interactionTypes += interactionTypeForGetSome
 				interactionTypes += interactionTypeForWait
 				interactionTypes += interactionTypeForGetMap
+				interactionTypes += interactionTypeIntoAndWait
 			]
 			componentTypes += dummyComponentType
 			
