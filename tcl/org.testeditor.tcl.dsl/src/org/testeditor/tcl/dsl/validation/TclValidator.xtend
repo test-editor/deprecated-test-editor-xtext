@@ -17,9 +17,11 @@ import java.util.Map
 import java.util.Optional
 import java.util.Set
 import javax.inject.Inject
+import org.apache.commons.lang3.StringEscapeUtils
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.xtype.XImportSection
+import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateVariable
@@ -49,7 +51,6 @@ import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
 
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
-import org.testeditor.aml.InteractionType
 
 class TclValidator extends AbstractTclValidator {
 
@@ -389,100 +390,116 @@ class TclValidator extends AbstractTclValidator {
 		amlValidator.checkTemplateHoldsValidCharacters(template)
 	}
 
-	private def void checkStepParameter(TestStep step, InteractionType interaction) {
-		// reduce to absolutely necessary check (constant -> value, since parameters are already checked all right)
-		val fixtureCallParamTypes = step.stepVariableFixtureParameterTypePairs // Input->String, @value->String
-		val fixtureDefinitionParameters = interaction.defaultMethod.operation.parameters // param0:String, param1:String
-		if (fixtureCallParamTypes.size <= fixtureDefinitionParameters.size && !fixtureDefinitionParameters.empty) {
-			val elementIndex = fixtureCallParamTypes.indexOfFirst[key instanceof StepContentElement]
-			val possiblyWithLocatorStrategy = elementIndex >= 0 && fixtureDefinitionParameters.size == fixtureCallParamTypes.size + 1
-
-			fixtureCallParamTypes.forEach [ pair, index |
-				val correctedIndex = if (possiblyWithLocatorStrategy &&
-						index > elementIndex) {
-						index + 1
-					} else {
-						index
-					}
-				val content = pair.key
-				val contentIndex = step.contents.indexOfFirst[content.equals(it)]
-				val expectedType = fixtureDefinitionParameters.get(correctedIndex).parameterType
-				if(!pair.value.present){
-						error('Type unknown. Expected \'' + expectedType + '\'.',
-							content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
-				}else{
-					val type = pair.value.get				
-					val matches = type.type.qualifiedName.equals(expectedType.type.qualifiedName)
-					if (expectedType.qualifiedName.equals(long.name)) {
-						content.checkThatUseAsTypedLongIsOk(contentIndex)
-					} 
-					if (!matches) {
-						error('Type mismatch. Expected \'' + expectedType + '\' got \'' + type + '\'.',
-							content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
-					}				
-				}
-			]			
-		}
-	}
-	
-	private def void checkStepParameter(TestStep step, Macro macro) {
-		// val macroParameters = macro.enclosingMacroParameters
-		val types = simpleTypeComputer.getVariablesWithTypes(macro)
-		val contentTemplateVarmap = step.getStepContentToTemplateVariablesMapping(macro.template)
-		// do some checking
-		contentTemplateVarmap.forEach [ content, templateVar |
-			val expectedType = types.get(templateVar)
-			expectedType.ifPresent [
-				if (expectedType.get.type.qualifiedName.equals(long.name)) {
-					val contentIndex = step.contents.indexOfFirst[content.equals(it)]
-					content.checkThatUseAsTypedLongIsOk(contentIndex)
-				}
-			]
-		]
-	}
-
-	// TODO make it beautiful!!! add some tests (for macros, too)
 	@Check
 	def void checkStepParameterTypes(TestStep step) {
 		switch step {
 			case step.hasComponentContext: { 
 				val interaction = step.interaction
 				if (interaction !== null) {
-					checkStepParameter(step, interaction)
+					checkStepContentVariableTypeInParameterPosition(step, interaction)
 				}			
 			}
 			case step.hasMacroContext: { 				
 				val macro = step.findMacroDefinition(step.macroContext)
 				if (macro !== null) {
-					checkStepParameter(step, macro)		
+					checkStepContentVariableTypeInParameterPosition(step, macro)		
 				}
 			}
 			default: throw new RuntimeException("TestStep has unknown context (neither component nor macro).")
 		}
 	}
 	
+	private def void checkStepContentVariableTypeInParameterPosition(TestStep step, InteractionType interaction) {
+		// check only StepContentVariable, since variable references are already tested by ...
+		val callParameters=step.contents.indexed.filterValue(StepContentVariable)
+		val definitionParameterTypePairs = simpleTypeComputer.getVariablesWithTypes(interaction)		
+		callParameters.forEach [ contentIndexPair |
+			val content = contentIndexPair.value
+			val contentIndex = contentIndexPair.key
+			val templateParameter = content.templateParameterForCallingStepContent
+			val expectedType = definitionParameterTypePairs.get(templateParameter)
+			if (!expectedType.present) {
+				error('Type unknown. Expected \'' + expectedType + '\'.',
+					content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
+			} else {
+				val expectedTypeQualName = expectedType.get.qualifiedName
+				if (expectedTypeQualName.equals(long.name)) {
+					content.checkThatUseAsTypedLongIsOk(contentIndex)
+				}
+				if (expectedTypeQualName.equals(boolean.name) || expectedTypeQualName.equals(Boolean.name)) {
+					content.checkThatUseAsTypedBooleanIsOk(contentIndex)
+				}
+			}
+		]		
+	}
+	
+	private def void checkStepContentVariableTypeInParameterPosition(TestStep step, Macro macro) {
+		// check only StepContentVariable, since variable references are already tested by ...
+		val templateParameterTypeMap = simpleTypeComputer.getVariablesWithTypes(macro)
+		val contentTemplateVarmap = step.getStepContentToTemplateVariablesMapping(macro.template)
+		contentTemplateVarmap.filterKey(StepContentVariable).forEach [ content, templateVar |
+			val expectedType = templateParameterTypeMap.get(templateVar)
+			expectedType.ifPresent [
+				val contentIndex = step.contents.indexOfFirst(content)
+				val expectedTypeQualName = expectedType.get.qualifiedName
+				if (expectedTypeQualName.equals(long.name)) {
+					content.checkThatUseAsTypedLongIsOk(contentIndex)
+				}
+				if (expectedTypeQualName.equals(boolean.name) || expectedTypeQualName.equals(Boolean.name)) {
+					content.checkThatUseAsTypedBooleanIsOk(contentIndex)
+				}
+			]
+		]
+	}
+
 	private def void checkThatUseAsTypedLongIsOk(StepContent content, int contentIndex) {
 		switch (content) {
 			StepContentVariable:
 				try {
 					Integer.parseInt(content.value)
 				} catch (NumberFormatException nfe) {
-					error('Type mismatch. Expected \'long\' got \'String\' that cannot be converted to long.',
+					error('''Type mismatch. Expected 'long' got 'String' = '«StringEscapeUtils.escapeJava(content.value)»' that cannot be converted to long.''',
 						content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
 				}
+			default: checkThatUseAsValueIsOk(content, contentIndex)				
+		}
+	}
+	
+	private def void checkThatUseAsValueIsOk(StepContent content, int contentIndex) {
+		switch (content) {
+			StepContentVariable: {
+				// is a value => is allowed
+			}
 			VariableReferenceMapAccess: {
 				// allowed, must be here before 'VariableReference' because it's a subtype
 			}
-			VariableReference: {			
+			VariableReference: 			
 				if (content.variable instanceof AssignmentVariable) {
 					val varType = (content.variable as AssignmentVariable).determineType
-					if (varType.isAssignableToMap) {
-						error('Type mismatch. Expected \'long\' got a \'Map\'.', content.eContainer,
+					val qualifiedName = varType.qualifiedName
+					switch(qualifiedName) {
+						case long.name: { /* is ok */ }
+						case String.name: { /* is ok */ }
+						case boolean.name: { /* is ok */ }
+						case Boolean.name: { /* is ok */ }
+						default: {
+						error('''Type mismatch. Expected a value (e.g. boolean, long, String) but got '«qualifiedName»'.''', content.eContainer,
 							content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
+						}
 					}
 				}
-			}
 		}
 	}
 
+	private def void checkThatUseAsTypedBooleanIsOk(StepContent content, int contentIndex) {
+		switch (content) {
+			StepContentVariable:
+				if(content.value != Boolean.toString(true) && content.value != Boolean.toString(false)) {
+					error('''Type mismatch. Expected 'boolean' got 'String' = '«StringEscapeUtils.escapeJava(content.value)»' that cannot be converted to boolean.''',
+						content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
+				}
+			default: checkThatUseAsValueIsOk(content, contentIndex)				
+		}
+	}
+	
 }

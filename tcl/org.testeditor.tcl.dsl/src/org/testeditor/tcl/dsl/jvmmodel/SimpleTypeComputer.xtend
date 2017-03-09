@@ -27,6 +27,9 @@ class SimpleTypeComputer {
 	@Inject extension TclModelUtil
 	@Inject extension CollectionUtils
 
+	/**
+	 * get a map of parameters (TemplateVariable) to it (expected) type
+	 */
 	def dispatch Map<TemplateVariable, Optional<JvmTypeReference>> getVariablesWithTypes(InteractionType interaction) {
 		return interaction.defaultMethod.interactionTemplateVariablesToMethodParameterTypesMapping
 	}

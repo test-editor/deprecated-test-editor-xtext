@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.validation
 
-import java.util.Map
 import java.util.Optional
 import java.util.Set
 import javax.inject.Inject
@@ -20,13 +19,11 @@ import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.dsl.common.util.CollectionUtils
-import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepContext
-import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.dsl.jvmmodel.SimpleTypeComputer
 import org.testeditor.tcl.util.TclModelUtil
@@ -133,5 +130,23 @@ class TclTypeValidationUtil {
 		return simpleTypeComputer.collectDeclaredVariablesTypeMap(testStep).get(assignmentVariable.name) 
 	}
 
+	/**
+	 * Get the template variable of the interaction that is the corresponding parameter for this step content, 
+	 * given that the step content is part of a fixture call (interaction).
+	 * 
+	 * e.g. useful in combination with {@link SimpleTypeComputer#getVariablesWithTypes}
+	 */
+	def TemplateVariable getTemplateParameterForCallingStepContent(StepContent stepContent) {
+		val testStep = EcoreUtil2.getContainerOfType(stepContent, TestStep)
+		val callParameterIndex = testStep.stepContentVariables.indexOfFirst(stepContent)
+		val interaction = testStep.interaction
+		val templateParameters = interaction?.template?.contents?.filter(TemplateVariable)
+		if (interaction !== null //
+			&& templateParameters !== null //
+			&& templateParameters.length > callParameterIndex) {
+			return templateParameters.drop(callParameterIndex).head
+		}
+		return null		
+	}
 	
 }

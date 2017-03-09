@@ -266,7 +266,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 		tclModel.addToResourceSet('MyTest.tcl')
 		
 		// when then
-		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_PARAMETER_TYPE) // since long is expected, and map is provided
+		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_TYPED_VAR_DEREF) // since long is expected, and map is provided
 	}
 	
 	@Test

@@ -1,6 +1,7 @@
 package org.testeditor.dsl.common.util
 
 import com.google.common.collect.Iterables
+import java.util.Map
 import java.util.Optional
 
 class CollectionUtils {
@@ -21,6 +22,13 @@ class CollectionUtils {
 		return Iterables.filter(unfiltered, [clazz.isAssignableFrom(key.class)]).map [
 			new Pair<B, A>(key as B, value)
 		]
+	}
+
+	/**
+	 * filter from the given Map all the ones where the key is (assignable to class) clazz
+	 */
+	public def <A, B> Map<A, B> filterKey(Map<A, B> unfiltered, Class<? extends A> clazz) {
+		return unfiltered.filter[key,value|clazz.isAssignableFrom(key.class)]
 	}
 
 	/**
@@ -49,6 +57,13 @@ class CollectionUtils {
 	 */
 	public def <A> int indexOfFirst(Iterable <A> iterable, (A)=>Boolean predicate) {
 		return Optional.ofNullable(iterable.indexed.findFirst[predicate.apply(value)]?.key).orElse(-1)
+	}
+
+	/**
+	 * return the index (0-based) of the first element that is 'identityEquals' to the passed object. -1 if not found.
+	 */
+	public def <A> int indexOfFirst(Iterable <A> iterable, A actual) {
+		return Optional.ofNullable(iterable.indexed.findFirst[value.identityEquals(actual)]?.key).orElse(-1)
 	}
 
 }

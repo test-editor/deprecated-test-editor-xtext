@@ -28,7 +28,6 @@ import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateVariable
-import org.testeditor.dsl.common.util.CollectionUtils
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariable
@@ -57,7 +56,6 @@ class TclModelUtil extends TslModelUtil {
 
 	@Inject public extension ModelUtil amlModelUtil
 	@Inject TypeReferences typeReferences
-	@Inject extension CollectionUtils
 
 	/**
 	 * Gets the name of the included element. Order of this operation:
@@ -217,29 +215,6 @@ class TclModelUtil extends TslModelUtil {
 		}
 		return envParameterVariablesTypeMap
 	}
-	
-//	def Iterable<Pair<StepContent, JvmTypeReference>> getStepVariableFixtureParameterTypePairs(TestStep step) {
-//		val callParameters = step.getStepContentVariables
-//		val templateParameters = step.interaction.template.contents.filter(TemplateVariable)
-//		val result = newLinkedList
-//		val fixtureCallParameters = step.interaction.defaultMethod.parameters
-//		val indexOfElement = fixtureCallParameters.indexOfFirst[it.name == "element"]
-//		val fixtureDefinitionParameters = step.interaction.defaultMethod.operation.parameters
-//		val fixtureHasLocatorStrategy = indexOfElement >= 0 &&
-//			fixtureDefinitionParameters.length > indexOfElement + 1 &&
-//			fixtureDefinitionParameters.get(indexOfElement + 1).parameterType.type instanceof JvmEnumerationType
-//		templateParameters.forEach[ templateParameter, templateParameterIndex |
-//			val fixtureIndex = fixtureCallParameters.indexOfFirst[name == templateParameter.name]
-//			val parameterIsBehindUsageOfElement = fixtureIndex > indexOfElement			
-//			val correctedFixtureIndex = if (parameterIsBehindUsageOfElement && fixtureHasLocatorStrategy) {
-//					fixtureIndex + 1
-//				} else {
-//					fixtureIndex
-//				}
-//			result.add(new Pair(callParameters.get(templateParameterIndex), step.interaction.getTypeOfFixtureParameter(correctedFixtureIndex)))
-//		]
-//		return result
-//	}
 
 	/** 
 	 * get all variables, variable references and elements that are used as parameters in this test step
