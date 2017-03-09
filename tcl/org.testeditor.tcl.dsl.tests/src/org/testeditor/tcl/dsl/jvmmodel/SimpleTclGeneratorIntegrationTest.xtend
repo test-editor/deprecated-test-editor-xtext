@@ -96,27 +96,27 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "java.util.Map<? extends java.lang.Object, ? extends java.lang.Object> mak = Read map from <bar>");
 			  java.util.Map<? extends java.lang.Object, ? extends java.lang.Object> mak = dummyFixture.getMap("label.greet");
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert foo");
-			  org.junit.Assert.assertNotNull("foo", foo);
+			  org.junit.Assert.assertNotNull("SimpleTest.tcl:11: foo", foo);
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert baz = \"fix\"");
-			  org.junit.Assert.assertEquals("baz = \"fix\"", "fix", baz);
+			  org.junit.Assert.assertEquals("SimpleTest.tcl:12: baz = \"fix\"", "fix", baz);
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert book");
-			  org.junit.Assert.assertTrue("book", book);
+			  org.junit.Assert.assertTrue("SimpleTest.tcl:13: book", book);
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert mak.\"key with spaces\" = \"fox\"");
-			  org.junit.Assert.assertEquals("mak.\"key with spaces\" = \"fox\"", "fox", mak.get("key with spaces"));
+			  org.junit.Assert.assertEquals("SimpleTest.tcl:14: mak.\"key with spaces\" = \"fox\"", "fox", mak.get("key with spaces"));
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert ! foo");
-			  org.junit.Assert.assertNull("! foo", foo);
+			  org.junit.Assert.assertNull("SimpleTest.tcl:15: ! foo", foo);
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert baz <> \"fix\"");
-			  org.junit.Assert.assertNotEquals("baz <> \"fix\"", "fix", baz);
+			  org.junit.Assert.assertNotEquals("SimpleTest.tcl:16: baz <> \"fix\"", "fix", baz);
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert ! book");
-			  org.junit.Assert.assertFalse("! book", book);
+			  org.junit.Assert.assertFalse("SimpleTest.tcl:17: ! book", book);
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert mak.\"key with spaces\" <> \"fox\"");
-			  org.junit.Assert.assertNotEquals("mak.\"key with spaces\" <> \"fox\"", "fox", mak.get("key with spaces"));
+			  org.junit.Assert.assertNotEquals("SimpleTest.tcl:18: mak.\"key with spaces\" <> \"fox\"", "fox", mak.get("key with spaces"));
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert mak.\"key with spaces\"");
-			  org.junit.Assert.assertNotNull("mak.\"key with spaces\"", mak.get("key with spaces"));
+			  org.junit.Assert.assertNotNull("SimpleTest.tcl:19: mak.\"key with spaces\"", mak.get("key with spaces"));
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert ! mak.\"key with spaces\"");
-			  org.junit.Assert.assertNull("! mak.\"key with spaces\"", mak.get("key with spaces"));
+			  org.junit.Assert.assertNull("SimpleTest.tcl:20: ! mak.\"key with spaces\"", mak.get("key with spaces"));
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert baz = mak.otherkey");
-			  org.junit.Assert.assertEquals("baz = mak.otherkey", mak.get("otherkey"), baz);
+			  org.junit.Assert.assertEquals("SimpleTest.tcl:21: baz = mak.otherkey", mak.get("otherkey"), baz);
 			}
 		'''.indent(1))
 	}
