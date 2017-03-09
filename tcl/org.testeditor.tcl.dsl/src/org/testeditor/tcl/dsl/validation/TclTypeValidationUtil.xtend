@@ -29,6 +29,7 @@ import org.testeditor.tcl.dsl.jvmmodel.SimpleTypeComputer
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentText
+import org.testeditor.aml.TemplateContainer
 
 /**
  * Functions for validating types for variable/parameter definition and usage
@@ -121,6 +122,13 @@ class TclTypeValidationUtil {
 			context.getAllTypeUsagesOfVariable(variable)
 		].flatten
 	}
+	
+	def getExpectedType(StepContent stepContent, TestStep step, TemplateContainer templateContainer)  {
+		val parameterTypeMap = simpleTypeComputer.getVariablesWithTypes(templateContainer)
+		val templateParameter = getTemplateParameterForCallingStepContent(stepContent)
+		val expectedType = parameterTypeMap.get(templateParameter)
+		return expectedType
+	}
 
 	/**
 	 * get the type that will be returned of the fixture that will be the type of this assignment variable  
@@ -139,9 +147,9 @@ class TclTypeValidationUtil {
 	def TemplateVariable getTemplateParameterForCallingStepContent(StepContent stepContent) {
 		val testStep = EcoreUtil2.getContainerOfType(stepContent, TestStep)
 		val callParameterIndex = testStep.stepContentVariables.indexOfFirst(stepContent)
-		val interaction = testStep.interaction
-		val templateParameters = interaction?.template?.contents?.filter(TemplateVariable)
-		if (interaction !== null //
+		val templateContainer = testStep.templateContainer
+		val templateParameters = templateContainer?.template?.contents?.filter(TemplateVariable)
+		if (templateContainer !== null //
 			&& templateParameters !== null //
 			&& templateParameters.length > callParameterIndex) {
 			return templateParameters.drop(callParameterIndex).head

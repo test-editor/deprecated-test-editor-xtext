@@ -82,7 +82,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 		tclModel.addToResourceSet('MyTest.tcl')
 	
 		// when validator is run, then
-		validator.assertNoErrors(tclModel)
+		validator.assertNoErrors(tclModel) // no more errors since long can be coerced from string 
 	}
 	
 	@Test
@@ -113,7 +113,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 		val tclModel = tclCallingMyCallMacroWithOneEnvParam("myEnvString", macroModel, #[long.simpleName])
 
 		// when validator is run, then
-		validator.assertNoErrors(tclModel)
+		validator.assertNoErrors(tclModel) // no more errors since long can be coerced from string
 	}
 
 	@Test
@@ -141,7 +141,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 		val tclModel = tclCallingMyCallMacroWithOneEnvParam("myEnvString", macroModel, #[long.simpleName, String.simpleName])
 
 		// when validator is run, then
-		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_TYPED_VAR_DEREF) // since environment variables are of type String, report invalid usage
+		validator.assertNoErrors(tclModel) // no error is reported since long could be coerced
 	}
 
 	@Test
@@ -163,13 +163,12 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 			]
 		]
 		macroModel.addToResourceSet("test.tml")
-		// since tcl calls mycall Macro with environment variable (which always has type String)
-		// and this parameter is transitively used for calls expecting type long ... (no errors expected)
 		val tclModel = tclCallingMyCallMacroWithOneEnvParam("myEnvString", macroModel, #[String.simpleName])
 
 		// then
-		validator.assertNoError(tclModel, TclValidator.INVALID_TYPED_VAR_DEREF)
-		validator.assertNoError(tclModel, TclValidator.INVALID_VAR_DEREF)
+		// since tcl calls mycall Macro with environment variable (which always has type String)
+		// and this parameter is transitively used for calls expecting type String 
+		validator.assertNoErrors(tclModel)
 	}
 	
 	@Test

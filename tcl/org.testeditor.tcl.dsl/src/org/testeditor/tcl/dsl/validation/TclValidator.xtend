@@ -356,10 +356,12 @@ class TclValidator extends AbstractTclValidator {
 			VariableReference: {
 				// currently this is a naive check, expecting the types
 				// TODO typeUsageSet is empty for assertions because TclModelUtil.getAllTypeUsagesOfVariable is not implemented for them
-				val longCoercionPossible = typeDeclared.qualifiedName.equals(String.name) && typeUsageSet.filter[present].size == 1 &&
-					typeUsageSet.findFirst[present].get.type.qualifiedName.equals(long.name)
-				val typesMatch = typeDeclared !== null && (typeUsageSet.isEmpty || typeUsageSet.filter[present].map[get.qualifiedName.replaceFirst("<.*","")].toSet.identicalSingleTypeInSet(typeDeclared.qualifiedName.replaceFirst("<.*","")))
-				if (!(longCoercionPossible || typesMatch)) {
+				val coercibleTypeNames = #[String, long, boolean, Boolean].map[name]
+				val setOfTypeNamesUsed = typeUsageSet.filter[present].map[get.type.qualifiedName]
+				val typeUsageSetContainsOnlyCoercibleTypes = setOfTypeNamesUsed.filter [!coercibleTypeNames.contains(it)].empty
+				val coercionPossible = typeDeclared.qualifiedName.equals(String.name) && typeUsageSetContainsOnlyCoercibleTypes
+				val typesMatch = doTypesMatch(typeDeclared,typeUsageSet)
+				if (!coercionPossible && !typesMatch) {
 					error('''Variable='«variableName»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in a position that expects type(s)='«typeUsageSet.filter[present].map[get.qualifiedName].join(", ")»'.''',
 						variableReference.eContainer, variableReference.eContainingFeature, errorIndex,
 						INVALID_TYPED_VAR_DEREF)
@@ -368,6 +370,16 @@ class TclValidator extends AbstractTclValidator {
 			default:
 				throw new RuntimeException('''Unknown variable reference type='«variableReference.class.canonicalName»'.''')
 		}
+	}
+	
+	private def boolean doTypesMatch(JvmTypeReference typeDeclared, Set<Optional<JvmTypeReference>> typeUsageSet) {
+		return typeDeclared !== null && (typeUsageSet.isEmpty || typeUsageSet.filter[present].map [
+			get.qualifiedNameWithoutGenerics
+		].toSet.identicalSingleTypeInSet(typeDeclared.qualifiedNameWithoutGenerics))
+	}
+	
+	private def String getQualifiedNameWithoutGenerics(JvmTypeReference typeReference) {
+		return typeReference.qualifiedName.replaceFirst("<.*", "")
 	}
 	
 	/**

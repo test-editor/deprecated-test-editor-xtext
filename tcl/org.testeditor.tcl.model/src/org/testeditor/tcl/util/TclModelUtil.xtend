@@ -102,6 +102,15 @@ class TclModelUtil extends TslModelUtil {
 		]
 	}
 	
+	def TemplateContainer getTemplateContainer(TestStep step) {
+		if (step.hasComponentContext) {
+			return step.interaction
+		}
+		if (step.hasMacroContext) {
+			return step.findMacro
+		}
+	}
+	
 	def InteractionType getInteraction(TestStep step) {
 		// TODO this should be solved by using an adapter (so that we don't need to recalculate it over and over again)
 		val component = step.componentContext?.component
