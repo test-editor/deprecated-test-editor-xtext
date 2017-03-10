@@ -29,6 +29,9 @@ import org.testeditor.aml.dsl.validation.AmlValidator
 import org.testeditor.dsl.common.util.CollectionUtils
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.AssignmentVariable
+import org.testeditor.tcl.ComparatorGreaterThan
+import org.testeditor.tcl.ComparatorLessThan
+import org.testeditor.tcl.Comparison
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroCollection
@@ -42,6 +45,7 @@ import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferenceMapAccess
 import org.testeditor.tcl.dsl.jvmmodel.SimpleTypeComputer
+import org.testeditor.tcl.dsl.jvmmodel.TclExpressionTypeComputer
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tcl.util.ValueSpaceHelper
 import org.testeditor.tsl.SpecificationStep
@@ -68,6 +72,7 @@ class TclValidator extends AbstractTclValidator {
 	public static val INVALID_VAR_DEREF = "invalidVariableDereference"
 	public static val INVALID_MODEL_CONTENT = "invalidModelContent"
 	public static val INVALID_PARAMETER_TYPE = "invalidParameterType"
+	public static val INVALID_ORDER_TYPE = "invalidOrderType"
 
 	@Inject extension TclModelUtil
 	@Inject extension TclTypeValidationUtil
@@ -77,6 +82,7 @@ class TclValidator extends AbstractTclValidator {
 	@Inject ValueSpaceHelper valueSpaceHelper
 	@Inject AmlValidator amlValidator
 	@Inject SimpleTypeComputer simpleTypeComputer
+	@Inject TclExpressionTypeComputer expressionTypeComputer
 
 	private static val ERROR_MESSAGE_FOR_INVALID_VAR_REFERENCE = "Dereferenced variable must be a required environment variable or a previously assigned variable"
 
@@ -290,6 +296,48 @@ class TclValidator extends AbstractTclValidator {
 	}
 
 	/**
+	 * check that comparisons that need orderable (numeric) types are ok (use numeric types)
+	 */
+	@Check
+	def void checkNumericWhenCheckingOrder(Comparison comparison) {
+		if (comparison.comparator !== null && comparison.left !== null && comparison.right !== null) {
+			switch (comparison.comparator) {
+				ComparatorGreaterThan,
+				ComparatorLessThan: {
+					val coercedType = expressionTypeComputer.coercedTypeOfComparison(comparison)
+					if (coercedType === null || !coercedType.isOrderable) {
+						error('Sorry, comparing order of non numeric values is not supported, yet.', comparison.eContainer, comparison.eContainingFeature, INVALID_ORDER_TYPE)
+					}
+				}
+			}
+		}
+	}
+	
+	@Check
+	def void checkTemplateHoldsValidCharacters(Template template) {
+		amlValidator.checkTemplateHoldsValidCharacters(template)
+	}
+
+	@Check
+	def void checkStepParameterTypes(TestStep step) {
+		switch step {
+			case step.hasComponentContext: {
+				val interaction = step.interaction
+				if (interaction !== null) {
+					checkStepContentVariableTypeInParameterPosition(step, interaction)
+				}
+			}
+			case step.hasMacroContext: {
+				val macro = step.findMacroDefinition(step.macroContext)
+				if (macro !== null) {
+					checkStepContentVariableTypeInParameterPosition(step, macro)
+				}
+			}
+			default: throw new RuntimeException("TestStep has unknown context (neither component nor macro).")
+		}
+	}
+	
+	/**
 	 * check that all (except the explicitly excluded) variables are used according to their actual type (transitively in their fixture)
 	 */
 	private def void checkReferencedVariablesAreUsedWellTypedExcluding(TestStepContext ctx,
@@ -397,27 +445,11 @@ class TclValidator extends AbstractTclValidator {
 		return specImplSteps.map[contents.restoreString].containsAll(specSteps.map[contents.restoreString])
 	}
 
-	@Check
-	def void checkTemplateHoldsValidCharacters(Template template) {
-		amlValidator.checkTemplateHoldsValidCharacters(template)
-	}
-
-	@Check
-	def void checkStepParameterTypes(TestStep step) {
-		switch step {
-			case step.hasComponentContext: { 
-				val interaction = step.interaction
-				if (interaction !== null) {
-					checkStepContentVariableTypeInParameterPosition(step, interaction)
-				}			
-			}
-			case step.hasMacroContext: { 				
-				val macro = step.findMacroDefinition(step.macroContext)
-				if (macro !== null) {
-					checkStepContentVariableTypeInParameterPosition(step, macro)		
-				}
-			}
-			default: throw new RuntimeException("TestStep has unknown context (neither component nor macro).")
+	private def boolean isOrderable(JvmTypeReference typeReference) {
+		switch (typeReference.qualifiedName) {
+			case long.name, 
+			case Long.name : return true
+			default: return false
 		}
 	}
 	

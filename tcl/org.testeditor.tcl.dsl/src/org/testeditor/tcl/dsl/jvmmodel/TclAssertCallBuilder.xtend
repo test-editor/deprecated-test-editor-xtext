@@ -116,13 +116,15 @@ class TclAssertCallBuilder {
 		}
 		return switch (comparator) {
 			ComparatorEquals: adjustedAssertMethod(AssertMethod.assertEquals, comparator.negated)
-			ComparatorGreaterThan: throw new RuntimeException('>= not implemented yet') // adjustedAssertMethod(AssertMethod.assertTrue, comparator.negated)
-			ComparatorLessThan: throw new RuntimeException('<= not implemented yet') // adjustedAssertMethod(AssertMethod.assertTrue, comparator.negated)
+			ComparatorGreaterThan: adjustedAssertMethod(AssertMethod.assertTrue, comparator.negated)
+			ComparatorLessThan: adjustedAssertMethod(AssertMethod.assertTrue, comparator.negated)
 			ComparatorMatches: adjustedAssertMethod(AssertMethod.assertTrue, comparator.negated)
 			default: throw new RuntimeException('''unknown comparator type «comparator.class»''')
 		}
 
 	}
+	
+	@Inject TclExpressionTypeComputer tclExpressionTypeComputer
 
 	/**
 	 * return a string that is directly usable within an assertion command
@@ -131,8 +133,9 @@ class TclAssertCallBuilder {
 		if (comparison.comparator == null) {
 			return expressionBuilder.buildExpression(comparison.left)
 		}
-		val builtRightExpression=expressionBuilder.buildExpression(comparison.right)
-		val builtLeftExpression=expressionBuilder.buildExpression(comparison.left)
+		val wantedType = tclExpressionTypeComputer.coercedTypeOfComparison(comparison)
+		val builtRightExpression=expressionBuilder.buildComparisonExpression(comparison.right, wantedType)
+		val builtLeftExpression=expressionBuilder.buildComparisonExpression(comparison.left, wantedType)
 		switch (comparison.comparator) {
 			ComparatorEquals: '''«builtRightExpression», «builtLeftExpression»'''
 			ComparatorGreaterThan: '''«builtLeftExpression» «if(comparison.comparator.negated){'<='}else{'>'}» «builtRightExpression»'''

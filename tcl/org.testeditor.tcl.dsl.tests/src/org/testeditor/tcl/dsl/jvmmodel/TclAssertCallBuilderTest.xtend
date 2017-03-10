@@ -26,6 +26,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 	@Mock protected TclModelUtil tclModelUtil // injected into class under test
 	@Mock TclExpressionBuilder expressionBuilder // injected into class under test
 	@Mock SimpleTypeComputer simpleTypeComputer // injected into class under test
+	@Mock TclExpressionTypeComputer tclExpressionTypeComputer // injected into class under test
 	@Inject extension TclModelGenerator
 	@Inject protected Provider<XtextResourceSet> resourceSetProvider
 		
@@ -36,6 +37,8 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 	
 	@Before
 	def void setupExpressionBuilder() {
+		when(expressionBuilder.buildComparisonExpression(isA(StringConstant),any)).thenReturn('''"«STRING_FOR_COMPARISON»"''')
+		when(expressionBuilder.buildComparisonExpression(isA(VariableReference),any)).thenReturn(VARIABLE_NAME)
 		when(expressionBuilder.buildExpression(isA(StringConstant))).thenReturn('''"«STRING_FOR_COMPARISON»"''')
 		when(expressionBuilder.buildExpression(isA(VariableReference))).thenReturn(VARIABLE_NAME)
 		when(expressionBuilder.buildExpression(isA(VariableReferenceMapAccess))).thenReturn(VARIABLE_NAME+'.get("key")')
@@ -174,6 +177,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 	def void testWithMapDereference() {
 		// given
 		val expression = mappedReference(VARIABLE_NAME, "key").compareOnEquality(STRING_FOR_COMPARISON)
+		when(expressionBuilder.buildComparisonExpression(isA(VariableReferenceMapAccess),any)).thenReturn('''«VARIABLE_NAME».get("key")''')
 
 		// when
 		val generatedCode = assertCallBuilder.build(expression, "prefix")
@@ -186,8 +190,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 	def void testWithMapKeyAsString() {
 		// given
 		val expression = mappedReference(VARIABLE_NAME, "key with spaces").compareOnEquality(STRING_FOR_COMPARISON)
-		when(expressionBuilder.buildExpression(isA(VariableReferenceMapAccess))).thenReturn(
-			VARIABLE_NAME+'.get("key with spaces")')
+		when(expressionBuilder.buildComparisonExpression(isA(VariableReferenceMapAccess),any)).thenReturn('''«VARIABLE_NAME».get("key with spaces")''')
 
 		// when
 		val generatedCode = assertCallBuilder.build(expression, "prefix")
