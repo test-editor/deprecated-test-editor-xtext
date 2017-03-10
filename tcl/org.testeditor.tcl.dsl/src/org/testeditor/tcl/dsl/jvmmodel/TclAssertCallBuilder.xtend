@@ -72,7 +72,7 @@ class TclAssertCallBuilder {
 		return NodeModelUtils.getNode(expression)?.text?.trim ?: ""
 	}
 
-	def String build(Expression expression) {
+	def String build(Expression expression, String messagePrefix) {
 		val assertionMethod = assertionMethod(expression)
 		if (assertionMethod == null) {
 			return '''// TODO no assertion method implementation for expression with type "«expression.class»"'''
@@ -83,7 +83,7 @@ class TclAssertCallBuilder {
 				default: throw new RuntimeException('''Assertion expression of type='«expression.class.canonicalName»' cannot be built!''')
 			}
 			return '''
-				org.junit.Assert.«expression.assertionMethod»("«StringEscapeUtils.escapeJava(expression.assertionText)»", «expressionBuilt»);'''
+				org.junit.Assert.«expression.assertionMethod»("«messagePrefix»: «StringEscapeUtils.escapeJava(expression.assertionText)»", «expressionBuilt»);'''
 		}
 	}
 
