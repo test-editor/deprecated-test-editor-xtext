@@ -17,7 +17,6 @@ import javax.xml.xpath.XPathFactory
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.xtext.util.StringInputStream
-import org.junit.Assume
 import org.junit.Test
 import org.mockito.InjectMocks
 import org.mockito.Mock
@@ -26,6 +25,7 @@ import org.osgi.framework.Version
 import org.testeditor.dsl.common.testing.AbstractTest
 import org.testeditor.dsl.common.util.GradleHelper
 
+import static extension org.junit.Assume.assumeTrue
 import static extension org.mockito.Matchers.*
 import static extension org.mockito.Mockito.*
 
@@ -159,7 +159,7 @@ class ProjectContentGeneratorTest extends AbstractTest {
 	@Test
 	def void testGetVersion() {
 		// given (this is a plugin test)
-		Assume.assumeTrue(isWithinOSGIContext)
+		isWithinOSGIContext.assumeTrue
 		
 		// when
 		val version = generator.bundleVersion
