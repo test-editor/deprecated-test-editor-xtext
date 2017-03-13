@@ -87,7 +87,11 @@ class ProjectContentGenerator {
 
 	def Version getBundleVersion() {
 		val bundle = Platform.getBundle("org.testeditor.dsl.common.ui")
-		return bundle.version
+		if (bundle === null) {
+			return Version.valueOf("0.0.0")
+		} else {
+			return bundle.version
+		}
 	}
 	
 	def String mapTesteditorVersion(Version version){

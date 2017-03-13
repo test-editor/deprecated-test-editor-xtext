@@ -14,16 +14,24 @@ package org.testeditor.tcl.dsl.validation
 
 import java.util.List
 import java.util.Map
+import java.util.Optional
 import java.util.Set
 import javax.inject.Inject
+import org.apache.commons.lang3.StringEscapeUtils
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.xtype.XImportSection
+import org.testeditor.aml.InteractionType
+import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.dsl.validation.AmlValidator
 import org.testeditor.dsl.common.util.CollectionUtils
 import org.testeditor.tcl.AssertionTestStep
+import org.testeditor.tcl.AssignmentVariable
+import org.testeditor.tcl.ComparatorGreaterThan
+import org.testeditor.tcl.ComparatorLessThan
+import org.testeditor.tcl.Comparison
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroCollection
@@ -36,15 +44,17 @@ import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferenceMapAccess
+import org.testeditor.tcl.dsl.jvmmodel.SimpleTypeComputer
+import org.testeditor.tcl.dsl.jvmmodel.TclExpressionTypeComputer
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tcl.util.ValueSpaceHelper
 import org.testeditor.tsl.SpecificationStep
+import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
 
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
-import org.testeditor.aml.ModelUtil
 
 class TclValidator extends AbstractTclValidator {
 
@@ -61,13 +71,18 @@ class TclValidator extends AbstractTclValidator {
 	public static val MISSING_MACRO = 'missingMacro'
 	public static val INVALID_VAR_DEREF = "invalidVariableDereference"
 	public static val INVALID_MODEL_CONTENT = "invalidModelContent"
+	public static val INVALID_PARAMETER_TYPE = "invalidParameterType"
+	public static val INVALID_ORDER_TYPE = "invalidOrderType"
 
 	@Inject extension TclModelUtil
+	@Inject extension TclTypeValidationUtil
 	@Inject extension ModelUtil
 	@Inject extension CollectionUtils
 	
 	@Inject ValueSpaceHelper valueSpaceHelper
 	@Inject AmlValidator amlValidator
+	@Inject SimpleTypeComputer simpleTypeComputer
+	@Inject TclExpressionTypeComputer expressionTypeComputer
 
 	private static val ERROR_MESSAGE_FOR_INVALID_VAR_REFERENCE = "Dereferenced variable must be a required environment variable or a previously assigned variable"
 
@@ -125,7 +140,7 @@ class TclValidator extends AbstractTclValidator {
 				completedKnownVariableNames.addAll(knownVariableNames)
 				context.steps.forEach [ step, index |
 					step.checkAllReferencedVariablesAreKnown(completedKnownVariableNames, errorMessage)
-					val declaredVariables = step.collectDeclaredVariablesTypeMap.keySet
+					val declaredVariables = simpleTypeComputer.collectDeclaredVariablesTypeMap(step).keySet
 					val alreadyKnown=declaredVariables.filter[completedKnownVariableNames.contains(it)]
 					if(!alreadyKnown.empty) {
 						error('''The variable(s)='«alreadyKnown.join(',')»' is (are) already known''', step, null, VARIABLE_ASSIGNED_MORE_THAN_ONCE)
@@ -164,10 +179,13 @@ class TclValidator extends AbstractTclValidator {
 		]		
 	}
 
-	private def isNotAssignableToMap(JvmTypeReference type) {
+	private def isAssignableToMap(JvmTypeReference type) {
+		if (type === null) {
+			return false
+		}
 		try {
 			val qualifiedTypeNameWithoutGenerics = type.qualifiedName.replaceFirst("<.*", "")
-			return !typeof(Map).isAssignableFrom(Class.forName(qualifiedTypeNameWithoutGenerics))
+			return typeof(Map).isAssignableFrom(Class.forName(qualifiedTypeNameWithoutGenerics))
 		} catch (ClassNotFoundException e) {
 			return false
 		}
@@ -219,7 +237,7 @@ class TclValidator extends AbstractTclValidator {
 		testCase.steps.map[contexts].flatten.forEach [
 			checkAllReferencedVariablesAreKnown(declaredVariableNames, ERROR_MESSAGE_FOR_INVALID_VAR_REFERENCE)
 			// add the variables declared by this step to be known for subsequent steps
-			declaredVariableNames.addAll(collectDeclaredVariablesTypeMap.keySet)
+			declaredVariableNames.addAll(simpleTypeComputer.collectDeclaredVariablesTypeMap(it).keySet)
 		]
 	}
 	
@@ -238,7 +256,7 @@ class TclValidator extends AbstractTclValidator {
 		macro.contexts.forEach [
 			checkAllReferencedVariablesAreKnown(declaredVariableNames, ERROR_MESSAGE_FOR_INVALID_VAR_REFERENCE)
 			// add the variables declared by this step to be known for subsequent steps within this macro !! 
-			declaredVariableNames.addAll(collectDeclaredVariablesTypeMap.keySet)
+			declaredVariableNames.addAll(simpleTypeComputer.collectDeclaredVariablesTypeMap(it).keySet)
 		]
 	}
 
@@ -258,7 +276,7 @@ class TclValidator extends AbstractTclValidator {
 				amlModelUtil.getReferenceableVariables(macro.template).map[name].toSet
 			} 
 		val knownVariablesTypeMapWithinMacro = newHashMap
-		macro.contexts.forEach[knownVariablesTypeMapWithinMacro.putAll(collectDeclaredVariablesTypeMap)]
+		macro.contexts.forEach[knownVariablesTypeMapWithinMacro.putAll(simpleTypeComputer.collectDeclaredVariablesTypeMap(it))]
 		macro.contexts.forEach [
 			checkReferencedVariablesAreUsedWellTypedExcluding(knownVariablesTypeMapWithinMacro, macroParameterNames)
 		]
@@ -272,11 +290,53 @@ class TclValidator extends AbstractTclValidator {
 	def void checkVariableUsageIsWellTyped(TestCase testCase) {
 		val knownVariablesTypeMap = testCase.model.envParams.environmentVariablesTypeMap
 		testCase.steps.map[contexts].flatten => [
-			forEach[knownVariablesTypeMap.putAll(collectDeclaredVariablesTypeMap)]
+			forEach[knownVariablesTypeMap.putAll(simpleTypeComputer.collectDeclaredVariablesTypeMap(it))]
 			forEach[checkAllReferencedVariablesAreUsedWellTyped(knownVariablesTypeMap)]
 		]
 	}
 
+	/**
+	 * check that comparisons that need orderable (numeric) types are ok (use numeric types)
+	 */
+	@Check
+	def void checkNumericWhenCheckingOrder(Comparison comparison) {
+		if (comparison.comparator !== null && comparison.left !== null && comparison.right !== null) {
+			switch (comparison.comparator) {
+				ComparatorGreaterThan,
+				ComparatorLessThan: {
+					val coercedType = expressionTypeComputer.coercedTypeOfComparison(comparison)
+					if (coercedType === null || !coercedType.isOrderable) {
+						error('Sorry, comparing order of non numeric values is not supported, yet.', comparison.eContainer, comparison.eContainingFeature, INVALID_ORDER_TYPE)
+					}
+				}
+			}
+		}
+	}
+	
+	@Check
+	def void checkTemplateHoldsValidCharacters(Template template) {
+		amlValidator.checkTemplateHoldsValidCharacters(template)
+	}
+
+	@Check
+	def void checkStepParameterTypes(TestStep step) {
+		switch step {
+			case step.hasComponentContext: {
+				val interaction = step.interaction
+				if (interaction !== null) {
+					checkStepContentVariableTypeInParameterPosition(step, interaction)
+				}
+			}
+			case step.hasMacroContext: {
+				val macro = step.findMacroDefinition(step.macroContext)
+				if (macro !== null) {
+					checkStepContentVariableTypeInParameterPosition(step, macro)
+				}
+			}
+			default: throw new RuntimeException("TestStep has unknown context (neither component nor macro).")
+		}
+	}
+	
 	/**
 	 * check that all (except the explicitly excluded) variables are used according to their actual type (transitively in their fixture)
 	 */
@@ -326,7 +386,7 @@ class TclValidator extends AbstractTclValidator {
 		]
 	}
 	
-	private def checkVariableReferenceIsWellTyped(VariableReference variableReference, Set<JvmTypeReference> typeUsageSet, JvmTypeReference typeDeclared, String variableName, Integer errorIndex) {
+	private def checkVariableReferenceIsWellTyped(VariableReference variableReference, Set<Optional<JvmTypeReference>> typeUsageSet, JvmTypeReference typeDeclared, String variableName, Integer errorIndex) {
 		if (variableReference.variable instanceof TemplateVariable) {
 			// do not type check variables that are passed via parameters (are templateVariables),
 			// since they are typeless until actually used by a call, 
@@ -336,29 +396,45 @@ class TclValidator extends AbstractTclValidator {
 		switch variableReference {
 			VariableReferenceMapAccess:
 				// do no type checking on values retrieved from a map, but check whether this is actually a map
-				if (typeDeclared == null || isNotAssignableToMap(typeDeclared)) {
+				if (!typeDeclared.assignableToMap) {
 					error('''Variable='«variableName»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in a position that expects type(s)='«Map.canonicalName»'.''',
-							variableReference.eContainer, variableReference.eContainingFeature, errorIndex,
-							INVALID_MAP_ACCESS)
+						variableReference.eContainer, variableReference.eContainingFeature, errorIndex,
+						INVALID_MAP_ACCESS)
 				}
-			VariableReference:
+			VariableReference: {
 				// currently this is a naive check, expecting the types
 				// TODO typeUsageSet is empty for assertions because TclModelUtil.getAllTypeUsagesOfVariable is not implemented for them
-				if (typeDeclared == null || (!typeUsageSet.isEmpty && !typeUsageSet.identicalSingleTypeInSet(typeDeclared))) {
-					error('''Variable='«variableName»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in a position that expects type(s)='«typeUsageSet.map[qualifiedName].join(", ")»'.''',
-							variableReference.eContainer, variableReference.eContainingFeature, errorIndex,
-							INVALID_TYPED_VAR_DEREF)
+				val coercibleTypeNames = #[String, long, boolean, Boolean].map[name]
+				val setOfTypeNamesUsed = typeUsageSet.filter[present].map[get.type.qualifiedName]
+				val typeUsageSetContainsOnlyCoercibleTypes = setOfTypeNamesUsed.filter [!coercibleTypeNames.contains(it)].empty
+				val coercionPossible = typeDeclared.qualifiedName.equals(String.name) && typeUsageSetContainsOnlyCoercibleTypes
+				val typesMatch = doTypesMatch(typeDeclared,typeUsageSet)
+				if (!coercionPossible && !typesMatch) {
+					error('''Variable='«variableName»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in a position that expects type(s)='«typeUsageSet.filter[present].map[get.qualifiedName].join(", ")»'.''',
+						variableReference.eContainer, variableReference.eContainingFeature, errorIndex,
+						INVALID_TYPED_VAR_DEREF)
+					}
 				}
 			default:
 				throw new RuntimeException('''Unknown variable reference type='«variableReference.class.canonicalName»'.''')
 		}
 	}
 	
+	private def boolean doTypesMatch(JvmTypeReference typeDeclared, Set<Optional<JvmTypeReference>> typeUsageSet) {
+		return typeDeclared !== null && (typeUsageSet.isEmpty || typeUsageSet.filter[present].map [
+			get.qualifiedNameWithoutGenerics
+		].toSet.identicalSingleTypeInSet(typeDeclared.qualifiedNameWithoutGenerics))
+	}
+	
+	private def String getQualifiedNameWithoutGenerics(JvmTypeReference typeReference) {
+		return typeReference.qualifiedName.replaceFirst("<.*", "")
+	}
+	
 	/**
 	 * both sets hold only one type and this type is equal
 	 */
-	private def boolean identicalSingleTypeInSet(Set<JvmTypeReference> typeSet, JvmTypeReference type) {
-		typeSet.size == 1 && typeSet.head.qualifiedName == type.qualifiedName
+	private def boolean identicalSingleTypeInSet(Set<String> qualifiedTypeNameSet, String qualifiedTypeName) {
+		qualifiedTypeNameSet.size == 1 && qualifiedTypeNameSet.head == qualifiedTypeName
 	}
 
 	private def boolean matches(List<SpecificationStep> specSteps,
@@ -369,9 +445,105 @@ class TclValidator extends AbstractTclValidator {
 		return specImplSteps.map[contents.restoreString].containsAll(specSteps.map[contents.restoreString])
 	}
 
-	@Check
-	def void checkTemplateHoldsValidCharacters(Template template) {
-		amlValidator.checkTemplateHoldsValidCharacters(template)
+	private def boolean isOrderable(JvmTypeReference typeReference) {
+		switch (typeReference.qualifiedName) {
+			case long.name, 
+			case Long.name : return true
+			default: return false
+		}
+	}
+	
+	private def void checkStepContentVariableTypeInParameterPosition(TestStep step, InteractionType interaction) {
+		// check only StepContentVariable, since variable references are already tested by ...
+		val callParameters=step.contents.indexed.filterValue(StepContentVariable)
+		val definitionParameterTypePairs = simpleTypeComputer.getVariablesWithTypes(interaction)		
+		callParameters.forEach [ contentIndexPair |
+			val content = contentIndexPair.value
+			val contentIndex = contentIndexPair.key
+			val templateParameter = content.templateParameterForCallingStepContent
+			val expectedType = definitionParameterTypePairs.get(templateParameter)
+			if (!expectedType.present) {
+				error('Type unknown. Expected \'' + expectedType + '\'.',
+					content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
+			} else {
+				val expectedTypeQualName = expectedType.get.qualifiedName
+				if (expectedTypeQualName.equals(long.name)) {
+					content.checkThatUseAsTypedLongIsOk(contentIndex)
+				}
+				if (expectedTypeQualName.equals(boolean.name) || expectedTypeQualName.equals(Boolean.name)) {
+					content.checkThatUseAsTypedBooleanIsOk(contentIndex)
+				}
+			}
+		]		
+	}
+	
+	private def void checkStepContentVariableTypeInParameterPosition(TestStep step, Macro macro) {
+		// check only StepContentVariable, since variable references are already tested by ...
+		val templateParameterTypeMap = simpleTypeComputer.getVariablesWithTypes(macro)
+		val contentTemplateVarmap = step.getStepContentToTemplateVariablesMapping(macro.template)
+		contentTemplateVarmap.filterKey(StepContentVariable).forEach [ content, templateVar |
+			val expectedType = templateParameterTypeMap.get(templateVar)
+			expectedType.ifPresent [
+				val contentIndex = step.contents.indexOfFirst(content)
+				val expectedTypeQualName = expectedType.get.qualifiedName
+				if (expectedTypeQualName.equals(long.name)) {
+					content.checkThatUseAsTypedLongIsOk(contentIndex)
+				}
+				if (expectedTypeQualName.equals(boolean.name) || expectedTypeQualName.equals(Boolean.name)) {
+					content.checkThatUseAsTypedBooleanIsOk(contentIndex)
+				}
+			]
+		]
 	}
 
+	private def void checkThatUseAsTypedLongIsOk(StepContent content, int contentIndex) {
+		switch (content) {
+			StepContentVariable:
+				try {
+					Integer.parseInt(content.value)
+				} catch (NumberFormatException nfe) {
+					error('''Type mismatch. Expected 'long' got 'String' = '«StringEscapeUtils.escapeJava(content.value)»' that cannot be converted to long.''',
+						content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
+				}
+			default: checkThatUseAsValueIsOk(content, contentIndex)				
+		}
+	}
+	
+	private def void checkThatUseAsValueIsOk(StepContent content, int contentIndex) {
+		switch (content) {
+			StepContentVariable: {
+				// is a value => is allowed
+			}
+			VariableReferenceMapAccess: {
+				// allowed, must be here before 'VariableReference' because it's a subtype
+			}
+			VariableReference: 			
+				if (content.variable instanceof AssignmentVariable) {
+					val varType = (content.variable as AssignmentVariable).determineType
+					val qualifiedName = varType.qualifiedName
+					switch(qualifiedName) {
+						case long.name: { /* is ok */ }
+						case String.name: { /* is ok */ }
+						case boolean.name: { /* is ok */ }
+						case Boolean.name: { /* is ok */ }
+						default: {
+						error('''Type mismatch. Expected a value (e.g. boolean, long, String) but got '«qualifiedName»'.''', content.eContainer,
+							content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
+						}
+					}
+				}
+		}
+	}
+
+	private def void checkThatUseAsTypedBooleanIsOk(StepContent content, int contentIndex) {
+		switch (content) {
+			StepContentVariable:
+				if(content.value != Boolean.toString(true) && content.value != Boolean.toString(false)) {
+					error('''Type mismatch. Expected 'boolean' got 'String' = '«StringEscapeUtils.escapeJava(content.value)»' that cannot be converted to boolean.''',
+						content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
+				}
+			default: checkThatUseAsValueIsOk(content, contentIndex)				
+		}
+	}
+	
 }

@@ -9,8 +9,11 @@ import org.testeditor.aml.InteractionType
 import org.testeditor.aml.MethodReference
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.dsl.common.util.CollectionUtils
+import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.TestStep
+import org.testeditor.tcl.TestStepContext
+import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.util.TclModelUtil
 
@@ -24,6 +27,9 @@ class SimpleTypeComputer {
 	@Inject extension TclModelUtil
 	@Inject extension CollectionUtils
 
+	/**
+	 * get a map of parameters (TemplateVariable) to it (expected) type
+	 */
 	def dispatch Map<TemplateVariable, Optional<JvmTypeReference>> getVariablesWithTypes(InteractionType interaction) {
 		return interaction.defaultMethod.interactionTemplateVariablesToMethodParameterTypesMapping
 	}
@@ -43,6 +49,31 @@ class SimpleTypeComputer {
 			}
 		}
 		return result
+	}
+	
+	/**
+	 * collect all variables (and their types) declared (e.g. through assignment)
+	 */
+	def dispatch Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(TestStepContext context) {
+		val result = newHashMap
+		context.steps.map[collectDeclaredVariablesTypeMap].forEach[result.putAll(it)]
+		return result
+	}
+	
+	def dispatch Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(TestStepWithAssignment testStep) {
+		// must be declared before dispatch method collectDeclaredVariablesTypeMap(TestStep)
+		val typeReference = testStep.interaction?.defaultMethod?.operation?.returnType
+		return #{testStep.variable.name -> typeReference}
+	}
+	
+	def dispatch Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(TestStep testStep) {
+		// TestSteps (not TestStepAssignments) do not introduce any variables 
+		return emptyMap
+	}
+	
+	def dispatch Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(AssertionTestStep testStep) {
+		// Assertion test steps cannot contain variable declarations
+		return emptyMap
 	}
 
 	private def Map<TemplateVariable, Optional<JvmTypeReference>> getVariablesWithTypes(TestStep step, Iterable<TemplateVariable> variables) {
@@ -66,20 +97,22 @@ class SimpleTypeComputer {
 		MethodReference methodReference) {
 		val operationParameters = methodReference.operation.parameters
 		val map = newHashMap
-		val elementIndex = methodReference.parameters.indexOfFirst[name == "element"]
-		val parameterCountDiffersByOne = (operationParameters.size - methodReference.parameters.size == 1)
-		val hasLocatorStrategy = parameterCountDiffersByOne //
-				&& elementIndex >= 0 //
-				&& operationParameters.get(elementIndex + 1).parameterType.type instanceof JvmEnumerationType
-		methodReference.parameters.forEach [ parameter, i |
-			val realIndex = if (hasLocatorStrategy && i > elementIndex) {
-					i + 1 // when behind "element", and locatorStrategy is present
-				} else {
-					i
-				}
-			val operationParameter = operationParameters.get(realIndex)
-			map.put(parameter, ofNullable(operationParameter.parameterType))
-		]
+		if (!operationParameters.empty) {
+			val elementIndex = methodReference.parameters.indexOfFirst[name == "element"]
+			val parameterCountDiffersByOne = (operationParameters.size - methodReference.parameters.size == 1)
+			val hasLocatorStrategy = parameterCountDiffersByOne //
+					&& elementIndex >= 0 //
+					&& operationParameters.get(elementIndex + 1).parameterType.type instanceof JvmEnumerationType
+			methodReference.parameters.forEach [ parameter, methodCallParameterIndex |
+				val methodDefinitionParameterIndex = if (hasLocatorStrategy && methodCallParameterIndex > elementIndex) {
+						methodCallParameterIndex + 1 // when behind "element", and locatorStrategy is present
+					} else {
+						methodCallParameterIndex
+					}
+				val operationParameter = operationParameters.get(methodDefinitionParameterIndex)
+				map.put(parameter, ofNullable(operationParameter.parameterType))
+			]
+		}
 		return map
 	}
 

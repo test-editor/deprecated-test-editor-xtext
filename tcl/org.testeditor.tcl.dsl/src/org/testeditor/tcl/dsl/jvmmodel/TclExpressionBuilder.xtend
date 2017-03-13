@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
+import javax.inject.Inject
+import org.eclipse.xtext.common.types.JvmTypeReference
 import org.testeditor.aml.Variable
 import org.testeditor.tcl.ComparatorEquals
 import org.testeditor.tcl.ComparatorGreaterThan
@@ -31,25 +33,48 @@ import org.testeditor.tcl.VariableReferenceMapAccess
  *  resolver is then used to determine the variable to be actually used within the generted java expression string.
  */
 class TclExpressionBuilder {
+	@Inject TclExpressionTypeComputer typeComputer
 
 	def dispatch String buildExpression(Expression expression) {
 		throw new RuntimeException('''no builder found for type «expression.class»''')
 	}
 
+	def String buildComparisonExpression(Expression comparisonLeftOrRight, JvmTypeReference wantedType) {
+		val leftRightType = typeComputer.determineType(comparisonLeftOrRight)
+		val builtLeftRightExpression = buildExpression(comparisonLeftOrRight)
+		return builtLeftRightExpression.wrapWithCoercionIfNecessary(leftRightType, wantedType)
+	}
+	
 	def dispatch String buildExpression(Comparison comparison) {
 		if (comparison.comparator === null) {
 			return buildExpression(comparison.left)
 		}
-		val builtRightExpression = buildExpression(comparison.right)
-		val builtLeftExpression = buildExpression(comparison.left)
+		// check whether coercion of left or right is necessary
+		
+		val wantedTypeForComparison = typeComputer.coercedTypeOfComparison(comparison)
+		val validTypeBuiltRightExpression = buildComparisonExpression(comparison.right, wantedTypeForComparison)
+		val validTypeBuiltLeftExpression = buildComparisonExpression(comparison.left, wantedTypeForComparison)
+		
 		switch (comparison.comparator) {
-			ComparatorEquals: '''«builtLeftExpression» «if(comparison.comparator.negated){'!='}else{'=='}» «builtRightExpression»'''
-			ComparatorGreaterThan: '''«builtLeftExpression» «if(comparison.comparator.negated){'<='}else{'>'}» «builtRightExpression»'''
-			ComparatorLessThan: '''«builtLeftExpression» «if(comparison.comparator.negated){'>='}else{'<'}» «builtRightExpression»'''
-			ComparatorMatches: '''«builtLeftExpression».toString().matches(«builtRightExpression».toString())'''
+			ComparatorEquals: '''«validTypeBuiltLeftExpression» «if(comparison.comparator.negated){'!='}else{'=='}» «validTypeBuiltRightExpression»'''
+			ComparatorGreaterThan: '''«validTypeBuiltLeftExpression» «if(comparison.comparator.negated){'<='}else{'>'}» «validTypeBuiltRightExpression»'''
+			ComparatorLessThan: '''«validTypeBuiltLeftExpression» «if(comparison.comparator.negated){'>='}else{'<'}» «validTypeBuiltRightExpression»'''
+			ComparatorMatches: '''«validTypeBuiltLeftExpression».toString().matches(«validTypeBuiltRightExpression».toString())'''
 			default:
 				throw new RuntimeException('''no builder found for comparator «comparison.comparator.class»''')
 		}
+	}
+	
+	private def String wrapWithCoercionIfNecessary(String builtExpression, JvmTypeReference own, JvmTypeReference wantedType) {
+		if(String.name.equals(own.qualifiedName)){
+			switch( wantedType.qualifiedName) {
+				case Long.name,
+				case long.name: return '''Long.parseLong(«builtExpression»)'''
+				case boolean.name,
+				case Boolean.name: return '''Boolean.valueOf(«builtExpression»)'''
+			}
+		}
+		return builtExpression
 	}
 
 	def dispatch String buildExpression(VariableReferenceMapAccess varRef) {

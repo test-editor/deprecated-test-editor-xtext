@@ -38,12 +38,14 @@ import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateVariable
+import org.testeditor.aml.Variable
 import org.testeditor.fixture.core.AbstractTestCase
 import org.testeditor.fixture.core.TestRunReportable
 import org.testeditor.fixture.core.TestRunReporter
 import org.testeditor.fixture.core.TestRunReporter.SemanticUnit
 import org.testeditor.tcl.AbstractTestStep
 import org.testeditor.tcl.AssertionTestStep
+import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.Macro
@@ -60,6 +62,7 @@ import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferenceMapAccess
 import org.testeditor.tcl.dsl.jvmmodel.macro.MacroHelper
+import org.testeditor.tcl.dsl.validation.TclTypeValidationUtil
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentValue
@@ -80,6 +83,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	@Inject TestRunReporterGenerator testRunReporterGenerator 
 	@Inject MacroHelper macroHelper
 	@Inject SimpleTypeComputer typeComputer
+	@Inject TclTypeValidationUtil tclTypeValidationUtil
+	
 		
 	def dispatch void infer(TclModel model, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		model.test?.infer(acceptor, isPreIndexingPhase)
@@ -387,9 +392,16 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			val operation = interaction.defaultMethod?.operation
 			if (fixtureField !== null && operation !== null) {
 				step.maybeCreateAssignment(operation, output, stepLog)
-				output.trace(interaction.defaultMethod) => [
+				output.trace(interaction.defaultMethod) => [ 
+					step.contents.filter(VariableReference).forEach [
+						val expectedType = tclTypeValidationUtil.getExpectedType(it, step, interaction) 
+						if(coercionNecessary(interaction, expectedType)) {
+							val coercionCheck = generateCoercionCheck(interaction, expectedType)
+							output.append(coercionCheck).newLine
+						}
+					]
 					val codeLine = '''«fixtureField».«operation.simpleName»(«generateCallParameters(step, interaction)»);'''
-					append(codeLine) // please call with string, since tests checks against expected string which fails for passing ''' directly
+					output.append(codeLine) // please call with string, since tests checks against expected string which fails for passing ''' directly
 				]
 			} else {
 				output.append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
@@ -399,6 +411,53 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		} else {
 			output.append('''org.junit.Assert.fail("Template '«StringEscapeUtils.escapeJava(stepLog)»' cannot be resolved with any known macro/fixture. Please check your  Macro-, Config- or Testcase-File ");''')
 		}
+	}
+
+	private def String generateCoercionCheck(VariableReference variableReference, TemplateContainer templateContainer, Optional<JvmTypeReference> expectedType)  {
+		val variableAccessCode = toParameterString(variableReference, expectedType, templateContainer, false).head
+		switch (expectedType.get.qualifiedName) {
+			case long.name: return '''try { Long.parseLong(«variableAccessCode»); }catch(NumberFormatException nfe){org.junit.Assert.fail("Parameter is expected to be of type 'long' but a non coercible String of value = '"+«variableAccessCode».toString()+"' was passed through variable reference = '«variableReference.variable.name»'.");}'''
+			case boolean.name,
+			case Boolean.name: return '''org.junit.Assert.assertTrue("Parameter is expected to be of type 'boolean' or 'Boolean' but a non coercible String of value = '"+«variableAccessCode».toString()+"' was passed through variable reference = '«variableReference.variable.name»'.", Boolean.TRUE.toString().equals(«variableAccessCode») || Boolean.FALSE.toString().equals(«variableAccessCode»));'''
+			default: throw new RuntimeException("unknown expected type.")
+		}
+	}
+	
+	private def String generateCoercionAround(String variableAccessCode, Optional<JvmTypeReference> expectedType) {
+		switch (expectedType.get.qualifiedName) {
+			case long.name: return '''Long.parseLong(«variableAccessCode»)'''
+			case boolean.name,
+			case Boolean.name: return '''Boolean.valueOf(«variableAccessCode»)'''
+			default: throw new RuntimeException("unknown expected type.")
+		}
+	}
+	
+	private def String getQualifiedTypeName(Variable variable, TemplateContainer templateContainer) {
+		switch(variable) {
+			AssignmentVariable: return tclTypeValidationUtil.determineType(variable).qualifiedName
+			EnvironmentVariable: return "String"
+			TemplateVariable: {
+				val variableType = typeComputer.getVariablesWithTypes(templateContainer).get(variable)
+				if (variableType!==null && variableType.present)	{
+					return variableType.get.qualifiedName
+				}
+				return null
+			}
+			default: throw new RuntimeException("")
+		}
+	}  
+	
+	private def boolean coercionNecessary(StepContent stepContent, TemplateContainer templateContainer, Optional<JvmTypeReference> expectedType )  {
+		if (stepContent instanceof VariableReference) {
+			val isOfTypeString = stepContent.variable.getQualifiedTypeName(templateContainer) == String.name
+			return expectedType !== null && expectedType.present && expectedType.get.isCoercionType && isOfTypeString
+		}
+		return false
+	}
+	
+	private def boolean isCoercionType(JvmTypeReference typeReference) {
+		val qualifiedName = typeReference.qualifiedName
+		return qualifiedName == long.name || qualifiedName == boolean.name || qualifiedName == Boolean.name
 	}
 	
 	private def String getLocationInfo(TestStep step) {
@@ -428,6 +487,13 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		output.newLine
 		val macro = step.findMacroDefinition(context)
 		if (macro !== null) {
+			step.contents.filter(VariableReference).forEach [
+				val expectedType = tclTypeValidationUtil.getExpectedType(it, step, macro) 
+				if (coercionNecessary(macro, expectedType)) {
+					val coercionCheck = generateCoercionCheck(macro, expectedType)
+					output.append(coercionCheck).newLine
+				}
+			]
 			val parameters = generateCallParameters(step, macro)
 			output.append('''«macroHelper.getMethodName(macro)»(«parameters»);''')
 		} else {
@@ -437,7 +503,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	private def String generateCallParameters(TestStep step, TemplateContainer templateContainer) {
 		val stepContentsWithTypes = getVariablesWithTypesInOrder(step, templateContainer)
-		stepContentsWithTypes.map[toParameterString(key, value, templateContainer)].flatten.join(', ')
+		stepContentsWithTypes.map[toParameterString(key, value, templateContainer, true)].flatten.join(', ')
 	}
 
 	private def List<Pair<StepContent, Optional<JvmTypeReference>>> getVariablesWithTypesInOrder(TestStep step, TemplateContainer templateContainer) {
@@ -461,17 +527,24 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	 * put it in quotes. If the type is not specified we assume a String to handle parameter passing gracefully.
 	 */
 	// TODO return type is only an iterable because of the locator strategy
-	private def Iterable<String> toParameterString(StepContent stepContent, Optional<JvmTypeReference> parameterType, TemplateContainer templateContainer) {
-		val isStringParameterOrUnspecified = parameterType.map[qualifiedName == String.name].orElse(true) 
+	private def Iterable<String> toParameterString(StepContent stepContent, Optional<JvmTypeReference> parameterType, TemplateContainer templateContainer, boolean withCoercion) {
+		val isStringParameter = parameterType.map[qualifiedName == String.name].orElse(false) 
 		// stepContent can be a reference to a variable or a value
 		if (stepContent instanceof VariableReference) {
 			// if variable reference forward the call to expressionBuilder
 			val parameterString = expressionBuilder.buildExpression(stepContent)
-			if (isStringParameterOrUnspecified && stepContent instanceof VariableReferenceMapAccess) {
-				// TODO this is not very nice, we should get the type of the referenced variable
-				return #['''String.valueOf(«parameterString»)''']
+			val result = if (isStringParameter && stepContent instanceof VariableReferenceMapAccess) {
+						// TODO this is not very nice, we should get the type of the referenced variable
+						'''String.valueOf(«parameterString»)'''
+					} else {
+						parameterString
+					}
+			 
+			val expectedType = tclTypeValidationUtil.getExpectedType(stepContent, EcoreUtil2.getContainerOfType(stepContent, TestStep), templateContainer) 
+			if (withCoercion && stepContent.coercionNecessary(templateContainer,expectedType)) {
+				return #[generateCoercionAround(result, expectedType)]
 			}
-			return #[parameterString]
+			return #[result] 
 		}
 		// Handle special case for locator + locator strategy
 		if (templateContainer instanceof InteractionType) {
@@ -481,11 +554,24 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		}
 		if (stepContent instanceof StepContentValue) {
 			// if value, check if type is String, if yes put it in quotes
-			if (isStringParameterOrUnspecified) {
-				return #['''"«StringEscapeUtils.escapeJava(stepContent.value)»"''']
+			if (!isStringParameter && (coercionToBoolPossible(stepContent.value) || coercionToLongPossible(stepContent.value))) {
+				return #[stepContent.value] // this may happen only, if the value is a boolean or a long
 			} else {
-				return #[stepContent.value]
+				return #['''"«StringEscapeUtils.escapeJava(stepContent.value)»"''']
 			}
+		}
+	}
+	
+	private def boolean coercionToBoolPossible(String possiblyBool) {
+		return possiblyBool == "true" || possiblyBool == "false"
+	}
+	
+	private def boolean coercionToLongPossible(String possiblyLong) {
+		try {
+			Long.parseLong(possiblyLong)
+			return true			
+		} catch (NumberFormatException e) {
+			return false
 		}
 	}
 

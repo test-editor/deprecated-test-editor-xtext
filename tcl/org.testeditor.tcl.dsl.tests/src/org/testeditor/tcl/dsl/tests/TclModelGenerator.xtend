@@ -182,6 +182,11 @@ class TclModelGenerator {
 		return me
 	}
 
+	def TestStep withReference(TestStep me, VariableReference variableReference) {
+		me.contents += variableReference
+		return me
+	}
+
 	def TestStep withParameter(TestStep me, String parameter) {
 		me.contents += tslFactory.createStepContentVariable => [value = parameter]
 		return me

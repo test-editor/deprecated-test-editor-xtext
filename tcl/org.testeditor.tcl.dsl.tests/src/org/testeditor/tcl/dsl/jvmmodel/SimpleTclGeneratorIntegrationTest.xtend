@@ -62,17 +62,23 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 				- baz = Read value from <bar>
 				- book = Read bool from <bar>
 				- mak = Read map from <bar>
-				- assert foo
-				- assert baz = "fix"
-				- assert book
-				- assert mak."key with spaces" = "fox"
-				- assert ! foo
-				- assert baz <> "fix"
-				- assert ! book
-				- assert mak."key with spaces" <> "fox"
-				- assert mak."key with spaces"
-				- assert ! mak."key with spaces"
-				- assert baz = mak.otherkey
+				- assert foo                                  // null check 
+				- assert baz = "fix"                          // assertEquals for String
+				- assert book                                 // checked to be true (not (only) null check)
+				- assert mak."key with spaces" = "fox"        // assertEquals with map dereferenced
+				- assert ! foo								  // not null check
+				- assert baz <> "fix"						  // assertNotEquals
+				- assert ! book                               // checked to be false (not (only) null check)
+				- assert mak."key with spaces" <> "fox"       // asssertNotEquals with map dereferenced
+				- assert mak."key with spaces"                // null check with map dereferenced
+				- assert ! mak."key with spaces"              // not null check with map dereferenced
+				- assert baz = mak.otherkey                   // assert equals with map dereferenced
+				- log = Read long from <bar>
+				- assert log < "42"							  // parse 42 to long value and compare
+				- assert log != baz                           // parse baz to long value and compare
+				- assert baz != book                          // parse baz to boolean and compare
+				- assert mak."key" < "42"                     // parse dereferenced map and 42 to long and compare
+				- assert mak."key" = "42"                     // no parse, compare stringwise (since map access expects a string)
 		'''
 
 		// when
@@ -117,6 +123,18 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			  org.junit.Assert.assertNull("SimpleTest.tcl:20: ! mak.\"key with spaces\"", mak.get("key with spaces"));
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert baz = mak.otherkey");
 			  org.junit.Assert.assertEquals("SimpleTest.tcl:21: baz = mak.otherkey", mak.get("otherkey"), baz);
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "long log = Read long from <bar>");
+			  long log = dummyFixture.getLong("label.greet");
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert log < \"42\"");
+			  org.junit.Assert.assertTrue("SimpleTest.tcl:23: log < \"42\"", log < Long.parseLong("42"));
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert log != baz");
+			  org.junit.Assert.assertNotEquals("SimpleTest.tcl:24: log != baz", Long.parseLong(baz), log);
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert baz != book");
+			  org.junit.Assert.assertNotEquals("SimpleTest.tcl:25: baz != book", book, Boolean.valueOf(baz));
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert mak.\"key\" < \"42\"");
+			  org.junit.Assert.assertTrue("SimpleTest.tcl:26: mak.\"key\" < \"42\"", Long.parseLong(mak.get("key")) < Long.parseLong("42"));
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert mak.\"key\" = \"42\"");
+			  org.junit.Assert.assertEquals("SimpleTest.tcl:27: mak.\"key\" = \"42\"", "42", mak.get("key"));
 			}
 		'''.indent(1))
 	}

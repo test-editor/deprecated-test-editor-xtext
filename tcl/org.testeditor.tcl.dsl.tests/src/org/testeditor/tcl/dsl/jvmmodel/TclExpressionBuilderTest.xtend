@@ -1,14 +1,34 @@
 package org.testeditor.tcl.dsl.jvmmodel
 
 import javax.inject.Inject
+import org.eclipse.xtext.common.types.JvmTypeReference
+import org.junit.Before
 import org.junit.Test
+import org.mockito.InjectMocks
+import org.mockito.Mock
+import org.testeditor.aml.Variable
+import org.testeditor.tcl.Expression
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
 
+import static org.mockito.Matchers.*
+import static org.mockito.Mockito.*
+
 class TclExpressionBuilderTest extends AbstractTclTest {
 
-	@Inject TclExpressionBuilder expressionBuilder 
+	@InjectMocks TclExpressionBuilder expressionBuilder
+	@Mock TclExpressionTypeComputer typeComputer
 	@Inject extension TclModelGenerator
+	@Mock JvmTypeReference stringTypeReference
+	
+	
+	@Before
+	def void prepareMocks() {
+		when(stringTypeReference.qualifiedName).thenReturn(String.name)
+		when(typeComputer.determineType(any(Expression))).thenReturn(stringTypeReference)
+		when(typeComputer.determineType(any(Variable))).thenReturn(stringTypeReference)
+		when(typeComputer.coercedTypeOfComparison(any)).thenReturn(stringTypeReference)
+	}
 	
 	@Test
 	def void testMatches() {
