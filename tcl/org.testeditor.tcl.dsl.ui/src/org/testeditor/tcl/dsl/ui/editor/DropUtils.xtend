@@ -78,17 +78,20 @@ class DropUtils {
 				TemplateText: {
 					val stepContentText = tslFactory.createStepContentText
 					stepContentText.value = value
-					newTestStep.contents.add(stepContentText)
+					if (newTestStep.fixtureReference === null) {
+						newTestStep.fixtureReference = tclFactory.createFixtureReference
+					}
+					newTestStep.fixtureReference.contents.add(stepContentText)
 				}
 				TemplateVariable: {
 					if (name != 'element') {
 						val stepContentVariable = tslFactory.createStepContentVariable
 						stepContentVariable.value = name
-						newTestStep.contents.add(stepContentVariable)
+						newTestStep.fixtureReference.contents.add(stepContentVariable)
 					} else {
 						val stepContentElement = tclFactory.createStepContentElement
 						stepContentElement.value = componentElement.name
-						newTestStep.contents.add(stepContentElement)
+						newTestStep.fixtureReference.contents.add(stepContentElement)
 					}
 				}
 				default:

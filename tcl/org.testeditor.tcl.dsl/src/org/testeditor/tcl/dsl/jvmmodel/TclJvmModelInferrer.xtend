@@ -382,7 +382,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output) {
-		val stepLog = step.contents.restoreString
+		val stepLog = step.fixtureReference.contents.restoreString
 		logger.debug("generating code line for test step='{}'.", stepLog)
 		val interaction = step.interaction
    		
@@ -393,7 +393,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			if (fixtureField !== null && operation !== null) {
 				step.maybeCreateAssignment(operation, output, stepLog)
 				output.trace(interaction.defaultMethod) => [ 
-					step.contents.filter(VariableReference).forEach [
+					step.fixtureReference.contents.filter(VariableReference).forEach [
 						val expectedType = tclTypeValidationUtil.getExpectedType(it, step, interaction) 
 						if(coercionNecessary(interaction, expectedType)) {
 							val coercionCheck = generateCoercionCheck(interaction, expectedType)
@@ -480,14 +480,14 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	} 
 
 	private def void generateMacroCall(TestStep step, MacroTestStepContext context, ITreeAppendable output) {
-		val stepLog = step.contents.restoreString
+		val stepLog = step.fixtureReference.contents.restoreString
 		logger.debug("generating code line for macro test step='{}'.", stepLog)
 		output.newLine
 		output.append('''// - «stepLog»''')
 		output.newLine
 		val macro = step.findMacroDefinition(context)
 		if (macro !== null) {
-			step.contents.filter(VariableReference).forEach [
+			step.fixtureReference.contents.filter(VariableReference).forEach [
 				val expectedType = tclTypeValidationUtil.getExpectedType(it, step, macro) 
 				if (coercionNecessary(macro, expectedType)) {
 					val coercionCheck = generateCoercionCheck(macro, expectedType)

@@ -41,6 +41,6 @@ class TclLabelProvider extends XbaseLabelProvider {
 	}
 
 	def text(TestStep testStep) {
-		return testStep.contents.restoreString
+		return testStep.fixtureReference.contents.restoreString
 	}
 }

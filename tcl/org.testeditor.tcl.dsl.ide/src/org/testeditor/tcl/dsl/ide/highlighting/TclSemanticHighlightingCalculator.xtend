@@ -75,7 +75,7 @@ class TclSemanticHighlightingCalculator extends DefaultSemanticHighlightingCalcu
 
 	protected def void provideHighlightingForTestStepContext(TestStepContext context,
 		IHighlightedPositionAcceptor acceptor) {
-		context.steps.filter(TestStep).map[contents].flatten.forEach[provideHighlightingFor(acceptor)]
+		context.steps.filter(TestStep).map[fixtureReference.contents].flatten.forEach[provideHighlightingFor(acceptor)]
 	}
 
 	/**
@@ -103,7 +103,7 @@ class TclSemanticHighlightingCalculator extends DefaultSemanticHighlightingCalcu
 		for (specificationStep : test.steps) {
 			specificationStep.contents.forEach[provideHighlightingFor(acceptor)]
 			val testSteps = specificationStep.contexts.map[steps].flatten
-			val stepContents = testSteps.filter(TestStep).map[contents]
+			val stepContents = testSteps.filter(TestStep).map[fixtureReference.contents]
 			stepContents.filter(StepContentElement).forEach [
 				if (cancelIndicator.canceled) {
 					return

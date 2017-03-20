@@ -48,10 +48,10 @@ class TclHyperLinkHelper extends XbaseHyperLinkHelper {
 	protected def dispatch void createHyperlinks(TestStep testStep, IHyperlinkAcceptor acceptor) {
 		val interaction = testStep.interaction
 		if (interaction !== null) {
-			testStep.createHyperlinkTo(TEST_STEP__CONTENTS, interaction.template, acceptor)
+			testStep.createHyperlinkTo(FIXTURE_REFERENCE__CONTENTS, interaction.template, acceptor)
 		} else if (testStep.hasMacroContext) {
 			val macroTemplate = testStep.findMacroDefinition(testStep.macroContext)?.template
-			testStep.createHyperlinkTo(TEST_STEP__CONTENTS, macroTemplate, acceptor)
+			testStep.createHyperlinkTo(FIXTURE_REFERENCE__CONTENTS, macroTemplate, acceptor)
 		}
 	}
 
