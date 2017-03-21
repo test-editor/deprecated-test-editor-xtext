@@ -51,6 +51,7 @@ import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
+import org.testeditor.tcl.MapEntryAssignment
 import org.testeditor.tcl.SetupAndCleanupProvider
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
@@ -379,6 +380,13 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		} else {
 			return '''«locationData.lineNumber + 1»-«locationData.endLineNumber + 1»'''.toString
 		}
+	}
+	
+	private def dispatch void toUnitTestCodeLine(MapEntryAssignment step, ITreeAppendable output) {
+		val varRef = step.getVariableReference
+		val valueString = expressionBuilder.buildExpression(step.getExpression)
+		val code = '''«varRef.variable.name».put("«varRef.key»", «valueString»);'''
+		output.append(code)
 	}
 
 	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output) {

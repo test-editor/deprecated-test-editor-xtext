@@ -29,6 +29,7 @@ import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
+import org.testeditor.tcl.MapEntryAssignment
 import org.testeditor.tcl.NullOrBoolCheck
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StringConstant
@@ -90,6 +91,15 @@ class TclModelGenerator {
 			}
 		]
 		return me
+	}
+	
+	def MapEntryAssignment mapEntryAssignment(Variable mapVariable, String key) {
+		tclFactory.createMapEntryAssignment => [
+			variableReference = variableReferenceMapAccess() => [
+				it.variable = mapVariable
+				it.key = key
+			]
+		]
 	}
 
 	def SpecificationStepImplementation specificationStep(String ... texts) {
