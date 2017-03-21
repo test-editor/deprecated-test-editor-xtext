@@ -86,7 +86,7 @@ class TclTypeValidationUtil {
 		// type derivation of variable usage within assertions is not implemented "yet" => filter on test steps only
 		// TODO this has to be implemented if the check is to be performed on assertions!
 		val typesUsages = componentTestStepContext.steps.filter(TestStep).map [ step |
-			step.stepVariableFixtureParameterTypePairs.filterKey(VariableReference).filter [
+			step.stepVariableFixtureParameterTypePairs.filterKey(VariableReference).filter[!(key instanceof VariableReferenceMapAccess)].filter [
 				key.variable.name == variableName
 			].map[value]
 		].flatten.filterNull

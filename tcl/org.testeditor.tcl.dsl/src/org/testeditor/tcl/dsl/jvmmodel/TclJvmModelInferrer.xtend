@@ -17,6 +17,7 @@ import java.util.List
 import java.util.Optional
 import java.util.Set
 import org.apache.commons.lang3.StringEscapeUtils
+import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.common.types.JvmConstructor
 import org.eclipse.xtext.common.types.JvmDeclaredType
@@ -55,6 +56,7 @@ import org.testeditor.tcl.MapEntryAssignment
 import org.testeditor.tcl.SetupAndCleanupProvider
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
+import org.testeditor.tcl.StringConstant
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestConfiguration
@@ -382,11 +384,41 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		}
 	}
 	
+	private def String toStringExpression(VariableReference variableReference, EObject context) {
+		val valueString = expressionBuilder.buildExpression(variableReference)
+		val typename=variableReference.variable.getQualifiedTypeName(EcoreUtil2.getContainerOfType(context,TemplateContainer))
+		switch typename {
+			case long.name,
+			case Long.name: {
+				return '''Long.toString(«valueString»)'''
+			}
+			case boolean.name,
+			case Boolean.name: {
+				return '''Boolean.toString(«valueString»)'''
+			}
+			case String.name: {
+				return valueString
+			}
+			default: throw new RuntimeException('''Cannot generate String expression for variables of type='«typename»'. ''')
+		}
+	}
+	
 	private def dispatch void toUnitTestCodeLine(MapEntryAssignment step, ITreeAppendable output) {
 		val varRef = step.getVariableReference
-		val valueString = expressionBuilder.buildExpression(step.getExpression)
-		val code = '''«varRef.variable.name».put("«varRef.key»", «valueString»);'''
-		output.append(code)
+		val valueString = expressionBuilder.buildExpression(step.expression)
+		val expression = step.expression
+		switch expression {
+			VariableReferenceMapAccess,
+			StringConstant: {
+				val code = '''«varRef.variable.name».put("«varRef.key»", «valueString»);'''
+				output.append(code)
+			}
+			VariableReference : {
+				val code = '''«varRef.variable.name».put("«varRef.key»", «expression.toStringExpression(step)»);'''
+				output.append(code)
+			}
+			default: throw new RuntimeException('''Cannot generate code for expression of type='«step.expression»' within assignments to map entries.''')
+		}
 	}
 
 	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output) {
@@ -457,7 +489,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	
 	private def boolean coercionNecessary(StepContent stepContent, TemplateContainer templateContainer, Optional<JvmTypeReference> expectedType )  {
 		if (stepContent instanceof VariableReference) {
-			val isOfTypeString = stepContent.variable.getQualifiedTypeName(templateContainer) == String.name
+			val isOfTypeString = stepContent.variable.getQualifiedTypeName(templateContainer) == String.name ||
+				stepContent instanceof VariableReferenceMapAccess
 			return expectedType !== null && expectedType.present && expectedType.get.isCoercionType && isOfTypeString
 		}
 		return false
