@@ -43,7 +43,7 @@ class SimpleTypeComputer {
 
 		// Get variable usages with their types, last usage wins (validation should make sure it's only used once)
 		for (context : macro.contexts) {
-			val stepsWithVariableReferences = context.steps.filter(TestStep).filter[!fixtureReference.contents.filter(VariableReference).empty]
+			val stepsWithVariableReferences = context.steps.filter(TestStep).filter[!contents.filter(VariableReference).empty]
 			for (step : stepsWithVariableReferences) {
 				result.putAll(getVariablesWithTypes(step, variables))
 			}

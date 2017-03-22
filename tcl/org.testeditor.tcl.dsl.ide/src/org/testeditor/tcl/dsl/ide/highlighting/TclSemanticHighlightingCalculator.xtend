@@ -23,6 +23,7 @@ import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepContext
+import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.StepContent
 
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
@@ -37,6 +38,7 @@ class TclSemanticHighlightingCalculator extends DefaultSemanticHighlightingCalcu
 	public static val String COMPONENT_ELEMENT_REFERENCE = "tcl.componentElementReference"
 
 	@Inject extension NodeRegionUtil
+	@Inject extension TclModelUtil
 
 	override protected doProvideHighlightingFor(XtextResource resource, IHighlightedPositionAcceptor acceptor,
 		CancelIndicator cancelIndicator) {
@@ -75,7 +77,7 @@ class TclSemanticHighlightingCalculator extends DefaultSemanticHighlightingCalcu
 
 	protected def void provideHighlightingForTestStepContext(TestStepContext context,
 		IHighlightedPositionAcceptor acceptor) {
-		context.steps.filter(TestStep).map[fixtureReference.contents].flatten.forEach[provideHighlightingFor(acceptor)]
+		context.steps.filter(TestStep).map[contents].flatten.forEach[provideHighlightingFor(acceptor)]
 	}
 
 	/**
@@ -103,7 +105,7 @@ class TclSemanticHighlightingCalculator extends DefaultSemanticHighlightingCalcu
 		for (specificationStep : test.steps) {
 			specificationStep.contents.forEach[provideHighlightingFor(acceptor)]
 			val testSteps = specificationStep.contexts.map[steps].flatten
-			val stepContents = testSteps.filter(TestStep).map[fixtureReference.contents]
+			val stepContents = testSteps.filter(TestStep).map[contents]
 			stepContents.filter(StepContentElement).forEach [
 				if (cancelIndicator.canceled) {
 					return

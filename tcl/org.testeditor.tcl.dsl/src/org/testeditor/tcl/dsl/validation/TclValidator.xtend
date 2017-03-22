@@ -161,7 +161,7 @@ class TclValidator extends AbstractTclValidator {
 	private def dispatch void checkAllReferencedVariablesAreKnown(TestStep step, Set<String> knownVariableNames,
 		String errorMessage) {
 		// contents are indexed so that errors can be set to the precise location (index within the contents)
-		val erroneousIndexedStepContents = step.fixtureReference.contents.indexed.filterValue(VariableReference).filter [
+		val erroneousIndexedStepContents = step.contents.indexed.filterValue(VariableReference).filter [
 			!knownVariableNames.contains(value.variable.name)
 		]
 		erroneousIndexedStepContents.forEach [
@@ -362,7 +362,7 @@ class TclValidator extends AbstractTclValidator {
 		Map<String, JvmTypeReference> declaredVariablesTypeMap, TestStepContext context,
 		Set<String> excludedVariableNames) {
 		// build this variables index to be able to correctly issue an error on the element by index
-		val variablesIndexed = step.fixtureReference.contents.indexed.filter [!(value instanceof StepContentText)]
+		val variablesIndexed = step.contents.indexed.filter [!(value instanceof StepContentText)]
 		val variableReferencesIndexed = variablesIndexed.filterValue(VariableReference).filter [
 			!excludedVariableNames.contains(value.variable.name)
 		]
@@ -455,7 +455,7 @@ class TclValidator extends AbstractTclValidator {
 	
 	private def void checkStepContentVariableTypeInParameterPosition(TestStep step, InteractionType interaction) {
 		// check only StepContentVariable, since variable references are already tested by ...
-		val callParameters=step.fixtureReference.contents.indexed.filterValue(StepContentVariable)
+		val callParameters=step.contents.indexed.filterValue(StepContentVariable)
 		val definitionParameterTypePairs = simpleTypeComputer.getVariablesWithTypes(interaction)		
 		callParameters.forEach [ contentIndexPair |
 			val content = contentIndexPair.value
@@ -484,7 +484,7 @@ class TclValidator extends AbstractTclValidator {
 		contentTemplateVarmap.filterKey(StepContentVariable).forEach [ content, templateVar |
 			val expectedType = templateParameterTypeMap.get(templateVar)
 			expectedType.ifPresent [
-				val contentIndex = step.fixtureReference.contents.indexOfFirst(content)
+				val contentIndex = step.contents.indexOfFirst(content)
 				val expectedTypeQualName = expectedType.get.qualifiedName
 				if (expectedTypeQualName.equals(long.name)) {
 					content.checkThatUseAsTypedLongIsOk(contentIndex)
