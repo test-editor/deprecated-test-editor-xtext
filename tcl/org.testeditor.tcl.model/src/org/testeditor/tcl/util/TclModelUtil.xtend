@@ -50,6 +50,7 @@ import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
+import org.testeditor.tcl.MapEntryAssignment
 
 @Singleton
 class TclModelUtil extends TslModelUtil {
@@ -271,6 +272,7 @@ class TclModelUtil extends TslModelUtil {
 			switch (it) {
 				TestStep: fixtureReference.contents.exists[makesUseOfVariablesViaReference(variables)]
 				AssertionTestStep: assertExpression.makesUseOfVariablesViaReference(variables)
+				MapEntryAssignment: expression.makesUseOfVariablesViaReference(variables)
 				default: throw new RuntimeException('''Unknown TestStep type='«class.canonicalName»'.''')
 			}
 		]
