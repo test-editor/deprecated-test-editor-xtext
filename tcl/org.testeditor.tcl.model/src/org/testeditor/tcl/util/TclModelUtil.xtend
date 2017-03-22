@@ -71,7 +71,7 @@ class TclModelUtil extends TslModelUtil {
 		return model.test?.name ?: model.config?.name ?: model.macroCollection?.name
 	}
 
-	override String restoreString(List<StepContent> contents) {
+	override String restoreString(Iterable<StepContent> contents) {
 		return contents.map [
 			switch (it) {
 				StepContentVariable: '''"«value»"'''
@@ -125,7 +125,7 @@ class TclModelUtil extends TslModelUtil {
 	}
 
 	def String normalize(TestStep step) {
-		val normalizedStepContent = step.fixtureReference.contents.map [
+		val normalizedStepContent = step.contents.map [
 			switch (it) {
 				StepContentElement: '<>'
 				StepContentVariable: '""'
@@ -142,11 +142,11 @@ class TclModelUtil extends TslModelUtil {
 	 * The result is ordered by appearance in the {@link TestStep}.
 	 */
 	def LinkedHashMap<StepContent, TemplateVariable> getStepContentToTemplateVariablesMapping(TestStep step, Template template) {
-		val stepContentElements = step.fixtureReference.contents.filter[!(it instanceof StepContentText)]
+		val stepContentElements = step.contents.filter[!(it instanceof StepContentText)]
 		val templateVariables = template.contents.filter(TemplateVariable)
 		if (stepContentElements.size !== templateVariables.size) {
 			val message = '''
-				Variables for '«step.fixtureReference.contents.restoreString»' did not match the parameters of template '«template.normalize»' (normalized).
+				Variables for '«step.contents.restoreString»' did not match the parameters of template '«template.normalize»' (normalized).
 			'''
 			throw new IllegalArgumentException(message)
 		}
@@ -158,7 +158,7 @@ class TclModelUtil extends TslModelUtil {
 	}
 	
 	def ComponentElement getComponentElement(TestStep testStep) {
-		val contentElement = testStep.fixtureReference.contents.filter(StepContentElement).head
+		val contentElement = testStep.contents.filter(StepContentElement).head
 		if (contentElement !== null) {
 			val component = testStep.componentContext?.component
 			return component?.elements?.findFirst[name == contentElement.value]
@@ -230,7 +230,7 @@ class TclModelUtil extends TslModelUtil {
 	 * get all variables, variable references and elements that are used as parameters in this test step
 	 */
 	def Iterable<StepContent> getStepContentVariables(TestStep step) {
-		return step.fixtureReference.contents.filter [!(it instanceof StepContentText)]
+		return step.contents.filter [!(it instanceof StepContentText)]
 	}
 
 	def SpecificationStep getSpecificationStep(SpecificationStepImplementation stepImplementation) {
@@ -270,7 +270,7 @@ class TclModelUtil extends TslModelUtil {
 	def dispatch boolean makesUseOfVariablesViaReference(TestStepContext context, Set<String> variables) {
 		return context.steps.exists [
 			switch (it) {
-				TestStep: fixtureReference.contents.exists[makesUseOfVariablesViaReference(variables)]
+				TestStep: contents.exists[makesUseOfVariablesViaReference(variables)]
 				AssertionTestStep: assertExpression.makesUseOfVariablesViaReference(variables)
 				MapEntryAssignment: expression.makesUseOfVariablesViaReference(variables)
 				default: throw new RuntimeException('''Unknown TestStep type='«class.canonicalName»'.''')
@@ -292,6 +292,16 @@ class TclModelUtil extends TslModelUtil {
 		return expression.eAllContents.filter(VariableReference).exists [
 			variables.contains(variable.name)
 		]
+	}
+	
+	/**
+	 * allow usage of "contents" on TestStep s even if fixtureReference is null
+	 */
+	def Iterable<StepContent> getContents(TestStep testStep) {
+		if (testStep.fixtureReference !== null) {
+			return testStep.fixtureReference.contents
+		}	
+		return emptyList
 	}
 
 }

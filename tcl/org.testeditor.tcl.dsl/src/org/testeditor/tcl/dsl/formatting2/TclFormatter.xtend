@@ -12,9 +12,11 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.formatting2;
 
+import javax.inject.Inject
 import org.eclipse.xtext.formatting2.IFormattableDocument
 import org.eclipse.xtext.xbase.formatting2.XbaseFormatter
 import org.testeditor.aml.Template
+import org.testeditor.tcl.AbstractTestStep
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroCollection
@@ -30,6 +32,7 @@ import org.testeditor.tcl.TestSetup
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferenceMapAccess
+import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
@@ -37,9 +40,10 @@ import org.testeditor.tsl.TslPackage
 import static org.eclipse.xtext.formatting2.IHiddenRegionFormatter.LOW_PRIORITY
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
 import static org.testeditor.tcl.TclPackage.Literals.*
-import org.testeditor.tcl.AbstractTestStep
 
 class TclFormatter extends XbaseFormatter {
+	
+	@Inject extension TclModelUtil 
 
 	def dispatch void format(TclModel tclModel, extension IFormattableDocument document) {
 		tclModel.regionFor.feature(TCL_MODEL__PACKAGE).prepend[oneSpace].append[newLines = 2]
@@ -131,7 +135,7 @@ class TclFormatter extends XbaseFormatter {
 	def dispatch void format(AbstractTestStep testStep, extension IFormattableDocument document) {
 		testStep.regionFor.keyword("-").prepend[newLine]
 		if (testStep instanceof TestStep) {
-			testStep.fixtureReference.contents.forEach[format]
+			testStep.contents.forEach[format]
 			testStep.regionFor.keyword(".").prepend[noSpace]
 		}
 	}
