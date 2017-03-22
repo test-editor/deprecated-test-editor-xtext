@@ -442,7 +442,7 @@ class TclValidator extends AbstractTclValidator {
 				val coercionPossible = typeDeclared.qualifiedName.equals(String.name) && typeUsageSetContainsOnlyCoercibleTypes
 				val typesMatch = doTypesMatch(typeDeclared,typeUsageSet)
 				if (!coercionPossible && !typesMatch) {
-					error('''Variable='«variableReference.variable.name»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in a position that expects type(s)='«typeUsageSet.filter[present].map[get.qualifiedName].join(", ")»'.''',
+					error('''Variable='«variableReference.variable.name»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in context(s) expecting type(s)='«typeUsageSet.filter[present].map[get.qualifiedName].join(", ")»'. Please make sure that no conflicting type usages remain.''',
 						variableReference.eContainer, variableReference.eContainingFeature, errorReportingIndex,
 						INVALID_TYPED_VAR_DEREF)
 					}
