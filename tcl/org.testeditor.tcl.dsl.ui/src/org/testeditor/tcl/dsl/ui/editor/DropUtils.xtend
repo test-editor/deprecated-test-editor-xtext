@@ -72,15 +72,14 @@ class DropUtils {
 
 	public def createDroppedTestStep(InteractionType interactionType, ComponentElement componentElement) {
 		val newTestStep = tclFactory.createTestStep
-
+		if (newTestStep.fixtureReference === null) {
+			newTestStep.fixtureReference = tclFactory.createFixtureReference
+		}
 		interactionType.template.contents.forEach [
 			switch (it) {
 				TemplateText: {
 					val stepContentText = tslFactory.createStepContentText
 					stepContentText.value = value
-					if (newTestStep.fixtureReference === null) {
-						newTestStep.fixtureReference = tclFactory.createFixtureReference
-					}
 					newTestStep.fixtureReference.contents.add(stepContentText)
 				}
 				TemplateVariable: {
