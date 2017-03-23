@@ -23,6 +23,7 @@ import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepContext
+import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.StepContent
 
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
@@ -37,6 +38,7 @@ class TclSemanticHighlightingCalculator extends DefaultSemanticHighlightingCalcu
 	public static val String COMPONENT_ELEMENT_REFERENCE = "tcl.componentElementReference"
 
 	@Inject extension NodeRegionUtil
+	@Inject extension TclModelUtil
 
 	override protected doProvideHighlightingFor(XtextResource resource, IHighlightedPositionAcceptor acceptor,
 		CancelIndicator cancelIndicator) {

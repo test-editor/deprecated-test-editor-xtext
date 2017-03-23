@@ -72,23 +72,25 @@ class DropUtils {
 
 	public def createDroppedTestStep(InteractionType interactionType, ComponentElement componentElement) {
 		val newTestStep = tclFactory.createTestStep
-
+		if (newTestStep.fixtureReference === null) {
+			newTestStep.fixtureReference = tclFactory.createFixtureReference
+		}
 		interactionType.template.contents.forEach [
 			switch (it) {
 				TemplateText: {
 					val stepContentText = tslFactory.createStepContentText
 					stepContentText.value = value
-					newTestStep.contents.add(stepContentText)
+					newTestStep.fixtureReference.contents.add(stepContentText)
 				}
 				TemplateVariable: {
 					if (name != 'element') {
 						val stepContentVariable = tslFactory.createStepContentVariable
 						stepContentVariable.value = name
-						newTestStep.contents.add(stepContentVariable)
+						newTestStep.fixtureReference.contents.add(stepContentVariable)
 					} else {
 						val stepContentElement = tclFactory.createStepContentElement
 						stepContentElement.value = componentElement.name
-						newTestStep.contents.add(stepContentElement)
+						newTestStep.fixtureReference.contents.add(stepContentElement)
 					}
 				}
 				default:

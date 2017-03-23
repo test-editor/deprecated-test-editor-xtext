@@ -160,14 +160,20 @@ class TclModelGenerator {
 	}
 
 	def <T extends TestStep> T withElement(T me, String elementName) {
-		me.contents += tclFactory.createStepContentElement => [
+		if (me.fixtureReference === null) {
+			me.fixtureReference = tclFactory.createFixtureReference	
+		}
+		me.fixtureReference.contents += tclFactory.createStepContentElement => [
 			value = elementName
 		]
 		return me
 	}
 
 	def TestStep withReferenceToTemplateVariable(TestStep me, String variableReferenceName) {
-		me.contents += tclFactory.createVariableReference => [
+		if (me.fixtureReference === null) {
+			me.fixtureReference = tclFactory.createFixtureReference	
+		}
+		me.fixtureReference.contents += tclFactory.createVariableReference => [
 			variable = amlFactory.createTemplateVariable => [
 				name = variableReferenceName
 			]
@@ -176,25 +182,37 @@ class TclModelGenerator {
 	}
 
 	def TestStep withReferenceToVariable(TestStep me, Variable variable) {
-		me.contents += tclFactory.createVariableReference => [
+		if (me.fixtureReference === null) {
+			me.fixtureReference = tclFactory.createFixtureReference	
+		}
+		me.fixtureReference.contents += tclFactory.createVariableReference => [
 			it.variable = variable
 		]
 		return me
 	}
 
 	def TestStep withReference(TestStep me, VariableReference variableReference) {
-		me.contents += variableReference
+		if (me.fixtureReference === null) {
+			me.fixtureReference = tclFactory.createFixtureReference	
+		}
+		me.fixtureReference.contents += variableReference
 		return me
 	}
 
 	def TestStep withParameter(TestStep me, String parameter) {
-		me.contents += tslFactory.createStepContentVariable => [value = parameter]
+		if (me.fixtureReference === null) {
+			me.fixtureReference = tclFactory.createFixtureReference	
+		}
+		me.fixtureReference.contents += tslFactory.createStepContentVariable => [value = parameter]
 		return me
 	}
 
 	def TestStep withText(TestStep me, String ... texts) {
+		if (me.fixtureReference === null) {
+			me.fixtureReference = tclFactory.createFixtureReference	
+		}
 		return me => [
-			texts.forEach[text|contents += tslFactory.createStepContentText => [value = text]]
+			texts.forEach[text|fixtureReference.contents += tslFactory.createStepContentText => [value = text]]
 		]
 	}
 
