@@ -52,10 +52,13 @@ class LaunchShortcutUtil {
 		val uri = storageToUriMapper.getUri(resource.getAdapter(IStorage))
 		val resNameWOExtension = resource.name.replace(resource.fileExtension, '').replaceAll('\\.$', '')
 		val resourceDescription = resourceDescriptions.getResourceDescription(uri)
+		
+		
 		if (resourceDescription !== null) {
-			val qualifiedName = resourceDescription.exportedObjects.map[name].findFirst [
+			val qualifiedName = resourceDescription.exportedObjects.map[name].findLast[
 				lastSegment == resNameWOExtension
 			]
+
 			return qualifiedName
 		} else {
 			return null

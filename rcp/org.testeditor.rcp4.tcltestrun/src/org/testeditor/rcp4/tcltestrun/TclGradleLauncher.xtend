@@ -43,7 +43,8 @@ public class TclGradleLauncher implements TclLauncher {
 		val resultHandler = new TclGradleResultHandler(testResultFolder)
 		gradleHelper.run(project.location.toFile, resultHandler) [
 			if (testCases !== null) {
-				withArguments("clean", "test", "--tests", testCase) // https://issues.gradle.org/browse/GRADLE-2972
+    			logger.info('''Testcase '«testCase»' is running.''')
+    			withArguments("clean", "test", "--tests" , testCase ) // https://issues.gradle.org/browse/GRADLE-2972
 			} else {
 				withArguments("clean", "test")
 			}
