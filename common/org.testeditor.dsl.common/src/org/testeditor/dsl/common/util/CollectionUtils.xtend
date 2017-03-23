@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2012 - 2017 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
 package org.testeditor.dsl.common.util
 
 import com.google.common.collect.Iterables
@@ -64,6 +76,21 @@ class CollectionUtils {
 	 */
 	public def <A> int indexOfFirst(Iterable <A> iterable, A actual) {
 		return Optional.ofNullable(iterable.indexed.findFirst[value.identityEquals(actual)]?.key).orElse(-1)
+	}
+
+
+	/**
+	 * combine two maps into a union (duplicates of left with right)
+	 */
+	public def <K,V> Map<K,V> union(Map<K,V> left, Map<K,V> right) {
+		return newHashMap => [putAll(left) putAll(right)]
+	}
+	
+	/**
+	 * combine maps into a union (duplicates within later maps overwrite previous ones)
+	 */
+	public def <K,V> Map<K,V> union(Iterable<Map<K,V>> mapList) {
+		return mapList.reduce[left,right|union(left,right)]
 	}
 
 }

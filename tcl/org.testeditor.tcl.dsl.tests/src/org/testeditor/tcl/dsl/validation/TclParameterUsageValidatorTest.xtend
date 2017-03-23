@@ -19,6 +19,7 @@ import org.testeditor.aml.dsl.tests.AmlModelGenerator
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestStepContext
+import org.testeditor.tcl.dsl.jvmmodel.TclTypeUsageComputer
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTestWithDummyComponent
 
@@ -29,10 +30,9 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 	@Inject extension AmlModelGenerator
 
 	@Inject extension TclModelGenerator
-	@Inject TclTypeValidationUtil tclSimpleTypeUtils
 	@Inject protected TclValidator tclValidator // class under test (not mocked)
 	@Inject protected ValidationTestHelper validator
-
+	@Inject TclTypeUsageComputer typeUsageComputer
 
 	@Test
 	def void testDirectCallVariableTypeChecks() {
@@ -329,7 +329,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 	 * verify model to have the expected type usages when querying for a certain variable in a given context
 	 */
 	private def void verifyVariableTypeUsage(TestStepContext context, String variable, Iterable<String> types) {
-		val typeSet = tclSimpleTypeUtils.getAllTypeUsagesOfVariable(context, variable).filter[present].map[get.simpleName].toSet
+		val typeSet = typeUsageComputer.getAllTypeUsagesOfVariable(context, variable).filter[present].map[get.simpleName].toSet
 		typeSet.assertSize(types.size)
 		types.forEach[assertTrue(typeSet.contains(it))]
 	}

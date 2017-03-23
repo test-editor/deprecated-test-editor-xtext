@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2012 - 2017 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
 import com.google.inject.Provider
@@ -22,11 +34,14 @@ import static org.mockito.Mockito.*
 class TclAssertCallBuilderTest extends AbstractTclTest {
 
 	@InjectMocks TclAssertCallBuilder assertCallBuilder // class under test
+	
 	@Mock ModelUtil amlModelUtil // injected into class under test
 	@Mock protected TclModelUtil tclModelUtil // injected into class under test
 	@Mock TclExpressionBuilder expressionBuilder // injected into class under test
 	@Mock SimpleTypeComputer simpleTypeComputer // injected into class under test
+	@Mock VariableCollector variableCollector // injected into class under test	
 	@Mock TclExpressionTypeComputer tclExpressionTypeComputer // injected into class under test
+	
 	@Inject extension TclModelGenerator
 	@Inject protected Provider<XtextResourceSet> resourceSetProvider
 		
@@ -204,7 +219,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 		val jvmTypeReferenceBuilder = jvmTypeReferenceBuilderFactory.create(resourceSetProvider.get)
 		val jvmType = jvmTypeReferenceBuilder.typeRef(clazz)
 
-		when(simpleTypeComputer.collectDeclaredVariablesTypeMap(any)).thenReturn(#{VARIABLE_NAME->jvmType})
+		when(variableCollector.collectDeclaredVariablesTypeMap(any)).thenReturn(#{VARIABLE_NAME->jvmType})
 		when(amlModelUtil.isAssignableWithoutConversion(clazz, jvmType)).thenReturn(true)
 	}
 
