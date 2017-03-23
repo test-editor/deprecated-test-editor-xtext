@@ -17,6 +17,11 @@ import org.junit.Test
 import org.testeditor.dsl.common.testing.DummyFixture
 
 class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationTest {
+	
+	@Before
+	def void parseMacroModel() {
+		parseTcl(DummyFixture.getMacroModel("GreetingApplicationMacro"), "GreetingApplicationMacro.tml")
+	}
 
 	@Before
 	def void parseAmlModel() {
@@ -99,8 +104,8 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			  java.lang.String baz = dummyFixture.getValue("label.greet");
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "boolean book = Read bool from <bar>");
 			  boolean book = dummyFixture.getBool("label.greet");
-			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "java.util.Map<? extends java.lang.Object, ? extends java.lang.Object> mak = Read map from <bar>");
-			  java.util.Map<? extends java.lang.Object, ? extends java.lang.Object> mak = dummyFixture.getMap("label.greet");
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "java.util.Map<java.lang.String, java.lang.String> mak = Read map from <bar>");
+			  java.util.Map<java.lang.String, java.lang.String> mak = dummyFixture.getMap("label.greet");
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert foo");
 			  org.junit.Assert.assertNotNull("SimpleTest.tcl:11: foo", foo);
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert baz = \"fix\"");
@@ -137,6 +142,74 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			  org.junit.Assert.assertEquals("SimpleTest.tcl:27: mak.\"key\" = \"42\"", "42", mak.get("key"));
 			}
 		'''.indent(1))
+	}
+	
+	@Test
+	def void testCoercionAndChecks() {
+		// given
+		val tcl = '''
+			* Test assertions in the famous greeting application
+				Mask: GreetingApplication
+				// read variables of several types
+				- mapvar = Read map from <bar>
+				- longvar = Read long from <bar>
+				- stringvar = Read value from <bar>
+				- boolvar = Read bool from <bar>
+				
+				// usage of several types in map assignment
+				- mapvar.key = mapvar."some value"
+				- mapvar."other key" = "value"
+				- mapvar.key2 = stringvar
+				- mapvar.key3 = longvar // conversion long -> String
+				- mapvar.key4 = boolvar // conversion boolean -> String
+				
+				// usage of several types in method calls
+				- Type boolean @stringvar into <Input> // conversion && check from String to boolean
+				- TypeLong @stringvar into <Input> // converion && check from String to long
+			
+				Macro: GreetingApplicationMacro
+				// usage of several types in macro calls
+				- TypeBoolean @mapvar.key into input field // conversion && check from String to boolean
+				- TypeLong @mapvar."key" into input field // conversion && check from String to long
+		'''
+
+		// when
+		val generatedCode = tcl.parseAndGenerate
+
+		// then
+		generatedCode.assertContains('''
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "java.util.Map<java.lang.String, java.lang.String> mapvar = Read map from <bar>");
+			java.util.Map<java.lang.String, java.lang.String> mapvar = dummyFixture.getMap("label.greet");
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "long longvar = Read long from <bar>");
+			long longvar = dummyFixture.getLong("label.greet");
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "java.lang.String stringvar = Read value from <bar>");
+			java.lang.String stringvar = dummyFixture.getValue("label.greet");
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "boolean boolvar = Read bool from <bar>");
+			boolean boolvar = dummyFixture.getBool("label.greet");
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "mapvar.\"key\" = mapvar.\"some value\"");
+			mapvar.put("key", mapvar.get("some value"));
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "mapvar.\"other key\" = \"value\"");
+			mapvar.put("other key", "value");
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "mapvar.\"key2\" = stringvar");
+			mapvar.put("key2", stringvar);
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "mapvar.\"key3\" = longvar");
+			mapvar.put("key3", Long.toString(longvar));
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "mapvar.\"key4\" = boolvar");
+			mapvar.put("key4", Boolean.toString(boolvar));
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "Type boolean @stringvar into <Input>");
+			org.junit.Assert.assertTrue("Parameter is expected to be of type 'boolean' or 'Boolean' but a non coercible String of value = '"+stringvar.toString()+"' was passed through variable reference = 'stringvar'.", Boolean.TRUE.toString().equals(stringvar) || Boolean.FALSE.toString().equals(stringvar));
+			dummyFixture.typeBoolInto("text.input", Boolean.valueOf(stringvar));
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "TypeLong @stringvar into <Input>");
+			try { Long.parseLong(stringvar); } catch (NumberFormatException nfe) { org.junit.Assert.fail("Parameter is expected to be of type 'long' but a non coercible String of value = '"+stringvar.toString()+"' was passed through variable reference = 'stringvar'."); }
+			dummyFixture.typeLongInto("text.input", org.testeditor.dsl.common.testing.DummyLocatorStrategy.ID, Long.parseLong(stringvar));
+			// Macro: GreetingApplicationMacro
+			// - TypeBoolean @mapvar."key" into input field
+			org.junit.Assert.assertTrue("Parameter is expected to be of type 'boolean' or 'Boolean' but a non coercible String of value = '"+mapvar.get("key").toString()+"' was passed through variable reference = 'mapvar'.", Boolean.TRUE.toString().equals(mapvar.get("key")) || Boolean.FALSE.toString().equals(mapvar.get("key")));
+			macro_GreetingApplicationMacro_TypeBoolIntoInputField(Boolean.valueOf(mapvar.get("key")));
+			// - TypeLong @mapvar."key" into input field
+			try { Long.parseLong(mapvar.get("key")); } catch (NumberFormatException nfe) { org.junit.Assert.fail("Parameter is expected to be of type 'long' but a non coercible String of value = '"+mapvar.get("key").toString()+"' was passed through variable reference = 'mapvar'."); }
+			macro_GreetingApplicationMacro_TypeLongIntoInputField(Long.parseLong(mapvar.get("key")));
+		'''.indent(2))
 	}
 
 	@Test
