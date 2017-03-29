@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.scoping
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.xtext.common.types.JvmDeclaredType
 import org.eclipse.xtext.common.types.JvmOperation
 import org.eclipse.xtext.common.types.JvmParameterizedTypeReference

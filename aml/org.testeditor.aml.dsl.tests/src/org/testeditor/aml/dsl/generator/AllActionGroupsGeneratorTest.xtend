@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.generator
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.junit.Test
 
 /**

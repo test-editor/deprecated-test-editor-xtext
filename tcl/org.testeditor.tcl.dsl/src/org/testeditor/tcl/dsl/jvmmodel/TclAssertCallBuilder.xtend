@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.apache.commons.lang3.StringEscapeUtils
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils

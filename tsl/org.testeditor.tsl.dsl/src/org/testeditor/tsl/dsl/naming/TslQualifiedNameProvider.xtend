@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.tsl.dsl.naming
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import javax.inject.Singleton
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider

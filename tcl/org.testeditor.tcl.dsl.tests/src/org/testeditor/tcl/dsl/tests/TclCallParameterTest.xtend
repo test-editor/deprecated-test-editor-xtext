@@ -1,6 +1,6 @@
 package org.testeditor.tcl.dsl.tests
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.common.types.JvmType
 import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable

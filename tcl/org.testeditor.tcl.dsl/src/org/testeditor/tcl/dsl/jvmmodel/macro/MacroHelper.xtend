@@ -1,7 +1,7 @@
 package org.testeditor.tcl.dsl.jvmmodel.macro
 
 import java.util.Set
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.SetupAndCleanupProvider

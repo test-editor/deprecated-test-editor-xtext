@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.ui.navigation
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
 import org.eclipse.jface.text.Region

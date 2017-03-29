@@ -12,9 +12,9 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.ui.editor
 
-import com.google.inject.Inject
 import java.util.List
 import java.util.concurrent.atomic.AtomicReference
+import com.google.inject.Inject
 import org.eclipse.emf.common.notify.Notification
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.InternalEObject

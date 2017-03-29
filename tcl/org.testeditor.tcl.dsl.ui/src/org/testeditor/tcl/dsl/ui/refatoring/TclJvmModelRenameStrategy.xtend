@@ -14,7 +14,7 @@ package org.testeditor.tcl.dsl.ui.refatoring
 
 import com.google.common.annotations.VisibleForTesting
 import java.util.Set
-import javax.inject.Inject
+import com.google.inject.Inject
 import javax.inject.Named
 import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.Path

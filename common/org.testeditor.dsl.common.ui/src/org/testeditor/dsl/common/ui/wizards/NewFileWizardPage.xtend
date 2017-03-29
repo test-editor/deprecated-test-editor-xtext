@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.ui.wizards
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.core.resources.IContainer
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource

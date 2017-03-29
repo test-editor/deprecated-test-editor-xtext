@@ -2,7 +2,7 @@ package org.testeditor.tcl.dsl.ui.testlaunch
 
 import java.util.HashMap
 import java.util.Set
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.IConfigurationElement
 import org.eclipse.core.runtime.Platform

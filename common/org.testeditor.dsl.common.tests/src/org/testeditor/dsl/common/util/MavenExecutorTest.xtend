@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.util
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.junit.Test
 import org.testeditor.dsl.common.testing.AbstractTest
 import org.testeditor.dsl.common.util.MavenExecutor.MavenVersionValidity

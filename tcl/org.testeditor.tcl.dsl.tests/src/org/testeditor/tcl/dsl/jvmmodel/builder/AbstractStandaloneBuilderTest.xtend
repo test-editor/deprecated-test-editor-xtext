@@ -6,7 +6,7 @@ import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
 import java.util.List
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.xtext.ISetup
 import org.eclipse.xtext.builder.standalone.IIssueHandler
 import org.eclipse.xtext.builder.standalone.IIssueHandler.DefaultIssueHandler

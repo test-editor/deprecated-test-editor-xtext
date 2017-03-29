@@ -1,12 +1,12 @@
 package org.testeditor.tcl.dsl.validation
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.xtext.junit4.validation.ValidationTestHelper
 import org.junit.Test
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
+import org.testeditor.tcl.dsl.tests.parser.AbstractParserTestWithDummyComponent
 
 import static org.testeditor.tcl.TclPackage.Literals.*
-import org.testeditor.tcl.dsl.tests.parser.AbstractParserTestWithDummyComponent
 
 class TclVarUsageValidatorTest extends AbstractParserTestWithDummyComponent {
 	
@@ -77,6 +77,29 @@ class TclVarUsageValidatorTest extends AbstractParserTestWithDummyComponent {
 		tclModel.addToResourceSet('Test.tcl')
 		
 		// then
+		tclModel.assertNoErrors
+	}
+	
+	@Test
+	def void testVariableMapAccessInAssignment() {
+		// given, when
+		val tclModel = tclModel => [
+			test = testCase => [
+				steps += specificationStep => [
+					contexts += componentTestStepContext(dummyComponent) => [
+						val assignmentStep=testStepWithAssignment("myVar", "getMap").withElement("dummyElement")
+						steps += assignmentStep
+						steps += mapEntryAssignment(assignmentStep.variable, "key") => [
+							expression = stringConstant("value")
+						]
+					]
+				]
+			]
+		]
+		tclModel.addToResourceSet('Test.tcl')
+		
+		// then
+		// assignment to a map dereferenced with a key is allowed (results in a put)
 		tclModel.assertNoErrors
 	}
 	

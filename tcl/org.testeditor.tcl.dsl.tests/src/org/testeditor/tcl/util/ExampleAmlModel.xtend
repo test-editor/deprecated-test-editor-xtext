@@ -1,6 +1,6 @@
 package org.testeditor.tcl.util
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtext.junit4.validation.ValidationTestHelper
 import org.testeditor.aml.AmlModel

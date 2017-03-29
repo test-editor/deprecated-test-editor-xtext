@@ -111,6 +111,11 @@ class FixtureReference {
 	contains StepContent[0..*] contents	
 }
 
+class MapEntryAssignment extends AbstractTestStep {
+	contains VariableReferenceMapAccess variableReference
+	contains Expression expression
+}
+
 class AssertionTestStep extends AbstractTestStep {
 	contains Expression assertExpression
 }

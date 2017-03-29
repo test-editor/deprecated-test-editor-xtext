@@ -35,7 +35,8 @@ Require-Bundle: com.google.guava,
  org.eclipse.ui.workbench,
  org.eclipse.xtext.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: org.eclipse.e4.core.di,
+Import-Package: javax.inject,
+ org.eclipse.e4.core.di,
  org.eclipse.e4.core.di.annotations,
  org.eclipse.e4.core.di.extensions,
  org.eclipse.e4.core.di.internal.extensions,

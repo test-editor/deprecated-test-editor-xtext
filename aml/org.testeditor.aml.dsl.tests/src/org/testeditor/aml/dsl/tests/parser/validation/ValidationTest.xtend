@@ -13,7 +13,7 @@
 package org.testeditor.aml.dsl.tests.parser.validation
 
 import java.text.MessageFormat
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.junit.Test
 import org.testeditor.aml.dsl.tests.AmlModelGenerator
 import org.testeditor.aml.dsl.tests.parser.AbstractParserTest

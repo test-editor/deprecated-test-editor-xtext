@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.ui.editor
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.jface.text.TextSelection
 import org.eclipse.jface.text.source.ISourceViewer
 import org.eclipse.swt.dnd.DND

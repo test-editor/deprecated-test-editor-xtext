@@ -16,7 +16,7 @@ import java.util.LinkedHashMap
 import java.util.List
 import java.util.Map
 import java.util.Set
-import javax.inject.Inject
+import com.google.inject.Inject
 import javax.inject.Singleton
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.EcoreUtil2
@@ -50,6 +50,7 @@ import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
+import org.testeditor.tcl.MapEntryAssignment
 
 @Singleton
 class TclModelUtil extends TslModelUtil {
@@ -271,6 +272,7 @@ class TclModelUtil extends TslModelUtil {
 			switch (it) {
 				TestStep: contents.exists[makesUseOfVariablesViaReference(variables)]
 				AssertionTestStep: assertExpression.makesUseOfVariablesViaReference(variables)
+				MapEntryAssignment: expression.makesUseOfVariablesViaReference(variables)
 				default: throw new RuntimeException('''Unknown TestStep type='«class.canonicalName»'.''')
 			}
 		]

@@ -2,7 +2,7 @@ package org.testeditor.tcl.util
 
 import java.util.Map
 import java.util.Set
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.junit.Before
 import org.junit.Test
 import org.testeditor.aml.ModelUtil

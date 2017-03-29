@@ -17,7 +17,7 @@ import java.nio.file.Files
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.List
-import javax.inject.Inject
+import com.google.inject.Inject
 import javax.xml.parsers.DocumentBuilderFactory
 import org.eclipse.e4.core.di.annotations.Creatable
 import org.slf4j.LoggerFactory

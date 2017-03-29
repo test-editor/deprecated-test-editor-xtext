@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.ui.contentassist
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.jface.text.contentassist.CompletionProposal
 import org.eclipse.xtext.AbstractRule

@@ -2,7 +2,7 @@ package org.testeditor.tcl.dsl.jvmmodel
 
 import java.util.Map
 import java.util.Optional
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.xtext.common.types.JvmEnumerationType
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.testeditor.aml.InteractionType
@@ -11,6 +11,7 @@ import org.testeditor.aml.TemplateVariable
 import org.testeditor.dsl.common.util.CollectionUtils
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.Macro
+import org.testeditor.tcl.MapEntryAssignment
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.TestStepWithAssignment
@@ -58,6 +59,11 @@ class SimpleTypeComputer {
 		val result = newHashMap
 		context.steps.map[collectDeclaredVariablesTypeMap].forEach[result.putAll(it)]
 		return result
+	}
+
+	def dispatch Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(MapEntryAssignment assignment) {
+		// Map entry assignments use a known map, no new variables are declared
+		return emptyMap
 	}
 	
 	def dispatch Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(TestStepWithAssignment testStep) {

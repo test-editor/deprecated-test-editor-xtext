@@ -1,6 +1,6 @@
 package org.testeditor.tcl.dsl.jvmmodel
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.junit.Before
 import org.junit.Test
 import org.testeditor.aml.AmlModel

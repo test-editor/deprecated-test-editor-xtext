@@ -1,7 +1,7 @@
 package org.testeditor.tcl.util
 
 import java.util.Optional
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.testeditor.aml.ElementWithInteractions
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.ValueSpace

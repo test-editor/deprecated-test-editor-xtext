@@ -2,8 +2,8 @@ package org.testeditor.tcl.dsl.tests.parser
 
 import com.google.inject.Inject
 import org.junit.Test
-import org.testeditor.tcl.dsl.tests.AbstractTclTest
 import org.testeditor.dsl.common.testing.DslParseHelper
+import org.testeditor.tcl.dsl.tests.AbstractTclTest
 
 class TestConfigurationParserTest extends AbstractTclTest {
 

@@ -12,24 +12,28 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.validation
 
+import java.util.Map
 import java.util.Optional
 import java.util.Set
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.common.types.JvmTypeReference
+import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateVariable
+import org.testeditor.aml.Variable
 import org.testeditor.dsl.common.util.CollectionUtils
 import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.MacroTestStepContext
+import org.testeditor.tcl.MapEntryAssignment
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.VariableReference
+import org.testeditor.tcl.VariableReferenceMapAccess
 import org.testeditor.tcl.dsl.jvmmodel.SimpleTypeComputer
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentText
-import org.testeditor.aml.TemplateContainer
 
 /**
  * Functions for validating types for variable/parameter definition and usage
@@ -70,6 +74,11 @@ class TclTypeValidationUtil {
 		return result
 	}
 	
+	def Pair<Variable, Optional<JvmTypeReference>> getAssignmentType(MapEntryAssignment assignment) {
+		val variableReference = assignment.getVariableReference
+		return new Pair(variableReference.variable, Optional.of(Map.getJvmTypeReferenceForClass(assignment)))
+	}
+	
 	/** 
 	 * get the actual jvm types from the fixtures that are transitively used and to which this variable/parameter is passed to
 	 */
@@ -77,11 +86,16 @@ class TclTypeValidationUtil {
 		// type derivation of variable usage within assertions is not implemented "yet" => filter on test steps only
 		// TODO this has to be implemented if the check is to be performed on assertions!
 		val typesUsages = componentTestStepContext.steps.filter(TestStep).map [ step |
-			step.stepVariableFixtureParameterTypePairs.filterKey(VariableReference).filter [
+			step.stepVariableFixtureParameterTypePairs.filterKey(VariableReference).filter[!(key instanceof VariableReferenceMapAccess)].filter [
 				key.variable.name == variableName
 			].map[value]
-		].flatten.filterNull.toSet
-		return typesUsages
+		].flatten.filterNull
+		val typesUsagesThroughAssignments = componentTestStepContext.steps.filter(MapEntryAssignment).filter[
+			variableReference.variable.name == variableName
+		].map [ step |
+			step.assignmentType.value
+		]
+		return (typesUsages + typesUsagesThroughAssignments).toSet
 	}
 
 	/** 
