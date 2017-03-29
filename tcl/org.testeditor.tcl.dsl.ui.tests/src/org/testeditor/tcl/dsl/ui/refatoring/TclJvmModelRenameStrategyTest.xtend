@@ -1,6 +1,6 @@
 package org.testeditor.tcl.dsl.ui.refatoring
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.xtext.junit4.util.ParseHelper

@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.tsl.dsl.ui.labeling
 
-import javax.inject.Inject
+import com.google.inject.Inject
 
 class TslLabelProvider extends org.eclipse.xtext.ui.label.DefaultEObjectLabelProvider {
 

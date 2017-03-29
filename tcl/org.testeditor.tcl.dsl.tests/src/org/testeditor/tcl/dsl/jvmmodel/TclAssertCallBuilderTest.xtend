@@ -1,7 +1,7 @@
 package org.testeditor.tcl.dsl.jvmmodel
 
 import com.google.inject.Provider
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.xtext.resource.XtextResourceSet
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypeReferenceBuilder
 import org.junit.Before

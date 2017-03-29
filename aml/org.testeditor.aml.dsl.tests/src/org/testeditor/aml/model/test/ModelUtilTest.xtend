@@ -3,7 +3,7 @@ package org.testeditor.aml.model.test
 import com.google.inject.Provider
 import java.util.List
 import java.util.Map
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypeReferenceBuilder
 import org.junit.Assert

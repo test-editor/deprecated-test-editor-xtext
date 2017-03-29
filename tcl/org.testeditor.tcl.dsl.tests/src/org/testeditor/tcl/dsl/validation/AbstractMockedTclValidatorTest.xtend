@@ -1,6 +1,6 @@
 package org.testeditor.tcl.dsl.validation
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.xtext.validation.ValidationMessageAcceptor
 import org.junit.Before
 import org.mockito.ArgumentCaptor

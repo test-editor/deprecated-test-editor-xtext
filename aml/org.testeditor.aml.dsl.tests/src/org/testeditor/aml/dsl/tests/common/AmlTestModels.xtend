@@ -1,6 +1,6 @@
 package org.testeditor.aml.dsl.tests.common
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.dsl.tests.AmlModelGenerator

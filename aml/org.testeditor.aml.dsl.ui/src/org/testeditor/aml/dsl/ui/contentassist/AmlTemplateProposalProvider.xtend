@@ -1,6 +1,6 @@
 package org.testeditor.aml.dsl.ui.contentassist
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.jface.text.templates.ContextTypeRegistry
 import org.eclipse.jface.text.templates.Template
 import org.eclipse.jface.text.templates.TemplateContext

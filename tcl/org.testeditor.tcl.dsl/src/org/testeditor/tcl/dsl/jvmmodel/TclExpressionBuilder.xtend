@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.testeditor.aml.Variable
 import org.testeditor.tcl.ComparatorEquals

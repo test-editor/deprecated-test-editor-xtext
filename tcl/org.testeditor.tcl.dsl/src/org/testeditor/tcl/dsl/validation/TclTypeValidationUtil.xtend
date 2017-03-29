@@ -15,7 +15,7 @@ package org.testeditor.tcl.dsl.validation
 import java.util.Map
 import java.util.Optional
 import java.util.Set
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.testeditor.aml.TemplateContainer

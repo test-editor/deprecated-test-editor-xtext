@@ -1,6 +1,6 @@
 package org.testeditor.tcl.dsl.ui.testlaunch
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IMarker
 import org.eclipse.core.resources.IResource

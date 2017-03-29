@@ -13,7 +13,7 @@
 package org.testeditor.tcl.dsl.ui.tests.editor
 
 import java.util.concurrent.atomic.AtomicReference
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.xtext.EcoreUtil2
 import org.junit.Before
 import org.junit.Test

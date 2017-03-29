@@ -1,7 +1,7 @@
 package org.testeditor.tcl.dsl.ui.tests.contentassist
 
 import java.io.InputStream
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.emf.common.util.URI
 import org.eclipse.xtext.junit4.InjectWith
 import org.eclipse.xtext.junit4.XtextRunner

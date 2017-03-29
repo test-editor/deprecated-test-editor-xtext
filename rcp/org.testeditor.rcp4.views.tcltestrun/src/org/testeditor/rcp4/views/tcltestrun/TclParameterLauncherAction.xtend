@@ -13,7 +13,7 @@
 package org.testeditor.rcp4.views.tcltestrun
 
 import org.testeditor.dsl.common.util.PlatformHelper
-import javax.inject.Inject
+import com.google.inject.Inject
 
 class TclParameterLauncherAction extends TclLauncherAction {
 	

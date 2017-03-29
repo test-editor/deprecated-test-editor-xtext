@@ -15,7 +15,7 @@ package org.testeditor.tcl.dsl.jvmmodel
 import java.util.List
 import java.util.Optional
 import java.util.Set
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.apache.commons.lang3.StringEscapeUtils
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.EcoreUtil2

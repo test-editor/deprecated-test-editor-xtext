@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.validation
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.junit.Test
 import org.mockito.Mock
 import org.testeditor.aml.dsl.tests.AmlModelGenerator

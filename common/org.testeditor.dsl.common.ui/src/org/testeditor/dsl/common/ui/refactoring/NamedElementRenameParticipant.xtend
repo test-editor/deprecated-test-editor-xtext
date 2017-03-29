@@ -2,7 +2,7 @@ package org.testeditor.dsl.common.ui.refactoring
 
 import com.google.common.annotations.VisibleForTesting
 import java.util.Set
-import javax.inject.Inject
+import com.google.inject.Inject
 import javax.inject.Named
 import org.apache.commons.io.FilenameUtils
 import org.eclipse.core.resources.IFile

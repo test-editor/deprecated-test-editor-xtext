@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.tcltestrun
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.FileLocator
 import org.eclipse.core.runtime.Path

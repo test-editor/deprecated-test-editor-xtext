@@ -2,7 +2,7 @@ package org.testeditor.tcl.dsl.ui.util
 
 import java.util.ArrayList
 import java.util.Map
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.xtext.EcoreUtil2

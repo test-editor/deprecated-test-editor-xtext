@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.conversion
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.xtext.common.services.Ecore2XtextTerminalConverters
 import org.eclipse.xtext.conversion.IValueConverter
 import org.eclipse.xtext.conversion.ValueConverter

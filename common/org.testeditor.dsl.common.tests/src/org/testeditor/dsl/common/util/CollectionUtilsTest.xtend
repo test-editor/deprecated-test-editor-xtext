@@ -1,7 +1,7 @@
 package org.testeditor.dsl.common.util
 
 import java.math.BigInteger
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.junit.Test
 import org.testeditor.dsl.common.testing.AbstractTest
 

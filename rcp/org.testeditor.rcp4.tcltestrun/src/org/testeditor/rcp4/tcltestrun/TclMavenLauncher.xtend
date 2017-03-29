@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.List
 import java.util.Map
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.IStatus
