@@ -16,7 +16,7 @@ import java.text.MessageFormat
 import java.util.Map
 import java.util.regex.Pattern
 import java.util.regex.PatternSyntaxException
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.xtype.XImportSection
 import org.testeditor.aml.AmlModel

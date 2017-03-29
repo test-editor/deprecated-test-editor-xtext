@@ -1,6 +1,6 @@
 package org.testeditor.aml.dsl.scoping
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.xtext.junit4.validation.ValidationTestHelper
 import org.testeditor.aml.dsl.tests.AbstractAmlTest
 import org.testeditor.dsl.common.testing.DslParseHelper

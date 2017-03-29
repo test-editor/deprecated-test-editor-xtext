@@ -15,7 +15,7 @@ package org.testeditor.tcl.dsl.ui.tests.editor
 import com.google.common.base.Strings
 import com.google.common.io.ByteStreams
 import java.nio.charset.StandardCharsets
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.junit.Before
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.Component

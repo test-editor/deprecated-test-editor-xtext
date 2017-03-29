@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.tests.parser
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.junit.Before
 import org.testeditor.aml.Component
 import org.testeditor.aml.dsl.AmlStandaloneSetup

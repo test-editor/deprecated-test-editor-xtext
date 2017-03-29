@@ -13,7 +13,7 @@
 package org.testeditor.aml.dsl.generator
 
 import com.google.common.annotations.VisibleForTesting
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.IFileSystemAccess
 import org.eclipse.xtext.generator.IGenerator

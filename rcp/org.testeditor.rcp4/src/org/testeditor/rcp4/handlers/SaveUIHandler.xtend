@@ -32,8 +32,12 @@ class SaveUIHandler {
 	public def void saveUI(EModelService modelService) {
 		val perspectiveStack = modelService.find(MAIN_PERSPECTIVE_STACK_ID, application) as MPerspectiveStack
 		if (perspectiveStack !== null) {
-			modelService.cloneElement(perspectiveStack.selectedElement, application) as MPerspective
-			logger.info("Saved current UI (perspective) for reset.")
+			try {
+				modelService.cloneElement(perspectiveStack.selectedElement, application) as MPerspective
+				logger.info("Saved current UI (perspective) for reset.")
+			} catch (Exception e) {
+				logger.error("Error during save UI", e)
+			}
 		} else {
 			logger.warn(
 				"Unable to save current UI (perspective) for reset. Perspective ID='{}' not found by model service.",

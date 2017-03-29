@@ -15,7 +15,7 @@ package org.testeditor.dsl.common.util.classpath
 import java.io.ByteArrayOutputStream
 import java.util.ArrayList
 import java.util.List
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.Path
 import org.testeditor.dsl.common.util.GradleHelper

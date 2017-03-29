@@ -1,6 +1,6 @@
 package org.testeditor.tcl.dsl.ui.wizard
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.testeditor.dsl.common.ui.wizards.NewFileWizard
 import org.testeditor.dsl.common.ui.wizards.NewFileWizardPage
 

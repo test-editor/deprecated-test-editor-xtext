@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.ui.wizards
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.eclipse.jface.wizard.IWizardPage
 import org.eclipse.jface.wizard.WizardPage

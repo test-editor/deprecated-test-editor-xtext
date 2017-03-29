@@ -4,7 +4,7 @@ import com.google.inject.Module
 import com.google.inject.name.Names
 import java.util.List
 import java.util.Optional
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.apache.commons.lang3.reflect.FieldUtils
 import org.eclipse.jface.text.IDocumentPartitioner
 import org.eclipse.ltk.core.refactoring.TextFileChange

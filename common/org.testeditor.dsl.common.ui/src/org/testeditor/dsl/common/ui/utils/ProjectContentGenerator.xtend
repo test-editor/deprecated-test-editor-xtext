@@ -15,7 +15,7 @@ package org.testeditor.dsl.common.ui.utils
 import com.google.common.annotations.VisibleForTesting
 import java.io.File
 import java.util.List
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.core.resources.FileInfoMatcherDescription
 import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IProject

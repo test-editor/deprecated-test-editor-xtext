@@ -2,7 +2,7 @@ package org.testeditor.aml.dsl.scoping
 
 import java.util.Collection
 import java.util.List
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import org.junit.Test
