@@ -70,7 +70,7 @@ class TclModelUtil extends TslModelUtil {
 		return model.test?.name ?: model.config?.name ?: model.macroCollection?.name
 	}
 
-	override String restoreString(List<StepContent> contents) {
+	override String restoreString(Iterable<StepContent> contents) {
 		return contents.map [
 			switch (it) {
 				StepContentVariable: '''"«value»"'''
@@ -290,6 +290,16 @@ class TclModelUtil extends TslModelUtil {
 		return expression.eAllContents.filter(VariableReference).exists [
 			variables.contains(variable.name)
 		]
+	}
+	
+	/**
+	 * allow usage of "contents" on TestStep s even if fixtureReference is null
+	 */
+	def Iterable<StepContent> getContents(TestStep testStep) {
+		if (testStep.fixtureReference !== null) {
+			return testStep.fixtureReference.contents
+		}	
+		return emptyList
 	}
 
 }

@@ -104,7 +104,11 @@ abstract class AbstractTestStep {
 }
 
 class TestStep extends AbstractTestStep {
-	contains StepContent[0..*] contents
+	contains FixtureReference fixtureReference
+}
+
+class FixtureReference {
+	contains StepContent[0..*] contents	
 }
 
 class AssertionTestStep extends AbstractTestStep {
