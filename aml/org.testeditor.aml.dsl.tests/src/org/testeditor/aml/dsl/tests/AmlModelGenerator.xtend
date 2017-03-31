@@ -1,6 +1,6 @@
 package org.testeditor.aml.dsl.tests
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.xtext.common.types.JvmDeclaredType
 import org.eclipse.xtext.common.types.JvmEnumerationLiteral

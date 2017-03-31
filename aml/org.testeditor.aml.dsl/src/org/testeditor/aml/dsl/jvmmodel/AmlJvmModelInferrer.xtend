@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.jvmmodel
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.xtext.common.types.JvmDeclaredType
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer

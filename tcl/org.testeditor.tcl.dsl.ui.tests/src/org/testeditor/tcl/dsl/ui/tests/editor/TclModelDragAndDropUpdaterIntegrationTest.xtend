@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.ui.tests.editor
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.resource.SaveOptions
 import org.junit.Test

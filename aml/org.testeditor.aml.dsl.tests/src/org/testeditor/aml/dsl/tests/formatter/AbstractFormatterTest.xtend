@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.tests.formatter
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import javax.inject.Provider
 import org.eclipse.xtext.junit4.formatter.FormatterTestRequest
 import org.eclipse.xtext.junit4.formatter.FormatterTester

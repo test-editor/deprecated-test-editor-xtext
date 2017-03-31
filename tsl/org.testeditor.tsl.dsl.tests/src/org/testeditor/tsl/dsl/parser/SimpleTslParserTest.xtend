@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.tsl.dsl.parser
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.junit.Test
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil

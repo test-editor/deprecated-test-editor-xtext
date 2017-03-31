@@ -1,6 +1,6 @@
 package org.testeditor.dsl.common.ui.workbench
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.e4.ui.model.application.ui.MElementContainer
 import org.eclipse.e4.ui.model.application.ui.MUIElement
 import org.junit.Test

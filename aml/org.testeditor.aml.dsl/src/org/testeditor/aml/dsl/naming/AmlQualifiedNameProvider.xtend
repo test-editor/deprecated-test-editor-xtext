@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.naming
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.naming.IQualifiedNameConverter
 import org.eclipse.xtext.xbase.scoping.XbaseQualifiedNameProvider

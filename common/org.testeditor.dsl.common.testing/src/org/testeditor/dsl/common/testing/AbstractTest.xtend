@@ -5,7 +5,7 @@ import com.google.inject.Injector
 import com.google.inject.Module
 import com.google.inject.util.Modules
 import java.util.List
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.resource.impl.BinaryGrammarResourceFactoryImpl
 import org.junit.Before

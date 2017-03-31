@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.tsl.dsl.parser
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.testeditor.tsl.dsl.tests.AbstractTslTest
 import org.eclipse.xtext.junit4.validation.ValidationTestHelper
 import org.testeditor.dsl.common.testing.DslParseHelper

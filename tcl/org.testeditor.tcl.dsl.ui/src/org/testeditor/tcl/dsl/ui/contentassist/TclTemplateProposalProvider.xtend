@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.ui.contentassist
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.jface.text.templates.ContextTypeRegistry
 import org.eclipse.jface.text.templates.TemplateContext
 import org.eclipse.jface.text.templates.persistence.TemplateStore

@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.rcp4.views.tcltestrun.console
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.ui.console.IConsoleFactory
 
 class TCLConsoleFactory implements IConsoleFactory {

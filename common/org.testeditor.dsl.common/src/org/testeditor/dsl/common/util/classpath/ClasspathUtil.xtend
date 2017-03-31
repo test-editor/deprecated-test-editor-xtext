@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.util.classpath
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.CoreException
 import org.eclipse.core.runtime.IPath

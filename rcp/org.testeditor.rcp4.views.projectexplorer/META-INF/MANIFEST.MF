@@ -19,3 +19,4 @@ Require-Bundle: org.eclipse.ui.navigator;bundle-version="3.6.0",
  org.testeditor.dsl.common.ui,
  org.testeditor.logging
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: javax.inject

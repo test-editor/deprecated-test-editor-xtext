@@ -13,7 +13,7 @@
 package org.testeditor.tcl.dsl.jvmmodel
 
 import com.google.common.base.Strings
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.eclipse.xtext.generator.IGenerator
 import org.eclipse.xtext.resource.XtextResourceSet
 import org.testeditor.tcl.TclModel
