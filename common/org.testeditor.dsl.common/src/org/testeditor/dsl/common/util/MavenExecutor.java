@@ -25,7 +25,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.maven.cli.MavenCli;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -48,32 +47,6 @@ public class MavenExecutor {
 
 	public enum MavenVersionValidity {
 		wrong_version, unknown_version, ok, no_maven
-	}
-
-	/**
-	 * Executes the maven build using maven embedder. It allways starts with a
-	 * clean operation to delete old test results.
-	 * 
-	 * @param parameters
-	 *            for maven (separated by spaces, e.g. "clean integration-test"
-	 *            to execute the given goals)
-	 * @param pathToPom
-	 *            path to the folder where the pom.xml is located.
-	 * @return int with exit code
-	 * 
-	 */
-	public int execute(String parameters, String pathToPom) {
-		System.setProperty("maven.multiModuleProjectDirectory", pathToPom);
-		MavenCli cli = new MavenCli();
-		List<String> params = new ArrayList<String>();
-		params.addAll(Arrays.asList(parameters.split(" ")));
-		String mavenSettings = System.getProperty("TE.MAVENSETTINGSPATH");
-		if (mavenSettings != null && mavenSettings.length() > 0) {
-			params.add("-s");
-			params.add(mavenSettings);
-		}
-		int result = cli.doMain(params.toArray(new String[] {}), pathToPom, System.out, System.err);
-		return result;
 	}
 
 	/**
@@ -155,31 +128,6 @@ public class MavenExecutor {
 			return mavenHome + "\\bin\\mvn.bat";
 		} else {
 			return mavenHome + "/bin/mvn";
-		}
-	}
-
-	/**
-	 * Entry point of the new jvm used for the maven build.
-	 * 
-	 * @param args
-	 *            the maven parameter.
-	 */
-	public static void main(String[] args) {
-		logger.info("Proxy host: {}", System.getProperty("http.proxyHost"));
-		if (args.length > 2) {
-			if (args[2].contains("=")) {
-				logger.info("Running maven build with settings='{}'", args[2]);
-				String[] split = args[2].split("=");
-				System.setProperty(split[0], split[1]);
-			} else {
-				logger.warn("Running maven build IGNORING MISSPELLED settings='{}' (missing infix '=')", args[2]);
-			}
-		} else {
-			logger.info("Running maven build without settings");
-		}
-		int result = new MavenExecutor().execute(args[0], args[1]);
-		if (result != 0) {
-			System.exit(result);
 		}
 	}
 
