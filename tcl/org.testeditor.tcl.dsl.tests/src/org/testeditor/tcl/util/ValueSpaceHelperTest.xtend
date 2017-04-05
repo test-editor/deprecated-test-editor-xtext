@@ -1,6 +1,6 @@
 package org.testeditor.tcl.util
 
-import com.google.inject.Inject
+import javax.inject.Inject
 import org.eclipse.xtext.resource.XtextResourceSet
 import org.junit.Before
 import org.junit.Test

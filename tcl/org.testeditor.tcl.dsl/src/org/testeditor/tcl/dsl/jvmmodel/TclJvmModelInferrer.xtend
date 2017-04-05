@@ -12,10 +12,10 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
-import com.google.inject.Inject
 import java.util.List
 import java.util.Optional
 import java.util.Set
+import javax.inject.Inject
 import org.apache.commons.lang3.StringEscapeUtils
 import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.common.types.JvmConstructor
