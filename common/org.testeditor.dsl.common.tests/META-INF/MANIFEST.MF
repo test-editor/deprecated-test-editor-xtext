@@ -4,8 +4,9 @@ Bundle-Name: Tests
 Bundle-SymbolicName: org.testeditor.dsl.common.tests
 Bundle-Version: 1.6.0.qualifier
 Bundle-Vendor: Signal Iduna Corporation
-Fragment-Host: org.testeditor.dsl.common;bundle-version="1.0.0"
+Fragment-Host: org.testeditor.dsl.common
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.junit,
- org.junit.rules;version="4.12.0"
+ org.junit.rules;version="4.12.0",
+ javax.inject;version="1.0.0"
 Require-Bundle: org.testeditor.dsl.common.testing

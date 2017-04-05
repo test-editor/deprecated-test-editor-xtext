@@ -29,7 +29,8 @@ Require-Bundle: org.testeditor.dsl.common,
  org.eclipse.jdt.ui,
  org.eclipse.xtend.lib;resolution:=optional,
  org.testeditor.aml.dsl.ide
-Import-Package: org.apache.log4j
+Import-Package: org.apache.log4j,
+ javax.inject;version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.testeditor.aml.dsl.ui,
  org.testeditor.aml.dsl.ui.contentassist,
