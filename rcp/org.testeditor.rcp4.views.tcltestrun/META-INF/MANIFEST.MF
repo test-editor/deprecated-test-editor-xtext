@@ -29,6 +29,7 @@ Import-Package: javax.servlet,
  javax.servlet.http,
  org.eclipse.equinox.http.servlet;version="1.2.0",
  org.osgi.service.http;version="1.2.1",
- org.osgi.service.http.context;version="1.0.0"
+ org.osgi.service.http.context;version="1.0.0",
+ javax.inject;version="1.0.0"
 Bundle-ClassPath: .
 Eclipse-BundleShape: dir

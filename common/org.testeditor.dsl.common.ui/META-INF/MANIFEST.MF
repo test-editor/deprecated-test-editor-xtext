@@ -24,3 +24,4 @@ Export-Package: org.testeditor.dsl.common.ui.refactoring,
  org.testeditor.dsl.common.ui.utils,
  org.testeditor.dsl.common.ui.wizards,
  org.testeditor.dsl.common.ui.workbench
+Import-Package: javax.inject;version="1.0.0"

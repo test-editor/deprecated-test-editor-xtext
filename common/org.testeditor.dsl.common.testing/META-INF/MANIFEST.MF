@@ -13,7 +13,7 @@ Require-Bundle: org.eclipse.core.resources,
  org.testeditor.aml.dsl,
  org.junit;bundle-version="4.12.0",
  org.testeditor.dsl.common.model
-Import-Package: javax.inject,
+Import-Package: javax.inject;version="1.0.0",
  org.hamcrest.core,
  org.slf4j,
  org.testeditor.tcl,

@@ -10,7 +10,8 @@ Require-Bundle: org.eclipse.xtext,
  org.testeditor.tsl.dsl,
  org.eclipse.xtext.junit4,
  org.testeditor.dsl.common.testing
-Import-Package: org.apache.log4j,
+Import-Package: javax.inject;version="1.0.0",
+ org.apache.log4j,
  org.junit,
  org.junit.runner,
  org.hamcrest.core

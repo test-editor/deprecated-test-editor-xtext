@@ -24,7 +24,8 @@ Import-Package: com.google.inject,
  org.eclipse.xtext.validation,
  org.junit,
  org.junit.runner,
- org.junit.runners
+ org.junit.runners,
+ javax.inject;version="1.0.0"
 Export-Package: org.testeditor.aml.dsl.tests,
  org.testeditor.aml.dsl.tests.parser,
  org.testeditor.aml.dsl.tests.common
