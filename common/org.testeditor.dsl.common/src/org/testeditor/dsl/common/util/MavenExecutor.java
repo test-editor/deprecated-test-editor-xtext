@@ -127,7 +127,7 @@ public class MavenExecutor {
 		if (isOsWindows) {
 			return mavenHome + "\\bin\\mvn.bat";
 		} else {
-			return mavenHome + "/bin/mvn";
+			return (mavenHome + "/bin/mvn").replaceAll("//", "/");
 		}
 	}
 
