@@ -1,143 +1,165 @@
-* {
-  box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
-  font-family: arial;
+@import url(http://fonts.googleapis.com/css?family=Roboto);    
+/*
+ * Specific styles of signin component
+ */
+/*
+ * General styles
+ */
+
+.container {
+  background-color: rgb(165, 185, 195)
 }
 
 body {
-  background: #FF9000;
-  background: #B1ABA4;
+  background-color: rgb(165, 185, 195);
 }
 
-h1 {
-  color: #ccc;
-  text-align: center;
-  font-family: Arial;
-  font-size: 50px;
+
+
+body, html {
+    height: 100%;
+   /* background-repeat: no-repeat;
+    background-image: linear-gradient(rgb(104, 145, 162), rgb(12, 97, 33)); */
+    background-color: rgb(165, 185, 195);
+    font-family: roboto;
 }
 
-.login-form {
-  width: 390px;
-  padding: 40px 30px;
-  background: #eee;
-  -moz-border-radius: 19px;
-  -webkit-border-radius: 19px;
-  border-radius: 19px;
-  margin: auto;
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  -moz-transform: translateY(-50%);
-  -ms-transform: translateY(-50%);
-  -webkit-transform: translateY(-50%);
-  transform: translateY(-50%);
+.card-container.card {
+    max-width: 350px;
+    padding: 40px 40px;
 }
 
-.form-group {
-  position: relative;
-  margin-bottom: 15px;
+.btn {
+    font-weight: 700;
+    height: 36px;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: default;
 }
 
-.form-control {
-  width: 100%;
-  height: 50px;
-  border: none;
-  padding: 5px 7px 5px 15px;
-  background: #fff;
-  color: #666;
-  border: 2px solid #ddd;
-  -moz-border-radius: 4px;
-  -webkit-border-radius: 4px;
-  border-radius: 4px;
-}
-.form-control:focus, .form-control:focus + .fa {
-  border-color: #10CE88;
-  color: #10CE88;
-}
-
-.form-group .fa {
-  position: absolute;
-  right: 15px;
-  top: 17px;
-  color: #999;
+/*
+ * Card component
+ */
+.card {
+    background-color: #F7F7F7;
+    /* just in case there no content*/
+    padding: 20px 25px 30px;
+    margin: 0 auto 25px;
+    margin-top: 50px;
+    /* shadows and rounded borders */
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
 }
 
-.log-status.wrong-entry {
-  -moz-animation: wrong-log 0.3s;
-  -webkit-animation: wrong-log 0.3s;
-  animation: wrong-log 0.3s;
+.profile-img-card {
+    width: 96px;
+    height: 96px;
+    margin: 0 auto 10px;
+    display: block;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
 }
 
-.log-status.wrong-entry .form-control, .wrong-entry .form-control + .fa {
-  border-color: #ed1c24;
-  color: #ed1c24;
+/*
+ * Form styles
+ */
+.profile-name-card {
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    margin: 10px 0 0;
+    min-height: 1em;
 }
 
-.log-btn {
-  background: #0AC986;
-  dispaly: inline-block;
-  width: 100%;
-  font-size: 16px;
-  height: 50px;
-  color: #fff;
-  text-decoration: none;
-  border: none;
-  -moz-border-radius: 4px;
-  -webkit-border-radius: 4px;
-  border-radius: 4px;
+.reauth-email {
+    display: block;
+    color: #404040;
+    line-height: 2;
+    margin-bottom: 10px;
+    font-size: 14px;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
 }
 
-.link {
-  text-decoration: none;
-  color: #C6C6C6;
-  float: right;
-  font-size: 12px;
-  margin-bottom: 15px;
-}
-.link:hover {
-  text-decoration: underline;
-  color: #8C918F;
+.form-signin #inputEmail,
+.form-signin #inputPassword {
+    direction: ltr;
+    height: 44px;
+    font-size: 16px;
+    
 }
 
-.alert {
-  display: none;
-  font-size: 12px;
-  color: #f00;
-  float: left;
+.form-signin input[type=email],
+.form-signin input[type=password],
+.form-signin input[type=text],
+.form-signin button {
+    width: 100%;
+    display: block;
+    margin-bottom: 10px;
+    z-index: 1;
+    position: relative;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    padding-left: 15px;
+    margin-left: 3px;
 }
 
-@-moz-keyframes wrong-log {
-  0%, 100% {
-    left: 0px;
-  }
-  20% , 60% {
-    left: 15px;
-  }
-  40% , 80% {
-    left: -15px;
-  }
+.form-signin .form-control:focus {
+    border-color: rgb(104, 145, 162);
+    outline: 0;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgb(104, 145, 162);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgb(104, 145, 162);
 }
-@-webkit-keyframes wrong-log {
-  0%, 100% {
-    left: 0px;
-  }
-  20% , 60% {
-    left: 15px;
-  }
-  40% , 80% {
-    left: -15px;
-  }
+
+.btn.btn-signin {
+    /*background-color: #4d90fe; */
+    background-color: rgb(104, 145, 162);
+    /* background-color: linear-gradient(rgb(104, 145, 162), rgb(12, 97, 33));*/
+    padding: 0px;
+    font-weight: 700;
+    font-size: 14px;
+    height: 36px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    border: none;
+    -o-transition: all 0.218s;
+    -moz-transition: all 0.218s;
+    -webkit-transition: all 0.218s;
+    transition: all 0.218s;
 }
-@keyframes wrong-log {
-  0%, 100% {
-    left: 0px;
-  }
-  20% , 60% {
-    left: 15px;
-  }
-  40% , 80% {
-    left: -15px;
-  }
+
+.btn.btn-signin:hover,
+.btn.btn-signin:active,
+.btn.btn-signin:focus {
+    background-color: rgb(200, 200, 200);
+}
+
+.forgot-password {
+    font-family: roboto;
+    color: rgb(104, 145, 162);
+}
+
+.forgot-password:hover,
+.forgot-password:active,
+.forgot-password:focus{
+    color: rgb(200, 200, 200);
+}
+
+#remember {
+       font-family: roboto; 
+       margin-top: 15px;
+       margin-bottom: 15px;
 }
