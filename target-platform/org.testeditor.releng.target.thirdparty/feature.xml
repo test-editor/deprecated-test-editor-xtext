@@ -160,6 +160,8 @@ itemis AG
          version="0.0.0"
          unpack="false"/>
 
+   <!-- provides javax.inject, too
+        if removed, keep in mind to provide other plugin for javax.inject -->
    <plugin
          id="com.eclipsesource.jaxrs.jersey-min"
          download-size="0"

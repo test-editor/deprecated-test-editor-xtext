@@ -3,6 +3,10 @@
 
 ## OSGI background information
 
+* Uses constraint violations (bundle can load dependency via two different dependency paths)
+
+[see this blog entry](http://njbartlett.name/2011/09/02/uses-constraints.html)
+
 * METAINF.MF
 ** Require-Bundle
 
