@@ -43,7 +43,7 @@ import org.testeditor.dsl.common.util.classpath.ClasspathUtil
  */
 class ProjectContentGenerator {
 
-	public val String TEST_EDITOR_VERSION
+	public val String TEST_EDITOR_VERSION // is filled by querying the plugin version
 	static public val TEST_EDITOR_MAVEN_PLUGIN_VERSION = "1.1"
 	static public val TEST_EDITOR_WEB_FIXTURE = "3.1.4"
 	static public val TEST_EDITOR_CORE_FIXTURE = "3.1.0"
@@ -64,10 +64,11 @@ class ProjectContentGenerator {
 	private static val logger = LoggerFactory.getLogger(ProjectContentGenerator)
 
 	@Inject FileLocatorService fileLocatorService
-	@Inject extension ProjectUtils
-	@Inject extension ClasspathUtil
+	@Inject MavenExecutor mavenExecutor
 	@Inject GradleHelper gradleHelper
 	@Inject SwingDemoContentGenerator swingDemoContentGenerator
+	@Inject extension ProjectUtils
+	@Inject extension ClasspathUtil
 	
 	@Accessors(PUBLIC_GETTER) 
 	IFile demoTclFile
@@ -123,14 +124,16 @@ class ProjectContentGenerator {
 			}
 			
 			// some more technical project setup
+			if (buildsystem == MAVEN) {
+				setupMavenEclipseMetaData(monitor)
+				setupMavenSourceClassPaths
+				setupClasspathFileExclusions
+			}
 			if (buildsystem == GRADLE) {
 				setupEclipseMetaData(monitor)
 				setupGradleSourceClassPaths
 			}
 			
-			if (buildsystem == MAVEN) {
-				setupMavenSourceClassPaths
-			}
 			// TE-470 project file filter to allow access to src etc. are not activated
 			// filterTechnicalProjectFiles(monitor)
 		]
@@ -175,10 +178,10 @@ class ProjectContentGenerator {
 
 	private def void setupGradleSourceClassPaths(IProject project) {
 		val wantedSourceClassPaths = #[ //
-			"src/main/java",
-			"src/main/resources", // main source paths
-			"src/test/java",
-			"src/test/resources", // test source paths
+			SRC_FOLDER,
+			RESOURCES_FOLDER,
+			SRC_TEST_FOLDER,
+			RESOURCES_TEST_FOLDER,
 			"build/tcl", // generated test cases
 			"build/tclConfig", // generated test configurations
 			"build/tclMacro" // generated test macros
@@ -188,10 +191,10 @@ class ProjectContentGenerator {
 	
 	private def void setupMavenSourceClassPaths(IProject project) {
 		val wantedSourceClassPaths = #[ //
-			"src/main/java",
-			"src/main/resources", // main source paths
-			"src/test/java",
-			"src/test/resources"  // test source paths
+			SRC_FOLDER,
+			RESOURCES_FOLDER,
+			SRC_TEST_FOLDER,
+			RESOURCES_TEST_FOLDER
 		]
 		project.setupSourceClassPaths(wantedSourceClassPaths)
 	}
@@ -251,26 +254,24 @@ class ProjectContentGenerator {
 		]
 	}
 	
-	@Inject MavenExecutor mavenExecutor
-
+	private def IFile getMavenBuildFile(IProject project) {
+		return project.getFile("pom.xml")
+	}
+	
 	protected def void setupMavenProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
-		var IFile buildFile = project.getFile("pom.xml")
-		buildFile.create(new StringInputStream(getPomContent(fixtures, project.name)), IResource.NONE, monitor)
-//		val mavenSettings = System.getProperty("TE.MAVENSETTINGSPATH")
-//		if (!mavenSettings.isNullOrEmpty) {
-//			MavenPlugin.mavenConfiguration.userSettingsFile = mavenSettings
-//		}
-//		var configurationManager = MavenPlugin.projectConfigurationManager
-//		var configuration = new ResolverConfiguration
-//		configuration.resolveWorkspaceProjects = true
-		mavenExecutor.executeInNewJvm("eclipse:eclipse",buildFile.location.removeLastSegments(1).toOSString, null,monitor,System.out)
-		project.refreshLocal(IResource.DEPTH_INFINITE, monitor)
-//		configurationManager.updateProjectConfiguration(project, monitor)
-		project.addNature(JavaCore.NATURE_ID)		
-		project.addNature(XtextProjectHelper.NATURE_ID)
-		project.setupMavenTclGeneratorPreferences
-		project.setupClasspathFileExclusions
-//		configurationManager.updateProjectConfiguration(project, monitor)
+		val projectContentStream = new StringInputStream(getPomContent(fixtures, project.name))
+		project.mavenBuildFile.create(projectContentStream, IResource.NONE, monitor)
+	}
+		
+	private def void setupMavenEclipseMetaData(IProject project, IProgressMonitor monitor) {
+		val pathToMavenBuildFile = project.mavenBuildFile.location.removeLastSegments(1).toOSString
+		mavenExecutor.executeInNewJvm("eclipse:eclipse", pathToMavenBuildFile, null, monitor, System.out)
+		project => [
+			refreshLocal(IResource.DEPTH_INFINITE, monitor)
+			addNature(JavaCore.NATURE_ID)
+			addNature(XtextProjectHelper.NATURE_ID)
+			setupMavenTclGeneratorPreferences
+		]
 	}
 
 	/**
