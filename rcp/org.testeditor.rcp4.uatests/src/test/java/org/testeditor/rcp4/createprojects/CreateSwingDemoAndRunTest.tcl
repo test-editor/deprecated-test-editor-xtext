@@ -35,16 +35,18 @@ config TestEditorConfig
 	- assert valid = "true"
 
 	Component: Workbench
-	- Wait until all jobs finished* Run "GreetingTest"
+	- Wait until all jobs finished
+	
+* Run "GreetingTest"
 
 	Component: ProjectExplorer
 	- Select element "swingexecdemo/src/test/java/swingexecdemo/GreetingTest.tcl" in tree <ProjectTree>
 	- Execute menu item "Run test" in tree <ProjectTree>
-	- Wait for dialog "Progress Information" to popup and then close after at most "3" respectively "120" seconds  
+	- Wait for dialog "Test execution" to popup and then close after at most "5" respectively "120" seconds  
 
 // then
 * Verify test execution result
 
-	//Component: MainWindow
-	//- Is view <JUnitView> visible
+	Component: MainWindow
+	- Is view <JUnitView> visible
 	// TODO verify the contents of the view (test should be green)
