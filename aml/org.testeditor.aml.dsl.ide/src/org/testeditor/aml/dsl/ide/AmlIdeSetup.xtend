@@ -10,22 +10,20 @@
 * akquinet AG
 * itemis AG
 *******************************************************************************/
-package org.testeditor.tsl.dsl.web
+package org.testeditor.aml.dsl.ide
 
 import com.google.inject.Guice
-import com.google.inject.Injector
 import org.eclipse.xtext.util.Modules2
-import org.testeditor.tsl.dsl.TslRuntimeModule
-import org.testeditor.tsl.dsl.TslStandaloneSetup
-import org.testeditor.tsl.dsl.ide.TslIdeModule
+import org.testeditor.aml.dsl.AmlRuntimeModule
+import org.testeditor.aml.dsl.AmlStandaloneSetup
 
 /**
- * Initialization support for running Xtext languages in web applications.
+ * Initialization support for running Xtext languages as language servers.
  */
-class TslWebSetup extends TslStandaloneSetup {
-	
-	override Injector createInjector() {
-		return Guice.createInjector(Modules2.mixin(new TslRuntimeModule, new TslIdeModule, new TslWebModule))
+class AmlIdeSetup extends AmlStandaloneSetup {
+
+	override createInjector() {
+		Guice.createInjector(Modules2.mixin(new AmlRuntimeModule, new AmlIdeModule))
 	}
 	
 }

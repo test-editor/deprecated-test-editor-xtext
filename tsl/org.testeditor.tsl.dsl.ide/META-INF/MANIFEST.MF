@@ -7,7 +7,8 @@ Bundle-SymbolicName: org.testeditor.tsl.dsl.ide; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.testeditor.tsl.dsl,
  org.eclipse.xtext.ide,
- org.eclipse.xtext.xbase.ide
+ org.eclipse.xtext.xbase.ide,
+ org.antlr.runtime
 Import-Package: javax.inject;version="1.0.0"
 Export-Package: org.testeditor.tsl.dsl.ide.contentassist.antlr,
  org.testeditor.tsl.dsl.ide.contentassist.antlr.internal

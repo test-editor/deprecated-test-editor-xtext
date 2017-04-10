@@ -27,14 +27,14 @@
 		<repository>
 			<id>neon-additional</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/eclipse/updates/4.6/R-4.6-201606061100</url>
+			<url>http://download.eclipse.org/eclipse/updates/4.6/</url>
 		</repository>
 
 		<!-- Thirdparty -->
 		<repository>
 			<id>orbit-neon</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/tools/orbit/downloads/drops/R20160520211859/repository/</url>
+			<url>http://download.eclipse.org/tools/orbit/R-builds/R20170307180635/repository/</url>
 		</repository>
 		<repository>
 			<id>swtbot</id>
@@ -51,7 +51,7 @@
 		<repository>
 			<id>xtext</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.10.0/</url>
+			<url>http://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.11.0/</url>
 		</repository>
 		<repository>
 			<id>emf</id>

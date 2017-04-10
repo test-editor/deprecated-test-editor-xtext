@@ -43,7 +43,6 @@ import org.testeditor.dsl.common.util.classpath.ClasspathUtil
  */
 class ProjectContentGenerator {
 
-	public val String TEST_EDITOR_VERSION // is filled by querying the plugin version
 	static public val TEST_EDITOR_MAVEN_PLUGIN_VERSION = "1.1"
 	static public val TEST_EDITOR_WEB_FIXTURE = "3.1.4"
 	static public val TEST_EDITOR_CORE_FIXTURE = "3.1.0"
@@ -62,6 +61,8 @@ class ProjectContentGenerator {
 	static public val String RESOURCES_TEST_FOLDER = 'src/test/resources'
 
 	private static val logger = LoggerFactory.getLogger(ProjectContentGenerator)
+
+	val String testEditorVersion // is filled by querying the plugin version
 
 	@Inject FileLocatorService fileLocatorService
 	@Inject MavenExecutor mavenExecutor
@@ -82,21 +83,24 @@ class ProjectContentGenerator {
 	}
 	
 	new() {
-		TEST_EDITOR_VERSION = bundleVersion.mapTesteditorVersion
+		testEditorVersion = bundleVersion.mapTesteditorVersion
 	}
 
-	def Version getBundleVersion() {
+	@VisibleForTesting
+	protected def Version getBundleVersion() {
 		val bundle = Platform.getBundle("org.testeditor.dsl.common.ui")
-		if (bundle === null) {
-			return Version.valueOf("0.0.0")
-		} else {
-			return bundle.version
-		}
+		return bundle.version ?: Version.valueOf("0.0.0")
 	}
 	
-	def String mapTesteditorVersion(Version version){
-		val versionString = '''«version.major».«version.minor».«version.micro»«if(!version.qualifier.nullOrEmpty){'-SNAPSHOT'}else{''}»'''
-		return versionString.toString
+	@VisibleForTesting
+	protected def String mapTesteditorVersion(Version version){
+		return '''«version.major».«version.minor».«version.micro»«if(!version.qualifier.nullOrEmpty){'-SNAPSHOT'}else{''}»'''
+	}
+	
+	@VisibleForTesting
+	protected def String getXtextVersion() {
+		val xtextVersion = Platform.getBundle("org.eclipse.xtext").version
+		return '''«xtextVersion.major».«xtextVersion.minor».«xtextVersion.micro»'''
 	}
 
 	def void createProjectContent(IProject project, String[] fixtures, String buildsystem, boolean demo,
@@ -440,7 +444,7 @@ class ProjectContentGenerator {
 
 		// Configure the testeditor plugin
 		testeditor {
-			version '«TEST_EDITOR_VERSION»'
+			version '«testEditorVersion»'
 		}
 		
 		// configure logging within tests (see https://docs.gradle.org/current/dsl/org.gradle.api.tasks.testing.logging.TestLogging.html)
@@ -518,7 +522,7 @@ class ProjectContentGenerator {
 				<maven-resources-plugin.version>2.7</maven-resources-plugin.version>
 				<maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
 
-				<testeditor.version>«TEST_EDITOR_VERSION»</testeditor.version>
+				<testeditor.version>«testEditorVersion»</testeditor.version>
 				<testeditor.output>«TEST_EDITOR_MVN_GEN_OUTPUT»</testeditor.output>
 			</properties>
 
@@ -657,6 +661,7 @@ class ProjectContentGenerator {
 							<configuration>
 								<testEditorVersion>${testeditor.version}</testEditorVersion>
 								<testEditorOutput>${testeditor.output}</testEditorOutput>
+								<xtextVersion>«xtextVersion»</xtextVersion>
 							</configuration>
 							<executions>
 								<execution>

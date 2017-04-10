@@ -14,8 +14,8 @@ package org.testeditor.aml.dsl.tests.formatter
 
 import javax.inject.Inject
 import javax.inject.Provider
-import org.eclipse.xtext.junit4.formatter.FormatterTestRequest
-import org.eclipse.xtext.junit4.formatter.FormatterTester
+import org.eclipse.xtext.testing.formatter.FormatterTestHelper
+import org.eclipse.xtext.testing.formatter.FormatterTestRequest
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure1
 import org.testeditor.aml.dsl.tests.AbstractAmlTest
 
@@ -25,7 +25,7 @@ abstract class AbstractFormatterTest extends AbstractAmlTest {
 	Provider<FormatterTestRequest> formatterRequestProvider
 
 	@Inject
-	protected FormatterTester formatterTester
+	protected FormatterTestHelper formatterTester
 
 	/**
 	 * Uses the {@link FormatterTester} but adds a default package

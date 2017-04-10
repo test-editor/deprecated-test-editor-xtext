@@ -1,6 +1,6 @@
 package org.testeditor.tcl.dsl.ui.tests
 
-import org.eclipse.xtext.junit4.IInjectorProvider
+import org.eclipse.xtext.testing.IInjectorProvider
 import org.testeditor.tcl.dsl.ui.internal.DslActivator
 
 class TclUiInjectorProvider implements IInjectorProvider {
