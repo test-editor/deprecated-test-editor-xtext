@@ -8,6 +8,7 @@ Bundle-ActivationPolicy: lazy
 Require-Bundle: org.testeditor.tsl.dsl,
  org.eclipse.xtext.ide,
  org.eclipse.xtext.xbase.ide
+Import-Package: javax.inject;version="1.0.0"
 Export-Package: org.testeditor.tsl.dsl.ide.contentassist.antlr,
  org.testeditor.tsl.dsl.ide.contentassist.antlr.internal
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
