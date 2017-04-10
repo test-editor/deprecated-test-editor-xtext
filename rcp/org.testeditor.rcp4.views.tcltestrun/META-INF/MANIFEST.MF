@@ -7,6 +7,7 @@ Bundle-Activator: org.testeditor.rcp4.views.tcltestrun.Activator
 Require-Bundle: org.testeditor.tcl.dsl.ui,
  org.testeditor.rcp4.tcltestrun,
  org.testeditor.logging,
+ org.testeditor.dsl.common,
  org.testeditor.dsl.common.ui,
  org.testeditor.tsl.dsl.ui,
  org.eclipse.jdt.junit,
