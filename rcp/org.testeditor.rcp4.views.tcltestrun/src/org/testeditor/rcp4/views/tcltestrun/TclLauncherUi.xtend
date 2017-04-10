@@ -216,7 +216,10 @@ class TclLauncherUi implements Launcher {
 			val uri = URI.createPlatformResourceURI(resource.locationURI.toString, true).deresolve(
 				URI.createPlatformResourceURI(resource.project.locationURI.toString, true))
 			val secondURI = URI.createPlatformResourceURI(uri.toString, true)
-			return tslIndex.get(secondURI).map[it.model.package + "." + it.name]
+			if (tslIndex.containsKey(secondURI)) {
+				return tslIndex.get(secondURI).map[it.model.package + "." + it.name]
+			}
+			return emptyList
 		} else {
 			val launchShortcutUtil = tclInjectorProvider.get.getInstance(LaunchShortcutUtil)
 			return #[launchShortcutUtil.getQualifiedNameForTestInTcl(resource).toString]

@@ -3,7 +3,6 @@
 
 <product name="TestEditor" uid="testeditor_rcp" id="org.testeditor.rcp4.testeditor_rcp" application="org.testeditor.rcp4.application" version="1.6.0.qualifier" useFeatures="false" includeLaunchers="true">
 
-
    <configIni use="default">
    </configIni>
 
@@ -18,7 +17,6 @@
 
    <windowImages/>
 
-
    <launcher name="testeditor">
       <linux icon="icons/_TE_Icon_all.xpm"/>
       <macosx icon="icons/TE_Icon_all_mac.icns"/>
@@ -29,11 +27,9 @@
       </win>
    </launcher>
 
-
    <vm>
       <windows include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</windows>
    </vm>
-
 
    <plugins>
       <plugin id="com.eclipsesource.jaxrs.jersey-min"/>

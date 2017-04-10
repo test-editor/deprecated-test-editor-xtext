@@ -8,12 +8,12 @@ Require-Bundle: org.eclipse.xtend.lib,
  org.eclipse.xtext.ui,
  org.gradle.toolingapi,
  org.testeditor.logging,
- org.testeditor.dsl.common.ui;bundle-version="1.0.0",
- org.eclipse.m2e.maven.runtime;bundle-version="1.6.2",
- org.eclipse.m2e.core;bundle-version="1.6.2",
+ org.testeditor.dsl.common.ui,
  org.eclipse.e4.core.contexts;bundle-version="1.4.0",
-  org.eclipse.e4.core.di,
- org.testeditor.tcl.dsl.ui;bundle-version="1.0.1"
+ org.eclipse.e4.core.di,
+ org.testeditor.tcl.dsl.ui,
+ org.testeditor.dsl.common
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.testeditor.rcp4.tcltestrun
+Import-Package: javax.inject;version="1.0.0"
 Bundle-ActivationPolicy: lazy
