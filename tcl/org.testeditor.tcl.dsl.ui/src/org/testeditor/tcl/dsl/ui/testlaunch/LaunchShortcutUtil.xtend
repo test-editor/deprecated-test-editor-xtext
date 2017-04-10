@@ -21,6 +21,7 @@ import static org.eclipse.core.resources.IMarker.PROBLEM
 import static org.eclipse.core.resources.IMarker.SEVERITY
 import static org.eclipse.core.resources.IMarker.SEVERITY_ERROR
 import static org.eclipse.core.resources.IResource.DEPTH_ONE
+import static org.testeditor.tcl.TclPackage.Literals.*
 
 class LaunchShortcutUtil {
 
@@ -47,15 +48,17 @@ class LaunchShortcutUtil {
 		return !res.findMarkers(PROBLEM, true, DEPTH_ONE).exists[markerIndicatesNonExecutableTest]
 	}
 
-	/** get the qualified name of the test residing in the tcl resource. if none is found return null */
+	/** 
+	 * get the qualified name of the test residing in the tcl resource. if none is found return null
+	 */
 	def QualifiedName getQualifiedNameForTestInTcl(IResource resource) {
 		val uri = storageToUriMapper.getUri(resource.getAdapter(IStorage))
 		val resNameWOExtension = resource.name.replace(resource.fileExtension, '').replaceAll('\\.$', '')
 		val resourceDescription = resourceDescriptions.getResourceDescription(uri)
+
 		if (resourceDescription !== null) {
-			val qualifiedName = resourceDescription.exportedObjects.map[name].findFirst [
-				lastSegment == resNameWOExtension
-			]
+			val testCases = resourceDescription.getExportedObjectsByType(TEST_CASE)
+			val qualifiedName = testCases.map[name].findFirst[lastSegment == resNameWOExtension]
 			return qualifiedName
 		} else {
 			return null
