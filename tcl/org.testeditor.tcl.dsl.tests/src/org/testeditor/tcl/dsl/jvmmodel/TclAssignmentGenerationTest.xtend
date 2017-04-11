@@ -80,7 +80,7 @@ class TclAssignmentGenerationTest extends AbstractTclGeneratorIntegrationTest {
 		jvmModelInferrer.generateMethodBody(tclModel.test, outputStub)
 
 		// then
-		verify(outputStub).append('mapVariable.put("key", Boolean.toString(myBool));')
+		verify(outputStub).append('mapVariable.put("key", String.valueOf(myBool));')
 	}
 
 	@Test
@@ -94,7 +94,7 @@ class TclAssignmentGenerationTest extends AbstractTclGeneratorIntegrationTest {
 		jvmModelInferrer.generateMethodBody(tclModel.test, outputStub)
 
 		// then
-		verify(outputStub).append('mapVariable.put("key", Long.toString(myLong));')
+		verify(outputStub).append('mapVariable.put("key", String.valueOf(myLong));')
 	}
 
 	/**

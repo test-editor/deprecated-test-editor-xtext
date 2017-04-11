@@ -12,10 +12,10 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
-import com.google.inject.Inject
 import java.util.List
 import java.util.Optional
 import java.util.Set
+import javax.inject.Inject
 import org.apache.commons.lang3.StringEscapeUtils
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.EcoreUtil2
@@ -386,19 +386,15 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	
 	private def String toStringExpression(VariableReference variableReference, EObject context) {
 		val valueString = expressionBuilder.buildExpression(variableReference)
-		val typename=variableReference.variable.getQualifiedTypeName(EcoreUtil2.getContainerOfType(context,TemplateContainer))
+		val typename = variableReference.variable.getQualifiedTypeName(EcoreUtil2.getContainerOfType(context, TemplateContainer))
 		switch typename {
 			case long.name,
-			case Long.name: {
-				return '''Long.toString(«valueString»)'''
-			}
+			case Long.name,
 			case boolean.name,
-			case Boolean.name: {
-				return '''Boolean.toString(«valueString»)'''
-			}
-			case String.name: {
+			case Boolean.name:
+				return '''String.valueOf(«valueString»)'''
+			case String.name: 
 				return valueString
-			}
 			default: throw new RuntimeException('''Cannot generate String expression for variables of type='«typename»'. ''')
 		}
 	}

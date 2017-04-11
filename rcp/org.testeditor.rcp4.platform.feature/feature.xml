@@ -254,12 +254,14 @@ itemis AG
          version="0.0.0"
          unpack="false"/>
 
+   <!-- already provided by jersey-min (platform, see releng.target.thirdparty/feature.xml)
    <plugin
          id="javax.inject"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+         -->
 
    <plugin
          id="org.eclipse.equinox.security"
