@@ -80,7 +80,7 @@ class CollectionUtils {
 
 
 	/**
-	 * combine two maps into a union (duplicates of left with right)
+	 * combine two maps into a union (replace duplicates keys with values from right)
 	 */
 	public def <K,V> Map<K,V> union(Map<K,V> left, Map<K,V> right) {
 		return newHashMap => [putAll(left) putAll(right)]
