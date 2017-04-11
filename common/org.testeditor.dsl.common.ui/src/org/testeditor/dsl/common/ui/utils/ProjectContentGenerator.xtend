@@ -447,6 +447,10 @@ class ProjectContentGenerator {
 			version '«testEditorVersion»'
 		}
 		
+		xtext {
+			version '«xtextVersion»'
+		}
+		
 		// configure logging within tests (see https://docs.gradle.org/current/dsl/org.gradle.api.tasks.testing.logging.TestLogging.html)
 		// show standard out during test to see logging output
 		test.testLogging.showStandardStreams = true
