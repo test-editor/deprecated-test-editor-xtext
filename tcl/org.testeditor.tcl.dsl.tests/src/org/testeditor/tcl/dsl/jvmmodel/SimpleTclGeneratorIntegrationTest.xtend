@@ -193,9 +193,9 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			reporter.enter(TestRunReporter.SemanticUnit.STEP, "mapvar.\"key2\" = stringvar");
 			mapvar.put("key2", stringvar);
 			reporter.enter(TestRunReporter.SemanticUnit.STEP, "mapvar.\"key3\" = longvar");
-			mapvar.put("key3", Long.toString(longvar));
+			mapvar.put("key3", String.valueOf(longvar));
 			reporter.enter(TestRunReporter.SemanticUnit.STEP, "mapvar.\"key4\" = boolvar");
-			mapvar.put("key4", Boolean.toString(boolvar));
+			mapvar.put("key4", String.valueOf(boolvar));
 			reporter.enter(TestRunReporter.SemanticUnit.STEP, "Type boolean @stringvar into <Input>");
 			org.junit.Assert.assertTrue("Parameter is expected to be of type 'boolean' or 'Boolean' but a non coercible String of value = '"+stringvar.toString()+"' was passed through variable reference = 'stringvar'.", Boolean.TRUE.toString().equals(stringvar) || Boolean.FALSE.toString().equals(stringvar));
 			dummyFixture.typeBoolInto("text.input", Boolean.valueOf(stringvar));
