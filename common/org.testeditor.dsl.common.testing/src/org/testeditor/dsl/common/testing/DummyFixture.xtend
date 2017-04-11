@@ -52,7 +52,7 @@ public class DummyFixture {
 	}
 
 	@FixtureMethod
-	def Map<?, ?> getMap(String locator) {
+	def Map<String, String> getMap(String locator) {
 		return newHashMap
 	}
 
@@ -75,6 +75,10 @@ public class DummyFixture {
 	@FixtureMethod
 	def boolean isVisible(String locator) {
 		return true
+	}
+	
+	@FixtureMethod
+	def void typeBoolInto(String locator, boolean bool) {
 	}
 
 	@FixtureMethod
@@ -163,6 +167,11 @@ public class DummyFixture {
 			method = «dummyFixture».typeInto(element, locatorStrategy, value)
 		}
 		
+		interaction type typeBoolInto {
+			template = "Type boolean" ${value} "into" ${element}
+			method = «dummyFixture».typeBoolInto(element, value)
+		}
+		
 		interaction type typeIntoAndWait {
 			template = "Type" ${value} "into" ${element} "and wait" ${seconds}
 			method = «dummyFixture».typeIntoAndWait(element, locatorStrategy, value, seconds)
@@ -178,7 +187,7 @@ public class DummyFixture {
 		}
 		
 		element type Text {
-			interactions = getValue, isVisible, setValue, setValueReversed, typeInto, getLong, typeLongInto, typeIntoAndWait
+			interactions = getValue, isVisible, setValue, setValueReversed, typeInto, getLong, typeLongInto, typeIntoAndWait, typeBoolInto
 		}
 
 		element type Button {
@@ -201,5 +210,20 @@ public class DummyFixture {
 		}
 	'''
 
+	static def String getMacroModel(String macroCollectionName) '''
+		package com.example
+		
+		# «macroCollectionName»
+		
+		## TypeBoolIntoInputField
+		template = "TypeBoolean" ${boolParameter} "into input field"
+		Component: GreetingApplication
+		- Type boolean @boolParameter into <Input>
+
+		## TypeLongIntoInputField
+		template = "TypeLong" ${longParameter} "into input field"
+		Component: GreetingApplication
+		- TypeLong @longParameter into <Input>
+	'''
 
 }

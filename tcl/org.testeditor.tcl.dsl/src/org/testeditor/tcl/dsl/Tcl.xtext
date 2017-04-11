@@ -95,7 +95,7 @@ TestStepContext:
 ComponentTestStepContext returns TestStepContext:
 	{ComponentTestStepContext}
 	('Mask' | 'Component') ':' component=[aml::Component|QualifiedName]
-	steps+=(TestStep | TestStepWithAssignment | AssertionTestStep)*;
+	steps+=(TestStep | TestStepWithAssignment | AssertionTestStep | MapEntryAssignment)*;
 
 MacroTestStepContext returns TestStepContext:
 	{MacroTestStepContext}
@@ -114,6 +114,9 @@ AssertionTestStep:
 
 TestStepWithAssignment:
 	'-' variable=AssignmentVariable '=' fixtureReference=FixtureReference;
+
+MapEntryAssignment:
+	'-' variableReference=VariableReferenceMapAccess '=' expression=AtomicValue '.'?;
 
 FixtureReference:
 	contents+=StepContentText contents+=StepContent* contents+=StepContentPunctuation?;
@@ -149,8 +152,11 @@ VariableReferenceMapAccess:
 StringConstant:
 	string=STRING;
 
+AtomicValue returns Expression:
+	VariableReference | VariableReferenceMapAccess | StringConstant;
+	
 Value returns Expression:
-	VariableReference | VariableReferenceMapAccess | StringConstant | '(' Expression ')';
+	AtomicValue | '(' Expression ')';
 
 Comparator:
 	ComparatorEquals |
