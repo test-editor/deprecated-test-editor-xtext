@@ -14,8 +14,8 @@ package org.testeditor.rcp4.views.tcltestrun.model
 
 import java.io.File
 import java.nio.file.Files
-import java.text.SimpleDateFormat
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.List
 import javax.inject.Inject
 import javax.xml.parsers.DocumentBuilderFactory
@@ -24,7 +24,6 @@ import org.eclipse.e4.core.di.annotations.Creatable
 import org.slf4j.LoggerFactory
 import org.testeditor.rcp4.views.tcltestrun.LogLocationHelper
 import org.w3c.dom.NamedNodeMap
-import java.time.format.DateTimeFormatter
 
 @Creatable
 class TestExecutionManager {
