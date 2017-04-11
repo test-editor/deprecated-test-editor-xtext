@@ -36,6 +36,7 @@ import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
+import org.testeditor.tcl.MapEntryAssignment
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclPackage
@@ -46,6 +47,8 @@ import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferenceMapAccess
 import org.testeditor.tcl.dsl.jvmmodel.SimpleTypeComputer
 import org.testeditor.tcl.dsl.jvmmodel.TclExpressionTypeComputer
+import org.testeditor.tcl.dsl.jvmmodel.TclTypeUsageComputer
+import org.testeditor.tcl.dsl.jvmmodel.VariableCollector
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tcl.util.ValueSpaceHelper
 import org.testeditor.tsl.SpecificationStep
@@ -83,6 +86,8 @@ class TclValidator extends AbstractTclValidator {
 	@Inject AmlValidator amlValidator
 	@Inject SimpleTypeComputer simpleTypeComputer
 	@Inject TclExpressionTypeComputer expressionTypeComputer
+	@Inject VariableCollector variableCollector
+	@Inject TclTypeUsageComputer typeUsageComputer
 
 	private static val ERROR_MESSAGE_FOR_INVALID_VAR_REFERENCE = "Dereferenced variable must be a required environment variable or a previously assigned variable"
 
@@ -140,7 +145,7 @@ class TclValidator extends AbstractTclValidator {
 				completedKnownVariableNames.addAll(knownVariableNames)
 				context.steps.forEach [ step, index |
 					step.checkAllReferencedVariablesAreKnown(completedKnownVariableNames, errorMessage)
-					val declaredVariables = simpleTypeComputer.collectDeclaredVariablesTypeMap(step).keySet
+					val declaredVariables = variableCollector.collectDeclaredVariablesTypeMap(step).keySet
 					val alreadyKnown=declaredVariables.filter[completedKnownVariableNames.contains(it)]
 					if(!alreadyKnown.empty) {
 						error('''The variable(s)='«alreadyKnown.join(',')»' is (are) already known''', step, null, VARIABLE_ASSIGNED_MORE_THAN_ONCE)
@@ -153,6 +158,16 @@ class TclValidator extends AbstractTclValidator {
 			default:
 				throw new RuntimeException('''Unknown TestStepContextType '«context.class.canonicalName»'.''')
 		}
+	}
+
+	private def dispatch void checkAllReferencedVariablesAreKnown(MapEntryAssignment assignment, Set<String> knownVariableNames,
+		String errorMessage) {
+		val erroneousContents = assignment.eAllContents.filter(VariableReference).filter [
+			!knownVariableNames.contains(variable.name)
+		]
+		erroneousContents.forEach [
+			error(errorMessage, assignment.eContainer, assignment.eContainingFeature, INVALID_VAR_DEREF)
+		]
 	}
 
 	/**
@@ -237,7 +252,7 @@ class TclValidator extends AbstractTclValidator {
 		testCase.steps.map[contexts].flatten.forEach [
 			checkAllReferencedVariablesAreKnown(declaredVariableNames, ERROR_MESSAGE_FOR_INVALID_VAR_REFERENCE)
 			// add the variables declared by this step to be known for subsequent steps
-			declaredVariableNames.addAll(simpleTypeComputer.collectDeclaredVariablesTypeMap(it).keySet)
+			declaredVariableNames.addAll(variableCollector.collectDeclaredVariablesTypeMap(it).keySet)
 		]
 	}
 	
@@ -256,7 +271,7 @@ class TclValidator extends AbstractTclValidator {
 		macro.contexts.forEach [
 			checkAllReferencedVariablesAreKnown(declaredVariableNames, ERROR_MESSAGE_FOR_INVALID_VAR_REFERENCE)
 			// add the variables declared by this step to be known for subsequent steps within this macro !! 
-			declaredVariableNames.addAll(simpleTypeComputer.collectDeclaredVariablesTypeMap(it).keySet)
+			declaredVariableNames.addAll(variableCollector.collectDeclaredVariablesTypeMap(it).keySet)
 		]
 	}
 
@@ -276,7 +291,7 @@ class TclValidator extends AbstractTclValidator {
 				amlModelUtil.getReferenceableVariables(macro.template).map[name].toSet
 			} 
 		val knownVariablesTypeMapWithinMacro = newHashMap
-		macro.contexts.forEach[knownVariablesTypeMapWithinMacro.putAll(simpleTypeComputer.collectDeclaredVariablesTypeMap(it))]
+		macro.contexts.forEach[knownVariablesTypeMapWithinMacro.putAll(variableCollector.collectDeclaredVariablesTypeMap(it))]
 		macro.contexts.forEach [
 			checkReferencedVariablesAreUsedWellTypedExcluding(knownVariablesTypeMapWithinMacro, macroParameterNames)
 		]
@@ -290,7 +305,7 @@ class TclValidator extends AbstractTclValidator {
 	def void checkVariableUsageIsWellTyped(TestCase testCase) {
 		val knownVariablesTypeMap = testCase.model.envParams.environmentVariablesTypeMap
 		testCase.steps.map[contexts].flatten => [
-			forEach[knownVariablesTypeMap.putAll(simpleTypeComputer.collectDeclaredVariablesTypeMap(it))]
+			forEach[knownVariablesTypeMap.putAll(variableCollector.collectDeclaredVariablesTypeMap(it))]
 			forEach[checkAllReferencedVariablesAreUsedWellTyped(knownVariablesTypeMap)]
 		]
 	}
@@ -357,6 +372,7 @@ class TclValidator extends AbstractTclValidator {
 
 	/**
 	 * check that all variables are used according to their actual type (transitively in their fixture)
+	 * excluding variables in the excludedVariableNames (e.g. macro parameters, since they are untyped until used)
 	 */
 	private def dispatch void checkReferencedVariablesAreUsedWellTypedExcluding(TestStep step,
 		Map<String, JvmTypeReference> declaredVariablesTypeMap, TestStepContext context,
@@ -367,26 +383,46 @@ class TclValidator extends AbstractTclValidator {
 			!excludedVariableNames.contains(value.variable.name)
 		]
 		variableReferencesIndexed.forEach [
-			val varName = value.variable.name
-			val typeUsageSet = context.getAllTypeUsagesOfVariable(varName).filterNull.toSet
-			val typeDeclared = declaredVariablesTypeMap.get(varName)
-			checkVariableReferenceIsWellTyped(value, typeUsageSet, typeDeclared, varName, key)
+			checkVariableReferenceIsUsedWellTyped(value, declaredVariablesTypeMap, context, key)
+		]
+	}
+
+	private def dispatch void checkReferencedVariablesAreUsedWellTypedExcluding(MapEntryAssignment assignment,
+		Map<String, JvmTypeReference> declaredVariablesTypeMap, TestStepContext context,
+		Set<String> excludedVariableNames) {
+		assignment.eAllContents.filter(VariableReference).filter [
+			!excludedVariableNames.contains(variable.name)
+		].forEach [
+			checkVariableReferenceIsUsedWellTyped(declaredVariablesTypeMap, context, 0)
 		]
 	}
 	
 	private def dispatch void checkReferencedVariablesAreUsedWellTypedExcluding(AssertionTestStep step,
 		Map<String, JvmTypeReference> declaredVariablesTypeMap, TestStepContext context,
 		Set<String> excludedVariableNames) {
-		val variableReferences = step.assertExpression.eAllContents.filter(VariableReference)			
-		variableReferences.forEach [
-			val varName = variable.name
-			val typeUsageSet = context.getAllTypeUsagesOfVariable(varName).filterNull.toSet
-			val typeDeclared = declaredVariablesTypeMap.get(varName)
-			checkVariableReferenceIsWellTyped(typeUsageSet, typeDeclared, varName, 0)
+		step.assertExpression.eAllContents.filter(VariableReference).filter [
+			!excludedVariableNames.contains(variable.name)
+		].forEach [
+			checkVariableReferenceIsUsedWellTyped(declaredVariablesTypeMap, context, 0)
 		]
 	}
 	
-	private def checkVariableReferenceIsWellTyped(VariableReference variableReference, Set<Optional<JvmTypeReference>> typeUsageSet, JvmTypeReference typeDeclared, String variableName, Integer errorIndex) {
+	/**
+	 * check that this variableReference is used according to its (expected) type
+	 */
+	private def void checkVariableReferenceIsUsedWellTyped(VariableReference variableReference,
+		Map<String, JvmTypeReference> declaredVariablesTypeMap, TestStepContext context, int errorReportingIndex) {
+		val varName = variableReference.variable.name
+		val typeUsageSet = typeUsageComputer.getAllTypeUsagesOfVariable(context, varName).filterNull.toSet
+		val typeDeclared = declaredVariablesTypeMap.get(varName)
+		checkVariableReferenceIsWellTyped(variableReference, typeUsageSet, typeDeclared, errorReportingIndex)
+	}
+	
+	/** 
+	 * check whether the given variableReference is used according to its (expected) type
+	 */
+	private def checkVariableReferenceIsWellTyped(VariableReference variableReference,
+		Set<Optional<JvmTypeReference>> typeUsageSet, JvmTypeReference typeDeclared, int errorReportingIndex) {
 		if (variableReference.variable instanceof TemplateVariable) {
 			// do not type check variables that are passed via parameters (are templateVariables),
 			// since they are typeless until actually used by a call, 
@@ -397,8 +433,8 @@ class TclValidator extends AbstractTclValidator {
 			VariableReferenceMapAccess:
 				// do no type checking on values retrieved from a map, but check whether this is actually a map
 				if (!typeDeclared.assignableToMap) {
-					error('''Variable='«variableName»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in a position that expects type(s)='«Map.canonicalName»'.''',
-						variableReference.eContainer, variableReference.eContainingFeature, errorIndex,
+					error('''Variable='«variableReference.variable.name»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in a position that expects type(s)='«Map.canonicalName»'.''',
+						variableReference.eContainer, variableReference.eContainingFeature, errorReportingIndex,
 						INVALID_MAP_ACCESS)
 				}
 			VariableReference: {
@@ -410,8 +446,8 @@ class TclValidator extends AbstractTclValidator {
 				val coercionPossible = typeDeclared.qualifiedName.equals(String.name) && typeUsageSetContainsOnlyCoercibleTypes
 				val typesMatch = doTypesMatch(typeDeclared,typeUsageSet)
 				if (!coercionPossible && !typesMatch) {
-					error('''Variable='«variableName»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in a position that expects type(s)='«typeUsageSet.filter[present].map[get.qualifiedName].join(", ")»'.''',
-						variableReference.eContainer, variableReference.eContainingFeature, errorIndex,
+					error('''Variable='«variableReference.variable.name»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in context(s) expecting type(s)='«typeUsageSet.filter[present].map[get.qualifiedName].join(", ")»'. Please make sure that no conflicting type usages remain.''',
+						variableReference.eContainer, variableReference.eContainingFeature, errorReportingIndex,
 						INVALID_TYPED_VAR_DEREF)
 					}
 				}

@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2012 - 2017 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
 import javax.inject.Inject
@@ -6,13 +18,16 @@ import org.junit.Test
 import org.testeditor.aml.AmlModel
 import org.testeditor.dsl.common.testing.DummyFixture
 import org.testeditor.tcl.Macro
+import org.testeditor.tcl.StepContentElement
+import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
+import org.testeditor.tsl.StepContentValue
 
 import static java.util.Optional.*
 
 class SimpleTypeComputerTest extends AbstractParserTest {
 
-	@Inject SimpleTypeComputer typeComputer
+	@Inject SimpleTypeComputer typeComputer // class under test
 
 	AmlModel aml
 
@@ -228,24 +243,31 @@ class SimpleTypeComputerTest extends AbstractParserTest {
 	}
 
 	@Test
-	def void testCollectDeclaredVariablesTypeMap() {
+	def void testStepVariableFixtureParameterTypePairs() {
 		// given
-		val tcl = '''
+		parseAml(DummyFixture.amlModel)
+		
+		val tclModel = parseTcl('''
 			package com.example
 			
 			# MyTest
-			
-			* do some
-				Component: GreetingApplication
-				- boolVar = Read long from <bar>
-		'''
-		val tclModel = tcl.parseTcl('MyTest.tcl')
-		tclModel.assertNoErrors
-		
-		val declaredVariables = typeComputer.collectDeclaredVariablesTypeMap(tclModel.test.steps.head.contexts.head)
 
-		declaredVariables.keySet.assertSize(1)
-		declaredVariables.get("boolVar").qualifiedName.assertEquals(long.name)
+			* some fixture usage
+			Component: GreetingApplication
+			- TypeLong "42" into <Input>  // maps to: DummyFixture.typeInto(String element, Enum locatorStrategy, long value)
+		''')
+		 
+		
+		// when
+		val testStep = tclModel.test.steps.head.contexts.head.steps.filter(TestStep).last
+		val stepContentTypePairs = typeComputer.getStepVariableFixtureParameterTypePairs(testStep)
+
+		// then
+		stepContentTypePairs.assertSize(2)
+		stepContentTypePairs.get(0).key.assertInstanceOf(StepContentValue)
+		stepContentTypePairs.get(0).value.get.qualifiedName.assertEquals(long.name)
+		stepContentTypePairs.get(1).key.assertInstanceOf(StepContentElement)
+		stepContentTypePairs.get(1).value.get.qualifiedName.assertEquals(String.name)
 	}
 
 	private def Macro parseMacro(String macro) {

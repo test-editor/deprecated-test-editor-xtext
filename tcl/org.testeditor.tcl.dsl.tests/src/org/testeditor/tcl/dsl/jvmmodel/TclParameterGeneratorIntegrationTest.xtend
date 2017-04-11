@@ -62,8 +62,8 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 			    
 			    reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "dummyComponent");
 			    
-			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "java.util.Map<? extends java.lang.Object, ? extends java.lang.Object> myMap = Read map from <dummyElement>");
-			    java.util.Map<? extends java.lang.Object, ? extends java.lang.Object> myMap = dummyFixture.getMap("dummyLocator");
+			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "java.util.Map<java.lang.String, java.lang.String> myMap = Read map from <dummyElement>");
+			    java.util.Map<java.lang.String, java.lang.String> myMap = dummyFixture.getMap("dummyLocator");
 			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "java.lang.String myVal = Read value from <dummyElement>");
 			    java.lang.String myVal = dummyFixture.getValue("dummyLocator");
 			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Start application @myMap.\"my key\"");

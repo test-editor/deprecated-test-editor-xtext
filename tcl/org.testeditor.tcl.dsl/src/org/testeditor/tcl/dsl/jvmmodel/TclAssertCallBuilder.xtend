@@ -36,7 +36,7 @@ class TclAssertCallBuilder {
 
 	static val logger = LoggerFactory.getLogger(TclAssertCallBuilder)
 
-	@Inject extension SimpleTypeComputer
+	@Inject extension VariableCollector
 	@Inject extension ModelUtil
 	
 	@Inject TclExpressionBuilder expressionBuilder
