@@ -2,7 +2,7 @@ package org.testeditor.tcl.util
 
 import javax.inject.Inject
 import org.eclipse.xtend.lib.annotations.Accessors
-import org.eclipse.xtext.junit4.validation.ValidationTestHelper
+import org.eclipse.xtext.testing.validation.ValidationTestHelper
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement

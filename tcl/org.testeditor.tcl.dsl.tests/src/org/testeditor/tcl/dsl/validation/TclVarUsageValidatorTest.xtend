@@ -1,7 +1,7 @@
 package org.testeditor.tcl.dsl.validation
 
 import javax.inject.Inject
-import org.eclipse.xtext.junit4.validation.ValidationTestHelper
+import org.eclipse.xtext.testing.validation.ValidationTestHelper
 import org.junit.Test
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTestWithDummyComponent
