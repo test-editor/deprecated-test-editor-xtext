@@ -6,7 +6,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: Signal Iduna Corporation
 Fragment-Host: org.testeditor.dsl.common.ui
 Require-Bundle: org.eclipse.xtend.lib.macro,
- org.eclipse.xtext.junit4,
+ org.eclipse.xtext.testing,
  org.eclipse.jface,
  org.junit,
  org.testeditor.dsl.common.testing,

@@ -64,7 +64,7 @@ Workflow {
 				generateStub = true
 			}
 			serializer = {
-				generateStub = false
+				generateStub = true
 			}
 		}
 	}

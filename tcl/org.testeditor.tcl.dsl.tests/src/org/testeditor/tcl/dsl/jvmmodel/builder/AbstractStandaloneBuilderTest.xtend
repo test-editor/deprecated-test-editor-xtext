@@ -17,8 +17,8 @@ import org.eclipse.xtext.builder.standalone.compiler.EclipseJavaCompiler
 import org.eclipse.xtext.builder.standalone.compiler.IJavaCompiler
 import org.eclipse.xtext.generator.AbstractFileSystemAccess
 import org.eclipse.xtext.generator.OutputConfigurationProvider
-import org.eclipse.xtext.junit4.TemporaryFolder
-import org.eclipse.xtext.xbase.compiler.RegisteringFileSystemAccess
+import org.eclipse.xtext.xbase.testing.RegisteringFileSystemAccess
+import org.eclipse.xtext.xbase.testing.TemporaryFolder
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
