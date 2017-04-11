@@ -15,15 +15,16 @@ package org.testeditor.rcp4.views.tcltestrun.model
 import java.io.File
 import java.nio.file.Files
 import java.text.SimpleDateFormat
-import java.util.Date
+import java.time.LocalDateTime
 import java.util.List
 import javax.inject.Inject
 import javax.xml.parsers.DocumentBuilderFactory
+import org.apache.commons.io.FileUtils
 import org.eclipse.e4.core.di.annotations.Creatable
 import org.slf4j.LoggerFactory
 import org.testeditor.rcp4.views.tcltestrun.LogLocationHelper
 import org.w3c.dom.NamedNodeMap
-import org.apache.commons.io.FileUtils
+import java.time.format.DateTimeFormatter
 
 @Creatable
 class TestExecutionManager {
@@ -32,14 +33,15 @@ class TestExecutionManager {
 
 	static val String TEST_RUN_DIRECTORY_PREFIX = "testrun-"
 
-	val fileDateFormat = new SimpleDateFormat("yyyy.MM.dd-HH.mm")
+	val fileDateFormat = DateTimeFormatter.ofPattern("yyyy.MM.dd-HH.mm.ss.SSS")
+	val uiDateFormat = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm")
 
 	@Inject LogLocationHelper logLocationHelper
 
 	def TestExecutionLog createTestExecutionLog(List<String> testNames) {
 		return new TestExecutionLog => [
 			testCases = testNames.map[new TestCaseExecution(it)]
-			executionDate = new Date
+			executionDate = LocalDateTime.now
 		]
 	}
 
@@ -111,8 +113,7 @@ class TestExecutionManager {
 	def private String getTestExecutionLogName(String teLogFileName) {
 		logger.debug("Parsing log name from {}", teLogFileName)
 		val date = fileDateFormat.parse(teLogFileName.substring(8))
-		val sdf = new SimpleDateFormat("dd.MM.yy HH:mm")
-		return sdf.format(date)
+		return uiDateFormat.format(date)
 	}
 
 	def delete(String fileName) {
