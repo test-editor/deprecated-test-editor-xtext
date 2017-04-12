@@ -78,19 +78,13 @@ class CollectionUtils {
 		return Optional.ofNullable(iterable.indexed.findFirst[value.identityEquals(actual)]?.key).orElse(-1)
 	}
 
-
 	/**
-	 * combine two maps into a union (replace duplicates keys with values from right)
+	 * combine maps into one map (duplicates within later maps overwrite previous ones)
 	 */
-	public def <K,V> Map<K,V> union(Map<K,V> left, Map<K,V> right) {
-		return newHashMap => [putAll(left) putAll(right)]
-	}
-	
-	/**
-	 * combine maps into a union (duplicates within later maps overwrite previous ones)
-	 */
-	public def <K,V> Map<K,V> union(Iterable<Map<K,V>> mapList) {
-		return mapList.reduce[left,right|union(left,right)]
+	public def <K,V> Map<K,V> mergeOverwriting(Iterable<Map<K,V>> mapList) {
+		val result = newHashMap
+		mapList.forEach[result.putAll(it)]
+		return result
 	}
 
 }

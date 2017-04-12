@@ -29,14 +29,11 @@ import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 class TclTypeUsageComputerTest extends AbstractParserTest {
 
 	@Inject TclTypeUsageComputer typeUsageComputer // class under test
-
 	@Inject extension TclModelGenerator
 	@Inject extension AmlModelGenerator
-	@Inject var AmlTestModels amlTestModels
+	@Inject AmlTestModels amlTestModels
 	@Inject protected TclGrammarAccess grammarAccess
 
-	
-	
 	@Test
 	def void testGetAllTypeUsagesThroughMacroOfEnvVariable() {
 		// given
@@ -82,7 +79,7 @@ class TclTypeUsageComputerTest extends AbstractParserTest {
 		// of this variable are determined correctly
 		testGetAllTypeUsagesOfVariable(templateVar)
 	}
-	
+
 	/**
 	 * create macros for DummyFixture.start and DummyFixture.wait, then generate a test case 
 	 * that calls these macros (within one specification step).
@@ -115,7 +112,6 @@ class TclTypeUsageComputerTest extends AbstractParserTest {
 		qualifiedNames2.assertEquals(#{long.canonicalName})
 	}
 
-	
 	/**
 	 * create macros named "spec0..", one for each macro passed that makes a single parameter call.
 	 * Each macro will have  template = "stepNext0.." ${paramNext0..} 
@@ -203,7 +199,7 @@ class TclTypeUsageComputerTest extends AbstractParserTest {
 		val qualifiedNames = result.map[get.qualifiedName].toSet
 		qualifiedNames.assertEquals(#{long.canonicalName, String.canonicalName})
 	}
-	
+
 	/** 
 	 * create a test that makes performs all steps within one component context (within one specification step)
 	 */

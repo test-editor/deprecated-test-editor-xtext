@@ -30,10 +30,10 @@ class VariableCollector {
 	
 	/**
 	 * collect all variables (and their types) declared (currently only through assignment).
-	 * the assignment fixes the type of the assigned to variable.
+	 * the assignment fixes the type of the variable.
 	 */
 	def dispatch Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(TestStepContext context) {
-		return context.steps.map[collectDeclaredVariablesTypeMap].union
+		return context.steps.map[collectDeclaredVariablesTypeMap].mergeOverwriting
 	}
 	
 	def dispatch Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(MapEntryAssignment assignment) {

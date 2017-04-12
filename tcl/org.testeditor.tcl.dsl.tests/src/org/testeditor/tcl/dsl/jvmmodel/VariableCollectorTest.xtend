@@ -13,21 +13,20 @@
 package org.testeditor.tcl.dsl.jvmmodel
 
 import javax.inject.Inject
+import org.eclipse.xtext.EcoreUtil2
 import org.junit.Before
 import org.junit.Test
-import org.testeditor.aml.AmlModel
 import org.testeditor.dsl.common.testing.DummyFixture
+import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 
 class VariableCollectorTest extends AbstractParserTest {
-	
-	@Inject VariableCollector variableCollector // class under test
 
-	AmlModel aml
+	@Inject VariableCollector variableCollector // class under test
 
 	@Before
 	def void setup() {
-		aml = parseAml(DummyFixture.amlModel)
+		parseAml(DummyFixture.amlModel)
 	}
 
 	@Test
@@ -40,16 +39,24 @@ class VariableCollectorTest extends AbstractParserTest {
 			
 			* do some
 				Component: GreetingApplication
-				- boolVar = Read long from <bar>
+				- longVar = Read long from <bar>
+				- boolVar = Read bool from <bar>
+				- Is <bar> visible?                 // no assignment test step
+				- Read value from <bar>             // no assignment of value
+				- stringVar = Read value from <bar>
 		'''
 		val tclModel = tcl.parseTcl('MyTest.tcl')
 		tclModel.assertNoErrors
-		
-		val declaredVariables = variableCollector.collectDeclaredVariablesTypeMap(tclModel.test.steps.head.contexts.head)
 
-		declaredVariables.keySet.assertSize(1)
-		declaredVariables.get("boolVar").qualifiedName.assertEquals(long.name)
+		// when
+		val context = EcoreUtil2.getAllContentsOfType(tclModel, TestStepContext).head
+		val declaredVariables = variableCollector.collectDeclaredVariablesTypeMap(context)
+
+		// then
+		declaredVariables.keySet.assertSize(3)
+		declaredVariables.get("longVar").qualifiedName.assertEquals(long.name)
+		declaredVariables.get("boolVar").qualifiedName.assertEquals(boolean.name)
+		declaredVariables.get("stringVar").qualifiedName.assertEquals(String.name)
 	}
 
-	
 }

@@ -77,17 +77,18 @@ class SimpleTypeComputer {
 	 * this is important for validation purposes. 
 	 * the simple type computer does not heed the case that a variable or parameter may be used with two different types.
 	 */
-	def Iterable<Pair<StepContent, Optional<JvmTypeReference>>> getStepVariableFixtureParameterTypePairs(TestStep step) {
-		val result=newLinkedList
-		val interaction=step.interaction
-		if (interaction !== null ){
+	def Iterable<Pair<StepContent, Optional<JvmTypeReference>>> getStepVariableFixtureParameterTypePairs(
+		TestStep step) {
+		val result = newLinkedList
+		val interaction = step.interaction
+		if (interaction !== null) {
 			val definitionParametersWithTypes = getVariablesWithTypes(interaction) // no different types possible => use simple type computer
 			val callParameters = step.stepContentVariables
 			val templateParameters = step.interaction.template.contents.filter(TemplateVariable)
 			templateParameters.forEach [ templateVariable, templateParameterIndex |
 				result += new Pair(callParameters.get(templateParameterIndex),
 					definitionParametersWithTypes.get(templateVariable))
-			]				
+			]
 		}
 		return result
 	}
