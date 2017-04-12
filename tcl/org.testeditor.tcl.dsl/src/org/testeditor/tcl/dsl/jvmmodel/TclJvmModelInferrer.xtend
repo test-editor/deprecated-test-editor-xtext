@@ -433,7 +433,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				step.maybeCreateAssignment(operation, output, stepLog)
 				output.trace(interaction.defaultMethod) => [ 
 					step.contents.filter(VariableReference).forEach [
-						val expectedType = tclTypeValidationUtil.getExpectedType(it, step, interaction) 
+						val expectedType = tclTypeValidationUtil.getExpectedType(it, interaction) 
 						if(coercionNecessary(interaction, expectedType)) {
 							val coercionCheck = generateCoercionCheck(interaction, expectedType)
 							output.append(coercionCheck).newLine
@@ -531,7 +531,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		val macro = step.findMacroDefinition(context)
 		if (macro !== null) {
 			step.contents.filter(VariableReference).forEach [
-				val expectedType = tclTypeValidationUtil.getExpectedType(it, step, macro) 
+				val expectedType = tclTypeValidationUtil.getExpectedType(it, macro) 
 				if (coercionNecessary(macro, expectedType)) {
 					val coercionCheck = generateCoercionCheck(macro, expectedType)
 					output.append(coercionCheck).newLine
@@ -583,7 +583,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 						parameterString
 					}
 			 
-			val expectedType = tclTypeValidationUtil.getExpectedType(stepContent, EcoreUtil2.getContainerOfType(stepContent, TestStep), templateContainer) 
+			val expectedType = tclTypeValidationUtil.getExpectedType(stepContent, templateContainer) 
 			if (withCoercion && stepContent.coercionNecessary(templateContainer,expectedType)) {
 				return #[generateCoercionAround(result, expectedType)]
 			}

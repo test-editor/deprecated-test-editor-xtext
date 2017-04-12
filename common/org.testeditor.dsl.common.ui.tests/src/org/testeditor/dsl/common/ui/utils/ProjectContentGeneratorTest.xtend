@@ -108,7 +108,8 @@ class ProjectContentGeneratorTest extends AbstractTest {
 
 	@Test
 	def void testGetPom() {
-		// given 
+		// given (this is a plugin test)
+		isWithinOSGIContext.assumeTrue
 		val builder = DocumentBuilderFactory.newInstance.newDocumentBuilder
 		val xpath = XPathFactory.newInstance.newXPath
 

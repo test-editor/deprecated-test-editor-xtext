@@ -89,7 +89,7 @@ class ProjectContentGenerator {
 	@VisibleForTesting
 	protected def Version getBundleVersion() {
 		val bundle = Platform.getBundle("org.testeditor.dsl.common.ui")
-		return bundle.version ?: Version.valueOf("0.0.0")
+		return bundle?.version ?: Version.valueOf("0.0.0")
 	}
 	
 	@VisibleForTesting
