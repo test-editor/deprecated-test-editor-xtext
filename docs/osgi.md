@@ -3,15 +3,22 @@
 Some (rather incomplete) information about bundles, bundle dependencies and errors in that context.
 
 ## METAINF.MF
+
+Within the test-editor project the following guidelines exist:
+- ```Require-Bundle``` is specified  without version specification. The version (of external bundles) is already fixed within the target platform definition.
+- Bundles defined by the project itself export packages of their api (only) and can thus be used via ```Require-Bundle```
+- ```reexport``` is used in those cases, where the reexported bundle must be included (anyway) in order to make use of this bundle itself.
+- ```Import-Package``` is used for third party packages (e.g. javax.inject, org.junit) that are used and sometimes even included throughout different bundles throughout the project.
+
 ### Require-Bundle
 
 - specifies the explicit bundle (and optionally version) to use. If a required bundle needs to be refactored and a package moved elsewhere, then dependents will need changes to their MANIFEST.MF
-- gives you access to ALL exports of the bundle, regardless of what they are, and regardless of whether you need them. If the parts you don't need have their own dependencies you will need those to
+- gives you access to ALL exports of the bundle, regardless of what they are, and regardless of whether you need them. If the parts you don't need have their own dependencies you will need those too
 - bundles can be re-exported
 - although discouraged, allows the use of split packages, e.g.: a package that is spread across multiple bundles
 - can be used for non-code dependencies, e.g.: resources, Help etc.
 
-### Import-Package (preferred)
+### Import-Package
 
 - looser coupling, only the package (and optionally version) is specified and the run-time finds the required bundle
 - actual implementations can be swapped out
@@ -24,7 +31,7 @@ Some (rather incomplete) information about bundles, bundle dependencies and erro
 
 [see this blog entry](http://njbartlett.name/2011/09/02/uses-constraints.html)
 
-Solving dependency problems in an rcp application can be supported by using the Host OSGi-console view (luckily available within the test-edtor).
+Solving dependency problems in an rcp application can be supported by using the Host OSGi-console view (luckily available within the test-editor).
 To get an overview of available commands simply type ```help```.
 
 (Very incomplete) List of commands:
