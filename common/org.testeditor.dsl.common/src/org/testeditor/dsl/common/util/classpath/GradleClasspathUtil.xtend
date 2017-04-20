@@ -12,41 +12,50 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.util.classpath
 
+import com.google.common.annotations.VisibleForTesting
 import java.io.ByteArrayOutputStream
-import java.util.ArrayList
 import java.util.List
+import java.util.regex.Pattern
 import javax.inject.Inject
 import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.Path
+import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.util.GradleHelper
 
 class GradleClasspathUtil {
 
+	static val logger = LoggerFactory.getLogger(GradleClasspathUtil)
+
 	@Inject GradleHelper gradle
 
 	List<IPath> gradleClasspath
-
-	def List<IPath> getGradleClasspathEntries(IPath path) {
-		if (gradleClasspath == null) {
-			val out = new ByteArrayOutputStream()
-			gradle.run(path.toFile, null, [withArguments("properties") standardOutput = out standardError = out])
-			gradleClasspath = parseGradleProperties(out.toString)
+	
+	def List<IPath> getGradleSourceSetPaths(IPath projectRoot) {
+		if (gradleClasspath === null) {
+			val outTask = new ByteArrayOutputStream()
+			gradle.run(projectRoot.toFile, null, [
+				withArguments("-q", "sourceSetPaths")
+				standardOutput = outTask
+				standardError = outTask
+			])
+			gradleClasspath = parseGradleSourcePaths(outTask.toString)
 		}
 		return gradleClasspath
 	}
 
-	def List<IPath> parseGradleProperties(String output) {
-		val List<IPath> result = new ArrayList<IPath>()
-		val props = output.split(System.getProperty("line.separator"))
-		val prjDir = props.filter[startsWith("projectDir")].head.split(": ").get(1)
-		val sourceSetProperty = props.filter[startsWith("sourceSets")].head
-		val sourceSets = sourceSetProperty.substring(sourceSetProperty.indexOf("[") + 1,
-			sourceSetProperty.lastIndexOf("]")).split(",")
-		val javaSourceSet = sourceSets.filter[it.trim.startsWith("source set")]
-		javaSourceSet.forEach [
-			result.add(new Path(prjDir + "/src/" + it.substring(it.indexOf("'") + 1, it.lastIndexOf("'")) + "/java"))
-		]
-		return result;
+	/**
+	 * try to extract source set paths from output: line format "sourceSet: 'PATH'"
+	 */
+	@VisibleForTesting
+	protected def List<IPath> parseGradleSourcePaths(String output) {
+		logger.info("Parsing gradle task output printProperties to extract source set.")
+		val lines = output.split(System.getProperty("line.separator"))
+		val pattern = Pattern.compile("[^']*'([^']*)'")
+		return lines.filter[startsWith('sourceSetPath:')] //
+		.map[pattern.matcher(it)] //
+		.filter[matches] //
+		.map[new Path(group(1)) as IPath] //
+		.toList
 	}
 
 }

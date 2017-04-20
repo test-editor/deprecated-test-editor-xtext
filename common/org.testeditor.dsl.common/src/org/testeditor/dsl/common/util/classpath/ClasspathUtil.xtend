@@ -44,22 +44,38 @@ class ClasspathUtil {
 			path = new Path(path.toFile.absolutePath)
 			cpEntry = path.getBuildToolClasspathEntry
 		}
+		if (cpEntry === null) {
+			logger.error("Could not find corresponding classpath entry for path='{}'.", path)
+			return 'com.example'
+		}
 		val start = path.matchingFirstSegments(cpEntry)
 		val result = path.removeFirstSegments(start).segments.join(".")
 		logger.debug("Inferred package for {} is {}.", element, result)
 		return result
 	}
+	
+	def boolean isGradleProjectBaseDir(IPath baseDir) {
+		return baseDir.toFile.list.contains("build.gradle")
+	}
+	
+	def boolean isMavenProjectBaseDir(IPath baseDir) {
+		return baseDir.toFile.list.contains("pom.xml")
+	}
 
 	def IPath getBuildToolClasspathEntry(IPath path) {
 		logger.info("Searching classpath for {}.", path)
 		val baseDir = path.getBuildProjectBaseDir
-		if (baseDir.toFile.list.contains("pom.xml")) {
-			return mavenClasspathUtil.getMavenClasspathEntries(baseDir).filter[it.isPrefixOf(path)].head
+		switch (baseDir) {
+			case baseDir.isMavenProjectBaseDir: return mavenClasspathUtil.getMavenClasspathEntries(baseDir).findFirst[
+				logger.info("Checking maven classpath='{}'.", it.toOSString)
+				it.isPrefixOf(path)
+			]
+			case baseDir.isGradleProjectBaseDir: return gradleClasspathUtil.getGradleSourceSetPaths(baseDir).findFirst[
+				logger.info("Checking gradle classpath='{}'.", it.toOSString)
+				it.isPrefixOf(path)
+			]
+			default: throw new RuntimeException('''Unknown project type in project base dir='«baseDir»'.''')
 		}
-		if (baseDir.toFile.list.contains("build.gradle")) {
-			return gradleClasspathUtil.getGradleClasspathEntries(baseDir).filter[it.isPrefixOf(path)].head
-		}
-		return null
 	}
 
 	def protected IPath getEclipseClasspathEntry(IPath path) {
