@@ -69,7 +69,7 @@ class ClasspathUtilTest extends AbstractTest {
 
 	@Test
 	def void intTestGetBuildToolClasspathEntryWithGradle() {
-		assumeTrue(new GradleServerConnectUtil().canConnet())
+		assumeTrue(new GradleServerConnectUtil().canConnect)
 		val gradleBuildFile = tempFolder.newFile("build.gradle")
 		val packageDir = new File(tempFolder.newFolder("src"), "/test/java/package")
 		packageDir.mkdirs

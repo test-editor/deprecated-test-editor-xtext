@@ -5,7 +5,7 @@ import java.net.URL
 
 class GradleServerConnectUtil {
 	
-	def boolean canConnet() {
+	def boolean canConnect() {
 		try {
 			val url = new URL("https://services.gradle.org/")
 			val openConnection = url.openConnection()
