@@ -70,12 +70,14 @@ class ClasspathUtilTest extends AbstractTest {
 	@Test
 	def void intTestGetBuildToolClasspathEntryWithGradle() {
 		assumeTrue(new GradleServerConnectUtil().canConnect)
+		
+		// given
 		val gradleBuildFile = tempFolder.newFile("build.gradle")
 		val packageDir = new File(tempFolder.newFolder("src"), "/test/java/package")
 		packageDir.mkdirs
 
 		Files.write(gradleBuildFile.toPath, getGradleBuildFileExample.bytes)
-		val intClasspathUtil = Guice.createInjector().getInstance(ClasspathUtil)
+		val intClasspathUtil = Guice.createInjector.getInstance(ClasspathUtil)
 
 		// when
 		val result = intClasspathUtil.getBuildToolClasspathEntry(new Path(packageDir.toString))
@@ -87,7 +89,7 @@ class ClasspathUtilTest extends AbstractTest {
 	def private String getGradleBuildFileExample() {
 		'''
 			plugins {
-			    id 'org.testeditor.gradle-plugin' version '0.3'
+			    id 'org.testeditor.gradle-plugin' version '0.6'
 			    id 'maven'
 			    id 'eclipse'
 			}

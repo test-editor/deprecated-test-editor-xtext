@@ -20,8 +20,6 @@ import org.junit.rules.TemporaryFolder
 import org.mockito.InjectMocks
 import org.testeditor.dsl.common.testing.AbstractTest
 
-import static org.junit.Assume.*
-
 class GradleClasspathUtilTest extends AbstractTest {
 
 	@InjectMocks
@@ -30,8 +28,6 @@ class GradleClasspathUtilTest extends AbstractTest {
 
 	@Test
 	def void testGetGradleClasspathEntries() {
-		assumeTrue(new GradleServerConnectUtil().canConnect)
-		
 		// given
 		val sourceSetPathsOutput = getGradleSourceSetPathsPrintOut(tempFolder.root)
 
@@ -46,21 +42,21 @@ class GradleClasspathUtilTest extends AbstractTest {
 
 	def String getGradleSourceSetPathsPrintOut(File prjDir) {
 		'''
-		Picked up _JAVA_OPTIONS: -Djdk.http.auth.tunneling.disabledSchemes=
-		:sourceSetPaths
-		sourceSetPath: '/home/u134552/repo/holistic_feature_test/src/main/java'
-		sourceSetPath: '/home/u134552/repo/holistic_feature_test/build/tcl/main'
-		sourceSetPath: '/home/u134552/repo/holistic_feature_test/build/tclConfig/main'
-		sourceSetPath: '/home/u134552/repo/holistic_feature_test/build/tclMacro/main'
-		sourceSetPath: '/home/u134552/repo/holistic_feature_test/src/test/java'
-		sourceSetPath: '/home/u134552/repo/holistic_feature_test/build/tcl/test'
-		sourceSetPath: '/home/u134552/repo/holistic_feature_test/build/tclConfig/test'
-		sourceSetPath: '/home/u134552/repo/holistic_feature_test/build/tclMacro/test'
-		sourceSetPath: '/home/u134552/repo/holistic_feature_test/src/integration test/java'
-		
-		BUILD SUCCESSFUL
-		
-		Total time: 0.707 secs
+			Picked up _JAVA_OPTIONS: -Djdk.http.auth.tunneling.disabledSchemes=
+			:sourceSetPaths
+			sourceSetPath: '«prjDir»/src/main/java'
+			sourceSetPath: '«prjDir»/build/tcl/main'
+			sourceSetPath: '«prjDir»/build/tclConfig/main'
+			sourceSetPath: '«prjDir»/build/tclMacro/main'
+			sourceSetPath: '«prjDir»/src/test/java'
+			sourceSetPath: '«prjDir»/build/tcl/test'
+			sourceSetPath: '«prjDir»/build/tclConfig/test'
+			sourceSetPath: '«prjDir»/build/tclMacro/test'
+			sourceSetPath: '«prjDir»/src/integration test/java'
+			
+			BUILD SUCCESSFUL
+			
+			Total time: 0.707 secs
 		'''
 	}
 
