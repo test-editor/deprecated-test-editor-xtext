@@ -41,7 +41,7 @@ class MavenClasspathUtil {
 	List<IPath> mavenClasspath
 
 	/**
-	 * Read ones per jvm run the maven classpath. every other call run the first selected information. This is intended for batch runs.
+	 * Read the maven classpath once per jvm run. every other call will use the cached result. This is intended for batch runs.
 	 */
 	def List<IPath> getMavenClasspathEntries(IPath path) {
 		if (mavenClasspath == null) {
