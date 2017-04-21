@@ -20,7 +20,6 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jface.viewers.ITreeContentProvider
 import org.eclipse.jface.viewers.Viewer
 import org.testeditor.dsl.common.util.WorkspaceHelper
-import org.eclipse.core.runtime.CoreException
 
 /**
  * Content Provider to extend the cnf navigator with the TE specific elements. The provider replaces folders of the classpath entry with one entry.
