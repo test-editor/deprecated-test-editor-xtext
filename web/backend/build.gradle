@@ -9,6 +9,7 @@ buildscript {
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 apply plugin: 'java'
@@ -88,6 +89,13 @@ dependencies {
     compile group: 'io.swagger', name: 'swagger-jaxrs', version: '1.5.12'
     compile group: 'com.meltmedia.dropwizard', name: 'dropwizard-mongo', version: '0.4.0'
     
+    //WebJars
+    compile group: 'org.webjars', name: 'jquery', version: '2.2.4'
+    compile group: 'org.webjars', name: 'requirejs', version: '2.3.2'
+    compile group: 'org.webjars', name: 'ace', version: '1.2.3'
+
+    // TE Dependencies
+    compile group: 'org.testeditor', name: 'org.testeditor.tsl.dsl.web', version: '1.6.0-SNAPSHOT'
     
     testCompile group: 'io.dropwizard', name: 'dropwizard-testing', version: dropwizardVersion
 	testCompile group: 'org.mockito', name: 'mockito-core', version: '2.7.19' 

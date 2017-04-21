@@ -1,6 +1,7 @@
 package org.testeditor.web;
 
 import org.jboss.weld.environment.servlet.Listener;
+import org.testeditor.tsl.dsl.web.TslServlet;
 
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
@@ -21,6 +22,8 @@ public class TestEditorBackendApp extends Application<BackendConfiguration> {
 	public void run(BackendConfiguration configuration, Environment environment) throws Exception {
 		// Swagger documentation servlet 
 		environment.jersey().register(new ApiListingResource());
+		
+		environment.servlets().addServlet("XtextServices", TslServlet.class);
 		
 		// Enable WELD support
 		environment.servlets().addServletListeners(new Listener());
