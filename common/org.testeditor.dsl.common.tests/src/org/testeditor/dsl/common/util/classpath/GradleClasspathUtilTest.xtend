@@ -30,7 +30,8 @@ class GradleClasspathUtilTest extends AbstractTest {
 
 	@Test
 	def void testGetGradleClasspathEntries() {
-		assumeTrue(new GradleServerConnectUtil().canConnet())
+		assumeTrue(new GradleServerConnectUtil().canConnect)
+		
 		// given
 		val propertyOutput = getGradlePropertiesPrintOut(tempFolder.root)
 

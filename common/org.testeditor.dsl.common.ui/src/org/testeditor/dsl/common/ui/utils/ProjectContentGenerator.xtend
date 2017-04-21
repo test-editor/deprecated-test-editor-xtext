@@ -47,7 +47,7 @@ class ProjectContentGenerator {
 	static public val TEST_EDITOR_WEB_FIXTURE = "3.1.4"
 	static public val TEST_EDITOR_CORE_FIXTURE = "3.1.0"
 	static public val TEST_EDITOR_SWING_FIXTURE = "3.1.1"
-	static public val TEST_EDITOR_GRADLE_PLUGIN_VERSION = "0.5"
+	static public val TEST_EDITOR_GRADLE_PLUGIN_VERSION = "0.6"
 	
 	static public val String TEST_EDITOR_MVN_GEN_OUTPUT = 'src-gen/test/java'
 

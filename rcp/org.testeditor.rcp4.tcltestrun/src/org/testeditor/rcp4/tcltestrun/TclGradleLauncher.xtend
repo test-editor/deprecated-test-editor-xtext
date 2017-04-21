@@ -28,7 +28,7 @@ import org.testeditor.dsl.common.util.GradleHelper
 
 public class TclGradleLauncher implements TclLauncher {
 
-	static val GRADLE_TEST_RESULT_FOLDER = "build/test-results"
+	static val GRADLE_TEST_RESULT_FOLDER = "build/test-results/test"
 	static val logger = LoggerFactory.getLogger(TclGradleLauncher)
 
 	@Inject extension ProjectUtils
