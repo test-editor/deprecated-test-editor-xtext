@@ -1,0 +1,105 @@
+buildscript {
+    repositories {
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        classpath "com.github.jengelman.gradle.plugins:shadow:1.2.4"
+    }
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'eclipse'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+sourceCompatibility = 1.8
+mainClassName = "org.testeditor.web.TestEditorBackendApp"
+
+shadowJar {
+    version = null
+    mergeServiceFiles()
+}
+
+eclipse {
+    classpath.file.whenMerged { classpath ->
+        classpath.entries.removeAll { entry ->
+            entry.path.contains('build/out')
+        }
+    }
+}
+
+configurations {
+    integrationTestCompile { extendsFrom testCompile }
+    integrationTestRuntime { extendsFrom testRuntime }
+}
+
+sourceSets {
+    main {
+        output.classesDir = 'build/out'
+        output.resourcesDir = 'build/out'
+    }
+    integrationTest {
+        java.srcDir 'src/integrationTest/java'
+        resources.srcDir 'src/integrationTest/resources'
+        // the following lines are neeed, due to this:
+        // https://deltaspike.apache.org/documentation/test-control.html#Gradle
+        output.classesDir = 'build/out'
+        output.resourcesDir = 'build/out'
+        compileClasspath += project.sourceSets.main.runtimeClasspath
+    }
+}
+
+jar {
+    duplicatesStrategy = 'exclude'
+}
+
+tasks.withType(Test) {
+    maxParallelForks 4
+}
+
+task("integrationTest", type: Test) {
+    testClassesDir = sourceSets.integrationTest.output.classesDir
+    classpath += configurations.integrationTestRuntime + sourceSets.integrationTest.runtimeClasspath
+}
+
+group 'com.sdase.template'
+
+project.ext {
+	dropwizardVersion = '1.1.0'
+    configPath = "$rootProject.projectDir/"
+}
+
+dependencies {
+    compile group: 'javax', name: 'javaee-api', version: '7.0'
+
+    compile group: 'io.dropwizard', name: 'dropwizard-core', version: dropwizardVersion
+    compile group: 'io.dropwizard', name: 'dropwizard-client', version: dropwizardVersion
+    
+    compile group: 'org.jboss', name: 'jandex', version: '2.0.3.Final'
+    compile group: 'org.glassfish.jersey.ext.cdi', name: 'jersey-cdi1x', version: '2.25'
+    compile group: 'org.jboss.weld.servlet', name: 'weld-servlet-core', version: '2.4.1.Final'
+
+    compile group: 'ma.glasnost.orika', name: 'orika-core', version: '1.5.0'
+    compile group: 'io.swagger', name: 'swagger-annotations', version: '1.5.12'
+    compile group: 'io.swagger', name: 'swagger-jaxrs', version: '1.5.12'
+    compile group: 'com.meltmedia.dropwizard', name: 'dropwizard-mongo', version: '0.4.0'
+    
+    //WebJars
+    compile group: 'org.webjars', name: 'jquery', version: '2.2.4'
+    compile group: 'org.webjars', name: 'requirejs', version: '2.3.2'
+    compile group: 'org.webjars', name: 'ace', version: '1.2.3'
+
+    // TE Dependencies
+    compile group: 'org.testeditor', name: 'org.testeditor.tsl.dsl.web', version: '1.6.0-SNAPSHOT'
+    
+    testCompile group: 'io.dropwizard', name: 'dropwizard-testing', version: dropwizardVersion
+	testCompile group: 'org.mockito', name: 'mockito-core', version: '2.7.19' 
+    
+}
+
+run { args 'server', configPath + 'config.yml' }
