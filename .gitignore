@@ -61,6 +61,15 @@ rcp/org.testeditor.rcp4.uatests/**/org.testeditor.*.png
 ### Test Editor log file ###
 testeditor.log
 
+### Test Editor logs written during test runs ###
+common/org.testeditor.dsl.common.tests/logs/
+common/org.testeditor.dsl.common.ui.tests/logs/
+common/org.testeditor.logging.tests/logs/
+rcp/org.testeditor.rcp4.tests/logs/
+rcp/org.testeditor.rcp4.uatests/logs/
+rcp/org.testeditor.rcp4.views.tcltestrun.tests/logs/
+tcl/org.testeditor.tcl.dsl.tests/logs/
+
 ### NPM ###
 node_modules
 

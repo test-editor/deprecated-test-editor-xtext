@@ -186,9 +186,9 @@ class ProjectContentGenerator {
 			RESOURCES_FOLDER,
 			SRC_TEST_FOLDER,
 			RESOURCES_TEST_FOLDER,
-			"build/tcl", // generated test cases
-			"build/tclConfig", // generated test configurations
-			"build/tclMacro" // generated test macros
+			"build/tcl/test", // generated test cases
+			"build/tclConfig/test", // generated test configurations
+			"build/tclMacro/test" // generated test macros
 		]
 		project.setupSourceClassPaths(wantedSourceClassPaths)
 	}
