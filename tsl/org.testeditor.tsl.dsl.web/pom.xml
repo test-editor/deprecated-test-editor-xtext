@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>org.testeditor.tsl.dsl.web</artifactId>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 
 	<properties>
 		<deploy.skip>true</deploy.skip>
