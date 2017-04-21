@@ -13,6 +13,7 @@
 package org.testeditor.dsl.common.util.classpath
 
 import com.google.common.annotations.VisibleForTesting
+import com.google.common.io.CharSource
 import java.io.ByteArrayOutputStream
 import java.util.List
 import java.util.regex.Pattern
@@ -49,7 +50,7 @@ class GradleClasspathUtil {
 	@VisibleForTesting
 	protected def List<IPath> parseGradleSourcePaths(String output) {
 		logger.info("Parsing gradle task output printProperties to extract source set.")
-		val lines = output.split(System.getProperty("line.separator"))
+		val lines = CharSource.wrap(output).readLines
 		val pattern = Pattern.compile("[^']*'([^']*)'")
 		return lines.filter[startsWith('sourceSetPath:')] //
 		.map[pattern.matcher(it)] //

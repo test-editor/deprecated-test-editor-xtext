@@ -67,11 +67,11 @@ class ClasspathUtil {
 		val baseDir = path.getBuildProjectBaseDir
 		switch (baseDir) {
 			case baseDir.isMavenProjectBaseDir: return mavenClasspathUtil.getMavenClasspathEntries(baseDir).findFirst[
-				logger.info("Checking maven classpath='{}'.", it.toOSString)
+				logger.debug("Checking maven classpath='{}'.", it.toOSString)
 				it.isPrefixOf(path)
 			]
 			case baseDir.isGradleProjectBaseDir: return gradleClasspathUtil.getGradleSourceSetPaths(baseDir).findFirst[
-				logger.info("Checking gradle classpath='{}'.", it.toOSString)
+				logger.debug("Checking gradle classpath='{}'.", it.toOSString)
 				it.isPrefixOf(path)
 			]
 			default: throw new RuntimeException('''Unknown project type in project base dir='«baseDir»'.''')
