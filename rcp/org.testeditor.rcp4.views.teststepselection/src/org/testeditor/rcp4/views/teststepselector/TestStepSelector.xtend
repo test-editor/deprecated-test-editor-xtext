@@ -50,6 +50,7 @@ import org.testeditor.aml.dsl.naming.AmlQualifiedNameProvider
 import org.testeditor.dsl.common.util.CollectionUtils
 
 import static org.testeditor.aml.AmlPackage.Literals.AML_MODEL
+import static org.testeditor.aml.AmlPackage.Literals.COMPONENT
 import static org.testeditor.rcp4.views.teststepselector.XtendSWTLib.*
 
 /** 
@@ -186,7 +187,10 @@ class TestStepSelector {
 
 	private def Iterable<AmlModel> getAmlModels(StateBasedContainer container, ResourceSet resourceSet) {
 		val amlDescriptions = container.getExportedObjectsByType(AML_MODEL)
-		return amlDescriptions.map[EObjectOrProxy].map[EcoreUtil2.resolve(it, resourceSet) as AmlModel]
+		val resourceDescriptions = container.resourceDescriptions.toList
+		val components=resourceDescriptions.map[it.getExportedObjectsByType(COMPONENT)].flatten
+		val amlModels=components.map[EcoreUtil2.resolve(EObjectOrProxy, resourceSet)].filter(Component).map[EcoreUtil2.getContainerOfType(it, AmlModel)].toSet
+		return amlModels//amlDescriptions.map[EObjectOrProxy].map[EcoreUtil2.resolve(it, resourceSet) as AmlModel]
 	}
 
 	/** 
@@ -238,8 +242,13 @@ class TestStepSelector {
 				return object
 			Component,
 			ComponentElement,
-			AmlModel:
-				return amlQualifiedNameProvider.apply(object).toString
+			AmlModel: {
+				if ((object as AmlModel).package === null) {
+					return "<default>"
+				} else {
+					return amlQualifiedNameProvider.apply(object).toString
+				}
+			}
 			default:
 				throw new IllegalArgumentException('''unexpected type='«object.class.name»' in expanded TreeElements.''')
 		}

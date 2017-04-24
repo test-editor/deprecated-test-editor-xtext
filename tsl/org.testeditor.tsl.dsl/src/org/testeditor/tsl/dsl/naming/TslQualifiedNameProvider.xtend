@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -14,24 +14,24 @@ package org.testeditor.tsl.dsl.naming
 
 import javax.inject.Inject
 import javax.inject.Singleton
-import org.eclipse.emf.ecore.EObject
-import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider
-import org.eclipse.xtext.naming.IQualifiedNameConverter
+import org.eclipse.xtext.naming.QualifiedName
+import org.eclipse.xtext.xbase.scoping.XbaseQualifiedNameProvider
+import org.testeditor.dsl.common.util.classpath.ClasspathUtil
 import org.testeditor.tsl.TslModel
 
 @Singleton
-class TslQualifiedNameProvider extends DefaultDeclarativeQualifiedNameProvider {
-	
-	@Inject extension IQualifiedNameConverter
-	
-	override getFullyQualifiedName(EObject obj) {
-		val result = switch (obj) {
-			TslModel:
-				obj.package.toQualifiedName
-			default:
-				super.getFullyQualifiedName(obj)
+class TslQualifiedNameProvider extends XbaseQualifiedNameProvider {
+
+	@Inject ClasspathUtil classpathUtil
+
+	def QualifiedName qualifiedName(TslModel model) {
+		if (model.package === null) {
+			val package = classpathUtil.inferPackage(model)
+			if (!package.nullOrEmpty) {
+				model.package = package // create model.package only if present and not default package!
+			}
 		}
-		return result
+		return converter.toQualifiedName(model.package)
 	}
-	
+
 }

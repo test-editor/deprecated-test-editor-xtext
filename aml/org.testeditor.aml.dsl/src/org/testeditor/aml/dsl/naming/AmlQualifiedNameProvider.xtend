@@ -14,19 +14,27 @@ package org.testeditor.aml.dsl.naming
 
 import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
-import org.eclipse.xtext.naming.IQualifiedNameConverter
 import org.eclipse.xtext.xbase.scoping.XbaseQualifiedNameProvider
 import org.testeditor.aml.AmlModel
+import org.testeditor.dsl.common.util.classpath.ClasspathUtil
 
 class AmlQualifiedNameProvider extends XbaseQualifiedNameProvider {
 
-	@Inject
-	extension IQualifiedNameConverter
+	@Inject ClasspathUtil classpathUtil
 
 	override getFullyQualifiedName(EObject obj) {
 		val result = switch (obj) {
-			AmlModel:
-				obj.package.toQualifiedName
+			AmlModel: {
+				if (obj.package === null) {
+					val package = classpathUtil.inferPackage(obj)
+					if (!package.nullOrEmpty) {
+						obj.package = package
+					} else {
+						return null
+					}
+				}
+				return converter.toQualifiedName(obj.package)
+			}				
 			default:
 				super.getFullyQualifiedName(obj)
 		}

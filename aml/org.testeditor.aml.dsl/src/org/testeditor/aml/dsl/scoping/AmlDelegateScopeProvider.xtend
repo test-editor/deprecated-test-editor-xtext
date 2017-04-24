@@ -12,12 +12,14 @@
  *******************************************************************************/
 package org.testeditor.aml.dsl.scoping
 
+import javax.inject.Inject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.scoping.IScope
 import org.eclipse.xtext.scoping.impl.ScopeBasedSelectable
 import org.eclipse.xtext.xbase.scoping.XImportSectionNamespaceScopeProvider
 import org.testeditor.aml.AmlModel
+import org.testeditor.dsl.common.util.classpath.ClasspathUtil
 
 /**
  * Since we don't generate JvmTypes yet we need to tweak the scoping a little bit
@@ -27,6 +29,8 @@ import org.testeditor.aml.AmlModel
  */
 class AmlDelegateScopeProvider extends XImportSectionNamespaceScopeProvider {
 
+	@Inject ClasspathUtil classpathUtil
+
 	override protected getResourceScope(IScope globalScope, Resource resource, EReference reference) {
 		var IScope result = globalScope
 		val globalScopeSelectable = new ScopeBasedSelectable(result)
@@ -35,14 +39,24 @@ class AmlDelegateScopeProvider extends XImportSectionNamespaceScopeProvider {
 		// Custom code START
 		val head = resource.contents.head
 		if (head instanceof AmlModel) {
-			normalizers += doCreateImportNormalizer(head.qualifiedNameOfLocalElement, true, false)
+			if (head.package === null) {
+				val package = classpathUtil.inferPackage(head)
+				if (!package.nullOrEmpty) {
+					head.package = package // create head.package only if present and not default package!
+				}
+			}
+			val qualifiedName = head.qualifiedNameOfLocalElement
+			if (qualifiedName !== null) {
+				normalizers += doCreateImportNormalizer(qualifiedName, true, false)
+			}
 		}
 		// Custom code END
-		
 		if (!normalizers.isEmpty()) {
-			result = createImportScope(result, normalizers, globalScopeSelectable, reference.getEReferenceType(), isIgnoreCase(reference))
+			result = createImportScope(result, normalizers, globalScopeSelectable, reference.getEReferenceType(),
+				isIgnoreCase(reference))
 		}
 		return result
+		
 	}
 
 }

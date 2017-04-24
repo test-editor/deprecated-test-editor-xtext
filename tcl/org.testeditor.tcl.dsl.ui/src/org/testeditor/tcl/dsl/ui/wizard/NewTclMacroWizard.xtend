@@ -35,12 +35,11 @@ class NewTclMacroWizard extends NewFileWizard {
 
 	override String contentString(String thePackage, String fileName) {
 		return '''
-			package «thePackage ?: "com.example"»
-			
 			# «fileName.replace(".tml","").toFirstUpper»
 
 			## «fileName.replace(".tml","").toFirstUpper»
 			template = "«fileName.replace(".tml","").toFirstUpper»"
 		'''
 	}
+	
 }

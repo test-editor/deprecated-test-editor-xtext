@@ -23,8 +23,6 @@ class NewConfigFileWizard extends NewFileWizard {
 
 	override String contentString(String thePackage, String fileName) {
 		return '''
-			package «thePackage ?: "com.example"»
-			
 			config «fileName.replace(".config", "").toFirstUpper»
 			
 			Setup:

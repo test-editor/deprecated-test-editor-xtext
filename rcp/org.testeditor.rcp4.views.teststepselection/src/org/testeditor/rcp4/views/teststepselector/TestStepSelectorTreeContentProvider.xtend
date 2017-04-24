@@ -65,7 +65,7 @@ class TestStepSelectorTreeContentProvider implements ITreeContentProvider {
 
 	override inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 		val input = newInput as Iterable<AmlModel>
-		this.input = input?.groupBy[package]
+		this.input = input?.groupBy[package ?: '<default>']
 	}
 
 }
