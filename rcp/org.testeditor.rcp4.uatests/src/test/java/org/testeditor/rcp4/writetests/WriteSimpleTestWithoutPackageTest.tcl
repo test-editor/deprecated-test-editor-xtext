@@ -23,6 +23,8 @@ config TestEditorConfig
 	- Click on <FinishButton>
 	- Wait for dialog "Progress Information" to popup and then close after at most "3" respectively "120" seconds  
 
+* When creating a test ^case
+//when
 	Component: ProjectExplorer
 	- Select element "MyFirstWebProject/src/test/java/MyFirstWebProject" in tree <ProjectTree>
 	- Execute menu item "New/Test Case" in tree <ProjectTree>
@@ -30,17 +32,9 @@ config TestEditorConfig
 	Component: NewTestCaseDialog
 	- Type "MyTestcase.tcl" into <TestCaseName>
 	- Click on <FinishButton>
+	- Wait for dialog "Progress Information" to popup and then close after at most "3" respectively "120" seconds
 
-* When remove packagename from file and save
-//when
-	Component: ActiveEditor
-	- Remove line "1" from editor
-	- Save editor content
-
-	Component: MainWindow
-	- Wait until all jobs finished
-
-* Then expect generated java file contains packagename based ondirectory structure of testcase 
+* Then expect generated java file contains packagename based ondirectory structure of testcase
 //then
 	Component: ActiveEditor
 	- isTclPackage = Contains editor "package MyFirstWebProject"

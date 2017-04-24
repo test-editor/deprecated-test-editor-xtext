@@ -49,7 +49,7 @@ class ClasspathUtil {
 			val classpath = getClasspathEntryFor(adjustedPath, true)
 			return packageForPath(adjustedPath, classpath)
 		} else {
-			val absolutePath = new Path(originPath.toFile.absolutePath)
+			val absolutePath = new Path(originPath.toFile.absolutePath).removeLastSegments(1)
 			val classpath = getClasspathEntryFor(absolutePath, false)
 			return packageForPath(absolutePath, classpath)
 		}

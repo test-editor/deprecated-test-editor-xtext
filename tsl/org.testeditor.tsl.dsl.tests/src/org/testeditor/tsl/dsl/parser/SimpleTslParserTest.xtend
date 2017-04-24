@@ -200,8 +200,8 @@ class SimpleTslParserTest extends AbstractParserTest {
 		// given
 		val tsl = ""
 
-		// expect nothing parsed
-		tsl.parseTsl.assertNull
+		// expect tsl paresd with default package (null)
+		tsl.parseTsl.package.assertNull
 	}
 
 }
