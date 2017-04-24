@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.jdt.core.IClasspathEntry
+import org.eclipse.jdt.core.IJavaElement
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.xtext.EcoreUtil2
 import org.slf4j.LoggerFactory
@@ -33,24 +34,48 @@ class ClasspathUtil {
 	@Inject MavenClasspathUtil mavenClasspathUtil
 	@Inject GradleClasspathUtil gradleClasspathUtil
 
+	// called from within rcp
+	def String inferPackage(IJavaElement javaElement) {
+		val path = javaElement.resource.fullPath
+		val classpath = getClasspathEntryFor(path, true)
+		return packageForPath(path, classpath)
+	}
+
+	// called from rcp or during build (outside of rcp)
 	def String inferPackage(EObject element) {
-		val orignPath = new Path(EcoreUtil2.getPlatformResourceOrNormalizedURI(element).trimFragment.path)
-		var path = orignPath.removeLastSegments(1)
-		var IPath cpEntry = new Path("")
-		if (orignPath.isEclipseResolved) {
-			path = orignPath.removeFirstSegments(1).removeLastSegments(1)
-			cpEntry = path.getEclipseClasspathEntry
+		val originPath = new Path(EcoreUtil2.getPlatformResourceOrNormalizedURI(element).trimFragment.path)
+		if (originPath.isEclipseResolved) {
+			val adjustedPath = originPath.removeFirstSegments(1).removeLastSegments(1)
+			val classpath = getClasspathEntryFor(adjustedPath, true)
+			return packageForPath(adjustedPath, classpath)
 		} else {
-			path = new Path(path.toFile.absolutePath)
-			cpEntry = path.getBuildToolClasspathEntry
+			val absolutePath = new Path(originPath.toFile.absolutePath)
+			val classpath = getClasspathEntryFor(absolutePath, false)
+			return packageForPath(absolutePath, classpath)
 		}
-		if (cpEntry === null) {
-			logger.error("Could not find corresponding classpath entry for path='{}'.", path)
-			return 'com.example'
+	}
+	
+	def String inferPackage(IPath eclipsePath) {
+		val classpath = getClasspathEntryFor(eclipsePath, true)
+		return packageForPath(eclipsePath, classpath)
+	}
+	
+	def private IPath getClasspathEntryFor(IPath path, boolean isEclipseLocal) {
+		if (isEclipseLocal) {
+			return path.getEclipseClasspathEntry
+		} else {
+			return path.getBuildToolClasspathEntry
 		}
-		val start = path.matchingFirstSegments(cpEntry)
+	}
+
+	def private String packageForPath(IPath path, IPath classpath) {
+		if (classpath === null) {
+			logger.error("Could not find corresponding classpath entry for path='{}', using default package instead.", path)
+			return null
+		}
+		val start = path.matchingFirstSegments(classpath)
 		val result = path.removeFirstSegments(start).segments.join(".")
-		logger.debug("Inferred package for {} is {}.", element, result)
+		logger.debug("Inferred package for originPath='{}' is '{}'.", path, result)
 		return result
 	}
 	
@@ -80,7 +105,7 @@ class ClasspathUtil {
 
 	def protected IPath getEclipseClasspathEntry(IPath path) {
 		val classpathEntries = getSourceClasspathEntries(workspaceHelper.root.getFile(path).project)
-		return classpathEntries.filter[it.path.isPrefixOf(path)].head.path
+		return classpathEntries.filter[it.path.isPrefixOf(path)].head?.path
 	}
 
 	def Iterable<IClasspathEntry> getSourceClasspathEntries(IProject project) {
@@ -120,7 +145,7 @@ class ClasspathUtil {
 		}
 	}
 
-	def protected boolean getIsEclipseResolved(Path path) {
+	def protected boolean getIsEclipseResolved(IPath path) {
 		return path.toString.startsWith("/resource/")
 	}
 
@@ -128,7 +153,7 @@ class ClasspathUtil {
 		if (path.toFile.list.contains("pom.xml") || path.toFile.list.contains("build.gradle")) {
 			return path
 		}
-		if (path.toFile.parent != null) {
+		if (path.toFile.parent !== null) {
 			return getBuildProjectBaseDir(new Path(path.toFile.parent))
 		}
 		return null

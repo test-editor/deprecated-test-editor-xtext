@@ -25,8 +25,11 @@ class TclQualifiedNameProvider extends XbaseQualifiedNameProvider {
 	@Inject ClasspathUtil classpathUtil
 
 	def QualifiedName qualifiedName(TclModel model) {
-		if(model.package==null) {
-			model.package = classpathUtil.inferPackage(model)
+		if (model.package === null) {
+			val package = classpathUtil.inferPackage(model)
+			if (!package.nullOrEmpty) {
+				model.package = package // create model.package only if present and not default package!
+			}
 		}
 		return converter.toQualifiedName(model.package)
 	}

@@ -35,9 +35,7 @@ class NewTclFileWizard extends NewFileWizard {
 
 	override String contentString(String thePackage, String fileName) {
 		return '''
-			package «thePackage ?: "com.example"»
-			
-			# «fileName.replace(".tcl","").toFirstUpper»
+			# «fileName.replace('.tcl','').toFirstUpper»
 		'''
 	}
 }

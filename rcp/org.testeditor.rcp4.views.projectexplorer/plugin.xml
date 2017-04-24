@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin>
-
+   <extension
+        point="org.eclipse.core.expressions.propertyTesters">
+     <propertyTester
+        class="org.testeditor.rcp4.views.projectexplorer.ProjectExplorerExtensionFactory:org.testeditor.rcp4.views.projectexplorer.FolderPropTester"
+           id="org.testeditor.rcp4.views.projectexplorer.FolderPropTester"
+           namespace="org.testeditor.rcp4.views.projectexplorer"
+           properties="checkFolder"
+           type="org.eclipse.core.resources.IFolder">
+     </propertyTester>
+   </extension>
    <extension
          point="org.eclipse.ui.views">
       <view
@@ -157,10 +166,13 @@
 					wizardId="org.testeditor.aml.dsl.ui.wizard.NewAmlFileWizard">
 				<enablement>
 					<or>
-						<adapt type="org.eclipse.core.resources.IFolder" />
-	         			<adapt type="org.eclipse.core.resources.IProject" /> 
-	               		<adapt type="org.eclipse.core.resources.IWorkspaceRoot" />	
-	               		<adapt type="org.eclipse.jdt.core.IJavaElement" />	
+						<adapt type="org.eclipse.core.resources.IFolder">
+							<and>
+								<test forcePluginActivation="true"
+            						property="org.testeditor.rcp4.views.projectexplorer.checkFolder" value="nonroot">
+								</test>
+							</and>
+						</adapt>
 					</or>
 		         </enablement>
   	     </commonWizard>   
@@ -169,7 +181,13 @@
 					wizardId="org.testeditor.tcl.dsl.ui.wizard.NewTclFileWizard">
 				<enablement>
 					<or>
-						<adapt type="org.eclipse.core.resources.IFolder" />
+						<adapt type="org.eclipse.core.resources.IFolder">
+							<and>
+								<test forcePluginActivation="true"
+            						property="org.testeditor.rcp4.views.projectexplorer.checkFolder">
+								</test>
+							</and>
+						</adapt>
 	         			<adapt type="org.eclipse.core.resources.IProject" /> 
 	               		<adapt type="org.eclipse.core.resources.IWorkspaceRoot" />	
 	               		<adapt type="org.eclipse.jdt.core.IJavaElement" />	
@@ -181,10 +199,13 @@
 					wizardId="org.testeditor.tcl.dsl.ui.wizard.NewConfigFileWizard">
 				<enablement>
 					<or>
-						<adapt type="org.eclipse.core.resources.IFolder" />
-	         			<adapt type="org.eclipse.core.resources.IProject" /> 
-	               		<adapt type="org.eclipse.core.resources.IWorkspaceRoot" />	
-	               		<adapt type="org.eclipse.jdt.core.IJavaElement" />	
+						<adapt type="org.eclipse.core.resources.IFolder">
+							<and>
+								<test forcePluginActivation="true"
+            						property="org.testeditor.rcp4.views.projectexplorer.checkFolder" value="nonroot">
+								</test>
+							</and>
+						</adapt>
 					</or>
 		         </enablement>
   	     </commonWizard>   
@@ -193,10 +214,13 @@
 					wizardId="org.testeditor.tcl.dsl.ui.wizard.NewTclMacroWizard">
 				<enablement>
 					<or>
-						<adapt type="org.eclipse.core.resources.IFolder" />
-	         			<adapt type="org.eclipse.core.resources.IProject" /> 
-	               		<adapt type="org.eclipse.core.resources.IWorkspaceRoot" />	
-	               		<adapt type="org.eclipse.jdt.core.IJavaElement" />	
+						<adapt type="org.eclipse.core.resources.IFolder">
+							<and>
+								<test forcePluginActivation="true"
+            						property="org.testeditor.rcp4.views.projectexplorer.checkFolder" value="nonroot">
+								</test>
+							</and>
+						</adapt>
 					</or>
 		         </enablement>
   	     </commonWizard>   
@@ -205,10 +229,13 @@
 					wizardId="org.testeditor.tsl.dsl.ui.wizard.NewTslFileWizard">
 				<enablement>
 					<or>
-						<adapt type="org.eclipse.core.resources.IFolder" />
-	         			<adapt type="org.eclipse.core.resources.IProject" /> 
-	               		<adapt type="org.eclipse.core.resources.IWorkspaceRoot" />	
-	               		<adapt type="org.eclipse.jdt.core.IJavaElement" />	
+						<adapt type="org.eclipse.core.resources.IFolder">
+							<and>
+								<test forcePluginActivation="true"
+            						property="org.testeditor.rcp4.views.projectexplorer.checkFolder" value="nonroot">
+								</test>
+							</and>
+						</adapt>
 					</or>
 		         </enablement>
   	     </commonWizard>   

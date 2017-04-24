@@ -33,10 +33,16 @@ public class TclDelegateScopeProvider extends XImportSectionNamespaceScopeProvid
 		// Custom code START
 		val head = resource.contents.head
 		if (head instanceof TclModel) {
-			if(head.package == null){
-				head.package = classpathUtil.inferPackage(head)
-			} 
-			normalizers += doCreateImportNormalizer(head.qualifiedNameOfLocalElement, true, false)
+			if (head.package === null) {
+				val package = classpathUtil.inferPackage(head)
+				if (!package.nullOrEmpty) {
+					head.package = package // create head.package only if present and not default package!
+				}
+			}
+			val qualifiedName = head.qualifiedNameOfLocalElement
+			if (qualifiedName !== null) {
+				normalizers += doCreateImportNormalizer(qualifiedName, true, false)
+			}
 		}
 		// Custom code END
 		if (!normalizers.isEmpty()) {
