@@ -24,7 +24,7 @@ class AmlModelParserTest extends AbstractParserTest {
 	 * Test parsing a minimal model with only a package definition.
 	 */
 	@Test
-	def void parseMinimal() {
+	def void parseMinimalWithPackage() {
 		// Given
 		val input = '''
 			package com.example
@@ -40,6 +40,20 @@ class AmlModelParserTest extends AbstractParserTest {
 		]
 	}
 	
+	@Test
+	def void parseMinimal() {
+		// given
+		val input = ''
+		
+		// when
+		val model = parseAml(input)
+		
+		//then
+		model => [
+			assertNoErrors
+			package.assertNull
+		]
+	}
 	/**
 	 * Test that elements of the AmlModel can be in any order.
 	 */
@@ -47,8 +61,6 @@ class AmlModelParserTest extends AbstractParserTest {
 	def void parseSmallModel() {
 		// Given
 		val input = '''
-			package com.example
-			
 			interaction type MyInteraction
 			component MyComponent is MyComponentType
 			component type MyComponentType

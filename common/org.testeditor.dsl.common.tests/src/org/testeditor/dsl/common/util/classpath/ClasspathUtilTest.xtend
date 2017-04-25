@@ -133,6 +133,44 @@ class ClasspathUtilTest extends AbstractTest {
 		assertSame(basePathWithPom, pathWithPom)
 		assertSame(basePathWithGradle, pathWithGradle)
 	}
+	
+	@Test
+	def void testValidPackageForPath() {
+		// given
+		val classpath = new Path('/resource/project-name/src/main/java')
+		val path = classpath.append('some/more/package')
+
+		// when
+		val package = classpathUtil.packageForPath(path, classpath)
+
+		// then
+		package.assertEquals("some.more.package")
+	}
+
+	@Test
+	def void testValidDefaultPackageForPath() {
+		// given
+		val classpath = new Path('/resource/project-name/src/main/java')
+		val path = classpath
+
+		// when
+		val package = classpathUtil.packageForPath(path, classpath)
+
+		// then
+		package.assertEquals("")
+	}
+
+	@Test(expected=RuntimeException)
+	def void testInvalidPackageForPath() {
+		// given
+		val classpath = new Path('/resource/project-name/src/main/java')
+		val path = new Path('/resource/project-name/DIFFERENT/main/java/some/more/package')
+
+		// when
+		classpathUtil.packageForPath(path, classpath)
+
+		// then (expect exception)
+	}
 
 	def IPath getPathForBuildFileSearch(List<String> objects) {
 		val path = mock(IPath)

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -27,8 +27,10 @@ class TslQualifiedNameProvider extends XbaseQualifiedNameProvider {
 	def QualifiedName qualifiedName(TslModel model) {
 		if (model.package === null) {
 			val package = classpathUtil.inferPackage(model)
-			if (!package.nullOrEmpty) {
-				model.package = package // create model.package only if present and not default package!
+			if (package.nullOrEmpty) {
+				return null // no qualified (package) name available
+			} else {
+				model.package = package // set model.package only if present, since serializer would write empty package with empty string
 			}
 		}
 		return converter.toQualifiedName(model.package)

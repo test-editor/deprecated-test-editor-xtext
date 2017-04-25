@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.util.classpath
 
+import com.google.common.annotations.VisibleForTesting
 import javax.inject.Inject
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.CoreException
@@ -68,12 +69,16 @@ class ClasspathUtil {
 		}
 	}
 
-	def private String packageForPath(IPath path, IPath classpath) {
+	@VisibleForTesting
+	def protected String packageForPath(IPath path, IPath classpath) {
 		if (classpath === null) {
 			logger.error("Could not find corresponding classpath entry for path='{}', using default package instead.", path)
 			return null
 		}
 		val start = path.matchingFirstSegments(classpath)
+		if (start != classpath.segmentCount) {
+			throw new RuntimeException("illegal path for classpath")
+		}
 		val result = path.removeFirstSegments(start).segments.join(".")
 		logger.debug("Inferred package for originPath='{}' is '{}'.", path, result)
 		return result
@@ -105,7 +110,7 @@ class ClasspathUtil {
 
 	def protected IPath getEclipseClasspathEntry(IPath path) {
 		val classpathEntries = getSourceClasspathEntries(workspaceHelper.root.getFile(path).project)
-		return classpathEntries.filter[it.path.isPrefixOf(path)].head?.path
+		return classpathEntries.findFirst[it.path.isPrefixOf(path)]?.path
 	}
 
 	def Iterable<IClasspathEntry> getSourceClasspathEntries(IProject project) {
