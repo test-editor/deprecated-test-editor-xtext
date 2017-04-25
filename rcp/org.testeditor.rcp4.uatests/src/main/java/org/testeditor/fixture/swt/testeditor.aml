@@ -40,14 +40,23 @@ component type TestEditorApp {
 
 component MainWindow is Workbench {
 	element ProjektBaum is View locate by ViewLocatorStrategy.TITLE "Test Project Explorer"
-	element TestStepSelector is View locate by ViewLocatorStrategy.TITLE "Test Step Selector"
+	element TestStepSelector is TreeView locate by ViewLocatorStrategy.TITLE "Test Step Selector"
 	element JUnitView is View locate by ViewLocatorStrategy.ID "org.eclipse.jdt.junit.ResultView"
 }
 
-value-space projectmenues = #[ "New/Project...", "Open", "Run test", "Rename...", "New/Test Case", "New/Application Mapping" ]
+
+value-space projectmenues = #[ 
+	"New/Project...", 
+	"Open", 
+	"Run test", 
+	"Rename...", 
+	"New/Test Case", 
+	"New/Application Mapping",
+	"New/Folder" 
+	]
 
 component ProjectExplorer is General {
-	element ProjectTree is TreeView locate by SWTLocatorStrategy.LABEL "Test Project Explorer"
+	element ProjectTree is TreeView locate by ViewLocatorStrategy.TITLE "Test Project Explorer"
 		executeContextMenuEntry.item restrict to projectmenues
 }
 
@@ -61,7 +70,7 @@ component ActiveEditor is TextEditor {
 }
 
 component NewProjectDialog is Dialog {
-	element ProjectType is Tree locate by SWTLocatorStrategy.SINGLE ""
+	element ProjectType is Tree locate by ViewLocatorStrategy.SINGLE ""
 	element NextButton is Button locate by SWTLocatorStrategy.LABEL "&Next >"
 	element FinishButton is Button locate by SWTLocatorStrategy.LABEL "&Finish"
 	element ProjectName is Text locate by SWTLocatorStrategy.SINGLE ""
@@ -74,6 +83,17 @@ component NewProjectDialog is Dialog {
 component NewTestCaseDialog is Dialog {
 	element TestCaseName is Text locate by SWTLocatorStrategy.LABEL "File name:"
 	element NextButton is Button locate by SWTLocatorStrategy.LABEL "&Next >"
+	element FinishButton is Button locate by SWTLocatorStrategy.LABEL "&Finish"
+}
+
+component NewApplicationMappingDialog is Dialog {
+	element ApplicationMappingName is Text locate by SWTLocatorStrategy.LABEL "File name:"
+	element NextButton is Button locate by SWTLocatorStrategy.LABEL "&Next >"
+	element FinishButton is Button locate by SWTLocatorStrategy.LABEL "&Finish"
+}
+
+component NewFolderDialog is Dialog {
+	element FolderName is Text locate by SWTLocatorStrategy.LABEL "Folder name:"
 	element FinishButton is Button locate by SWTLocatorStrategy.LABEL "&Finish"
 }
 

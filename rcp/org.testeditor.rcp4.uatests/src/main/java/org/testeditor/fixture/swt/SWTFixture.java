@@ -297,7 +297,7 @@ public class SWTFixture implements TestRunListener, TestRunReportable {
 	 *            "Root/SubNode/FinalNode"
 	 */
 	@FixtureMethod
-	public void selectElementInTreeView(String itemName, String locator, SWTLocatorStrategy locatorStrategy) {
+	public void selectElementInTreeView(String itemName, String locator, ViewLocatorStrategy locatorStrategy) {
 		logger.trace("search for view with title: {} to get the default tree", locator);
 		SWTBotTree tree = getTree(locator, locatorStrategy);
 		logger.trace("Open item with path: {}", itemName);
@@ -310,13 +310,30 @@ public class SWTFixture implements TestRunListener, TestRunReportable {
 			throw e;
 		}
 	}
+	
+	@FixtureMethod
+	public boolean hasElementInTreeView(String itemName, String locator, ViewLocatorStrategy locatorStrategy) {
+		logger.trace("search for view with title: {} to get the default tree", locator);
+		SWTBotTree tree = getTree(locator, locatorStrategy);
+		logger.trace("Open item with path: {}", itemName);
+		try {
+			SWTBotTreeItem expandNode = tree.expandNode(itemName.split("/"));
+			return expandNode != null;
+		} catch (WidgetNotFoundException e) {
+			logger.error("Widget not found", e);
+			printTreeItems(tree, locator);
+		}
+		return false;
+	}
 
-	private SWTBotTree getTree(String locator, SWTLocatorStrategy locatorStrategy) {
+	private SWTBotTree getTree(String locator, ViewLocatorStrategy locatorStrategy) {
 		switch (locatorStrategy) {
 		case ID:
 			return bot.viewById(locator).bot().tree();
-		case LABEL:
+		case TITLE:
 			return bot.viewByTitle(locator).bot().tree();
+		case PARTNAME:
+			return bot.viewByPartName(locator).bot().tree();
 		case SINGLE:
 			return bot.tree();
 		}
@@ -389,7 +406,7 @@ public class SWTFixture implements TestRunListener, TestRunReportable {
 	 *             on failure to break the test.
 	 */
 	@FixtureMethod
-	public void executeContextMenuEntry(String menuItem, String viewName, SWTLocatorStrategy locatorStrategy)
+	public void executeContextMenuEntry(String menuItem, String viewName, ViewLocatorStrategy locatorStrategy)
 			throws Exception {
 		logger.trace("Search for view with title: {}", viewName);
 		SWTBotTree tree = getTree(viewName, locatorStrategy);

@@ -7,6 +7,6 @@ import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
  */
 public enum ViewLocatorStrategy {
 
-	ID, TITLE, PARTNAME
+	ID, TITLE, PARTNAME, SINGLE
 
 }
