@@ -66,7 +66,9 @@ class TestStepSelector {
 	@Inject AmlInjectorProvider amlInjectorProvider
 	@Inject TestStepSelectorLabelProvider labelProvider
 	@Inject ICommandService commandService
+
 	var extension CollectionUtils collectionUtils // injected in postConstruct
+	var TestStepSelectorTreeContentProvider treeContentProvider // injected in postConstruct
 
 	AmlQualifiedNameProvider amlQualifiedNameProvider
 	IContainer.Manager containerManager
@@ -106,7 +108,8 @@ class TestStepSelector {
 			addDragSupport((DND.DROP_COPY.bitwiseOr(DND.DROP_MOVE)), #[TextTransfer.instance], dragSourceListener)
 		]
 		dragSourceListener.viewer = viewer
-		viewer.contentProvider = amlInjectorProvider.get.getInstance(TestStepSelectorTreeContentProvider)
+		treeContentProvider = amlInjectorProvider.get.getInstance(TestStepSelectorTreeContentProvider)
+		viewer.contentProvider = treeContentProvider 
 		viewer.labelProvider = labelProvider
 		Job.jobManager.addJobChangeListener(triggerViewUpdate)
 	}
@@ -242,13 +245,8 @@ class TestStepSelector {
 			Component,
 			ComponentElement:
 				return amlQualifiedNameProvider.apply(object).toString
-			AmlModel: {
-				if (object.package === null) {
-					return '*default*'
-				} else {
-					return amlQualifiedNameProvider.apply(object).toString
-				}
-			}
+			AmlModel: 
+				return treeContentProvider.getPackageUIString(object)
 			default:
 				throw new IllegalArgumentException('''unexpected type='«object.class.name»' in expanded TreeElements.''')
 		}
