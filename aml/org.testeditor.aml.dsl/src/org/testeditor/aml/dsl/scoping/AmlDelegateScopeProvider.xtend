@@ -15,6 +15,7 @@ package org.testeditor.aml.dsl.scoping
 import javax.inject.Inject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.resource.Resource
+import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.xtext.scoping.IScope
 import org.eclipse.xtext.scoping.impl.ScopeBasedSelectable
 import org.eclipse.xtext.xbase.scoping.XImportSectionNamespaceScopeProvider
@@ -39,13 +40,7 @@ class AmlDelegateScopeProvider extends XImportSectionNamespaceScopeProvider {
 		// Custom code START
 		val head = resource.contents.head
 		if (head instanceof AmlModel) {
-			if (head.package === null) {
-				val package = classpathUtil.inferPackage(head)
-				if (!package.nullOrEmpty) {
-					head.package = package // create head.package only if present and not default package!
-				}
-			}
-			val qualifiedName = head.qualifiedNameOfLocalElement
+			val qualifiedName = head.determineQualifiedName
 			if (qualifiedName !== null) {
 				normalizers += doCreateImportNormalizer(qualifiedName, true, false)
 			}
@@ -56,7 +51,18 @@ class AmlDelegateScopeProvider extends XImportSectionNamespaceScopeProvider {
 				isIgnoreCase(reference))
 		}
 		return result
-		
+	}
+
+	private def QualifiedName determineQualifiedName(AmlModel amlModel) {
+		if (amlModel.package === null) {
+			val derivedPackage = classpathUtil.inferPackage(amlModel)
+			if (derivedPackage.nullOrEmpty) {
+				return null // no qualified named can be derived
+			} else {
+				return QualifiedName.create(derivedPackage.split('\\.').toList)
+			}
+		}
+		return amlModel.qualifiedNameOfLocalElement
 	}
 
 }
