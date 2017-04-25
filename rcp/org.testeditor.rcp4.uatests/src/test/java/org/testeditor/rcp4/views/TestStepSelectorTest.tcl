@@ -91,7 +91,7 @@ config TestEditorConfig
 * Check that the test step selector contains the expected tree of aml elements
 
 	Mask: MainWindow
-	- hasRootPage = Has element "*default*/RootPagex" in tree <TestStepSelector>
+	- hasRootPage = Has element "*default*/RootPage" in tree <TestStepSelector>
 	- hasSomeOtherPage = Has element "some.other/SomeOtherPage" in tree <TestStepSelector>
 	- assert hasRootPage
 	- assert hasSomeOtherPage
