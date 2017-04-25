@@ -240,10 +240,11 @@ class TestStepSelector {
 			String:
 				return object
 			Component,
-			ComponentElement,
+			ComponentElement:
+				return amlQualifiedNameProvider.apply(object).toString
 			AmlModel: {
-				if ((object as AmlModel).package === null) {
-					return ''
+				if (object.package === null) {
+					return '*default*'
 				} else {
 					return amlQualifiedNameProvider.apply(object).toString
 				}
