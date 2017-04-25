@@ -23,22 +23,21 @@ class AmlQualifiedNameProvider extends XbaseQualifiedNameProvider {
 	@Inject ClasspathUtil classpathUtil
 
 	override getFullyQualifiedName(EObject obj) {
-		val result = switch (obj) {
+		switch (obj) {
 			AmlModel: {
 				if (obj.package === null) {
-					val package = classpathUtil.inferPackage(obj)
-					if (!package.nullOrEmpty) {
-						obj.package = package
-					} else {
+					val derivedPackage = classpathUtil.inferPackage(obj)
+					if (derivedPackage.nullOrEmpty) {
 						return null
+					} else {
+						return converter.toQualifiedName(derivedPackage)
 					}
 				}
 				return converter.toQualifiedName(obj.package)
 			}				
 			default:
-				super.getFullyQualifiedName(obj)
+				return super.getFullyQualifiedName(obj)
 		}
-		return result
 	}
 
 }

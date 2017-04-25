@@ -26,14 +26,11 @@ class TclQualifiedNameProvider extends XbaseQualifiedNameProvider {
 
 	def QualifiedName qualifiedName(TclModel model) {
 		if (model.package === null) {
-			val package = classpathUtil.inferPackage(model)
-			if (package.nullOrEmpty) {
-				return null // no qualified (package) name available
-			} else {
-				model.package = package // set model.package only if present, since serializer would write empty package with empty string
-			}
+			val derivedPackage = classpathUtil.inferPackage(model)
+			return converter.toQualifiedName(derivedPackage)
+		} else {
+			return converter.toQualifiedName(model.package)
 		}
-		return converter.toQualifiedName(model.package)
 	}
 
 }

@@ -119,12 +119,7 @@ abstract class NewFileWizard extends Wizard implements INewWizard {
 
 	def private InputStream openContentStream(IContainer container, String fileName) {
 		val javaElement = JavaCore.create(container)
-		val thePackage = if (javaElement !== null) {
-				classpathUtil.inferPackage(javaElement)
-			} else {
-				// use project name as fallback
-				javaElement.javaProject?.elementName
-			}
+		val thePackage = classpathUtil.inferPackage(javaElement)
 		return new StringInputStream(contentString(thePackage, fileName))
 	}
 

@@ -26,11 +26,11 @@ class TslQualifiedNameProvider extends XbaseQualifiedNameProvider {
 
 	def QualifiedName qualifiedName(TslModel model) {
 		if (model.package === null) {
-			val package = classpathUtil.inferPackage(model)
-			if (package.nullOrEmpty) {
+			val derivedPackage = classpathUtil.inferPackage(model)
+			if (derivedPackage.nullOrEmpty) {
 				return null // no qualified (package) name available
 			} else {
-				model.package = package // set model.package only if present, since serializer would write empty package with empty string
+				return converter.toQualifiedName(derivedPackage)
 			}
 		}
 		return converter.toQualifiedName(model.package)
