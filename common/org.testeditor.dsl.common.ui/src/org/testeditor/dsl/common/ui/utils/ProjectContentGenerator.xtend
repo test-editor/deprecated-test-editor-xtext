@@ -117,11 +117,10 @@ class ProjectContentGenerator {
 			createLoggingConfig(monitor)
 			
 			// setup buildsystem
-			if (buildsystem == MAVEN) {
-				setupMavenProject(fixtures, monitor)
-			}
-			if (buildsystem == GRADLE) {
-				setupGradleProject(fixtures, monitor)
+			switch (buildsystem) {
+				case buildsystem == MAVEN: setupMavenProject(fixtures, monitor)
+				case buildsystem == GRADLE: setupGradleProject(fixtures, monitor)
+				default: throw new RuntimeException('''Unknown buildsystem='«buildsystem»'.''')
 			}
 			
 			// fill project with sample code
@@ -134,27 +133,41 @@ class ProjectContentGenerator {
 			}
 			
 			// some more technical project setup
-			if (buildsystem == MAVEN) {
-				setupMavenEclipseMetaData(monitor)
-				refreshLocal(IResource.DEPTH_INFINITE, monitor)
-				addNature(JavaCore.NATURE_ID)
-				addNature(XtextProjectHelper.NATURE_ID)
-				refreshLocal(IResource.DEPTH_INFINITE, monitor)
-				setupMavenSourceClassPaths
-				setupClasspathFileExclusions
-			}
-			if (buildsystem == GRADLE) {
-				setupEclipseMetaData(monitor)
-				refreshLocal(IResource.DEPTH_INFINITE, monitor)
-				addNature(JavaCore.NATURE_ID)
-				addNature(XtextProjectHelper.NATURE_ID)
-				refreshLocal(IResource.DEPTH_INFINITE, monitor)
-				setupGradleSourceClassPaths
+			switch (buildsystem) {
+				case buildsystem == MAVEN: setupEclipseProjectForMaven(monitor)
+				case buildsystem == GRADLE: setupEclipseProjectForGradle(monitor)
+				default: throw new RuntimeException('''Unknown buildsystem='«buildsystem»'.''')
 			}
 			
 			// TE-470 project file filter to allow access to src etc. are not activated
 			// filterTechnicalProjectFiles(monitor)
 			classpathUtil.clearCache
+		]
+	}
+	
+	private def void setupEclipseProjectForGradle(IProject project, IProgressMonitor monitor) {
+		project => [
+			setupGradleEclipseMetaData(monitor)
+			addNatures(monitor)
+			setupGradleSourceClassPaths
+			setupClasspathFileExclusions
+		]
+	}
+	
+	private def void setupEclipseProjectForMaven(IProject project, IProgressMonitor monitor) {
+		project => [
+			setupMavenEclipseMetaData(monitor)
+			addNatures(monitor)
+			setupMavenSourceClassPaths
+			setupClasspathFileExclusions
+		]
+	}
+	
+	private def void addNatures(IProject project, IProgressMonitor monitor) {
+		project => [
+			addNature(JavaCore.NATURE_ID)
+			addNature(XtextProjectHelper.NATURE_ID)
+			refreshLocal(IResource.DEPTH_INFINITE, monitor)
 		]
 	}
 	
@@ -172,7 +185,7 @@ class ProjectContentGenerator {
 	}
 
 	@VisibleForTesting
-	protected def void setupEclipseMetaData(IProject project, IProgressMonitor monitor) {
+	protected def void setupGradleEclipseMetaData(IProject project, IProgressMonitor monitor) {
 		// Run "gradle eclipse" to create the meta-data
 		try {
 			monitor.taskName = "Initializing Eclipse project."
@@ -283,6 +296,7 @@ class ProjectContentGenerator {
 		val pathToMavenBuildFile = project.mavenBuildFile.location.removeLastSegments(1).toOSString
 		mavenExecutor.executeInNewJvm("eclipse:eclipse", pathToMavenBuildFile, null, monitor, System.out)
 		project.setupMavenTclGeneratorPreferences
+		project.refreshLocal(IResource.DEPTH_INFINITE, monitor)
 	}
 
 	/**

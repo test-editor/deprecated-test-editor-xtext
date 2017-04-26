@@ -1,6 +1,6 @@
 import org.testeditor.fixture.swt.*
 
-# ProjectFolder
+# ProjectTree
 
 ## addFolderToProject
 template = "Add folder" ${folderName} "at" ${fromFolder}

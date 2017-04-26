@@ -20,26 +20,26 @@ config TestEditorConfig
 	- Click on <FinishButton>
 	- Wait for dialog "Progress Information" to popup and then close after at most "3" respectively "120" seconds
 
-	Mask: Workbench
+	Component: Workbench
 	- Wait until all jobs finished max "60" seconds
 
-* Create an aml within root that ^is defaul ^package
+* Create an aml within root that ^is ^default ^package
 
 	Component: ProjectExplorer
 	- Select element "TestStepSelectorTestProject/src/test/java" in tree <ProjectTree>
 	- Execute menu item "New/Application Mapping" in tree <ProjectTree>
 
-	Mask: NewApplicationMappingDialog
+	Component: NewApplicationMappingDialog
 	- Type "Root.aml" into <ApplicationMappingName>
 	- Click on <FinishButton>
 
-	Mask: ActiveEditor
+	Component: ActiveEditor
 	- Type "component type TRootPage { } component RootPage is TRootPage { }" into active editor
 	- Save editor content
 
 * Create an aml within ^package "some.other"
 
-	Macro: ProjectFolder
+	Macro: ProjectTree
 	- Add folder "some" at "TestStepSelectorTestProject/src/test/java"
 	- Add folder "other" at "TestStepSelectorTestProject/src/test/java/some"
 
@@ -47,32 +47,32 @@ config TestEditorConfig
 	- Select element "TestStepSelectorTestProject/src/test/java/some/other" in tree <ProjectTree>
 	- Execute menu item "New/Application Mapping" in tree <ProjectTree>
 
-	Mask: NewApplicationMappingDialog
+	Component: NewApplicationMappingDialog
 	- Type "SomeOther.aml" into <ApplicationMappingName>
 	- Click on <FinishButton>
 
-	Mask: ActiveEditor
+	Component: ActiveEditor
 	- Type "component type TSomeOtherPage { } component SomeOtherPage is TSomeOtherPage { }" into active editor
 	- Save editor content
 
 // When
-* Create and open the editor ^for a test ^case within root
+* Create and open the editor ^for an empty test ^case within root
 
 	Component: ProjectExplorer
 	- Select element "TestStepSelectorTestProject/src/test/java" in tree <ProjectTree>
 	- Execute menu item "New/Test Case" in tree <ProjectTree>
 
-	Mask: NewTestCaseDialog
+	Component: NewTestCaseDialog
 	- Type "RootTest" into <TestCaseName>
 	- Click on <FinishButton>
 
-	Mask: Workbench
+	Component: Workbench
 	- Wait until all jobs finished max "60" seconds
 
 // Then
 * Check that the test step selector contains the expected tree of aml elements
 
-	Mask: MainWindow
+	Component: MainWindow
 	- hasRootPage = Has element "*default*/RootPage" in tree <TestStepSelector>
 	- hasSomeOtherPage = Has element "some.other/SomeOtherPage" in tree <TestStepSelector>
 	- assert hasRootPage
