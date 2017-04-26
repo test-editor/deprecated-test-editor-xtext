@@ -34,9 +34,8 @@ class NewAmlFileWizard extends NewFileWizard {
 	}
 
 	override String contentString(String thePackage, String fileName) {
-		return '''
-			package «thePackage ?: "com.example"»
-		'''
+		// no adjustments, yet
+		return super.contentString(thePackage, fileName)
 	}
 
 }

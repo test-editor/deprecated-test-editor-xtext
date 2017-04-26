@@ -12,14 +12,16 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.scoping
 
+import java.util.Arrays
+import javax.inject.Inject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.resource.Resource
+import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.xtext.scoping.IScope
 import org.eclipse.xtext.scoping.impl.ScopeBasedSelectable
 import org.eclipse.xtext.xbase.scoping.XImportSectionNamespaceScopeProvider
-import org.testeditor.tcl.TclModel
-import javax.inject.Inject
 import org.testeditor.dsl.common.util.classpath.ClasspathUtil
+import org.testeditor.tcl.TclModel
 
 public class TclDelegateScopeProvider extends XImportSectionNamespaceScopeProvider {
 
@@ -33,10 +35,10 @@ public class TclDelegateScopeProvider extends XImportSectionNamespaceScopeProvid
 		// Custom code START
 		val head = resource.contents.head
 		if (head instanceof TclModel) {
-			if(head.package == null){
-				head.package = classpathUtil.inferPackage(head)
-			} 
-			normalizers += doCreateImportNormalizer(head.qualifiedNameOfLocalElement, true, false)
+			val qualifiedName = head.determineQualifiedName
+			if (qualifiedName !== null) {
+				normalizers += doCreateImportNormalizer(qualifiedName, true, false)
+			}
 		}
 		// Custom code END
 		if (!normalizers.isEmpty()) {
@@ -44,6 +46,18 @@ public class TclDelegateScopeProvider extends XImportSectionNamespaceScopeProvid
 				isIgnoreCase(reference))
 		}
 		return result
+	}
+
+	private def QualifiedName determineQualifiedName(TclModel tclModel) {
+		if (tclModel.package === null) {
+			val derivedPackage = classpathUtil.inferPackage(tclModel)
+			if (derivedPackage.nullOrEmpty) {
+				return null // no qualified named can be derived
+			} else {
+				return QualifiedName.create(derivedPackage.split('\\.').toList)
+			}
+		}
+		return tclModel.qualifiedNameOfLocalElement
 	}
 
 }

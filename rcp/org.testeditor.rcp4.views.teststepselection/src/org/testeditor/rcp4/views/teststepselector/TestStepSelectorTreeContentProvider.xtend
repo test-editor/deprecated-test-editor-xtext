@@ -21,11 +21,13 @@ import org.testeditor.aml.AmlModel
 import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.ModelUtil
+import org.testeditor.dsl.common.util.classpath.ClasspathUtil
 
 /** e4 tree content provider for the tree view of aml models */
 class TestStepSelectorTreeContentProvider implements ITreeContentProvider {
 
 	@Inject ModelUtil modelUtil
+	@Inject ClasspathUtil classpathUtil
 
 	Map<String, List<AmlModel>> input
 
@@ -65,7 +67,20 @@ class TestStepSelectorTreeContentProvider implements ITreeContentProvider {
 
 	override inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 		val input = newInput as Iterable<AmlModel>
-		this.input = input?.groupBy[package]
+		this.input = input?.groupBy[packageUIString ]
 	}
 
+	def String getPackageUIString(AmlModel amlModel) {
+		if (amlModel.package !== null) {
+			return amlModel.package
+		} else{
+			val derivedPackage = classpathUtil.inferPackage(amlModel)
+			if (derivedPackage.empty) {
+				return '*default*'
+			} else {
+				return derivedPackage
+			}
+		}
+	}
+	
 }

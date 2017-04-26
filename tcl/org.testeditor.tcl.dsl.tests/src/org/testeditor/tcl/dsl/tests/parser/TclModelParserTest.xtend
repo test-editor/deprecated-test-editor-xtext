@@ -51,7 +51,23 @@ class TclModelParserTest extends AbstractTclTest {
 		// then
 		model.package.assertEquals('com.example')
 	}
-	
+
+	@Test
+	def void parseMinimalTestCase() {
+		// given
+		val input = '# MyTest'
+		
+		// when
+		val model = parseTcl(input, "MyTest.tcl")
+		
+		// then
+		model => [
+			assertNoSyntaxErrors
+			package.assertNull // is derived (e.g. during generation)
+			test.name.assertEquals("MyTest")
+		]
+	}
+
 	@Test
 	def void parseSimpleSpecificationStep() {
 		// given

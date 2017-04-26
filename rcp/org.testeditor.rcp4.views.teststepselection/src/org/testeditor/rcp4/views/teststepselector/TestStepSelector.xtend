@@ -49,7 +49,7 @@ import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.dsl.naming.AmlQualifiedNameProvider
 import org.testeditor.dsl.common.util.CollectionUtils
 
-import static org.testeditor.aml.AmlPackage.Literals.AML_MODEL
+import static org.testeditor.aml.AmlPackage.Literals.COMPONENT
 import static org.testeditor.rcp4.views.teststepselector.XtendSWTLib.*
 
 /** 
@@ -66,7 +66,9 @@ class TestStepSelector {
 	@Inject AmlInjectorProvider amlInjectorProvider
 	@Inject TestStepSelectorLabelProvider labelProvider
 	@Inject ICommandService commandService
+
 	var extension CollectionUtils collectionUtils // injected in postConstruct
+	var TestStepSelectorTreeContentProvider treeContentProvider // injected in postConstruct
 
 	AmlQualifiedNameProvider amlQualifiedNameProvider
 	IContainer.Manager containerManager
@@ -106,7 +108,8 @@ class TestStepSelector {
 			addDragSupport((DND.DROP_COPY.bitwiseOr(DND.DROP_MOVE)), #[TextTransfer.instance], dragSourceListener)
 		]
 		dragSourceListener.viewer = viewer
-		viewer.contentProvider = amlInjectorProvider.get.getInstance(TestStepSelectorTreeContentProvider)
+		treeContentProvider = amlInjectorProvider.get.getInstance(TestStepSelectorTreeContentProvider)
+		viewer.contentProvider = treeContentProvider 
 		viewer.labelProvider = labelProvider
 		Job.jobManager.addJobChangeListener(triggerViewUpdate)
 	}
@@ -185,8 +188,11 @@ class TestStepSelector {
 	}
 
 	private def Iterable<AmlModel> getAmlModels(StateBasedContainer container, ResourceSet resourceSet) {
-		val amlDescriptions = container.getExportedObjectsByType(AML_MODEL)
-		return amlDescriptions.map[EObjectOrProxy].map[EcoreUtil2.resolve(it, resourceSet) as AmlModel]
+		// aml models with default package do not export the aml model => fetch models for which components are exported
+		val exportedComponents = container.resourceDescriptions.map[it.getExportedObjectsByType(COMPONENT)].flatten
+		val resolvedComponents = exportedComponents.map[EcoreUtil2.resolve(EObjectOrProxy, resourceSet)].filter(Component)
+		val amlModels = resolvedComponents.map[EcoreUtil2.getContainerOfType(it, AmlModel)].toSet
+		return amlModels
 	}
 
 	/** 
@@ -237,9 +243,10 @@ class TestStepSelector {
 			String:
 				return object
 			Component,
-			ComponentElement,
-			AmlModel:
+			ComponentElement:
 				return amlQualifiedNameProvider.apply(object).toString
+			AmlModel: 
+				return treeContentProvider.getPackageUIString(object)
 			default:
 				throw new IllegalArgumentException('''unexpected type='«object.class.name»' in expanded TreeElements.''')
 		}

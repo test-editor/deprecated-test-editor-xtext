@@ -14,6 +14,7 @@ package org.testeditor.dsl.common.ui.wizards
 
 import java.io.InputStream
 import java.lang.reflect.InvocationTargetException
+import javax.inject.Inject
 import org.eclipse.core.resources.IContainer
 import org.eclipse.core.resources.ResourcesPlugin
 import org.eclipse.core.runtime.CoreException
@@ -21,7 +22,6 @@ import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.IStatus
 import org.eclipse.core.runtime.Path
 import org.eclipse.core.runtime.Status
-import org.eclipse.jdt.core.IJavaElement
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jface.operation.IRunnableWithProgress
 import org.eclipse.jface.viewers.ISelection
@@ -35,12 +35,15 @@ import org.eclipse.ui.PlatformUI
 import org.eclipse.ui.ide.IDE
 import org.eclipse.xtext.util.StringInputStream
 import org.slf4j.LoggerFactory
+import org.testeditor.dsl.common.util.classpath.ClasspathUtil
 
 import static extension org.eclipse.jface.dialogs.MessageDialog.*
 
 abstract class NewFileWizard extends Wizard implements INewWizard {
 
 	static val logger = LoggerFactory.getLogger(NewFileWizard)
+
+	@Inject ClasspathUtil classpathUtil
 
 	protected ISelection selection
 
@@ -116,17 +119,7 @@ abstract class NewFileWizard extends Wizard implements INewWizard {
 
 	def private InputStream openContentStream(IContainer container, String fileName) {
 		val javaElement = JavaCore.create(container)
-		var String thePackage = null
-		if (javaElement !== null) {
-			// Try to find the java package
-			val parentPackage = javaElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT)
-			if (parentPackage !== null) {
-				thePackage = parentPackage.elementName
-			} else {
-				// Use the java project as fallback
-				thePackage = javaElement.javaProject?.elementName
-			}
-		}
+		val thePackage = classpathUtil.inferPackage(javaElement)
 		return new StringInputStream(contentString(thePackage, fileName))
 	}
 
@@ -134,9 +127,13 @@ abstract class NewFileWizard extends Wizard implements INewWizard {
 	 * default implementation, please override
 	 */
 	def protected String contentString(String thePackage, String fileName) {
-		return '''
-			package «thePackage ?: "com.example"»
-		'''
+		if (thePackage.isNullOrEmpty) {
+			return ''
+		} else {
+			return '''
+				package «thePackage»
+			'''
+		}
 	}
 
 	def private void throwCoreException(String message) throws CoreException {

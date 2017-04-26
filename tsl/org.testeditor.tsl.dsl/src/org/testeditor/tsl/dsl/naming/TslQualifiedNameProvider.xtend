@@ -14,24 +14,26 @@ package org.testeditor.tsl.dsl.naming
 
 import javax.inject.Inject
 import javax.inject.Singleton
-import org.eclipse.emf.ecore.EObject
-import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider
-import org.eclipse.xtext.naming.IQualifiedNameConverter
+import org.eclipse.xtext.naming.QualifiedName
+import org.eclipse.xtext.xbase.scoping.XbaseQualifiedNameProvider
+import org.testeditor.dsl.common.util.classpath.ClasspathUtil
 import org.testeditor.tsl.TslModel
 
 @Singleton
-class TslQualifiedNameProvider extends DefaultDeclarativeQualifiedNameProvider {
-	
-	@Inject extension IQualifiedNameConverter
-	
-	override getFullyQualifiedName(EObject obj) {
-		val result = switch (obj) {
-			TslModel:
-				obj.package.toQualifiedName
-			default:
-				super.getFullyQualifiedName(obj)
+class TslQualifiedNameProvider extends XbaseQualifiedNameProvider {
+
+	@Inject ClasspathUtil classpathUtil
+
+	def QualifiedName qualifiedName(TslModel model) {
+		if (model.package === null) {
+			val derivedPackage = classpathUtil.inferPackage(model)
+			if (derivedPackage.nullOrEmpty) {
+				return null // no qualified (package) name available
+			} else {
+				return converter.toQualifiedName(derivedPackage)
+			}
 		}
-		return result
+		return converter.toQualifiedName(model.package)
 	}
-	
+
 }
