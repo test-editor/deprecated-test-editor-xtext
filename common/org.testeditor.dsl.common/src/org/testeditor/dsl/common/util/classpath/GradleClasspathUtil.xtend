@@ -32,6 +32,7 @@ class GradleClasspathUtil {
 	List<IPath> gradleClasspath
 	
 	def void clearCache() {
+		logger.info("Clearing gradleClasspath requested.")
 		if (gradleClasspath !== null) {
 			gradleClasspath.clear
 			gradleClasspath = null

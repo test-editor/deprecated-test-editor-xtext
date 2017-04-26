@@ -114,15 +114,18 @@ class ClasspathUtil {
 	}
 
 	def protected IPath getEclipseClasspathEntry(IPath path) {
+		logger.info("Get classpath entries from workspaceHelper using path='{}'", path)
 		val classpathEntries = getSourceClasspathEntries(workspaceHelper.root.getFile(path).project)
+		logger.info("Found eclipse classpath entries = '{}'", classpathEntries.join(', '))
 		return classpathEntries.findFirst[it.path.isPrefixOf(path)]?.path
 	}
 
 	def Iterable<IClasspathEntry> getSourceClasspathEntries(IProject project) {
-		if (project.hasJavaNature) {
-			val javaProject = JavaCore.create(project)
+		val javaProject = JavaCore.create(project)
+		if (javaProject !== null) {
 			return javaProject.rawClasspath.filter[entryKind == IClasspathEntry.CPE_SOURCE]
 		} else {
+			logger.warn("Java nature missing in project='{}'. Classpaths empty.", project.name)
 			return emptyList
 		}
 	}
