@@ -136,6 +136,7 @@ class ProjectContentGenerator {
 			// some more technical project setup
 			if (buildsystem == MAVEN) {
 				setupMavenEclipseMetaData(monitor)
+				refreshLocal(IResource.DEPTH_INFINITE, monitor)
 				addNature(JavaCore.NATURE_ID)
 				addNature(XtextProjectHelper.NATURE_ID)
 				refreshLocal(IResource.DEPTH_INFINITE, monitor)
@@ -144,6 +145,7 @@ class ProjectContentGenerator {
 			}
 			if (buildsystem == GRADLE) {
 				setupEclipseMetaData(monitor)
+				refreshLocal(IResource.DEPTH_INFINITE, monitor)
 				addNature(JavaCore.NATURE_ID)
 				addNature(XtextProjectHelper.NATURE_ID)
 				refreshLocal(IResource.DEPTH_INFINITE, monitor)
