@@ -138,6 +138,12 @@ class ProjectContentGenerator {
 				setupGradleSourceClassPaths
 			}
 			
+			project => [
+				addNature(JavaCore.NATURE_ID)
+				addNature(XtextProjectHelper.NATURE_ID)
+				refreshLocal(IResource.DEPTH_INFINITE, monitor)
+			]
+			
 			// TE-470 project file filter to allow access to src etc. are not activated
 			// filterTechnicalProjectFiles(monitor)
 			classpathUtil.clearCache
@@ -271,12 +277,7 @@ class ProjectContentGenerator {
 	private def void setupMavenEclipseMetaData(IProject project, IProgressMonitor monitor) {
 		val pathToMavenBuildFile = project.mavenBuildFile.location.removeLastSegments(1).toOSString
 		mavenExecutor.executeInNewJvm("eclipse:eclipse", pathToMavenBuildFile, null, monitor, System.out)
-		project => [
-			refreshLocal(IResource.DEPTH_INFINITE, monitor)
-			addNature(JavaCore.NATURE_ID)
-			addNature(XtextProjectHelper.NATURE_ID)
-			setupMavenTclGeneratorPreferences
-		]
+		project.setupMavenTclGeneratorPreferences
 	}
 
 	/**
