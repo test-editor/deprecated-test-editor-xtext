@@ -21,7 +21,7 @@ config TestEditorConfig
 	- Wait for dialog "Progress Information" to popup and then close after at most "3" respectively "120" seconds
 
 	Mask: Workbench
-	- Wait until all jobs finished 
+	- Wait until all jobs finished max "60" seconds
 
 * Create an aml within root that ^is defaul ^package
 
@@ -67,7 +67,7 @@ config TestEditorConfig
 	- Click on <FinishButton>
 
 	Mask: Workbench
-	- Wait until all jobs finished 
+	- Wait until all jobs finished max "60" seconds
 
 // Then
 * Check that the test step selector contains the expected tree of aml elements

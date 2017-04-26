@@ -4,7 +4,7 @@ import org.testeditor.fixture.swt.*;
 
 component type Workbench {
 	interactions = wait, getEditorWithFilePath, getEditorContents, openEditor, closeEditor, waitUntilAllJobsFinished, 
-	reportWidgets, waitForDialogClosing, waitForPopupDialogClosingAutomatically, closeAllEditors
+	reportWidgets, waitForDialogClosing, waitForPopupDialogClosingAutomatically, closeAllEditors, waitUntilAllJobsFinishedMax
  }
 
 interaction type getEditorWithFilePath {
@@ -30,6 +30,11 @@ interaction type closeEditor {
 interaction type waitUntilAllJobsFinished {
 	template = "Wait until all jobs finished"
 	method = EclipseWorkbenchFixture.waitUntilJobsCompleted
+}
+
+interaction type waitUntilAllJobsFinishedMax {
+	template = "Wait until all jobs finished max" ${seconds} "seconds"
+	method = EclipseWorkbenchFixture.waitUntilJobsCompletedMax(seconds)
 }
 
 interaction type closeAllEditors {
