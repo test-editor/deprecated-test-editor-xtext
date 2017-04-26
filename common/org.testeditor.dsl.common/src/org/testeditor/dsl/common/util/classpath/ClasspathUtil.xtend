@@ -35,11 +35,6 @@ class ClasspathUtil {
 	@Inject MavenClasspathUtil mavenClasspathUtil
 	@Inject GradleClasspathUtil gradleClasspathUtil
 	
-	def void clearCache() {
-		mavenClasspathUtil.clearCache
-		gradleClasspathUtil.clearCache
-	}
-
 	// called from within rcp
 	def String inferPackage(IJavaElement javaElement) {
 		val path = javaElement.resource.fullPath
@@ -113,10 +108,10 @@ class ClasspathUtil {
 		}
 	}
 
-	def protected IPath getEclipseClasspathEntry(IPath path) {
+	def IPath getEclipseClasspathEntry(IPath path) {
 		logger.info("Get classpath entries from workspaceHelper using path='{}'", path)
 		val classpathEntries = getSourceClasspathEntries(workspaceHelper.root.getFile(path).project)
-		logger.info("Found eclipse classpath entries = '{}'", classpathEntries.join(', '))
+		logger.debug("Found eclipse classpath entries = '{}'", classpathEntries.join(', '))
 		return classpathEntries.findFirst[it.path.isPrefixOf(path)]?.path
 	}
 
@@ -125,7 +120,7 @@ class ClasspathUtil {
 			val javaProject = JavaCore.create(project)
 			return javaProject?.rawClasspath.filter[entryKind == IClasspathEntry.CPE_SOURCE]
 		} catch (CoreException ce) {
-			logger.warn("Java nature (currently) missing in project='{}'. Empty classpaths returned.", project.name)
+			logger.warn("Java rawClasspath could not be fetched from project='{}'. Empty classpaths returned.", project.name)
 			return emptyList
 		}
 	}

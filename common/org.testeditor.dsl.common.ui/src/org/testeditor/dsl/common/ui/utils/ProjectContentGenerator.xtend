@@ -66,7 +66,7 @@ class ProjectContentGenerator {
 			RESOURCES_TEST_FOLDER
 		]
 
-	static val logger = LoggerFactory.getLogger(ProjectContentGenerator)
+	private static val logger = LoggerFactory.getLogger(ProjectContentGenerator)
 
 	val String testEditorVersion // is filled by querying the plugin version
 
@@ -141,7 +141,6 @@ class ProjectContentGenerator {
 			
 			// TE-470 project file filter to allow access to src etc. are not activated
 			// filterTechnicalProjectFiles(monitor)
-			classpathUtil.clearCache
 		]
 	}
 	

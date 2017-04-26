@@ -417,11 +417,8 @@ public class SWTFixture implements TestRunListener, TestRunReportable {
 		try {
 			item = ContextMenuHelper.contextMenu(tree, menuItem.split("/"));
 		} catch (WidgetNotFoundException e) {
-			logger.trace("exception during executeContextMenuEntry", e);
+			logger.error("exception during executeContextMenuEntry", e);
 			dumpMenuStatusFor(menuItem, viewName, locatorStrategy);
-//			Thread.sleep(100);
-//			logger.trace("Search menu entry a second time: {}", menuItem);
-//			item = ContextMenuHelper.contextMenu(tree, menuItem.split("/"));
 		}
 		assertNotNull(item);
 		logger.trace("Click on menu item: {}", menuItem);
@@ -433,25 +430,27 @@ public class SWTFixture implements TestRunListener, TestRunReportable {
 			@Override
 			public void run() {
 				try {
-				logger.trace("Search for tree in view = '{}' with strategy = '{}'", viewName, locatorStrategy.name());
-				String [] menuItems = menuItem.split("/");
-				SWTBotTree tree = getTree(viewName, locatorStrategy);
-				logger.trace("Search context menu entry = '{}'", menuItem);
-				MenuItem item=null;
-				for (int i=0; i<menuItems.length; i++) {
-					String[] subarray=Arrays.copyOf(menuItems, i+1);
-					String reportPath=StringUtils.join(subarray, '/');
-					logger.trace("Searching for menupath ='{}'", reportPath);
-					item = ContextMenuHelper.contextMenu(tree, subarray);
-					MenuItem[] subitems = item.getMenu().getItems();
-					List<String> subitemsAsString = new ArrayList<>(subitems.length);
-					for (MenuItem subitem : subitems ) {
-						subitemsAsString.add(subitem.getText());
+					logger.debug("Search for tree in view = '{}' with strategy = '{}'", viewName,
+							locatorStrategy.name());
+					String[] menuItems = menuItem.split("/");
+					SWTBotTree tree = getTree(viewName, locatorStrategy);
+					logger.debug("Search context menu entry = '{}'", menuItem);
+					MenuItem item = null;
+					for (int i = 0; i < menuItems.length; i++) {
+						String[] subarray = Arrays.copyOf(menuItems, i + 1);
+						String reportPath = StringUtils.join(subarray, '/');
+						logger.debug("Searching for menupath ='{}'", reportPath);
+						item = ContextMenuHelper.contextMenu(tree, subarray);
+						MenuItem[] subitems = item.getMenu().getItems();
+						List<String> subitemsAsString = new ArrayList<>(subitems.length);
+						for (MenuItem subitem : subitems) {
+							subitemsAsString.add(subitem.getText());
+						}
+						logger.debug("found menu entry with subentries = '{}'",
+								StringUtils.join(subitemsAsString, ", "));
 					}
-					logger.trace("found menu entry with subentries = '{}'", StringUtils.join(subitemsAsString, ", "));
-				}
-				} catch(Exception e) {
-					logger.trace("exception during dumpMenuStatus", e);
+				} catch (Exception e) {
+					logger.warn("exception during dumpMenuStatus", e);
 				}
 			}
 		});

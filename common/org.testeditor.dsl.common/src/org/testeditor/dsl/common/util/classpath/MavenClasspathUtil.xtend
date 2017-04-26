@@ -39,13 +39,6 @@ class MavenClasspathUtil {
 	@Inject MavenExecutor mavenCommand
 
 	List<IPath> mavenClasspath
-	
-	def void clearCache() {
-		if (mavenClasspath !== null) {
-			mavenClasspath.clear
-			mavenClasspath = null
-		}
-	}
 
 	/**
 	 * Read the maven classpath once per jvm run. every other call will use the cached result. This is intended for batch runs.
