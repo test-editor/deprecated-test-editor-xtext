@@ -113,7 +113,23 @@ public class EclipseWorkbenchFixture {
 				counter++;
 			}
 			if (counter >= 100) {
-				logger.info("Abort waiting for eclipse job execution after 10 seconds.");
+				logger.warn("Abort waiting for eclipse job execution after 10 seconds.");
+			}
+		} catch (InterruptedException e) {
+			logger.error("Wait operation is interrupted.", e);
+		}
+	}
+
+	@FixtureMethod
+	public void waitUntilJobsCompletedMax(long seconds) {
+		try {
+			int counter = 0;
+			while (!Job.getJobManager().isIdle() || counter < 100) {
+				Thread.sleep(100);
+				counter++;
+			}
+			if (counter >= 10*seconds) {
+				logger.warn("Abort waiting for eclipse job execution after {} seconds.", seconds);
 			}
 		} catch (InterruptedException e) {
 			logger.error("Wait operation is interrupted.", e);

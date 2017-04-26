@@ -127,13 +127,7 @@ abstract class NewFileWizard extends Wizard implements INewWizard {
 	 * default implementation, please override
 	 */
 	def protected String contentString(String thePackage, String fileName) {
-		if (thePackage.isNullOrEmpty) {
-			return ''
-		} else {
-			return '''
-				package «thePackage»
-			'''
-		}
+		return ''
 	}
 
 	def private void throwCoreException(String message) throws CoreException {

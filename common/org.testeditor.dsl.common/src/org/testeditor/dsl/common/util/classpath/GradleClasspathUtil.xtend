@@ -30,7 +30,7 @@ class GradleClasspathUtil {
 	@Inject GradleHelper gradle
 
 	List<IPath> gradleClasspath
-	
+
 	def List<IPath> getGradleSourceSetPaths(IPath projectRoot) {
 		if (gradleClasspath === null) {
 			val outTask = new ByteArrayOutputStream()

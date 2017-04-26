@@ -1,0 +1,15 @@
+import org.testeditor.fixture.swt.*
+
+# ProjectTree
+
+## addFolderToProject
+template = "Add folder" ${folderName} "at" ${fromFolder}
+
+	Component: ProjectExplorer
+	- Select element @fromFolder in tree <ProjectTree>
+	- Execute menu item "New/Folder" in tree <ProjectTree>
+
+	Mask: NewFolderDialog
+	- Type @folderName into <FolderName>
+	- Click on <FinishButton>
+

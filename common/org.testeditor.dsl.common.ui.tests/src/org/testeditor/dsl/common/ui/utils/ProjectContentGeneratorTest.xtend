@@ -131,7 +131,7 @@ class ProjectContentGeneratorTest extends AbstractTest {
 		val monitor = IProgressMonitor.mock
 
 		// when
-		generator.setupEclipseMetaData(project, monitor)
+		generator.setupGradleEclipseMetaData(project, monitor)
 
 		// then
 		gradleHelper.verify.runTasks(project, "eclipse")
@@ -150,7 +150,7 @@ class ProjectContentGeneratorTest extends AbstractTest {
 		doThrow(new IllegalStateException).when(gradleHelper).runTasks(project.same, any)
 
 		// when
-		generator.setupEclipseMetaData(project, monitor)
+		generator.setupGradleEclipseMetaData(project, monitor)
 
 		// then
 		gradleHelper.verify.runTasks(project, "eclipse")

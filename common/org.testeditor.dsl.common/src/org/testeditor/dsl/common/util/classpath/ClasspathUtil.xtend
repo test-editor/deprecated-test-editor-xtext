@@ -34,7 +34,7 @@ class ClasspathUtil {
 	@Inject WorkspaceHelper workspaceHelper
 	@Inject MavenClasspathUtil mavenClasspathUtil
 	@Inject GradleClasspathUtil gradleClasspathUtil
-
+	
 	// called from within rcp
 	def String inferPackage(IJavaElement javaElement) {
 		val path = javaElement.resource.fullPath
@@ -108,18 +108,24 @@ class ClasspathUtil {
 		}
 	}
 
-	def protected IPath getEclipseClasspathEntry(IPath path) {
+	def IPath getEclipseClasspathEntry(IPath path) {
+		logger.info("Get classpath entries from workspaceHelper using path='{}'", path)
 		val classpathEntries = getSourceClasspathEntries(workspaceHelper.root.getFile(path).project)
+		logger.debug("Found eclipse classpath entries = '{}'", classpathEntries.join(', '))
 		return classpathEntries.findFirst[it.path.isPrefixOf(path)]?.path
 	}
 
 	def Iterable<IClasspathEntry> getSourceClasspathEntries(IProject project) {
-		if (project.hasJavaNature) {
+		try {
 			val javaProject = JavaCore.create(project)
-			return javaProject.rawClasspath.filter[entryKind == IClasspathEntry.CPE_SOURCE]
-		} else {
-			return emptyList
+			if (javaProject !== null) {
+				return javaProject.rawClasspath.filter[entryKind == IClasspathEntry.CPE_SOURCE]
+			}
+		} catch (CoreException ce) {
+			logger.warn("Java rawClasspath could not be fetched from project='{}'.", project.name)
 		}
+		logger.warn("getSourceClasspathEntries returns empty list")
+		return emptyList
 	}
 
 	/**

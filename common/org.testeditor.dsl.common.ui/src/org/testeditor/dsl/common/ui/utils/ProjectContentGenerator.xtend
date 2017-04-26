@@ -59,6 +59,12 @@ class ProjectContentGenerator {
 	static public val String RESOURCES_FOLDER = 'src/main/resources'
 	static public val String SRC_TEST_FOLDER = 'src/test/java'
 	static public val String RESOURCES_TEST_FOLDER = 'src/test/resources'
+	static val SOURCE_FOLDERS = #[
+			SRC_FOLDER,
+			RESOURCES_FOLDER,
+			SRC_TEST_FOLDER,
+			RESOURCES_TEST_FOLDER
+		]
 
 	private static val logger = LoggerFactory.getLogger(ProjectContentGenerator)
 
@@ -68,8 +74,8 @@ class ProjectContentGenerator {
 	@Inject MavenExecutor mavenExecutor
 	@Inject GradleHelper gradleHelper
 	@Inject SwingDemoContentGenerator swingDemoContentGenerator
+	@Inject ClasspathUtil classpathUtil
 	@Inject extension ProjectUtils
-	@Inject extension ClasspathUtil
 	
 	@Accessors(PUBLIC_GETTER) 
 	IFile demoTclFile
@@ -111,11 +117,10 @@ class ProjectContentGenerator {
 			createLoggingConfig(monitor)
 			
 			// setup buildsystem
-			if (buildsystem == MAVEN) {
-				setupMavenProject(fixtures, monitor)
-			}
-			if (buildsystem == GRADLE) {
-				setupGradleProject(fixtures, monitor)
+			switch (buildsystem) {
+				case buildsystem == MAVEN: setupMavenProject(fixtures, monitor)
+				case buildsystem == GRADLE: setupGradleProject(fixtures, monitor)
+				default: throw new RuntimeException('''Unknown buildsystem='«buildsystem»'.''')
 			}
 			
 			// fill project with sample code
@@ -128,26 +133,45 @@ class ProjectContentGenerator {
 			}
 			
 			// some more technical project setup
-			if (buildsystem == MAVEN) {
-				setupMavenEclipseMetaData(monitor)
-				setupMavenSourceClassPaths
-				setupClasspathFileExclusions
-			}
-			if (buildsystem == GRADLE) {
-				setupEclipseMetaData(monitor)
-				setupGradleSourceClassPaths
+			switch (buildsystem) {
+				case buildsystem == MAVEN: setupEclipseProjectForMaven(monitor)
+				case buildsystem == GRADLE: setupEclipseProjectForGradle(monitor)
+				default: throw new RuntimeException('''Unknown buildsystem='«buildsystem»'.''')
 			}
 			
 			// TE-470 project file filter to allow access to src etc. are not activated
 			// filterTechnicalProjectFiles(monitor)
 		]
 	}
-
+	
+	private def void setupEclipseProjectForGradle(IProject project, IProgressMonitor monitor) {
+		project => [
+			setupGradleEclipseMetaData(monitor)
+			addNatures(monitor)
+			setupGradleSourceClassPaths
+			setupClasspathFileExclusions
+		]
+	}
+	
+	private def void setupEclipseProjectForMaven(IProject project, IProgressMonitor monitor) {
+		project => [
+			setupMavenEclipseMetaData(monitor)
+			addNatures(monitor)
+			setupMavenSourceClassPaths
+			setupClasspathFileExclusions
+		]
+	}
+	
+	private def void addNatures(IProject project, IProgressMonitor monitor) {
+		project => [
+			addNature(JavaCore.NATURE_ID)
+			addNature(XtextProjectHelper.NATURE_ID)
+			refreshLocal(IResource.DEPTH_INFINITE, monitor)
+		]
+	}
+	
 	private def void createSourceFolder(IProject project) {
-		createOrGetDeepFolder(project, SRC_FOLDER)
-		createOrGetDeepFolder(project, RESOURCES_FOLDER)
-		createOrGetDeepFolder(project, SRC_TEST_FOLDER)
-		createOrGetDeepFolder(project, RESOURCES_TEST_FOLDER)
+		SOURCE_FOLDERS.forEach[project.createOrGetDeepFolder(it)]
 	}
 
 	private def filterTechnicalProjectFiles(IProject project, IProgressMonitor monitor) {
@@ -160,7 +184,7 @@ class ProjectContentGenerator {
 	}
 
 	@VisibleForTesting
-	protected def void setupEclipseMetaData(IProject project, IProgressMonitor monitor) {
+	protected def void setupGradleEclipseMetaData(IProject project, IProgressMonitor monitor) {
 		// Run "gradle eclipse" to create the meta-data
 		try {
 			monitor.taskName = "Initializing Eclipse project."
@@ -205,14 +229,14 @@ class ProjectContentGenerator {
 
 	private def void setupSourceClassPaths(IProject project, Iterable<String> paths) {
 		val classPathPrefix = '''/«project.name»/'''
-		val existingSourcePaths = project.sourceClasspathEntries.map[path.toPortableString]
+		val existingSourcePaths = classpathUtil.getSourceClasspathEntries(project).map[path.toPortableString]
 
 		val pathsToAdd = paths.filter [ wantedPath |
 			!existingSourcePaths.exists[endsWith(wantedPath)]
 		]
 
 		val classPathEntriesToAdd = pathsToAdd.map[JavaCore.newSourceEntry(Path.fromPortableString('''«classPathPrefix»«it»'''))]
-		project.addClasspathEntries(classPathEntriesToAdd)
+		classpathUtil.addClasspathEntries(project, classPathEntriesToAdd)
 	}
 
 	private def void createGradleBuildFile(IProject project, String[] fixtures, IProgressMonitor monitor) {
@@ -270,12 +294,8 @@ class ProjectContentGenerator {
 	private def void setupMavenEclipseMetaData(IProject project, IProgressMonitor monitor) {
 		val pathToMavenBuildFile = project.mavenBuildFile.location.removeLastSegments(1).toOSString
 		mavenExecutor.executeInNewJvm("eclipse:eclipse", pathToMavenBuildFile, null, monitor, System.out)
-		project => [
-			refreshLocal(IResource.DEPTH_INFINITE, monitor)
-			addNature(JavaCore.NATURE_ID)
-			addNature(XtextProjectHelper.NATURE_ID)
-			setupMavenTclGeneratorPreferences
-		]
+		project.setupMavenTclGeneratorPreferences
+		project.refreshLocal(IResource.DEPTH_INFINITE, monitor)
 	}
 
 	/**
@@ -289,7 +309,7 @@ class ProjectContentGenerator {
 		val fileExtensions = #["aml", "tcl", "tsl", "config", "tml", "_trace"]
 		val fileExclusions = fileExtensions.map[new Path('''**/*.«it»''')]
 
-		project.transformClasspathEntries [
+		classpathUtil.transformClasspathEntries(project) [
 			if (path.segments.exists[matches("src(-gen)?")]) {
 				return JavaCore.newSourceEntry(path, fileExclusions) // don't copy these, will reduce exceptions
 			} else {
