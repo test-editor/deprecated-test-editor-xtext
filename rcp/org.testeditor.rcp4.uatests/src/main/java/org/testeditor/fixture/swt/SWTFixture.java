@@ -18,6 +18,8 @@ import static org.junit.Assert.fail;
 
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -415,13 +417,44 @@ public class SWTFixture implements TestRunListener, TestRunReportable {
 		try {
 			item = ContextMenuHelper.contextMenu(tree, menuItem.split("/"));
 		} catch (WidgetNotFoundException e) {
-			Thread.sleep(100);
-			logger.trace("Search menu entry a second time: {}", menuItem);
-			item = ContextMenuHelper.contextMenu(tree, menuItem.split("/"));
+			logger.trace("exception during executeContextMenuEntry", e);
+			dumpMenuStatusFor(menuItem, viewName, locatorStrategy);
+//			Thread.sleep(100);
+//			logger.trace("Search menu entry a second time: {}", menuItem);
+//			item = ContextMenuHelper.contextMenu(tree, menuItem.split("/"));
 		}
 		assertNotNull(item);
 		logger.trace("Click on menu item: {}", menuItem);
 		new SWTBotMenu(item).click();
+	}
+	
+	private void dumpMenuStatusFor(String menuItem, String viewName, ViewLocatorStrategy locatorStrategy) {
+		getDisplay().syncExec(new Runnable() {
+			@Override
+			public void run() {
+				try {
+				logger.trace("Search for tree in view = '{}' with strategy = '{}'", viewName, locatorStrategy.name());
+				String [] menuItems = menuItem.split("/");
+				SWTBotTree tree = getTree(viewName, locatorStrategy);
+				logger.trace("Search context menu entry = '{}'", menuItem);
+				MenuItem item=null;
+				for (int i=0; i<menuItems.length; i++) {
+					String[] subarray=Arrays.copyOf(menuItems, i+1);
+					String reportPath=StringUtils.join(subarray, '/');
+					logger.trace("Searching for menupath ='{}'", reportPath);
+					item = ContextMenuHelper.contextMenu(tree, subarray);
+					MenuItem[] subitems = item.getMenu().getItems();
+					List<String> subitemsAsString = new ArrayList<>(subitems.length);
+					for (MenuItem subitem : subitems ) {
+						subitemsAsString.add(subitem.getText());
+					}
+					logger.trace("found menu entry with subentries = '{}'", StringUtils.join(subitemsAsString, ", "));
+				}
+				} catch(Exception e) {
+					logger.trace("exception during dumpMenuStatus", e);
+				}
+			}
+		});
 	}
 
 	/**
