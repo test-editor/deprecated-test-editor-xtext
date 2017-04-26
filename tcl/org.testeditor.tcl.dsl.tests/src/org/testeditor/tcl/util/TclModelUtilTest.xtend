@@ -36,14 +36,14 @@ class TclModelUtilTest extends AbstractParserTest {
 	@Test
 	def void testRestoreString() {
 		// given
-		val testStep = parse('-  some <hello>     world "ohoh"   @xyz', grammarAccess.testStepRule, TestStep)
-		testStep.fixtureReference.contents.get(4).assertInstanceOf(VariableReference)
+		val testStep = parse('-  <hello>     world "ohoh"   @xyz', grammarAccess.testStepRule, TestStep)
+		testStep.contents.get(3).assertInstanceOf(VariableReference)
 
 		// when
-		val result = tclModelUtil.restoreString(testStep.fixtureReference.contents)
+		val result = tclModelUtil.restoreString(testStep.contents)
 
 		// then
-		result.assertMatches('some <hello> world "ohoh" @') // empty variable reference name, since the reference is null
+		result.assertMatches('<hello> world "ohoh" @') // empty variable reference name, since the reference is null
 	}
 
 	@Test
@@ -55,10 +55,10 @@ class TclModelUtilTest extends AbstractParserTest {
 		val dotAndWhitespace = parse('- Hello World.', grammarAccess.testStepRule, TestStep)
 
 		// when, then
-		tclModelUtil.restoreString(questionMark.fixtureReference.contents).assertEquals('Hello World?')
-		tclModelUtil.restoreString(questionMarkAndWhitespace.fixtureReference.contents).assertEquals('Hello World?')
-		tclModelUtil.restoreString(dot.fixtureReference.contents).assertEquals('Hello World.')
-		tclModelUtil.restoreString(dotAndWhitespace.fixtureReference.contents).assertEquals('Hello World.')
+		tclModelUtil.restoreString(questionMark.contents).assertEquals('Hello World?')
+		tclModelUtil.restoreString(questionMarkAndWhitespace.contents).assertEquals('Hello World?')
+		tclModelUtil.restoreString(dot.contents).assertEquals('Hello World.')
+		tclModelUtil.restoreString(dotAndWhitespace.contents).assertEquals('Hello World.')
 	}
 
 	@Test
@@ -127,8 +127,8 @@ class TclModelUtilTest extends AbstractParserTest {
 		val template = parse('''
 			"start with" ${somevar} "and more" ${othervar}
 		''', grammarAccess.templateRule, Template)
-		val someValue = testStep.fixtureReference.contents.filter(StepContentVariable).head
-		val otherRef = testStep.fixtureReference.contents.filter(VariableReference).head
+		val someValue = testStep.contents.filter(StepContentVariable).head
+		val otherRef = testStep.contents.filter(VariableReference).head
 		val somevar = template.contents.get(1)
 		val othervar = template.contents.get(3)
 

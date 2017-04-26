@@ -292,15 +292,5 @@ class TclModelUtil extends TslModelUtil {
 			variables.contains(variable.name)
 		]
 	}
-	
-	/**
-	 * allow usage of "contents" on TestStep s even if fixtureReference is null
-	 */
-	def Iterable<StepContent> getContents(TestStep testStep) {
-		if (testStep.fixtureReference !== null) {
-			return testStep.fixtureReference.contents
-		}	
-		return emptyList
-	}
 
 }

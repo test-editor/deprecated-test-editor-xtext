@@ -134,10 +134,10 @@ class TclModelParserTest extends AbstractTclTest {
 				componentNode.text.trim.assertEquals('GreetingsApplication')
 				steps.assertSize(2)
 				steps.get(0).assertInstanceOf(TestStep) => [
-					fixtureReference.contents.restoreString.assertEquals('starte Anwendung "org.testeditor.swing.exammple.Greetings"')	
+					contents.restoreString.assertEquals('starte Anwendung "org.testeditor.swing.exammple.Greetings"')	
 				]
 				steps.get(1).assertInstanceOf(TestStep) => [
-					fixtureReference.contents.restoreString.assertEquals('gebe in <Eingabefeld> den Wert "Hello World" ein')
+					contents.restoreString.assertEquals('gebe in <Eingabefeld> den Wert "Hello World" ein')
 				]
 			]
 		]
@@ -152,7 +152,7 @@ class TclModelParserTest extends AbstractTclTest {
 			# Test
 			* Dummy step
 				Mask: Demo
-				- some <> < 	> <
+				- <> < 	> <
 				>
 		'''
 		
@@ -161,8 +161,8 @@ class TclModelParserTest extends AbstractTclTest {
 		
 		// then
 		test.steps.assertSingleElement.contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
-			val emptyReferences = steps.assertSingleElement.assertInstanceOf(TestStep).fixtureReference.contents.assertSize(4)
-			emptyReferences.drop(1).forEach[
+			val emptyReferences = steps.assertSingleElement.assertInstanceOf(TestStep).contents.assertSize(3)
+			emptyReferences.forEach[
 				assertInstanceOf(StepContentElement) => [
 					value.assertNull
 				]
@@ -190,7 +190,7 @@ class TclModelParserTest extends AbstractTclTest {
 		test.steps.assertSingleElement => [
 			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
 				steps.assertSingleElement.assertInstanceOf(TestStep) => [
-					fixtureReference.contents.restoreString.assertEquals('Is Component visible?')
+					contents.restoreString.assertEquals('Is Component visible?')
 				]
 			]
 		]
@@ -216,7 +216,7 @@ class TclModelParserTest extends AbstractTclTest {
 			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
 				steps.assertSingleElement.assertInstanceOf(TestStepWithAssignment) => [
 					variable.name.assertEquals('hello')
-					fixtureReference.contents.restoreString.assertEquals('Lese den Text von <Input>')
+					contents.restoreString.assertEquals('Lese den Text von <Input>')
 				]
 			]
 		]
@@ -305,10 +305,10 @@ class TclModelParserTest extends AbstractTclTest {
 			contexts.assertSingleElement.assertInstanceOf(MacroTestStepContext) => [
 				steps.assertSize(2)
 				steps.head.assertInstanceOf(TestStep) => [
-					fixtureReference.contents.restoreString.assertMatches('template execute with "param" as a and "param2"')
+					contents.restoreString.assertMatches('template execute with "param" as a and "param2"')
 				]
 				steps.last.assertInstanceOf(TestStep) => [
-					fixtureReference.contents.restoreString.assertMatches('second template')
+					contents.restoreString.assertMatches('second template')
 				]
 			]
 		]

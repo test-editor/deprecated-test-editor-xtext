@@ -40,7 +40,6 @@ class TclTypeValidationUtil {
 	 * get the type that this stepContent is expected to have in order to satisfy the parameter type of its transitively called fixture  
 	 */
 	def Optional<JvmTypeReference> getExpectedType(StepContent stepContent, TemplateContainer templateContainer)  {
-		val step = EcoreUtil2.getContainerOfType(stepContent, TestStep)
 		val parameterTypeMap = simpleTypeComputer.getVariablesWithTypes(templateContainer)
 		val templateParameter = getTemplateParameterForCallingStepContent(stepContent)
 		val expectedType = parameterTypeMap.get(templateParameter)

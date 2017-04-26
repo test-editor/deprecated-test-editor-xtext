@@ -208,7 +208,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 		tclModel.addToResourceSet('test.tcl')
 		
 		// when then
-		validator.assertError(tclModel, FIXTURE_REFERENCE, TclValidator.INVALID_VAR_DEREF) // since assignment must take place before usage!
+		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_VAR_DEREF) // since assignment must take place before usage!
 	}
 	
 	@Test
@@ -226,7 +226,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 		tclModel.addToResourceSet('MyTest.tcl')
 		
 		// when then
-		validator.assertError(tclModel, FIXTURE_REFERENCE, TclValidator.INVALID_PARAMETER_TYPE)
+		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_PARAMETER_TYPE)
 	}
 	
 	@Test
@@ -265,7 +265,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 		tclModel.addToResourceSet('MyTest.tcl')
 		
 		// when then
-		validator.assertError(tclModel, FIXTURE_REFERENCE, TclValidator.INVALID_TYPED_VAR_DEREF) // since long is expected, and map is provided
+		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_TYPED_VAR_DEREF) // since long is expected, and map is provided
 	}
 	
 	@Test

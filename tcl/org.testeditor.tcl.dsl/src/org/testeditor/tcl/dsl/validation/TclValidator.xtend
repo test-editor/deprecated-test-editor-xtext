@@ -116,7 +116,7 @@ class TclValidator extends AbstractTclValidator {
 		if (!(testStep instanceof AssertionTestStep) && testStep.hasComponentContext) {
 			val method = testStep.interaction?.defaultMethod
 			if ((method == null ) || (method.operation == null) || (method.typeReference?.type == null)) {
-				info("test step could not resolve fixture", TclPackage.Literals.TEST_STEP__FIXTURE_REFERENCE, MISSING_FIXTURE)
+				info("test step could not resolve fixture", TclPackage.Literals.TEST_STEP__CONTENTS, MISSING_FIXTURE)
 			}
 		}
 	}
@@ -127,7 +127,7 @@ class TclValidator extends AbstractTclValidator {
 			val normalizedTeststep = testStep.normalize
 			val macroCollection = testStep.macroContext.macroCollection
 			if (!macroCollection.macros.exists[template.normalize == normalizedTeststep]) {
-				warning("test step could not resolve macro usage", TclPackage.Literals.TEST_STEP__FIXTURE_REFERENCE,
+				warning("test step could not resolve macro usage", TclPackage.Literals.TEST_STEP__CONTENTS,
 					MISSING_MACRO)
 			}
 		}
