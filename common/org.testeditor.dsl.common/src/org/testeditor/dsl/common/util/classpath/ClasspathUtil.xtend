@@ -118,11 +118,14 @@ class ClasspathUtil {
 	def Iterable<IClasspathEntry> getSourceClasspathEntries(IProject project) {
 		try {
 			val javaProject = JavaCore.create(project)
-			return javaProject?.rawClasspath.filter[entryKind == IClasspathEntry.CPE_SOURCE]
+			if (javaProject !== null) {
+				return javaProject.rawClasspath.filter[entryKind == IClasspathEntry.CPE_SOURCE]
+			}
 		} catch (CoreException ce) {
-			logger.warn("Java rawClasspath could not be fetched from project='{}'. Empty classpaths returned.", project.name)
-			return emptyList
+			logger.warn("Java rawClasspath could not be fetched from project='{}'.", project.name)
 		}
+		logger.warn("getSourceClasspathEntries returns empty list")
+		return emptyList
 	}
 
 	/**
