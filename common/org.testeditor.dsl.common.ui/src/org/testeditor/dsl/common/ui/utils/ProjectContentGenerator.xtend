@@ -59,8 +59,14 @@ class ProjectContentGenerator {
 	static public val String RESOURCES_FOLDER = 'src/main/resources'
 	static public val String SRC_TEST_FOLDER = 'src/test/java'
 	static public val String RESOURCES_TEST_FOLDER = 'src/test/resources'
+	static val SOURCE_FOLDERS = #[
+			SRC_FOLDER,
+			RESOURCES_FOLDER,
+			SRC_TEST_FOLDER,
+			RESOURCES_TEST_FOLDER
+		]
 
-	private static val logger = LoggerFactory.getLogger(ProjectContentGenerator)
+	static val logger = LoggerFactory.getLogger(ProjectContentGenerator)
 
 	val String testEditorVersion // is filled by querying the plugin version
 
@@ -130,31 +136,28 @@ class ProjectContentGenerator {
 			// some more technical project setup
 			if (buildsystem == MAVEN) {
 				setupMavenEclipseMetaData(monitor)
+				addNature(JavaCore.NATURE_ID)
+				addNature(XtextProjectHelper.NATURE_ID)
+				refreshLocal(IResource.DEPTH_INFINITE, monitor)
 				setupMavenSourceClassPaths
 				setupClasspathFileExclusions
 			}
 			if (buildsystem == GRADLE) {
 				setupEclipseMetaData(monitor)
-				setupGradleSourceClassPaths
-			}
-			
-			project => [
 				addNature(JavaCore.NATURE_ID)
 				addNature(XtextProjectHelper.NATURE_ID)
 				refreshLocal(IResource.DEPTH_INFINITE, monitor)
-			]
+				setupGradleSourceClassPaths
+			}
 			
 			// TE-470 project file filter to allow access to src etc. are not activated
 			// filterTechnicalProjectFiles(monitor)
 			classpathUtil.clearCache
 		]
 	}
-
+	
 	private def void createSourceFolder(IProject project) {
-		createOrGetDeepFolder(project, SRC_FOLDER)
-		createOrGetDeepFolder(project, RESOURCES_FOLDER)
-		createOrGetDeepFolder(project, SRC_TEST_FOLDER)
-		createOrGetDeepFolder(project, RESOURCES_TEST_FOLDER)
+		SOURCE_FOLDERS.forEach[project.createOrGetDeepFolder(it)]
 	}
 
 	private def filterTechnicalProjectFiles(IProject project, IProgressMonitor monitor) {
