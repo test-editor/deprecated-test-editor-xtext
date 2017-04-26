@@ -37,27 +37,11 @@ config TestEditorConfig
 	- Type "component type TRootPage { } component RootPage is TRootPage { }" into active editor
 	- Save editor content
 
-	Mask: Workbench
-	- Wait until all jobs finished 
-
-
 * Create an aml within ^package "some.other"
 
-	Component: ProjectExplorer
-	- Select element "TestStepSelectorTestProject/src/test/java" in tree <ProjectTree>
-	- Execute menu item "New/Folder" in tree <ProjectTree>
-
-	Mask: NewFolderDialog
-	- Type "some" into <FolderName>
-	- Click on <FinishButton>
-
-	Component: ProjectExplorer
-	- Select element "TestStepSelectorTestProject/src/test/java/some" in tree <ProjectTree>
-	- Execute menu item "New/Folder" in tree <ProjectTree>
-
-	Mask: NewFolderDialog
-	- Type "other" into <FolderName>
-	- Click on <FinishButton>
+	Macro: ProjectFolder
+	- Add folder "some" at "TestStepSelectorTestProject/src/test/java"
+	- Add folder "other" at "TestStepSelectorTestProject/src/test/java/some"
 
 	Component: ProjectExplorer
 	- Select element "TestStepSelectorTestProject/src/test/java/some/other" in tree <ProjectTree>
@@ -70,10 +54,6 @@ config TestEditorConfig
 	Mask: ActiveEditor
 	- Type "component type TSomeOtherPage { } component SomeOtherPage is TSomeOtherPage { }" into active editor
 	- Save editor content
-
-	Mask: Workbench
-	- Wait until all jobs finished 
-
 
 // When
 * Create and open the editor ^for a test ^case within root
@@ -89,7 +69,6 @@ config TestEditorConfig
 	Mask: Workbench
 	- Wait until all jobs finished 
 
-
 // Then
 * Check that the test step selector contains the expected tree of aml elements
 
@@ -98,7 +77,3 @@ config TestEditorConfig
 	- hasSomeOtherPage = Has element "some.other/SomeOtherPage" in tree <TestStepSelector>
 	- assert hasRootPage
 	- assert hasSomeOtherPage
-
-	Mask: Workbench
-	- Wait "60" seconds 
-
