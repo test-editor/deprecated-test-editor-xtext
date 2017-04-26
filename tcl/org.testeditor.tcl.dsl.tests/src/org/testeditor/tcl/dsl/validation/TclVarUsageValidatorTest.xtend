@@ -68,7 +68,7 @@ class TclVarUsageValidatorTest extends AbstractParserTestWithDummyComponent {
 						steps += assignmentStep
 						steps += testStep("start") => [
 							// variable map access is valid: declared first, usage within same test case, type of variable is Map
-							fixtureReference.contents += mappedReference(assignmentStep.variable)
+							contents += mappedReference(assignmentStep.variable)
 						]
 					]
 				]
@@ -177,7 +177,7 @@ class TclVarUsageValidatorTest extends AbstractParserTestWithDummyComponent {
 		tclModel.addToResourceSet('Test.tml')
 
 		// then
-		tclModel.assertError(FIXTURE_REFERENCE, TclValidator.INVALID_VAR_DEREF)
+		tclModel.assertError(TEST_STEP, TclValidator.INVALID_VAR_DEREF)
 
 	}
 
@@ -237,7 +237,7 @@ class TclVarUsageValidatorTest extends AbstractParserTestWithDummyComponent {
 						steps += assignmentStep
 						steps += testStep("start") => [
 							// map access is illegal, since variable is of type String
-							fixtureReference.contents += mappedReference(assignmentStep.variable) => [ key = "some" ]
+							contents += mappedReference(assignmentStep.variable) => [ key = "some" ]
 						]
 					]
 				]
@@ -246,7 +246,7 @@ class TclVarUsageValidatorTest extends AbstractParserTestWithDummyComponent {
 		tclModel.addToResourceSet('Test.tcl')
 		
 		// then
-		tclModel.assertError(FIXTURE_REFERENCE, TclValidator.INVALID_MAP_ACCESS)
+		tclModel.assertError(TEST_STEP, TclValidator.INVALID_MAP_ACCESS)
 	}
 
 	@Test

@@ -107,20 +107,17 @@ MacroTestStepContext returns TestStepContext:
  */
 TestStep:
 	{TestStep}
-	'-' fixtureReference=FixtureReference?;
+	'-' contents+=StepContent* contents+=StepContentPunctuation?;
 
 AssertionTestStep:
 	'-' 'assert' assertExpression=(NullOrBoolCheck | FullComparison) '.'?;
 
 TestStepWithAssignment:
-	'-' variable=AssignmentVariable '=' fixtureReference=FixtureReference;
+	'-' variable=AssignmentVariable '=' contents+=StepContent* contents+=StepContentPunctuation?;
 
 MapEntryAssignment:
 	'-' variableReference=VariableReferenceMapAccess '=' expression=AtomicValue '.'?;
 
-FixtureReference:
-	contents+=StepContentText contents+=StepContent* contents+=StepContentPunctuation?;
-    
 /** expression order: Comparison -> (Addition -> Multiplication ->) Value
  *  which is reflecting the order of operator binding.
  * 

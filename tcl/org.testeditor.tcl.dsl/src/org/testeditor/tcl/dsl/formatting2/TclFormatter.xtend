@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.formatting2;
 
-import javax.inject.Inject
 import org.eclipse.xtext.formatting2.IFormattableDocument
 import org.eclipse.xtext.xbase.formatting2.XbaseFormatter
 import org.testeditor.aml.Template
@@ -32,7 +31,6 @@ import org.testeditor.tcl.TestSetup
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferenceMapAccess
-import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
@@ -43,8 +41,6 @@ import static org.testeditor.tcl.TclPackage.Literals.*
 
 class TclFormatter extends XbaseFormatter {
 	
-	@Inject extension TclModelUtil 
-
 	def dispatch void format(TclModel tclModel, extension IFormattableDocument document) {
 		tclModel.regionFor.feature(TCL_MODEL__PACKAGE).prepend[oneSpace].append[newLines = 2]
 		// import section is not formatted (yet), should be done by organize imports
