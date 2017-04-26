@@ -121,11 +121,11 @@ class ClasspathUtil {
 	}
 
 	def Iterable<IClasspathEntry> getSourceClasspathEntries(IProject project) {
-		val javaProject = JavaCore.create(project)
-		if (javaProject !== null) {
-			return javaProject.rawClasspath.filter[entryKind == IClasspathEntry.CPE_SOURCE]
-		} else {
-			logger.warn("Java nature missing in project='{}'. Classpaths empty.", project.name)
+		try {
+			val javaProject = JavaCore.create(project)
+			return javaProject?.rawClasspath.filter[entryKind == IClasspathEntry.CPE_SOURCE]
+		} catch (CoreException ce) {
+			logger.warn("Java nature (currently) missing in project='{}'. Empty classpaths returned.", project.name)
 			return emptyList
 		}
 	}
