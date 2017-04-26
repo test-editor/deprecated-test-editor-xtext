@@ -68,8 +68,8 @@ class ProjectContentGenerator {
 	@Inject MavenExecutor mavenExecutor
 	@Inject GradleHelper gradleHelper
 	@Inject SwingDemoContentGenerator swingDemoContentGenerator
+	@Inject ClasspathUtil classpathUtil
 	@Inject extension ProjectUtils
-	@Inject extension ClasspathUtil
 	
 	@Accessors(PUBLIC_GETTER) 
 	IFile demoTclFile
@@ -140,6 +140,7 @@ class ProjectContentGenerator {
 			
 			// TE-470 project file filter to allow access to src etc. are not activated
 			// filterTechnicalProjectFiles(monitor)
+			classpathUtil.clearCache
 		]
 	}
 
@@ -205,14 +206,14 @@ class ProjectContentGenerator {
 
 	private def void setupSourceClassPaths(IProject project, Iterable<String> paths) {
 		val classPathPrefix = '''/«project.name»/'''
-		val existingSourcePaths = project.sourceClasspathEntries.map[path.toPortableString]
+		val existingSourcePaths = classpathUtil.getSourceClasspathEntries(project).map[path.toPortableString]
 
 		val pathsToAdd = paths.filter [ wantedPath |
 			!existingSourcePaths.exists[endsWith(wantedPath)]
 		]
 
 		val classPathEntriesToAdd = pathsToAdd.map[JavaCore.newSourceEntry(Path.fromPortableString('''«classPathPrefix»«it»'''))]
-		project.addClasspathEntries(classPathEntriesToAdd)
+		classpathUtil.addClasspathEntries(project, classPathEntriesToAdd)
 	}
 
 	private def void createGradleBuildFile(IProject project, String[] fixtures, IProgressMonitor monitor) {
@@ -289,7 +290,7 @@ class ProjectContentGenerator {
 		val fileExtensions = #["aml", "tcl", "tsl", "config", "tml", "_trace"]
 		val fileExclusions = fileExtensions.map[new Path('''**/*.«it»''')]
 
-		project.transformClasspathEntries [
+		classpathUtil.transformClasspathEntries(project) [
 			if (path.segments.exists[matches("src(-gen)?")]) {
 				return JavaCore.newSourceEntry(path, fileExclusions) // don't copy these, will reduce exceptions
 			} else {

@@ -34,6 +34,11 @@ class ClasspathUtil {
 	@Inject WorkspaceHelper workspaceHelper
 	@Inject MavenClasspathUtil mavenClasspathUtil
 	@Inject GradleClasspathUtil gradleClasspathUtil
+	
+	def void clearCache() {
+		mavenClasspathUtil.clearCache
+		gradleClasspathUtil.clearCache
+	}
 
 	// called from within rcp
 	def String inferPackage(IJavaElement javaElement) {

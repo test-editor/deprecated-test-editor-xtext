@@ -31,6 +31,13 @@ class GradleClasspathUtil {
 
 	List<IPath> gradleClasspath
 	
+	def void clearCache() {
+		if (gradleClasspath !== null) {
+			gradleClasspath.clear
+			gradleClasspath = null
+		}
+	}
+
 	def List<IPath> getGradleSourceSetPaths(IPath projectRoot) {
 		if (gradleClasspath === null) {
 			val outTask = new ByteArrayOutputStream()
