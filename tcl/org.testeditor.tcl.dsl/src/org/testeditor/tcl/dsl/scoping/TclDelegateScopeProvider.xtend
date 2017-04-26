@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.scoping
 
-import java.util.Arrays
 import javax.inject.Inject
 import org.eclipse.emf.ecore.EReference
 import org.eclipse.emf.ecore.resource.Resource

@@ -80,7 +80,7 @@ class TclModelGenerator {
 	}
 
 	def TclModel withImport(TclModel me, String namespace) {
-		if (me.importSection == null) {
+		if (me.importSection === null) {
 			me.importSection = xtypeFactory.createXImportSection
 		}
 		me.importSection.importDeclarations += xtypeFactory.createXImportDeclaration => [
