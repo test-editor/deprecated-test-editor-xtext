@@ -20,6 +20,9 @@ config TestEditorConfig
 	- Click on <FinishButton>
 	- Wait for dialog "Progress Information" to popup and then close after at most "3" respectively "120" seconds
 
+	Mask: Workbench
+	- Wait until all jobs finished 
+
 * Create an aml within root that ^is defaul ^package
 
 	Component: ProjectExplorer
