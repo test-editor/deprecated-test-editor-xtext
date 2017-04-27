@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.CoreException
 import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
+import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaElement
@@ -44,8 +45,9 @@ class ClasspathUtil {
 
 	// called from rcp or during build (outside of rcp)
 	def String inferPackage(EObject element) {
-		val originPath = new Path(EcoreUtil2.getPlatformResourceOrNormalizedURI(element).trimFragment.path)
-		if (originPath.isEclipseResolved) {
+		val elementURI = EcoreUtil2.getPlatformResourceOrNormalizedURI(element)
+		val originPath = new Path(elementURI.trimFragment.path)
+		if (elementURI.isEclipseResolved) {
 			val adjustedPath = originPath.removeFirstSegments(1).removeLastSegments(1)
 			val classpath = getClasspathEntryFor(adjustedPath, true)
 			return packageForPath(adjustedPath, classpath)
@@ -156,8 +158,8 @@ class ClasspathUtil {
 		}
 	}
 
-	def protected boolean getIsEclipseResolved(IPath path) {
-		return path.toString.startsWith("/resource/")
+	def protected boolean getIsEclipseResolved(URI uri) {
+		return uri.scheme.equals("platform")
 	}
 
 	def IPath getBuildProjectBaseDir(IPath path) {
