@@ -159,7 +159,7 @@ class ClasspathUtil {
 	}
 
 	def protected boolean getIsEclipseResolved(URI uri) {
-		return uri.scheme.equals("platform")
+		return "platform".equals(uri.scheme)
 	}
 
 	def IPath getBuildProjectBaseDir(IPath path) {
