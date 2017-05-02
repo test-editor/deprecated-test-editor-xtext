@@ -198,3 +198,41 @@ StepContentElement hidden():
 StepContentPunctuation:
 	value=('.'|'?')
 ;
+
+JsonObject:
+	{JsonObject}
+	'{'
+		(members+=JsonMember)?
+		(',' members+=JsonMember)*
+	'}';
+
+JsonMember:
+	key=STRING ':' value=JsonValue;
+
+JsonValue:
+	JsonString | JsonNumber | JsonObject | JsonArray | JsonBoolean | JsonNull;
+
+JsonString:
+	value=STRING;
+
+JsonBoolean:
+	value=Boolean;
+
+JsonNull:
+	{JsonNull}
+	'null';
+
+JsonArray:
+	{JsonArray}
+	'['
+		(values+=JsonValue (',' values+=JsonValue)*)?
+	']';
+
+JsonNumber:
+	value=JsonDecimal;
+
+Boolean returns ecore::EBoolean:
+	'true' | 'false';
+
+JsonDecimal returns ecore::EString hidden():
+	'-'? Number;
