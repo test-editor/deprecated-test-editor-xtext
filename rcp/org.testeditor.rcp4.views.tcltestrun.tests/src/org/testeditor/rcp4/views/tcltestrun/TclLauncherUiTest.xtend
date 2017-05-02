@@ -13,13 +13,13 @@
 package org.testeditor.rcp4.views.tcltestrun
 
 import com.google.inject.Injector
+import java.net.URI
 import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.e4.core.contexts.EclipseContextFactory
 import org.eclipse.jdt.core.IJavaElement
-import org.eclipse.jface.operation.IRunnableWithProgress
 import org.eclipse.jface.viewers.IStructuredSelection
 import org.eclipse.xtext.naming.QualifiedName
 import org.junit.Before
@@ -40,33 +40,19 @@ import static extension org.mockito.Mockito.*
 
 class TclLauncherUiTest extends AbstractTest {
 
-	@Mock
-	TclInjectorProvider tclInjectorProvider
+	@InjectMocks TclLauncherUi launcherUi // class under test
 
-	@Mock
-	IStructuredSelection selection
+	@Mock TclInjectorProvider tclInjectorProvider   // is injected into class under test
+	@Mock EclipseContextHelper eclipseContextHelper // is injected into class under test
+	@Mock TclGradleLauncher gradleLauncher          // is injected into class under test
+	@Mock ProgressMonitorRunner progressRunner      // is injected into class under test
+	@Mock TclIndexHelper tclIndexHelper             // is injected into class under test
+	
+	@Mock Injector injector                // see setup()
+	@Mock LaunchShortcutUtil launchUtil    // see setup()
 
-	@Mock
-	EclipseContextHelper eclipseContextHelper
-
-	@Mock
-	LaunchShortcutUtil launchUtil
-
-	@Mock
-	TclIndexHelper tclIndexHelper
-
-	@Mock
-	Injector injector
-
-	@Mock
-	TclGradleLauncher gradleLauncher
-
-	@Mock
-	ProgressMonitorRunner progressRunner
-
-	@InjectMocks
-	TclLauncherUi launcherUi
-
+	@Mock IStructuredSelection selection   // used as parameter by test methods
+	
 	@Before
 	def void setup() {
 		// given
@@ -136,7 +122,7 @@ class TclLauncherUiTest extends AbstractTest {
 		assertTrue(testCases.exists[it == "mysubpackage.myTest3"])
 	}
 
-	def IFile createTestCaseMockFile(String packageName, String testName) {
+	private def IFile createTestCaseMockFile(String packageName, String testName) {
 		val result = IFile.mock
 		when(result.fileExtension).thenReturn("tcl")
 		when(launchUtil.getQualifiedNameForTestInTcl(result)).thenReturn(QualifiedName.create(packageName, testName))
@@ -156,7 +142,7 @@ class TclLauncherUiTest extends AbstractTest {
 		assertTrue(testCases.exists[it == "mypackage*"])
 	}
 
-	def createSelectionForMavenStructure() {
+	private def void createSelectionForMavenStructure() {
 		val folder = IFolder.mock
 		val javaElement = IJavaElement.mock
 		when(selection.toList).thenReturn(#[folder])
@@ -183,7 +169,40 @@ class TclLauncherUiTest extends AbstractTest {
 		assertTrue(context.containsKey(TestLaunchInformation))
 		val lasTestLaunch = context.get(TestLaunchInformation)
 		assertTrue(lasTestLaunch.testCasesCommaList.contains("mypackage*"))
-		verify(tclIndexHelper).createTestCaseIndex
+	}
+	
+	@Test
+	def void testTslLaunchBuildsTslTclImplementationIndex() {
+		// given
+		val project = createMocksForGradleProject
+		val selection = createTslSelectionMock(project)
+		
+		// when
+		launcherUi.launch(selection, project, null, false)
+		
+		// then
+		verify(tclIndexHelper).createTestCaseIndex(project)
 	}
 
+	private def IProject createMocksForGradleProject() {
+		val buildFile = IFile.mock
+		val context = EclipseContextFactory.create
+		val project = IProject.mock
+		when(eclipseContextHelper.eclipseContext).thenReturn(context)
+		when(project.getFile("build.gradle")).thenReturn(buildFile)
+		when(buildFile.exists).thenReturn(true)
+		return project
+	}
+
+	private def IStructuredSelection createTslSelectionMock(IProject project) {
+		val tslResource = IResource.mock
+		when(selection.toList).thenReturn(#[tslResource])
+		when(tslResource.fileExtension).thenReturn("tsl")
+		when(tslResource.project).thenReturn(project)
+		
+		when(tslResource.locationURI).thenReturn(new URI('/test/some.tsl'))
+		when(project.locationURI).thenReturn(new URI('/test'))
+		return selection
+	}
+	
 }

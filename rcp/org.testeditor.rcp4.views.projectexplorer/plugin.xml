@@ -232,7 +232,7 @@
 						<adapt type="org.eclipse.core.resources.IFolder">
 							<and>
 								<test forcePluginActivation="true"
-									property="org.testeditor.rcp4.views.projectexplorer.checkFolder" value="nonroot">
+									property="org.testeditor.rcp4.views.projectexplorer.checkFolder">
 								</test>
 							</and>
 						</adapt>
