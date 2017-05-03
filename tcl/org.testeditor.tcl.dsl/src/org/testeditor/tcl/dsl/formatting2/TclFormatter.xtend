@@ -30,7 +30,7 @@ import org.testeditor.tcl.TestConfiguration
 import org.testeditor.tcl.TestSetup
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.VariableReference
-import org.testeditor.tcl.VariableReferenceMapAccess
+import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
@@ -159,12 +159,12 @@ class TclFormatter extends XbaseFormatter {
 		variableReference.variable.append[oneSpace; priority = LOW_PRIORITY]
 	}
 
-	def dispatch void format(VariableReferenceMapAccess variableReferenceMapAccess,
+	def dispatch void format(VariableReferencePathAccess variableReferenceMapAccess,
 		extension IFormattableDocument document) {
 		variableReferenceMapAccess.regionFor.keyword('@').prepend[oneSpace].append[noSpace]
 		variableReferenceMapAccess.regionFor.keyword('.').prepend[noSpace].append[noSpace]
 		variableReferenceMapAccess.variable.append[noSpace]
-		variableReferenceMapAccess.regionFor.feature(VARIABLE_REFERENCE_MAP_ACCESS__KEY).prepend[noSpace]
+		variableReferenceMapAccess.regionFor.feature(VARIABLE_REFERENCE_PATH_ACCESS__PATH).prepend[noSpace]
 	}
 
 	def dispatch void format(Template template, extension IFormattableDocument document) {

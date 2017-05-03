@@ -95,7 +95,7 @@ TestStepContext:
 ComponentTestStepContext returns TestStepContext:
 	{ComponentTestStepContext}
 	('Mask' | 'Component') ':' component=[aml::Component|QualifiedName]
-	steps+=(TestStep | TestStepWithAssignment | AssertionTestStep | MapEntryAssignment)*;
+	steps+=(TestStep | TestStepWithAssignment | AssertionTestStep | AssignmentThroughPath)*;
 
 MacroTestStepContext returns TestStepContext:
 	{MacroTestStepContext}
@@ -115,8 +115,8 @@ AssertionTestStep:
 TestStepWithAssignment:
 	'-' variable=AssignmentVariable '=' contents+=StepContent* contents+=StepContentPunctuation?;
 
-MapEntryAssignment:
-	'-' variableReference=VariableReferenceMapAccess '=' expression=AtomicValue '.'?;
+AssignmentThroughPath:
+	'-' variableReference=VariableReferencePathAccess '=' expression=Expression '.'?;
 
 /** expression order: Comparison -> (Addition -> Multiplication ->) Value
  *  which is reflecting the order of operator binding.
@@ -128,7 +128,7 @@ Expression:
 	Comparison;
 
 NullOrBoolCheck:
-	(negated?='!')? variableReference=(VariableReference | VariableReferenceMapAccess);
+	(negated?='!')? variableReference=(VariableReference | VariableReferencePathAccess);
 
 FullComparison returns Comparison:
 	left=Value
@@ -143,14 +143,14 @@ Comparison:
 VariableReference:
 	variable=[aml::Variable];
 
-VariableReferenceMapAccess:
-	variable=[aml::Variable] '.' (key=ID | key=STRING);
+VariableReferencePathAccess:
+	variable=[aml::Variable] ( '.' ( path+=ID | path+=STRING) )+;
 
 StringConstant:
 	string=STRING;
 
 AtomicValue returns Expression:
-	VariableReference | VariableReferenceMapAccess | StringConstant;
+	VariableReference | VariableReferencePathAccess | StringConstant | JsonObject | JsonArray ;
 	
 Value returns Expression:
 	AtomicValue | '(' Expression ')';
@@ -177,7 +177,7 @@ AssignmentVariable:
 	name=ID;
 	
 StepContent returns tsl::StepContent:
-	StepContentText | StepContentElement | StepContentVariable | '@' VariableReference | '@' VariableReferenceMapAccess;
+	StepContentText | StepContentElement | StepContentVariable | '@' VariableReference | '@' VariableReferencePathAccess;
 
 StepContentText returns tsl::StepContentText:
 	value=ID | value=StepContentTextOperator;

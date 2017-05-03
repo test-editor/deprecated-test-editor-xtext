@@ -17,7 +17,7 @@ import javax.inject.Inject
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.testeditor.dsl.common.util.CollectionUtils
 import org.testeditor.tcl.AssertionTestStep
-import org.testeditor.tcl.MapEntryAssignment
+import org.testeditor.tcl.AssignmentThroughPath
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.TestStepWithAssignment
@@ -36,7 +36,7 @@ class VariableCollector {
 		return context.steps.map[collectDeclaredVariablesTypeMap].mergeOverwriting
 	}
 	
-	def dispatch Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(MapEntryAssignment assignment) {
+	def dispatch Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(AssignmentThroughPath assignment) {
 		// Map entry assignments use a known map, no new variables are declared
 		return emptyMap
 	}

@@ -28,6 +28,7 @@ import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.dsl.validation.AmlValidator
 import org.testeditor.dsl.common.util.CollectionUtils
 import org.testeditor.tcl.AssertionTestStep
+import org.testeditor.tcl.AssignmentThroughPath
 import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.ComparatorGreaterThan
 import org.testeditor.tcl.ComparatorLessThan
@@ -36,7 +37,6 @@ import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
-import org.testeditor.tcl.MapEntryAssignment
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclPackage
@@ -44,7 +44,7 @@ import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.VariableReference
-import org.testeditor.tcl.VariableReferenceMapAccess
+import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tcl.dsl.jvmmodel.SimpleTypeComputer
 import org.testeditor.tcl.dsl.jvmmodel.TclExpressionTypeComputer
 import org.testeditor.tcl.dsl.jvmmodel.TclTypeUsageComputer
@@ -160,7 +160,7 @@ class TclValidator extends AbstractTclValidator {
 		}
 	}
 
-	private def dispatch void checkAllReferencedVariablesAreKnown(MapEntryAssignment assignment, Set<String> knownVariableNames,
+	private def dispatch void checkAllReferencedVariablesAreKnown(AssignmentThroughPath assignment, Set<String> knownVariableNames,
 		String errorMessage) {
 		val erroneousContents = assignment.eAllContents.filter(VariableReference).filter [
 			!knownVariableNames.contains(variable.name)
@@ -387,7 +387,7 @@ class TclValidator extends AbstractTclValidator {
 		]
 	}
 
-	private def dispatch void checkReferencedVariablesAreUsedWellTypedExcluding(MapEntryAssignment assignment,
+	private def dispatch void checkReferencedVariablesAreUsedWellTypedExcluding(AssignmentThroughPath assignment,
 		Map<String, JvmTypeReference> declaredVariablesTypeMap, TestStepContext context,
 		Set<String> excludedVariableNames) {
 		assignment.eAllContents.filter(VariableReference).filter [
@@ -413,7 +413,7 @@ class TclValidator extends AbstractTclValidator {
 	private def void checkVariableReferenceIsUsedWellTyped(VariableReference variableReference,
 		Map<String, JvmTypeReference> declaredVariablesTypeMap, TestStepContext context, int errorReportingIndex) {
 		val varName = variableReference.variable.name
-		val typeUsageSet = typeUsageComputer.getAllTypeUsagesOfVariable(context, varName).filterNull.toSet
+		val typeUsageSet = typeUsageComputer.getAllPossibleTypeUsagesOfVariable(context, varName).filterNull.toSet
 		val typeDeclared = declaredVariablesTypeMap.get(varName)
 		checkVariableReferenceIsWellTyped(variableReference, typeUsageSet, typeDeclared, errorReportingIndex)
 	}
@@ -430,7 +430,7 @@ class TclValidator extends AbstractTclValidator {
 			return
 		}
 		switch variableReference {
-			VariableReferenceMapAccess:
+			VariableReferencePathAccess:
 				// do no type checking on values retrieved from a map, but check whether this is actually a map
 				if (!typeDeclared.assignableToMap) {
 					error('''Variable='«variableReference.variable.name»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in a position that expects type(s)='«Map.canonicalName»'.''',
@@ -550,7 +550,7 @@ class TclValidator extends AbstractTclValidator {
 			StepContentVariable: {
 				// is a value => is allowed
 			}
-			VariableReferenceMapAccess: {
+			VariableReferencePathAccess: {
 				// allowed, must be here before 'VariableReference' because it's a subtype
 			}
 			VariableReference: 			

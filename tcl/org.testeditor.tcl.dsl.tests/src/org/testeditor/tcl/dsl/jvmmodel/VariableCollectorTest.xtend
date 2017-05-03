@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
+import com.google.gson.JsonObject
 import javax.inject.Inject
 import org.eclipse.xtext.EcoreUtil2
 import org.junit.Before
@@ -41,6 +42,7 @@ class VariableCollectorTest extends AbstractParserTest {
 				Component: GreetingApplication
 				- longVar = Read long from <bar>
 				- boolVar = Read bool from <bar>
+				- jsonVar = Read jsonObject from <bar>
 				- Is <bar> visible?                 // no assignment test step
 				- Read value from <bar>             // no assignment of value
 				- stringVar = Read value from <bar>
@@ -53,9 +55,10 @@ class VariableCollectorTest extends AbstractParserTest {
 		val declaredVariables = variableCollector.collectDeclaredVariablesTypeMap(context)
 
 		// then
-		declaredVariables.keySet.assertSize(3)
+		declaredVariables.keySet.assertSize(4)
 		declaredVariables.get("longVar").qualifiedName.assertEquals(long.name)
 		declaredVariables.get("boolVar").qualifiedName.assertEquals(boolean.name)
+		declaredVariables.get("jsonVar").qualifiedName.assertEquals(JsonObject.name)
 		declaredVariables.get("stringVar").qualifiedName.assertEquals(String.name)
 	}
 

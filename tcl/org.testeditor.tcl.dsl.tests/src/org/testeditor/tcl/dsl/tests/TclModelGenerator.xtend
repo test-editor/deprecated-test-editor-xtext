@@ -20,16 +20,22 @@ import org.testeditor.aml.Component
 import org.testeditor.aml.Variable
 import org.testeditor.aml.impl.AmlFactoryImpl
 import org.testeditor.tcl.AssertionTestStep
+import org.testeditor.tcl.AssignmentThroughPath
 import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.ComparatorEquals
 import org.testeditor.tcl.ComparatorMatches
 import org.testeditor.tcl.Comparison
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariable
+import org.testeditor.tcl.JsonArray
+import org.testeditor.tcl.JsonBoolean
+import org.testeditor.tcl.JsonNull
+import org.testeditor.tcl.JsonNumber
+import org.testeditor.tcl.JsonObject
+import org.testeditor.tcl.JsonString
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
-import org.testeditor.tcl.MapEntryAssignment
 import org.testeditor.tcl.NullOrBoolCheck
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StringConstant
@@ -39,7 +45,7 @@ import org.testeditor.tcl.TestConfiguration
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.VariableReference
-import org.testeditor.tcl.VariableReferenceMapAccess
+import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tcl.impl.TclFactoryImpl
 import org.testeditor.tsl.impl.TslFactoryImpl
 
@@ -93,15 +99,42 @@ class TclModelGenerator {
 		return me
 	}
 	
-	def MapEntryAssignment mapEntryAssignment(Variable mapVariable, String key) {
-		tclFactory.createMapEntryAssignment => [
-			variableReference = variableReferenceMapAccess() => [
-				it.variable = mapVariable
-				it.key = key
+	def VariableReferencePathAccess variableReferencePathAccess() {
+		return tclFactory.createVariableReferencePathAccess
+	}
+	
+	def AssignmentThroughPath assignmentThroughPath(Variable variable, String ... path) {
+		tclFactory.createAssignmentThroughPath => [
+			variableReference = tclFactory.createVariableReferencePathAccess => [
+				it.variable = variable
+				it.path.addAll(path)
 			]
 		]
 	}
+	
+	def JsonObject jsonObject() { tclFactory.createJsonObject }
 
+	def JsonArray jsonArray() { tclFactory.createJsonArray }
+
+	def JsonString jsonString() { tclFactory.createJsonString }
+
+	def JsonNull jsonNull() { tclFactory.createJsonNull }
+
+	def JsonNumber jsonNumber() { tclFactory.createJsonNumber }
+
+	def JsonBoolean jsonBoolean() { tclFactory.createJsonBoolean }
+
+	def JsonObject jsonObjectWithStringKeyValue(String key, String value) {
+		tclFactory.createJsonObject => [
+			members += tclFactory.createJsonMember => [
+				it.key = key
+				it.value = tclFactory.createJsonString => [
+					it.value = value
+				]
+			]
+		]
+	}
+	
 	def SpecificationStepImplementation specificationStep(String ... texts) {
 		return tclFactory.createSpecificationStepImplementation => [
 			texts.forEach[text|contents.add(tslFactory.createStepContentText => [value = text])]
@@ -151,10 +184,6 @@ class TclModelGenerator {
 
 	def VariableReference variableReference() {
 		tclFactory.createVariableReference
-	}
-
-	def VariableReferenceMapAccess variableReferenceMapAccess() {
-		tclFactory.createVariableReferenceMapAccess
 	}
 
 	def ComparatorEquals comparatorEquals() {
@@ -257,10 +286,10 @@ class TclModelGenerator {
 		]
 	}
 
-	def VariableReferenceMapAccess mappedReference(AssignmentVariable assignmentVariable) {
-		return variableReferenceMapAccess => [
+	def VariableReferencePathAccess mappedReference(AssignmentVariable assignmentVariable) {
+		return variableReferencePathAccess => [
 			variable = assignmentVariable
-			key = "key"
+			path += "key"
 		]
 	}
 
@@ -268,10 +297,10 @@ class TclModelGenerator {
 		variableReference => [variable = assignmentVariable(variableName)]
 	}
 
-	def VariableReferenceMapAccess mappedReference(String variableName, String myKey) {
-		variableReferenceMapAccess => [
+	def VariableReferencePathAccess mappedReference(String variableName, String myKey) {
+		variableReferencePathAccess => [
 			variable = assignmentVariable(variableName)
-			key = myKey
+			path += myKey
 		]
 	}
 

@@ -89,7 +89,7 @@ class TclVarUsageValidatorTest extends AbstractParserTestWithDummyComponent {
 					contexts += componentTestStepContext(dummyComponent) => [
 						val assignmentStep=testStepWithAssignment("myVar", "getMap").withElement("dummyElement")
 						steps += assignmentStep
-						steps += mapEntryAssignment(assignmentStep.variable, "key") => [
+						steps += assignmentThroughPath(assignmentStep.variable, "key") => [
 							expression = stringConstant("value")
 						]
 					]
@@ -214,7 +214,7 @@ class TclVarUsageValidatorTest extends AbstractParserTestWithDummyComponent {
 						steps += assignmentStep
 						steps += assertionTestStep => [
 							// map access is illegal, since variable is of type String
-							assertExpression = compareOnEquality(mappedReference(assignmentStep.variable) => [ key = "some" ], "expected-value")
+							assertExpression = compareOnEquality(mappedReference(assignmentStep.variable) => [ path += "some" ], "expected-value")
 						]
 					]
 				]
@@ -237,7 +237,7 @@ class TclVarUsageValidatorTest extends AbstractParserTestWithDummyComponent {
 						steps += assignmentStep
 						steps += testStep("start") => [
 							// map access is illegal, since variable is of type String
-							contents += mappedReference(assignmentStep.variable) => [ key = "some" ]
+							contents += mappedReference(assignmentStep.variable) => [ path += "some" ]
 						]
 					]
 				]

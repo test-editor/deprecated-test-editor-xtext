@@ -107,8 +107,8 @@ class TestStep extends AbstractTestStep {
 	contains StepContent[0..*] contents
 }
 
-class MapEntryAssignment extends AbstractTestStep {
-	contains VariableReferenceMapAccess variableReference
+class AssignmentThroughPath extends AbstractTestStep {
+	contains VariableReferencePathAccess variableReference
 	contains Expression expression
 }
 
@@ -137,8 +137,8 @@ class VariableReference extends Expression, StepContent {
 	refers Variable variable
 }
 
-class VariableReferenceMapAccess extends VariableReference {
-	String key
+class VariableReferencePathAccess extends VariableReference {
+	String [1..*] path
 }
 
 class StringConstant extends Expression {
@@ -174,7 +174,7 @@ class ComparatorLessThan extends Comparator {
 class ComparatorGreaterThan extends Comparator {
 }
 
-class JsonObject extends JsonValue, Expression {
+class JsonObject extends JsonValue {
 	contains JsonMember[0..*] members
 }
 
@@ -183,7 +183,7 @@ class JsonMember {
 	contains JsonValue value
 }
 
-abstract class JsonValue {
+abstract class JsonValue extends Expression {
 }
 
 class JsonString extends JsonValue {

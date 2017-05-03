@@ -12,7 +12,9 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
+import com.google.gson.JsonObject
 import java.util.List
+import java.util.Map
 import java.util.Optional
 import java.util.Set
 import javax.inject.Inject
@@ -30,6 +32,7 @@ import org.eclipse.xtext.common.types.JvmVisibility
 import org.eclipse.xtext.generator.trace.ILocationData
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
+import org.eclipse.xtext.serializer.ISerializer
 import org.eclipse.xtext.xbase.compiler.output.ITreeAppendable
 import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
@@ -40,19 +43,23 @@ import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.Variable
+import org.testeditor.dsl.common.util.CollectionUtils
 import org.testeditor.fixture.core.AbstractTestCase
 import org.testeditor.fixture.core.TestRunReportable
 import org.testeditor.fixture.core.TestRunReporter
 import org.testeditor.fixture.core.TestRunReporter.SemanticUnit
 import org.testeditor.tcl.AbstractTestStep
 import org.testeditor.tcl.AssertionTestStep
+import org.testeditor.tcl.AssignmentThroughPath
 import org.testeditor.tcl.AssignmentVariable
+import org.testeditor.tcl.Comparison
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariable
+import org.testeditor.tcl.Expression
+import org.testeditor.tcl.JsonValue
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
-import org.testeditor.tcl.MapEntryAssignment
 import org.testeditor.tcl.SetupAndCleanupProvider
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
@@ -63,7 +70,7 @@ import org.testeditor.tcl.TestConfiguration
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.VariableReference
-import org.testeditor.tcl.VariableReferenceMapAccess
+import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tcl.dsl.jvmmodel.macro.MacroHelper
 import org.testeditor.tcl.dsl.validation.TclTypeValidationUtil
 import org.testeditor.tcl.util.TclModelUtil
@@ -79,6 +86,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	@Inject extension JvmTypesBuilder
 	@Inject extension ModelUtil
 	@Inject extension TclModelUtil
+	@Inject extension CollectionUtils
 	@Inject TclAssertCallBuilder assertCallBuilder
 	@Inject IQualifiedNameProvider nameProvider
 	@Inject JvmModelHelper jvmModelHelper
@@ -87,6 +95,10 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	@Inject MacroHelper macroHelper
 	@Inject SimpleTypeComputer typeComputer
 	@Inject TclTypeValidationUtil tclTypeValidationUtil
+	@Inject TclExpressionTypeComputer tclExpressionTypeComputer
+	@Inject ISerializer serializer 
+	
+	
 	
 		
 	def dispatch void infer(TclModel model, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
@@ -399,21 +411,71 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		}
 	}
 	
-	private def dispatch void toUnitTestCodeLine(MapEntryAssignment step, ITreeAppendable output) {
+	private def dispatch void toUnitTestCodeLine(AssignmentThroughPath step, ITreeAppendable output) {
+		val varType = tclExpressionTypeComputer.determineType(step.variableReference.variable)
+		val varTypeQNameString = varType?.qualifiedName ?: Map.name
+		switch (varTypeQNameString) {
+			case varTypeQNameString.matches(Map.name+".*"): toUnitTestCodeLineOfMapAssignment(step, output)
+			case varTypeQNameString.matches(JsonObject.name): toUnitTestCodeLineOfJsonAssignment(step, output)
+			default: throw new RuntimeException('''Unknown variable type = '«varTypeQNameString»' for assignment with key path''')
+		}
+	}
+	
+	private def Expression getActualMostSpecific(Expression expression) {
+		switch(expression) {
+			Comparison : {
+				if (expression.comparator === null) {
+					return expression.left.actualMostSpecific
+				}
+			}
+		}
+		return expression
+	}
+	
+	private def void toUnitTestCodeLineOfJsonAssignment(AssignmentThroughPath step, ITreeAppendable output) {
 		val varRef = step.getVariableReference
-		val stepLog = '''«varRef?.variable?.name»."«varRef?.key»" = «assertCallBuilder.assertionText(step.expression)»'''
-		logger.debug("generating code line for test step='{}'.", stepLog)
-		output.appendReporterEnterCall(SemanticUnit.STEP, '''«stepLog»''')
-		val valueString = expressionBuilder.buildExpression(step.expression)
-		val expression = step.expression
+		
+		// val stepLog = '''«varRef?.variable?.name»."«varRef?.path.join('.')»" = «assertCallBuilder.assertionText(step.expression)»'''
+		// logger.debug("generating code line for test step='{}'.", stepLog)
+		// output.appendReporterEnterCall(SemanticUnit.STEP, '''«stepLog»''')
+		
+		val expression = step.expression.actualMostSpecific
+		val putTarget = varRef.variable.name + varRef.path.butLast.map['''.getAsJsonObject("«it»")'''].join
 		switch expression {
-			VariableReferenceMapAccess,
+			JsonValue: {
+				val code = '''«putTarget».add("«varRef.path.last»", new com.google.gson.JsonParser().parse("«StringEscapeUtils.escapeJava(serializer.serialize(expression).trim)»"));'''
+				output.append(code)
+			}
+			VariableReferencePathAccess,
 			StringConstant: {
-				val code = '''«varRef.variable.name».put("«varRef.key»", «valueString»);'''
+				val valueString = expressionBuilder.buildExpression(step.expression)
+				val code = '''«putTarget».addProperty("«varRef.path.last»", «valueString»);'''
 				output.append(code)
 			}
 			VariableReference : {
-				val code = '''«varRef.variable.name».put("«varRef.key»", «expression.toStringExpression(step)»);'''
+				val code = '''«putTarget».addProperty("«varRef.path.last»", «expression.toStringExpression(step)»);'''
+				output.append(code)
+			}
+			default: throw new RuntimeException('''Cannot generate code for expression of type='«step.expression»' within assignments to json variables.''')
+		}
+	}
+	private def void toUnitTestCodeLineOfMapAssignment(AssignmentThroughPath step, ITreeAppendable output) {
+		val varRef = step.getVariableReference
+		
+		val stepLog = '''«varRef?.variable?.name»."«varRef?.path.join('.')»" = «assertCallBuilder.assertionText(step.expression)»'''
+		logger.debug("generating code line for test step='{}'.", stepLog)
+		output.appendReporterEnterCall(SemanticUnit.STEP, '''«stepLog»''')
+		val valueString = expressionBuilder.buildExpression(step.expression)
+		val expression = step.expression.actualMostSpecific
+		val putTarget = varRef.variable.name + varRef.path.butLast.map['''.get(«it»)'''].join('.')
+		switch expression {
+			VariableReferencePathAccess,
+			StringConstant: {
+				val code = '''«putTarget».put("«varRef.path.last»", «valueString»);'''
+				output.append(code)
+			}
+			VariableReference : {
+				val code = '''«putTarget».put("«varRef.path.last»", «expression.toStringExpression(step)»);'''
 				output.append(code)
 			}
 			default: throw new RuntimeException('''Cannot generate code for expression of type='«step.expression»' within assignments to map entries.''')
@@ -492,7 +554,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	private def boolean coercionNecessary(StepContent stepContent, TemplateContainer templateContainer, Optional<JvmTypeReference> expectedType )  {
 		if (stepContent instanceof VariableReference) {
 			val isOfTypeString = stepContent.variable.getQualifiedTypeName(templateContainer) == String.name ||
-				stepContent instanceof VariableReferenceMapAccess
+				stepContent instanceof VariableReferencePathAccess
 			return expectedType !== null && expectedType.present && expectedType.get.isCoercionType && isOfTypeString
 		}
 		return false
@@ -576,7 +638,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		if (stepContent instanceof VariableReference) {
 			// if variable reference forward the call to expressionBuilder
 			val parameterString = expressionBuilder.buildExpression(stepContent)
-			val result = if (isStringParameter && stepContent instanceof VariableReferenceMapAccess) {
+			val result = if (isStringParameter && stepContent instanceof VariableReferencePathAccess) {
 						// TODO this is not very nice, we should get the type of the referenced variable
 						'''String.valueOf(«parameterString»)'''
 					} else {

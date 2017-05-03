@@ -23,7 +23,7 @@ import org.mockito.Mock
 import org.testeditor.aml.ModelUtil
 import org.testeditor.tcl.StringConstant
 import org.testeditor.tcl.VariableReference
-import org.testeditor.tcl.VariableReferenceMapAccess
+import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.util.TclModelUtil
@@ -56,7 +56,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 		when(expressionBuilder.buildComparisonExpression(isA(VariableReference),any)).thenReturn(VARIABLE_NAME)
 		when(expressionBuilder.buildExpression(isA(StringConstant))).thenReturn('''"«STRING_FOR_COMPARISON»"''')
 		when(expressionBuilder.buildExpression(isA(VariableReference))).thenReturn(VARIABLE_NAME)
-		when(expressionBuilder.buildExpression(isA(VariableReferenceMapAccess))).thenReturn(VARIABLE_NAME+'.get("key")')
+		when(expressionBuilder.buildExpression(isA(VariableReferencePathAccess))).thenReturn(VARIABLE_NAME+'.get("key")')
 	}
 
 	@Test
@@ -192,7 +192,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 	def void testWithMapDereference() {
 		// given
 		val expression = mappedReference(VARIABLE_NAME, "key").compareOnEquality(STRING_FOR_COMPARISON)
-		when(expressionBuilder.buildComparisonExpression(isA(VariableReferenceMapAccess),any)).thenReturn('''«VARIABLE_NAME».get("key")''')
+		when(expressionBuilder.buildComparisonExpression(isA(VariableReferencePathAccess),any)).thenReturn('''«VARIABLE_NAME».get("key")''')
 
 		// when
 		val generatedCode = assertCallBuilder.build(expression, "prefix")
@@ -205,7 +205,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 	def void testWithMapKeyAsString() {
 		// given
 		val expression = mappedReference(VARIABLE_NAME, "key with spaces").compareOnEquality(STRING_FOR_COMPARISON)
-		when(expressionBuilder.buildComparisonExpression(isA(VariableReferenceMapAccess),any)).thenReturn('''«VARIABLE_NAME».get("key with spaces")''')
+		when(expressionBuilder.buildComparisonExpression(isA(VariableReferencePathAccess),any)).thenReturn('''«VARIABLE_NAME».get("key with spaces")''')
 
 		// when
 		val generatedCode = assertCallBuilder.build(expression, "prefix")

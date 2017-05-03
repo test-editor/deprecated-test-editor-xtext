@@ -31,8 +31,8 @@ import org.testeditor.tcl.Expression
 import org.testeditor.tcl.NullOrBoolCheck
 import org.testeditor.tcl.StringConstant
 import org.testeditor.tcl.VariableReference
+import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tcl.dsl.validation.TclTypeValidationUtil
-import org.testeditor.tcl.VariableReferenceMapAccess
 
 class TclExpressionTypeComputer {
 	@Inject SimpleTypeComputer typeComputer
@@ -44,7 +44,7 @@ class TclExpressionTypeComputer {
 	
 	def JvmTypeReference determineType(Expression expression) {
 		switch (expression) {
-			VariableReferenceMapAccess: return String.buildFrom
+			VariableReferencePathAccess: return String.buildFrom
 			VariableReference: return expression.variable.determineType
 			StringConstant: return String.buildFrom
 			Comparison: if(expression.comparator === null) {

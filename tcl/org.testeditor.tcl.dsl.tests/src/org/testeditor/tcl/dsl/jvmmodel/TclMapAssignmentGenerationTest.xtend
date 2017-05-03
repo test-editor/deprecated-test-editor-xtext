@@ -17,7 +17,7 @@ import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
 
-class TclAssignmentGenerationTest extends AbstractTclGeneratorIntegrationTest {
+class TclMapAssignmentGenerationTest extends AbstractTclGeneratorIntegrationTest {
 
 	@Inject TclJvmModelInferrer jvmModelInferrer // class under test
 	@Mock ITreeAppendable outputStub
@@ -55,9 +55,9 @@ class TclAssignmentGenerationTest extends AbstractTclGeneratorIntegrationTest {
 	def void testMapAssignmentWithVariableReference() {
 		// given
 		val otherMapAssignment = testStepWithAssignment("otherMap", "Read", "map", "from").withElement("bar")
-		val expression = variableReferenceMapAccess => [
+		val expression = variableReferencePathAccess => [
 			variable = otherMapAssignment.variable
-			key = "some key with spaces"
+			path += "some key with spaces"
 		]
 		val tclModel = createMapEntryAssignmentModel("mapVariable", otherMapAssignment, expression)
 		
@@ -121,7 +121,9 @@ class TclAssignmentGenerationTest extends AbstractTclGeneratorIntegrationTest {
 						}
 						val mapAssignment = testStepWithAssignment(mapVariable, "Read", "map", "from").withElement("bar")
 						steps += mapAssignment
-						steps += mapEntryAssignment(mapAssignment.variable, "key") => [it.expression = expression]
+						steps += assignmentThroughPath(mapAssignment.variable, "key") => [
+							it.expression = expression 
+						]
 					]
 				]
 			]

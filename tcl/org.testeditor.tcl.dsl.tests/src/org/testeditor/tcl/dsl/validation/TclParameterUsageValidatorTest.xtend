@@ -329,7 +329,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 	 * verify model to have the expected type usages when querying for a certain variable in a given context
 	 */
 	private def void verifyVariableTypeUsage(TestStepContext context, String variable, Iterable<String> types) {
-		val typeSet = typeUsageComputer.getAllTypeUsagesOfVariable(context, variable).filter[present].map[get.simpleName].toSet
+		val typeSet = typeUsageComputer.getAllPossibleTypeUsagesOfVariable(context, variable).filter[present].map[get.simpleName].toSet
 		typeSet.assertSize(types.size)
 		types.forEach[assertTrue(typeSet.contains(it))]
 	}

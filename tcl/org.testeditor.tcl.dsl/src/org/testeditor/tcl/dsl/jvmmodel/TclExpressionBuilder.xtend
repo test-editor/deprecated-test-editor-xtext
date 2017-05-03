@@ -24,7 +24,7 @@ import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.Expression
 import org.testeditor.tcl.StringConstant
 import org.testeditor.tcl.VariableReference
-import org.testeditor.tcl.VariableReferenceMapAccess
+import org.testeditor.tcl.VariableReferencePathAccess
 
 /** build a (textual) java expression based on a parsed (tcl) expression
  *  <br/><br/>
@@ -77,8 +77,8 @@ class TclExpressionBuilder {
 		return builtExpression
 	}
 
-	def dispatch String buildExpression(VariableReferenceMapAccess varRef) {
-		return '''«varRef.variable.variableToVarName».get("«varRef.key»")'''
+	def dispatch String buildExpression(VariableReferencePathAccess varRef) {
+		return '''«varRef.variable.variableToVarName»«varRef.path.map['.get("'+it+'")'].join»'''
 	}
 
 	def dispatch String buildExpression(VariableReference variableReference) {
