@@ -20,7 +20,8 @@ Import-Package: javax.inject;version="1.0.0",
  org.testeditor.aml,
  org.testeditor.tsl,
  org.testeditor.dsl.common,
- org.eclipse.xtend.lib.annotations
+ org.eclipse.xtend.lib.annotations,
+ com.google.gson
 Export-Package: org.hamcrest,
  org.mockito,
  org.mockito.configuration,

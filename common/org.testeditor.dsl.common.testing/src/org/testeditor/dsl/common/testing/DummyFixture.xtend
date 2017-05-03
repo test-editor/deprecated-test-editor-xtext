@@ -15,6 +15,7 @@ package org.testeditor.dsl.common.testing
 import java.util.List
 import java.util.Map
 import org.testeditor.fixture.core.interaction.FixtureMethod
+import com.google.gson.JsonObject
 
 public class DummyFixture {
 
@@ -49,6 +50,11 @@ public class DummyFixture {
 	@FixtureMethod
 	def List<?> getList(String locator) {
 		return newArrayList
+	}
+
+	@FixtureMethod
+	def JsonObject getJsonObject(String locator) {
+		return new JsonObject
 	}
 
 	@FixtureMethod
@@ -132,6 +138,11 @@ public class DummyFixture {
 			method = «dummyFixture».getLong(element)
 		}
 		
+		interaction type getJsonObject {
+			template = "Read jsonObject from" ${element}
+			method = «dummyFixture».getJsonObject(element)
+		}
+		
 		interaction type getValue {
 			template = "Read value from" ${element}
 			method = «dummyFixture».getValue(element)
@@ -187,7 +198,7 @@ public class DummyFixture {
 		}
 		
 		element type Text {
-			interactions = getValue, isVisible, setValue, setValueReversed, typeInto, getLong, typeLongInto, typeIntoAndWait, typeBoolInto
+			interactions = getValue, isVisible, setValue, setValueReversed, typeInto, getLong, typeLongInto, typeIntoAndWait, typeBoolInto, getJsonObject
 		}
 
 		element type Button {
