@@ -22,11 +22,10 @@ import org.testeditor.tcl.ComparatorMatches
 import org.testeditor.tcl.Comparison
 import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.Expression
-import org.testeditor.tcl.StringConstant
+import org.testeditor.tcl.JsonString
+import org.testeditor.tcl.KeyPathElement
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferencePathAccess
-import org.testeditor.tcl.AssignmentVariable
-import org.testeditor.tcl.KeyPathElement
 
 /** build a (textual) java expression based on a parsed (tcl) expression
  *  <br/><br/>
@@ -69,7 +68,7 @@ class TclExpressionBuilder {
 	
 	private def String wrapWithCoercionIfNecessary(String builtExpression, JvmTypeReference own, JvmTypeReference wantedType) {
 		if(String.name.equals(own.qualifiedName)){
-			switch( wantedType.qualifiedName) {
+			switch (wantedType.qualifiedName) {
 				case Long.name,
 				case long.name: return '''Long.parseLong(«builtExpression»)'''
 				case boolean.name,
@@ -91,8 +90,8 @@ class TclExpressionBuilder {
 		return variableReference.variable.variableToVarName
 	}
 
-	def dispatch String buildExpression(StringConstant string) {
-		return '''"«string.string»"'''
+	def dispatch String buildExpression(JsonString string) {
+		return '''"«string.value»"'''
 	}
 
 	def String variableToVarName(Variable variable) {

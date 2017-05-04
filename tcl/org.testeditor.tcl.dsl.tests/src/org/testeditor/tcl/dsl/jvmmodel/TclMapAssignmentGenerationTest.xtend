@@ -41,7 +41,7 @@ class TclMapAssignmentGenerationTest extends AbstractTclGeneratorIntegrationTest
 	@Test
 	def void testMapAssignmentWithStringValue() {
 		// given
-		val expression = stringConstant("value")
+		val expression = jsonString("value")
 		val tclModel = createMapEntryAssignmentModel("mapVariable", null, expression)
 
 		// when

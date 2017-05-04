@@ -21,7 +21,7 @@ import org.junit.Test
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.testeditor.aml.ModelUtil
-import org.testeditor.tcl.StringConstant
+import org.testeditor.tcl.JsonString
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
@@ -52,9 +52,9 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 	
 	@Before
 	def void setupExpressionBuilder() {
-		when(expressionBuilder.buildComparisonExpression(isA(StringConstant),any)).thenReturn('''"«STRING_FOR_COMPARISON»"''')
+		when(expressionBuilder.buildComparisonExpression(isA(JsonString),any)).thenReturn('''"«STRING_FOR_COMPARISON»"''')
 		when(expressionBuilder.buildComparisonExpression(isA(VariableReference),any)).thenReturn(VARIABLE_NAME)
-		when(expressionBuilder.buildExpression(isA(StringConstant))).thenReturn('''"«STRING_FOR_COMPARISON»"''')
+		when(expressionBuilder.buildExpression(isA(JsonString))).thenReturn('''"«STRING_FOR_COMPARISON»"''')
 		when(expressionBuilder.buildExpression(isA(VariableReference))).thenReturn(VARIABLE_NAME)
 		when(expressionBuilder.buildExpression(isA(VariableReferencePathAccess))).thenReturn(VARIABLE_NAME+'.get("key")')
 	}

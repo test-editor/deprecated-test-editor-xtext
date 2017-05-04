@@ -29,7 +29,6 @@ import org.testeditor.tcl.Comparison
 import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.Expression
 import org.testeditor.tcl.NullOrBoolCheck
-import org.testeditor.tcl.StringConstant
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tcl.dsl.validation.TclTypeValidationUtil
@@ -51,10 +50,9 @@ class TclExpressionTypeComputer {
 			VariableReferencePathAccess: return String.buildFrom // TODO: could be anything
 			JsonObject: return com.google.gson.JsonObject.buildFrom
 			JsonArray: return com.google.gson.JsonArray.buildFrom
-			JsonNumber,
-			JsonString: return com.google.gson.JsonPrimitive.buildFrom
+			JsonNumber: return long.buildFrom
+			JsonString: return String.buildFrom
 			VariableReference: return expression.variable.determineType
-			StringConstant: return String.buildFrom
 			Comparison: if(expression.comparator === null) {
 				expression.left.determineType
 			} else {
@@ -94,20 +92,20 @@ class TclExpressionTypeComputer {
 			if (expression.comparator === null) {
 				return coercibleTo(expression.left, wantedType)
 			}
-		}else if (expression instanceof StringConstant) {
+		}else if (expression instanceof JsonString) {
 			switch (wantedType.qualifiedName) {
 				case long.name,
 				case Long.name:
 					try {
-						Long.parseLong(expression.string)
+						Long.parseLong(expression.value)
 						return true
 					} catch (NumberFormatException nfe) {
 						return false
 					}
 				case boolean.name,
 				case Boolean.name:
-					return expression.string.equals(Boolean.TRUE.toString) ||
-						expression.string.equals(Boolean.FALSE.toString)
+					return expression.value.equals(Boolean.TRUE.toString) ||
+						expression.value.equals(Boolean.FALSE.toString)
 			}
 		}
 		val type=expression.determineType

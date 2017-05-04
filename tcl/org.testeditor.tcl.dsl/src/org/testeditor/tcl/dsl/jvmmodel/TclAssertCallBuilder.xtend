@@ -25,8 +25,8 @@ import org.testeditor.tcl.ComparatorLessThan
 import org.testeditor.tcl.ComparatorMatches
 import org.testeditor.tcl.Comparison
 import org.testeditor.tcl.Expression
+import org.testeditor.tcl.JsonString
 import org.testeditor.tcl.NullOrBoolCheck
-import org.testeditor.tcl.StringConstant
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.VariableReference
 
@@ -105,7 +105,7 @@ class TclAssertCallBuilder {
 			NullOrBoolCheck: assertionMethodForNullOrBoolCheck(expression)
 			VariableReference: AssertMethod.assertNotNull
 			Comparison: assertionMethod(expression.comparator)
-			StringConstant: AssertMethod.assertNotNull
+			JsonString: AssertMethod.assertNotNull
 			default: throw new RuntimeException('''unknown expression type «expression.class»''')
 		}
 	}

@@ -63,7 +63,6 @@ import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.SetupAndCleanupProvider
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
-import org.testeditor.tcl.StringConstant
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestConfiguration
@@ -81,6 +80,7 @@ import static org.testeditor.tcl.TclPackage.Literals.*
 import org.testeditor.tcl.KeyPathElement
 import org.testeditor.tcl.ArrayPathElement
 import org.testeditor.tcl.AccessPathElement
+import org.testeditor.tcl.JsonString
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -467,19 +467,17 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				output.append(code)
 			}
 			VariableReferencePathAccess,
-			StringConstant: {
-				val valueString = expressionBuilder.buildExpression(step.expression)
-				val code = '''«putTarget».addProperty("«varRef.path.last.pathWriteAccessToString(valueString)»);'''
-				output.append(code)
-			}
 			VariableReference : {
 				val valueString = expressionBuilder.buildExpression(step.expression)
-				val code = '''«putTarget».addProperty("«varRef.path.last.pathWriteAccessToString(valueString)»);'''
+				val parsedValue = '''new com.google.gson.JsonParser().parse("«StringEscapeUtils.escapeJava(valueString.trim)»")'''
+				val code = '''«putTarget»«varRef.path.last.pathWriteAccessToString(parsedValue)»;'''
 				output.append(code)
 			}
 			default: throw new RuntimeException('''Cannot generate code for expression of type='«step.expression»' within assignments to json variables.''')
 		}
 	}
+	
+	// only keyPathElement(s) are allowed for the var ref path!
 	private def void toUnitTestCodeLineOfMapAssignment(AssignmentThroughPath step, ITreeAppendable output) {
 		val varRef = step.getVariableReference
 		
@@ -491,7 +489,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		val putTarget = varRef.variable.name + varRef.path.filter(KeyPathElement).butLast.map['''.get(«key»)'''].join('.')
 		switch expression {
 			VariableReferencePathAccess,
-			StringConstant: {
+			JsonString: {
 				val code = '''«putTarget».put("«varRef.path.filter(KeyPathElement).last.key»", «valueString»);'''
 				output.append(code)
 			}

@@ -90,7 +90,7 @@ class TclVarUsageValidatorTest extends AbstractParserTestWithDummyComponent {
 						val assignmentStep=testStepWithAssignment("myVar", "getMap").withElement("dummyElement")
 						steps += assignmentStep
 						steps += assignmentThroughPath(assignmentStep.variable, "key") => [
-							expression = stringConstant("value")
+							expression = jsonString("value")
 						]
 					]
 				]

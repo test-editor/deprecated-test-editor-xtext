@@ -153,11 +153,8 @@ KeyPathElement:
 VariableReferencePathAccess:
 	variable=[aml::Variable] ( path+=KeyPathElement | path+=ArrayPathElement )+;
 
-StringConstant:
-	string=STRING;
-
 AtomicValue returns Expression:
-	VariableReference | VariableReferencePathAccess | StringConstant | JsonObject | JsonArray ;
+	VariableReference | VariableReferencePathAccess | JsonValue ;
 	
 Value returns Expression:
 	AtomicValue | '(' Expression ')';

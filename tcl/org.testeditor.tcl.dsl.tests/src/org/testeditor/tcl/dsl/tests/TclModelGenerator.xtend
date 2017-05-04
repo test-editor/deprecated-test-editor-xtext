@@ -19,6 +19,7 @@ import org.eclipse.xtext.xtype.XtypeFactory
 import org.testeditor.aml.Component
 import org.testeditor.aml.Variable
 import org.testeditor.aml.impl.AmlFactoryImpl
+import org.testeditor.tcl.ArrayPathElement
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.AssignmentThroughPath
 import org.testeditor.tcl.AssignmentVariable
@@ -33,12 +34,12 @@ import org.testeditor.tcl.JsonNull
 import org.testeditor.tcl.JsonNumber
 import org.testeditor.tcl.JsonObject
 import org.testeditor.tcl.JsonString
+import org.testeditor.tcl.KeyPathElement
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.NullOrBoolCheck
 import org.testeditor.tcl.SpecificationStepImplementation
-import org.testeditor.tcl.StringConstant
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestConfiguration
@@ -48,8 +49,6 @@ import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tcl.impl.TclFactoryImpl
 import org.testeditor.tsl.impl.TslFactoryImpl
-import org.testeditor.tcl.KeyPathElement
-import org.testeditor.tcl.ArrayPathElement
 
 class TclModelGenerator {
 
@@ -181,8 +180,8 @@ class TclModelGenerator {
 		tclFactory.createAssertionTestStep
 	}
 
-	def StringConstant stringConstant(String string) {
-		tclFactory.createStringConstant => [it.string = string]
+	def JsonString jsonString(String string) {
+		tclFactory.createJsonString => [it.value = string]
 	}
 
 	def Comparison comparison() {
@@ -263,7 +262,7 @@ class TclModelGenerator {
 		return comparison => [
 			left = variableReference
 			comparator = comparatorMatches => [negated = true]
-			right = stringConstant(string)
+			right = jsonString(string)
 		]
 	}
 
@@ -271,7 +270,7 @@ class TclModelGenerator {
 		return comparison => [
 			left = variableReference
 			comparator = comparatorMatches
-			right = stringConstant(string)
+			right = jsonString(string)
 		]
 	}
 
@@ -279,7 +278,7 @@ class TclModelGenerator {
 		return comparison => [
 			left = variableReference
 			comparator = comparatorEquals => [negated = true]
-			right = stringConstant(string)
+			right = jsonString(string)
 		]
 	}
 
@@ -287,7 +286,7 @@ class TclModelGenerator {
 		return comparison => [
 			left = variableReference
 			comparator = comparatorEquals
-			right = stringConstant(string)
+			right = jsonString(string)
 		]
 	}
 

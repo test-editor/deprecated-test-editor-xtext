@@ -151,10 +151,6 @@ class VariableReferencePathAccess extends VariableReference {
 	contains AccessPathElement[1..*] path
 }
 
-class StringConstant extends Expression {
-	String string
-}
-
 class TestStepWithAssignment extends TestStep {
 	contains AssignmentVariable variable
 }
