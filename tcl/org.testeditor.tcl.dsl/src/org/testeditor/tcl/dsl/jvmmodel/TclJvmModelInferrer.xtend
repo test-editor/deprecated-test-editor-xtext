@@ -78,6 +78,9 @@ import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentValue
 
 import static org.testeditor.tcl.TclPackage.Literals.*
+import org.testeditor.tcl.KeyPathElement
+import org.testeditor.tcl.ArrayPathElement
+import org.testeditor.tcl.AccessPathElement
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -432,6 +435,22 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		return expression
 	}
 	
+	private def String pathReadAccessToString(AccessPathElement pathElement) {
+		switch (pathElement) {
+			KeyPathElement: return '''.getAsJsonObject().get("«pathElement.key»")'''
+			ArrayPathElement: return '''.getAsJsonArray().get(«pathElement.number»)'''
+			default: throw new RuntimeException('''Unknown path element type = '«pathElement.class.name»'.''')
+		}
+	}
+	
+	private def String pathWriteAccessToString(AccessPathElement pathElement, String value) {
+		switch (pathElement) {
+			KeyPathElement: return '''.getAsJsonObject().add("«pathElement.key»", «value»)'''
+			ArrayPathElement: return '''.getAsJsonArray().set(«pathElement.number», «value»)'''
+			default: throw new RuntimeException('''Unknown path element type = '«pathElement.class.name»'.''')
+		}
+	}
+	
 	private def void toUnitTestCodeLineOfJsonAssignment(AssignmentThroughPath step, ITreeAppendable output) {
 		val varRef = step.getVariableReference
 		
@@ -440,20 +459,22 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		// output.appendReporterEnterCall(SemanticUnit.STEP, '''«stepLog»''')
 		
 		val expression = step.expression.actualMostSpecific
-		val putTarget = varRef.variable.name + varRef.path.butLast.map['''.getAsJsonObject("«it»")'''].join
+		val putTarget = varRef.variable.name + varRef.path.butLast.map[pathReadAccessToString].join
 		switch expression {
 			JsonValue: {
-				val code = '''«putTarget».add("«varRef.path.last»", new com.google.gson.JsonParser().parse("«StringEscapeUtils.escapeJava(serializer.serialize(expression).trim)»"));'''
+				val parsedValue = '''new com.google.gson.JsonParser().parse("«StringEscapeUtils.escapeJava(serializer.serialize(expression).trim)»")'''
+				val code = '''«putTarget»«varRef.path.last.pathWriteAccessToString(parsedValue)»;'''
 				output.append(code)
 			}
 			VariableReferencePathAccess,
 			StringConstant: {
 				val valueString = expressionBuilder.buildExpression(step.expression)
-				val code = '''«putTarget».addProperty("«varRef.path.last»", «valueString»);'''
+				val code = '''«putTarget».addProperty("«varRef.path.last.pathWriteAccessToString(valueString)»);'''
 				output.append(code)
 			}
 			VariableReference : {
-				val code = '''«putTarget».addProperty("«varRef.path.last»", «expression.toStringExpression(step)»);'''
+				val valueString = expressionBuilder.buildExpression(step.expression)
+				val code = '''«putTarget».addProperty("«varRef.path.last.pathWriteAccessToString(valueString)»);'''
 				output.append(code)
 			}
 			default: throw new RuntimeException('''Cannot generate code for expression of type='«step.expression»' within assignments to json variables.''')
@@ -462,20 +483,20 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	private def void toUnitTestCodeLineOfMapAssignment(AssignmentThroughPath step, ITreeAppendable output) {
 		val varRef = step.getVariableReference
 		
-		val stepLog = '''«varRef?.variable?.name»."«varRef?.path.join('.')»" = «assertCallBuilder.assertionText(step.expression)»'''
+		val stepLog = '''«varRef?.variable?.name»."«varRef?.path.filter(KeyPathElement).map[key].join('.')»" = «assertCallBuilder.assertionText(step.expression)»'''
 		logger.debug("generating code line for test step='{}'.", stepLog)
 		output.appendReporterEnterCall(SemanticUnit.STEP, '''«stepLog»''')
 		val valueString = expressionBuilder.buildExpression(step.expression)
 		val expression = step.expression.actualMostSpecific
-		val putTarget = varRef.variable.name + varRef.path.butLast.map['''.get(«it»)'''].join('.')
+		val putTarget = varRef.variable.name + varRef.path.filter(KeyPathElement).butLast.map['''.get(«key»)'''].join('.')
 		switch expression {
 			VariableReferencePathAccess,
 			StringConstant: {
-				val code = '''«putTarget».put("«varRef.path.last»", «valueString»);'''
+				val code = '''«putTarget».put("«varRef.path.filter(KeyPathElement).last.key»", «valueString»);'''
 				output.append(code)
 			}
 			VariableReference : {
-				val code = '''«putTarget».put("«varRef.path.last»", «expression.toStringExpression(step)»);'''
+				val code = '''«putTarget».put("«varRef.path.filter(KeyPathElement).last.key»", «expression.toStringExpression(step)»);'''
 				output.append(code)
 			}
 			default: throw new RuntimeException('''Cannot generate code for expression of type='«step.expression»' within assignments to map entries.''')

@@ -38,6 +38,8 @@ import org.testeditor.tsl.TslPackage
 import static org.eclipse.xtext.formatting2.IHiddenRegionFormatter.LOW_PRIORITY
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
 import static org.testeditor.tcl.TclPackage.Literals.*
+import org.testeditor.tcl.KeyPathElement
+import org.testeditor.tcl.ArrayPathElement
 
 class TclFormatter extends XbaseFormatter {
 	
@@ -162,11 +164,19 @@ class TclFormatter extends XbaseFormatter {
 	def dispatch void format(VariableReferencePathAccess variableReferenceMapAccess,
 		extension IFormattableDocument document) {
 		variableReferenceMapAccess.regionFor.keyword('@').prepend[oneSpace].append[noSpace]
-		variableReferenceMapAccess.regionFor.keyword('.').prepend[noSpace].append[noSpace]
 		variableReferenceMapAccess.variable.append[noSpace]
-		variableReferenceMapAccess.regionFor.feature(VARIABLE_REFERENCE_PATH_ACCESS__PATH).prepend[noSpace]
+		variableReferenceMapAccess.path.forEach[format]
+	}
+	
+	def dispatch void format(KeyPathElement keyPathElement, extension IFormattableDocument document) {
+		keyPathElement.regionFor.keyword('.').prepend[noSpace].append[noSpace]
 	}
 
+	def dispatch void format(ArrayPathElement arrayPathElement, extension IFormattableDocument document) {
+		arrayPathElement.regionFor.keyword('[').prepend[noSpace].append[noSpace]
+		arrayPathElement.regionFor.keyword(']').prepend[noSpace]
+	}
+	
 	def dispatch void format(Template template, extension IFormattableDocument document) {
 		template.contents.forEach[it.prepend[oneSpace]]
 	}

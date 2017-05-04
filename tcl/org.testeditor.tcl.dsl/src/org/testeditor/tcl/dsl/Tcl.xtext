@@ -142,9 +142,16 @@ Comparison:
 
 VariableReference:
 	variable=[aml::Variable];
+	
+	
+ArrayPathElement:
+	'[' number=Number ']';
+
+KeyPathElement:
+	'.' ( key=ID | key=STRING );
 
 VariableReferencePathAccess:
-	variable=[aml::Variable] ( '.' ( path+=ID | path+=STRING) )+;
+	variable=[aml::Variable] ( path+=KeyPathElement | path+=ArrayPathElement )+;
 
 StringConstant:
 	string=STRING;

@@ -43,7 +43,7 @@ class TclJsonAssignmentGenerationIntegrationTest extends AbstractTclGeneratorInt
 		jvmModelInferrer.generateMethodBody(tclModel.test, outputStub)
 
 		// then
-		verify(outputStub).append('jsonVariable.getAsJsonObject("key 1").getAsJsonObject("key 2").add("3.key", new com.google.gson.JsonParser().parse("{ \\"kk\\" : \\"jj\\" }"));')
+		verify(outputStub).append('jsonVariable.getAsJsonObject().get("key 1").getAsJsonObject().get("key 2").getAsJsonObject().add("3.key", new com.google.gson.JsonParser().parse("{ \\"kk\\" : \\"jj\\" }"));')
 	}
 	
 //	@Test

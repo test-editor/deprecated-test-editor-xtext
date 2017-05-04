@@ -214,7 +214,7 @@ class TclVarUsageValidatorTest extends AbstractParserTestWithDummyComponent {
 						steps += assignmentStep
 						steps += assertionTestStep => [
 							// map access is illegal, since variable is of type String
-							assertExpression = compareOnEquality(mappedReference(assignmentStep.variable) => [ path += "some" ], "expected-value")
+							assertExpression = compareOnEquality(mappedReference(assignmentStep.variable) => [ path += keyPathElement => [ key = "some" ] ], "expected-value")
 						]
 					]
 				]
@@ -237,7 +237,7 @@ class TclVarUsageValidatorTest extends AbstractParserTestWithDummyComponent {
 						steps += assignmentStep
 						steps += testStep("start") => [
 							// map access is illegal, since variable is of type String
-							contents += mappedReference(assignmentStep.variable) => [ path += "some" ]
+							contents += mappedReference(assignmentStep.variable) => [ path += keyPathElement => [ key = "some" ] ]
 						]
 					]
 				]

@@ -24,6 +24,7 @@ import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTestWithDummyComponent
 
 import static org.testeditor.tcl.TclPackage.Literals.*
+import org.junit.Ignore
 
 class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponent {
 	
@@ -247,6 +248,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 		validator.assertNoErrors(tclModel)
 	}
 	
+	@Ignore // for now, since validation is temporarily excluded (to allow for json assignment) 
 	@Test
 	def void testParameterTypingMapExpectingLong() {
 		// given

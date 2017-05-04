@@ -57,7 +57,7 @@ class TclMapAssignmentGenerationTest extends AbstractTclGeneratorIntegrationTest
 		val otherMapAssignment = testStepWithAssignment("otherMap", "Read", "map", "from").withElement("bar")
 		val expression = variableReferencePathAccess => [
 			variable = otherMapAssignment.variable
-			path += "some key with spaces"
+			path += keyPathElement => [ key = "some key with spaces" ]
 		]
 		val tclModel = createMapEntryAssignmentModel("mapVariable", otherMapAssignment, expression)
 		

@@ -137,8 +137,18 @@ class VariableReference extends Expression, StepContent {
 	refers Variable variable
 }
 
+abstract class AccessPathElement { }
+
+class KeyPathElement extends AccessPathElement {
+	String key
+}
+
+class ArrayPathElement extends AccessPathElement {
+	String number
+}
+
 class VariableReferencePathAccess extends VariableReference {
-	String [1..*] path
+	contains AccessPathElement[1..*] path
 }
 
 class StringConstant extends Expression {

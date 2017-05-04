@@ -50,6 +50,7 @@ import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
+import org.testeditor.tcl.KeyPathElement
 
 @Singleton
 class TclModelUtil extends TslModelUtil {
@@ -75,7 +76,7 @@ class TclModelUtil extends TslModelUtil {
 			switch (it) {
 				StepContentVariable: '''"«value»"'''
 				StepContentElement: '''<«value»>'''
-				VariableReferencePathAccess: '''@«variable?.name»."«path.join('.')»"'''
+				VariableReferencePathAccess: '''@«variable?.name»."«path.filter(KeyPathElement).map[key].join('.')»"'''
 				VariableReference: '''@«variable?.name»'''
 				StepContentValue: value
 				default: throw new IllegalArgumentException("Unhandled content: " + it)

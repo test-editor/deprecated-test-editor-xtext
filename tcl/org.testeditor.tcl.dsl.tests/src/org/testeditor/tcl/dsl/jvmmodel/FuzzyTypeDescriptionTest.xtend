@@ -2,6 +2,7 @@ package org.testeditor.tcl.dsl.jvmmodel
 
 import com.google.inject.Injector
 import java.util.ArrayList
+import java.util.List
 import javax.inject.Inject
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.junit.Test
@@ -74,26 +75,42 @@ class FuzzyTypeDescriptionTest extends AbstractTclTest {
 		bestMatches.assertSingleElement.assertEquals(booleanTypeDescription)
 	}
 
-	// dummy class to allow inheritance assignment tests for classes with generics
-	static class FinalArrayList<T> extends ArrayList<T> {
-	}
-
 	@Test
 	def void testBestMatchWithNonAssignableGenerics() {
 		// given
 		val stringTypeDescription = String.buildFrom // used as type parameter for arrayList
 		val booleanTypeDescription = Boolean.buildFrom // used as type parameter for finalArrayList
-		val ArrayList<String> arrayList = newArrayList
-		val arrayListDescription = arrayList.class.buildFrom(stringTypeDescription)
-		val FinalArrayList<Boolean> finalArrayList = new FinalArrayList
-		val finalArrayListDescription = finalArrayList.class.buildFrom(booleanTypeDescription)
+		val listDescription = List.buildFrom(stringTypeDescription)
+		val arrayListDescription = ArrayList.buildFrom(booleanTypeDescription)
 
 		val fuzzyDescriptionA = injector.getInstance(FuzzyTypeDescription) => [
-			addType(arrayListDescription, 50)
+			addType(listDescription, 50)
 		]
 		val fuzzyDescriptionB = injector.getInstance(FuzzyTypeDescription) => [
-			addType(arrayListDescription, 10)
-			addType(finalArrayListDescription, 20)
+			addType(listDescription, 10)
+			addType(arrayListDescription, 20)
+		]
+
+		// when
+		val bestMatches = fuzzyDescriptionA.findBestMatches(fuzzyDescriptionB)
+
+		// then
+		bestMatches.assertSingleElement.assertEquals(listDescription)
+	}
+
+	@Test
+	def void testBestMatchWithAssignableGenerics() {
+		// given
+		val stringTypeDescription = String.buildFrom // used as type parameter 
+		val listDescription = List.buildFrom(stringTypeDescription)
+		val arrayListDescription = ArrayList.buildFrom(stringTypeDescription)
+
+		val fuzzyDescriptionA = injector.getInstance(FuzzyTypeDescription) => [
+			addType(listDescription, 50)
+		]
+		val fuzzyDescriptionB = injector.getInstance(FuzzyTypeDescription) => [
+			addType(listDescription, 10)
+			addType(arrayListDescription, 20)
 		]
 
 		// when
@@ -101,30 +118,6 @@ class FuzzyTypeDescriptionTest extends AbstractTclTest {
 
 		// then
 		bestMatches.assertSingleElement.assertEquals(arrayListDescription)
-	}
-
-	@Test
-	def void testBestMatchWithAssignableGenerics() {
-		// given
-		val stringTypeDescription = String.buildFrom // used as type parameter for arrayList
-		val ArrayList<String> arrayList = newArrayList
-		val arrayListDescription = arrayList.class.buildFrom(stringTypeDescription)
-		val FinalArrayList<String> finalArrayList = new FinalArrayList
-		val finalArrayListDescription = finalArrayList.class.buildFrom(stringTypeDescription)
-
-		val fuzzyDescriptionA = injector.getInstance(FuzzyTypeDescription) => [
-			addType(arrayListDescription, 50)
-		]
-		val fuzzyDescriptionB = injector.getInstance(FuzzyTypeDescription) => [
-			addType(arrayListDescription, 10)
-			addType(finalArrayListDescription, 20)
-		]
-
-		// when
-		val bestMatches = fuzzyDescriptionA.findBestMatches(fuzzyDescriptionB)
-
-		// then
-		bestMatches.assertSingleElement.assertEquals(finalArrayListDescription)
 	}
 
 	@Test

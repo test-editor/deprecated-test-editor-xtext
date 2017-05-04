@@ -48,6 +48,8 @@ import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tcl.impl.TclFactoryImpl
 import org.testeditor.tsl.impl.TslFactoryImpl
+import org.testeditor.tcl.KeyPathElement
+import org.testeditor.tcl.ArrayPathElement
 
 class TclModelGenerator {
 
@@ -99,15 +101,24 @@ class TclModelGenerator {
 		return me
 	}
 	
+	def KeyPathElement keyPathElement() { return tclFactory.createKeyPathElement }
+	
 	def VariableReferencePathAccess variableReferencePathAccess() {
 		return tclFactory.createVariableReferencePathAccess
 	}
+	
+	def ArrayPathElement arrayPathElement() { return tclFactory.createArrayPathElement }
 	
 	def AssignmentThroughPath assignmentThroughPath(Variable variable, String ... path) {
 		tclFactory.createAssignmentThroughPath => [
 			variableReference = tclFactory.createVariableReferencePathAccess => [
 				it.variable = variable
-				it.path.addAll(path)
+				val pathElements = path.map[ key |
+					keyPathElement => [
+						it.key = key
+					]
+				]
+				it.path.addAll(pathElements)
 			]
 		]
 	}
@@ -289,7 +300,7 @@ class TclModelGenerator {
 	def VariableReferencePathAccess mappedReference(AssignmentVariable assignmentVariable) {
 		return variableReferencePathAccess => [
 			variable = assignmentVariable
-			path += "key"
+			path += keyPathElement => [ key = "key" ]
 		]
 	}
 
@@ -300,7 +311,7 @@ class TclModelGenerator {
 	def VariableReferencePathAccess mappedReference(String variableName, String myKey) {
 		variableReferencePathAccess => [
 			variable = assignmentVariable(variableName)
-			path += myKey
+			path += keyPathElement => [ key = myKey ]
 		]
 	}
 
