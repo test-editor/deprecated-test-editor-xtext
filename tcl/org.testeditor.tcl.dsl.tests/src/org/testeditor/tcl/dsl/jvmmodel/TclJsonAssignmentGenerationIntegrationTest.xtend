@@ -37,13 +37,13 @@ class TclJsonAssignmentGenerationIntegrationTest extends AbstractTclGeneratorInt
 	@Test
 	def void testJsonAssignmentWithStringValue() {
 		// given
-		val tclModel = createJsonEntryAssignmentModel("jsonVariable", null, "{ \"kk\" : \"jj\" }", "key 1", "key 2", "key3")
+		val tclModel = createJsonEntryAssignmentModel("jsonVariable", null, "{ \"kk\" : \"jj\" }", "key 1", "key 2", "3.key")
 
 		// when
 		jvmModelInferrer.generateMethodBody(tclModel.test, outputStub)
 
 		// then
-		verify(outputStub).append('jsonVariable.getAsJsonObject("key 1").getAsJsonObject("key 2").add("key3", new com.google.gson.JsonParser().parse("{ \\"kk\\" : \\"jj\\" }"));')
+		verify(outputStub).append('jsonVariable.getAsJsonObject("key 1").getAsJsonObject("key 2").add("3.key", new com.google.gson.JsonParser().parse("{ \\"kk\\" : \\"jj\\" }"));')
 	}
 	
 //	@Test

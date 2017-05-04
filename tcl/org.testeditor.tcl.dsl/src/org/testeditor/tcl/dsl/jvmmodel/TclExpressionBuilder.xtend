@@ -25,6 +25,7 @@ import org.testeditor.tcl.Expression
 import org.testeditor.tcl.StringConstant
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferencePathAccess
+import org.testeditor.tcl.AssignmentVariable
 
 /** build a (textual) java expression based on a parsed (tcl) expression
  *  <br/><br/>
@@ -78,6 +79,10 @@ class TclExpressionBuilder {
 	}
 
 	def dispatch String buildExpression(VariableReferencePathAccess varRef) {
+		// TODO: implement json access
+		// expected types of the variable is either java.util.Map or com.google.gson.JsonObject which both have the method 'get' 
+		// => generated code works for both cases
+		// revision: get on JsonObject will return a JsonElement which in turn must be accessed by getObject, getArray ...
 		return '''«varRef.variable.variableToVarName»«varRef.path.map['.get("'+it+'")'].join»'''
 	}
 

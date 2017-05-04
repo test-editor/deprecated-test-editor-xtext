@@ -33,6 +33,10 @@ import org.testeditor.tcl.StringConstant
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tcl.dsl.validation.TclTypeValidationUtil
+import org.testeditor.tcl.JsonObject
+import org.testeditor.tcl.JsonArray
+import org.testeditor.tcl.JsonNumber
+import org.testeditor.tcl.JsonString
 
 class TclExpressionTypeComputer {
 	@Inject SimpleTypeComputer typeComputer
@@ -44,7 +48,11 @@ class TclExpressionTypeComputer {
 	
 	def JvmTypeReference determineType(Expression expression) {
 		switch (expression) {
-			VariableReferencePathAccess: return String.buildFrom
+			VariableReferencePathAccess: return String.buildFrom // TODO: could be anything
+			JsonObject: return com.google.gson.JsonObject.buildFrom
+			JsonArray: return com.google.gson.JsonArray.buildFrom
+			JsonNumber,
+			JsonString: return com.google.gson.JsonPrimitive.buildFrom
 			VariableReference: return expression.variable.determineType
 			StringConstant: return String.buildFrom
 			Comparison: if(expression.comparator === null) {
@@ -66,11 +74,11 @@ class TclExpressionTypeComputer {
 		}
 	}
 	
-	private def JvmTypeReference buildFrom(Class<?> clazz){
+	def JvmTypeReference buildFrom(Class<?> clazz, JvmTypeReference ... typeArgs){
 		if (typeReferenceBuilder===null) {
 			typeReferenceBuilder = typeReferenceBuilderFactory.create(resourceSet)
 		}
-		return typeReferenceBuilder.typeRef(clazz)
+		return typeReferenceBuilder.typeRef(clazz, typeArgs)
 	}
 	
 	val validCoercions = #{

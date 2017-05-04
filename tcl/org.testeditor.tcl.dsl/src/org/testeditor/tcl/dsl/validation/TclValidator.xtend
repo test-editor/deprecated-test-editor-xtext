@@ -58,6 +58,7 @@ import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
 
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
+import com.google.gson.JsonObject
 
 class TclValidator extends AbstractTclValidator {
 
@@ -201,6 +202,18 @@ class TclValidator extends AbstractTclValidator {
 		try {
 			val qualifiedTypeNameWithoutGenerics = type.qualifiedName.replaceFirst("<.*", "")
 			return typeof(Map).isAssignableFrom(Class.forName(qualifiedTypeNameWithoutGenerics))
+		} catch (ClassNotFoundException e) {
+			return false
+		}
+	}
+
+	private def isAssignableToJsonObject(JvmTypeReference type) {
+		if (type === null) {
+			return false
+		}
+		try {
+			val qualifiedTypeNameWithoutGenerics = type.qualifiedName.replaceFirst("<.*", "")
+			return typeof(JsonObject).isAssignableFrom(Class.forName(qualifiedTypeNameWithoutGenerics))
 		} catch (ClassNotFoundException e) {
 			return false
 		}
@@ -431,8 +444,9 @@ class TclValidator extends AbstractTclValidator {
 		}
 		switch variableReference {
 			VariableReferencePathAccess:
+				// could be Json too
 				// do no type checking on values retrieved from a map, but check whether this is actually a map
-				if (!typeDeclared.assignableToMap) {
+				if (!typeDeclared.assignableToMap && !typeDeclared.assignableToJsonObject) {
 					error('''Variable='«variableReference.variable.name»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in a position that expects type(s)='«Map.canonicalName»'.''',
 						variableReference.eContainer, variableReference.eContainingFeature, errorReportingIndex,
 						INVALID_MAP_ACCESS)
@@ -446,9 +460,9 @@ class TclValidator extends AbstractTclValidator {
 				val coercionPossible = typeDeclared.qualifiedName.equals(String.name) && typeUsageSetContainsOnlyCoercibleTypes
 				val typesMatch = doTypesMatch(typeDeclared,typeUsageSet)
 				if (!coercionPossible && !typesMatch) {
-					error('''Variable='«variableReference.variable.name»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in context(s) expecting type(s)='«typeUsageSet.filter[present].map[get.qualifiedName].join(", ")»'. Please make sure that no conflicting type usages remain.''',
-						variableReference.eContainer, variableReference.eContainingFeature, errorReportingIndex,
-						INVALID_TYPED_VAR_DEREF)
+//					error('''Variable='«variableReference.variable.name»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in context(s) expecting type(s)='«typeUsageSet.filter[present].map[get.qualifiedName].join(", ")»'. Please make sure that no conflicting type usages remain.''',
+//						variableReference.eContainer, variableReference.eContainingFeature, errorReportingIndex,
+//						INVALID_TYPED_VAR_DEREF)
 					}
 				}
 			default:
