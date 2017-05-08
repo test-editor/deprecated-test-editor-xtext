@@ -28,14 +28,14 @@ import org.testeditor.tcl.ComparatorMatches
 import org.testeditor.tcl.Comparison
 import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.Expression
+import org.testeditor.tcl.JsonArray
+import org.testeditor.tcl.JsonNumber
+import org.testeditor.tcl.JsonObject
+import org.testeditor.tcl.JsonString
 import org.testeditor.tcl.NullOrBoolCheck
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tcl.dsl.validation.TclTypeValidationUtil
-import org.testeditor.tcl.JsonObject
-import org.testeditor.tcl.JsonArray
-import org.testeditor.tcl.JsonNumber
-import org.testeditor.tcl.JsonString
 
 class TclExpressionTypeComputer {
 	@Inject SimpleTypeComputer typeComputer
@@ -45,12 +45,37 @@ class TclExpressionTypeComputer {
 	
 	var JvmTypeReferenceBuilder typeReferenceBuilder
 	
+//	def boolean isJsonPrimitiveType(JvmTypeReference typeReference) {
+//		val typeRefQNameString = typeReference.qualifiedName
+//		return com.google.gson.JsonPrimitive.name.equals(typeRefQNameString)
+//	}
+	
+	def boolean isJsonType(JvmTypeReference typeReference) {
+		val typeRefQNameString = typeReference.qualifiedName
+		switch typeRefQNameString {
+			case com.google.gson.JsonElement.name,
+			case com.google.gson.JsonObject.name,
+			case com.google.gson.JsonArray.name,
+			case com.google.gson.JsonPrimitive.name: return true
+			default: return false
+		}
+	}
+	
+	def boolean isJsonType(Expression expression) {
+		switch expression {
+			com.google.gson.JsonElement: return true // supertype of all (relevant) json types (e.g. JsonObject, JsonArray, JsonString ...)
+			VariableReferencePathAccess: return true // since this is only allowed for json types, the result is a json type, too
+			VariableReference: return determineType(expression).isJsonType
+			default: return false
+		}
+	}
+	
 	def JvmTypeReference determineType(Expression expression) {
-		switch (expression) {
-			VariableReferencePathAccess: return String.buildFrom // TODO: could be anything
+		switch expression {
+			VariableReferencePathAccess: return com.google.gson.JsonElement.buildFrom
 			JsonObject: return com.google.gson.JsonObject.buildFrom
 			JsonArray: return com.google.gson.JsonArray.buildFrom
-			JsonNumber: return long.buildFrom
+			JsonNumber: return Long.buildFrom // should be big decimal
 			JsonString: return String.buildFrom
 			VariableReference: return expression.variable.determineType
 			Comparison: if(expression.comparator === null) {
@@ -64,7 +89,7 @@ class TclExpressionTypeComputer {
 	}
 	
 	def JvmTypeReference determineType(Variable variable) {
-		switch (variable) {
+		switch variable {
 			AssignmentVariable : return typeValidationUtil.determineType(variable)
 			EnvironmentVariable : return String.buildFrom
 			TemplateVariable: return typeComputer.getVariablesWithTypes(EcoreUtil2.getContainerOfType(variable, TemplateContainer)).get(variable).get // TODO
@@ -107,6 +132,8 @@ class TclExpressionTypeComputer {
 					return expression.value.equals(Boolean.TRUE.toString) ||
 						expression.value.equals(Boolean.FALSE.toString)
 			}
+		}else if (expression.isJsonType) {
+			return true
 		}
 		val type=expression.determineType
 		val validCoercion=validCoercions.get(type.qualifiedName)
@@ -138,20 +165,27 @@ class TclExpressionTypeComputer {
 			ComparatorEquals: {
 				if (leftType.qualifiedName == rightType.qualifiedName) {
 					return leftType
+				}
+				if (leftType.isJsonType) {
+					return rightType // JsonType can be coerced to anything (e.g. asJsonPrimitive().asLong())
+				}
+				if (rightType.isJsonType) {
+					return leftType // JsonType can be coerced to anything (e.g. asJsonPrimitive().asLong())
 				} else {
-					val leftCoercions=validCoercions.get(leftType.qualifiedName)
-					val rightCoercions=validCoercions.get(rightType.qualifiedName)
-					if(leftCoercions!==null && rightCoercions!==null) {
-						if(!leftCoercions.findFirst[leftCoercibleType|rightCoercions.exists[leftCoercibleType.equals(it)]].empty) {
-							return moreSpecificType(leftType,rightType)
+					val leftCoercions = validCoercions.get(leftType.qualifiedName)
+					val rightCoercions = validCoercions.get(rightType.qualifiedName)
+					if (leftCoercions !== null && rightCoercions !== null) {
+						if (!leftCoercions.findFirst [leftCoercibleType|
+							rightCoercions.exists[leftCoercibleType.equals(it)]
+						].empty) {
+							return moreSpecificType(leftType, rightType)
 						}
 					}
 				}
 			}
 			default: throw new RuntimeException('''Unknown comparision type «comparison.comparator»''')
 		}
-		return null
-		
+		throw new RuntimeException('''Unable to coerce a type in comparision.''')		
 	}
 	
 }

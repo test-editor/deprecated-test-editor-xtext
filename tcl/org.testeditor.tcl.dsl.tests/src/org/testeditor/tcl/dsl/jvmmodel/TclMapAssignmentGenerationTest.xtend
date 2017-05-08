@@ -54,18 +54,18 @@ class TclMapAssignmentGenerationTest extends AbstractTclGeneratorIntegrationTest
 	@Test
 	def void testMapAssignmentWithVariableReference() {
 		// given
-		val otherMapAssignment = testStepWithAssignment("otherMap", "Read", "map", "from").withElement("bar")
+		val otherJsonMapAssignment = testStepWithAssignment("otherJsonMap", "Read", "map", "from").withElement("bar")
 		val expression = variableReferencePathAccess => [
-			variable = otherMapAssignment.variable
+			variable = otherJsonMapAssignment.variable
 			path += keyPathElement => [ key = "some key with spaces" ]
 		]
-		val tclModel = createMapEntryAssignmentModel("mapVariable", otherMapAssignment, expression)
+		val tclModel = createMapEntryAssignmentModel("jsonVariable", otherJsonMapAssignment, expression)
 		
 		// when
 		jvmModelInferrer.generateMethodBody(tclModel.test, outputStub)
 
 		// then
-		verify(outputStub).append('mapVariable.put("key", otherMap.get("some key with spaces"));')
+		verify(outputStub).append('jsonVariable.put("key", otherJsonMap.getAsJsonObject().get("some key with spaces"));')
 	}
 	
 

@@ -26,6 +26,9 @@ import org.testeditor.tcl.JsonString
 import org.testeditor.tcl.KeyPathElement
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferencePathAccess
+import org.testeditor.tcl.AccessPathElement
+import org.testeditor.tcl.ArrayPathElement
+import org.testeditor.dsl.common.util.CollectionUtils
 
 /** build a (textual) java expression based on a parsed (tcl) expression
  *  <br/><br/>
@@ -34,21 +37,24 @@ import org.testeditor.tcl.VariableReferencePathAccess
  *  resolver is then used to determine the variable to be actually used within the generted java expression string.
  */
 class TclExpressionBuilder {
+
 	@Inject TclExpressionTypeComputer typeComputer
 
-	def dispatch String buildExpression(Expression expression) {
+	@Inject extension CollectionUtils
+
+	def dispatch String buildReadExpression(Expression expression) {
 		throw new RuntimeException('''no builder found for type «expression.class»''')
 	}
 
-	def String buildComparisonExpression(Expression comparisonLeftOrRight, JvmTypeReference wantedType) {
-		val leftRightType = typeComputer.determineType(comparisonLeftOrRight)
-		val builtLeftRightExpression = buildExpression(comparisonLeftOrRight)
-		return builtLeftRightExpression.wrapWithCoercionIfNecessary(leftRightType, wantedType)
+	def String buildComparisonExpression(Expression compared, JvmTypeReference wantedType) {
+		val typeOfCompared = typeComputer.determineType(compared)
+		val builtReadExpression = buildReadExpression(compared)
+		return builtReadExpression.wrapWithCoercionIfNecessary(typeOfCompared, wantedType)
 	}
 	
-	def dispatch String buildExpression(Comparison comparison) {
+	def dispatch String buildReadExpression(Comparison comparison) {
 		if (comparison.comparator === null) {
-			return buildExpression(comparison.left)
+			return buildReadExpression(comparison.left)
 		}
 		// check whether coercion of left or right is necessary
 		
@@ -56,7 +62,7 @@ class TclExpressionBuilder {
 		val validTypeBuiltRightExpression = buildComparisonExpression(comparison.right, wantedTypeForComparison)
 		val validTypeBuiltLeftExpression = buildComparisonExpression(comparison.left, wantedTypeForComparison)
 		
-		switch (comparison.comparator) {
+		switch comparison.comparator {
 			ComparatorEquals: '''«validTypeBuiltLeftExpression» «if(comparison.comparator.negated){'!='}else{'=='}» «validTypeBuiltRightExpression»'''
 			ComparatorGreaterThan: '''«validTypeBuiltLeftExpression» «if(comparison.comparator.negated){'<='}else{'>'}» «validTypeBuiltRightExpression»'''
 			ComparatorLessThan: '''«validTypeBuiltLeftExpression» «if(comparison.comparator.negated){'>='}else{'<'}» «validTypeBuiltRightExpression»'''
@@ -73,24 +79,50 @@ class TclExpressionBuilder {
 				case long.name: return '''Long.parseLong(«builtExpression»)'''
 				case boolean.name,
 				case Boolean.name: return '''Boolean.valueOf(«builtExpression»)'''
+				case String.name: return builtExpression					
 			}
-		}
+		} else if (typeComputer.isJsonType(own)) {
+			switch (wantedType.qualifiedName) {
+				case Long.name,
+				case long.name: return '''«builtExpression».getAsJsonPrimitive().getAsLong()'''
+				case boolean.name,
+				case Boolean.name: return '''«builtExpression».getAsJsonPrimitive().getAsBoolean()'''
+				case String.name: return '''«builtExpression».getAsJsonPrimitive().getAsString()'''
+			}
+		} 
 		return builtExpression
 	}
 
-	def dispatch String buildExpression(VariableReferencePathAccess varRef) {
-		// TODO: implement json access
-		// expected types of the variable is either java.util.Map or com.google.gson.JsonObject which both have the method 'get' 
-		// => generated code works for both cases
-		// revision: get on JsonObject will return a JsonElement which in turn must be accessed by getObject, getArray ...
-		return '''«varRef.variable.variableToVarName»«varRef.path.filter(KeyPathElement).map['.get("'+key+'")'].join»'''
+	def dispatch String buildReadExpression(VariableReferencePathAccess varRef) {
+		return '''«varRef.variable.variableToVarName»«varRef.path.map[jsonPathReadAccessToString].join»'''		
+	}
+	
+	def String buildWriteExpression(VariableReferencePathAccess varRef, String assignedExpression) {
+		val result = '''«varRef.variable.variableToVarName»«varRef.path.butLast.map[jsonPathReadAccessToString].join»«varRef.path.last.jsonPathWriteAccessToString(assignedExpression)»'''
+		return result
+	}
+		
+	private def String jsonPathReadAccessToString(AccessPathElement pathElement) {
+		switch (pathElement) {
+			KeyPathElement: return '''.getAsJsonObject().get("«pathElement.key»")'''
+			ArrayPathElement: return '''.getAsJsonArray().get(«pathElement.number»)'''
+			default: throw new RuntimeException('''Unknown path element type = '«pathElement.class.name»'.''')
+		}
+	}
+	
+	private def String jsonPathWriteAccessToString(AccessPathElement pathElement, String value) {
+		switch (pathElement) {
+			KeyPathElement: return '''.getAsJsonObject().add("«pathElement.key»", «value»)'''
+			ArrayPathElement: return '''.getAsJsonArray().set(«pathElement.number», «value»)'''
+			default: throw new RuntimeException('''Unknown path element type = '«pathElement.class.name»'.''')
+		}
 	}
 
-	def dispatch String buildExpression(VariableReference variableReference) {
+	def dispatch String buildReadExpression(VariableReference variableReference) {
 		return variableReference.variable.variableToVarName
 	}
 
-	def dispatch String buildExpression(JsonString string) {
+	def dispatch String buildReadExpression(JsonString string) {
 		return '''"«string.value»"'''
 	}
 

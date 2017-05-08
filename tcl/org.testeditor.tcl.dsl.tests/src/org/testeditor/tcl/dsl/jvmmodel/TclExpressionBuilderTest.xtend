@@ -37,7 +37,7 @@ class TclExpressionBuilderTest extends AbstractTclTest {
 			"test")
 
 		// when
-		val result = expressionBuilder.buildExpression(matchingComparison)
+		val result = expressionBuilder.buildReadExpression(matchingComparison)
 
 		// then
 		result.assertEquals('variable.toString().matches("test".toString())')
@@ -49,7 +49,7 @@ class TclExpressionBuilderTest extends AbstractTclTest {
 		val equal = compareOnEquality(variableReference => [variable = assignmentVariable("variable")], "test")
 
 		// when
-		val result = expressionBuilder.buildExpression(equal)
+		val result = expressionBuilder.buildReadExpression(equal)
 
 		// then
 		result.assertEquals('variable == "test"')
@@ -61,7 +61,7 @@ class TclExpressionBuilderTest extends AbstractTclTest {
 		val notEqual = compareNotEqual(variableReference => [variable = assignmentVariable("variable")], "test")
 
 		// when
-		val result = expressionBuilder.buildExpression(notEqual)
+		val result = expressionBuilder.buildReadExpression(notEqual)
 
 		// then
 		result.assertEquals('variable != "test"')
@@ -70,13 +70,13 @@ class TclExpressionBuilderTest extends AbstractTclTest {
 	@Test
 	def void testMapReference() {
 		// given
-		val mapAccess = mappedReference("variable", "key with spaces")
+		val jsonMapAccess = mappedReference("variable", "key with spaces")
 
 		// when
-		val result = expressionBuilder.buildExpression(mapAccess)
+		val result = expressionBuilder.buildReadExpression(jsonMapAccess)
 
 		// then
-		result.assertEquals('variable.get("key with spaces")')
+		result.assertEquals('variable.getAsJsonObject().get("key with spaces")')
 	}
 
 	@Test
@@ -85,7 +85,7 @@ class TclExpressionBuilderTest extends AbstractTclTest {
 		val envVar = variableReference => [variable = environmentVariables("variable").head]
 
 		// when
-		val result = expressionBuilder.buildExpression(envVar)
+		val result = expressionBuilder.buildReadExpression(envVar)
 
 		// then
 		result.assertEquals('env_variable')

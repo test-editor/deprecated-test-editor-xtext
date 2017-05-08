@@ -56,7 +56,9 @@ import org.testeditor.tcl.Comparison
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.Expression
+import org.testeditor.tcl.JsonString
 import org.testeditor.tcl.JsonValue
+import org.testeditor.tcl.KeyPathElement
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
@@ -77,10 +79,6 @@ import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentValue
 
 import static org.testeditor.tcl.TclPackage.Literals.*
-import org.testeditor.tcl.KeyPathElement
-import org.testeditor.tcl.ArrayPathElement
-import org.testeditor.tcl.AccessPathElement
-import org.testeditor.tcl.JsonString
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -100,9 +98,6 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	@Inject TclTypeValidationUtil tclTypeValidationUtil
 	@Inject TclExpressionTypeComputer tclExpressionTypeComputer
 	@Inject ISerializer serializer 
-	
-	
-	
 		
 	def dispatch void infer(TclModel model, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		model.test?.infer(acceptor, isPreIndexingPhase)
@@ -400,7 +395,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 	
 	private def String toStringExpression(VariableReference variableReference, EObject context) {
-		val valueString = expressionBuilder.buildExpression(variableReference)
+		val valueString = expressionBuilder.buildReadExpression(variableReference)
 		val typename = variableReference.variable.getQualifiedTypeName(EcoreUtil2.getContainerOfType(context, TemplateContainer))
 		switch typename {
 			case long.name,
@@ -434,44 +429,42 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		}
 		return expression
 	}
-	
-	private def String pathReadAccessToString(AccessPathElement pathElement) {
-		switch (pathElement) {
-			KeyPathElement: return '''.getAsJsonObject().get("«pathElement.key»")'''
-			ArrayPathElement: return '''.getAsJsonArray().get(«pathElement.number»)'''
-			default: throw new RuntimeException('''Unknown path element type = '«pathElement.class.name»'.''')
-		}
-	}
-	
-	private def String pathWriteAccessToString(AccessPathElement pathElement, String value) {
-		switch (pathElement) {
-			KeyPathElement: return '''.getAsJsonObject().add("«pathElement.key»", «value»)'''
-			ArrayPathElement: return '''.getAsJsonArray().set(«pathElement.number», «value»)'''
-			default: throw new RuntimeException('''Unknown path element type = '«pathElement.class.name»'.''')
-		}
-	}
-	
+
 	private def void toUnitTestCodeLineOfJsonAssignment(AssignmentThroughPath step, ITreeAppendable output) {
 		val varRef = step.getVariableReference
-		
-		// val stepLog = '''«varRef?.variable?.name»."«varRef?.path.join('.')»" = «assertCallBuilder.assertionText(step.expression)»'''
-		// logger.debug("generating code line for test step='{}'.", stepLog)
-		// output.appendReporterEnterCall(SemanticUnit.STEP, '''«stepLog»''')
-		
+
+		val stepLog = '''«varRef?.restoreString»" = «assertCallBuilder.assertionText(step.expression)»'''
+		logger.debug("generating code line for test step='{}'.", stepLog)
+		output.appendReporterEnterCall(SemanticUnit.STEP, '''«stepLog»''')
+
 		val expression = step.expression.actualMostSpecific
-		val putTarget = varRef.variable.name + varRef.path.butLast.map[pathReadAccessToString].join
 		switch expression {
 			JsonValue: {
 				val parsedValue = '''new com.google.gson.JsonParser().parse("«StringEscapeUtils.escapeJava(serializer.serialize(expression).trim)»")'''
-				val code = '''«putTarget»«varRef.path.last.pathWriteAccessToString(parsedValue)»;'''
+				val code = '''«expressionBuilder.buildWriteExpression(varRef, parsedValue)»;'''
 				output.append(code)
 			}
 			VariableReferencePathAccess,
-			VariableReference : {
-				val valueString = expressionBuilder.buildExpression(step.expression)
-				val parsedValue = '''new com.google.gson.JsonParser().parse("«StringEscapeUtils.escapeJava(valueString.trim)»")'''
-				val code = '''«putTarget»«varRef.path.last.pathWriteAccessToString(parsedValue)»;'''
-				output.append(code)
+			VariableReference: {
+				val valueString = expressionBuilder.buildReadExpression(step.expression)
+				val variableType = tclExpressionTypeComputer.determineType(expression)
+				if (tclExpressionTypeComputer.isJsonType(variableType)) {
+					val code = '''«expressionBuilder.buildWriteExpression(varRef, valueString)»;'''
+					output.append(code)
+				} else {
+					val varQNameString = variableType.qualifiedName
+					val parsedValue = if (varQNameString == String.name) {
+							'''new com.google.gson.JsonParser().parse("\""+«valueString»+"\"")'''
+						} else if (varQNameString == Long.name || varQNameString == long.name) {
+							'''new com.google.gson.JsonParser().parse(Long.toString(«valueString»))'''
+						} else if (varQNameString == Boolean.name || varQNameString == boolean.name) {
+							'''new com.google.gson.JsonParser().parse(Boolean.toString(«valueString»))'''
+						} else {
+							'''new com.google.gson.JsonParser().parse(«valueString».toString())'''
+						}
+					val code = '''«expressionBuilder.buildWriteExpression(varRef, parsedValue)»;'''
+					output.append(code)
+				}
 			}
 			default: throw new RuntimeException('''Cannot generate code for expression of type='«step.expression»' within assignments to json variables.''')
 		}
@@ -480,20 +473,21 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	// only keyPathElement(s) are allowed for the var ref path!
 	private def void toUnitTestCodeLineOfMapAssignment(AssignmentThroughPath step, ITreeAppendable output) {
 		val varRef = step.getVariableReference
-		
+
 		val stepLog = '''«varRef?.variable?.name»."«varRef?.path.filter(KeyPathElement).map[key].join('.')»" = «assertCallBuilder.assertionText(step.expression)»'''
 		logger.debug("generating code line for test step='{}'.", stepLog)
 		output.appendReporterEnterCall(SemanticUnit.STEP, '''«stepLog»''')
-		val valueString = expressionBuilder.buildExpression(step.expression)
+		val valueString = expressionBuilder.buildReadExpression(step.expression)
 		val expression = step.expression.actualMostSpecific
-		val putTarget = varRef.variable.name + varRef.path.filter(KeyPathElement).butLast.map['''.get(«key»)'''].join('.')
+		val putTarget = varRef.variable.name +
+			varRef.path.filter(KeyPathElement).butLast.map['''.get(«key»)'''].join('.')
 		switch expression {
 			VariableReferencePathAccess,
 			JsonString: {
 				val code = '''«putTarget».put("«varRef.path.filter(KeyPathElement).last.key»", «valueString»);'''
 				output.append(code)
 			}
-			VariableReference : {
+			VariableReference: {
 				val code = '''«putTarget».put("«varRef.path.filter(KeyPathElement).last.key»", «expression.toStringExpression(step)»);'''
 				output.append(code)
 			}
@@ -536,21 +530,56 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	private def String generateCoercionCheck(VariableReference variableReference, TemplateContainer templateContainer,
 		Optional<JvmTypeReference> expectedType) {
 		val variableAccessCode = toParameterString(variableReference, expectedType, templateContainer, false).head
+		val variableReferenceYieldsJson = tclExpressionTypeComputer.isJsonType(variableReference)
 		switch (expectedType.get.qualifiedName) {
 			case Long.name,
-			case long.name: return '''try { Long.parseLong(«variableAccessCode»); } catch (NumberFormatException nfe) { org.junit.Assert.fail("Parameter is expected to be of type 'long' but a non coercible String of value = '"+«variableAccessCode».toString()+"' was passed through variable reference = '«variableReference.variable.name»'."); }'''
+			case long.name:
+				if (variableReferenceYieldsJson) {
+					return '''org.junit.Assert.assertTrue("Parameter is expected to be of type 'long' but a non coercible json element of value = '"+«variableAccessCode».toString()+"' was passed through variable reference = '«variableReference.variable.name»'.", «expressionBuilder.buildReadExpression(variableReference)».getAsJsonPrimitive().isNumber());'''
+				} else {
+					return '''try { Long.parseLong(«variableAccessCode»); } catch (NumberFormatException nfe) { org.junit.Assert.fail("Parameter is expected to be of type 'long' but a non coercible String of value = '"+«variableAccessCode».toString()+"' was passed through variable reference = '«variableReference.variable.name»'."); }'''
+				}
 			case Boolean.name,
-			case boolean.name: return '''org.junit.Assert.assertTrue("Parameter is expected to be of type 'boolean' or 'Boolean' but a non coercible String of value = '"+«variableAccessCode».toString()+"' was passed through variable reference = '«variableReference.variable.name»'.", Boolean.TRUE.toString().equals(«variableAccessCode») || Boolean.FALSE.toString().equals(«variableAccessCode»));'''
+			case boolean.name:
+				if (variableReferenceYieldsJson) {
+					return '''org.junit.Assert.assertTrue("Parameter is expected to be of type 'boolean' or 'Boolean' but a non coercible json element of value = '"+«variableAccessCode».toString()+"' was passed through variable reference = '«variableReference.variable.name»'.", «expressionBuilder.buildReadExpression(variableReference)».getAsJsonPrimitive().isBoolean());'''
+				} else {
+					return '''org.junit.Assert.assertTrue("Parameter is expected to be of type 'boolean' or 'Boolean' but a non coercible String of value = '"+«variableAccessCode».toString()+"' was passed through variable reference = '«variableReference.variable.name»'.", Boolean.TRUE.toString().equals(«variableAccessCode») || Boolean.FALSE.toString().equals(«variableAccessCode»));'''
+				}
+			case String.name:
+				if (variableReferenceYieldsJson) {
+					return '''org.junit.Assert.assertTrue("Parameter is expected to be of type 'String' but a json element of value = '"+«variableAccessCode».toString()+"' was passed through variable reference = '«variableReference.variable.name»'.", «expressionBuilder.buildReadExpression(variableReference)».getAsJsonPrimitive().isString());'''
+				} else {
+					return ''
+				}
 			default: throw new RuntimeException("unknown expected type.")
 		}
 	}
 	
-	private def String generateCoercionAround(String variableAccessCode, Optional<JvmTypeReference> expectedType) {
+	private def String generateCoercionAround(VariableReference variableReference, String variableAccessCode,
+		Optional<JvmTypeReference> expectedType) {
+		val variableReferenceYieldsJson = tclExpressionTypeComputer.isJsonType(variableReference)
 		switch (expectedType.get.qualifiedName) {
 			case long.name,
-			case Long.name: return '''Long.parseLong(«variableAccessCode»)'''
+			case Long.name:
+				if (variableReferenceYieldsJson) {
+					return '''«variableAccessCode».getAsJsonPrimitive().getAsLong()'''
+				} else {
+					return '''Long.parseLong(«variableAccessCode»)'''
+				}
 			case boolean.name,
-			case Boolean.name: return '''Boolean.valueOf(«variableAccessCode»)'''
+			case Boolean.name:
+				if (variableReferenceYieldsJson) {
+					return '''«variableAccessCode».getAsJsonPrimitive().getAsBoolean()'''
+				} else {
+					return '''Boolean.valueOf(«variableAccessCode»)'''
+				}
+			case String.name:
+				if (variableReferenceYieldsJson) {
+					return '''.getAsJsonPrimitive().getAsString()'''
+				} else {
+					return variableAccessCode
+				}
 			default: throw new RuntimeException("unknown expected type.")
 		}
 	}
@@ -651,24 +680,25 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	 * put it in quotes. If the type is not specified we assume a String to handle parameter passing gracefully.
 	 */
 	// TODO return type is only an iterable because of the locator strategy
-	private def Iterable<String> toParameterString(StepContent stepContent, Optional<JvmTypeReference> parameterType, TemplateContainer templateContainer, boolean withCoercion) {
-		val isStringParameter = parameterType.map[qualifiedName == String.name].orElse(false) 
+	private def Iterable<String> toParameterString(StepContent stepContent, Optional<JvmTypeReference> parameterType,
+		TemplateContainer templateContainer, boolean withCoercion) {
+		val isStringParameter = parameterType.map[qualifiedName == String.name].orElse(false)
 		// stepContent can be a reference to a variable or a value
 		if (stepContent instanceof VariableReference) {
 			// if variable reference forward the call to expressionBuilder
-			val parameterString = expressionBuilder.buildExpression(stepContent)
+			val parameterString = expressionBuilder.buildReadExpression(stepContent)
 			val result = if (isStringParameter && stepContent instanceof VariableReferencePathAccess) {
-						// TODO this is not very nice, we should get the type of the referenced variable
-						'''String.valueOf(«parameterString»)'''
-					} else {
-						parameterString
-					}
-			 
-			val expectedType = tclTypeValidationUtil.getExpectedType(stepContent, templateContainer) 
-			if (withCoercion && stepContent.coercionNecessary(templateContainer,expectedType)) {
-				return #[generateCoercionAround(result, expectedType)]
+					// TODO this is not very nice, we should get the type of the referenced variable
+					'''«parameterString».getAsJsonPrimitive().getAsString()'''
+				} else {
+					parameterString
+				}
+
+			val expectedType = tclTypeValidationUtil.getExpectedType(stepContent, templateContainer)
+			if (withCoercion && stepContent.coercionNecessary(templateContainer, expectedType)) {
+				return #[generateCoercionAround(stepContent, result, expectedType)]
 			}
-			return #[result] 
+			return #[result]
 		}
 		// Handle special case for locator + locator strategy
 		if (templateContainer instanceof InteractionType) {

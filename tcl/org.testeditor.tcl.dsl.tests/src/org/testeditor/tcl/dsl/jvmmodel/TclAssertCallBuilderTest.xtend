@@ -54,9 +54,9 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 	def void setupExpressionBuilder() {
 		when(expressionBuilder.buildComparisonExpression(isA(JsonString),any)).thenReturn('''"«STRING_FOR_COMPARISON»"''')
 		when(expressionBuilder.buildComparisonExpression(isA(VariableReference),any)).thenReturn(VARIABLE_NAME)
-		when(expressionBuilder.buildExpression(isA(JsonString))).thenReturn('''"«STRING_FOR_COMPARISON»"''')
-		when(expressionBuilder.buildExpression(isA(VariableReference))).thenReturn(VARIABLE_NAME)
-		when(expressionBuilder.buildExpression(isA(VariableReferencePathAccess))).thenReturn(VARIABLE_NAME+'.get("key")')
+		when(expressionBuilder.buildReadExpression(isA(JsonString))).thenReturn('''"«STRING_FOR_COMPARISON»"''')
+		when(expressionBuilder.buildReadExpression(isA(VariableReference))).thenReturn(VARIABLE_NAME)
+		when(expressionBuilder.buildReadExpression(isA(VariableReferencePathAccess))).thenReturn(VARIABLE_NAME+'.get("key")')
 	}
 
 	@Test

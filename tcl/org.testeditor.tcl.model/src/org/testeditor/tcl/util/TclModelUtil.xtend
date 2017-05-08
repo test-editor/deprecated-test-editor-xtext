@@ -27,11 +27,14 @@ import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateVariable
+import org.testeditor.tcl.AccessPathElement
+import org.testeditor.tcl.ArrayPathElement
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.AssignmentThroughPath
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.Expression
+import org.testeditor.tcl.KeyPathElement
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
@@ -50,7 +53,6 @@ import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
-import org.testeditor.tcl.KeyPathElement
 
 @Singleton
 class TclModelUtil extends TslModelUtil {
@@ -71,12 +73,24 @@ class TclModelUtil extends TslModelUtil {
 		return model.test?.name ?: model.config?.name ?: model.macroCollection?.name
 	}
 
+	def String restoreString(VariableReferencePathAccess varPathAccess) {
+		return '''@«varPathAccess.variable.name»«varPathAccess.path.map[restoreString].join»'''
+	}
+	
+	def String restoreString(AccessPathElement pathElement) {
+		switch pathElement {
+			ArrayPathElement: return '''[«pathElement.number»]'''
+			KeyPathElement: return '''."«pathElement.key»"'''
+			default: throw new RuntimeException('''Unknown path element type = '«pathElement.class»'.''')
+		}
+	}
+
 	override String restoreString(Iterable<StepContent> contents) {
 		return contents.map [
 			switch (it) {
 				StepContentVariable: '''"«value»"'''
 				StepContentElement: '''<«value»>'''
-				VariableReferencePathAccess: '''@«variable?.name»."«path.filter(KeyPathElement).map[key].join('.')»"'''
+				VariableReferencePathAccess: restoreString
 				VariableReference: '''@«variable?.name»'''
 				StepContentValue: value
 				default: throw new IllegalArgumentException("Unhandled content: " + it)

@@ -131,7 +131,7 @@ class TclAssertCallBuilder {
 	 */
 	private def String buildComparison(Comparison comparison) {
 		if (comparison.comparator == null) {
-			return expressionBuilder.buildExpression(comparison.left)
+			return expressionBuilder.buildReadExpression(comparison.left)
 		}
 		val wantedType = tclExpressionTypeComputer.coercedTypeOfComparison(comparison)
 		val builtRightExpression=expressionBuilder.buildComparisonExpression(comparison.right, wantedType)
@@ -150,7 +150,7 @@ class TclAssertCallBuilder {
 	 * return a string that is directly usable within an assertion command
 	 */
 	private def String buildNullOrBoolCheck(NullOrBoolCheck nullCheck) {
-		val builtExpression = expressionBuilder.buildExpression(nullCheck.variableReference)
+		val builtExpression = expressionBuilder.buildReadExpression(nullCheck.variableReference)
 		val variableTypeMap = nullCheck.enclosingTestStepContext.collectDeclaredVariablesTypeMap
 		val returnType = variableTypeMap.get(nullCheck.variableReference.variable.name)
 		logger.trace("builds expression based on return type name='{}' for null or bool check of variable='{}'",
