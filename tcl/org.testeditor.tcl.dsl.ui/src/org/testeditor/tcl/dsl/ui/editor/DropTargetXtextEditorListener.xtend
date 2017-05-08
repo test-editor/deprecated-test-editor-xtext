@@ -50,18 +50,18 @@ class DropTargetXtextEditorListener extends DropTargetAdapter {
 	override void drop(DropTargetEvent event) {
 		val List<String> elementPathsToFormat = newArrayList
 		val insertedTestStepPath = new AtomicReference<String>
-
+		
 		editor.document => [
-			modify[withTclModel[updateImports]]
+			modify[withTclModel[it, dropTarget | updateImports(it, dropTarget)]]
 			modify[withTclModel[it, dropTarget|updateModel(dropTarget, elementPathsToFormat, insertedTestStepPath)]]
 			modify[withTclModel[formatRelevantRegion(elementPathsToFormat)]]
 			modify[withTclModel[setCursorAfterInsertedStep(insertedTestStepPath)]]
 		]
 	}
 
-	private def void updateImports(TclModel tclModel) {
+	private def void updateImports(TclModel tclModel, EObject dropTarget) {
 		val droppedObject = dropUtils.getDroppedObjectAs(Component)
-		updateTestModelByDropTarget.updateImports(tclModel, droppedObject,
+		updateTestModelByDropTarget.updateImports(tclModel, dropTarget, droppedObject,
 			qualifiedNameProvider.getFullyQualifiedName(droppedObject).toString)
 	}
 

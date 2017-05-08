@@ -35,6 +35,8 @@ import org.testeditor.tcl.StepContainer
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TclPackage
 import org.testeditor.tcl.TestStepContext
+import org.eclipse.xtext.naming.IQualifiedNameProvider
+import org.testeditor.tcl.impl.TestStepContextImpl
 
 class TclModelDragAndDropUpdater {
 
@@ -42,6 +44,7 @@ class TclModelDragAndDropUpdater {
 	@Inject RewritableImportSection.Factory rewritableImportSectionFactory
 	@Inject TypeReferences references
 	@Inject XtypeFactory xtypeFactory
+	@Inject IQualifiedNameProvider qualifiedNameProvider
 
 	def void updateModel(TclModel tclModel, EObject dropTarget, ComponentTestStepContext droppedTestStepContext,
 		List<String> eObjectPathsToFormat, AtomicReference<String> insertedTestStepPath) {
@@ -182,7 +185,8 @@ class TclModelDragAndDropUpdater {
 	 * the modification of the import section must take place before actually adding the new
 	 * test step component.
 	 */
-	public def void updateImports(TclModel tclModel, Component droppedObject, String qualifiedName) {
+	public def void updateImports(TclModel tclModel, EObject dropTarget, Component droppedObject,
+		String qualifiedName) {
 		val simpleName = droppedObject.name
 
 		// handle suspicious wildcard imports before actually using the rewritable import section utils, since they do not handle wildcard imports
@@ -195,74 +199,88 @@ class TclModelDragAndDropUpdater {
 		val droppedAlreadyImportedViaWildcard = tclModel.wildcardImports.exists [
 			resolveType(tclModel, simpleName)?.qualifiedName == qualifiedName
 		]
+		val testStepContext = dropUtils.searchTargetTestStepContext(tclModel, dropTarget)
+		var droppedAlreadyImportedByCurrentComponent = false
+		var droppedAlreadyImportedByTestCase = false
+		if (testStepContext instanceof ComponentTestStepContext) {
+			droppedAlreadyImportedByCurrentComponent = qualifiedName.equals(
+				qualifiedNameProvider.getFullyQualifiedName(testStepContext.component).toString())
+			droppedAlreadyImportedByTestCase = qualifiedName.equals(
+				qualifiedNameProvider.getFullyQualifiedName(testStepContext.eContainer.eContainer.eContainer).toString())
+		}
+		// val droppedAlreadyImportedViaExplictPath = 
 		val importWanted = clashingImportedTypes.nullOrEmpty && !wildcardRemovalTookPlace &&
-			!droppedAlreadyImportedViaWildcard
+			!droppedAlreadyImportedViaWildcard && !droppedAlreadyImportedByCurrentComponent &&
+			!droppedAlreadyImportedByTestCase
 
 		if (importWanted) {
-			val added = importSection.addImport(qualifiedName)
-			if (!added) { // e.g. this import already exists
-				return // no further rewrite of import section necessary
+				val added = importSection.addImport(qualifiedName)
+				if (!added) { // e.g. this import already exists
+					return // no further rewrite of import section necessary
+				}
+			}
+			// remove all imports for the given clashing types (no wildcards)
+			clashingImportedTypes?.forEach[importSection.removeImport(it)]
+			importSection.saveUpdate(tclModel)
+			markComponentContextsForQualifiedNameUpdate(tclModel, simpleName)
+		}
+
+		/**
+		 * make a safe update of the import section of this tcl model and ensure that 
+		 * the tclModel.importSection is null, if no imports remain 
+		 */
+		private def void saveUpdate(RewritableImportSection importSection, TclModel tclModel) {
+			if (tclModel.importSection === null) {
+				// importSection.update does not automatically create the import section itself
+				tclModel.importSection = xtypeFactory.createXImportSection
+			}
+			importSection.update // makes an update on tclModel (additions works only if the importSection is not null)
+			// make sure that importSection is null (if empty after update) since it may not be empty (xtypes syntax rule '+')
+			if (tclModel.importSection !== null && tclModel.importSection.importDeclarations.empty) {
+				tclModel.importSection = null
 			}
 		}
-		// remove all imports for the given clashing types (no wildcards)
-		clashingImportedTypes?.forEach[importSection.removeImport(it)]
-		importSection.saveUpdate(tclModel)
-		markComponentContextsForQualifiedNameUpdate(tclModel, simpleName)
-	}
 
-	/**
-	 * make a safe update of the import section of this tcl model and ensure that 
-	 * the tclModel.importSection is null, if no imports remain 
-	 */
-	private def void saveUpdate(RewritableImportSection importSection, TclModel tclModel) {
-		if (tclModel.importSection === null) {
-			// importSection.update does not automatically create the import section itself
-			tclModel.importSection = xtypeFactory.createXImportSection
+		/** 
+		 * make sure that component contexts are updated with (fully qualified) component names,
+		 * if necessary after the modification of the import section 
+		 */
+		private def void markComponentContextsForQualifiedNameUpdate(TclModel tclModel, String simpleName) {
+			val contexts = tclModel.test?.steps?.map[contexts] ?: #[] +
+				tclModel.macroCollection?.macros?.map[contexts] ?: #[]
+			val clashingContexts = contexts.filterNull.flatten.filter(ComponentTestStepContext).filter [
+				component.name == simpleName
+			]
+			clashingContexts.forEach [
+				eNotify( // notification of a relevant change (which never really took place)
+				new ENotificationImpl(it as InternalEObject, Notification.REMOVE,
+					TclPackage.COMPONENT_TEST_STEP_CONTEXT__STEPS, null, null, 0))
+			]
 		}
-		importSection.update // makes an update on tclModel (additions works only if the importSection is not null)
-		// make sure that importSection is null (if empty after update) since it may not be empty (xtypes syntax rule '+')
-		if (tclModel.importSection !== null && tclModel.importSection.importDeclarations.empty) {
-			tclModel.importSection = null
+
+		private def splitedTargetTestStepContext(TestStepContext targetTestStepContext, int targetTestStepContextIndex,
+			int insertionIndex, List<EObject> toFormatEObject) {
+
+			var TestStepContext newTestStepContext = null
+			if (targetTestStepContext instanceof ComponentTestStepContext) {
+				newTestStepContext = dropUtils.createComponentTestStepContext;
+				(newTestStepContext as ComponentTestStepContext).component = targetTestStepContext.component
+			}
+			if (targetTestStepContext instanceof MacroTestStepContext) {
+				newTestStepContext = dropUtils.createMacroTestStepContext;
+				(newTestStepContext as MacroTestStepContext).macroCollection = targetTestStepContext.macroCollection
+			}
+			val specification = EcoreUtil2.getContainerOfType(targetTestStepContext, StepContainer)
+
+			specification.contexts.add(targetTestStepContextIndex + 1, newTestStepContext)
+
+			val stepsBeingMoved = targetTestStepContext.steps.subList(insertionIndex,
+				targetTestStepContext.steps.size())
+			newTestStepContext.steps.addAll(stepsBeingMoved)
+
+			toFormatEObject.add(targetTestStepContext.steps.last)
+			toFormatEObject.add(newTestStepContext.steps.head)
 		}
+
 	}
-
-	/** 
-	 * make sure that component contexts are updated with (fully qualified) component names,
-	 * if necessary after the modification of the import section 
-	 */
-	private def void markComponentContextsForQualifiedNameUpdate(TclModel tclModel, String simpleName) {
-		val contexts = tclModel.test?.steps?.map[contexts]?:#[] + tclModel.macroCollection?.macros?.map[contexts]?:#[]
-		val clashingContexts = contexts.filterNull.flatten.filter(ComponentTestStepContext).filter [
-			component.name == simpleName
-		]
-		clashingContexts.forEach [
-			eNotify( // notification of a relevant change (which never really took place)
-			new ENotificationImpl(it as InternalEObject, Notification.REMOVE,
-				TclPackage.COMPONENT_TEST_STEP_CONTEXT__STEPS, null, null, 0))
-		]
-	}
-
-	private def splitedTargetTestStepContext(TestStepContext targetTestStepContext, int targetTestStepContextIndex,
-		int insertionIndex, List<EObject> toFormatEObject) {
-
-		var TestStepContext newTestStepContext = null
-		if (targetTestStepContext instanceof ComponentTestStepContext) {
-			newTestStepContext = dropUtils.createComponentTestStepContext;
-			(newTestStepContext as ComponentTestStepContext).component = targetTestStepContext.component
-		}
-		if (targetTestStepContext instanceof MacroTestStepContext) {
-			newTestStepContext = dropUtils.createMacroTestStepContext;
-			(newTestStepContext as MacroTestStepContext).macroCollection = targetTestStepContext.macroCollection
-		}
-		val specification = EcoreUtil2.getContainerOfType(targetTestStepContext, StepContainer)
-
-		specification.contexts.add(targetTestStepContextIndex + 1, newTestStepContext)
-
-		val stepsBeingMoved = targetTestStepContext.steps.subList(insertionIndex, targetTestStepContext.steps.size())
-		newTestStepContext.steps.addAll(stepsBeingMoved)
-
-		toFormatEObject.add(targetTestStepContext.steps.last)
-		toFormatEObject.add(newTestStepContext.steps.head)
-	}
-
-}
+	
