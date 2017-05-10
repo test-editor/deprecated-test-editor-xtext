@@ -17,7 +17,6 @@ import org.apache.commons.lang3.StringEscapeUtils
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.slf4j.LoggerFactory
-import org.testeditor.aml.ModelUtil
 import org.testeditor.tcl.Comparator
 import org.testeditor.tcl.ComparatorEquals
 import org.testeditor.tcl.ComparatorGreaterThan
@@ -31,15 +30,17 @@ import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.VariableReference
 
 import static extension org.eclipse.xtext.EcoreUtil2.getContainerOfType
+import org.eclipse.xtext.xbase.typesystem.conformance.TypeConformanceComputationArgument
 
 class TclAssertCallBuilder {
 
 	static val logger = LoggerFactory.getLogger(TclAssertCallBuilder)
 
-	@Inject extension VariableCollector
-	@Inject extension ModelUtil
-	
+	@Inject extension VariableCollector	
 	@Inject TclExpressionBuilder expressionBuilder
+	@Inject TclJvmTypeReferenceUtil tclJvmTypeReferenceUtil
+	@Inject TclExpressionTypeComputer tclExpressionTypeComputer
+
 
 	/** assert method calls used, toString must yield the actual method name! */
 	enum AssertMethod {
@@ -124,8 +125,6 @@ class TclAssertCallBuilder {
 
 	}
 	
-	@Inject TclExpressionTypeComputer tclExpressionTypeComputer
-
 	/**
 	 * return a string that is directly usable within an assertion command
 	 */
@@ -145,17 +144,18 @@ class TclAssertCallBuilder {
 				throw new RuntimeException('''no builder found for comparator «comparison.comparator.class»''')
 		}
 	}
-
+	
 	/**
 	 * return a string that is directly usable within an assertion command
 	 */
 	private def String buildNullOrBoolCheck(NullOrBoolCheck nullCheck) {
+		tclJvmTypeReferenceUtil.initWith(nullCheck.eResource)
 		val builtExpression = expressionBuilder.buildReadExpression(nullCheck.variableReference)
 		val variableTypeMap = nullCheck.enclosingTestStepContext.collectDeclaredVariablesTypeMap
 		val returnType = variableTypeMap.get(nullCheck.variableReference.variable.name)
 		logger.trace("builds expression based on return type name='{}' for null or bool check of variable='{}'",
 			returnType.qualifiedName, nullCheck.variableReference.variable.name)
-		if (Boolean.isAssignableWithoutConversion(returnType)) {
+		if (tclJvmTypeReferenceUtil.isAssignableFrom(tclJvmTypeReferenceUtil.booleanObjectJvmTypeReference, returnType, new TypeConformanceComputationArgument(false, false, false, false, false, true))) {
 			return '''(«builtExpression» != null) && «builtExpression».booleanValue()'''
 		} else {
 			return builtExpression

@@ -256,7 +256,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 			test = testCase("MyTest") => [
 				steps += specificationStep("test", "something") => [
 					contexts += componentTestStepContext(dummyComponent) => [
-						val assignment=testStepWithAssignment("mapvar", "getMap").withElement("dummyElement")
+						val assignment=testStepWithAssignment("mapvar", "getJsonObject").withElement("dummyElement")
 						val mapvar=assignment.variable
 						steps += assignment
 						steps += testStep("wait").withReferenceToVariable(mapvar) // directly use map variable here 
@@ -277,7 +277,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 			test = testCase("MyTest") => [
 				steps += specificationStep("test", "something") => [
 					contexts += componentTestStepContext(dummyComponent) => [
-						val assignment=testStepWithAssignment("mapvar", "getMap").withElement("dummyElement")
+						val assignment=testStepWithAssignment("mapvar", "getJsonObject").withElement("dummyElement")
 						val mappedRef=assignment.variable.mappedReference
 						steps += assignment
 						steps += testStep("wait").withReference(mappedRef) // use map dereferenced variable (e.g. mavar."key") 

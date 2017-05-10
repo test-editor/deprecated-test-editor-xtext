@@ -13,13 +13,17 @@ import org.testeditor.tcl.dsl.tests.TclModelGenerator
 
 import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
+import org.testeditor.tcl.KeyPathElement
 
 class TclExpressionBuilderTest extends AbstractTclTest {
 
 	@InjectMocks TclExpressionBuilder expressionBuilder
+	@Mock TclJsonUtil tclJsonUtil // injected into expressionBuilder
 	@Mock TclExpressionTypeComputer typeComputer
 	@Inject extension TclModelGenerator
 	@Mock JvmTypeReference stringTypeReference
+	
+	val someKey = "some"
 	
 	
 	@Before
@@ -28,6 +32,7 @@ class TclExpressionBuilderTest extends AbstractTclTest {
 		when(typeComputer.determineType(any(Expression))).thenReturn(stringTypeReference)
 		when(typeComputer.determineType(any(Variable))).thenReturn(stringTypeReference)
 		when(typeComputer.coercedTypeOfComparison(any)).thenReturn(stringTypeReference)
+		when(tclJsonUtil.jsonPathReadAccessToString(any(KeyPathElement))).thenReturn('''.someCleverConversion("«someKey»")''')
 	}
 	
 	@Test
@@ -70,13 +75,13 @@ class TclExpressionBuilderTest extends AbstractTclTest {
 	@Test
 	def void testMapReference() {
 		// given
-		val jsonMapAccess = mappedReference("variable", "key with spaces")
+		val jsonMapAccess = mappedReference("variable", someKey)
 
 		// when
 		val result = expressionBuilder.buildReadExpression(jsonMapAccess)
 
 		// then
-		result.assertEquals('variable.getAsJsonObject().get("key with spaces")')
+		result.assertEquals('''variable.someCleverConversion("«someKey»")'''.toString)
 	}
 
 	@Test

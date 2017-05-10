@@ -13,7 +13,6 @@
 package org.testeditor.tcl.dsl.jvmmodel
 
 import com.google.gson.JsonObject
-import java.util.Map
 import javax.inject.Inject
 import org.eclipse.xtext.EcoreUtil2
 import org.junit.Test
@@ -56,7 +55,7 @@ class TclTypeUsageComputerTest extends AbstractParserTest {
 			]
 		]
 		val context = EcoreUtil2.getAllContentsOfType(tclModel, TestStepContext).head
-		val expectedTypes = #[Map.name, JsonObject.name]
+		val expectedTypes = #[JsonObject.name]
 
 		// when
 		val usage = typeUsageComputer.getAllPossibleTypeUsagesOfVariable(context, "jsonVar")

@@ -10,7 +10,7 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 	def void parseAmlModel() {
 		parseAml(DummyFixture.amlModel + '''
 			component type dummyComponentType {
-				interactions = start, getMap, getValue
+				interactions = start, getJsonObject, getValue
 			}
 			component dummyComponent is dummyComponentType {
 				element dummyElement is Label {
@@ -30,7 +30,7 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 			* test something
 			
 			Component: dummyComponent
-			- myMap = Read map from <dummyElement>
+			- myMap = Read jsonObject from <dummyElement>
 			- myVal = Read value from <dummyElement>
 			- Start application @myMap."my key"
 			- Start application @myVal
@@ -62,11 +62,12 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 			    
 			    reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "dummyComponent");
 			    
-			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "java.util.Map<java.lang.String, java.lang.String> myMap = Read map from <dummyElement>");
-			    java.util.Map<java.lang.String, java.lang.String> myMap = dummyFixture.getMap("dummyLocator");
+			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "com.google.gson.JsonObject myMap = Read jsonObject from <dummyElement>");
+			    com.google.gson.JsonObject myMap = dummyFixture.getJsonObject("dummyLocator");
 			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "java.lang.String myVal = Read value from <dummyElement>");
 			    java.lang.String myVal = dummyFixture.getValue("dummyLocator");
 			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Start application @myMap.\"my key\"");
+			    org.junit.Assert.assertTrue("Parameter is expected to be of type = 'java.lang.String' but a non coercible value = '"+myMap.getAsJsonObject().get("my key").toString()+"' was passed through variable reference = 'myMap'.", myMap.getAsJsonObject().get("my key").getAsJsonPrimitive().isString());
 			    dummyFixture.startApplication(myMap.getAsJsonObject().get("my key").getAsJsonPrimitive().getAsString());
 			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Start application @myVal");
 			    dummyFixture.startApplication(myVal);

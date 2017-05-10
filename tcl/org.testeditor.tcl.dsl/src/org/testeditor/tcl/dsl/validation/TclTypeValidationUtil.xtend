@@ -43,6 +43,9 @@ class TclTypeValidationUtil {
 		val parameterTypeMap = simpleTypeComputer.getVariablesWithTypes(templateContainer)
 		val templateParameter = getTemplateParameterForCallingStepContent(stepContent)
 		val expectedType = parameterTypeMap.get(templateParameter)
+		if (!expectedType.present) {
+			throw new RuntimeException("Unknown type")
+		}
 		return expectedType
 	}
 
@@ -51,7 +54,11 @@ class TclTypeValidationUtil {
 	 */
 	def JvmTypeReference determineType(AssignmentVariable assignmentVariable) {
 		val testStep = EcoreUtil2.getContainerOfType(assignmentVariable, TestStep)
-		return variableCollector.collectDeclaredVariablesTypeMap(testStep).get(assignmentVariable.name) 
+		val result = variableCollector.collectDeclaredVariablesTypeMap(testStep).get(assignmentVariable.name)
+		if (result === null) {
+			throw new RuntimeException('''Could not find type for variable = '«assignmentVariable.name»'.''')
+		} 
+		return result
 	}
 
 	/**

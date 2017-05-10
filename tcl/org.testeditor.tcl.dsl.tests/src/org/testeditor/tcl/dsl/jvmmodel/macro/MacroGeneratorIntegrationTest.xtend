@@ -266,15 +266,16 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 		'''
 
 		// when
-		val tclModel = parseTcl(tcl, "SimpleTest.tcl")
-		val generatedCode = tclModel.generate
+	 val tclModel = parseTcl(tcl, "SimpleTest.tcl")
+	 val generatedCode = tclModel.generate
 
 		// then
 		generatedCode => [
 			assertContains('''
 				// Macro: MyMacroCollection
 				// - Sleep for @myEnvVar seconds
-				macro_MyMacroCollection_SleepMacro(env_myEnvVar);
+				try { Long.parseLong(env_myEnvVar); } catch (NumberFormatException nfe) { org.junit.Assert.fail("Parameter is expected to be of type = 'long' but a non coercible value = '"+env_myEnvVar.toString()+"' was passed through variable reference = 'myEnvVar'."); }
+				macro_MyMacroCollection_SleepMacro(Long.parseLong(env_myEnvVar));
 			'''.indent(2))
 		]
 	}

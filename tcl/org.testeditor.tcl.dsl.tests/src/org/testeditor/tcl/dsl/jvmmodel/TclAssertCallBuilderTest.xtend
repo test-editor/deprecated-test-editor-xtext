@@ -20,7 +20,6 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.testeditor.aml.ModelUtil
 import org.testeditor.tcl.JsonString
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferencePathAccess
@@ -35,12 +34,13 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 
 	@InjectMocks TclAssertCallBuilder assertCallBuilder // class under test
 	
-	@Mock ModelUtil amlModelUtil // injected into class under test
+	// @Mock ModelUtil amlModelUtil // injected into class under test
 	@Mock protected TclModelUtil tclModelUtil // injected into class under test
 	@Mock TclExpressionBuilder expressionBuilder // injected into class under test
 	@Mock SimpleTypeComputer simpleTypeComputer // injected into class under test
 	@Mock VariableCollector variableCollector // injected into class under test	
 	@Mock TclExpressionTypeComputer tclExpressionTypeComputer // injected into class under test
+	@Mock TclJvmTypeReferenceUtil tclJvmTypeReferenceUtil // injected into class under test
 	
 	@Inject extension TclModelGenerator
 	@Inject protected Provider<XtextResourceSet> resourceSetProvider
@@ -220,7 +220,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 		val jvmType = jvmTypeReferenceBuilder.typeRef(clazz)
 
 		when(variableCollector.collectDeclaredVariablesTypeMap(any)).thenReturn(#{VARIABLE_NAME->jvmType})
-		when(amlModelUtil.isAssignableWithoutConversion(clazz, jvmType)).thenReturn(true)
+		when(tclJvmTypeReferenceUtil.isAssignableFrom(any, any, any)).thenReturn(clazz.name == Boolean.name)
 	}
 
 	// assert that the generated code holds 2 lines of which the second is identical to expectedCode

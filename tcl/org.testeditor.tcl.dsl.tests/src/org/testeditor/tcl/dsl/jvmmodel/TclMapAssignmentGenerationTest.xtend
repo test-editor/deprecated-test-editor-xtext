@@ -48,7 +48,7 @@ class TclMapAssignmentGenerationTest extends AbstractTclGeneratorIntegrationTest
 		jvmModelInferrer.generateMethodBody(tclModel.test, outputStub)
 
 		// then
-		verify(outputStub).append('mapVariable.put("key", "value");')
+		verify(outputStub).append('mapVariable.getAsJsonObject().add("key", new com.google.gson.JsonParser().parse("\\"value\\""));')
 	}
 	
 	@Test
@@ -65,7 +65,7 @@ class TclMapAssignmentGenerationTest extends AbstractTclGeneratorIntegrationTest
 		jvmModelInferrer.generateMethodBody(tclModel.test, outputStub)
 
 		// then
-		verify(outputStub).append('jsonVariable.put("key", otherJsonMap.getAsJsonObject().get("some key with spaces"));')
+		verify(outputStub).append('jsonVariable.getAsJsonObject().add("key", otherJsonMap.getAsJsonObject().get("some key with spaces"));')
 	}
 	
 
@@ -75,12 +75,13 @@ class TclMapAssignmentGenerationTest extends AbstractTclGeneratorIntegrationTest
 		val boolAssignment = testStepWithAssignment("myBool", "Read", "bool", "from").withElement("bar")
 		val expression = variableReference => [variable = boolAssignment.variable]
 		val tclModel = createMapEntryAssignmentModel("mapVariable", boolAssignment, expression)
+		jvmModelInferrer.initWith(resourceSet)
 
 		// when
 		jvmModelInferrer.generateMethodBody(tclModel.test, outputStub)
 
 		// then
-		verify(outputStub).append('mapVariable.put("key", String.valueOf(myBool));')
+		verify(outputStub).append('mapVariable.getAsJsonObject().add("key", new com.google.gson.JsonParser().parse(Boolean.toString(myBool)));')
 	}
 
 	@Test
@@ -89,12 +90,13 @@ class TclMapAssignmentGenerationTest extends AbstractTclGeneratorIntegrationTest
 		val longAssignment = testStepWithAssignment("myLong", "Read", "long", "from").withElement("bar")
 		val expression = variableReference => [variable = longAssignment.variable]
 		val tclModel = createMapEntryAssignmentModel("mapVariable", longAssignment, expression)
+		jvmModelInferrer.initWith(resourceSet)
 
 		// when
 		jvmModelInferrer.generateMethodBody(tclModel.test, outputStub)
 
 		// then
-		verify(outputStub).append('mapVariable.put("key", String.valueOf(myLong));')
+		verify(outputStub).append('mapVariable.getAsJsonObject().add("key", new com.google.gson.JsonParser().parse(Long.toString(myLong)));')
 	}
 
 	/**
@@ -119,10 +121,12 @@ class TclMapAssignmentGenerationTest extends AbstractTclGeneratorIntegrationTest
 						if (additionalVarThroughAssignmentStep !== null) {
 							steps += additionalVarThroughAssignmentStep
 						}
-						val mapAssignment = testStepWithAssignment(mapVariable, "Read", "map", "from").withElement("bar")
+						val mapAssignment = testStepWithAssignment(mapVariable, "Read", "jsonObject", "from").withElement("bar")
 						steps += mapAssignment
 						steps += assignmentThroughPath(mapAssignment.variable, "key") => [
-							it.expression = expression 
+							it.expression = comparison => [
+								left = expression 
+							] 
 						]
 					]
 				]

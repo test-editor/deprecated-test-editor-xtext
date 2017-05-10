@@ -458,6 +458,7 @@ class ProjectContentGenerator {
 		// In this section you declare where to find the dependencies of your project
 		repositories {
 		    jcenter()
+			maven { url "http://mvnrepository.com/artifact/com.google.code.gson/gson" } 
 		    maven { url "http://dl.bintray.com/test-editor/Fixtures" }
 		    maven { url "http://dl.bintray.com/test-editor/maven/" }
 		}
@@ -483,7 +484,9 @@ class ProjectContentGenerator {
 			«FOR s : fixtureNames»
 				«getGradleDependency(s)»
 			«ENDFOR»
+			compile 'com.google.code.gson:gson:2.7'
 			testCompile 'junit:junit:4.12'
+			xtextLanguages 'com.google.code.gson:gson:2.7'
 		}
 		
 		// add environmental variables needed by the test (for any 'require <var-name>' in tcl)

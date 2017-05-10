@@ -12,14 +12,11 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
-import com.google.gson.JsonObject
-import java.util.Map
 import java.util.Optional
 import java.util.Set
 import javax.inject.Inject
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.testeditor.aml.TemplateVariable
-import org.testeditor.aml.Variable
 import org.testeditor.dsl.common.util.CollectionUtils
 import org.testeditor.tcl.AssignmentThroughPath
 import org.testeditor.tcl.ComponentTestStepContext
@@ -37,6 +34,7 @@ import org.testeditor.tsl.StepContentText
 class TclTypeUsageComputer {
 
 	@Inject SimpleTypeComputer simpleTypeComputer
+	@Inject TclJvmTypeReferenceUtil tclTypeReferenceUtil
 	@Inject extension TclModelUtil  tclModelUtil
 	@Inject extension CollectionUtils 
 
@@ -46,17 +44,18 @@ class TclTypeUsageComputer {
 	def dispatch Set<Optional<JvmTypeReference>> getAllPossibleTypeUsagesOfVariable(ComponentTestStepContext componentTestStepContext, String variableName) {
 		// type derivation of variable usage within assertions is not implemented "yet" => filter on test steps only
 		// TODO this has to be implemented if the check is to be performed on assertions!
+		tclTypeReferenceUtil.initWith(componentTestStepContext.eResource)
 		val typesUsages = componentTestStepContext.steps.filter(TestStep).map [ step |
 			simpleTypeComputer.getStepVariableFixtureParameterTypePairs(step).filterKey(VariableReference).filter[!(key instanceof VariableReferencePathAccess)].filter [
 				key.variable.name == variableName
 			].map[value]
 		].flatten.filterNull
-		val typesUsagesThroughAssignments = componentTestStepContext.steps.filter(AssignmentThroughPath).filter[
-			variableReference.variable.name == variableName
-		].map [ step |
-			step.possibleAssignmentTypes.map[value]
-		].flatten
-		return (typesUsages + typesUsagesThroughAssignments).toSet
+		if (componentTestStepContext.steps.filter(AssignmentThroughPath).exists [variableReference.variable.name == variableName]) {
+				// assignment through path is used for json objects only
+				return (typesUsages + #[Optional.of(tclTypeReferenceUtil.jsonObjectJvmTypeReference)]).toSet
+			} else {
+				return typesUsages.toSet
+			}
 	}
 
 	/** 
@@ -97,14 +96,5 @@ class TclTypeUsageComputer {
 			context.getAllPossibleTypeUsagesOfVariable(variable)
 		].flatten
 	}
-	
-	/** TODO: the assignment of values may either be used for maps or for json objects. deciding its usage here is not applicable */
-	def Iterable<Pair<Variable, Optional<JvmTypeReference>>> getPossibleAssignmentTypes(AssignmentThroughPath assignment) {
-		val variableReference = assignment.getVariableReference
-		val jsonObjectType = JsonObject.getJvmTypeReferenceForClass(assignment)
-		val mapType = Map.getJvmTypeReferenceForClass(assignment)
-		val typeList = #[ jsonObjectType, mapType ]
-		return typeList.map[new Pair(variableReference.variable, Optional.of(it))]
-	}
-	
+		
 }

@@ -190,40 +190,40 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			java.lang.String stringvar = dummyFixture.getValue("label.greet");
 			reporter.enter(TestRunReporter.SemanticUnit.STEP, "boolean boolvar = Read bool from <bar>");
 			boolean boolvar = dummyFixture.getBool("label.greet");
-			reporter.enter(TestRunReporter.SemanticUnit.STEP, "@jsonvar.\"key\"\" = jsonvar.\"some value\"");
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "@jsonvar.\"key\" = jsonvar.\"some value\"");
 			jsonvar.getAsJsonObject().add("key", jsonvar.getAsJsonObject().get("some value"));
-			reporter.enter(TestRunReporter.SemanticUnit.STEP, "@jsonvar.\"other key\"\" = \"value\"");
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "@jsonvar.\"other key\" = \"value\"");
 			jsonvar.getAsJsonObject().add("other key", new com.google.gson.JsonParser().parse("\"value\""));
-			reporter.enter(TestRunReporter.SemanticUnit.STEP, "@jsonvar.\"key2\"\" = stringvar");
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "@jsonvar.\"key2\" = stringvar");
 			jsonvar.getAsJsonObject().add("key2", new com.google.gson.JsonParser().parse("\""+stringvar+"\""));
-			reporter.enter(TestRunReporter.SemanticUnit.STEP, "@jsonvar.\"key3\"\" = longvar");
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "@jsonvar.\"key3\" = longvar");
 			jsonvar.getAsJsonObject().add("key3", new com.google.gson.JsonParser().parse(Long.toString(longvar)));
-			reporter.enter(TestRunReporter.SemanticUnit.STEP, "@jsonvar.\"key4\"\" = boolvar");
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "@jsonvar.\"key4\" = boolvar");
 			jsonvar.getAsJsonObject().add("key4", new com.google.gson.JsonParser().parse(Boolean.toString(boolvar)));
 			reporter.enter(TestRunReporter.SemanticUnit.STEP, "Type boolean @stringvar into <Input>");
-			org.junit.Assert.assertTrue("Parameter is expected to be of type 'boolean' or 'Boolean' but a non coercible String of value = '"+stringvar.toString()+"' was passed through variable reference = 'stringvar'.", Boolean.TRUE.toString().equals(stringvar) || Boolean.FALSE.toString().equals(stringvar));
+			org.junit.Assert.assertTrue("Parameter is expected to be of type = 'boolean' but a non coercible value = '"+stringvar.toString()+"' was passed through variable reference = 'stringvar'.", Boolean.TRUE.toString().equals(stringvar) || Boolean.FALSE.toString().equals(stringvar));
 			dummyFixture.typeBoolInto("text.input", Boolean.valueOf(stringvar));
 			reporter.enter(TestRunReporter.SemanticUnit.STEP, "TypeLong @stringvar into <Input>");
-			try { Long.parseLong(stringvar); } catch (NumberFormatException nfe) { org.junit.Assert.fail("Parameter is expected to be of type 'long' but a non coercible String of value = '"+stringvar.toString()+"' was passed through variable reference = 'stringvar'."); }
+			try { Long.parseLong(stringvar); } catch (NumberFormatException nfe) { org.junit.Assert.fail("Parameter is expected to be of type = 'long' but a non coercible value = '"+stringvar.toString()+"' was passed through variable reference = 'stringvar'."); }
 			dummyFixture.typeLongInto("text.input", org.testeditor.dsl.common.testing.DummyLocatorStrategy.ID, Long.parseLong(stringvar));
 			reporter.enter(TestRunReporter.SemanticUnit.STEP, "Type boolean @jsonvar.\"key5\" into <Input>");
-			org.junit.Assert.assertTrue("Parameter is expected to be of type 'boolean' or 'Boolean' but a non coercible json element of value = '"+jsonvar.getAsJsonObject().get("key5").toString()+"' was passed through variable reference = 'jsonvar'.", jsonvar.getAsJsonObject().get("key5").getAsJsonPrimitive().isBoolean());
+			org.junit.Assert.assertTrue("Parameter is expected to be of type = 'boolean' but a non coercible value = '"+jsonvar.getAsJsonObject().get("key5").toString()+"' was passed through variable reference = 'jsonvar'.", jsonvar.getAsJsonObject().get("key5").getAsJsonPrimitive().isBoolean());
 			dummyFixture.typeBoolInto("text.input", jsonvar.getAsJsonObject().get("key5").getAsJsonPrimitive().getAsBoolean());
 			reporter.enter(TestRunReporter.SemanticUnit.STEP, "TypeLong @jsonvar.\"key6\" into <Input>");
-			org.junit.Assert.assertTrue("Parameter is expected to be of type 'long' but a non coercible json element of value = '"+jsonvar.getAsJsonObject().get("key6").toString()+"' was passed through variable reference = 'jsonvar'.", jsonvar.getAsJsonObject().get("key6").getAsJsonPrimitive().isNumber());
+			org.junit.Assert.assertTrue("Parameter is expected to be of type = 'long' but a non coercible value = '"+jsonvar.getAsJsonObject().get("key6").toString()+"' was passed through variable reference = 'jsonvar'.", jsonvar.getAsJsonObject().get("key6").getAsJsonPrimitive().isNumber());
 			dummyFixture.typeLongInto("text.input", org.testeditor.dsl.common.testing.DummyLocatorStrategy.ID, jsonvar.getAsJsonObject().get("key6").getAsJsonPrimitive().getAsLong());
 			// Macro: GreetingApplicationMacro
 			// - TypeBoolean @jsonvar."key" into input field
-			org.junit.Assert.assertTrue("Parameter is expected to be of type 'boolean' or 'Boolean' but a non coercible json element of value = '"+jsonvar.getAsJsonObject().get("key").toString()+"' was passed through variable reference = 'jsonvar'.", jsonvar.getAsJsonObject().get("key").getAsJsonPrimitive().isBoolean());
+			org.junit.Assert.assertTrue("Parameter is expected to be of type = 'boolean' but a non coercible value = '"+jsonvar.getAsJsonObject().get("key").toString()+"' was passed through variable reference = 'jsonvar'.", jsonvar.getAsJsonObject().get("key").getAsJsonPrimitive().isBoolean());
 			macro_GreetingApplicationMacro_TypeBoolIntoInputField(jsonvar.getAsJsonObject().get("key").getAsJsonPrimitive().getAsBoolean());
 			// - TypeLong @jsonvar."key" into input field
-			org.junit.Assert.assertTrue("Parameter is expected to be of type 'long' but a non coercible json element of value = '"+jsonvar.getAsJsonObject().get("key").toString()+"' was passed through variable reference = 'jsonvar'.", jsonvar.getAsJsonObject().get("key").getAsJsonPrimitive().isNumber());
+			org.junit.Assert.assertTrue("Parameter is expected to be of type = 'long' but a non coercible value = '"+jsonvar.getAsJsonObject().get("key").toString()+"' was passed through variable reference = 'jsonvar'.", jsonvar.getAsJsonObject().get("key").getAsJsonPrimitive().isNumber());
 			macro_GreetingApplicationMacro_TypeLongIntoInputField(jsonvar.getAsJsonObject().get("key").getAsJsonPrimitive().getAsLong());
 			// - TypeBoolean @stringvar into input field
-			org.junit.Assert.assertTrue("Parameter is expected to be of type 'boolean' or 'Boolean' but a non coercible String of value = '"+stringvar.toString()+"' was passed through variable reference = 'stringvar'.", Boolean.TRUE.toString().equals(stringvar) || Boolean.FALSE.toString().equals(stringvar));
+			org.junit.Assert.assertTrue("Parameter is expected to be of type = 'boolean' but a non coercible value = '"+stringvar.toString()+"' was passed through variable reference = 'stringvar'.", Boolean.TRUE.toString().equals(stringvar) || Boolean.FALSE.toString().equals(stringvar));
 			macro_GreetingApplicationMacro_TypeBoolIntoInputField(Boolean.valueOf(stringvar));
 			// - TypeLong @stringvar into input field
-			try { Long.parseLong(stringvar); } catch (NumberFormatException nfe) { org.junit.Assert.fail("Parameter is expected to be of type 'long' but a non coercible String of value = '"+stringvar.toString()+"' was passed through variable reference = 'stringvar'."); }
+			try { Long.parseLong(stringvar); } catch (NumberFormatException nfe) { org.junit.Assert.fail("Parameter is expected to be of type = 'long' but a non coercible value = '"+stringvar.toString()+"' was passed through variable reference = 'stringvar'."); }
 			macro_GreetingApplicationMacro_TypeLongIntoInputField(Long.parseLong(stringvar));
 		'''.indent(2))
 	}

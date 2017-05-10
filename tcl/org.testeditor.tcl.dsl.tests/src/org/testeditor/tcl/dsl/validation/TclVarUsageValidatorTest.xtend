@@ -64,7 +64,7 @@ class TclVarUsageValidatorTest extends AbstractParserTestWithDummyComponent {
 			test = testCase => [
 				steps += specificationStep => [
 					contexts += componentTestStepContext(dummyComponent) => [
-						val assignmentStep=testStepWithAssignment("myVar", "getMap").withElement("dummyElement")
+						val assignmentStep=testStepWithAssignment("myVar", "getJsonObject").withElement("dummyElement")
 						steps += assignmentStep
 						steps += testStep("start") => [
 							// variable map access is valid: declared first, usage within same test case, type of variable is Map
@@ -87,7 +87,7 @@ class TclVarUsageValidatorTest extends AbstractParserTestWithDummyComponent {
 			test = testCase => [
 				steps += specificationStep => [
 					contexts += componentTestStepContext(dummyComponent) => [
-						val assignmentStep=testStepWithAssignment("myVar", "getMap").withElement("dummyElement")
+						val assignmentStep=testStepWithAssignment("myVar", "getJsonObject").withElement("dummyElement")
 						steps += assignmentStep
 						steps += assignmentThroughPath(assignmentStep.variable, "key") => [
 							expression = jsonString("value")

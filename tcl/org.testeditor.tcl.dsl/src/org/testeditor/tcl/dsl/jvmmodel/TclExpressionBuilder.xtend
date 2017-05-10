@@ -15,6 +15,7 @@ package org.testeditor.tcl.dsl.jvmmodel
 import javax.inject.Inject
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.testeditor.aml.Variable
+import org.testeditor.dsl.common.util.CollectionUtils
 import org.testeditor.tcl.ComparatorEquals
 import org.testeditor.tcl.ComparatorGreaterThan
 import org.testeditor.tcl.ComparatorLessThan
@@ -23,12 +24,9 @@ import org.testeditor.tcl.Comparison
 import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.Expression
 import org.testeditor.tcl.JsonString
-import org.testeditor.tcl.KeyPathElement
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferencePathAccess
-import org.testeditor.tcl.AccessPathElement
-import org.testeditor.tcl.ArrayPathElement
-import org.testeditor.dsl.common.util.CollectionUtils
+import org.testeditor.tcl.JsonNumber
 
 /** build a (textual) java expression based on a parsed (tcl) expression
  *  <br/><br/>
@@ -39,11 +37,16 @@ import org.testeditor.dsl.common.util.CollectionUtils
 class TclExpressionBuilder {
 
 	@Inject TclExpressionTypeComputer typeComputer
+	@Inject TclJsonUtil tclJsonUtil
 
 	@Inject extension CollectionUtils
 
 	def dispatch String buildReadExpression(Expression expression) {
 		throw new RuntimeException('''no builder found for type «expression.class»''')
+	}
+	
+	def dispatch String buildReadExpression(JsonNumber jsonNumber) {
+		return jsonNumber.value
 	}
 
 	def String buildComparisonExpression(Expression compared, JvmTypeReference wantedType) {
@@ -72,52 +75,30 @@ class TclExpressionBuilder {
 		}
 	}
 	
-	private def String wrapWithCoercionIfNecessary(String builtExpression, JvmTypeReference own, JvmTypeReference wantedType) {
-		if(String.name.equals(own.qualifiedName)){
-			switch (wantedType.qualifiedName) {
+	private def String wrapWithCoercionIfNecessary(String builtExpression, JvmTypeReference ownType, JvmTypeReference wantedType) {
+		if (String.name.equals(ownType.qualifiedName)) {
+			switch wantedType.qualifiedName {
 				case Long.name,
 				case long.name: return '''Long.parseLong(«builtExpression»)'''
 				case boolean.name,
 				case Boolean.name: return '''Boolean.valueOf(«builtExpression»)'''
 				case String.name: return builtExpression					
 			}
-		} else if (typeComputer.isJsonType(own)) {
-			switch (wantedType.qualifiedName) {
-				case Long.name,
-				case long.name: return '''«builtExpression».getAsJsonPrimitive().getAsLong()'''
-				case boolean.name,
-				case Boolean.name: return '''«builtExpression».getAsJsonPrimitive().getAsBoolean()'''
-				case String.name: return '''«builtExpression».getAsJsonPrimitive().getAsString()'''
-			}
+		} else if (tclJsonUtil.isJsonType(ownType)) {
+			return '''«builtExpression»«tclJsonUtil.generateJsonElementAccess(wantedType)»'''
 		} 
 		return builtExpression
 	}
 
 	def dispatch String buildReadExpression(VariableReferencePathAccess varRef) {
-		return '''«varRef.variable.variableToVarName»«varRef.path.map[jsonPathReadAccessToString].join»'''		
+		return '''«varRef.variable.variableToVarName»«varRef.path.map[tclJsonUtil.jsonPathReadAccessToString(it)].join»'''		
 	}
 	
 	def String buildWriteExpression(VariableReferencePathAccess varRef, String assignedExpression) {
-		val result = '''«varRef.variable.variableToVarName»«varRef.path.butLast.map[jsonPathReadAccessToString].join»«varRef.path.last.jsonPathWriteAccessToString(assignedExpression)»'''
+		val result = '''«varRef.variable.variableToVarName»«varRef.path.butLast.map[tclJsonUtil.jsonPathReadAccessToString(it)].join»«tclJsonUtil.jsonPathWriteAccessToString(varRef.path.last, assignedExpression)»'''
 		return result
 	}
 		
-	private def String jsonPathReadAccessToString(AccessPathElement pathElement) {
-		switch (pathElement) {
-			KeyPathElement: return '''.getAsJsonObject().get("«pathElement.key»")'''
-			ArrayPathElement: return '''.getAsJsonArray().get(«pathElement.number»)'''
-			default: throw new RuntimeException('''Unknown path element type = '«pathElement.class.name»'.''')
-		}
-	}
-	
-	private def String jsonPathWriteAccessToString(AccessPathElement pathElement, String value) {
-		switch (pathElement) {
-			KeyPathElement: return '''.getAsJsonObject().add("«pathElement.key»", «value»)'''
-			ArrayPathElement: return '''.getAsJsonArray().set(«pathElement.number», «value»)'''
-			default: throw new RuntimeException('''Unknown path element type = '«pathElement.class.name»'.''')
-		}
-	}
-
 	def dispatch String buildReadExpression(VariableReference variableReference) {
 		return variableReference.variable.variableToVarName
 	}

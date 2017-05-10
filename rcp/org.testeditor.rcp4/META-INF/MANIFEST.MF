@@ -51,5 +51,6 @@ Import-Package: org.eclipse.core.resources,
  org.eclipse.ui.wizards.newresource,
  org.eclipse.xtext.ui,
  org.osgi.service.event,
- javax.inject;version="1.0.0"
+ javax.inject;version="1.0.0",
+ com.google.gson
 Bundle-ActivationPolicy: lazy
