@@ -183,19 +183,6 @@ class ProjectContentGeneratorTest extends AbstractTest {
 	}
 
 	@Test
-	def void testGetXtextVersion() {
-		// given (this is a plugin test)
-		isWithinOSGIContext.assumeTrue
-		
-		// when
-		val version = generator.xtextVersion
-		
-		// then
-		version.assertNotNull
-		assumeTrue("Xtext version can be read.", version.startsWith("2."))
-	}
-
-	@Test
 	def void testVersionMappingWithSNAPSHOT() {
 		// given
 		val version = new Version(1,2,3,"SNAPSHOT")
