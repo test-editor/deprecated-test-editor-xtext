@@ -18,31 +18,19 @@ import org.eclipse.xtext.xbase.typesystem.util.CommonTypeComputationServices
 class TclJvmTypeReferenceUtil {
 
 	@Inject TclJsonUtil tclJsonUtil
-
-	def JvmTypeReference booleanPrimitiveJvmTypeReference() { ensureTypeReferenceBuilderInitialized return boolean.buildFrom }
-	def JvmTypeReference booleanObjectJvmTypeReference() { ensureTypeReferenceBuilderInitialized return Boolean.buildFrom }
-	def JvmTypeReference stringJvmTypeReference() { ensureTypeReferenceBuilderInitialized return String.buildFrom }
-	def JvmTypeReference longPrimitiveJvmTypeReference() { ensureTypeReferenceBuilderInitialized return long.buildFrom } 
-	def JvmTypeReference longObjectJvmTypeReference() { ensureTypeReferenceBuilderInitialized return Long.buildFrom }
-	def JvmTypeReference jsonElementJvmTypeReference() { ensureTypeReferenceBuilderInitialized return JsonElement.buildFrom }
-	def JvmTypeReference jsonPrimitiveJvmTypeReference() { ensureTypeReferenceBuilderInitialized return JsonPrimitive.buildFrom }
-	def JvmTypeReference jsonObjectJvmTypeReference() { ensureTypeReferenceBuilderInitialized return JsonObject.buildFrom }
-	def JvmTypeReference jsonArrayJvmTypeReference() { ensureTypeReferenceBuilderInitialized return JsonArray.buildFrom }
-
 	@Inject CommonTypeComputationServices services
 	var StandardTypeReferenceOwner typeReferenceOwner
 	var JvmTypeReferenceBuilder typeReferenceBuilder
 	
-	@Inject ResourceSet resourceSet
+	@Inject ResourceSet resourceSet // useful for testing with models without actual resource set
 	@Inject JvmTypeReferenceBuilder.Factory typeReferenceBuilderFactory
 	
 	def void initWith(ResourceSet resourceSet) {
-		if (typeReferenceBuilder === null) {
-			if (resourceSet === null) {
-				typeReferenceBuilder = typeReferenceBuilderFactory.create(this.resourceSet)
-			} else {
-				typeReferenceBuilder = typeReferenceBuilderFactory.create(resourceSet)
-			}
+		// cache a valid typeReferenceBuilder ?
+		if (resourceSet === null) {
+			typeReferenceBuilder = typeReferenceBuilderFactory.create(this.resourceSet) // useful for testing with models without resources
+		} else {
+			typeReferenceBuilder = typeReferenceBuilderFactory.create(resourceSet)
 		}
 	}
 	
@@ -87,11 +75,11 @@ class TclJvmTypeReferenceUtil {
 	}
 
 	def boolean isString(JvmTypeReference typeReference) {
-		return String.name.equals(typeReference.qualifiedName)
+		return String.name.equals(typeReference?.qualifiedName)
 	}
 
 	def boolean isBoolean(JvmTypeReference typeReference) {
-		val qname = typeReference.qualifiedName
+		val qname = typeReference?.qualifiedName
 		return (Boolean.name == qname || boolean.name == qname)
 	}
 
@@ -126,4 +114,24 @@ class TclJvmTypeReferenceUtil {
 	def boolean isAssignableFrom(JvmTypeReference target, JvmTypeReference source) {
 		return isAssignableFrom(target, source, new TypeConformanceComputationArgument)
 	}
+	
+	def isNonFractionalNumber(JvmTypeReference reference) {
+		return isLong(reference) || isInt(reference)
+	}
+	
+	def isInt(JvmTypeReference reference) {
+		val qname = reference?.qualifiedName
+		return int.name.equals(qname) || Integer.name.equals(qname)
+	}
+	
+	def JvmTypeReference booleanPrimitiveJvmTypeReference() { ensureTypeReferenceBuilderInitialized return boolean.buildFrom }
+	def JvmTypeReference booleanObjectJvmTypeReference() { ensureTypeReferenceBuilderInitialized return Boolean.buildFrom }
+	def JvmTypeReference stringJvmTypeReference() { ensureTypeReferenceBuilderInitialized return String.buildFrom }
+	def JvmTypeReference longPrimitiveJvmTypeReference() { ensureTypeReferenceBuilderInitialized return long.buildFrom } 
+	def JvmTypeReference longObjectJvmTypeReference() { ensureTypeReferenceBuilderInitialized return Long.buildFrom }
+	def JvmTypeReference jsonElementJvmTypeReference() { ensureTypeReferenceBuilderInitialized return JsonElement.buildFrom }
+	def JvmTypeReference jsonPrimitiveJvmTypeReference() { ensureTypeReferenceBuilderInitialized return JsonPrimitive.buildFrom }
+	def JvmTypeReference jsonObjectJvmTypeReference() { ensureTypeReferenceBuilderInitialized return JsonObject.buildFrom }
+	def JvmTypeReference jsonArrayJvmTypeReference() { ensureTypeReferenceBuilderInitialized return JsonArray.buildFrom }
+
 }

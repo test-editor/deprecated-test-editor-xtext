@@ -12,10 +12,9 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.testing
 
-import java.util.List
-import java.util.Map
-import org.testeditor.fixture.core.interaction.FixtureMethod
 import com.google.gson.JsonObject
+import java.util.List
+import org.testeditor.fixture.core.interaction.FixtureMethod
 
 public class DummyFixture {
 
@@ -55,11 +54,6 @@ public class DummyFixture {
 	@FixtureMethod
 	def JsonObject getJsonObject(String locator) {
 		return new JsonObject
-	}
-
-	@FixtureMethod
-	def Map<String, String> getMap(String locator) {
-		return newHashMap
 	}
 
 	@FixtureMethod
@@ -163,11 +157,6 @@ public class DummyFixture {
 			method = «dummyFixture».getList(element)
 		}
 		
-		interaction type getMap {
-			template = "Read map from" ${element}
-			method = «dummyFixture».getMap(element)
-		}
-		
 		interaction type clickOn {
 			template = "Click on" ${element}
 			method = «dummyFixture».clickOn(element, locatorStrategy)
@@ -194,7 +183,7 @@ public class DummyFixture {
 		}
 		
 		element type Label {
-			interactions = getList, getValue, getBool, getMap, isVisible
+			interactions = getList, getValue, getBool, isVisible
 		}
 		
 		element type Text {

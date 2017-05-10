@@ -50,7 +50,7 @@ class TclExpressionBuilder {
 	}
 
 	def String buildComparisonExpression(Expression compared, JvmTypeReference wantedType) {
-		val typeOfCompared = typeComputer.determineType(compared)
+		val typeOfCompared = typeComputer.determineType(compared, wantedType)
 		val builtReadExpression = buildReadExpression(compared)
 		return builtReadExpression.wrapWithCoercionIfNecessary(typeOfCompared, wantedType)
 	}

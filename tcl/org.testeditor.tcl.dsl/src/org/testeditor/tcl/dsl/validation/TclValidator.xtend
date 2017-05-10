@@ -474,7 +474,7 @@ class TclValidator extends AbstractTclValidator {
 				error('Type unknown. Expected \'' + expectedType + '\'.',
 					content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
 			} else {
-				val contentType = tclExpressionTypeComputer.determineType(content)
+				val contentType = tclExpressionTypeComputer.determineType(content, expectedType.get)
 				val assignable = tclJvmTypeReferenceUtil.isAssignableFrom(expectedType.get, contentType)
 				// val coercible = tclCoercionComputer.isCoercionPossible(expectedType.get, contentType)
 				if(!assignable /*&& !coercible */){ // since content is a StepContentVariable, coercion is not option, since determineType already did check for bool/long/string
@@ -493,7 +493,7 @@ class TclValidator extends AbstractTclValidator {
 			val expectedType = templateParameterTypeMap.get(templateVar)
 			expectedType.ifPresent [
 				val contentIndex = step.contents.indexOfFirst(content)
-				val contentType = tclExpressionTypeComputer.determineType(content)
+				val contentType = tclExpressionTypeComputer.determineType(content, expectedType.get)
 				val assignable = tclJvmTypeReferenceUtil.isAssignableFrom(expectedType.get, contentType)
 				// if content is a StepContentVariable, coercion is not option, since determineType already did check for bool/long/string
 				val coercible = !(content instanceof StepContentVariable) && tclCoercionComputer.isCoercionPossible(expectedType.get, contentType)

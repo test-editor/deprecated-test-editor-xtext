@@ -29,8 +29,8 @@ class TclExpressionBuilderTest extends AbstractTclTest {
 	@Before
 	def void prepareMocks() {
 		when(stringTypeReference.qualifiedName).thenReturn(String.name)
-		when(typeComputer.determineType(any(Expression))).thenReturn(stringTypeReference)
-		when(typeComputer.determineType(any(Variable))).thenReturn(stringTypeReference)
+		when(typeComputer.determineType(any(Expression),any(JvmTypeReference))).thenReturn(stringTypeReference)
+		when(typeComputer.determineType(any(Variable),any(JvmTypeReference))).thenReturn(stringTypeReference)
 		when(typeComputer.coercedTypeOfComparison(any)).thenReturn(stringTypeReference)
 		when(tclJsonUtil.jsonPathReadAccessToString(any(KeyPathElement))).thenReturn('''.someCleverConversion("«someKey»")''')
 	}

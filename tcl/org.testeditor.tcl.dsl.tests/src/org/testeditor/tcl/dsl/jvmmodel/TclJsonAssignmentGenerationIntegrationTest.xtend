@@ -49,7 +49,7 @@ class TclJsonAssignmentGenerationIntegrationTest extends AbstractTclGeneratorInt
 //	@Test
 //	def void testMapAssignmentWithVariableReference() {
 //		// given
-//		val otherMapAssignment = testStepWithAssignment("otherMap", "Read", "map", "from").withElement("bar")
+//		val otherMapAssignment = testStepWithAssignment("otherMap", "Read", "jsonObject", "from").withElement("bar")
 //		val expression = variableReferenceMapAccess => [
 //			variable = otherMapAssignment.variable
 //			key = "some key with spaces"

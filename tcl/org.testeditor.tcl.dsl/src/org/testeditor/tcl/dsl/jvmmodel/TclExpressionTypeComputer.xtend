@@ -49,32 +49,44 @@ class TclExpressionTypeComputer {
 		switch expression {
 			// com.google.gson.JsonElement: return true // supertype of all (relevant) json types (e.g. JsonObject, JsonArray, JsonString ...)
 			VariableReferencePathAccess: return true // since this is only allowed for json types, the result is a json type, too
-			VariableReference: return jsonUtil.isJsonType(determineType(expression))
+			VariableReference: return jsonUtil.isJsonType(determineType(expression, null))
 			default: return false
 		}
 	}
 	
-	def dispatch JvmTypeReference determineType(StepContent stepContent) {
+	def dispatch JvmTypeReference determineType(StepContent stepContent, JvmTypeReference expectedType) {
 		tclJvmTypeReferenceUtil.initWith(stepContent.eResource)
 		val longPattern = Pattern.compile("[0-9]+")
 		val booleanPattern = Pattern.compile("true|false", Pattern.CASE_INSENSITIVE)
 		switch stepContent {			
 			StepContentVariable: {
-					if (longPattern.matcher(stepContent.value).matches) {
-						return tclJvmTypeReferenceUtil.longObjectJvmTypeReference
-					} else if (booleanPattern.matcher(stepContent.value).matches) {
-						return tclJvmTypeReferenceUtil.booleanObjectJvmTypeReference
-					} else {
-						return tclJvmTypeReferenceUtil.stringJvmTypeReference
+				if(expectedType !== null) {
+					if (tclJvmTypeReferenceUtil.isString(expectedType)) {
+						return expectedType
 					}
+					if (tclJvmTypeReferenceUtil.isBoolean(expectedType) && booleanPattern.matcher(stepContent.value).matches) {
+						return expectedType
+					}
+					if (tclJvmTypeReferenceUtil.isNonFractionalNumber(expectedType) && longPattern.matcher(stepContent.value).matches) {
+						return expectedType
+					}
+				} 
+				// (fallback) try to find out without context information
+				if (longPattern.matcher(stepContent.value).matches) {
+					return tclJvmTypeReferenceUtil.longObjectJvmTypeReference
+				} else if (booleanPattern.matcher(stepContent.value).matches) {
+					return tclJvmTypeReferenceUtil.booleanObjectJvmTypeReference
+				} else {
+					return tclJvmTypeReferenceUtil.stringJvmTypeReference
 				}
-			VariableReference: return determineType(stepContent.variable)
+			}
+			VariableReference: return determineType(stepContent.variable, expectedType)
 			default: throw new RuntimeException('''Unknown step content type = '«stepContent.class.name»' for type determination.''')
 		}
 		
 	}
 	
-	def dispatch JvmTypeReference determineType(Expression expression) {
+	def dispatch JvmTypeReference determineType(Expression expression, JvmTypeReference expectedType) {
 		tclJvmTypeReferenceUtil.initWith(expression.eResource)
 		switch expression {
 			VariableReferencePathAccess: return tclJvmTypeReferenceUtil.jsonElementJvmTypeReference
@@ -82,9 +94,9 @@ class TclExpressionTypeComputer {
 			JsonArray: return tclJvmTypeReferenceUtil.jsonArrayJvmTypeReference
 			JsonNumber: return tclJvmTypeReferenceUtil.longObjectJvmTypeReference // TODO should be big decimal
 			JsonString: return tclJvmTypeReferenceUtil.stringJvmTypeReference
-			VariableReference: return expression.variable.determineType
+			VariableReference: return expression.variable.determineType(expectedType)
 			Comparison: if(expression.comparator === null) {
-				expression.left.determineType
+				expression.left.determineType(expectedType)
 			} else {
 				return tclJvmTypeReferenceUtil.booleanPrimitiveJvmTypeReference
 			}
@@ -93,7 +105,7 @@ class TclExpressionTypeComputer {
 		}
 	}
 	
-	def dispatch JvmTypeReference determineType(Variable variable) {
+	def dispatch JvmTypeReference determineType(Variable variable, JvmTypeReference expectedType) {
 		tclJvmTypeReferenceUtil.initWith(variable.eResource)
 		switch variable {
 			AssignmentVariable : return typeValidationUtil.determineType(variable)
@@ -134,7 +146,7 @@ class TclExpressionTypeComputer {
 		}else if (expression.isJsonType) {
 			return true
 		}
-		val type=expression.determineType
+		val type=expression.determineType(null)
 		val validCoercion=validCoercions.get(type.qualifiedName)
 		return (validCoercion!==null && validCoercion.toList.contains(wantedType.qualifiedName))
 	}
@@ -149,11 +161,11 @@ class TclExpressionTypeComputer {
 	
 	def JvmTypeReference coercedTypeOfComparison(Comparison comparison) {
 		tclJvmTypeReferenceUtil.initWith(comparison.eResource)
-		val leftType=comparison.left.determineType
+		val leftType=comparison.left.determineType(null)
 		if(comparison.comparator===null) {
 			return leftType
 		}
-		val rightType=comparison.right.determineType
+		val rightType=comparison.right.determineType(null)
 		switch (comparison.comparator) {
 			ComparatorMatches: return tclJvmTypeReferenceUtil.stringJvmTypeReference// everything is coercible to string 
 			ComparatorGreaterThan,
