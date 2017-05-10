@@ -43,11 +43,11 @@ import org.testeditor.dsl.common.util.classpath.ClasspathUtil
  */
 class ProjectContentGenerator {
 
-	static public val TEST_EDITOR_MAVEN_PLUGIN_VERSION = "1.1"
+	static public val TEST_EDITOR_MAVEN_PLUGIN_VERSION = "1.3"
 	static public val TEST_EDITOR_WEB_FIXTURE = "3.1.4"
 	static public val TEST_EDITOR_CORE_FIXTURE = "3.1.0"
 	static public val TEST_EDITOR_SWING_FIXTURE = "3.1.1"
-	static public val TEST_EDITOR_GRADLE_PLUGIN_VERSION = "0.6"
+	static public val TEST_EDITOR_GRADLE_PLUGIN_VERSION = "0.8"
 	
 	static public val String TEST_EDITOR_MVN_GEN_OUTPUT = 'src-gen/test/java'
 
@@ -101,12 +101,6 @@ class ProjectContentGenerator {
 	@VisibleForTesting
 	protected def String mapTesteditorVersion(Version version){
 		return '''«version.major».«version.minor».«version.micro»«if(!version.qualifier.nullOrEmpty){'-SNAPSHOT'}else{''}»'''
-	}
-	
-	@VisibleForTesting
-	protected def String getXtextVersion() {
-		val xtextVersion = Platform.getBundle("org.eclipse.xtext").version
-		return '''«xtextVersion.major».«xtextVersion.minor».«xtextVersion.micro»'''
 	}
 
 	def void createProjectContent(IProject project, String[] fixtures, String buildsystem, boolean demo,
@@ -468,10 +462,6 @@ class ProjectContentGenerator {
 			version '«testEditorVersion»'
 		}
 		
-		xtext {
-			version '«xtextVersion»'
-		}
-		
 		// configure logging within tests (see https://docs.gradle.org/current/dsl/org.gradle.api.tasks.testing.logging.TestLogging.html)
 		// show standard out during test to see logging output
 		test.testLogging.showStandardStreams = true
@@ -688,7 +678,6 @@ class ProjectContentGenerator {
 							<configuration>
 								<testEditorVersion>${testeditor.version}</testEditorVersion>
 								<testEditorOutput>${testeditor.output}</testEditorOutput>
-								<xtextVersion>«xtextVersion»</xtextVersion>
 							</configuration>
 							<executions>
 								<execution>
