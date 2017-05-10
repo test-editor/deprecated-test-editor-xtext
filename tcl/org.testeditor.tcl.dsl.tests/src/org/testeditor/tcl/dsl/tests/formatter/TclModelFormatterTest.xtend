@@ -180,4 +180,28 @@ class TclModelFormatterTest extends AbstractTclFormatterTest {
 		]
 	}
 
+	@Test
+	def void allowEmptyLinesBetweenTestSteps() {
+		assertFormatted[
+			toBeFormatted = '''
+				package com.example
+				
+				# Test
+				
+				* The whole test
+				
+					Component: myComponent
+				
+					// given
+					- here is the given
+				
+					// when
+					- here is the when
+				
+					// then
+					- here are the assertions
+			'''.trim
+		]
+	}
+
 }

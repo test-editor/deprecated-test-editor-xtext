@@ -131,7 +131,7 @@ class TclFormatter extends XbaseFormatter {
 	}
 
 	def dispatch void format(AbstractTestStep testStep, extension IFormattableDocument document) {
-		testStep.regionFor.keyword("-").prepend[newLine]
+		testStep.regionFor.keyword("-").prepend[setNewLines(1, 1, 2)]
 		if (testStep instanceof TestStep) {
 			testStep.contents.forEach[format]
 			testStep.regionFor.keyword(".").prepend[noSpace]
