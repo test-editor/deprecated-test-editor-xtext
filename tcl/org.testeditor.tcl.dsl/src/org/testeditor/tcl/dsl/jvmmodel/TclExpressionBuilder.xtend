@@ -37,6 +37,7 @@ import org.testeditor.tcl.JsonNumber
 class TclExpressionBuilder {
 
 	@Inject TclExpressionTypeComputer typeComputer
+	@Inject TclCoercionComputer tclCoercionComputer
 	@Inject TclJsonUtil tclJsonUtil
 
 	@Inject extension CollectionUtils
@@ -50,18 +51,18 @@ class TclExpressionBuilder {
 	}
 
 	def String buildComparisonExpression(Expression compared, JvmTypeReference wantedType) {
+		tclCoercionComputer.initWith(compared?.eResource)
 		val typeOfCompared = typeComputer.determineType(compared, wantedType)
 		val builtReadExpression = buildReadExpression(compared)
-		return builtReadExpression.wrapWithCoercionIfNecessary(typeOfCompared, wantedType)
+		return tclCoercionComputer.generateCoercion(wantedType, typeOfCompared, builtReadExpression)
 	}
 	
 	def dispatch String buildReadExpression(Comparison comparison) {
 		if (comparison.comparator === null) {
 			return buildReadExpression(comparison.left)
 		}
-		// check whether coercion of left or right is necessary
-		
-		val wantedTypeForComparison = typeComputer.coercedTypeOfComparison(comparison)
+		// check whether coercion of left or right is necessary		
+		val wantedTypeForComparison = typeComputer.coercedTypeOfComparison(comparison, null)
 		val validTypeBuiltRightExpression = buildComparisonExpression(comparison.right, wantedTypeForComparison)
 		val validTypeBuiltLeftExpression = buildComparisonExpression(comparison.left, wantedTypeForComparison)
 		
@@ -75,21 +76,6 @@ class TclExpressionBuilder {
 		}
 	}
 	
-	private def String wrapWithCoercionIfNecessary(String builtExpression, JvmTypeReference ownType, JvmTypeReference wantedType) {
-		if (String.name.equals(ownType.qualifiedName)) {
-			switch wantedType.qualifiedName {
-				case Long.name,
-				case long.name: return '''Long.parseLong(«builtExpression»)'''
-				case boolean.name,
-				case Boolean.name: return '''Boolean.valueOf(«builtExpression»)'''
-				case String.name: return builtExpression					
-			}
-		} else if (tclJsonUtil.isJsonType(ownType)) {
-			return '''«builtExpression»«tclJsonUtil.generateJsonElementAccess(wantedType)»'''
-		} 
-		return builtExpression
-	}
-
 	def dispatch String buildReadExpression(VariableReferencePathAccess varRef) {
 		return '''«varRef.variable.variableToVarName»«varRef.path.map[tclJsonUtil.jsonPathReadAccessToString(it)].join»'''		
 	}

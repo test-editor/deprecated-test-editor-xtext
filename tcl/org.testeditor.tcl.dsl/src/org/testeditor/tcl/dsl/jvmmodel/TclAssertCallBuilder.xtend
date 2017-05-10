@@ -15,6 +15,7 @@ package org.testeditor.tcl.dsl.jvmmodel
 import javax.inject.Inject
 import org.apache.commons.lang3.StringEscapeUtils
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.slf4j.LoggerFactory
 import org.testeditor.tcl.Comparator
@@ -24,13 +25,13 @@ import org.testeditor.tcl.ComparatorLessThan
 import org.testeditor.tcl.ComparatorMatches
 import org.testeditor.tcl.Comparison
 import org.testeditor.tcl.Expression
+import org.testeditor.tcl.JsonNumber
 import org.testeditor.tcl.JsonString
 import org.testeditor.tcl.NullOrBoolCheck
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.VariableReference
 
 import static extension org.eclipse.xtext.EcoreUtil2.getContainerOfType
-import org.eclipse.xtext.xbase.typesystem.conformance.TypeConformanceComputationArgument
 
 class TclAssertCallBuilder {
 
@@ -40,7 +41,6 @@ class TclAssertCallBuilder {
 	@Inject TclExpressionBuilder expressionBuilder
 	@Inject TclJvmTypeReferenceUtil tclJvmTypeReferenceUtil
 	@Inject TclExpressionTypeComputer tclExpressionTypeComputer
-
 
 	/** assert method calls used, toString must yield the actual method name! */
 	enum AssertMethod {
@@ -107,6 +107,7 @@ class TclAssertCallBuilder {
 			VariableReference: AssertMethod.assertNotNull
 			Comparison: assertionMethod(expression.comparator)
 			JsonString: AssertMethod.assertNotNull
+			JsonNumber: AssertMethod.assertNotNull
 			default: throw new RuntimeException('''unknown expression type «expression.class»''')
 		}
 	}
@@ -132,7 +133,7 @@ class TclAssertCallBuilder {
 		if (comparison.comparator == null) {
 			return expressionBuilder.buildReadExpression(comparison.left)
 		}
-		val wantedType = tclExpressionTypeComputer.coercedTypeOfComparison(comparison)
+		val wantedType = tclExpressionTypeComputer.coercedTypeOfComparison(comparison, null)
 		val builtRightExpression=expressionBuilder.buildComparisonExpression(comparison.right, wantedType)
 		val builtLeftExpression=expressionBuilder.buildComparisonExpression(comparison.left, wantedType)
 		switch (comparison.comparator) {
@@ -155,11 +156,16 @@ class TclAssertCallBuilder {
 		val returnType = variableTypeMap.get(nullCheck.variableReference.variable.name)
 		logger.trace("builds expression based on return type name='{}' for null or bool check of variable='{}'",
 			returnType.qualifiedName, nullCheck.variableReference.variable.name)
-		if (tclJvmTypeReferenceUtil.isAssignableFrom(tclJvmTypeReferenceUtil.booleanObjectJvmTypeReference, returnType, new TypeConformanceComputationArgument(false, false, false, false, false, true))) {
+		if (returnType.isABooleanObjectType) {
 			return '''(«builtExpression» != null) && «builtExpression».booleanValue()'''
 		} else {
 			return builtExpression
 		}
+	}
+	
+	private def boolean isABooleanObjectType(JvmTypeReference typeReference) {
+		return tclJvmTypeReferenceUtil.isAssignableFrom(tclJvmTypeReferenceUtil.booleanObjectJvmTypeReference,
+			typeReference, tclJvmTypeReferenceUtil.checkWithoutBoxing)
 	}
 
 	private def TestStepContext getEnclosingTestStepContext(EObject eObject) {

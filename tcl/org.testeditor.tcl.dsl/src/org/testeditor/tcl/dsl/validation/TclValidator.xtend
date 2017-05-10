@@ -317,7 +317,7 @@ class TclValidator extends AbstractTclValidator {
 			switch (comparison.comparator) {
 				ComparatorGreaterThan,
 				ComparatorLessThan: {
-					val coercedType = expressionTypeComputer.coercedTypeOfComparison(comparison)
+					val coercedType = expressionTypeComputer.coercedTypeOfComparison(comparison, null)
 					if (coercedType === null || !tclJvmTypeReferenceUtil.isOrderable(coercedType)) {
 						error('Sorry, comparing order of non numeric values is not supported, yet.', comparison.eContainer, comparison.eContainingFeature, INVALID_ORDER_TYPE)
 					}

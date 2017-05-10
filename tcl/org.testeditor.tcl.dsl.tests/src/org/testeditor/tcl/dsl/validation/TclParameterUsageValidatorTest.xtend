@@ -24,7 +24,6 @@ import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTestWithDummyComponent
 
 import static org.testeditor.tcl.TclPackage.Literals.*
-import org.junit.Ignore
 
 class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponent {
 	
@@ -248,9 +247,8 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 		validator.assertNoErrors(tclModel)
 	}
 	
-	@Ignore // for now, since validation is temporarily excluded (to allow for json assignment) 
 	@Test
-	def void testParameterTypingMapExpectingLong() {
+	def void testParameterTypingJsonExpectingLong() {
 		// given
 		val tclModel = tclModel => [
 			test = testCase("MyTest") => [
@@ -267,18 +265,18 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 		tclModel.addToResourceSet('MyTest.tcl')
 		
 		// when then
-		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_TYPED_VAR_DEREF) // since long is expected, and map is provided
+		validator.assertNoErrors(tclModel) // since json could be coerced to expected long value (for which a runtime check is done)
 	}
 	
 	@Test
-	def void testParameterTypingMapDereferencedExpectingLong() {
+	def void testParameterTypingJsonDereferencedExpectingLong() {
 		// given
 		val tclModel = tclModel => [
 			test = testCase("MyTest") => [
 				steps += specificationStep("test", "something") => [
 					contexts += componentTestStepContext(dummyComponent) => [
 						val assignment=testStepWithAssignment("mapvar", "getJsonObject").withElement("dummyElement")
-						val mappedRef=assignment.variable.mappedReference
+						val mappedRef=assignment.variable.variableReferencePathAccess
 						steps += assignment
 						steps += testStep("wait").withReference(mappedRef) // use map dereferenced variable (e.g. mavar."key") 
 					]
@@ -288,7 +286,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 		tclModel.addToResourceSet('MyTest.tcl')
 		
 		// when then
-		validator.assertNoErrors(tclModel) // no error, since element in map is (or may be parsed to) long
+		validator.assertNoErrors(tclModel) // no error, since element in json is (or may be parsed to) long
 	}
 	
 	

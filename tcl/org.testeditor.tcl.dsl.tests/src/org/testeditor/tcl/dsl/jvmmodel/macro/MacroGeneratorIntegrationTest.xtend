@@ -266,8 +266,8 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 		'''
 
 		// when
-	 val tclModel = parseTcl(tcl, "SimpleTest.tcl")
-	 val generatedCode = tclModel.generate
+		val tclModel = parseTcl(tcl, "SimpleTest.tcl")
+		val generatedCode = tclModel.generate
 
 		// then
 		generatedCode => [

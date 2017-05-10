@@ -532,7 +532,9 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				val variableType = tclExpressionTypeComputer.determineType(variable, expectedType.get)
 				if (tclCoercionComputer.isCoercionPossible(expectedType.get, variableType)) { 
 					val coercionCheck = generateCoercionCheck(macro, expectedType)
-					output.append(coercionCheck).newLine
+					if (!coercionCheck.nullOrEmpty) {
+						output.append(coercionCheck).newLine
+					}
 				}
 			]
 			val parameters = generateCallParameters(step, macro)

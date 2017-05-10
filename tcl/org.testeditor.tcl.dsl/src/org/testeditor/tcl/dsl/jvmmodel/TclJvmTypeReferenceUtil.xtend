@@ -17,6 +17,8 @@ import org.eclipse.xtext.xbase.typesystem.util.CommonTypeComputationServices
 // @Singleton
 class TclJvmTypeReferenceUtil {
 
+	public val checkWithoutBoxing = new TypeConformanceComputationArgument(false, false, false, false, false, true)
+
 	@Inject TclJsonUtil tclJsonUtil
 	@Inject CommonTypeComputationServices services
 	var StandardTypeReferenceOwner typeReferenceOwner
@@ -96,6 +98,7 @@ class TclJvmTypeReferenceUtil {
 		return isLong(typeReference) // currently the only one known to be orderable is long
 	}
 
+	// use xbase to check for assignablility
 	def boolean isAssignableFrom(JvmTypeReference target, JvmTypeReference source,
 		TypeConformanceComputationArgument argument) {
 		if (typeReferenceOwner === null) {
@@ -110,7 +113,6 @@ class TclJvmTypeReferenceUtil {
 		return assignable
 	}
 
-	// use xbase to check for assignablility
 	def boolean isAssignableFrom(JvmTypeReference target, JvmTypeReference source) {
 		return isAssignableFrom(target, source, new TypeConformanceComputationArgument)
 	}
@@ -124,14 +126,49 @@ class TclJvmTypeReferenceUtil {
 		return int.name.equals(qname) || Integer.name.equals(qname)
 	}
 	
-	def JvmTypeReference booleanPrimitiveJvmTypeReference() { ensureTypeReferenceBuilderInitialized return boolean.buildFrom }
-	def JvmTypeReference booleanObjectJvmTypeReference() { ensureTypeReferenceBuilderInitialized return Boolean.buildFrom }
-	def JvmTypeReference stringJvmTypeReference() { ensureTypeReferenceBuilderInitialized return String.buildFrom }
-	def JvmTypeReference longPrimitiveJvmTypeReference() { ensureTypeReferenceBuilderInitialized return long.buildFrom } 
-	def JvmTypeReference longObjectJvmTypeReference() { ensureTypeReferenceBuilderInitialized return Long.buildFrom }
-	def JvmTypeReference jsonElementJvmTypeReference() { ensureTypeReferenceBuilderInitialized return JsonElement.buildFrom }
-	def JvmTypeReference jsonPrimitiveJvmTypeReference() { ensureTypeReferenceBuilderInitialized return JsonPrimitive.buildFrom }
-	def JvmTypeReference jsonObjectJvmTypeReference() { ensureTypeReferenceBuilderInitialized return JsonObject.buildFrom }
-	def JvmTypeReference jsonArrayJvmTypeReference() { ensureTypeReferenceBuilderInitialized return JsonArray.buildFrom }
+	def JvmTypeReference booleanPrimitiveJvmTypeReference() {
+		ensureTypeReferenceBuilderInitialized
+		return boolean.buildFrom
+	}
+
+	def JvmTypeReference booleanObjectJvmTypeReference() {
+		ensureTypeReferenceBuilderInitialized
+		return Boolean.buildFrom
+	}
+
+	def JvmTypeReference stringJvmTypeReference() {
+		ensureTypeReferenceBuilderInitialized
+		return String.buildFrom
+	}
+
+	def JvmTypeReference longPrimitiveJvmTypeReference() {
+		ensureTypeReferenceBuilderInitialized
+		return long.buildFrom
+	}
+
+	def JvmTypeReference longObjectJvmTypeReference() {
+		ensureTypeReferenceBuilderInitialized
+		return Long.buildFrom
+	}
+
+	def JvmTypeReference jsonElementJvmTypeReference() {
+		ensureTypeReferenceBuilderInitialized
+		return JsonElement.buildFrom
+	}
+
+	def JvmTypeReference jsonPrimitiveJvmTypeReference() {
+		ensureTypeReferenceBuilderInitialized
+		return JsonPrimitive.buildFrom
+	}
+
+	def JvmTypeReference jsonObjectJvmTypeReference() {
+		ensureTypeReferenceBuilderInitialized
+		return JsonObject.buildFrom
+	}
+
+	def JvmTypeReference jsonArrayJvmTypeReference() {
+		ensureTypeReferenceBuilderInitialized
+		return JsonArray.buildFrom
+	}
 
 }

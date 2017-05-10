@@ -34,7 +34,6 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 
 	@InjectMocks TclAssertCallBuilder assertCallBuilder // class under test
 	
-	// @Mock ModelUtil amlModelUtil // injected into class under test
 	@Mock protected TclModelUtil tclModelUtil // injected into class under test
 	@Mock TclExpressionBuilder expressionBuilder // injected into class under test
 	@Mock SimpleTypeComputer simpleTypeComputer // injected into class under test
@@ -189,9 +188,9 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 	}
 
 	@Test
-	def void testWithMapDereference() {
+	def void testWithJsonObjectDereference() {
 		// given
-		val expression = mappedReference(VARIABLE_NAME, "key").compareOnEquality(STRING_FOR_COMPARISON)
+		val expression = variableReferencePathAccess(VARIABLE_NAME, "key").compareOnEquality(STRING_FOR_COMPARISON)
 		when(expressionBuilder.buildComparisonExpression(isA(VariableReferencePathAccess),any)).thenReturn('''«VARIABLE_NAME».get("key")''')
 
 		// when
@@ -202,9 +201,9 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 	}
 
 	@Test
-	def void testWithMapKeyAsString() {
+	def void testWithJsonObjectKeyAsString() {
 		// given
-		val expression = mappedReference(VARIABLE_NAME, "key with spaces").compareOnEquality(STRING_FOR_COMPARISON)
+		val expression = variableReferencePathAccess(VARIABLE_NAME, "key with spaces").compareOnEquality(STRING_FOR_COMPARISON)
 		when(expressionBuilder.buildComparisonExpression(isA(VariableReferencePathAccess),any)).thenReturn('''«VARIABLE_NAME».get("key with spaces")''')
 
 		// when

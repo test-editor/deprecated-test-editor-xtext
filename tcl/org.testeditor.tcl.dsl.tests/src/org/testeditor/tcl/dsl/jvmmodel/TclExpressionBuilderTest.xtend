@@ -8,31 +8,35 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.testeditor.aml.Variable
 import org.testeditor.tcl.Expression
+import org.testeditor.tcl.KeyPathElement
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
 
 import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
-import org.testeditor.tcl.KeyPathElement
 
 class TclExpressionBuilderTest extends AbstractTclTest {
 
 	@InjectMocks TclExpressionBuilder expressionBuilder
 	@Mock TclJsonUtil tclJsonUtil // injected into expressionBuilder
-	@Mock TclExpressionTypeComputer typeComputer
+	@Mock TclExpressionTypeComputer typeComputer // injected into expression Builder
+	@Mock TclCoercionComputer tclCoercionComputer // injected into expressio Builder
 	@Inject extension TclModelGenerator
 	@Mock JvmTypeReference stringTypeReference
 	
-	val someKey = "some"
-	
+	val someKey = "Some Key"
 	
 	@Before
 	def void prepareMocks() {
 		when(stringTypeReference.qualifiedName).thenReturn(String.name)
 		when(typeComputer.determineType(any(Expression),any(JvmTypeReference))).thenReturn(stringTypeReference)
 		when(typeComputer.determineType(any(Variable),any(JvmTypeReference))).thenReturn(stringTypeReference)
-		when(typeComputer.coercedTypeOfComparison(any)).thenReturn(stringTypeReference)
+		when(typeComputer.coercedTypeOfComparison(any, any)).thenReturn(stringTypeReference)
 		when(tclJsonUtil.jsonPathReadAccessToString(any(KeyPathElement))).thenReturn('''.someCleverConversion("«someKey»")''')
+		when(tclCoercionComputer.generateCoercion(stringTypeReference, stringTypeReference, '"test"')).
+			thenReturn('"test"')
+		when(tclCoercionComputer.generateCoercion(stringTypeReference, stringTypeReference, 'variable')).thenReturn(
+			'variable')
 	}
 	
 	@Test
@@ -75,7 +79,7 @@ class TclExpressionBuilderTest extends AbstractTclTest {
 	@Test
 	def void testMapReference() {
 		// given
-		val jsonMapAccess = mappedReference("variable", someKey)
+		val jsonMapAccess = variableReferencePathAccess("variable", someKey)
 
 		// when
 		val result = expressionBuilder.buildReadExpression(jsonMapAccess)

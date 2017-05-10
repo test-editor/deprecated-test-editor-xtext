@@ -44,6 +44,7 @@ class TclExpressionTypeComputer {
 	@Inject TclTypeValidationUtil typeValidationUtil		
 	@Inject TclJsonUtil jsonUtil
 	@Inject TclJvmTypeReferenceUtil tclJvmTypeReferenceUtil
+	@Inject TclCoercionComputer tclCoercionComputer
 	
 	def boolean isJsonType(Expression expression) {
 		switch expression {
@@ -122,33 +123,11 @@ class TclExpressionTypeComputer {
 		Boolean.name->#[Boolean.name, boolean.name],
 		String.name->#[Long.name, long.name, Boolean.name, boolean.name]
 	}
-	
+
 	def boolean coercibleTo(Expression expression, JvmTypeReference wantedType) {
-		if (expression instanceof Comparison) {
-			if (expression.comparator === null) {
-				return coercibleTo(expression.left, wantedType)
-			}
-		}else if (expression instanceof JsonString) {
-			switch (wantedType.qualifiedName) {
-				case long.name,
-				case Long.name:
-					try {
-						Long.parseLong(expression.value)
-						return true
-					} catch (NumberFormatException nfe) {
-						return false
-					}
-				case boolean.name,
-				case Boolean.name:
-					return expression.value.equals(Boolean.TRUE.toString) ||
-						expression.value.equals(Boolean.FALSE.toString)
-			}
-		}else if (expression.isJsonType) {
-			return true
-		}
-		val type=expression.determineType(null)
-		val validCoercion=validCoercions.get(type.qualifiedName)
-		return (validCoercion!==null && validCoercion.toList.contains(wantedType.qualifiedName))
+		tclCoercionComputer.initWith(expression.eResource)
+		val expressionType = determineType(expression, wantedType)
+		return tclCoercionComputer.isCoercionPossible(wantedType, expressionType)
 	}
 	
 	def JvmTypeReference moreSpecificType(JvmTypeReference left, JvmTypeReference right) {
@@ -159,10 +138,12 @@ class TclExpressionTypeComputer {
 		}
 	}
 	
-	def JvmTypeReference coercedTypeOfComparison(Comparison comparison) {
+	// TODO: clean this goddamn hell up!
+	def JvmTypeReference coercedTypeOfComparison(Comparison comparison, JvmTypeReference wantedType) {
 		tclJvmTypeReferenceUtil.initWith(comparison.eResource)
-		val leftType=comparison.left.determineType(null)
-		if(comparison.comparator===null) {
+		tclCoercionComputer.initWith(comparison.eResource)
+		val leftType=comparison.left.determineType(wantedType)
+		if (comparison.comparator === null) {
 			return leftType
 		}
 		val rightType=comparison.right.determineType(null)

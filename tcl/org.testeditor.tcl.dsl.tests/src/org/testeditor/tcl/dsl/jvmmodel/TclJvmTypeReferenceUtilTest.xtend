@@ -1,20 +1,19 @@
 package org.testeditor.tcl.dsl.jvmmodel
 
 import javax.inject.Inject
-import org.eclipse.xtext.xbase.typesystem.conformance.TypeConformanceComputationArgument
-import org.junit.Test
 import org.eclipse.emf.ecore.resource.ResourceSet
+import org.eclipse.xtext.xbase.typesystem.conformance.TypeConformanceComputationArgument
 import org.junit.Before
 import org.junit.Ignore
+import org.junit.Test
 
 class TclJvmTypeReferenceUtilTest extends AbstractTclGeneratorIntegrationTest{
 
-	@Inject ResourceSet resourceSet
 	@Inject TclJvmTypeReferenceUtil classUnderTest
 	
 	@Before 
 	def void initClassUnderTest() {
-		classUnderTest.initWith(resourceSet)
+		classUnderTest.initWith(null as ResourceSet)
 	}
 	
 	@Test
@@ -50,7 +49,7 @@ class TclJvmTypeReferenceUtilTest extends AbstractTclGeneratorIntegrationTest{
 		isAssignable.assertFalse
 	}
 
-	@Ignore // currently works only if initialized with null resource set
+	@Ignore // this test should run within a (sane java) project and its resourceSet but fails locally with an exception 
 	@Test
 	def void testPrimitiveToBooleanObjectAssignmentWithBoxing() {
 		// given + when		

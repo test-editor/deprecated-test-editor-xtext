@@ -296,7 +296,7 @@ class TclModelGenerator {
 		]
 	}
 
-	def VariableReferencePathAccess mappedReference(AssignmentVariable assignmentVariable) {
+	def VariableReferencePathAccess variableReferencePathAccess(AssignmentVariable assignmentVariable) {
 		return variableReferencePathAccess => [
 			variable = assignmentVariable
 			path += keyPathElement => [ key = "key" ]
@@ -307,7 +307,7 @@ class TclModelGenerator {
 		variableReference => [variable = assignmentVariable(variableName)]
 	}
 
-	def VariableReferencePathAccess mappedReference(String variableName, String myKey) {
+	def VariableReferencePathAccess variableReferencePathAccess(String variableName, String myKey) {
 		variableReferencePathAccess => [
 			variable = assignmentVariable(variableName)
 			path += keyPathElement => [ key = myKey ]
