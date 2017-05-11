@@ -17,7 +17,9 @@ import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.xtext.common.types.JvmTypeReference
 
-/** compute whether and how coercion should be generated */
+/** 
+ * compute whether and how coercion should be generated
+ */
 class TclCoercionComputer {
 	
 	@Inject extension TclJvmTypeReferenceUtil typeReferenceUtil
@@ -151,6 +153,7 @@ class TclCoercionComputer {
 			throw new RuntimeException('''No coercible common orderable type found for typerefA='«typeReferenceA?.qualifiedName»' and typerefB='«typeReferenceB?.qualifiedName»'.''')
 		}
 	}
+	
 	def JvmTypeReference coercedCommonComparableType(JvmTypeReference typeReferenceA, JvmTypeReference typeReferenceB) {
 		if (typeReferenceA.qualifiedName == typeReferenceB.qualifiedName) {
 			return typeReferenceA
@@ -173,6 +176,7 @@ class TclCoercionComputer {
 		throw new RuntimeException('''No coercible common compareable type found for typerefA='«typeReferenceA?.qualifiedName»' and typerefB='«typeReferenceB?.qualifiedName»'.''')		
 	}
 	
+	// naive implementation of possible coercions or comparable types
 	def boolean coercableToCommonComparable(JvmTypeReference typeReferenceA, JvmTypeReference typeReferenceB) {
 		return ((typeReferenceA.qualifiedName == typeReferenceA.qualifiedName) ||
 			(isJsonType(typeReferenceA)) || (isJsonType(typeReferenceB)) ||

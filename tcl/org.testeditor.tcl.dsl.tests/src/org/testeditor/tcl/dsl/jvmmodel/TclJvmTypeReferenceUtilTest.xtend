@@ -10,10 +10,12 @@ import org.junit.Test
 class TclJvmTypeReferenceUtilTest extends AbstractTclGeneratorIntegrationTest{
 
 	@Inject TclJvmTypeReferenceUtil classUnderTest
+	@Inject TclJvmTypeReferenceUtil utilForTypeGenerationComparison
 	
 	@Before 
 	def void initClassUnderTest() {
 		classUnderTest.initWith(null as ResourceSet)
+		utilForTypeGenerationComparison.initWith(null as ResourceSet)
 	}
 	
 	@Test
@@ -58,6 +60,20 @@ class TclJvmTypeReferenceUtilTest extends AbstractTclGeneratorIntegrationTest{
 
 		// then
 		isAssignable.assertTrue
+	}
+
+	@Test
+	def void testTypeEquality() {
+		// given
+		val jsonArray = classUnderTest.jsonArrayJvmTypeReference
+		val myJsonArray = utilForTypeGenerationComparison.jsonArrayJvmTypeReference
+		assertTrue(jsonArray !== myJsonArray) // be sure to use two different instances!
+		
+		// when
+		val result = classUnderTest.isJsonArray(myJsonArray)
+		
+		// then
+		result.assertTrue
 	}
 	
 }

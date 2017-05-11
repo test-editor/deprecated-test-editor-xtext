@@ -26,7 +26,13 @@ import org.eclipse.xtext.xbase.typesystem.conformance.TypeConformanceComputation
 import org.eclipse.xtext.xbase.typesystem.references.StandardTypeReferenceOwner
 import org.eclipse.xtext.xbase.typesystem.util.CommonTypeComputationServices
 
-// @Singleton
+/**
+ * provide basic utility functions for JvmTypeReference(s)
+ * 
+ * since most functions make use of the type reference builder, please make sure
+ * that 'initWith' is called with the current resouce or resouceSet to allow classpath resolution
+ * of all relevant types.
+ */
 class TclJvmTypeReferenceUtil {
 
 	public val checkWithoutBoxing = new TypeConformanceComputationArgument(false, false, false, false, false, true)
@@ -73,23 +79,23 @@ class TclJvmTypeReferenceUtil {
 	}
 
 	def boolean isJsonArray(JvmTypeReference typeReference) {
-		jsonArrayJvmTypeReference.equals(typeReference) // let's see if this works
+		jsonArrayJvmTypeReference.qualifiedName == typeReference?.qualifiedName // let's see if this works
 	}
 
 	def boolean isJsonObject(JvmTypeReference typeReference) {
-		jsonObjectJvmTypeReference.equals(typeReference)
+		jsonObjectJvmTypeReference.qualifiedName == typeReference?.qualifiedName
 	}
 
 	def boolean isJsonPrimitive(JvmTypeReference typeReference) {
-		jsonPrimitiveJvmTypeReference.equals(typeReference)
+		jsonPrimitiveJvmTypeReference.qualifiedName == typeReference?.qualifiedName
 	}
 
 	def boolean isJsonElement(JvmTypeReference typeReference) {
-		jsonElementJvmTypeReference.equals(typeReference)
+		jsonElementJvmTypeReference.qualifiedName == typeReference?.qualifiedName
 	}
 
 	def boolean isString(JvmTypeReference typeReference) {
-		return String.name.equals(typeReference?.qualifiedName)
+		return String.name == typeReference?.qualifiedName
 	}
 
 	def boolean isBoolean(JvmTypeReference typeReference) {

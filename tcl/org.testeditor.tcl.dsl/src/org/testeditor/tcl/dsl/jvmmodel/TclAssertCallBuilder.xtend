@@ -32,6 +32,9 @@ import org.testeditor.tcl.VariableReference
 
 import static extension org.eclipse.xtext.EcoreUtil2.getContainerOfType
 
+/**
+ * generate code used for assertion statements
+ */
 class TclAssertCallBuilder {
 
 	static val logger = LoggerFactory.getLogger(TclAssertCallBuilder)
