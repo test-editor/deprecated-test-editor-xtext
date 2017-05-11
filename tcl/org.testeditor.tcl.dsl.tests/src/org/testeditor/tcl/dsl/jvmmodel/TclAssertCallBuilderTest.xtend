@@ -51,8 +51,8 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 	
 	@Before
 	def void setupExpressionBuilder() {
-		when(expressionBuilder.buildComparisonExpression(isA(JsonString),any)).thenReturn('''"«STRING_FOR_COMPARISON»"''')
-		when(expressionBuilder.buildComparisonExpression(isA(VariableReference),any)).thenReturn(VARIABLE_NAME)
+		when(expressionBuilder.buildReadExpression(isA(JsonString),any)).thenReturn('''"«STRING_FOR_COMPARISON»"''')
+		when(expressionBuilder.buildReadExpression(isA(VariableReference),any)).thenReturn(VARIABLE_NAME)
 		when(expressionBuilder.buildReadExpression(isA(JsonString))).thenReturn('''"«STRING_FOR_COMPARISON»"''')
 		when(expressionBuilder.buildReadExpression(isA(VariableReference))).thenReturn(VARIABLE_NAME)
 		when(expressionBuilder.buildReadExpression(isA(VariableReferencePathAccess))).thenReturn(VARIABLE_NAME+'.get("key")')
@@ -191,7 +191,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 	def void testWithJsonObjectDereference() {
 		// given
 		val expression = variableReferencePathAccess(VARIABLE_NAME, "key").compareOnEquality(STRING_FOR_COMPARISON)
-		when(expressionBuilder.buildComparisonExpression(isA(VariableReferencePathAccess),any)).thenReturn('''«VARIABLE_NAME».get("key")''')
+		when(expressionBuilder.buildReadExpression(isA(VariableReferencePathAccess),any)).thenReturn('''«VARIABLE_NAME».get("key")''')
 
 		// when
 		val generatedCode = assertCallBuilder.build(expression, "prefix")
@@ -204,7 +204,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 	def void testWithJsonObjectKeyAsString() {
 		// given
 		val expression = variableReferencePathAccess(VARIABLE_NAME, "key with spaces").compareOnEquality(STRING_FOR_COMPARISON)
-		when(expressionBuilder.buildComparisonExpression(isA(VariableReferencePathAccess),any)).thenReturn('''«VARIABLE_NAME».get("key with spaces")''')
+		when(expressionBuilder.buildReadExpression(isA(VariableReferencePathAccess),any)).thenReturn('''«VARIABLE_NAME».get("key with spaces")''')
 
 		// when
 		val generatedCode = assertCallBuilder.build(expression, "prefix")

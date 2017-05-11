@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2012 - 2017 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
 import org.junit.Before
@@ -30,9 +42,9 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 			* test something
 			
 			Component: dummyComponent
-			- myMap = Read jsonObject from <dummyElement>
+			- myJsonObject = Read jsonObject from <dummyElement>
 			- myVal = Read value from <dummyElement>
-			- Start application @myMap."my key"
+			- Start application @myJsonObject."my key"
 			- Start application @myVal
 		''')
 		tclModel.addToResourceSet
@@ -62,13 +74,13 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 			    
 			    reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "dummyComponent");
 			    
-			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "com.google.gson.JsonObject myMap = Read jsonObject from <dummyElement>");
-			    com.google.gson.JsonObject myMap = dummyFixture.getJsonObject("dummyLocator");
+			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "com.google.gson.JsonObject myJsonObject = Read jsonObject from <dummyElement>");
+			    com.google.gson.JsonObject myJsonObject = dummyFixture.getJsonObject("dummyLocator");
 			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "java.lang.String myVal = Read value from <dummyElement>");
 			    java.lang.String myVal = dummyFixture.getValue("dummyLocator");
-			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Start application @myMap.\"my key\"");
-			    org.junit.Assert.assertTrue("Parameter is expected to be of type = 'java.lang.String' but a non coercible value = '"+myMap.getAsJsonObject().get("my key").toString()+"' was passed through variable reference = 'myMap'.", myMap.getAsJsonObject().get("my key").getAsJsonPrimitive().isString());
-			    dummyFixture.startApplication(myMap.getAsJsonObject().get("my key").getAsJsonPrimitive().getAsString());
+			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Start application @myJsonObject.\"my key\"");
+			    org.junit.Assert.assertTrue("Parameter is expected to be of type = 'java.lang.String' but a non coercible value = '"+myJsonObject.getAsJsonObject().get("my key").toString()+"' was passed through variable reference = 'myJsonObject'.", myJsonObject.getAsJsonObject().get("my key").getAsJsonPrimitive().isString());
+			    dummyFixture.startApplication(myJsonObject.getAsJsonObject().get("my key").getAsJsonPrimitive().getAsString());
 			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Start application @myVal");
 			    dummyFixture.startApplication(myVal);
 			  }

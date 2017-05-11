@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2012 - 2017 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
 import javax.inject.Inject
@@ -17,10 +29,12 @@ import static org.mockito.Mockito.*
 
 class TclExpressionBuilderTest extends AbstractTclTest {
 
-	@InjectMocks TclExpressionBuilder expressionBuilder
+	@InjectMocks TclExpressionBuilder expressionBuilder // class under test
+	
 	@Mock TclJsonUtil tclJsonUtil // injected into expressionBuilder
 	@Mock TclExpressionTypeComputer typeComputer // injected into expression Builder
-	@Mock TclCoercionComputer tclCoercionComputer // injected into expressio Builder
+	@Mock TclCoercionComputer tclCoercionComputer // injected into expression Builder
+	
 	@Inject extension TclModelGenerator
 	@Mock JvmTypeReference stringTypeReference
 	
@@ -32,7 +46,7 @@ class TclExpressionBuilderTest extends AbstractTclTest {
 		when(typeComputer.determineType(any(Expression),any(JvmTypeReference))).thenReturn(stringTypeReference)
 		when(typeComputer.determineType(any(Variable),any(JvmTypeReference))).thenReturn(stringTypeReference)
 		when(typeComputer.coercedTypeOfComparison(any, any)).thenReturn(stringTypeReference)
-		when(tclJsonUtil.jsonPathReadAccessToString(any(KeyPathElement))).thenReturn('''.someCleverConversion("«someKey»")''')
+		when(tclJsonUtil.jsonPathReadAccessToString(any(KeyPathElement))).thenReturn('''.getJsonObject().get("«someKey»")''')
 		when(tclCoercionComputer.generateCoercion(stringTypeReference, stringTypeReference, '"test"')).
 			thenReturn('"test"')
 		when(tclCoercionComputer.generateCoercion(stringTypeReference, stringTypeReference, 'variable')).thenReturn(
@@ -77,7 +91,7 @@ class TclExpressionBuilderTest extends AbstractTclTest {
 	}
 
 	@Test
-	def void testMapReference() {
+	def void testJsonReference() {
 		// given
 		val jsonMapAccess = variableReferencePathAccess("variable", someKey)
 
@@ -85,7 +99,7 @@ class TclExpressionBuilderTest extends AbstractTclTest {
 		val result = expressionBuilder.buildReadExpression(jsonMapAccess)
 
 		// then
-		result.assertEquals('''variable.someCleverConversion("«someKey»")'''.toString)
+		result.assertEquals('''variable.getJsonObject().get("«someKey»")'''.toString)
 	}
 
 	@Test

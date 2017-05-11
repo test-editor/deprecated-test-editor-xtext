@@ -42,7 +42,7 @@ class TclJsonAssignmentGenerationIntegrationTest extends AbstractTclGeneratorInt
 	@Test
 	def void testJsonAssignmentWithStringValue() {
 		// given
-		val tclModel = createJsonEntryAssignmentModel("", "{ \"kk\" : \"jj\" }", "key 1", "key 2", "3.key")
+		val tclModel = createJsonEntryAssignmentModel('', '{ "kk" : "jj" }', 'key 1', 'key 2', '3.key')
 
 		// when
 		jvmModelInferrer.generateMethodBody(tclModel.test, outputStub)
@@ -54,8 +54,8 @@ class TclJsonAssignmentGenerationIntegrationTest extends AbstractTclGeneratorInt
 	@Test
 	def void testJsonObjectAssignmentWithVariableReference() {
 		// given
-		val tclModel = createJsonEntryAssignmentModel("- otherJsonVariable = Read jsonObject from <bar>",
-			"otherJsonVariable.\"some key with spaces\"", "key")
+		val tclModel = createJsonEntryAssignmentModel('- otherJsonVariable = Read jsonObject from <bar>',
+			'otherJsonVariable."some key with spaces"', 'key')
 
 		// when
 		jvmModelInferrer.generateMethodBody(tclModel.test, outputStub)
@@ -67,7 +67,7 @@ class TclJsonAssignmentGenerationIntegrationTest extends AbstractTclGeneratorInt
 	@Test
 	def void testJsonObjectAssignmentWithBoolVariableReference() {
 		// given
-		val tclModel = createJsonEntryAssignmentModel("- myBool = Read bool from <bar>", "myBool", "key")
+		val tclModel = createJsonEntryAssignmentModel('- myBool = Read bool from <bar>', 'myBool', 'key')
 
 		// when
 		jvmModelInferrer.generateMethodBody(tclModel.test, outputStub)
@@ -79,7 +79,7 @@ class TclJsonAssignmentGenerationIntegrationTest extends AbstractTclGeneratorInt
 	@Test
 	def void testJsonObjectAssignmentWithLongVariableReference() {
 		// given
-		val tclModel = createJsonEntryAssignmentModel("- myLong = Read long from <bar>", "myLong", "key")
+		val tclModel = createJsonEntryAssignmentModel('- myLong = Read long from <bar>', 'myLong', 'key')
 
 		// when
 		jvmModelInferrer.generateMethodBody(tclModel.test, outputStub)

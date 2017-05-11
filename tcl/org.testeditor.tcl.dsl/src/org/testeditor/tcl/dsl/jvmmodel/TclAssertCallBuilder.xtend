@@ -14,7 +14,6 @@ package org.testeditor.tcl.dsl.jvmmodel
 
 import javax.inject.Inject
 import org.apache.commons.lang3.StringEscapeUtils
-import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.slf4j.LoggerFactory
@@ -89,7 +88,7 @@ class TclAssertCallBuilder {
 	}
 
 	private def AssertMethod assertionMethodForNullOrBoolCheck(NullOrBoolCheck expression) {
-		val variableTypeMap = expression.enclosingTestStepContext.collectDeclaredVariablesTypeMap
+		val variableTypeMap = expression.getContainerOfType(TestStepContext).collectDeclaredVariablesTypeMap
 		val returnTypeName = variableTypeMap.get(expression.variableReference.variable.name).qualifiedName
 		logger.trace(
 			"determines assertion method based on return type name='{}' for null or bool check of variable='{}'",
@@ -134,8 +133,8 @@ class TclAssertCallBuilder {
 			return expressionBuilder.buildReadExpression(comparison.left)
 		}
 		val wantedType = expressionTypeComputer.coercedTypeOfComparison(comparison, null)
-		val builtRightExpression=expressionBuilder.buildComparisonExpression(comparison.right, wantedType)
-		val builtLeftExpression=expressionBuilder.buildComparisonExpression(comparison.left, wantedType)
+		val builtRightExpression=expressionBuilder.buildReadExpression(comparison.right, wantedType)
+		val builtLeftExpression=expressionBuilder.buildReadExpression(comparison.left, wantedType)
 		switch (comparison.comparator) {
 			ComparatorEquals: '''«builtRightExpression», «builtLeftExpression»'''
 			ComparatorGreaterThan: '''«builtLeftExpression» «if(comparison.comparator.negated){'<='}else{'>'}» «builtRightExpression»'''
@@ -152,7 +151,7 @@ class TclAssertCallBuilder {
 	private def String buildNullOrBoolCheck(NullOrBoolCheck nullCheck) {
 		typeReferenceUtil.initWith(nullCheck.eResource)
 		val builtExpression = expressionBuilder.buildReadExpression(nullCheck.variableReference)
-		val variableTypeMap = nullCheck.enclosingTestStepContext.collectDeclaredVariablesTypeMap
+		val variableTypeMap = nullCheck.getContainerOfType(TestStepContext).collectDeclaredVariablesTypeMap
 		val returnType = variableTypeMap.get(nullCheck.variableReference.variable.name)
 		logger.trace("builds expression based on return type name='{}' for null or bool check of variable='{}'",
 			returnType.qualifiedName, nullCheck.variableReference.variable.name)
@@ -163,13 +162,12 @@ class TclAssertCallBuilder {
 		}
 	}
 	
+	/** 
+	 * Is the given typeReference of Boolean type and an Object (no primitive type)?
+	 */
 	private def boolean isABooleanObjectType(JvmTypeReference typeReference) {
 		return typeReferenceUtil.isAssignableFrom(typeReferenceUtil.booleanObjectJvmTypeReference,
 			typeReference, typeReferenceUtil.checkWithoutBoxing)
-	}
-
-	private def TestStepContext getEnclosingTestStepContext(EObject eObject) {
-		return eObject.getContainerOfType(TestStepContext)
 	}
 
 }

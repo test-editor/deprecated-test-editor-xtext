@@ -22,7 +22,17 @@ class TclCoercionComputer {
 	
 	@Inject extension TclJvmTypeReferenceUtil typeReferenceUtil
 	@Inject extension TclJsonUtil
-	
+
+	def initWith(Resource resource) {
+		// in order to have access to the classpath (within the reference util) the resource (set) must be set
+		typeReferenceUtil.initWith(resource)
+	}
+
+	def initWith(ResourceSet resourceSet) {
+		// in order to have access to the classpath (within the reference util) the resource (set) must be set
+		typeReferenceUtil.initWith(resourceSet)
+	}
+
 	def boolean isCoercionPossible(JvmTypeReference targetType, JvmTypeReference sourceType) {
 		switch targetType {
 			case targetType.isString : return sourceType.isLong || sourceType.isBoolean || sourceType.isJson || sourceType.isString
@@ -127,14 +137,6 @@ class TclCoercionComputer {
 		}
 	}
 	
-	def initWith(Resource resource) {
-		typeReferenceUtil.initWith(resource)
-	}
-
-	def initWith(ResourceSet resourceSet) {
-		typeReferenceUtil.initWith(resourceSet)
-	}
-
 	// naive implementation	of check whether the given types can be coerced to something that can be ordered (currently long only)
 	def boolean coercableToCommonOrderable(JvmTypeReference typeReferenceA, JvmTypeReference typeReferenceB) {
 		// currently only numericals are allowed
