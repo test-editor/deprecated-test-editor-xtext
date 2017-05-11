@@ -1,6 +1,61 @@
 Project ideas as stories
 ========================
 
+# Json as first class citizen 
+
+In order to be able to test rest web services, the test editor needs to provide basic json capabilities that should make writing these tests as easy and straight forward as possible.
+
+## Support for json as data
+
+Given this simple test case:
+
+```java
+	Component: GreetingApp
+	- request = Create request to <SayHello>
+	- Set query parameter "name" to "Peter" on @request
+	- response = Send request @request
+	- result = Get body of @response     // result is of type com.google.gson.JsonElement
+	- assert result.content = "Hello, Peter!"
+```
+
+The test-editor is now capable of accessing elements of a json via a path that can be made of either keys or array-indices. In this special
+case, `result` is expected to be a `JsonObject` that in turn contains an element keyed `content` with a `JsonString` of the value "Hello,
+Peter!".
+
+Making json a first class citizen, it is possible to use json (and the path access to a certain element of it) in all places where regular variables can be used. 
+This is in particular within calls to fixtures (via templates) 
+```java
+    - Type @result.content into <SomeTextField>
+```
+within calls to macros, within assertions (as used in our first example).
+
+## Support for modification of json data
+
+It is also possible to do modifications to an existing json.
+```java
+	Component: GreetingApp
+	// given
+	- request = Create request to <GreetTeam>
+	- json = Read json from "example-team.json"
+	- json.name = "Hero Team"
+	- json.members[0] = {
+		"firstName": "Aurelia",
+		"lastName": "Yoxall"
+	  }
+	- json.members[1].firstName = "Maximus"
+	- Set body of @request to @json
+
+	// when
+	- response = Send request @request
+
+	// then
+	- result = Get body of @response
+	- assert result.content = "Hello team Hero Team. Warm regards to Aurelia, Maximus!"
+```
+
+In this example a json is modified using keys as well as array-indices. These modifications are currently restricted on already existing
+objects. The test case language does currently NOT support removing or adding additional elements to a json.
+
 # Tsl editor in the web
 
 In order to allow non programmers to quickly write down acceptance criteria, an editor should be provided that allows to write test specifications (similar to markdown) without setup.
