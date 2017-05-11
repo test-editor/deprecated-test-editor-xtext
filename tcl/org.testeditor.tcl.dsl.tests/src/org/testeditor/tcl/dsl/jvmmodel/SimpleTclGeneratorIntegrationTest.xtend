@@ -81,7 +81,7 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 				- log = Read long from <bar>
 				- assert log < "42"							  // parse 42 to long value and compare
 				- assert log != baz                           // parse baz to long value and compare
-				- assert baz != book                          // parse baz to boolean and compare
+				- assert baz != book                          // convert book to string and compare
 				- assert mak."key" < "42"                     // parse dereferenced map and 42 to long and compare
 				- assert mak."key" = "42"                     // no parse, compare stringwise (since map access expects a string)
 		'''
@@ -135,7 +135,7 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert log != baz");
 			  org.junit.Assert.assertNotEquals("SimpleTest.tcl:24: log != baz", Long.parseLong(baz), log);
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert baz != book");
-			  org.junit.Assert.assertNotEquals("SimpleTest.tcl:25: baz != book", book, Boolean.valueOf(baz));
+			  org.junit.Assert.assertNotEquals("SimpleTest.tcl:25: baz != book", Boolean.toString(book), baz);
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert mak.\"key\" < \"42\"");
 			  org.junit.Assert.assertTrue("SimpleTest.tcl:26: mak.\"key\" < \"42\"", mak.getAsJsonObject().get("key").getAsJsonPrimitive().getAsLong() < Long.parseLong("42"));
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert mak.\"key\" = \"42\"");

@@ -39,6 +39,7 @@ import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
+import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TclPackage
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestStep
@@ -59,7 +60,6 @@ import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
 
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
-import org.testeditor.tcl.TclModel
 
 class TclValidator extends AbstractTclValidator {
 
@@ -80,7 +80,6 @@ class TclValidator extends AbstractTclValidator {
 	public static val INVALID_ORDER_TYPE = "invalidOrderType"
 
 	@Inject extension TclModelUtil
-	@Inject extension TclTypeValidationUtil
 	@Inject extension ModelUtil
 	@Inject extension CollectionUtils
 	
@@ -90,17 +89,11 @@ class TclValidator extends AbstractTclValidator {
 	@Inject TclExpressionTypeComputer expressionTypeComputer
 	@Inject VariableCollector variableCollector
 	@Inject TclTypeUsageComputer typeUsageComputer
-	@Inject TclJvmTypeReferenceUtil tclJvmTypeReferenceUtil
-	@Inject TclCoercionComputer tclCoercionComputer
+	@Inject TclJvmTypeReferenceUtil typeReferenceUtil
+	@Inject TclCoercionComputer coercionComputer
 
 	private static val ERROR_MESSAGE_FOR_INVALID_VAR_REFERENCE = "Dereferenced variable must be a required environment variable or a previously assigned variable"
 	
-	@Check
-	def void checkToInitializeTclJvmTypeReferenceUtil(TclModel model) {
-		tclJvmTypeReferenceUtil.initWith(model.eResource)
-		tclCoercionComputer.initWith(model.eResource)
-	}
-
 	@Check
 	def void referencesComponentElement(StepContentElement contentElement) {
 		val component = contentElement.componentElement
@@ -317,8 +310,9 @@ class TclValidator extends AbstractTclValidator {
 			switch (comparison.comparator) {
 				ComparatorGreaterThan,
 				ComparatorLessThan: {
+					typeReferenceUtil.initWith(comparison.eResource)
 					val coercedType = expressionTypeComputer.coercedTypeOfComparison(comparison, null)
-					if (coercedType === null || !tclJvmTypeReferenceUtil.isOrderable(coercedType)) {
+					if (coercedType === null || !typeReferenceUtil.isOrderable(coercedType)) {
 						error('Sorry, comparing order of non numeric values is not supported, yet.', comparison.eContainer, comparison.eContainingFeature, INVALID_ORDER_TYPE)
 					}
 				}
@@ -427,18 +421,20 @@ class TclValidator extends AbstractTclValidator {
 			// but then these variables are either assignmentVariables or environmentVariables
 			return
 		}
+		typeReferenceUtil.initWith(variableReference.eResource)
+		coercionComputer.initWith(variableReference.eResource)
 		switch variableReference {
 			VariableReferencePathAccess:
 				// must be Json
-				if (!tclJvmTypeReferenceUtil.isJson(typeDeclared)) {
+				if (!typeReferenceUtil.isJson(typeDeclared)) {
 					error('''Variable='«variableReference.variable.name»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in a position that expects a json type (e.g. «JsonObject.name»).''',
 						variableReference.eContainer, variableReference.eContainingFeature, errorReportingIndex,
 						INVALID_MAP_ACCESS)
 				}
 			VariableReference: {
 				val illegalTypeUsages = typeUsageSet.filter[present].filter [
-					!tclJvmTypeReferenceUtil.isAssignableFrom(get, typeDeclared) &&
-						!tclCoercionComputer.isCoercionPossible(get, typeDeclared)
+					!typeReferenceUtil.isAssignableFrom(get, typeDeclared) &&
+						!coercionComputer.isCoercionPossible(get, typeDeclared)
 				]
 				if (!illegalTypeUsages.empty) {
 					error('''Variable='«variableReference.variable.name»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in context(s) expecting type(s)='«typeUsageSet.filter[present].map[get.qualifiedName].join(", ")»' of which the types = '«illegalTypeUsages.filter[present].map[get.qualifiedName].join(", ")»' are problematic (non assignable nor coercible). Please make sure that no conflicting type usages remain.''',
@@ -459,30 +455,28 @@ class TclValidator extends AbstractTclValidator {
 		return specImplSteps.map[contents.restoreString].containsAll(specSteps.map[contents.restoreString])
 	}
 
-	@Inject TclExpressionTypeComputer tclExpressionTypeComputer
-
 	private def void checkStepContentVariableTypeInParameterPosition(TestStep step, InteractionType interaction) {
 		// check only StepContentVariable, since variable references are already tested by ...
-		val callParameters=step.contents.indexed.filterValue(StepContentVariable)
-		val definitionParameterTypePairs = simpleTypeComputer.getVariablesWithTypes(interaction)		
+		val callParameters = step.contents.indexed.filterValue(StepContentVariable)
+		val definitionParameterTypePairs = simpleTypeComputer.getVariablesWithTypes(interaction)
 		callParameters.forEach [ contentIndexPair |
 			val content = contentIndexPair.value
 			val contentIndex = contentIndexPair.key
 			val templateParameter = content.templateParameterForCallingStepContent
 			val expectedType = definitionParameterTypePairs.get(templateParameter)
 			if (!expectedType.present) {
-				error('Type unknown. Expected \'' + expectedType + '\'.',
-					content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
+				error('Type unknown. Expected \'' + expectedType + '\'.', content.eContainer,
+					content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
 			} else {
-				val contentType = tclExpressionTypeComputer.determineType(content, expectedType.get)
-				val assignable = tclJvmTypeReferenceUtil.isAssignableFrom(expectedType.get, contentType)
-				// val coercible = tclCoercionComputer.isCoercionPossible(expectedType.get, contentType)
-				if(!assignable /*&& !coercible */){ // since content is a StepContentVariable, coercion is not option, since determineType already did check for bool/long/string
+				typeReferenceUtil.initWith(content.eResource)
+				val contentType = expressionTypeComputer.determineType(content, expectedType.get)
+				val assignable = typeReferenceUtil.isAssignableFrom(expectedType.get, contentType)
+				if (!assignable) { // since content is a StepContentVariable, coercion is not option, since determineType already did check for bool/long/string
 					error('''Type mismatch. Expected '«expectedType.get.qualifiedName»' got '«contentType.qualifiedName»' = '«StringEscapeUtils.escapeJava(content.value)»' that cannot assigned nor coerced.''',
 						content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
 				}
 			}
-		]		
+		]
 	}
 	
 	private def void checkStepContentVariableTypeInParameterPosition(TestStep step, Macro macro) {
@@ -492,67 +486,20 @@ class TclValidator extends AbstractTclValidator {
 		contentTemplateVarmap.filterKey(StepContentVariable).forEach [ content, templateVar |
 			val expectedType = templateParameterTypeMap.get(templateVar)
 			expectedType.ifPresent [
+				typeReferenceUtil.initWith(step.eResource)
+				coercionComputer.initWith(step.eResource)
 				val contentIndex = step.contents.indexOfFirst(content)
-				val contentType = tclExpressionTypeComputer.determineType(content, expectedType.get)
-				val assignable = tclJvmTypeReferenceUtil.isAssignableFrom(expectedType.get, contentType)
+				val contentType = expressionTypeComputer.determineType(content, expectedType.get)
+				val assignable = typeReferenceUtil.isAssignableFrom(expectedType.get, contentType)
 				// if content is a StepContentVariable, coercion is not option, since determineType already did check for bool/long/string
-				val coercible = !(content instanceof StepContentVariable) && tclCoercionComputer.isCoercionPossible(expectedType.get, contentType)
-				if(!assignable && !coercible){
+				val coercible = !(content instanceof StepContentVariable) &&
+					coercionComputer.isCoercionPossible(expectedType.get, contentType)
+				if (!assignable && !coercible) {
 					error('''Type mismatch. Expected '«expectedType.get.qualifiedName»' got '«contentType.qualifiedName»' that cannot assigned nor coerced.''',
 						content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
 				}
 			]
 		]
 	}
-
-//	private def void checkThatUseAsTypedLongIsOk(StepContent content, int contentIndex) {
-//		switch (content) {
-//			StepContentVariable:
-//				try {
-//					Integer.parseInt(content.value)
-//				} catch (NumberFormatException nfe) {
-//					error('''Type mismatch. Expected 'long' got 'String' = '«StringEscapeUtils.escapeJava(content.value)»' that cannot be converted to long.''',
-//						content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
-//				}
-//			default: checkThatUseAsValueIsOk(content, contentIndex)				
-//		}
-//	}
-	
-//	private def void checkThatUseAsValueIsOk(StepContent content, int contentIndex) {
-//		switch (content) {
-//			StepContentVariable: {
-//				// is a value => is allowed
-//			}
-//			VariableReferencePathAccess: {
-//				// allowed, must be here before 'VariableReference' because it's a subtype
-//			}
-//			VariableReference: 			
-//				if (content.variable instanceof AssignmentVariable) {
-//					val varType = (content.variable as AssignmentVariable).determineType
-//					val qualifiedName = varType.qualifiedName
-//					switch(qualifiedName) {
-//						case long.name: { /* is ok */ }
-//						case String.name: { /* is ok */ }
-//						case boolean.name: { /* is ok */ }
-//						case Boolean.name: { /* is ok */ }
-//						default: {
-//						error('''Type mismatch. Expected a value (e.g. boolean, long, String) but got '«qualifiedName»'.''', content.eContainer,
-//							content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
-//						}
-//					}
-//				}
-//		}
-//	}
-
-//	private def void checkThatUseAsTypedBooleanIsOk(StepContent content, int contentIndex) {
-//		switch (content) {
-//			StepContentVariable:
-//				if(content.value != Boolean.toString(true) && content.value != Boolean.toString(false)) {
-//					error('''Type mismatch. Expected 'boolean' got 'String' = '«StringEscapeUtils.escapeJava(content.value)»' that cannot be converted to boolean.''',
-//						content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
-//				}
-//			default: checkThatUseAsValueIsOk(content, contentIndex)				
-//		}
-//	}
 	
 }

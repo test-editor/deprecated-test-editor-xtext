@@ -39,8 +39,8 @@ class TclAssertCallBuilder {
 
 	@Inject extension VariableCollector	
 	@Inject TclExpressionBuilder expressionBuilder
-	@Inject TclJvmTypeReferenceUtil tclJvmTypeReferenceUtil
-	@Inject TclExpressionTypeComputer tclExpressionTypeComputer
+	@Inject TclJvmTypeReferenceUtil typeReferenceUtil
+	@Inject TclExpressionTypeComputer expressionTypeComputer
 
 	/** assert method calls used, toString must yield the actual method name! */
 	enum AssertMethod {
@@ -133,7 +133,7 @@ class TclAssertCallBuilder {
 		if (comparison.comparator == null) {
 			return expressionBuilder.buildReadExpression(comparison.left)
 		}
-		val wantedType = tclExpressionTypeComputer.coercedTypeOfComparison(comparison, null)
+		val wantedType = expressionTypeComputer.coercedTypeOfComparison(comparison, null)
 		val builtRightExpression=expressionBuilder.buildComparisonExpression(comparison.right, wantedType)
 		val builtLeftExpression=expressionBuilder.buildComparisonExpression(comparison.left, wantedType)
 		switch (comparison.comparator) {
@@ -150,7 +150,7 @@ class TclAssertCallBuilder {
 	 * return a string that is directly usable within an assertion command
 	 */
 	private def String buildNullOrBoolCheck(NullOrBoolCheck nullCheck) {
-		tclJvmTypeReferenceUtil.initWith(nullCheck.eResource)
+		typeReferenceUtil.initWith(nullCheck.eResource)
 		val builtExpression = expressionBuilder.buildReadExpression(nullCheck.variableReference)
 		val variableTypeMap = nullCheck.enclosingTestStepContext.collectDeclaredVariablesTypeMap
 		val returnType = variableTypeMap.get(nullCheck.variableReference.variable.name)
@@ -164,8 +164,8 @@ class TclAssertCallBuilder {
 	}
 	
 	private def boolean isABooleanObjectType(JvmTypeReference typeReference) {
-		return tclJvmTypeReferenceUtil.isAssignableFrom(tclJvmTypeReferenceUtil.booleanObjectJvmTypeReference,
-			typeReference, tclJvmTypeReferenceUtil.checkWithoutBoxing)
+		return typeReferenceUtil.isAssignableFrom(typeReferenceUtil.booleanObjectJvmTypeReference,
+			typeReference, typeReferenceUtil.checkWithoutBoxing)
 	}
 
 	private def TestStepContext getEnclosingTestStepContext(EObject eObject) {

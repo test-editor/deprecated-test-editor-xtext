@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2012 - 2017 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
 import javax.inject.Inject
@@ -8,8 +20,8 @@ import org.eclipse.xtext.common.types.JvmTypeReference
 /** compute whether and how coercion should be generated */
 class TclCoercionComputer {
 	
-	@Inject extension TclJvmTypeReferenceUtil tclJvmTypeReferenceUtil
-	@Inject TclJsonUtil tclJsonUtil
+	@Inject extension TclJvmTypeReferenceUtil typeReferenceUtil
+	@Inject extension TclJsonUtil
 	
 	def boolean isCoercionPossible(JvmTypeReference targetType, JvmTypeReference sourceType) {
 		switch targetType {
@@ -65,15 +77,15 @@ class TclCoercionComputer {
 			switch (targetType) {
 				case targetType.isJson:
 					if (sourceType.isString) {
-						return tclJsonUtil.jsonParseInstruction('''"\""+«sourceValue»+"\""''')
+						return jsonParseInstruction('''"\""+«sourceValue»+"\""''')
 					} else if (sourceType.isLong) {
-						return tclJsonUtil.jsonParseInstruction('''Long.toString(«sourceValue»)''')
+						return jsonParseInstruction('''Long.toString(«sourceValue»)''')
 					} else if (sourceType.isBoolean) {
-						return tclJsonUtil.jsonParseInstruction('''Boolean.toString(«sourceValue»)''')
+						return jsonParseInstruction('''Boolean.toString(«sourceValue»)''')
 					} else if (sourceType.isJson) {
 						return sourceValue
 					} else {
-						return tclJsonUtil.jsonParseInstruction('''«sourceValue».toString()''')
+						return jsonParseInstruction('''«sourceValue».toString()''')
 					}
 				case targetType.isLong:
 					if (sourceType.isString) {
@@ -81,7 +93,7 @@ class TclCoercionComputer {
 					} else if (sourceType.isLong) {
 						return sourceValue
 					} else if (sourceType.isJson) {
-						return '''«sourceValue»«tclJsonUtil.generateJsonElementAccess(targetType)»'''
+						return '''«sourceValue»«generateJsonElementAccess(targetType)»'''
 					} else {
 						throw new RuntimeException(coercionErrorMessage)
 					}
@@ -91,7 +103,7 @@ class TclCoercionComputer {
 					} else if (sourceType.isBoolean) {
 						return sourceValue
 					} else if (sourceType.isJson) {
-						return '''«sourceValue»«tclJsonUtil.generateJsonElementAccess(targetType)»'''
+						return '''«sourceValue»«generateJsonElementAccess(targetType)»'''
 					} else {
 						throw new RuntimeException(coercionErrorMessage)
 					}
@@ -103,7 +115,7 @@ class TclCoercionComputer {
 					} else if (sourceType.isBoolean) {
 						return '''Boolean.toString(«sourceValue»)'''
 					} else if (sourceType.isJson) {
-						return '''«sourceValue»«tclJsonUtil.generateJsonElementAccess(targetType)»'''
+						return '''«sourceValue»«generateJsonElementAccess(targetType)»'''
 					} else {
 						throw new RuntimeException(coercionErrorMessage)
 					}
@@ -116,12 +128,55 @@ class TclCoercionComputer {
 	}
 	
 	def initWith(Resource resource) {
-		tclJvmTypeReferenceUtil.initWith(resource)
+		typeReferenceUtil.initWith(resource)
 	}
 
 	def initWith(ResourceSet resourceSet) {
-		tclJvmTypeReferenceUtil.initWith(resourceSet)
+		typeReferenceUtil.initWith(resourceSet)
+	}
+
+	// naive implementation	of check whether the given types can be coerced to something that can be ordered (currently long only)
+	def boolean coercableToCommonOrderable(JvmTypeReference typeReferenceA, JvmTypeReference typeReferenceB) {
+		// currently only numericals are allowed
+		return isCoercionPossible(longObjectJvmTypeReference, typeReferenceA) &&
+			isCoercionPossible(longObjectJvmTypeReference, typeReferenceB)
 	}
 	
+	def coercedCommonOrderableType(JvmTypeReference typeReferenceA, JvmTypeReference typeReferenceB) {
+		if (coercableToCommonOrderable(typeReferenceA, typeReferenceB)) {
+			return longObjectJvmTypeReference
+		} else {
+			throw new RuntimeException('''No coercible common orderable type found for typerefA='«typeReferenceA?.qualifiedName»' and typerefB='«typeReferenceB?.qualifiedName»'.''')
+		}
+	}
+	def JvmTypeReference coercedCommonComparableType(JvmTypeReference typeReferenceA, JvmTypeReference typeReferenceB) {
+		if (typeReferenceA.qualifiedName == typeReferenceB.qualifiedName) {
+			return typeReferenceA
+		}
+		if (isJsonType(typeReferenceA)) {
+			return typeReferenceB // JsonType can be coerced to anything (e.g. asJsonPrimitive().asLong())
+		}
+		if (isJsonType(typeReferenceB)) {
+			return typeReferenceA // JsonType can be coerced to anything (e.g. asJsonPrimitive().asLong())
+		}
+		if (isAssignableFrom(typeReferenceA, typeReferenceB)) { // if assignable, then it is comparable, too
+			return typeReferenceA
+		}
+		if (isCoercionPossible(typeReferenceA, typeReferenceB)) {
+			return typeReferenceA
+		}
+		if (isCoercionPossible(typeReferenceB, typeReferenceA)) {
+			return typeReferenceB
+		}
+		throw new RuntimeException('''No coercible common compareable type found for typerefA='«typeReferenceA?.qualifiedName»' and typerefB='«typeReferenceB?.qualifiedName»'.''')		
+	}
+	
+	def boolean coercableToCommonComparable(JvmTypeReference typeReferenceA, JvmTypeReference typeReferenceB) {
+		return ((typeReferenceA.qualifiedName == typeReferenceA.qualifiedName) ||
+			(isJsonType(typeReferenceA)) || (isJsonType(typeReferenceB)) ||
+			(isAssignableFrom(typeReferenceA, typeReferenceB)) ||
+			(isCoercionPossible(typeReferenceA, typeReferenceB)) ||
+			(isCoercionPossible(typeReferenceB, typeReferenceA)))
+	}
 	
 }

@@ -34,7 +34,7 @@ import org.testeditor.tsl.StepContentText
 class TclTypeUsageComputer {
 
 	@Inject SimpleTypeComputer simpleTypeComputer
-	@Inject TclJvmTypeReferenceUtil tclTypeReferenceUtil
+	@Inject TclJvmTypeReferenceUtil typeReferenceUtil
 	@Inject extension TclModelUtil  tclModelUtil
 	@Inject extension CollectionUtils 
 
@@ -44,7 +44,7 @@ class TclTypeUsageComputer {
 	def dispatch Set<Optional<JvmTypeReference>> getAllPossibleTypeUsagesOfVariable(ComponentTestStepContext componentTestStepContext, String variableName) {
 		// type derivation of variable usage within assertions is not implemented "yet" => filter on test steps only
 		// TODO this has to be implemented if the check is to be performed on assertions!
-		tclTypeReferenceUtil.initWith(componentTestStepContext.eResource)
+		typeReferenceUtil.initWith(componentTestStepContext.eResource)
 		val typesUsages = componentTestStepContext.steps.filter(TestStep).map [ step |
 			simpleTypeComputer.getStepVariableFixtureParameterTypePairs(step).filterKey(VariableReference).filter[!(key instanceof VariableReferencePathAccess)].filter [
 				key.variable.name == variableName
@@ -52,7 +52,7 @@ class TclTypeUsageComputer {
 		].flatten.filterNull
 		if (componentTestStepContext.steps.filter(AssignmentThroughPath).exists [variableReference.variable.name == variableName]) {
 				// assignment through path is used for json objects only
-				return (typesUsages + #[Optional.of(tclTypeReferenceUtil.jsonObjectJvmTypeReference)]).toSet
+				return (typesUsages + #[Optional.of(typeReferenceUtil.jsonObjectJvmTypeReference)]).toSet
 			} else {
 				return typesUsages.toSet
 			}

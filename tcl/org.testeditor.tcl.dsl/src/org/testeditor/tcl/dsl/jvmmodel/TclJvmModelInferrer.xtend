@@ -12,11 +12,13 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
+import com.google.common.annotations.VisibleForTesting
 import java.util.List
 import java.util.Optional
 import java.util.Set
 import javax.inject.Inject
 import org.apache.commons.lang3.StringEscapeUtils
+import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.common.types.JvmConstructor
 import org.eclipse.xtext.common.types.JvmDeclaredType
@@ -46,10 +48,8 @@ import org.testeditor.fixture.core.TestRunReporter.SemanticUnit
 import org.testeditor.tcl.AbstractTestStep
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.AssignmentThroughPath
-import org.testeditor.tcl.Comparison
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariable
-import org.testeditor.tcl.Expression
 import org.testeditor.tcl.JsonValue
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroCollection
@@ -65,14 +65,11 @@ import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tcl.dsl.jvmmodel.macro.MacroHelper
-import org.testeditor.tcl.dsl.validation.TclTypeValidationUtil
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentValue
 
 import static org.testeditor.tcl.TclPackage.Literals.*
-import org.eclipse.emf.ecore.resource.ResourceSet
-import com.google.common.annotations.VisibleForTesting
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -88,12 +85,11 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	@Inject TestRunReporterGenerator testRunReporterGenerator 
 	@Inject MacroHelper macroHelper
 	@Inject SimpleTypeComputer typeComputer
-	@Inject TclTypeValidationUtil tclTypeValidationUtil
-	@Inject TclExpressionTypeComputer tclExpressionTypeComputer
+	@Inject TclExpressionTypeComputer expressionTypeComputer
 	@Inject ISerializer serializer 
-	@Inject TclJsonUtil tclJsonUtil
-	@Inject TclCoercionComputer tclCoercionComputer
-	@Inject TclJvmTypeReferenceUtil tclJvmTypeReferenceUtil
+	@Inject TclJsonUtil jsonUtil
+	@Inject TclCoercionComputer coercionComputer
+	@Inject TclJvmTypeReferenceUtil typeReferenceUtil
 		
 	def dispatch void infer(TclModel model, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		model.test?.infer(acceptor, isPreIndexingPhase)
@@ -120,8 +116,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	
 	@VisibleForTesting
 	def void initWith(ResourceSet resourceSet) {
-		tclCoercionComputer.initWith(resourceSet)
-		tclJvmTypeReferenceUtil.initWith(resourceSet)		
+		coercionComputer.initWith(resourceSet)
+		typeReferenceUtil.initWith(resourceSet)
 	}
 
 	/**
@@ -399,23 +395,14 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 	
 	private def dispatch void toUnitTestCodeLine(AssignmentThroughPath step, ITreeAppendable output) {
-		val varType = tclExpressionTypeComputer.determineType(step.variableReference.variable, null)
-		if (tclJsonUtil.isJsonType(varType)) {
+		val varType = expressionTypeComputer.determineType(step.variableReference.variable, null)
+		if (jsonUtil.isJsonType(varType)) {
 			toUnitTestCodeLineOfJsonAssignment(step, output)
 		} else {
 			throw new RuntimeException('''Unknown variable type = '«varType?.qualifiedName»' for assignment with key path''')
 		}
 	}
 	
-	private def Expression getActualMostSpecific(Expression expression) {
-		if (expression instanceof Comparison) {
-			if (expression.comparator === null) {
-				return expression.left.actualMostSpecific
-			}
-		}
-		return expression
-	}
-
 	private def void toUnitTestCodeLineOfJsonAssignment(AssignmentThroughPath step, ITreeAppendable output) {
 		val varRef = step.getVariableReference
 
@@ -426,19 +413,19 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		val expression = step.expression.actualMostSpecific
 		switch expression {
 			JsonValue: {
-				val parsedValue = tclJsonUtil.jsonParseInstruction('''"«StringEscapeUtils.escapeJava(serializer.serialize(expression).trim)»"''')
+				val parsedValue = jsonUtil.jsonParseInstruction('''"«StringEscapeUtils.escapeJava(serializer.serialize(expression).trim)»"''')
 				val code = '''«expressionBuilder.buildWriteExpression(varRef, parsedValue)»;'''
 				output.append(code)
 			}
 			VariableReferencePathAccess,
 			VariableReference: {
 				val valueString = expressionBuilder.buildReadExpression(step.expression)
-				val variableType = tclExpressionTypeComputer.determineType(expression, null)
-				if (tclJsonUtil.isJsonType(variableType)) {
+				val variableType = expressionTypeComputer.determineType(expression, null)
+				if (jsonUtil.isJsonType(variableType)) {
 					val code = '''«expressionBuilder.buildWriteExpression(varRef, valueString)»;'''
 					output.append(code)
 				} else {
-					val parsedValue = tclCoercionComputer.generateCoercion(tclJvmTypeReferenceUtil.jsonElementJvmTypeReference, variableType, valueString)
+					val parsedValue = coercionComputer.generateCoercion(typeReferenceUtil.jsonElementJvmTypeReference, variableType, valueString)
 					val code = '''«expressionBuilder.buildWriteExpression(varRef, parsedValue)»;'''
 					output.append(code)
 				}
@@ -461,9 +448,9 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				step.maybeCreateAssignment(operation, output, stepLog)
 				output.trace(interaction.defaultMethod) => [
 					step.contents.filter(VariableReference).forEach [
-						val expectedType = tclTypeValidationUtil.getExpectedType(it, interaction)
-						val variableType = tclExpressionTypeComputer.determineType(variable, expectedType.get)
-						if (tclCoercionComputer.isCoercionPossible(expectedType.get, variableType)) {
+						val expectedType = typeComputer.getExpectedType(it, interaction)
+						val variableType = expressionTypeComputer.determineType(variable, expectedType.get)
+						if (coercionComputer.isCoercionPossible(expectedType.get, variableType)) {
 							val coercionCheck = generateCoercionCheck(interaction, expectedType)
 							if (!coercionCheck.nullOrEmpty) {
 								output.append(coercionCheck).newLine
@@ -486,16 +473,16 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	private def String generateCoercionCheck(VariableReference variableReference, TemplateContainer templateContainer,
 		Optional<JvmTypeReference> expectedType) {
 		val variableAccessCode = toParameterString(variableReference, expectedType, templateContainer, false).head
-		val varRefType = tclExpressionTypeComputer.determineType(variableReference.variable, expectedType.get)
+		val varRefType = expressionTypeComputer.determineType(variableReference.variable, expectedType.get)
 		val quotedErrorMessage = '''"Parameter is expected to be of type = '«expectedType.get.qualifiedName»' but a non coercible value = '"+«variableAccessCode».toString()+"' was passed through variable reference = '«variableReference.variable.name»'."'''
-		return tclCoercionComputer.generateCoercionGuard(expectedType.get, varRefType, variableAccessCode,
+		return coercionComputer.generateCoercionGuard(expectedType.get, varRefType, variableAccessCode,
 			quotedErrorMessage)
 	}
 	
 	private def String generateCoercionAround(VariableReference variableReference, String variableAccessCode,
 		Optional<JvmTypeReference> expectedType) {
-		val variableType = tclExpressionTypeComputer.determineType(variableReference.variable, expectedType.get)
-		return tclCoercionComputer.generateCoercion(expectedType.get, variableType, variableAccessCode)
+		val variableType = expressionTypeComputer.determineType(variableReference.variable, expectedType.get)
+		return coercionComputer.generateCoercion(expectedType.get, variableType, variableAccessCode)
 	}
 	
 	private def String getLocationInfo(TestStep step) {
@@ -528,9 +515,9 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		val macro = step.findMacroDefinition(context)
 		if (macro !== null) {
 			step.contents.filter(VariableReference).forEach [
-				val expectedType = tclTypeValidationUtil.getExpectedType(it, macro)
-				val variableType = tclExpressionTypeComputer.determineType(variable, expectedType.get)
-				if (tclCoercionComputer.isCoercionPossible(expectedType.get, variableType)) { 
+				val expectedType = typeComputer.getExpectedType(it, macro)
+				val variableType = expressionTypeComputer.determineType(variable, expectedType.get)
+				if (coercionComputer.isCoercionPossible(expectedType.get, variableType)) { 
 					val coercionCheck = generateCoercionCheck(macro, expectedType)
 					if (!coercionCheck.nullOrEmpty) {
 						output.append(coercionCheck).newLine
@@ -576,9 +563,9 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		if (stepContent instanceof VariableReference) {
 			// if variable reference forward the call to expressionBuilder
 			val parameterString = expressionBuilder.buildReadExpression(stepContent)
-			val expectedType = tclTypeValidationUtil.getExpectedType(stepContent, templateContainer)
-			val stepContentType = tclExpressionTypeComputer.determineType(stepContent, expectedType.get)
-			val coercionPossible = tclCoercionComputer.isCoercionPossible(expectedType.get, stepContentType)
+			val expectedType = typeComputer.getExpectedType(stepContent, templateContainer)
+			val stepContentType = expressionTypeComputer.determineType(stepContent, expectedType.get)
+			val coercionPossible = coercionComputer.isCoercionPossible(expectedType.get, stepContentType)
 			if (withCoercion && coercionPossible) {
 				return #[generateCoercionAround(stepContent, parameterString, expectedType)]
 			}
@@ -592,9 +579,9 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		}
 		if (stepContent instanceof StepContentValue) {
 			// if value, check if type is String, if yes put it in quotes
-			val stepContentType = tclExpressionTypeComputer.determineType(stepContent, null)
-			val contentIsLongOrBool = tclJvmTypeReferenceUtil.isLong(stepContentType) || tclJvmTypeReferenceUtil.isBoolean(stepContentType)
-			val isStringParameter = parameterType.present && tclJvmTypeReferenceUtil.isString(parameterType.get)
+			val stepContentType = expressionTypeComputer.determineType(stepContent, null)
+			val contentIsLongOrBool = typeReferenceUtil.isLong(stepContentType) || typeReferenceUtil.isBoolean(stepContentType)
+			val isStringParameter = parameterType.present && typeReferenceUtil.isString(parameterType.get)
 			if (!isStringParameter && contentIsLongOrBool) {
 				return #[stepContent.value] // this may happen only, if the value is a boolean or a long
 			} else {

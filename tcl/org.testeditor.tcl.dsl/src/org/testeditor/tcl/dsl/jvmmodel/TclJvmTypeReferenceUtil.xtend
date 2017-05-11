@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2012 - 2017 Signal Iduna Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * Signal Iduna Corporation - initial API and implementation
+ * akquinet AG
+ * itemis AG
+ *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
 import com.google.gson.JsonArray
@@ -19,7 +31,7 @@ class TclJvmTypeReferenceUtil {
 
 	public val checkWithoutBoxing = new TypeConformanceComputationArgument(false, false, false, false, false, true)
 
-	@Inject TclJsonUtil tclJsonUtil
+	@Inject TclJsonUtil jsonUtil
 	@Inject CommonTypeComputationServices services
 	var StandardTypeReferenceOwner typeReferenceOwner
 	var JvmTypeReferenceBuilder typeReferenceBuilder
@@ -40,7 +52,7 @@ class TclJvmTypeReferenceUtil {
 		if(resource === null) {
 			initWith(resourceSet)
 		} else  {
-			initWith(resource.resourceSet)
+			initWith(resource?.resourceSet)
 		}
 	}
 	
@@ -91,13 +103,13 @@ class TclJvmTypeReferenceUtil {
 	}
 
 	def boolean isJson(JvmTypeReference typeReference) {
-		return tclJsonUtil.isJsonType(typeReference)
+		return jsonUtil.isJsonType(typeReference)
 	}
 
 	def boolean isOrderable(JvmTypeReference typeReference) {
 		return isLong(typeReference) // currently the only one known to be orderable is long
 	}
-
+	
 	// use xbase to check for assignablility
 	def boolean isAssignableFrom(JvmTypeReference target, JvmTypeReference source,
 		TypeConformanceComputationArgument argument) {

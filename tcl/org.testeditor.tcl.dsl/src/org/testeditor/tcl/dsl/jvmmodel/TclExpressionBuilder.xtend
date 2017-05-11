@@ -23,22 +23,19 @@ import org.testeditor.tcl.ComparatorMatches
 import org.testeditor.tcl.Comparison
 import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.Expression
+import org.testeditor.tcl.JsonNumber
 import org.testeditor.tcl.JsonString
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferencePathAccess
-import org.testeditor.tcl.JsonNumber
 
-/** build a (textual) java expression based on a parsed (tcl) expression
- *  <br/><br/>
- *  this involves (currently) the generation of string constants, comparisons, variable references and variable map access.
- *  in order for variables to be resolved correctly within these expressions, a variable resolver must be set. this variable
- *  resolver is then used to determine the variable to be actually used within the generted java expression string.
+/**
+ * build a (textual) java expression based on a parsed (tcl) expression
  */
 class TclExpressionBuilder {
 
 	@Inject TclExpressionTypeComputer typeComputer
-	@Inject TclCoercionComputer tclCoercionComputer
-	@Inject TclJsonUtil tclJsonUtil
+	@Inject TclCoercionComputer coercionComputer
+	@Inject TclJsonUtil jsonUtil
 
 	@Inject extension CollectionUtils
 
@@ -51,10 +48,10 @@ class TclExpressionBuilder {
 	}
 
 	def String buildComparisonExpression(Expression compared, JvmTypeReference wantedType) {
-		tclCoercionComputer.initWith(compared?.eResource)
+		coercionComputer.initWith(compared?.eResource)
 		val typeOfCompared = typeComputer.determineType(compared, wantedType)
 		val builtReadExpression = buildReadExpression(compared)
-		return tclCoercionComputer.generateCoercion(wantedType, typeOfCompared, builtReadExpression)
+		return coercionComputer.generateCoercion(wantedType, typeOfCompared, builtReadExpression)
 	}
 	
 	def dispatch String buildReadExpression(Comparison comparison) {
@@ -77,11 +74,11 @@ class TclExpressionBuilder {
 	}
 	
 	def dispatch String buildReadExpression(VariableReferencePathAccess varRef) {
-		return '''«varRef.variable.variableToVarName»«varRef.path.map[tclJsonUtil.jsonPathReadAccessToString(it)].join»'''		
+		return '''«varRef.variable.variableToVarName»«varRef.path.map[jsonUtil.jsonPathReadAccessToString(it)].join»'''
 	}
 	
 	def String buildWriteExpression(VariableReferencePathAccess varRef, String assignedExpression) {
-		val result = '''«varRef.variable.variableToVarName»«varRef.path.butLast.map[tclJsonUtil.jsonPathReadAccessToString(it)].join»«tclJsonUtil.jsonPathWriteAccessToString(varRef.path.last, assignedExpression)»'''
+		val result = '''«varRef.variable.variableToVarName»«varRef.path.butLast.map[jsonUtil.jsonPathReadAccessToString(it)].join»«jsonUtil.jsonPathWriteAccessToString(varRef.path.last, assignedExpression)»'''
 		return result
 	}
 		

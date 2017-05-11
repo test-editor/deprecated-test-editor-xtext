@@ -27,10 +27,12 @@ import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateVariable
+import org.testeditor.dsl.common.util.CollectionUtils
 import org.testeditor.tcl.AccessPathElement
 import org.testeditor.tcl.ArrayPathElement
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.AssignmentThroughPath
+import org.testeditor.tcl.Comparison
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.Expression
@@ -58,6 +60,7 @@ import org.testeditor.tsl.util.TslModelUtil
 class TclModelUtil extends TslModelUtil {
 
 	@Inject public extension ModelUtil amlModelUtil
+	@Inject extension CollectionUtils
 	@Inject TypeReferences typeReferences
 
 	/**
@@ -308,4 +311,35 @@ class TclModelUtil extends TslModelUtil {
 		]
 	}
 
+	/**
+	 * unwrap nested expressions hidden within degenerated comparison, in which only the left part is given and no comparator is present
+	 */
+	def Expression getActualMostSpecific(Expression expression) {
+		if (expression instanceof Comparison) {
+			if (expression.comparator === null) {
+				return expression.left.actualMostSpecific
+			}
+		}
+		return expression
+	}
+
+	/**
+	 * Get the template variable of the interaction that is the corresponding parameter for this step content,
+	 * given that the step content is part of a fixture call (interaction).
+	 * 
+	 * e.g. useful in combination with {@link SimpleTypeComputer#getVariablesWithTypes}
+	 */
+	def TemplateVariable getTemplateParameterForCallingStepContent(StepContent stepContent) {
+		val testStep = EcoreUtil2.getContainerOfType(stepContent, TestStep)
+		val callParameterIndex = testStep.stepContentVariables.indexOfFirst(stepContent)
+		val templateContainer = testStep.templateContainer
+		val templateParameters = templateContainer?.template?.contents?.filter(TemplateVariable)
+		if (templateContainer !== null //
+			&& templateParameters !== null //
+			&& templateParameters.length > callParameterIndex) {
+			return templateParameters.drop(callParameterIndex).head
+		}
+		return null
+	}
+	
 }
