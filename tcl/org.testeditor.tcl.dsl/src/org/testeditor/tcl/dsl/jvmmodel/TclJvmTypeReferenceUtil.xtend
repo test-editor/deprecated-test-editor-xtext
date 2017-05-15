@@ -69,6 +69,7 @@ class TclJvmTypeReferenceUtil {
 	}
 	
 	def JvmTypeReference buildFrom(Class<?> clazz, JvmTypeReference ... typeArgs) { // allow varargs (which is not supported by create methods, or so it seems)
+		ensureTypeReferenceBuilderInitialized
 		return _buildFrom(clazz, typeArgs)
 	}
 
@@ -145,47 +146,38 @@ class TclJvmTypeReferenceUtil {
 	}
 	
 	def JvmTypeReference booleanPrimitiveJvmTypeReference() {
-		ensureTypeReferenceBuilderInitialized
 		return boolean.buildFrom
 	}
 
 	def JvmTypeReference booleanObjectJvmTypeReference() {
-		ensureTypeReferenceBuilderInitialized
 		return Boolean.buildFrom
 	}
 
 	def JvmTypeReference stringJvmTypeReference() {
-		ensureTypeReferenceBuilderInitialized
 		return String.buildFrom
 	}
 
 	def JvmTypeReference longPrimitiveJvmTypeReference() {
-		ensureTypeReferenceBuilderInitialized
 		return long.buildFrom
 	}
 
 	def JvmTypeReference longObjectJvmTypeReference() {
-		ensureTypeReferenceBuilderInitialized
 		return Long.buildFrom
 	}
 
 	def JvmTypeReference jsonElementJvmTypeReference() {
-		ensureTypeReferenceBuilderInitialized
 		return JsonElement.buildFrom
 	}
 
 	def JvmTypeReference jsonPrimitiveJvmTypeReference() {
-		ensureTypeReferenceBuilderInitialized
 		return JsonPrimitive.buildFrom
 	}
 
 	def JvmTypeReference jsonObjectJvmTypeReference() {
-		ensureTypeReferenceBuilderInitialized
 		return JsonObject.buildFrom
 	}
 
 	def JvmTypeReference jsonArrayJvmTypeReference() {
-		ensureTypeReferenceBuilderInitialized
 		return JsonArray.buildFrom
 	}
 

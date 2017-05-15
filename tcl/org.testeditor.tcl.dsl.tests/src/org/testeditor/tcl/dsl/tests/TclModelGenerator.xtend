@@ -100,7 +100,9 @@ class TclModelGenerator {
 		return me
 	}
 	
-	def KeyPathElement keyPathElement() { return tclFactory.createKeyPathElement }
+	def KeyPathElement keyPathElement() { 
+		return tclFactory.createKeyPathElement
+	}
 	
 	def VariableReferencePathAccess variableReferencePathAccess() {
 		return tclFactory.createVariableReferencePathAccess
@@ -122,17 +124,29 @@ class TclModelGenerator {
 		]
 	}
 	
-	def JsonObject jsonObject() { tclFactory.createJsonObject }
+	def JsonObject jsonObject() { 
+		return tclFactory.createJsonObject
+	}
 
-	def JsonArray jsonArray() { tclFactory.createJsonArray }
+	def JsonArray jsonArray() {
+		return tclFactory.createJsonArray
+	}
 
-	def JsonString jsonString() { tclFactory.createJsonString }
+	def JsonString jsonString() { 
+		return tclFactory.createJsonString
+	}
 
-	def JsonNull jsonNull() { tclFactory.createJsonNull }
+	def JsonNull jsonNull() { 
+		return tclFactory.createJsonNull
+	}
 
-	def JsonNumber jsonNumber() { tclFactory.createJsonNumber }
+	def JsonNumber jsonNumber() { 
+		return tclFactory.createJsonNumber
+	}
 
-	def JsonBoolean jsonBoolean() { tclFactory.createJsonBoolean }
+	def JsonBoolean jsonBoolean() { 
+		return tclFactory.createJsonBoolean
+	}
 
 	def JsonObject jsonObjectWithStringKeyValue(String key, String value) {
 		tclFactory.createJsonObject => [

@@ -23,20 +23,23 @@ import org.testeditor.tcl.ArrayPathElement
  */
 class TclJsonUtil {
 	
+	val jsonTypeNames = newHashSet(
+		com.google.gson.JsonElement.name, 
+		com.google.gson.JsonObject.name,
+		com.google.gson.JsonArray.name, 
+		com.google.gson.JsonNull.name, 
+		com.google.gson.JsonPrimitive.name
+	)
+	
 	def boolean isJsonType(JvmTypeReference typeReference) {
 		val typeRefQNameString = typeReference.qualifiedName
-		switch typeRefQNameString {
-			case com.google.gson.JsonElement.name,
-			case com.google.gson.JsonObject.name,
-			case com.google.gson.JsonArray.name,
-			case com.google.gson.JsonNull.name,
-			case com.google.gson.JsonPrimitive.name: return true
-			default: return false
-		}
+		return jsonTypeNames.contains(typeRefQNameString)
 	}
 	
 	def String generateJsonElementAccess(JvmTypeReference wantedType) {			
 			switch wantedType.qualifiedName {
+				case Integer.name,
+				case int.name: return '''.getAsJsonPrimitive().getAsInt()'''
 				case Long.name,
 				case long.name: return '''.getAsJsonPrimitive().getAsLong()'''
 				case boolean.name,
