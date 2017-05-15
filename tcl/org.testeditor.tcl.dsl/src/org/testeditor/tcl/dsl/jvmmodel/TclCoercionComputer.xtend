@@ -37,10 +37,11 @@ class TclCoercionComputer {
 
 	def boolean isCoercionPossible(JvmTypeReference targetType, JvmTypeReference sourceType) {
 		switch targetType {
-			case targetType.isString : return sourceType.isLong || sourceType.isBoolean || sourceType.isJson || sourceType.isString
-			case targetType.isLong: return sourceType.isString || sourceType.isJson || sourceType.isLong
+			case targetType.isString : return sourceType.isLong || sourceType.isInt || sourceType.isBoolean || sourceType.isJson || sourceType.isString
+			case targetType.isLong: return sourceType.isString || sourceType.isJson || sourceType.isLong || sourceType.isInt
 			case targetType.isBoolean: return sourceType.isString || sourceType.isJson || sourceType.isBoolean
-			case targetType.isJson: return sourceType.isString || sourceType.isBoolean || sourceType.isLong || sourceType.isJson
+			case targetType.isInt: return sourceType.isString || sourceType.isJson || sourceType.isLong || sourceType.isInt
+			case targetType.isJson: return sourceType.isString || sourceType.isBoolean || sourceType.isLong || sourceType.isInt || sourceType.isJson
 		}
 		return false
 	}
@@ -49,8 +50,20 @@ class TclCoercionComputer {
 		val coercionErrorMessage = '''Coercion not possible from sourceType = '«sourceType?.qualifiedName»' to targetType= '«targetType?.qualifiedName»'.'''
 		if (isCoercionPossible(targetType, sourceType)) {
 			switch targetType {
+				case targetType.isInt:
+					if (sourceType.isInt) {
+						return ''
+					} else if (sourceType.isLong) {
+						return '''try { java.lang.Math.toIntExact(«sourceValue»); } catch (ArithmeticException ae) { org.junit.Assert.fail(«quotedErrorMessage»); }'''
+					} else if (sourceType.isJson) {
+						return '''org.junit.Assert.assertTrue(«quotedErrorMessage», «sourceValue».getAsJsonPrimitive().isNumber());'''
+					} else if (sourceType.isString) {
+						return '''try { Integer.parseInt(«sourceValue»); } catch (NumberFormatException nfe) { org.junit.Assert.fail(«quotedErrorMessage»); }'''
+					} else {
+						throw new RuntimeException(coercionErrorMessage)
+					}
 				case targetType.isLong:
-					if (sourceType.isLong) {
+					if (sourceType.isLong || sourceType.isInt) {
 						return ''
 					} else if (sourceType.isJson) {
 						return '''org.junit.Assert.assertTrue(«quotedErrorMessage», «sourceValue».getAsJsonPrimitive().isNumber());'''
@@ -90,6 +103,8 @@ class TclCoercionComputer {
 				case targetType.isJson:
 					if (sourceType.isString) {
 						return jsonParseInstruction('''"\""+«sourceValue»+"\""''')
+					} else if (sourceType.isInt) {
+						return jsonParseInstruction('''Integer.toString(«sourceValue»)''')
 					} else if (sourceType.isLong) {
 						return jsonParseInstruction('''Long.toString(«sourceValue»)''')
 					} else if (sourceType.isBoolean) {
@@ -99,10 +114,22 @@ class TclCoercionComputer {
 					} else {
 						return jsonParseInstruction('''«sourceValue».toString()''')
 					}
+				case targetType.isInt:
+					if (sourceType.isString) {
+						return '''Integer.parseInt(«sourceValue»)'''
+					} else if (sourceType.isLong) {
+						return '''java.lang.Math.toIntExact(«sourceValue»)'''
+					} else if (sourceType.isInt) {
+						return sourceValue
+					} else if (sourceType.isJson) {
+						return '''«sourceValue»«generateJsonElementAccess(targetType)»'''
+					} else {
+						throw new RuntimeException(coercionErrorMessage)
+					}
 				case targetType.isLong:
 					if (sourceType.isString) {
 						return '''Long.parseLong(«sourceValue»)'''
-					} else if (sourceType.isLong) {
+					} else if (sourceType.isLong || sourceType.isInt) {
 						return sourceValue
 					} else if (sourceType.isJson) {
 						return '''«sourceValue»«generateJsonElementAccess(targetType)»'''
@@ -122,6 +149,8 @@ class TclCoercionComputer {
 				case targetType.isString:
 					if (sourceType.isString) {
 						return sourceValue
+					} else if (sourceType.isInt) {
+						return '''Integer.toString(«sourceValue»)'''
 					} else if (sourceType.isLong) {
 						return '''Long.toString(«sourceValue»)'''
 					} else if (sourceType.isBoolean) {

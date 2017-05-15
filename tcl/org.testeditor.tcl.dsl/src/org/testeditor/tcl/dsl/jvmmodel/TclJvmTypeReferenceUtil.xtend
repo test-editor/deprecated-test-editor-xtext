@@ -142,7 +142,7 @@ class TclJvmTypeReferenceUtil {
 	
 	def isInt(JvmTypeReference reference) {
 		val qname = reference?.qualifiedName
-		return int.name.equals(qname) || Integer.name.equals(qname)
+		return int.name == qname || Integer.name == qname
 	}
 	
 	def JvmTypeReference booleanPrimitiveJvmTypeReference() {
@@ -163,6 +163,14 @@ class TclJvmTypeReferenceUtil {
 
 	def JvmTypeReference longObjectJvmTypeReference() {
 		return Long.buildFrom
+	}
+
+	def JvmTypeReference intPrimitiveJvmTypeReference() {
+		return int.buildFrom
+	}
+
+	def JvmTypeReference intObjectJvmTypeReference() {
+		return Integer.buildFrom
 	}
 
 	def JvmTypeReference jsonElementJvmTypeReference() {

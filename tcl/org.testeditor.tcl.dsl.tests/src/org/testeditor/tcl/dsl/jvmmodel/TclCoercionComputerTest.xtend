@@ -25,7 +25,15 @@ class TclCoercionComputerTest extends AbstractTclTest {
 			#[ booleanObjectJvmTypeReference,    longObjectJvmTypeReference],
 			#[ booleanObjectJvmTypeReference,    longPrimitiveJvmTypeReference],
 			#[ booleanPrimitiveJvmTypeReference, longObjectJvmTypeReference],
-			#[ booleanPrimitiveJvmTypeReference, longPrimitiveJvmTypeReference]
+			#[ booleanPrimitiveJvmTypeReference, longPrimitiveJvmTypeReference],
+			#[ intObjectJvmTypeReference,        booleanObjectJvmTypeReference],
+			#[ intObjectJvmTypeReference,        booleanPrimitiveJvmTypeReference],
+			#[ intPrimitiveJvmTypeReference,     booleanObjectJvmTypeReference],
+			#[ intPrimitiveJvmTypeReference,     booleanPrimitiveJvmTypeReference],
+			#[ booleanObjectJvmTypeReference,    intObjectJvmTypeReference],
+			#[ booleanObjectJvmTypeReference,    intPrimitiveJvmTypeReference],
+			#[ booleanPrimitiveJvmTypeReference, intObjectJvmTypeReference],
+			#[ booleanPrimitiveJvmTypeReference, intPrimitiveJvmTypeReference]
 		]
 	}
 	
@@ -36,6 +44,8 @@ class TclCoercionComputerTest extends AbstractTclTest {
 			// coercion to same type (always true)
 			#[ booleanObjectJvmTypeReference,    booleanObjectJvmTypeReference,    'data',                                                             ''],
 			#[ booleanPrimitiveJvmTypeReference, booleanPrimitiveJvmTypeReference, 'data',                                                             ''],
+			#[ intObjectJvmTypeReference,        intObjectJvmTypeReference,        'data',                                                             ''],
+			#[ intPrimitiveJvmTypeReference,     intPrimitiveJvmTypeReference,     'data',                                                             ''],
 			#[ longObjectJvmTypeReference,       longObjectJvmTypeReference,       'data',                                                             ''],
 			#[ longPrimitiveJvmTypeReference,    longPrimitiveJvmTypeReference,    'data',                                                             ''],
 			#[ stringJvmTypeReference,           stringJvmTypeReference,           'data',                                                             ''],
@@ -44,6 +54,8 @@ class TclCoercionComputerTest extends AbstractTclTest {
 			// coercion from json (always true, access is done through expected type)
 			#[ booleanObjectJvmTypeReference,    jsonObjectJvmTypeReference,       'data.getAsJsonPrimitive().getAsBoolean()',                         'org.junit.Assert.assertTrue("msg", data.getAsJsonPrimitive().isBoolean());'],
 			#[ booleanPrimitiveJvmTypeReference, jsonObjectJvmTypeReference,       'data.getAsJsonPrimitive().getAsBoolean()',                         'org.junit.Assert.assertTrue("msg", data.getAsJsonPrimitive().isBoolean());'],
+			#[ intObjectJvmTypeReference,        jsonObjectJvmTypeReference,       'data.getAsJsonPrimitive().getAsInt()',                             'org.junit.Assert.assertTrue("msg", data.getAsJsonPrimitive().isNumber());'],
+			#[ intPrimitiveJvmTypeReference,     jsonObjectJvmTypeReference,       'data.getAsJsonPrimitive().getAsInt()',                             'org.junit.Assert.assertTrue("msg", data.getAsJsonPrimitive().isNumber());'],
 			#[ longObjectJvmTypeReference,       jsonObjectJvmTypeReference,       'data.getAsJsonPrimitive().getAsLong()',                            'org.junit.Assert.assertTrue("msg", data.getAsJsonPrimitive().isNumber());'],
 			#[ longPrimitiveJvmTypeReference,    jsonObjectJvmTypeReference,       'data.getAsJsonPrimitive().getAsLong()',                            'org.junit.Assert.assertTrue("msg", data.getAsJsonPrimitive().isNumber());'],
 			#[ stringJvmTypeReference,           jsonObjectJvmTypeReference,       'data.getAsJsonPrimitive().getAsString()',                          'org.junit.Assert.assertTrue("msg", data.getAsJsonPrimitive().isString());'],
@@ -53,10 +65,14 @@ class TclCoercionComputerTest extends AbstractTclTest {
 			#[ stringJvmTypeReference,           booleanPrimitiveJvmTypeReference, 'Boolean.toString(data)',                                           ''],
 			#[ stringJvmTypeReference,           longObjectJvmTypeReference,       'Long.toString(data)',                                              ''],
 			#[ stringJvmTypeReference,           longPrimitiveJvmTypeReference,    'Long.toString(data)',                                              ''],
+			#[ stringJvmTypeReference,           intObjectJvmTypeReference,        'Integer.toString(data)',                                           ''],
+			#[ stringJvmTypeReference,           intPrimitiveJvmTypeReference,     'Integer.toString(data)',                                           ''],
 			
 			// coercion to json (needs parsing and thus a guard
 			#[ jsonObjectJvmTypeReference,       booleanObjectJvmTypeReference,    'new com.google.gson.JsonParser().parse(Boolean.toString(data))',   ''],
 			#[ jsonObjectJvmTypeReference,       booleanPrimitiveJvmTypeReference, 'new com.google.gson.JsonParser().parse(Boolean.toString(data))',   ''],
+			#[ jsonObjectJvmTypeReference,       intObjectJvmTypeReference,        'new com.google.gson.JsonParser().parse(Integer.toString(data))',   ''],
+			#[ jsonObjectJvmTypeReference,       intPrimitiveJvmTypeReference,     'new com.google.gson.JsonParser().parse(Integer.toString(data))',   ''],
 			#[ jsonObjectJvmTypeReference,       longObjectJvmTypeReference,       'new com.google.gson.JsonParser().parse(Long.toString(data))',      ''],
 			#[ jsonObjectJvmTypeReference,       longPrimitiveJvmTypeReference,    'new com.google.gson.JsonParser().parse(Long.toString(data))',      ''],
 			#[ jsonObjectJvmTypeReference,       stringJvmTypeReference,           'new com.google.gson.JsonParser().parse("\\""+data+"\\"")',         ''],
@@ -64,8 +80,21 @@ class TclCoercionComputerTest extends AbstractTclTest {
 			// coercion from string (always true, needs parsing though)
 			#[ booleanObjectJvmTypeReference,    stringJvmTypeReference,           'Boolean.valueOf(data)',                                            'org.junit.Assert.assertTrue("msg", Boolean.TRUE.toString().equals(data) || Boolean.FALSE.toString().equals(data));'],
 			#[ booleanPrimitiveJvmTypeReference, stringJvmTypeReference,           'Boolean.valueOf(data)',                                            'org.junit.Assert.assertTrue("msg", Boolean.TRUE.toString().equals(data) || Boolean.FALSE.toString().equals(data));'],
+			#[ intObjectJvmTypeReference,        stringJvmTypeReference,           'Integer.parseInt(data)',                                           'try { Integer.parseInt(data); } catch (NumberFormatException nfe) { org.junit.Assert.fail("msg"); }'],
+			#[ intPrimitiveJvmTypeReference,     stringJvmTypeReference,           'Integer.parseInt(data)',                                           'try { Integer.parseInt(data); } catch (NumberFormatException nfe) { org.junit.Assert.fail("msg"); }'],
 			#[ longObjectJvmTypeReference,       stringJvmTypeReference,           'Long.parseLong(data)',                                             'try { Long.parseLong(data); } catch (NumberFormatException nfe) { org.junit.Assert.fail("msg"); }'],
-			#[ longPrimitiveJvmTypeReference,    stringJvmTypeReference,           'Long.parseLong(data)',                                             'try { Long.parseLong(data); } catch (NumberFormatException nfe) { org.junit.Assert.fail("msg"); }']
+			#[ longPrimitiveJvmTypeReference,    stringJvmTypeReference,           'Long.parseLong(data)',                                             'try { Long.parseLong(data); } catch (NumberFormatException nfe) { org.junit.Assert.fail("msg"); }'],
+			
+			// coercion long <-> int
+			#[ intObjectJvmTypeReference,        longObjectJvmTypeReference,       'java.lang.Math.toIntExact(data)',                                  'try { java.lang.Math.toIntExact(data); } catch (ArithmeticException ae) { org.junit.Assert.fail("msg"); }'],
+			#[ intPrimitiveJvmTypeReference,     longObjectJvmTypeReference,       'java.lang.Math.toIntExact(data)',                                  'try { java.lang.Math.toIntExact(data); } catch (ArithmeticException ae) { org.junit.Assert.fail("msg"); }'],
+			#[ intObjectJvmTypeReference,        longPrimitiveJvmTypeReference,    'java.lang.Math.toIntExact(data)',                                  'try { java.lang.Math.toIntExact(data); } catch (ArithmeticException ae) { org.junit.Assert.fail("msg"); }'],
+			#[ intPrimitiveJvmTypeReference,     longPrimitiveJvmTypeReference,    'java.lang.Math.toIntExact(data)',                                  'try { java.lang.Math.toIntExact(data); } catch (ArithmeticException ae) { org.junit.Assert.fail("msg"); }'],
+			
+			#[ longObjectJvmTypeReference,       intObjectJvmTypeReference,        'data',                                                             ''],
+			#[ longPrimitiveJvmTypeReference,    intObjectJvmTypeReference,        'data',                                                             ''],
+			#[ longObjectJvmTypeReference,       intPrimitiveJvmTypeReference,     'data',                                                             ''],
+			#[ longPrimitiveJvmTypeReference,    intPrimitiveJvmTypeReference,     'data',                                                             '']
 		]
 	}
 
