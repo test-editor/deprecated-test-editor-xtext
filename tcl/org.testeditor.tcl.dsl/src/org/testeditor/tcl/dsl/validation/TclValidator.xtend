@@ -18,7 +18,6 @@ import java.util.Map
 import java.util.Optional
 import java.util.Set
 import javax.inject.Inject
-import org.apache.commons.lang3.StringEscapeUtils
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.xtype.XImportSection
@@ -39,7 +38,6 @@ import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
-import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TclPackage
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestStep
@@ -55,6 +53,7 @@ import org.testeditor.tcl.dsl.jvmmodel.VariableCollector
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tcl.util.ValueSpaceHelper
 import org.testeditor.tsl.SpecificationStep
+import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
@@ -455,6 +454,10 @@ class TclValidator extends AbstractTclValidator {
 		return specImplSteps.map[contents.restoreString].containsAll(specSteps.map[contents.restoreString])
 	}
 
+	/**
+	 * check that the given test step uses parameters that can be used for calls to the interaction 
+	 * (are typed accordingly, or can be coerced accordingly)
+	 */
 	private def void checkStepContentVariableTypeInParameterPosition(TestStep step, InteractionType interaction) {
 		// check only StepContentVariable, since variable references are already tested by ...
 		val callParameters = step.contents.indexed.filterValue(StepContentVariable)
@@ -465,41 +468,51 @@ class TclValidator extends AbstractTclValidator {
 			val templateParameter = content.templateParameterForCallingStepContent
 			val expectedType = definitionParameterTypePairs.get(templateParameter)
 			if (!expectedType.present) {
-				error('Type unknown. Expected \'' + expectedType + '\'.', content.eContainer,
+				error('''Expected type could not be found for templateParameter = '«templateParameter?.name»'.''', content.eContainer,
 					content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
 			} else {
-				typeReferenceUtil.initWith(content.eResource)
-				val contentType = expressionTypeComputer.determineType(content, expectedType.get)
-				val assignable = typeReferenceUtil.isAssignableFrom(expectedType.get, contentType)
-				if (!assignable) { // since content is a StepContentVariable, coercion is not option, since determineType already did check for bool/long/string
-					error('''Type mismatch. Expected '«expectedType.get.qualifiedName»' got '«contentType.qualifiedName»' = '«StringEscapeUtils.escapeJava(content.value)»' that cannot assigned nor coerced.''',
-						content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
-				}
+				checkAgainstTypeExpectation(content, contentIndex, expectedType.get)
 			}
 		]
 	}
 	
+	/**
+	 * check that the given test step uses parameters that can be used for calls to the macro 
+	 * (are typed accordingly, or can be coerced accordingly)
+	 */
 	private def void checkStepContentVariableTypeInParameterPosition(TestStep step, Macro macro) {
 		// check only StepContentVariable, since variable references are already tested by ...
 		val templateParameterTypeMap = simpleTypeComputer.getVariablesWithTypes(macro)
 		val contentTemplateVarmap = step.getStepContentToTemplateVariablesMapping(macro.template)
 		contentTemplateVarmap.filterKey(StepContentVariable).forEach [ content, templateVar |
 			val expectedType = templateParameterTypeMap.get(templateVar)
-			expectedType.ifPresent [
-				typeReferenceUtil.initWith(step.eResource)
-				coercionComputer.initWith(step.eResource)
-				val contentIndex = step.contents.indexOfFirst(content)
-				val contentType = expressionTypeComputer.determineType(content, expectedType.get)
-				val assignable = typeReferenceUtil.isAssignableFrom(expectedType.get, contentType)
-				// if content is a StepContentVariable, coercion is not option, since determineType already did check for bool/long/string
-				val coercible = !(content instanceof StepContentVariable) &&
-					coercionComputer.isCoercionPossible(expectedType.get, contentType)
-				if (!assignable && !coercible) {
-					error('''Type mismatch. Expected '«expectedType.get.qualifiedName»' got '«contentType.qualifiedName»' that cannot assigned nor coerced.''',
-						content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
-				}
-			]
+			val contentIndex = step.contents.indexOfFirst(content)
+			if (!expectedType.present) {
+				error('''Expected type could not be found for templateVariable = '«templateVar?.name»'.''', content.eContainer,
+					content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
+			} else {
+				checkAgainstTypeExpectation(content, contentIndex, expectedType.get)
+			}
 		]
 	}
 	
+	/** 
+	 * check that the given step content can be assigned / coerced to the expected type.
+	 * coercion is not checked for StepContentVariables (since these are constants which are already checked 
+	 * for matching the expected type by the 'determineType' function).
+	 */
+	private def void checkAgainstTypeExpectation(StepContent content, int contentIndex, JvmTypeReference expectedType) {
+		typeReferenceUtil.initWith(content.eResource)
+		coercionComputer.initWith(content.eResource)
+		val contentType = expressionTypeComputer.determineType(content, expectedType)
+		val assignable = typeReferenceUtil.isAssignableFrom(expectedType, contentType)
+		// if content is a StepContentVariable, coercion is not option, since determineType already did check for bool/long/string
+		val coercible = !(content instanceof StepContentVariable) &&
+			coercionComputer.isCoercionPossible(expectedType, contentType)
+		if (!assignable && !coercible) {
+			error('''Type mismatch. Expected '«expectedType.qualifiedName»' got '«contentType.qualifiedName»' that cannot assigned nor coerced.''',
+				content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
+		}
+	}
+		
 }
