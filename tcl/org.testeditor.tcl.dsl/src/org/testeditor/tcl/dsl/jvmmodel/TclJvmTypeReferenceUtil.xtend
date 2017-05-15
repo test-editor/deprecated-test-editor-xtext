@@ -54,7 +54,7 @@ class TclJvmTypeReferenceUtil {
 			typeReferenceBuilder = typeReferenceBuilderFactory.create(this.resourceSet) // useful for testing with models without resources
 		} else {
 			typeReferenceBuilder = typeReferenceBuilderFactory.create(resourceSet)
-			this.resourceSet = resourceSet
+			this.resourceSet = resourceSet // overwrite injected one (which was injected for test purposes only)
 		}
 	}
 	
@@ -125,9 +125,9 @@ class TclJvmTypeReferenceUtil {
 	def boolean isAssignableFrom(JvmTypeReference target, JvmTypeReference source,
 		TypeConformanceComputationArgument argument) {
 		if (typeReferenceOwner === null) {
-			typeReferenceOwner = new StandardTypeReferenceOwner(services, resourceSet) // null as ResourceSet
+			typeReferenceOwner = new StandardTypeReferenceOwner(services, resourceSet)
 		}
-		if (target.qualifiedName == source.qualifiedName) { // workaround for a bug, where two types that boil down to java.lang.String were deemed NOT assignable
+		if (target.qualifiedName == source.qualifiedName) { // TODO: recheck! workaround for a bug, where two types that boil down to java.lang.String were deemed NOT assignable
 			return true
 		}
 		val lleft = typeReferenceOwner.toLightweightTypeReference(target)

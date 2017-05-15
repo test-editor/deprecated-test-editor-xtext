@@ -43,14 +43,6 @@
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
-			<id>google-gson</id>
-			<name>google-gson</name>
-			<url>http://mvnrepository.com/artifact/com.google.code.gson/gson</url>
-		</pluginRepository>
-		<pluginRepository>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
 			<id>central</id>
 			<name>bintray</name>
 			<url>http://jcenter.bintray.com</url>
