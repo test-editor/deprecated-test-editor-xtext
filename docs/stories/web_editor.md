@@ -1,6 +1,3 @@
-Project ideas as stories
-========================
-
 # Tsl editor in the web
 
 In order to allow non programmers to quickly write down acceptance criteria, an editor should be provided that allows to write test specifications (similar to markdown) without setup.
