@@ -69,13 +69,15 @@ class ClasspathUtilTest extends AbstractTest {
 
 	@Test
 	def void intTestGetBuildToolClasspathEntryWithGradle() {
-		assumeTrue(new GradleServerConnectUtil().canConnet())
+		assumeTrue(new GradleServerConnectUtil().canConnect)
+		
+		// given
 		val gradleBuildFile = tempFolder.newFile("build.gradle")
 		val packageDir = new File(tempFolder.newFolder("src"), "/test/java/package")
 		packageDir.mkdirs
 
 		Files.write(gradleBuildFile.toPath, getGradleBuildFileExample.bytes)
-		val intClasspathUtil = Guice.createInjector().getInstance(ClasspathUtil)
+		val intClasspathUtil = Guice.createInjector.getInstance(ClasspathUtil)
 
 		// when
 		val result = intClasspathUtil.getBuildToolClasspathEntry(new Path(packageDir.toString))
@@ -87,7 +89,7 @@ class ClasspathUtilTest extends AbstractTest {
 	def private String getGradleBuildFileExample() {
 		'''
 			plugins {
-			    id 'org.testeditor.gradle-plugin' version '0.3'
+			    id 'org.testeditor.gradle-plugin' version '0.6'
 			    id 'maven'
 			    id 'eclipse'
 			}
@@ -130,6 +132,44 @@ class ClasspathUtilTest extends AbstractTest {
 		assertNull(buildScriptNotFound)
 		assertSame(basePathWithPom, pathWithPom)
 		assertSame(basePathWithGradle, pathWithGradle)
+	}
+	
+	@Test
+	def void testValidPackageForPath() {
+		// given
+		val classpath = new Path('/resource/project-name/src/main/java')
+		val path = classpath.append('some/more/package')
+
+		// when
+		val package = classpathUtil.packageForPath(path, classpath)
+
+		// then
+		package.assertEquals("some.more.package")
+	}
+
+	@Test
+	def void testValidDefaultPackageForPath() {
+		// given
+		val classpath = new Path('/resource/project-name/src/main/java')
+		val path = classpath
+
+		// when
+		val package = classpathUtil.packageForPath(path, classpath)
+
+		// then
+		package.assertEquals("")
+	}
+
+	@Test(expected=RuntimeException)
+	def void testInvalidPackageForPath() {
+		// given
+		val classpath = new Path('/resource/project-name/src/main/java')
+		val path = new Path('/resource/project-name/DIFFERENT/main/java/some/more/package')
+
+		// when
+		classpathUtil.packageForPath(path, classpath)
+
+		// then (expect exception)
 	}
 
 	def IPath getPathForBuildFileSearch(List<String> objects) {

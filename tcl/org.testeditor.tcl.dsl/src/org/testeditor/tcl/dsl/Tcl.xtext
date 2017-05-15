@@ -95,7 +95,7 @@ TestStepContext:
 ComponentTestStepContext returns TestStepContext:
 	{ComponentTestStepContext}
 	('Mask' | 'Component') ':' component=[aml::Component|QualifiedName]
-	steps+=(TestStep | TestStepWithAssignment | AssertionTestStep)*;
+	steps+=(TestStep | TestStepWithAssignment | AssertionTestStep | AssignmentThroughPath)*;
 
 MacroTestStepContext returns TestStepContext:
 	{MacroTestStepContext}
@@ -115,6 +115,9 @@ AssertionTestStep:
 TestStepWithAssignment:
 	'-' variable=AssignmentVariable '=' contents+=StepContent* contents+=StepContentPunctuation?;
 
+AssignmentThroughPath:
+	'-' variableReference=VariableReferencePathAccess '=' expression=Expression '.'?;
+
 /** expression order: Comparison -> (Addition -> Multiplication ->) Value
  *  which is reflecting the order of operator binding.
  * 
@@ -125,7 +128,7 @@ Expression:
 	Comparison;
 
 NullOrBoolCheck:
-	(negated?='!')? variableReference=(VariableReference | VariableReferenceMapAccess);
+	(negated?='!')? variableReference=(VariableReference | VariableReferencePathAccess);
 
 FullComparison returns Comparison:
 	left=Value
@@ -139,15 +142,22 @@ Comparison:
 
 VariableReference:
 	variable=[aml::Variable];
+	
+	
+ArrayPathElement:
+	'[' number=Number ']';
 
-VariableReferenceMapAccess:
-	variable=[aml::Variable] '.' (key=ID | key=STRING);
+KeyPathElement:
+	'.' ( key=ID | key=STRING );
 
-StringConstant:
-	string=STRING;
+VariableReferencePathAccess:
+	variable=[aml::Variable] ( path+=KeyPathElement | path+=ArrayPathElement )+;
 
+AtomicValue returns Expression:
+	VariableReference | VariableReferencePathAccess | JsonValue ;
+	
 Value returns Expression:
-	VariableReference | VariableReferenceMapAccess | StringConstant | '(' Expression ')';
+	AtomicValue | '(' Expression ')';
 
 Comparator:
 	ComparatorEquals |
@@ -171,7 +181,7 @@ AssignmentVariable:
 	name=ID;
 	
 StepContent returns tsl::StepContent:
-	StepContentText | StepContentElement | StepContentVariable | '@' VariableReference | '@' VariableReferenceMapAccess;
+	StepContentText | StepContentElement | StepContentVariable | '@' VariableReference | '@' VariableReferencePathAccess;
 
 StepContentText returns tsl::StepContentText:
 	value=ID | value=StepContentTextOperator;
@@ -192,3 +202,41 @@ StepContentElement hidden():
 StepContentPunctuation:
 	value=('.'|'?')
 ;
+
+JsonObject:
+	{JsonObject}
+	'{'
+		(members+=JsonMember)?
+		(',' members+=JsonMember)*
+	'}';
+
+JsonMember:
+	key=STRING ':' value=JsonValue;
+
+JsonValue:
+	JsonString | JsonNumber | JsonObject | JsonArray | JsonBoolean | JsonNull;
+
+JsonString:
+	value=STRING;
+
+JsonBoolean:
+	value=Boolean;
+
+JsonNull:
+	{JsonNull}
+	'null';
+
+JsonArray:
+	{JsonArray}
+	'['
+		(values+=JsonValue (',' values+=JsonValue)*)?
+	']';
+
+JsonNumber:
+	value=JsonDecimal;
+
+Boolean returns ecore::EBoolean:
+	'true' | 'false';
+
+JsonDecimal returns ecore::EString hidden():
+	'-'? Number;

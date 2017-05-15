@@ -10,11 +10,11 @@ import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.xtext.ParserRule
 import org.eclipse.xtext.generator.IFileSystemAccess
 import org.eclipse.xtext.generator.InMemoryFileSystemAccess
-import org.eclipse.xtext.junit4.util.ParseHelper
 import org.eclipse.xtext.parser.IParseResult
 import org.eclipse.xtext.parser.IParser
 import org.eclipse.xtext.resource.XtextResourceSet
 import org.eclipse.xtext.serializer.ISerializer
+import org.eclipse.xtext.testing.util.ParseHelper
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.ModelElement
 import org.testeditor.aml.dsl.AmlStandaloneSetup

@@ -13,7 +13,7 @@
 package org.testeditor.rcp4.views.tcltestrun.model
 
 import java.io.File
-import java.util.Date
+import java.time.LocalDateTime
 import java.util.List
 import org.eclipse.xtend.lib.annotations.Accessors
 
@@ -21,7 +21,7 @@ import org.eclipse.xtend.lib.annotations.Accessors
 class TestExecutionLog {
 
 	String name
-	Date executionDate
+	LocalDateTime executionDate
 	List<TestCaseExecution> testCases
 	String testRunTimestamp
 	File logDir

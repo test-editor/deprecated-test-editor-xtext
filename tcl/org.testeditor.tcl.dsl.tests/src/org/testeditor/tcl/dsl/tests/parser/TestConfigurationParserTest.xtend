@@ -1,6 +1,6 @@
 package org.testeditor.tcl.dsl.tests.parser
 
-import com.google.inject.Inject
+import javax.inject.Inject
 import org.junit.Test
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
 import org.testeditor.dsl.common.testing.DslParseHelper

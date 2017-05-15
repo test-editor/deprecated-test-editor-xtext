@@ -12,13 +12,12 @@
  *******************************************************************************/
 package org.testeditor.tsl.util
 
-import java.util.List
 import javax.inject.Singleton
 import org.eclipse.emf.ecore.EObject
 import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContent
-import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.StepContentValue
+import org.testeditor.tsl.StepContentVariable
 
 @Singleton
 class TslModelUtil {
@@ -36,7 +35,7 @@ class TslModelUtil {
 		return null
 	}
 
-	def String restoreString(List<StepContent> contents) {
+	def String restoreString(Iterable<StepContent> contents) {
 		return contents.map [
 			switch (it) {
 				StepContentVariable: '''"«value»"'''

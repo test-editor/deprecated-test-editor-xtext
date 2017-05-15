@@ -1,0 +1,14 @@
+logging:
+  appenders:
+    - type: console
+      threshold: INFO
+      logFormat: "[%thread] %X{audit-identifier} %-5level %logger{36} - %msg%n"
+
+server:
+  rootPath: "/api/*"
+  applicationConnectors:
+    - type: http 
+      port: 9000
+  adminConnectors:
+    - type: http
+      port: 9001

@@ -26,8 +26,6 @@ import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.Path
 import org.eclipse.core.runtime.Platform
 import org.eclipse.jdt.core.JavaCore
-import org.eclipse.m2e.core.MavenPlugin
-import org.eclipse.m2e.core.project.ResolverConfiguration
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtext.ui.XtextProjectHelper
 import org.eclipse.xtext.util.StringInputStream
@@ -37,6 +35,7 @@ import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.ide.util.FileUtils
 import org.testeditor.dsl.common.ui.wizards.SwingDemoContentGenerator
 import org.testeditor.dsl.common.util.GradleHelper
+import org.testeditor.dsl.common.util.MavenExecutor
 import org.testeditor.dsl.common.util.classpath.ClasspathUtil
 
 /**
@@ -44,12 +43,11 @@ import org.testeditor.dsl.common.util.classpath.ClasspathUtil
  */
 class ProjectContentGenerator {
 
-	public val String TEST_EDITOR_VERSION
-	static public val TEST_EDITOR_MAVEN_PLUGIN_VERSION = "1.1"
+	static public val TEST_EDITOR_MAVEN_PLUGIN_VERSION = "1.3"
 	static public val TEST_EDITOR_WEB_FIXTURE = "3.1.4"
 	static public val TEST_EDITOR_CORE_FIXTURE = "3.1.0"
 	static public val TEST_EDITOR_SWING_FIXTURE = "3.1.1"
-	static public val TEST_EDITOR_GRADLE_PLUGIN_VERSION = "0.5"
+	static public val TEST_EDITOR_GRADLE_PLUGIN_VERSION = "0.8"
 	
 	static public val String TEST_EDITOR_MVN_GEN_OUTPUT = 'src-gen/test/java'
 
@@ -61,14 +59,23 @@ class ProjectContentGenerator {
 	static public val String RESOURCES_FOLDER = 'src/main/resources'
 	static public val String SRC_TEST_FOLDER = 'src/test/java'
 	static public val String RESOURCES_TEST_FOLDER = 'src/test/resources'
+	static val SOURCE_FOLDERS = #[
+			SRC_FOLDER,
+			RESOURCES_FOLDER,
+			SRC_TEST_FOLDER,
+			RESOURCES_TEST_FOLDER
+		]
 
 	private static val logger = LoggerFactory.getLogger(ProjectContentGenerator)
 
+	val String testEditorVersion // is filled by querying the plugin version
+
 	@Inject FileLocatorService fileLocatorService
-	@Inject extension ProjectUtils
-	@Inject extension ClasspathUtil
+	@Inject MavenExecutor mavenExecutor
 	@Inject GradleHelper gradleHelper
 	@Inject SwingDemoContentGenerator swingDemoContentGenerator
+	@Inject ClasspathUtil classpathUtil
+	@Inject extension ProjectUtils
 	
 	@Accessors(PUBLIC_GETTER) 
 	IFile demoTclFile
@@ -82,17 +89,18 @@ class ProjectContentGenerator {
 	}
 	
 	new() {
-		TEST_EDITOR_VERSION = bundleVersion.mapTesteditorVersion
+		testEditorVersion = bundleVersion.mapTesteditorVersion
 	}
 
-	def Version getBundleVersion() {
+	@VisibleForTesting
+	protected def Version getBundleVersion() {
 		val bundle = Platform.getBundle("org.testeditor.dsl.common.ui")
-		return bundle.version
+		return bundle?.version ?: Version.valueOf("0.0.0")
 	}
 	
-	def String mapTesteditorVersion(Version version){
-		val versionString = '''«version.major».«version.minor».«version.micro»«if(!version.qualifier.nullOrEmpty){'-SNAPSHOT'}else{''}»'''
-		return versionString.toString
+	@VisibleForTesting
+	protected def String mapTesteditorVersion(Version version){
+		return '''«version.major».«version.minor».«version.micro»«if(!version.qualifier.nullOrEmpty){'-SNAPSHOT'}else{''}»'''
 	}
 
 	def void createProjectContent(IProject project, String[] fixtures, String buildsystem, boolean demo,
@@ -103,11 +111,10 @@ class ProjectContentGenerator {
 			createLoggingConfig(monitor)
 			
 			// setup buildsystem
-			if (buildsystem == MAVEN) {
-				setupMavenProject(fixtures, monitor)
-			}
-			if (buildsystem == GRADLE) {
-				setupGradleProject(fixtures, monitor)
+			switch (buildsystem) {
+				case buildsystem == MAVEN: setupMavenProject(fixtures, monitor)
+				case buildsystem == GRADLE: setupGradleProject(fixtures, monitor)
+				default: throw new RuntimeException('''Unknown buildsystem='«buildsystem»'.''')
 			}
 			
 			// fill project with sample code
@@ -120,19 +127,45 @@ class ProjectContentGenerator {
 			}
 			
 			// some more technical project setup
-			if (buildsystem == GRADLE) {
-				setupEclipseMetaData(monitor)
+			switch (buildsystem) {
+				case buildsystem == MAVEN: setupEclipseProjectForMaven(monitor)
+				case buildsystem == GRADLE: setupEclipseProjectForGradle(monitor)
+				default: throw new RuntimeException('''Unknown buildsystem='«buildsystem»'.''')
 			}
+			
 			// TE-470 project file filter to allow access to src etc. are not activated
 			// filterTechnicalProjectFiles(monitor)
 		]
 	}
-
+	
+	private def void setupEclipseProjectForGradle(IProject project, IProgressMonitor monitor) {
+		project => [
+			setupGradleEclipseMetaData(monitor)
+			addNatures(monitor)
+			setupGradleSourceClassPaths
+			setupClasspathFileExclusions
+		]
+	}
+	
+	private def void setupEclipseProjectForMaven(IProject project, IProgressMonitor monitor) {
+		project => [
+			setupMavenEclipseMetaData(monitor)
+			addNatures(monitor)
+			setupMavenSourceClassPaths
+			setupClasspathFileExclusions
+		]
+	}
+	
+	private def void addNatures(IProject project, IProgressMonitor monitor) {
+		project => [
+			addNature(JavaCore.NATURE_ID)
+			addNature(XtextProjectHelper.NATURE_ID)
+			refreshLocal(IResource.DEPTH_INFINITE, monitor)
+		]
+	}
+	
 	private def void createSourceFolder(IProject project) {
-		createOrGetDeepFolder(project, SRC_FOLDER)
-		createOrGetDeepFolder(project, RESOURCES_FOLDER)
-		createOrGetDeepFolder(project, SRC_TEST_FOLDER)
-		createOrGetDeepFolder(project, RESOURCES_TEST_FOLDER)
+		SOURCE_FOLDERS.forEach[project.createOrGetDeepFolder(it)]
 	}
 
 	private def filterTechnicalProjectFiles(IProject project, IProgressMonitor monitor) {
@@ -145,7 +178,7 @@ class ProjectContentGenerator {
 	}
 
 	@VisibleForTesting
-	protected def void setupEclipseMetaData(IProject project, IProgressMonitor monitor) {
+	protected def void setupGradleEclipseMetaData(IProject project, IProgressMonitor monitor) {
 		// Run "gradle eclipse" to create the meta-data
 		try {
 			monitor.taskName = "Initializing Eclipse project."
@@ -163,6 +196,41 @@ class ProjectContentGenerator {
 		createGradleBuildFile(project, fixtures, monitor)
 		maybeCreateGradleSettings(project, monitor)
 		createGradleWrapper(project)
+	}
+
+	private def void setupGradleSourceClassPaths(IProject project) {
+		val wantedSourceClassPaths = #[ //
+			SRC_FOLDER,
+			RESOURCES_FOLDER,
+			SRC_TEST_FOLDER,
+			RESOURCES_TEST_FOLDER,
+			"build/tcl/test", // generated test cases
+			"build/tclConfig/test", // generated test configurations
+			"build/tclMacro/test" // generated test macros
+		]
+		project.setupSourceClassPaths(wantedSourceClassPaths)
+	}
+	
+	private def void setupMavenSourceClassPaths(IProject project) {
+		val wantedSourceClassPaths = #[ //
+			SRC_FOLDER,
+			RESOURCES_FOLDER,
+			SRC_TEST_FOLDER,
+			RESOURCES_TEST_FOLDER
+		]
+		project.setupSourceClassPaths(wantedSourceClassPaths)
+	}
+
+	private def void setupSourceClassPaths(IProject project, Iterable<String> paths) {
+		val classPathPrefix = '''/«project.name»/'''
+		val existingSourcePaths = classpathUtil.getSourceClasspathEntries(project).map[path.toPortableString]
+
+		val pathsToAdd = paths.filter [ wantedPath |
+			!existingSourcePaths.exists[endsWith(wantedPath)]
+		]
+
+		val classPathEntriesToAdd = pathsToAdd.map[JavaCore.newSourceEntry(Path.fromPortableString('''«classPathPrefix»«it»'''))]
+		classpathUtil.addClasspathEntries(project, classPathEntriesToAdd)
 	}
 
 	private def void createGradleBuildFile(IProject project, String[] fixtures, IProgressMonitor monitor) {
@@ -186,6 +254,7 @@ class ProjectContentGenerator {
 		systemProp.http.proxyPassword=«System.properties.getProperty("http.proxyPassword")»
 		systemProp.https.proxyHost=«System.properties.getProperty("https.proxyHost")»
 		systemProp.https.proxyPort=«System.properties.getProperty("https.proxyPort")»
+		systemProp.http.nonProxyHosts=«System.properties.getProperty("https.nonProxyHosts")»
 	'''
 	
 	private def void createGradleWrapper(IProject project) {
@@ -206,22 +275,21 @@ class ProjectContentGenerator {
 			}
 		]
 	}
-
+	
+	private def IFile getMavenBuildFile(IProject project) {
+		return project.getFile("pom.xml")
+	}
+	
 	protected def void setupMavenProject(IProject project, String[] fixtures, IProgressMonitor monitor) {
-		var IFile buildFile = project.getFile("pom.xml")
-		buildFile.create(new StringInputStream(getPomContent(fixtures, project.name)), IResource.NONE, monitor)
-		val mavenSettings = System.getProperty("TE.MAVENSETTINGSPATH")
-		if (!mavenSettings.isNullOrEmpty) {
-			MavenPlugin.mavenConfiguration.userSettingsFile = mavenSettings
-		}
-		var configurationManager = MavenPlugin.projectConfigurationManager
-		var configuration = new ResolverConfiguration
-		configuration.resolveWorkspaceProjects = true
-		configuration.selectedProfiles = ""
-		project.addNature(XtextProjectHelper.NATURE_ID)
-		configurationManager.enableMavenNature(project, configuration, monitor)
+		val projectContentStream = new StringInputStream(getPomContent(fixtures, project.name))
+		project.mavenBuildFile.create(projectContentStream, IResource.NONE, monitor)
+	}
+		
+	private def void setupMavenEclipseMetaData(IProject project, IProgressMonitor monitor) {
+		val pathToMavenBuildFile = project.mavenBuildFile.location.removeLastSegments(1).toOSString
+		mavenExecutor.executeInNewJvm("eclipse:eclipse", pathToMavenBuildFile, null, monitor, System.out)
 		project.setupMavenTclGeneratorPreferences
-		project.setupClasspathFileExclusions
+		project.refreshLocal(IResource.DEPTH_INFINITE, monitor)
 	}
 
 	/**
@@ -235,7 +303,7 @@ class ProjectContentGenerator {
 		val fileExtensions = #["aml", "tcl", "tsl", "config", "tml", "_trace"]
 		val fileExclusions = fileExtensions.map[new Path('''**/*.«it»''')]
 
-		project.transformClasspathEntries [
+		classpathUtil.transformClasspathEntries(project) [
 			if (path.segments.exists[matches("src(-gen)?")]) {
 				return JavaCore.newSourceEntry(path, fileExclusions) // don't copy these, will reduce exceptions
 			} else {
@@ -390,11 +458,14 @@ class ProjectContentGenerator {
 
 		// Configure the testeditor plugin
 		testeditor {
-			version '«TEST_EDITOR_VERSION»'
+			version '«testEditorVersion»'
 		}
 		
+		// configure logging within tests (see https://docs.gradle.org/current/dsl/org.gradle.api.tasks.testing.logging.TestLogging.html)
 		// show standard out during test to see logging output
 		test.testLogging.showStandardStreams = true
+		// make sure that assertion failures are reported more verbose!
+		test.testLogging.exceptionFormat = 'full'
 
 		// In this section you declare the dependencies for your production and test code
 		dependencies {
@@ -403,6 +474,32 @@ class ProjectContentGenerator {
 				«getGradleDependency(s)»
 			«ENDFOR»
 			testCompile 'junit:junit:4.12'
+		}
+		
+		// add environmental variables needed by the test (for any 'require <var-name>' in tcl)
+		// test.doFirst {
+		//	environment 'requiredVariable', 'value'
+		// }
+		
+		// add proxy settings to the environment, if present (e.g. in gradle.properties)
+		// keep in mind that gradle.properties w/i user ~/.gradle/gradle.properties might override project settings
+		if (System.properties.containsKey('http.proxyHost')) { // set proxy properties only if present
+		    test.doFirst {
+		        println 'Configuring System Properties for Proxy'
+		        systemProperty 'http.nonProxyHosts', System.properties['http.nonProxyHosts']
+		        systemProperty 'http.proxyHost', System.properties['http.proxyHost']
+		        systemProperty 'http.proxyPort', System.properties['http.proxyPort']
+		        systemProperty 'http.proxyUser', System.properties['http.proxyUser']
+		        systemProperty 'http.proxyPassword', System.properties['http.proxyPassword']
+		        systemProperty 'https.proxyHost', System.properties['https.proxyHost']
+		        systemProperty 'https.proxyPort', System.properties['https.proxyPort']
+		    }
+		}
+		
+		configurations.all {
+		  resolutionStrategy {
+		    forcedModules = ['org.seleniumhq.selenium:selenium-java:2.53.0'] // currently a must because of incompatibilities with more recent version
+		  }
 		}
 	'''
 
@@ -439,7 +536,7 @@ class ProjectContentGenerator {
 				<maven-resources-plugin.version>2.7</maven-resources-plugin.version>
 				<maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
 
-				<testeditor.version>«TEST_EDITOR_VERSION»</testeditor.version>
+				<testeditor.version>«testEditorVersion»</testeditor.version>
 				<testeditor.output>«TEST_EDITOR_MVN_GEN_OUTPUT»</testeditor.output>
 			</properties>
 

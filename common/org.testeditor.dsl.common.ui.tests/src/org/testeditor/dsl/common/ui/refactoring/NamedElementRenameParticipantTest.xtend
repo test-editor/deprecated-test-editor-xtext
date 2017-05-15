@@ -13,9 +13,9 @@ import org.eclipse.ltk.core.refactoring.participants.RenameArguments
 import org.eclipse.text.edits.ReplaceEdit
 import org.eclipse.ui.texteditor.ITextEditor
 import org.eclipse.xtext.ide.LexerIdeBindings
-import org.eclipse.xtext.junit4.util.ParseHelper
 import org.eclipse.xtext.parser.antlr.Lexer
 import org.eclipse.xtext.resource.XtextResource
+import org.eclipse.xtext.testing.util.ParseHelper
 import org.eclipse.xtext.ui.editor.XtextEditor
 import org.eclipse.xtext.ui.editor.model.IResourceForEditorInputFactory
 import org.eclipse.xtext.ui.editor.model.IXtextDocument

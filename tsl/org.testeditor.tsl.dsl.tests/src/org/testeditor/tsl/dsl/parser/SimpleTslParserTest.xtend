@@ -22,7 +22,7 @@ class SimpleTslParserTest extends AbstractParserTest {
 	@Inject extension TslModelUtil
 
 	@Test
-	def void parseEmptyModel() {
+	def void parseEmptyModelWithPackage() {
 		// given
 		val tsl = '''
 			package com.example
@@ -31,6 +31,18 @@ class SimpleTslParserTest extends AbstractParserTest {
 		// expect
 		tsl.parseTsl => [
 			package.assertEquals('com.example')
+			specification.assertNull
+		]
+	}
+
+	@Test
+	def void parseEmptyModel() {
+		// given
+		val tsl = ''
+
+		// expect
+		tsl.parseTsl => [
+			package.assertNull
 			specification.assertNull
 		]
 	}
@@ -46,6 +58,7 @@ class SimpleTslParserTest extends AbstractParserTest {
 
 		// expect
 		tsl.parseTsl => [
+			assertNoSyntaxErrors
 			specification.name.assertEquals('Test')
 		]
 	}
@@ -200,8 +213,8 @@ class SimpleTslParserTest extends AbstractParserTest {
 		// given
 		val tsl = ""
 
-		// expect nothing parsed
-		tsl.parseTsl.assertNull
+		// expect tsl paresd with default package (null)
+		tsl.parseTsl.package.assertNull
 	}
 
 }

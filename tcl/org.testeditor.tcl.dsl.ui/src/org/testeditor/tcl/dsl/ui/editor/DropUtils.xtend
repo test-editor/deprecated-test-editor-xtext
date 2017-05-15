@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.ui.editor
 
-import org.eclipse.emf.common.util.EList
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.jface.util.LocalSelectionTransfer
 import org.eclipse.jface.viewers.ISelection
@@ -72,7 +71,6 @@ class DropUtils {
 
 	public def createDroppedTestStep(InteractionType interactionType, ComponentElement componentElement) {
 		val newTestStep = tclFactory.createTestStep
-
 		interactionType.template.contents.forEach [
 			switch (it) {
 				TemplateText: {

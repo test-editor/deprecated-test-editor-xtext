@@ -2,10 +2,11 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Integration Tests of the rcp4
 Bundle-SymbolicName: org.testeditor.rcp4.tests
-Bundle-Version: 1.5.0
+Bundle-Version: 1.6.0.qualifier
 Fragment-Host: org.testeditor.rcp4;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.testeditor.dsl.common.testing;bundle-version="1.0.0",
  org.junit
 Import-Package: org.eclipse.swt.widgets,
- org.eclipse.ui
+ org.eclipse.ui,
+ javax.inject;version="1.0.0"

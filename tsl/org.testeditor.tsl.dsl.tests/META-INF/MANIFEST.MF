@@ -2,15 +2,16 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.testeditor.tsl.dsl.tests
 Bundle-Vendor: Signal Iduna Corporation
-Bundle-Version: 1.5.0
+Bundle-Version: 1.6.0.qualifier
 Bundle-SymbolicName: org.testeditor.tsl.dsl.tests; singleton:=true
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.xtext,
  org.testeditor.tsl.dsl,
- org.eclipse.xtext.junit4,
+ org.eclipse.xtext.testing,
  org.testeditor.dsl.common.testing
-Import-Package: org.apache.log4j,
+Import-Package: javax.inject;version="1.0.0",
+ org.apache.log4j,
  org.junit,
  org.junit.runner,
  org.hamcrest.core

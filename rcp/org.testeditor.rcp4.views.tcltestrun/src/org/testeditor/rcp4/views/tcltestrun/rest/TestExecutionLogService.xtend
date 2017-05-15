@@ -83,7 +83,7 @@ class TestExecutionLogService {
 		testExecutionManager.delete(filename)
 	}
 
-	@Path("/{filename}/screenshots/{testcasename}/{screenshotpath}")
+	@Path("/{filename}/screenshots/{testcasename}/{screenshotpath: (.+)?}")
 	@GET
 	@Produces("image/png")
 	def Response getScreenshot(@PathParam("filename") String filename, @PathParam("testcasename") String testcasename,

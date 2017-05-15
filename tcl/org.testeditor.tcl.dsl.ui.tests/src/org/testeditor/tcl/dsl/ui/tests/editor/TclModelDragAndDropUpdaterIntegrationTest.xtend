@@ -492,7 +492,8 @@ class TclModelDragAndDropUpdaterIntegrationTest extends AbstractTclModelDragAndD
 	}
 	
 	def private TclModel parseTclModel(String testCase) {
-		parseTcl(testCase.replaceAll('-->INSERT HERE', '').replaceAll(' *// <-- drop target',''))
+		val tclToParse = testCase.replaceAll('-->INSERT HERE.*(\r?\n)?', '').replaceAll(' *// <-- drop target', '')
+		parseTcl(tclToParse)
 	}
 	
 }

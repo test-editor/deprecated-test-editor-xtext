@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.testeditor.dsl.common.testing
 
+import com.google.gson.JsonObject
 import java.util.List
-import java.util.Map
 import org.testeditor.fixture.core.interaction.FixtureMethod
 
 public class DummyFixture {
@@ -52,8 +52,8 @@ public class DummyFixture {
 	}
 
 	@FixtureMethod
-	def Map<?, ?> getMap(String locator) {
-		return newHashMap
+	def JsonObject getJsonObject(String locator) {
+		return new JsonObject
 	}
 
 	@FixtureMethod
@@ -65,13 +65,30 @@ public class DummyFixture {
 	}
 
 	@FixtureMethod
+	def void typeIntoAndWait(String locator, DummyLocatorStrategy locatorStrategy, String value, long seconds) {
+	}
+
+	@FixtureMethod
+	def void typeLongInto(String locator, DummyLocatorStrategy locatorStrategy, long value) {
+	}
+
+	@FixtureMethod
 	def boolean isVisible(String locator) {
 		return true
+	}
+	
+	@FixtureMethod
+	def void typeBoolInto(String locator, boolean bool) {
 	}
 
 	@FixtureMethod
 	def boolean getBool(String locator){
 		return true
+	}
+
+	@FixtureMethod
+	def long getLong(String locator){
+		return 0l
 	}
 
 	static def String getAmlModel() '''
@@ -89,6 +106,7 @@ public class DummyFixture {
 			template = "Start application" ${path}
 			method = «dummyFixture».startApplication(path)
 		}
+		
 		interaction type stop {
 			template = "Stop application"
 			method = «dummyFixture».stopApplication()
@@ -107,6 +125,16 @@ public class DummyFixture {
 		interaction type setValueReversed {
 			template = "Set value" ${value} "to" ${element}
 			method = «dummyFixture».setValue(element, value)
+		}
+		
+		interaction type getLong {
+			template = "Read long from" ${element}
+			method = «dummyFixture».getLong(element)
+		}
+		
+		interaction type getJsonObject {
+			template = "Read jsonObject from" ${element}
+			method = «dummyFixture».getJsonObject(element)
 		}
 		
 		interaction type getValue {
@@ -129,11 +157,6 @@ public class DummyFixture {
 			method = «dummyFixture».getList(element)
 		}
 		
-		interaction type getMap {
-			template = "Read map from" ${element}
-			method = «dummyFixture».getMap(element)
-		}
-		
 		interaction type clickOn {
 			template = "Click on" ${element}
 			method = «dummyFixture».clickOn(element, locatorStrategy)
@@ -144,12 +167,27 @@ public class DummyFixture {
 			method = «dummyFixture».typeInto(element, locatorStrategy, value)
 		}
 		
+		interaction type typeBoolInto {
+			template = "Type boolean" ${value} "into" ${element}
+			method = «dummyFixture».typeBoolInto(element, value)
+		}
+		
+		interaction type typeIntoAndWait {
+			template = "Type" ${value} "into" ${element} "and wait" ${seconds}
+			method = «dummyFixture».typeIntoAndWait(element, locatorStrategy, value, seconds)
+		}
+		
+		interaction type typeLongInto {
+			template = "TypeLong" ${value} "into" ${element}
+			method = «dummyFixture».typeLongInto(element, locatorStrategy, value)
+		}
+		
 		element type Label {
-			interactions = getList, getValue, getBool, getMap, isVisible
+			interactions = getList, getValue, getBool, isVisible
 		}
 		
 		element type Text {
-			interactions = getValue, isVisible, setValue, setValueReversed, typeInto
+			interactions = getValue, isVisible, setValue, setValueReversed, typeInto, getLong, typeLongInto, typeIntoAndWait, typeBoolInto, getJsonObject
 		}
 
 		element type Button {
@@ -172,5 +210,20 @@ public class DummyFixture {
 		}
 	'''
 
+	static def String getMacroModel(String macroCollectionName) '''
+		package com.example
+		
+		# «macroCollectionName»
+		
+		## TypeBoolIntoInputField
+		template = "TypeBoolean" ${boolParameter} "into input field"
+		Component: GreetingApplication
+		- Type boolean @boolParameter into <Input>
+
+		## TypeLongIntoInputField
+		template = "TypeLong" ${longParameter} "into input field"
+		Component: GreetingApplication
+		- TypeLong @longParameter into <Input>
+	'''
 
 }

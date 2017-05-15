@@ -15,7 +15,6 @@ package org.testeditor.rcp4.views.tcltestrun
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.file.Files
-import java.util.ArrayList
 import java.util.List
 import java.util.Map
 import java.util.concurrent.atomic.AtomicReference
@@ -45,6 +44,7 @@ import org.testeditor.dsl.common.ui.utils.WorkbenchHelper
 import org.testeditor.dsl.common.ui.workbench.PartHelper
 import org.testeditor.dsl.common.util.EclipseContextHelper
 import org.testeditor.dsl.common.util.MavenExecutor
+import org.testeditor.dsl.common.util.classpath.ClasspathUtil
 import org.testeditor.rcp4.tcltestrun.LaunchResult
 import org.testeditor.rcp4.tcltestrun.TclGradleLauncher
 import org.testeditor.rcp4.tcltestrun.TclMavenLauncher
@@ -69,17 +69,18 @@ class TclLauncherUi implements Launcher {
 	@Inject TestResultFileWriter testResultFileWriter
 	@Inject TclIndexHelper indexHelper
 	@Inject TclInjectorProvider tclInjectorProvider
-	Map<URI, ArrayList<TestCase>> tslIndex
 	@Inject TCLConsoleFactory consoleFactory
 	@Inject PartHelper partHelper
 	@Inject EclipseContextHelper eclipseContextHelper
 	@Inject TestExecutionManager testExecutionManager
 	@Inject WorkbenchHelper workbenchHelper
+	@Inject ClasspathUtil classpathUtil
+	
+	Map<URI, List<TestCase>> tslIndex
 
 	override boolean launch(IStructuredSelection selection, IProject project, String mode, boolean parameterize) {
 		eclipseContextHelper.eclipseContext.set(TclLauncherUi, this)
 		val options = newHashMap
-		tslIndex = indexHelper.createTestCaseIndex
 		if (project.getFile("build.gradle").exists) {
 			return launchTest(
 				new TestLaunchInformation(createGradleTestCasesList(selection), project, gradleLauncher, options))
@@ -87,7 +88,7 @@ class TclLauncherUi implements Launcher {
 		if (project.getFile("pom.xml").exists && continueWithMaven) {
 			if (parameterize) {
 				val profile = selectMavenProfile(project)
-				if (profile == null) {
+				if (profile === null) {
 					return true // should an option always be selected?
 				}
 				options.put(TclMavenLauncher.PROFILE, profile)
@@ -108,7 +109,7 @@ class TclLauncherUi implements Launcher {
 		val job = new Job("Test execution") {
 
 			override protected run(IProgressMonitor monitor) {
-				if (testLaunchInformation.testCasesCommaList != null) {
+				if (testLaunchInformation.testCasesCommaList !== null) {
 					monitor.beginTask("Test execution: " + testLaunchInformation.testCasesCommaList.head,
 						IProgressMonitor.UNKNOWN)
 				} else {
@@ -129,7 +130,7 @@ class TclLauncherUi implements Launcher {
 					output.close
 				}
 				testLaunchInformation.project.refreshLocal(IProject.DEPTH_INFINITE, monitor)
-				if (result.expectedFileRoot == null) {
+				if (result.expectedFileRoot === null) {
 					logger.error("resulting expectedFile must not be null")
 				} else {
 					safeUpdateJunitTestView(result.expectedFileRoot, testLaunchInformation.project.name)
@@ -157,7 +158,7 @@ class TclLauncherUi implements Launcher {
 		result += selection.toList.filter(IResource).map [ resource |
 			if (resource instanceof IFolder) {
 				val javaElement = resource.getAdapter(IJavaElement)
-				if (javaElement != null) {
+				if (javaElement !== null) {
 					return javaElement.elementName + "*"
 				} else {
 					logger.warn("selected element = {} is not a test exeutuable", resource.name)
@@ -165,8 +166,7 @@ class TclLauncherUi implements Launcher {
 				}
 
 			} else {
-				return tclInjectorProvider.get.getInstance(LaunchShortcutUtil).getQualifiedNameForTestInTcl(resource).
-					toString
+				return resource.testCaseListFromSelection.head
 			}
 		].filterNull
 
@@ -216,10 +216,29 @@ class TclLauncherUi implements Launcher {
 			val uri = URI.createPlatformResourceURI(resource.locationURI.toString, true).deresolve(
 				URI.createPlatformResourceURI(resource.project.locationURI.toString, true))
 			val secondURI = URI.createPlatformResourceURI(uri.toString, true)
-			return tslIndex.get(secondURI).map[it.model.package + "." + it.name]
+			if (tslIndex === null) {
+				tslIndex = indexHelper.createTestCaseIndex(resource.project)
+			}
+			if (tslIndex.containsKey(secondURI)) {
+				return tslIndex.get(secondURI).map[qualifiedNameString]
+			}
+			return emptyList
 		} else {
 			val launchShortcutUtil = tclInjectorProvider.get.getInstance(LaunchShortcutUtil)
 			return #[launchShortcutUtil.getQualifiedNameForTestInTcl(resource).toString]
+		}
+	}
+
+	private def String qualifiedNameString(TestCase testCase) {
+		if (testCase.model.package.nullOrEmpty) {
+			val package = classpathUtil.inferPackage(testCase.model)
+			if (package.empty) {
+				return testCase.name
+			} else {
+				return package + "." + testCase.name
+			}
+		} else {
+			return testCase.model.package + "." + testCase.name
 		}
 	}
 
@@ -245,7 +264,7 @@ class TclLauncherUi implements Launcher {
 		logger.debug("Test result parentPir={}", expectedFileRoot)
 		val xmlResults = expectedFileRoot.listFiles[it.isFile && it.name.endsWith(".xml")]
 		val resultFile = new File(expectedFileRoot, "te-testCompose.xml")
-		if (xmlResults != null && xmlResults.length > 0) {
+		if (xmlResults !== null && xmlResults.length > 0) {
 			testResultFileWriter.writeTestResultFile(projectName, resultFile, xmlResults)
 		} else {
 			testResultFileWriter.writeErrorFile(projectName, resultFile)

@@ -41,10 +41,10 @@ class MavenClasspathUtil {
 	List<IPath> mavenClasspath
 
 	/**
-	 * Read ones per jvm run the maven classpath. every other call run the first selected information. This is intended for batch runs.
+	 * Read the maven classpath once per jvm run. every other call will use the cached result. This is intended for batch runs.
 	 */
 	def List<IPath> getMavenClasspathEntries(IPath path) {
-		if (mavenClasspath == null) {
+		if (mavenClasspath === null) {
 			mavenCommand.executeInNewJvm("help:effective-pom", path.toOSString,
 				"output=" + path.append(EFFECTIVE_POM_TXT_PATH).toOSString, new NullProgressMonitor(), System.out)
 			val effectivePom = new File(path.toFile, EFFECTIVE_POM_TXT_PATH)
@@ -78,7 +78,7 @@ class MavenClasspathUtil {
 		val xpath = XPathFactory.newInstance().newXPath();
 		val expression = "/project/build/plugins/plugin[artifactId='build-helper-maven-plugin']";
 		val helperPluginNode = xpath.evaluate(expression, document, XPathConstants.NODE) as Node;
-		if (helperPluginNode != null) {
+		if (helperPluginNode !== null) {
 			val sources = xpath.evaluate("executions/execution/configuration/sources", helperPluginNode,
 				XPathConstants.NODE) as Node;
 			val sourcesChilds = sources.childNodes

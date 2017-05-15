@@ -5,17 +5,17 @@
 
 	<groupId>org.testeditor</groupId>
 	<artifactId>org.testeditor.releng.parent</artifactId>
-	<version>1.5.0</version>
+	<version>1.6.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<properties>
 		<!-- Version definitions below -->
 		<java.version>1.8</java.version>
-		<xtext.version>2.10.0</xtext.version>
+		<xtext.version>2.11.0</xtext.version>
 		<xtend.version>${xtext.version}</xtend.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<tycho-version>0.26.0</tycho-version>
+		<tycho-version>1.0.0</tycho-version>
 		<maven-clean-plugin.version>3.0.0</maven-clean-plugin.version>
 		<maven-resources-plugin.version>2.7</maven-resources-plugin.version>
 		<maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
@@ -39,10 +39,12 @@
 		<profile>
 			<id>macosx-jvm-flags</id>
 			<activation>
-				<os><family>mac</family></os>
+				<os>
+					<family>mac</family>
+				</os>
 			</activation>
 			<properties>
-				<!-- cacao restrictions in combination with swtbot                        -->
+				<!-- cacao restrictions in combination with swtbot -->
 				<!-- https://wiki.eclipse.org/Tycho/FAQ#How_do_I_add_OS-specific_flags.3F -->
 				<os-jvm-flags>-XstartOnFirstThread</os-jvm-flags>
 			</properties>
@@ -62,13 +64,13 @@
 		<url>https://github.com/test-editor/test-editor-xtext</url>
 	</scm>
 
-    <distributionManagement>
-        <repository>
-            <id>bintray</id>
-            <name>test-editor-maven</name>
-            <url>https://api.bintray.com/maven/test-editor/maven/test-editor/;publish=1</url>
-        </repository>
-    </distributionManagement>
+	<distributionManagement>
+		<repository>
+			<id>bintray</id>
+			<name>test-editor-maven</name>
+			<url>https://api.bintray.com/maven/test-editor/maven/test-editor/;publish=1</url>
+		</repository>
+	</distributionManagement>
 
 	<licenses>
 		<license>
@@ -179,7 +181,7 @@
 						<argLine>${argLine}</argLine>
 					</configuration>
 				</plugin>
-                <plugin>
+				<plugin>
 					<artifactId>maven-deploy-plugin</artifactId>
 					<version>2.8.2</version>
 					<configuration>

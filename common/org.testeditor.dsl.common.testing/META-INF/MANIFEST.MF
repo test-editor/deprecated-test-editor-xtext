@@ -1,11 +1,11 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.testeditor.dsl.common.testing
-Bundle-Version: 1.5.0
+Bundle-Version: 1.6.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.core.resources,
  org.eclipse.core.runtime,
- org.eclipse.xtext.junit4,
+ org.eclipse.xtext.testing,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.xtext,
  org.testeditor.tsl.dsl,
@@ -13,14 +13,15 @@ Require-Bundle: org.eclipse.core.resources,
  org.testeditor.aml.dsl,
  org.junit;bundle-version="4.12.0",
  org.testeditor.dsl.common.model
-Import-Package: javax.inject,
+Import-Package: javax.inject;version="1.0.0",
  org.hamcrest.core,
  org.slf4j,
  org.testeditor.tcl,
  org.testeditor.aml,
  org.testeditor.tsl,
  org.testeditor.dsl.common,
- org.eclipse.xtend.lib.annotations
+ org.eclipse.xtend.lib.annotations,
+ com.google.gson
 Export-Package: org.hamcrest,
  org.mockito,
  org.mockito.configuration,

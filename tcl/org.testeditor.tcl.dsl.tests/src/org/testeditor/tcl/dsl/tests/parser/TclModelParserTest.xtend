@@ -19,10 +19,10 @@ import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.ComparatorMatches
 import org.testeditor.tcl.Comparison
 import org.testeditor.tcl.ComponentTestStepContext
+import org.testeditor.tcl.JsonString
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.NullOrBoolCheck
 import org.testeditor.tcl.StepContentElement
-import org.testeditor.tcl.StringConstant
 import org.testeditor.tcl.TclPackage
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepWithAssignment
@@ -51,7 +51,23 @@ class TclModelParserTest extends AbstractTclTest {
 		// then
 		model.package.assertEquals('com.example')
 	}
-	
+
+	@Test
+	def void parseMinimalTestCase() {
+		// given
+		val input = '# MyTest'
+		
+		// when
+		val model = parseTcl(input, "MyTest.tcl")
+		
+		// then
+		model => [
+			assertNoSyntaxErrors
+			package.assertNull // is derived (e.g. during generation)
+			test.name.assertEquals("MyTest")
+		]
+	}
+
 	@Test
 	def void parseSimpleSpecificationStep() {
 		// given
@@ -259,7 +275,7 @@ class TclModelParserTest extends AbstractTclTest {
 						left.assertInstanceOf(VariableReference) => [variable.name.assertEquals("hello")]
 						comparator.assertInstanceOf(ComparatorMatches) => [negated.assertTrue]
 						right.assertInstanceOf(Comparison) => [
-							left.assertInstanceOf(StringConstant) => [string.assertEquals(".*AAABBB.*")]
+							left.assertInstanceOf(JsonString) => [value.assertEquals(".*AAABBB.*")]
 							comparator.assertNull
 						]
 					]

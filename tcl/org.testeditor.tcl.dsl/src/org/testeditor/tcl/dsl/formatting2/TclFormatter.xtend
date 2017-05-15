@@ -15,6 +15,7 @@ package org.testeditor.tcl.dsl.formatting2;
 import org.eclipse.xtext.formatting2.IFormattableDocument
 import org.eclipse.xtext.xbase.formatting2.XbaseFormatter
 import org.testeditor.aml.Template
+import org.testeditor.tcl.AbstractTestStep
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroCollection
@@ -29,7 +30,7 @@ import org.testeditor.tcl.TestConfiguration
 import org.testeditor.tcl.TestSetup
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.VariableReference
-import org.testeditor.tcl.VariableReferenceMapAccess
+import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
@@ -37,10 +38,11 @@ import org.testeditor.tsl.TslPackage
 import static org.eclipse.xtext.formatting2.IHiddenRegionFormatter.LOW_PRIORITY
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
 import static org.testeditor.tcl.TclPackage.Literals.*
-import org.testeditor.tcl.AbstractTestStep
+import org.testeditor.tcl.KeyPathElement
+import org.testeditor.tcl.ArrayPathElement
 
 class TclFormatter extends XbaseFormatter {
-
+	
 	def dispatch void format(TclModel tclModel, extension IFormattableDocument document) {
 		tclModel.regionFor.feature(TCL_MODEL__PACKAGE).prepend[oneSpace].append[newLines = 2]
 		// import section is not formatted (yet), should be done by organize imports
@@ -129,7 +131,7 @@ class TclFormatter extends XbaseFormatter {
 	}
 
 	def dispatch void format(AbstractTestStep testStep, extension IFormattableDocument document) {
-		testStep.regionFor.keyword("-").prepend[newLine]
+		testStep.regionFor.keyword("-").prepend[setNewLines(1, 1, 2)]
 		if (testStep instanceof TestStep) {
 			testStep.contents.forEach[format]
 			testStep.regionFor.keyword(".").prepend[noSpace]
@@ -159,14 +161,22 @@ class TclFormatter extends XbaseFormatter {
 		variableReference.variable.append[oneSpace; priority = LOW_PRIORITY]
 	}
 
-	def dispatch void format(VariableReferenceMapAccess variableReferenceMapAccess,
+	def dispatch void format(VariableReferencePathAccess variableReferenceMapAccess,
 		extension IFormattableDocument document) {
 		variableReferenceMapAccess.regionFor.keyword('@').prepend[oneSpace].append[noSpace]
-		variableReferenceMapAccess.regionFor.keyword('.').prepend[noSpace].append[noSpace]
 		variableReferenceMapAccess.variable.append[noSpace]
-		variableReferenceMapAccess.regionFor.feature(VARIABLE_REFERENCE_MAP_ACCESS__KEY).prepend[noSpace]
+		variableReferenceMapAccess.path.forEach[format]
+	}
+	
+	def dispatch void format(KeyPathElement keyPathElement, extension IFormattableDocument document) {
+		keyPathElement.regionFor.keyword('.').prepend[noSpace].append[noSpace]
 	}
 
+	def dispatch void format(ArrayPathElement arrayPathElement, extension IFormattableDocument document) {
+		arrayPathElement.regionFor.keyword('[').prepend[noSpace].append[noSpace]
+		arrayPathElement.regionFor.keyword(']').prepend[noSpace]
+	}
+	
 	def dispatch void format(Template template, extension IFormattableDocument document) {
 		template.contents.forEach[it.prepend[oneSpace]]
 	}

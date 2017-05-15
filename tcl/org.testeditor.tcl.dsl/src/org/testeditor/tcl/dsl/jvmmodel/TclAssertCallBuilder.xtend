@@ -14,10 +14,9 @@ package org.testeditor.tcl.dsl.jvmmodel
 
 import javax.inject.Inject
 import org.apache.commons.lang3.StringEscapeUtils
-import org.eclipse.emf.ecore.EObject
+import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.slf4j.LoggerFactory
-import org.testeditor.aml.ModelUtil
 import org.testeditor.tcl.Comparator
 import org.testeditor.tcl.ComparatorEquals
 import org.testeditor.tcl.ComparatorGreaterThan
@@ -25,22 +24,25 @@ import org.testeditor.tcl.ComparatorLessThan
 import org.testeditor.tcl.ComparatorMatches
 import org.testeditor.tcl.Comparison
 import org.testeditor.tcl.Expression
+import org.testeditor.tcl.JsonNumber
+import org.testeditor.tcl.JsonString
 import org.testeditor.tcl.NullOrBoolCheck
-import org.testeditor.tcl.StringConstant
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.VariableReference
-import org.testeditor.tcl.util.TclModelUtil
 
 import static extension org.eclipse.xtext.EcoreUtil2.getContainerOfType
 
+/**
+ * generate code used for assertion statements
+ */
 class TclAssertCallBuilder {
 
 	static val logger = LoggerFactory.getLogger(TclAssertCallBuilder)
 
-	@Inject extension TclModelUtil
-	@Inject extension ModelUtil
-	
+	@Inject extension VariableCollector	
 	@Inject TclExpressionBuilder expressionBuilder
+	@Inject TclJvmTypeReferenceUtil typeReferenceUtil
+	@Inject TclExpressionTypeComputer expressionTypeComputer
 
 	/** assert method calls used, toString must yield the actual method name! */
 	enum AssertMethod {
@@ -73,7 +75,7 @@ class TclAssertCallBuilder {
 		return NodeModelUtils.getNode(expression)?.text?.trim ?: ""
 	}
 
-	def String build(Expression expression) {
+	def String build(Expression expression, String messagePrefix) {
 		val assertionMethod = assertionMethod(expression)
 		if (assertionMethod == null) {
 			return '''// TODO no assertion method implementation for expression with type "«expression.class»"'''
@@ -84,12 +86,12 @@ class TclAssertCallBuilder {
 				default: throw new RuntimeException('''Assertion expression of type='«expression.class.canonicalName»' cannot be built!''')
 			}
 			return '''
-				org.junit.Assert.«expression.assertionMethod»("«StringEscapeUtils.escapeJava(expression.assertionText)»", «expressionBuilt»);'''
+				org.junit.Assert.«expression.assertionMethod»("«messagePrefix»: «StringEscapeUtils.escapeJava(expression.assertionText)»", «expressionBuilt»);'''
 		}
 	}
 
 	private def AssertMethod assertionMethodForNullOrBoolCheck(NullOrBoolCheck expression) {
-		val variableTypeMap = expression.enclosingTestStepContext.collectDeclaredVariablesTypeMap
+		val variableTypeMap = expression.getContainerOfType(TestStepContext).collectDeclaredVariablesTypeMap
 		val returnTypeName = variableTypeMap.get(expression.variableReference.variable.name).qualifiedName
 		logger.trace(
 			"determines assertion method based on return type name='{}' for null or bool check of variable='{}'",
@@ -106,7 +108,8 @@ class TclAssertCallBuilder {
 			NullOrBoolCheck: assertionMethodForNullOrBoolCheck(expression)
 			VariableReference: AssertMethod.assertNotNull
 			Comparison: assertionMethod(expression.comparator)
-			StringConstant: AssertMethod.assertNotNull
+			JsonString: AssertMethod.assertNotNull
+			JsonNumber: AssertMethod.assertNotNull
 			default: throw new RuntimeException('''unknown expression type «expression.class»''')
 		}
 	}
@@ -117,23 +120,24 @@ class TclAssertCallBuilder {
 		}
 		return switch (comparator) {
 			ComparatorEquals: adjustedAssertMethod(AssertMethod.assertEquals, comparator.negated)
-			ComparatorGreaterThan: throw new RuntimeException('>= not implemented yet') // adjustedAssertMethod(AssertMethod.assertTrue, comparator.negated)
-			ComparatorLessThan: throw new RuntimeException('<= not implemented yet') // adjustedAssertMethod(AssertMethod.assertTrue, comparator.negated)
+			ComparatorGreaterThan: adjustedAssertMethod(AssertMethod.assertTrue, comparator.negated)
+			ComparatorLessThan: adjustedAssertMethod(AssertMethod.assertTrue, comparator.negated)
 			ComparatorMatches: adjustedAssertMethod(AssertMethod.assertTrue, comparator.negated)
 			default: throw new RuntimeException('''unknown comparator type «comparator.class»''')
 		}
 
 	}
-
+	
 	/**
 	 * return a string that is directly usable within an assertion command
 	 */
 	private def String buildComparison(Comparison comparison) {
 		if (comparison.comparator == null) {
-			return expressionBuilder.buildExpression(comparison.left)
+			return expressionBuilder.buildReadExpression(comparison.left)
 		}
-		val builtRightExpression=expressionBuilder.buildExpression(comparison.right)
-		val builtLeftExpression=expressionBuilder.buildExpression(comparison.left)
+		val wantedType = expressionTypeComputer.coercedTypeOfComparison(comparison, null)
+		val builtRightExpression=expressionBuilder.buildReadExpression(comparison.right, wantedType)
+		val builtLeftExpression=expressionBuilder.buildReadExpression(comparison.left, wantedType)
 		switch (comparison.comparator) {
 			ComparatorEquals: '''«builtRightExpression», «builtLeftExpression»'''
 			ComparatorGreaterThan: '''«builtLeftExpression» «if(comparison.comparator.negated){'<='}else{'>'}» «builtRightExpression»'''
@@ -143,25 +147,30 @@ class TclAssertCallBuilder {
 				throw new RuntimeException('''no builder found for comparator «comparison.comparator.class»''')
 		}
 	}
-
+	
 	/**
 	 * return a string that is directly usable within an assertion command
 	 */
 	private def String buildNullOrBoolCheck(NullOrBoolCheck nullCheck) {
-		val builtExpression = expressionBuilder.buildExpression(nullCheck.variableReference)
-		val variableTypeMap = nullCheck.enclosingTestStepContext.collectDeclaredVariablesTypeMap
+		typeReferenceUtil.initWith(nullCheck.eResource)
+		val builtExpression = expressionBuilder.buildReadExpression(nullCheck.variableReference)
+		val variableTypeMap = nullCheck.getContainerOfType(TestStepContext).collectDeclaredVariablesTypeMap
 		val returnType = variableTypeMap.get(nullCheck.variableReference.variable.name)
 		logger.trace("builds expression based on return type name='{}' for null or bool check of variable='{}'",
 			returnType.qualifiedName, nullCheck.variableReference.variable.name)
-		if (Boolean.isAssignableWithoutConversion(returnType)) {
+		if (returnType.isABooleanObjectType) {
 			return '''(«builtExpression» != null) && «builtExpression».booleanValue()'''
 		} else {
 			return builtExpression
 		}
 	}
-
-	private def TestStepContext getEnclosingTestStepContext(EObject eObject) {
-		return eObject.getContainerOfType(TestStepContext)
+	
+	/** 
+	 * Is the given typeReference of Boolean type and an Object (no primitive type)?
+	 */
+	private def boolean isABooleanObjectType(JvmTypeReference typeReference) {
+		return typeReferenceUtil.isAssignableFrom(typeReferenceUtil.booleanObjectJvmTypeReference,
+			typeReference, typeReferenceUtil.checkWithoutBoxing)
 	}
 
 }

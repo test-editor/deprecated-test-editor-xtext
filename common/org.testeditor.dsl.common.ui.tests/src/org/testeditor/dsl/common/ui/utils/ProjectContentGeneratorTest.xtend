@@ -20,12 +20,14 @@ import org.eclipse.xtext.util.StringInputStream
 import org.junit.Test
 import org.mockito.InjectMocks
 import org.mockito.Mock
+import org.osgi.framework.FrameworkUtil
+import org.osgi.framework.Version
 import org.testeditor.dsl.common.testing.AbstractTest
+import org.testeditor.dsl.common.util.GradleHelper
 
+import static extension org.junit.Assume.assumeTrue
 import static extension org.mockito.Matchers.*
 import static extension org.mockito.Mockito.*
-import org.testeditor.dsl.common.util.GradleHelper
-import org.osgi.framework.Version
 
 class ProjectContentGeneratorTest extends AbstractTest {
 
@@ -106,7 +108,8 @@ class ProjectContentGeneratorTest extends AbstractTest {
 
 	@Test
 	def void testGetPom() {
-		// given 
+		// given (this is a plugin test)
+		isWithinOSGIContext.assumeTrue
 		val builder = DocumentBuilderFactory.newInstance.newDocumentBuilder
 		val xpath = XPathFactory.newInstance.newXPath
 
@@ -128,7 +131,7 @@ class ProjectContentGeneratorTest extends AbstractTest {
 		val monitor = IProgressMonitor.mock
 
 		// when
-		generator.setupEclipseMetaData(project, monitor)
+		generator.setupGradleEclipseMetaData(project, monitor)
 
 		// then
 		gradleHelper.verify.runTasks(project, "eclipse")
@@ -147,7 +150,7 @@ class ProjectContentGeneratorTest extends AbstractTest {
 		doThrow(new IllegalStateException).when(gradleHelper).runTasks(project.same, any)
 
 		// when
-		generator.setupEclipseMetaData(project, monitor)
+		generator.setupGradleEclipseMetaData(project, monitor)
 
 		// then
 		gradleHelper.verify.runTasks(project, "eclipse")
@@ -157,6 +160,7 @@ class ProjectContentGeneratorTest extends AbstractTest {
 	@Test
 	def void testGetVersion() {
 		// given (this is a plugin test)
+		isWithinOSGIContext.assumeTrue
 		
 		// when
 		val version = generator.bundleVersion
@@ -200,6 +204,11 @@ class ProjectContentGeneratorTest extends AbstractTest {
 		
 		// then
 		mapped.assertEquals("1.2.3-SNAPSHOT")		
+	}
+
+	def private boolean isWithinOSGIContext() {
+		val bundle = FrameworkUtil.getBundle(ProjectContentGeneratorTest)
+		return bundle !== null
 	}
 
 }

@@ -35,6 +35,11 @@ interaction type selectElementInTree {
 	method = SWTFixture.selectElementInTreeView(item,element,locatorStrategy)
 }
 
+interaction type hasElementInTree {
+	template = "Has element" ${item} "in tree" ${element} 
+	method = SWTFixture.hasElementInTreeView(item,element,locatorStrategy)
+}
+
 interaction type selectElementInList {
 	template = "Select element" ${item} "in list" ${element}
 	method = SWTFixture.selectElementInList(item, element, locatorStrategy)
@@ -110,11 +115,11 @@ element type View {
 }
 
 element type TreeView {
-	interactions = selectElementInTree, isViewVisible, executeContextMenuEntry
+	interactions = selectElementInTree, isViewVisible, executeContextMenuEntry, hasElementInTree
 }
 
 element type Tree {
-	interactions = selectElementInTree,  executeContextMenuEntry
+	interactions = selectElementInTree,  executeContextMenuEntry, hasElementInTree
 }
 
 element type Text {

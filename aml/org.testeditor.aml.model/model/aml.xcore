@@ -36,7 +36,7 @@ import org.eclipse.xtext.common.types.JvmEnumerationLiteral
 import org.testeditor.dsl.common.NamedElement
 
 class AmlModel {
-	String[1] ^package
+	String ^package
 	String fileNameAllActionGroups
 	String fileNameTechnicalBindings
 	contains XImportSection importSection

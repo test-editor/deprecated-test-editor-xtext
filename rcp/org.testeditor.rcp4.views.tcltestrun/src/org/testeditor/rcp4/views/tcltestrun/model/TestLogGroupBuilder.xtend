@@ -13,6 +13,7 @@
 package org.testeditor.rcp4.views.tcltestrun.model
 
 import java.util.List
+import java.net.URLEncoder
 
 class TestLogGroupBuilder {
 
@@ -33,7 +34,7 @@ class TestLogGroupBuilder {
 			currentLogGroup.addLogLine(it)
 			if (it.contains(SCREENSHOT_LOG_ENTRY)) {
 				val start = it.indexOf("Wrote screenshot to file=") + "Wrote screenshot to file=".length + 1
-				currentLogGroup.screenshotPath = it.substring(start, it.length - 2)
+				currentLogGroup.screenshotPath = URLEncoder.encode(it.substring(start, it.length - 2), "UTF-8")
 			}
 			lastLine = it
 		]
