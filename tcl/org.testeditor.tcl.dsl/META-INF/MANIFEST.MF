@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.testeditor.tcl.dsl
 Bundle-Vendor: Signal Iduna Corporation
-Bundle-Version: 1.6.0
+Bundle-Version: 1.7.0.qualifier
 Bundle-SymbolicName: org.testeditor.tcl.dsl; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtext,
