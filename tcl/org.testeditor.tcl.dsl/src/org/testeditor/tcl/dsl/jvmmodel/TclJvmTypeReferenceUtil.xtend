@@ -16,6 +16,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
+import java.math.BigDecimal
 import javax.inject.Inject
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.ResourceSet
@@ -117,7 +118,7 @@ class TclJvmTypeReferenceUtil {
 	}
 
 	def boolean isOrderable(JvmTypeReference typeReference) {
-		return isLong(typeReference) // currently the only one known to be orderable is long
+		return typeReference.isLong || typeReference.isInt || typeReference.isBigDecimal
 	}
 	
 	// use xbase to check for assignablility
@@ -138,9 +139,10 @@ class TclJvmTypeReferenceUtil {
 	def boolean isAssignableFrom(JvmTypeReference target, JvmTypeReference source) {
 		return isAssignableFrom(target, source, new TypeConformanceComputationArgument)
 	}
-	
-	def isNonFractionalNumber(JvmTypeReference reference) {
-		return isLong(reference) || isInt(reference)
+		
+	def boolean isBigDecimal(JvmTypeReference reference) {
+		val qname = reference?.qualifiedName
+		return BigDecimal.name == qname
 	}
 	
 	def boolean isInt(JvmTypeReference reference) {
@@ -190,6 +192,23 @@ class TclJvmTypeReferenceUtil {
 
 	def JvmTypeReference jsonArrayJvmTypeReference() {
 		return JsonArray.buildFrom
+	}
+	
+	def JvmTypeReference bigDecimalJvmTypeReference() {
+		return BigDecimal.buildFrom
+	}
+	
+	def JvmTypeReference numberJvmTypeReference() {
+		return Number.buildFrom
+	}
+
+	def boolean isNumber(JvmTypeReference reference) {
+		val qname = reference?.qualifiedName
+		return Number.name == qname
+	}
+	
+	def boolean isANumber(JvmTypeReference reference) {
+		return numberJvmTypeReference.isAssignableFrom(reference) // including boxing
 	}
 
 }

@@ -42,6 +42,7 @@ class TclCoercionComputer {
 			case targetType.isBoolean: return sourceType.isString || sourceType.isJson || sourceType.isBoolean
 			case targetType.isInt: return sourceType.isString || sourceType.isJson || sourceType.isLong || sourceType.isInt
 			case targetType.isJson: return sourceType.isString || sourceType.isBoolean || sourceType.isLong || sourceType.isInt || sourceType.isJson
+			case targetType.isNumber: return sourceType.isString || sourceType.isJson || sourceType.isANumber 
 		}
 		return false
 	}
@@ -100,6 +101,16 @@ class TclCoercionComputer {
 		val coercionErrorMessage = '''Coercion not possible from sourceType = '«sourceType?.qualifiedName»' to targetType= '«targetType?.qualifiedName»'.'''
 		if (isCoercionPossible(targetType, sourceType)) {
 			switch (targetType) {
+				case targetType.isNumber:
+					if (sourceType.isJson) {
+						return '''«sourceValue»«generateJsonElementAccess(targetType)»'''
+					} else if (sourceType.isANumber) {
+						return sourceValue
+					} else if (sourceType.isString) {
+						return '''NumberFormat.instance.parse(«sourceValue»)'''
+					} else {
+						throw new RuntimeException(coercionErrorMessage)
+					}
 				case targetType.isJson:
 					if (sourceType.isString) {
 						return jsonParseInstruction('''"\""+«sourceValue»+"\""''')

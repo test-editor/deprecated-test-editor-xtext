@@ -64,6 +64,7 @@ class TclExpressionTypeComputer {
 	def dispatch JvmTypeReference determineType(StepContent stepContent, JvmTypeReference expectedType) {
 		typeReferenceUtil.initWith(stepContent.eResource)
 		val nonFractionalNumberPattern = Pattern.compile("(\\+|\\-)?[0-9]+")
+		val fractionalNumberPattern = Pattern.compile("(\\+|\\-)?[0-9]+(\\.[0-9]+)?")
 		val booleanPattern = Pattern.compile("true|false", Pattern.CASE_INSENSITIVE)
 		switch stepContent {			
 			StepContentVariable: {
@@ -74,8 +75,14 @@ class TclExpressionTypeComputer {
 					if (typeReferenceUtil.isBoolean(expectedType) && booleanPattern.matcher(stepContent.value).matches) {
 						return expectedType
 					}
-					if (typeReferenceUtil.isNonFractionalNumber(expectedType) && longPattern.matcher(stepContent.value).matches) {
-						return expectedType
+					val NumberFormat nf = NumberFormat.instance
+					try {
+						nf.parse(stepContent.value)
+						if (typeReferenceUtil.isANumber(expectedType)) {
+							return expectedType
+						}
+					}catch(ParseException pe) {
+						// ignore and try to find type by matching (see fallback below)
 					}
 				} 
 				// (fallback) try to find out without context information
@@ -83,6 +90,8 @@ class TclExpressionTypeComputer {
 					return typeReferenceUtil.longObjectJvmTypeReference
 				} else if (booleanPattern.matcher(stepContent.value).matches) {
 					return typeReferenceUtil.booleanObjectJvmTypeReference
+				} else if (fractionalNumberPattern.matcher(stepContent.value).matches) {
+					return typeReferenceUtil.bigDecimalJvmTypeReference
 				} else {
 					return typeReferenceUtil.stringJvmTypeReference
 				}
@@ -98,7 +107,7 @@ class TclExpressionTypeComputer {
 			VariableReferencePathAccess: return typeReferenceUtil.jsonElementJvmTypeReference
 			JsonObject: return typeReferenceUtil.jsonObjectJvmTypeReference
 			JsonArray: return typeReferenceUtil.jsonArrayJvmTypeReference
-			JsonNumber: return typeReferenceUtil.longObjectJvmTypeReference // TODO should be big decimal
+			JsonNumber: return typeReferenceUtil.numberJvmTypeReference // TODO should be big decimal
 			JsonString: return typeReferenceUtil.stringJvmTypeReference
 			JsonBoolean: return typeReferenceUtil.booleanObjectJvmTypeReference
 			JsonNull: throw new RuntimeException("Not implemented yet")

@@ -38,6 +38,7 @@ class TclJsonUtil {
 	
 	def String generateJsonElementAccess(JvmTypeReference wantedType) {			
 			switch wantedType.qualifiedName {
+				case Number.name:  return '''.getAsJsonPrimitive().getAsNumber()'''
 				case Integer.name,
 				case int.name: return '''.getAsJsonPrimitive().getAsInt()'''
 				case Long.name,

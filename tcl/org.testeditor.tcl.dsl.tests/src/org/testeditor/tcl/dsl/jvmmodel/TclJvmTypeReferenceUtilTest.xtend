@@ -75,4 +75,50 @@ class TclJvmTypeReferenceUtilTest extends AbstractTclGeneratorIntegrationTest{
 		result.assertTrue
 	}
 	
+	@Test
+	def void testTypeRecognition() {
+		// given + when + then
+		classUnderTest.isBigDecimal(classUnderTest.bigDecimalJvmTypeReference).assertTrue
+		classUnderTest.isBigDecimal(classUnderTest.longObjectJvmTypeReference).assertFalse
+		
+		classUnderTest.isLong(classUnderTest.longObjectJvmTypeReference).assertTrue
+		classUnderTest.isLong(classUnderTest.longPrimitiveJvmTypeReference).assertTrue
+		classUnderTest.isLong(classUnderTest.bigDecimalJvmTypeReference).assertFalse
+		
+		classUnderTest.isInt(classUnderTest.intObjectJvmTypeReference).assertTrue
+		classUnderTest.isInt(classUnderTest.intPrimitiveJvmTypeReference).assertTrue
+		classUnderTest.isInt(classUnderTest.bigDecimalJvmTypeReference).assertFalse
+		
+		classUnderTest.isBoolean(classUnderTest.booleanObjectJvmTypeReference).assertTrue
+		classUnderTest.isBoolean(classUnderTest.booleanPrimitiveJvmTypeReference).assertTrue
+		classUnderTest.isBoolean(classUnderTest.stringJvmTypeReference).assertFalse
+		
+		classUnderTest.isString(classUnderTest.stringJvmTypeReference).assertTrue
+		classUnderTest.isString(classUnderTest.booleanObjectJvmTypeReference).assertFalse
+		
+		classUnderTest.isJson(classUnderTest.jsonArrayJvmTypeReference).assertTrue
+		classUnderTest.isJson(classUnderTest.stringJvmTypeReference).assertFalse
+		
+		classUnderTest.isJsonArray(classUnderTest.jsonArrayJvmTypeReference).assertTrue
+		classUnderTest.isJsonArray(classUnderTest.stringJvmTypeReference).assertFalse
+		classUnderTest.isJsonElement(classUnderTest.jsonElementJvmTypeReference).assertTrue
+		classUnderTest.isJsonElement(classUnderTest.stringJvmTypeReference).assertFalse
+		classUnderTest.isJsonObject(classUnderTest.jsonObjectJvmTypeReference).assertTrue
+		classUnderTest.isJsonObject(classUnderTest.stringJvmTypeReference).assertFalse
+		classUnderTest.isJsonPrimitive(classUnderTest.jsonPrimitiveJvmTypeReference).assertTrue
+		classUnderTest.isJsonPrimitive(classUnderTest.stringJvmTypeReference).assertFalse
+		
+		classUnderTest.isANumber(classUnderTest.intObjectJvmTypeReference).assertTrue
+		classUnderTest.isANumber(classUnderTest.longObjectJvmTypeReference).assertTrue
+		classUnderTest.isANumber(classUnderTest.bigDecimalJvmTypeReference).assertTrue
+		
+		classUnderTest.isNumber(classUnderTest.numberJvmTypeReference).assertTrue
+		classUnderTest.isNumber(classUnderTest.bigDecimalJvmTypeReference).assertFalse
+
+		classUnderTest.isOrderable(classUnderTest.bigDecimalJvmTypeReference).assertTrue
+		classUnderTest.isOrderable(classUnderTest.intPrimitiveJvmTypeReference).assertTrue
+		classUnderTest.isOrderable(classUnderTest.longPrimitiveJvmTypeReference).assertTrue
+		classUnderTest.isOrderable(classUnderTest.stringJvmTypeReference).assertFalse // strings are currently not orderable (<, <=, >, >=)
+	}
+	
 }
