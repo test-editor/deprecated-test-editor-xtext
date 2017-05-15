@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
+import java.text.NumberFormat
+import java.text.ParseException
 import java.util.regex.Pattern
 import javax.inject.Inject
 import org.eclipse.xtext.EcoreUtil2
@@ -61,7 +63,7 @@ class TclExpressionTypeComputer {
 	
 	def dispatch JvmTypeReference determineType(StepContent stepContent, JvmTypeReference expectedType) {
 		typeReferenceUtil.initWith(stepContent.eResource)
-		val longPattern = Pattern.compile("[0-9]+")
+		val nonFractionalNumberPattern = Pattern.compile("(\\+|\\-)?[0-9]+")
 		val booleanPattern = Pattern.compile("true|false", Pattern.CASE_INSENSITIVE)
 		switch stepContent {			
 			StepContentVariable: {
@@ -77,7 +79,7 @@ class TclExpressionTypeComputer {
 					}
 				} 
 				// (fallback) try to find out without context information
-				if (longPattern.matcher(stepContent.value).matches) {
+				if (nonFractionalNumberPattern.matcher(stepContent.value).matches) {
 					return typeReferenceUtil.longObjectJvmTypeReference
 				} else if (booleanPattern.matcher(stepContent.value).matches) {
 					return typeReferenceUtil.booleanObjectJvmTypeReference

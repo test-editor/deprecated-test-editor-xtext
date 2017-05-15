@@ -223,7 +223,7 @@ class TclVarUsageValidatorTest extends AbstractParserTestWithDummyComponent {
 		tclModel.addToResourceSet('Test.tcl')
 		
 		// then
-		tclModel.assertError(COMPARISON, TclValidator.INVALID_MAP_ACCESS)
+		tclModel.assertError(COMPARISON, TclValidator.INVALID_JSON_ACCESS)
 	}
 
 	@Test
@@ -246,7 +246,7 @@ class TclVarUsageValidatorTest extends AbstractParserTestWithDummyComponent {
 		tclModel.addToResourceSet('Test.tcl')
 		
 		// then
-		tclModel.assertError(TEST_STEP, TclValidator.INVALID_MAP_ACCESS)
+		tclModel.assertError(TEST_STEP, TclValidator.INVALID_JSON_ACCESS)
 	}
 
 	@Test

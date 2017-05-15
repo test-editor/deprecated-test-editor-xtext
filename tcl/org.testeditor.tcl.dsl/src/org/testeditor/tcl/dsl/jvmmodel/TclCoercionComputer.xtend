@@ -196,6 +196,9 @@ class TclCoercionComputer {
 		if (isAssignableFrom(typeReferenceA, typeReferenceB)) { // if assignable, then it is comparable, too
 			return typeReferenceA
 		}
+		if (isAssignableFrom(typeReferenceB, typeReferenceA)) { // if assignable, then it is comparable, too
+			return typeReferenceB
+		}
 		if (isCoercionPossible(typeReferenceA, typeReferenceB)) {
 			return typeReferenceA
 		}
@@ -210,6 +213,7 @@ class TclCoercionComputer {
 		return ((typeReferenceA.qualifiedName == typeReferenceA.qualifiedName) ||
 			(isJsonType(typeReferenceA)) || (isJsonType(typeReferenceB)) ||
 			(isAssignableFrom(typeReferenceA, typeReferenceB)) ||
+			(isAssignableFrom(typeReferenceB, typeReferenceA)) ||
 			(isCoercionPossible(typeReferenceA, typeReferenceB)) ||
 			(isCoercionPossible(typeReferenceB, typeReferenceA)))
 	}

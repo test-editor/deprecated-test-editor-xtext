@@ -4,14 +4,25 @@ import javax.inject.Inject
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.junit.Before
 import org.junit.Test
+import org.mockito.InjectMocks
+import org.mockito.Mock
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
 import org.testeditor.tsl.impl.TslFactoryImpl
 
+import static org.mockito.Mockito.*
+
 class TypeExpressionComputerTest extends AbstractTclTest{
 	
-	@Inject TclExpressionTypeComputer expressionTypeComputer // class under test
+	@InjectMocks TclExpressionTypeComputer expressionTypeComputer // class under test
 	
-	@Inject TclJvmTypeReferenceUtil typeReferenceUtil
+	// need to inject this mock into expressionTypeComputer since any use of 
+	// isAssignable within expressionTypeComputer makes use of a tclJvmTypeReferenceUtil 
+	// that was initialized with the eResource of the eObject used, which will
+	// result in "unusual" behaviour up to exceptions for dynamically created eObjects
+	// without actual resource
+	@Mock TclJvmTypeReferenceUtil innerTypeReferenceUtil // injected into expressionTypeComputer
+	
+	@Inject TclJvmTypeReferenceUtil typeReferenceUtil // used for construction of jvm type references for which the mock is not useful	
 	@Inject TslFactoryImpl tslFactory
 	
 	@Before
@@ -23,9 +34,11 @@ class TypeExpressionComputerTest extends AbstractTclTest{
 	def void testDetermineTypeOfStepContentVariableWithLong() {
 		// given
 		val content = tslFactory.createStepContentVariable => [ value = "123" ]
+		val expectedType = typeReferenceUtil.longPrimitiveJvmTypeReference
+		when(innerTypeReferenceUtil.isANumber(expectedType)).thenReturn(true)
 		
 		// when
-		val result = expressionTypeComputer.determineType(content, typeReferenceUtil.longPrimitiveJvmTypeReference)
+		val result = expressionTypeComputer.determineType(content, expectedType)
 		
 		// then
 		typeReferenceUtil.isLong(result).assertTrue		
@@ -35,9 +48,11 @@ class TypeExpressionComputerTest extends AbstractTclTest{
 	def void testDetermineTypeOfStepContentVariableWithInt() {
 		// given
 		val content = tslFactory.createStepContentVariable => [ value = "123" ]
+		val expectedType = typeReferenceUtil.intPrimitiveJvmTypeReference
+		when(innerTypeReferenceUtil.isANumber(expectedType)).thenReturn(true)
 		
 		// when
-		val result = expressionTypeComputer.determineType(content, typeReferenceUtil.intPrimitiveJvmTypeReference)
+		val result = expressionTypeComputer.determineType(content, expectedType)
 		
 		// then
 		typeReferenceUtil.isInt(result).assertTrue		
@@ -47,9 +62,11 @@ class TypeExpressionComputerTest extends AbstractTclTest{
 	def void testDetermineTypeOfStepContentVariableWithLongAsString() {
 		// given
 		val content = tslFactory.createStepContentVariable => [ value = "123" ]
+		val expectedType = typeReferenceUtil.stringJvmTypeReference
+		when(innerTypeReferenceUtil.isString(expectedType)).thenReturn(true)
 		
 		// when
-		val result = expressionTypeComputer.determineType(content, typeReferenceUtil.stringJvmTypeReference)
+		val result = expressionTypeComputer.determineType(content, expectedType)
 		
 		// then
 		typeReferenceUtil.isString(result).assertTrue		
@@ -59,13 +76,31 @@ class TypeExpressionComputerTest extends AbstractTclTest{
 	def void testDetermineTypeOfStepContentVariableWithLongAsBoolean() {
 		// given
 		val content = tslFactory.createStepContentVariable => [ value = "123" ]
+		val expectedType = typeReferenceUtil.booleanObjectJvmTypeReference
+		when(innerTypeReferenceUtil.isBoolean(expectedType)).thenReturn(true)
+		when(innerTypeReferenceUtil.longObjectJvmTypeReference).thenReturn(typeReferenceUtil.longObjectJvmTypeReference)
 		
 		// when
-		val result = expressionTypeComputer.determineType(content, typeReferenceUtil.booleanObjectJvmTypeReference)
+		val result = expressionTypeComputer.determineType(content, expectedType)
 		
 		// then
-		typeReferenceUtil.isBoolean(result).assertFalse		
+		typeReferenceUtil.isBoolean(result).assertFalse
 		typeReferenceUtil.isLong(result).assertTrue // default derived from content
 	}
 
+	@Test
+	def void testStepContentVariableIsANumber() {
+		// given
+		val content = tslFactory.createStepContentVariable => [value = "2"]
+		val expectedType = typeReferenceUtil.bigDecimalJvmTypeReference
+		when(innerTypeReferenceUtil.isANumber(expectedType)).thenReturn(true)
+
+		// when
+		val result = expressionTypeComputer.determineType(content, expectedType)
+
+		// then
+		typeReferenceUtil.isANumber(result).assertTrue
+		typeReferenceUtil.isBigDecimal(result).assertTrue
+	}
+	
 }

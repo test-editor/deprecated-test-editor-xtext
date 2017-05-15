@@ -19,6 +19,7 @@ import com.google.gson.JsonPrimitive
 import javax.inject.Inject
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.ResourceSet
+import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.common.types.JvmUnknownTypeReference
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypeReferenceBuilder
@@ -35,7 +36,8 @@ import org.eclipse.xtext.xbase.typesystem.util.CommonTypeComputationServices
  */
 class TclJvmTypeReferenceUtil {
 
-	public val checkWithoutBoxing = new TypeConformanceComputationArgument(false, false, false, false, false, true)
+	@Accessors(PUBLIC_GETTER)
+	val checkWithoutBoxing = new TypeConformanceComputationArgument(false, false, false, false, false, true)
 
 	@Inject TclJsonUtil jsonUtil
 	@Inject CommonTypeComputationServices services
@@ -51,12 +53,13 @@ class TclJvmTypeReferenceUtil {
 			typeReferenceBuilder = typeReferenceBuilderFactory.create(this.resourceSet) // useful for testing with models without resources
 		} else {
 			typeReferenceBuilder = typeReferenceBuilderFactory.create(resourceSet)
+			this.resourceSet = resourceSet
 		}
 	}
 	
 	def void initWith(Resource resource) {
 		if(resource === null) {
-			initWith(resourceSet)
+			initWith(this.resourceSet)
 		} else  {
 			initWith(resource?.resourceSet)
 		}
@@ -121,7 +124,7 @@ class TclJvmTypeReferenceUtil {
 	def boolean isAssignableFrom(JvmTypeReference target, JvmTypeReference source,
 		TypeConformanceComputationArgument argument) {
 		if (typeReferenceOwner === null) {
-			typeReferenceOwner = new StandardTypeReferenceOwner(services, null as ResourceSet)
+			typeReferenceOwner = new StandardTypeReferenceOwner(services, resourceSet) // null as ResourceSet
 		}
 		if (target.qualifiedName == source.qualifiedName) { // workaround for a bug, where two types that boil down to java.lang.String were deemed NOT assignable
 			return true
@@ -140,7 +143,7 @@ class TclJvmTypeReferenceUtil {
 		return isLong(reference) || isInt(reference)
 	}
 	
-	def isInt(JvmTypeReference reference) {
+	def boolean isInt(JvmTypeReference reference) {
 		val qname = reference?.qualifiedName
 		return int.name == qname || Integer.name == qname
 	}

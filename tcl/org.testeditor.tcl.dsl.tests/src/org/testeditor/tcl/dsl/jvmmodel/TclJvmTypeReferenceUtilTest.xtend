@@ -12,6 +12,8 @@ class TclJvmTypeReferenceUtilTest extends AbstractTclGeneratorIntegrationTest{
 	@Inject TclJvmTypeReferenceUtil classUnderTest
 	@Inject TclJvmTypeReferenceUtil utilForTypeGenerationComparison
 	
+	val standardTestFlags = new TypeConformanceComputationArgument(false, false, false, false, false, true)
+	
 	@Before 
 	def void initClassUnderTest() {
 		classUnderTest.initWith(null as ResourceSet)
@@ -22,8 +24,7 @@ class TclJvmTypeReferenceUtilTest extends AbstractTclGeneratorIntegrationTest{
 	def void testBooleanToBooleanObjectAssignmentWithoutBoxing() {
 		// given + when				
 		val isAssignable = classUnderTest.isAssignableFrom(classUnderTest.booleanObjectJvmTypeReference,
-			classUnderTest.buildFrom(Boolean),
-			new TypeConformanceComputationArgument(false, false, false, false, false, true))
+			classUnderTest.buildFrom(Boolean), standardTestFlags)
 
 		// then
 		isAssignable.assertTrue
@@ -33,8 +34,7 @@ class TclJvmTypeReferenceUtilTest extends AbstractTclGeneratorIntegrationTest{
 	def void testPrimitiveToBooleanObjectAssignmentWithoutBoxing() {
 		// given + when		
 		val isAssignable = classUnderTest.isAssignableFrom(classUnderTest.booleanObjectJvmTypeReference,
-			classUnderTest.booleanPrimitiveJvmTypeReference,
-			new TypeConformanceComputationArgument(false, false, false, false, false, true))
+			classUnderTest.booleanPrimitiveJvmTypeReference, standardTestFlags)
 
 		// then
 		isAssignable.assertFalse
@@ -44,8 +44,7 @@ class TclJvmTypeReferenceUtilTest extends AbstractTclGeneratorIntegrationTest{
 	def void testJsonElementToBooleanObjectAssignmentWithoutBoxing() {
 		// given + when		
 		val isAssignable = classUnderTest.isAssignableFrom(classUnderTest.booleanObjectJvmTypeReference,
-			classUnderTest.jsonElementJvmTypeReference,
-			new TypeConformanceComputationArgument(false, false, false, false, false, true))
+			classUnderTest.jsonElementJvmTypeReference, standardTestFlags)
 
 		// then
 		isAssignable.assertFalse

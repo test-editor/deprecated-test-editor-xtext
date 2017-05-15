@@ -67,7 +67,7 @@ class TclValidator extends AbstractTclValidator {
 	public static val INVALID_TYPED_VAR_DEREF = "invalidTypeOfVariableDereference"
 
 	public static val UNKNOWN_NAME = 'unknownName'
-	public static val INVALID_MAP_ACCESS = 'invalidMapAccess'
+	public static val INVALID_JSON_ACCESS = 'invalidJsonAccess'
 	public static val VARIABLE_UNKNOWN_HERE = 'varUnknownHere'
 	public static val VARIABLE_ASSIGNED_MORE_THAN_ONCE = 'varAssignedMoreThanOnce'
 	public static val UNALLOWED_VALUE = 'unallowedValue'
@@ -428,7 +428,7 @@ class TclValidator extends AbstractTclValidator {
 				if (!typeReferenceUtil.isJson(typeDeclared)) {
 					error('''Variable='«variableReference.variable.name»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in a position that expects a json type (e.g. «JsonObject.name»).''',
 						variableReference.eContainer, variableReference.eContainingFeature, errorReportingIndex,
-						INVALID_MAP_ACCESS)
+						INVALID_JSON_ACCESS)
 				}
 			VariableReference: {
 				val illegalTypeUsages = typeUsageSet.filter[present].filter [

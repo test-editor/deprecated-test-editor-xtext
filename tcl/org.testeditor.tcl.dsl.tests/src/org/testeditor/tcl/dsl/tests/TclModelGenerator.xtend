@@ -108,10 +108,12 @@ class TclModelGenerator {
 		return tclFactory.createVariableReferencePathAccess
 	}
 	
-	def ArrayPathElement arrayPathElement() { return tclFactory.createArrayPathElement }
+	def ArrayPathElement arrayPathElement() { 
+		return tclFactory.createArrayPathElement
+	}
 	
 	def AssignmentThroughPath assignmentThroughPath(Variable variable, String ... path) {
-		tclFactory.createAssignmentThroughPath => [
+		return tclFactory.createAssignmentThroughPath => [
 			variableReference = tclFactory.createVariableReferencePathAccess => [
 				it.variable = variable
 				val pathElements = path.map[ key |
@@ -149,7 +151,7 @@ class TclModelGenerator {
 	}
 
 	def JsonObject jsonObjectWithStringKeyValue(String key, String value) {
-		tclFactory.createJsonObject => [
+		return tclFactory.createJsonObject => [
 			members += tclFactory.createJsonMember => [
 				it.key = key
 				it.value = tclFactory.createJsonString => [
@@ -184,42 +186,42 @@ class TclModelGenerator {
 	}
 
 	def TestStepWithAssignment testStepWithAssignment(String variableName, String ... texts) {
-		tclFactory.createTestStepWithAssignment => [
+		return tclFactory.createTestStepWithAssignment => [
 			withText(texts)
 			variable = tclFactory.createAssignmentVariable => [name = variableName]
 		]
 	}
 
 	def AssertionTestStep assertionTestStep() {
-		tclFactory.createAssertionTestStep
+		return tclFactory.createAssertionTestStep
 	}
 
 	def JsonString jsonString(String string) {
-		tclFactory.createJsonString => [it.value = string]
+		return tclFactory.createJsonString => [it.value = string]
 	}
 
 	def Comparison comparison() {
-		tclFactory.createComparison
+		return tclFactory.createComparison
 	}
 
 	def AssignmentVariable assignmentVariable(String variableName) {
-		tclFactory.createAssignmentVariable => [name = variableName]
+		return tclFactory.createAssignmentVariable => [name = variableName]
 	}
 
 	def VariableReference variableReference() {
-		tclFactory.createVariableReference
+		return tclFactory.createVariableReference
 	}
 
 	def ComparatorEquals comparatorEquals() {
-		tclFactory.createComparatorEquals
+		return tclFactory.createComparatorEquals
 	}
 
 	def ComparatorMatches comparatorMatches() {
-		tclFactory.createComparatorMatches
+		return tclFactory.createComparatorMatches
 	}
 
 	def NullOrBoolCheck nullOrBoolCheck() {
-		tclFactory.createNullOrBoolCheck
+		return tclFactory.createNullOrBoolCheck
 	}
 
 	def <T extends TestStep> T withElement(T me, String elementName) {
@@ -318,18 +320,18 @@ class TclModelGenerator {
 	}
 
 	def VariableReference flatReference(String variableName) {
-		variableReference => [variable = assignmentVariable(variableName)]
+		return variableReference => [variable = assignmentVariable(variableName)]
 	}
 
 	def VariableReferencePathAccess variableReferencePathAccess(String variableName, String myKey) {
-		variableReferencePathAccess => [
+		return variableReferencePathAccess => [
 			variable = assignmentVariable(variableName)
 			path += keyPathElement => [ key = myKey ]
 		]
 	}
 
 	def NullOrBoolCheck nullOrBoolCheck(String variableName) {
-		nullOrBoolCheck => [
+		return nullOrBoolCheck => [
 			variableReference = variableReference() => [
 				variable = assignmentVariable(variableName)
 			]
