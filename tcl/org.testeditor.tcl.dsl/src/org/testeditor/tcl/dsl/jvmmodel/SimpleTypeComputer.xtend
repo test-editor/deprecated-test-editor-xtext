@@ -15,12 +15,15 @@ package org.testeditor.tcl.dsl.jvmmodel
 import java.util.Map
 import java.util.Optional
 import javax.inject.Inject
+import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.common.types.JvmEnumerationType
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.testeditor.aml.InteractionType
 import org.testeditor.aml.MethodReference
+import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.dsl.common.util.CollectionUtils
+import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.VariableReference
@@ -36,6 +39,7 @@ class SimpleTypeComputer {
 
 	@Inject extension TclModelUtil
 	@Inject extension CollectionUtils
+	@Inject VariableCollector variableCollector
 
 	/**
 	 * get a map of parameters (TemplateVariable) to it (expected) type
@@ -89,6 +93,31 @@ class SimpleTypeComputer {
 				result += new Pair(callParameters.get(templateParameterIndex),
 					definitionParametersWithTypes.get(templateVariable))
 			]
+		}
+		return result
+	}
+	
+	/**
+	 * get the type that this stepContent is expected to have in order to satisfy the parameter type of its transitively called fixture
+	 */
+	def Optional<JvmTypeReference> getExpectedType(StepContent stepContent, TemplateContainer templateContainer) {
+		val parameterTypeMap = getVariablesWithTypes(templateContainer)
+		val templateParameter = getTemplateParameterForCallingStepContent(stepContent)
+		val expectedType = parameterTypeMap.get(templateParameter)
+		if (!expectedType.present) {
+			throw new RuntimeException("Unknown type")
+		}
+		return expectedType
+	}
+
+	/**
+	 * get the type that will be returned of the fixture that will be the type of this assignment variable
+	 */
+	def JvmTypeReference determineType(AssignmentVariable assignmentVariable) {
+		val testStep = EcoreUtil2.getContainerOfType(assignmentVariable, TestStep)
+		val result = variableCollector.collectDeclaredVariablesTypeMap(testStep).get(assignmentVariable.name)
+		if (result === null) {
+			throw new RuntimeException('''Could not find type for variable = '«assignmentVariable.name»'.''')
 		}
 		return result
 	}

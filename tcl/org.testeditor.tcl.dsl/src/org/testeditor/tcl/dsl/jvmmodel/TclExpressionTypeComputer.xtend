@@ -12,11 +12,12 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
+import java.text.NumberFormat
+import java.text.ParseException
+import java.util.regex.Pattern
 import javax.inject.Inject
-import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.common.types.JvmTypeReference
-import org.eclipse.xtext.xbase.jvmmodel.JvmTypeReferenceBuilder
 import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.Variable
@@ -28,83 +29,112 @@ import org.testeditor.tcl.ComparatorMatches
 import org.testeditor.tcl.Comparison
 import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.Expression
+import org.testeditor.tcl.JsonArray
+import org.testeditor.tcl.JsonBoolean
+import org.testeditor.tcl.JsonNull
+import org.testeditor.tcl.JsonNumber
+import org.testeditor.tcl.JsonObject
+import org.testeditor.tcl.JsonString
+import org.testeditor.tcl.JsonValue
 import org.testeditor.tcl.NullOrBoolCheck
-import org.testeditor.tcl.StringConstant
 import org.testeditor.tcl.VariableReference
-import org.testeditor.tcl.dsl.validation.TclTypeValidationUtil
-import org.testeditor.tcl.VariableReferenceMapAccess
+import org.testeditor.tcl.VariableReferencePathAccess
+import org.testeditor.tsl.StepContent
+import org.testeditor.tsl.StepContentVariable
 
+/**
+ * compute the resulting type (as JvmTypeReference) of tcl expressions as they would be/are generated
+ */
 class TclExpressionTypeComputer {
+	
 	@Inject SimpleTypeComputer typeComputer
-	@Inject TclTypeValidationUtil typeValidationUtil
-	@Inject JvmTypeReferenceBuilder.Factory typeReferenceBuilderFactory
-	@Inject ResourceSet resourceSet
+	@Inject TclJsonUtil jsonUtil
+	@Inject TclJvmTypeReferenceUtil typeReferenceUtil
+	@Inject TclCoercionComputer coercionComputer
 	
-	var JvmTypeReferenceBuilder typeReferenceBuilder
+	def boolean isJsonType(Expression expression) {
+		switch expression {
+			JsonValue: return true // supertype of all (relevant) json types (e.g. JsonObject, JsonArray, JsonString ...)
+			VariableReferencePathAccess: return true // since this is only allowed for json types, the result is a json type, too
+			VariableReference: return jsonUtil.isJsonType(determineType(expression, null))
+			default: return false
+		}
+	}
 	
-	def JvmTypeReference determineType(Expression expression) {
-		switch (expression) {
-			VariableReferenceMapAccess: return String.buildFrom
-			VariableReference: return expression.variable.determineType
-			StringConstant: return String.buildFrom
-			Comparison: if(expression.comparator === null) {
-				expression.left.determineType
-			} else {
-				return boolean.buildFrom
+	def dispatch JvmTypeReference determineType(StepContent stepContent, JvmTypeReference expectedType) {
+		typeReferenceUtil.initWith(stepContent.eResource)
+		val nonFractionalNumberPattern = Pattern.compile("(\\+|\\-)?[0-9]+")
+		val fractionalNumberPattern = Pattern.compile("(\\+|\\-)?[0-9]+(\\.[0-9]+)?")
+		val booleanPattern = Pattern.compile("true|false", Pattern.CASE_INSENSITIVE)
+		switch stepContent {			
+			StepContentVariable: {
+				if(expectedType !== null) {
+					if (typeReferenceUtil.isString(expectedType)) {
+						return expectedType
+					}
+					if (typeReferenceUtil.isBoolean(expectedType) && booleanPattern.matcher(stepContent.value).matches) {
+						return expectedType
+					}
+					val NumberFormat nf = NumberFormat.instance
+					try {
+						nf.parse(stepContent.value)
+						if (typeReferenceUtil.isANumber(expectedType)) {
+							return expectedType
+						}
+					}catch(ParseException pe) {
+						// ignore and try to find type by matching (see fallback below)
+					}
+				} 
+				// (fallback) try to find out without context information
+				if (nonFractionalNumberPattern.matcher(stepContent.value).matches) {
+					return typeReferenceUtil.longObjectJvmTypeReference
+				} else if (booleanPattern.matcher(stepContent.value).matches) {
+					return typeReferenceUtil.booleanObjectJvmTypeReference
+				} else if (fractionalNumberPattern.matcher(stepContent.value).matches) {
+					return typeReferenceUtil.bigDecimalJvmTypeReference
+				} else {
+					return typeReferenceUtil.stringJvmTypeReference
+				}
 			}
-			NullOrBoolCheck: return boolean.buildFrom
+			VariableReference: return determineType(stepContent.variable, expectedType)
+			default: throw new RuntimeException('''Unknown step content type = '«stepContent.class.name»' for type determination.''')
+		}
+	}
+	
+	def dispatch JvmTypeReference determineType(Expression expression, JvmTypeReference expectedType) {
+		typeReferenceUtil.initWith(expression.eResource)
+		switch expression {
+			VariableReferencePathAccess: return typeReferenceUtil.jsonElementJvmTypeReference
+			JsonObject: return typeReferenceUtil.jsonObjectJvmTypeReference
+			JsonArray: return typeReferenceUtil.jsonArrayJvmTypeReference
+			JsonNumber: return typeReferenceUtil.numberJvmTypeReference // TODO should be big decimal
+			JsonString: return typeReferenceUtil.stringJvmTypeReference
+			JsonBoolean: return typeReferenceUtil.booleanObjectJvmTypeReference
+			JsonNull: throw new RuntimeException("Not implemented yet")
+			VariableReference: return expression.variable.determineType(expectedType)
+			Comparison: if(expression.comparator === null) {
+				expression.left.determineType(expectedType)
+			} else {
+				return typeReferenceUtil.booleanPrimitiveJvmTypeReference
+			}
+			NullOrBoolCheck: return typeReferenceUtil.booleanPrimitiveJvmTypeReference
 			default: { throw new RuntimeException("Expression of type '"+expression.class.canonicalName+"' is unknown")}
 		}
 	}
 	
-	def JvmTypeReference determineType(Variable variable) {
-		switch (variable) {
-			AssignmentVariable : return typeValidationUtil.determineType(variable)
-			EnvironmentVariable : return String.buildFrom
-			TemplateVariable: return typeComputer.getVariablesWithTypes(EcoreUtil2.getContainerOfType(variable, TemplateContainer)).get(variable).get // TODO
-			default: throw new RuntimeException("Variable of type'"+variable.class.canonicalName+"' is unknown")
+	def dispatch JvmTypeReference determineType(Variable variable, JvmTypeReference expectedType) {
+		typeReferenceUtil.initWith(variable.eResource)
+		switch variable {
+			AssignmentVariable : return typeComputer.determineType(variable)
+			EnvironmentVariable : return typeReferenceUtil.stringJvmTypeReference
+			TemplateVariable: return typeComputer.getVariablesWithTypes(EcoreUtil2.getContainerOfType(variable, TemplateContainer)).get(variable).get 			default: throw new RuntimeException("Variable of type'"+variable.class.canonicalName+"' is unknown")
 		}
-	}
-	
-	private def JvmTypeReference buildFrom(Class<?> clazz){
-		if (typeReferenceBuilder===null) {
-			typeReferenceBuilder = typeReferenceBuilderFactory.create(resourceSet)
-		}
-		return typeReferenceBuilder.typeRef(clazz)
-	}
-	
-	val validCoercions = #{
-		long.name->#[Long.name, long.name],
-		Long.name->#[Long.name, long.name],
-		boolean.name->#[Boolean.name, boolean.name],
-		Boolean.name->#[Boolean.name, boolean.name],
-		String.name->#[Long.name, long.name, Boolean.name, boolean.name]
 	}
 	
 	def boolean coercibleTo(Expression expression, JvmTypeReference wantedType) {
-		if (expression instanceof Comparison) {
-			if (expression.comparator === null) {
-				return coercibleTo(expression.left, wantedType)
-			}
-		}else if (expression instanceof StringConstant) {
-			switch (wantedType.qualifiedName) {
-				case long.name,
-				case Long.name:
-					try {
-						Long.parseLong(expression.string)
-						return true
-					} catch (NumberFormatException nfe) {
-						return false
-					}
-				case boolean.name,
-				case Boolean.name:
-					return expression.string.equals(Boolean.TRUE.toString) ||
-						expression.string.equals(Boolean.FALSE.toString)
-			}
-		}
-		val type=expression.determineType
-		val validCoercion=validCoercions.get(type.qualifiedName)
-		return (validCoercion!==null && validCoercion.toList.contains(wantedType.qualifiedName))
+		coercionComputer.initWith(expression.eResource)
+		val expressionType = determineType(expression, wantedType)
+		return coercionComputer.isCoercionPossible(wantedType, expressionType)
 	}
 	
 	def JvmTypeReference moreSpecificType(JvmTypeReference left, JvmTypeReference right) {
@@ -115,37 +145,35 @@ class TclExpressionTypeComputer {
 		}
 	}
 	
-	def JvmTypeReference coercedTypeOfComparison(Comparison comparison) {
-		val leftType=comparison.left.determineType
-		if(comparison.comparator===null) {
+	/** find the most likely type for each of the comparison components (left and right) */
+	def JvmTypeReference coercedTypeOfComparison(Comparison comparison, JvmTypeReference wantedType) {
+		typeReferenceUtil.initWith(comparison.eResource)
+		coercionComputer.initWith(comparison.eResource)
+		val leftType = comparison.left.determineType(wantedType)
+		if (comparison.comparator === null) { // just a simple expression without the right component ?
 			return leftType
 		}
-		val rightType=comparison.right.determineType
+		val rightType = comparison.right.determineType(wantedType)
 		switch (comparison.comparator) {
-			ComparatorMatches: return String.buildFrom // everything is coercible to string 
+			ComparatorMatches:
+				return typeReferenceUtil.stringJvmTypeReference // when matching, both components must be strings
 			ComparatorGreaterThan,
-			ComparatorLessThan: if(coercibleTo(comparison.left, Long.buildFrom) && coercibleTo(comparison.right,Long.buildFrom)) {
-				return Long.buildFrom
-			} else {
-				return null; // impossible
-			}
-			ComparatorEquals: {
-				if (leftType.qualifiedName == rightType.qualifiedName) {
-					return leftType
+			ComparatorLessThan: // must be something orderable
+				if (coercionComputer.coercableToCommonOrderable(leftType, rightType)) {
+					return coercionComputer.coercedCommonOrderableType(leftType, rightType)
 				} else {
-					val leftCoercions=validCoercions.get(leftType.qualifiedName)
-					val rightCoercions=validCoercions.get(rightType.qualifiedName)
-					if(leftCoercions!==null && rightCoercions!==null) {
-						if(!leftCoercions.findFirst[leftCoercibleType|rightCoercions.exists[leftCoercibleType.equals(it)]].empty) {
-							return moreSpecificType(leftType,rightType)
-						}
-					}
+					return null; // impossible
+				}
+			ComparatorEquals: {
+				if (coercionComputer.coercableToCommonComparable(leftType, rightType)) {
+					return coercionComputer.coercedCommonComparableType(leftType, rightType)
+				} else {
+					return null; // impossible
 				}
 			}
-			default: throw new RuntimeException('''Unknown comparision type «comparison.comparator»''')
+			default:
+				throw new RuntimeException('''Unknown comparision type «comparison.comparator»''')
 		}
-		return null
-		
 	}
 	
 }

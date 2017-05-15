@@ -248,13 +248,13 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 	}
 	
 	@Test
-	def void testParameterTypingMapExpectingLong() {
+	def void testParameterTypingJsonExpectingLong() {
 		// given
 		val tclModel = tclModel => [
 			test = testCase("MyTest") => [
 				steps += specificationStep("test", "something") => [
 					contexts += componentTestStepContext(dummyComponent) => [
-						val assignment=testStepWithAssignment("mapvar", "getMap").withElement("dummyElement")
+						val assignment=testStepWithAssignment("mapvar", "getJsonObject").withElement("dummyElement")
 						val mapvar=assignment.variable
 						steps += assignment
 						steps += testStep("wait").withReferenceToVariable(mapvar) // directly use map variable here 
@@ -265,18 +265,18 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 		tclModel.addToResourceSet('MyTest.tcl')
 		
 		// when then
-		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_TYPED_VAR_DEREF) // since long is expected, and map is provided
+		validator.assertNoErrors(tclModel) // since json could be coerced to expected long value (for which a runtime check is done)
 	}
 	
 	@Test
-	def void testParameterTypingMapDereferencedExpectingLong() {
+	def void testParameterTypingJsonDereferencedExpectingLong() {
 		// given
 		val tclModel = tclModel => [
 			test = testCase("MyTest") => [
 				steps += specificationStep("test", "something") => [
 					contexts += componentTestStepContext(dummyComponent) => [
-						val assignment=testStepWithAssignment("mapvar", "getMap").withElement("dummyElement")
-						val mappedRef=assignment.variable.mappedReference
+						val assignment=testStepWithAssignment("mapvar", "getJsonObject").withElement("dummyElement")
+						val mappedRef=assignment.variable.variableReferencePathAccess
 						steps += assignment
 						steps += testStep("wait").withReference(mappedRef) // use map dereferenced variable (e.g. mavar."key") 
 					]
@@ -286,7 +286,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 		tclModel.addToResourceSet('MyTest.tcl')
 		
 		// when then
-		validator.assertNoErrors(tclModel) // no error, since element in map is (or may be parsed to) long
+		validator.assertNoErrors(tclModel) // no error, since element in json is (or may be parsed to) long
 	}
 	
 	
@@ -329,7 +329,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 	 * verify model to have the expected type usages when querying for a certain variable in a given context
 	 */
 	private def void verifyVariableTypeUsage(TestStepContext context, String variable, Iterable<String> types) {
-		val typeSet = typeUsageComputer.getAllTypeUsagesOfVariable(context, variable).filter[present].map[get.simpleName].toSet
+		val typeSet = typeUsageComputer.getAllPossibleTypeUsagesOfVariable(context, variable).filter[present].map[get.simpleName].toSet
 		typeSet.assertSize(types.size)
 		types.forEach[assertTrue(typeSet.contains(it))]
 	}

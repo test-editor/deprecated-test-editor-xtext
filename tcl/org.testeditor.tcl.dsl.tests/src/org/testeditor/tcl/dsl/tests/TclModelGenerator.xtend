@@ -19,27 +19,34 @@ import org.eclipse.xtext.xtype.XtypeFactory
 import org.testeditor.aml.Component
 import org.testeditor.aml.Variable
 import org.testeditor.aml.impl.AmlFactoryImpl
+import org.testeditor.tcl.ArrayPathElement
 import org.testeditor.tcl.AssertionTestStep
+import org.testeditor.tcl.AssignmentThroughPath
 import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.ComparatorEquals
 import org.testeditor.tcl.ComparatorMatches
 import org.testeditor.tcl.Comparison
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariable
+import org.testeditor.tcl.JsonArray
+import org.testeditor.tcl.JsonBoolean
+import org.testeditor.tcl.JsonNull
+import org.testeditor.tcl.JsonNumber
+import org.testeditor.tcl.JsonObject
+import org.testeditor.tcl.JsonString
+import org.testeditor.tcl.KeyPathElement
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
-import org.testeditor.tcl.MapEntryAssignment
 import org.testeditor.tcl.NullOrBoolCheck
 import org.testeditor.tcl.SpecificationStepImplementation
-import org.testeditor.tcl.StringConstant
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestConfiguration
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.VariableReference
-import org.testeditor.tcl.VariableReferenceMapAccess
+import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tcl.impl.TclFactoryImpl
 import org.testeditor.tsl.impl.TslFactoryImpl
 
@@ -93,15 +100,67 @@ class TclModelGenerator {
 		return me
 	}
 	
-	def MapEntryAssignment mapEntryAssignment(Variable mapVariable, String key) {
-		tclFactory.createMapEntryAssignment => [
-			variableReference = variableReferenceMapAccess() => [
-				it.variable = mapVariable
-				it.key = key
+	def KeyPathElement keyPathElement() { 
+		return tclFactory.createKeyPathElement
+	}
+	
+	def VariableReferencePathAccess variableReferencePathAccess() {
+		return tclFactory.createVariableReferencePathAccess
+	}
+	
+	def ArrayPathElement arrayPathElement() { 
+		return tclFactory.createArrayPathElement
+	}
+	
+	def AssignmentThroughPath assignmentThroughPath(Variable variable, String ... path) {
+		return tclFactory.createAssignmentThroughPath => [
+			variableReference = tclFactory.createVariableReferencePathAccess => [
+				it.variable = variable
+				val pathElements = path.map[ key |
+					keyPathElement => [
+						it.key = key
+					]
+				]
+				it.path.addAll(pathElements)
 			]
 		]
 	}
+	
+	def JsonObject jsonObject() { 
+		return tclFactory.createJsonObject
+	}
 
+	def JsonArray jsonArray() {
+		return tclFactory.createJsonArray
+	}
+
+	def JsonString jsonString() { 
+		return tclFactory.createJsonString
+	}
+
+	def JsonNull jsonNull() { 
+		return tclFactory.createJsonNull
+	}
+
+	def JsonNumber jsonNumber() { 
+		return tclFactory.createJsonNumber
+	}
+
+	def JsonBoolean jsonBoolean() { 
+		return tclFactory.createJsonBoolean
+	}
+
+	def JsonObject jsonObjectWithStringKeyValue(String key, String value) {
+		return tclFactory.createJsonObject => [
+			members += tclFactory.createJsonMember => [
+				it.key = key
+				it.value = tclFactory.createJsonString => [
+					it.value = value
+				]
+			]
+		]
+	}
+	
 	def SpecificationStepImplementation specificationStep(String ... texts) {
 		return tclFactory.createSpecificationStepImplementation => [
 			texts.forEach[text|contents.add(tslFactory.createStepContentText => [value = text])]
@@ -127,46 +186,42 @@ class TclModelGenerator {
 	}
 
 	def TestStepWithAssignment testStepWithAssignment(String variableName, String ... texts) {
-		tclFactory.createTestStepWithAssignment => [
+		return tclFactory.createTestStepWithAssignment => [
 			withText(texts)
 			variable = tclFactory.createAssignmentVariable => [name = variableName]
 		]
 	}
 
 	def AssertionTestStep assertionTestStep() {
-		tclFactory.createAssertionTestStep
+		return tclFactory.createAssertionTestStep
 	}
 
-	def StringConstant stringConstant(String string) {
-		tclFactory.createStringConstant => [it.string = string]
+	def JsonString jsonString(String string) {
+		return tclFactory.createJsonString => [it.value = string]
 	}
 
 	def Comparison comparison() {
-		tclFactory.createComparison
+		return tclFactory.createComparison
 	}
 
 	def AssignmentVariable assignmentVariable(String variableName) {
-		tclFactory.createAssignmentVariable => [name = variableName]
+		return tclFactory.createAssignmentVariable => [name = variableName]
 	}
 
 	def VariableReference variableReference() {
-		tclFactory.createVariableReference
-	}
-
-	def VariableReferenceMapAccess variableReferenceMapAccess() {
-		tclFactory.createVariableReferenceMapAccess
+		return tclFactory.createVariableReference
 	}
 
 	def ComparatorEquals comparatorEquals() {
-		tclFactory.createComparatorEquals
+		return tclFactory.createComparatorEquals
 	}
 
 	def ComparatorMatches comparatorMatches() {
-		tclFactory.createComparatorMatches
+		return tclFactory.createComparatorMatches
 	}
 
 	def NullOrBoolCheck nullOrBoolCheck() {
-		tclFactory.createNullOrBoolCheck
+		return tclFactory.createNullOrBoolCheck
 	}
 
 	def <T extends TestStep> T withElement(T me, String elementName) {
@@ -223,7 +278,7 @@ class TclModelGenerator {
 		return comparison => [
 			left = variableReference
 			comparator = comparatorMatches => [negated = true]
-			right = stringConstant(string)
+			right = jsonString(string)
 		]
 	}
 
@@ -231,7 +286,7 @@ class TclModelGenerator {
 		return comparison => [
 			left = variableReference
 			comparator = comparatorMatches
-			right = stringConstant(string)
+			right = jsonString(string)
 		]
 	}
 
@@ -239,7 +294,7 @@ class TclModelGenerator {
 		return comparison => [
 			left = variableReference
 			comparator = comparatorEquals => [negated = true]
-			right = stringConstant(string)
+			right = jsonString(string)
 		]
 	}
 
@@ -247,7 +302,7 @@ class TclModelGenerator {
 		return comparison => [
 			left = variableReference
 			comparator = comparatorEquals
-			right = stringConstant(string)
+			right = jsonString(string)
 		]
 	}
 
@@ -257,26 +312,26 @@ class TclModelGenerator {
 		]
 	}
 
-	def VariableReferenceMapAccess mappedReference(AssignmentVariable assignmentVariable) {
-		return variableReferenceMapAccess => [
+	def VariableReferencePathAccess variableReferencePathAccess(AssignmentVariable assignmentVariable) {
+		return variableReferencePathAccess => [
 			variable = assignmentVariable
-			key = "key"
+			path += keyPathElement => [ key = "key" ]
 		]
 	}
 
 	def VariableReference flatReference(String variableName) {
-		variableReference => [variable = assignmentVariable(variableName)]
+		return variableReference => [variable = assignmentVariable(variableName)]
 	}
 
-	def VariableReferenceMapAccess mappedReference(String variableName, String myKey) {
-		variableReferenceMapAccess => [
+	def VariableReferencePathAccess variableReferencePathAccess(String variableName, String myKey) {
+		return variableReferencePathAccess => [
 			variable = assignmentVariable(variableName)
-			key = myKey
+			path += keyPathElement => [ key = myKey ]
 		]
 	}
 
 	def NullOrBoolCheck nullOrBoolCheck(String variableName) {
-		nullOrBoolCheck => [
+		return nullOrBoolCheck => [
 			variableReference = variableReference() => [
 				variable = assignmentVariable(variableName)
 			]

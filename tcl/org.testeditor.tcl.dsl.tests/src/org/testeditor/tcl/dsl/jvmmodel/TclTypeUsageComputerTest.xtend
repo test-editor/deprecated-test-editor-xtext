@@ -12,7 +12,9 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
+import com.google.gson.JsonObject
 import javax.inject.Inject
+import org.eclipse.xtext.EcoreUtil2
 import org.junit.Test
 import org.testeditor.aml.AmlModel
 import org.testeditor.aml.TemplateVariable
@@ -22,6 +24,7 @@ import org.testeditor.aml.dsl.tests.common.AmlTestModels
 import org.testeditor.tcl.AbstractTestStep
 import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.TclModel
+import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.dsl.services.TclGrammarAccess
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
@@ -33,6 +36,39 @@ class TclTypeUsageComputerTest extends AbstractParserTest {
 	@Inject extension AmlModelGenerator
 	@Inject AmlTestModels amlTestModels
 	@Inject protected TclGrammarAccess grammarAccess
+	
+	@Test
+	def void testGetTypeUsagesForAssignments() {
+		// given
+		val tclModel = tclModel => [
+			it.test = testCase("myTest") => [
+				it.steps += specificationStep("my", "test") => [
+					contexts += componentTestStepContext(null) => [
+						val assignment = testStepWithAssignment("jsonVar", "Read", "jsonObject", "from").
+							withElement("bar")
+						steps += assignment
+						steps += assignmentThroughPath(assignment.variable, "key", "nextKey") => [
+							expression = jsonObjectWithStringKeyValue("key", "value")
+						]
+					]
+				]
+			]
+		]
+		val context = EcoreUtil2.getAllContentsOfType(tclModel, TestStepContext).head
+		val expectedTypes = #[JsonObject.name]
+
+		// when
+		val usage = typeUsageComputer.getAllPossibleTypeUsagesOfVariable(context, "jsonVar")
+
+		// then
+		usage.assertSize(expectedTypes.size)
+		usage.forEach [
+			present.assertTrue
+			val typeName = get.qualifiedName.replaceAll("<.*", "") // make sure to remove type parameter
+			expectedTypes.contains(typeName).
+				assertTrue('''Type «typeName» not found in expected list «expectedTypes»''')
+		]
+	}
 
 	@Test
 	def void testGetAllTypeUsagesThroughMacroOfEnvVariable() {
@@ -102,8 +138,8 @@ class TclTypeUsageComputerTest extends AbstractParserTest {
 		val testStepContext2 = tclModel.test.steps.head.contexts.last
 
 		// when
-		val result1 = typeUsageComputer.getAllTypeUsagesOfVariable(testStepContext1, variable.name)
-		val result2 = typeUsageComputer.getAllTypeUsagesOfVariable(testStepContext2, variable.name)
+		val result1 = typeUsageComputer.getAllPossibleTypeUsagesOfVariable(testStepContext1, variable.name)
+		val result2 = typeUsageComputer.getAllPossibleTypeUsagesOfVariable(testStepContext2, variable.name)
 
 		// then
 		val qualifiedNames1 = result1.map[get.qualifiedName].toSet
@@ -193,7 +229,7 @@ class TclTypeUsageComputerTest extends AbstractParserTest {
 		val testStepContext = tclModel.test.steps.head.contexts.head
 
 		// when
-		val result = typeUsageComputer.getAllTypeUsagesOfVariable(testStepContext, variable.name)
+		val result = typeUsageComputer.getAllPossibleTypeUsagesOfVariable(testStepContext, variable.name)
 
 		// then
 		val qualifiedNames = result.map[get.qualifiedName].toSet

@@ -50,9 +50,9 @@ class AmlTestModels {
 			]					
 			interactionTypes += interactionTypeIntoAndWait
 
-			val interactionTypeForGetMap = interactionType("getMap") => [
-				defaultMethod = methodReference(resourceSet, DummyFixture, "getMap", "element")
-				template = template("getMap").withParameter(defaultMethod.parameters.head)
+			val interactionTypeForGetMap = interactionType("getJsonObject") => [
+				defaultMethod = methodReference(resourceSet, DummyFixture, "getJsonObject", "element")
+				template = template("getJsonObject").withParameter(defaultMethod.parameters.head)
 			]					
 			interactionTypes += interactionTypeForGetMap
 

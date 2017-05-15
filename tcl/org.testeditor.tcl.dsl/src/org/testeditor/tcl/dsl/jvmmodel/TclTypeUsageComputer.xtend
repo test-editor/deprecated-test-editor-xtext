@@ -12,21 +12,19 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
-import java.util.Map
 import java.util.Optional
 import java.util.Set
 import javax.inject.Inject
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.testeditor.aml.TemplateVariable
-import org.testeditor.aml.Variable
 import org.testeditor.dsl.common.util.CollectionUtils
+import org.testeditor.tcl.AssignmentThroughPath
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.MacroTestStepContext
-import org.testeditor.tcl.MapEntryAssignment
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.VariableReference
-import org.testeditor.tcl.VariableReferenceMapAccess
+import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.StepContentText
 
@@ -36,33 +34,35 @@ import org.testeditor.tsl.StepContentText
 class TclTypeUsageComputer {
 
 	@Inject SimpleTypeComputer simpleTypeComputer
+	@Inject TclJvmTypeReferenceUtil typeReferenceUtil
 	@Inject extension TclModelUtil  tclModelUtil
 	@Inject extension CollectionUtils 
 
 	/** 
 	 * get the actual jvm types from the fixtures that are transitively used and to which this variable/parameter is passed to
 	 */
-	def dispatch Set<Optional<JvmTypeReference>> getAllTypeUsagesOfVariable(ComponentTestStepContext componentTestStepContext, String variableName) {
+	def dispatch Set<Optional<JvmTypeReference>> getAllPossibleTypeUsagesOfVariable(ComponentTestStepContext componentTestStepContext, String variableName) {
 		// type derivation of variable usage within assertions is not implemented "yet" => filter on test steps only
 		// TODO this has to be implemented if the check is to be performed on assertions!
+		typeReferenceUtil.initWith(componentTestStepContext.eResource)
 		val typesUsages = componentTestStepContext.steps.filter(TestStep).map [ step |
-			simpleTypeComputer.getStepVariableFixtureParameterTypePairs(step).filterKey(VariableReference).filter[!(key instanceof VariableReferenceMapAccess)].filter [
+			simpleTypeComputer.getStepVariableFixtureParameterTypePairs(step).filterKey(VariableReference).filter[!(key instanceof VariableReferencePathAccess)].filter [
 				key.variable.name == variableName
 			].map[value]
 		].flatten.filterNull
-		val typesUsagesThroughAssignments = componentTestStepContext.steps.filter(MapEntryAssignment).filter[
-			variableReference.variable.name == variableName
-		].map [ step |
-			step.assignmentType.value
-		]
-		return (typesUsages + typesUsagesThroughAssignments).toSet
+		if (componentTestStepContext.steps.filter(AssignmentThroughPath).exists [variableReference.variable.name == variableName]) {
+				// assignment through path is used for json objects only
+				return (typesUsages + #[Optional.of(typeReferenceUtil.jsonObjectJvmTypeReference)]).toSet
+			} else {
+				return typesUsages.toSet
+			}
 	}
 
 	/** 
 	 * get the actual jvm types from the fixtures that are transitively used and to which this variable/parameter is passed to.
 	 * Since a parameter can be used in multiple parameter positions of subsequent fixture calls, the size of the set of types can be > 1
 	 */
-	def dispatch Set<Optional<JvmTypeReference>> getAllTypeUsagesOfVariable(MacroTestStepContext callingMacroTestStepContext,
+	def dispatch Set<Optional<JvmTypeReference>> getAllPossibleTypeUsagesOfVariable(MacroTestStepContext callingMacroTestStepContext,
 		String variableName) {
 		callingMacroTestStepContext.steps.filter(TestStep).map [ step |
 			val macroCalled = step.findMacroDefinition(callingMacroTestStepContext)			
@@ -93,13 +93,8 @@ class TclTypeUsageComputer {
 	 */
 	private def Iterable<Optional<JvmTypeReference>> getAllTypeUsagesOfVariables(TestStepContext context, Iterable<String> variables) {
 		variables.map [ variable |
-			context.getAllTypeUsagesOfVariable(variable)
+			context.getAllPossibleTypeUsagesOfVariable(variable)
 		].flatten
 	}
-	
-	def Pair<Variable, Optional<JvmTypeReference>> getAssignmentType(MapEntryAssignment assignment) {
-		val variableReference = assignment.getVariableReference
-		return new Pair(variableReference.variable, Optional.of(Map.getJvmTypeReferenceForClass(assignment)))
-	}
-	
+		
 }

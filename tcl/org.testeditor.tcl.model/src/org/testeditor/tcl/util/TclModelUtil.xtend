@@ -27,10 +27,16 @@ import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateVariable
+import org.testeditor.dsl.common.util.CollectionUtils
+import org.testeditor.tcl.AccessPathElement
+import org.testeditor.tcl.ArrayPathElement
 import org.testeditor.tcl.AssertionTestStep
+import org.testeditor.tcl.AssignmentThroughPath
+import org.testeditor.tcl.Comparison
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.Expression
+import org.testeditor.tcl.KeyPathElement
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
@@ -42,19 +48,19 @@ import org.testeditor.tcl.TestConfiguration
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.VariableReference
-import org.testeditor.tcl.VariableReferenceMapAccess
+import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentValue
 import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.util.TslModelUtil
-import org.testeditor.tcl.MapEntryAssignment
 
 @Singleton
 class TclModelUtil extends TslModelUtil {
 
 	@Inject public extension ModelUtil amlModelUtil
+	@Inject extension CollectionUtils
 	@Inject TypeReferences typeReferences
 
 	/**
@@ -70,12 +76,24 @@ class TclModelUtil extends TslModelUtil {
 		return model.test?.name ?: model.config?.name ?: model.macroCollection?.name
 	}
 
+	def String restoreString(VariableReferencePathAccess varPathAccess) {
+		return '''@«varPathAccess.variable.name»«varPathAccess.path.map[restoreString].join»'''
+	}
+	
+	def String restoreString(AccessPathElement pathElement) {
+		switch pathElement {
+			ArrayPathElement: return '''[«pathElement.number»]'''
+			KeyPathElement: return '''."«pathElement.key»"'''
+			default: throw new RuntimeException('''Unknown path element type = '«pathElement.class»'.''')
+		}
+	}
+
 	override String restoreString(Iterable<StepContent> contents) {
 		return contents.map [
 			switch (it) {
 				StepContentVariable: '''"«value»"'''
 				StepContentElement: '''<«value»>'''
-				VariableReferenceMapAccess: '''@«variable?.name»."«key»"'''
+				VariableReferencePathAccess: restoreString
 				VariableReference: '''@«variable?.name»'''
 				StepContentValue: value
 				default: throw new IllegalArgumentException("Unhandled content: " + it)
@@ -271,7 +289,7 @@ class TclModelUtil extends TslModelUtil {
 			switch (it) {
 				TestStep: contents.exists[makesUseOfVariablesViaReference(variables)]
 				AssertionTestStep: assertExpression.makesUseOfVariablesViaReference(variables)
-				MapEntryAssignment: expression.makesUseOfVariablesViaReference(variables)
+				AssignmentThroughPath: expression.makesUseOfVariablesViaReference(variables)
 				default: throw new RuntimeException('''Unknown TestStep type='«class.canonicalName»'.''')
 			}
 		]
@@ -293,4 +311,35 @@ class TclModelUtil extends TslModelUtil {
 		]
 	}
 
+	/**
+	 * unwrap nested expressions hidden within degenerated comparison, in which only the left part is given and no comparator is present
+	 */
+	def Expression getActualMostSpecific(Expression expression) {
+		if (expression instanceof Comparison) {
+			if (expression.comparator === null) {
+				return expression.left.actualMostSpecific
+			}
+		}
+		return expression
+	}
+
+	/**
+	 * Get the template variable of the interaction that is the corresponding parameter for this step content,
+	 * given that the step content is part of a fixture call (interaction).
+	 * 
+	 * e.g. useful in combination with {@link SimpleTypeComputer#getVariablesWithTypes}
+	 */
+	def TemplateVariable getTemplateParameterForCallingStepContent(StepContent stepContent) {
+		val testStep = EcoreUtil2.getContainerOfType(stepContent, TestStep)
+		val callParameterIndex = testStep.stepContentVariables.indexOfFirst(stepContent)
+		val templateContainer = testStep.templateContainer
+		val templateParameters = templateContainer?.template?.contents?.filter(TemplateVariable)
+		if (templateContainer !== null //
+			&& templateParameters !== null //
+			&& templateParameters.length > callParameterIndex) {
+			return templateParameters.drop(callParameterIndex).head
+		}
+		return null
+	}
+	
 }
