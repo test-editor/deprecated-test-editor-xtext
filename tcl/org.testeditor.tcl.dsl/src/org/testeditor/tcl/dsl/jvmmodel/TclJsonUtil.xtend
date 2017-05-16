@@ -16,6 +16,7 @@ import org.eclipse.xtext.common.types.JvmTypeReference
 import org.testeditor.tcl.AccessPathElement
 import org.testeditor.tcl.KeyPathElement
 import org.testeditor.tcl.ArrayPathElement
+import java.math.BigDecimal
 
 /**
  * Provide a set of functions that hold all com.google.gson specific implementations that
@@ -38,6 +39,7 @@ class TclJsonUtil {
 	
 	def String generateJsonElementAccess(JvmTypeReference wantedType) {			
 			switch wantedType.qualifiedName {
+				case BigDecimal.name: return '.getAsJsonPrimitive().getAsBigDecimal()'
 				case Number.name:  return '''.getAsJsonPrimitive().getAsNumber()'''
 				case Integer.name,
 				case int.name: return '''.getAsJsonPrimitive().getAsInt()'''
@@ -46,6 +48,7 @@ class TclJsonUtil {
 				case boolean.name,
 				case Boolean.name: return '''.getAsJsonPrimitive().getAsBoolean()'''
 				case String.name: return '''.getAsJsonPrimitive().getAsString()'''
+				default: throw new RuntimeException('''Unknown target type = '«wantedType.qualifiedName»'.''')
 			}
 	}
 	

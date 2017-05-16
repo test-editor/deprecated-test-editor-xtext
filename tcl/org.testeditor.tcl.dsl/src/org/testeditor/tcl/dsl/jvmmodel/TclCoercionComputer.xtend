@@ -37,12 +37,13 @@ class TclCoercionComputer {
 
 	def boolean isCoercionPossible(JvmTypeReference targetType, JvmTypeReference sourceType) {
 		switch targetType {
-			case targetType.isString : return sourceType.isLong || sourceType.isInt || sourceType.isBoolean || sourceType.isJson || sourceType.isString
-			case targetType.isLong: return sourceType.isString || sourceType.isJson || sourceType.isLong || sourceType.isInt
+			case targetType.isString : return sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber || sourceType.isBoolean || sourceType.isJson || sourceType.isString
+			case targetType.isLong: return sourceType.isString || sourceType.isJson || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber
 			case targetType.isBoolean: return sourceType.isString || sourceType.isJson || sourceType.isBoolean
-			case targetType.isInt: return sourceType.isString || sourceType.isJson || sourceType.isLong || sourceType.isInt
-			case targetType.isJson: return sourceType.isString || sourceType.isBoolean || sourceType.isLong || sourceType.isInt || sourceType.isJson
-			case targetType.isNumber: return sourceType.isString || sourceType.isJson || sourceType.isANumber 
+			case targetType.isInt: return sourceType.isString || sourceType.isJson || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber
+			case targetType.isJson: return sourceType.isString || sourceType.isBoolean || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber || sourceType.isJson
+			case targetType.isNumber: return sourceType.isString || sourceType.isJson || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber
+			case targetType.isBigDecimal: return sourceType.isString || sourceType.isJson || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber
 		}
 		return false
 	}
@@ -56,15 +57,19 @@ class TclCoercionComputer {
 						return ''
 					} else if (sourceType.isLong) {
 						return '''try { java.lang.Math.toIntExact(«sourceValue»); } catch (ArithmeticException ae) { org.junit.Assert.fail(«quotedErrorMessage»); }'''
+					} else if (sourceType.isNumber) {
+						return ''
 					} else if (sourceType.isJson) {
 						return '''org.junit.Assert.assertTrue(«quotedErrorMessage», «sourceValue».getAsJsonPrimitive().isNumber());'''
 					} else if (sourceType.isString) {
 						return '''try { Integer.parseInt(«sourceValue»); } catch (NumberFormatException nfe) { org.junit.Assert.fail(«quotedErrorMessage»); }'''
+					} else if (sourceType.isBigDecimal) {
+						return ''
 					} else {
 						throw new RuntimeException(coercionErrorMessage)
 					}
 				case targetType.isLong:
-					if (sourceType.isLong || sourceType.isInt) {
+					if (sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isNumber) {
 						return ''
 					} else if (sourceType.isJson) {
 						return '''org.junit.Assert.assertTrue(«quotedErrorMessage», «sourceValue».getAsJsonPrimitive().isNumber());'''
@@ -90,6 +95,26 @@ class TclCoercionComputer {
 						return ''
 					}
 				case targetType.isJson: return '' // no guard for json, since that is parsed (and checked) by json library
+				case targetType.isNumber:
+					if (sourceType.isJson) {
+						return '''org.junit.Assert.assertTrue(«quotedErrorMessage», «sourceValue».getAsJsonPrimitive().isNumber());'''
+					} else if (sourceType.isInt || sourceType.isLong || sourceType.isBigDecimal || sourceType.isNumber || sourceType.isANumber) {
+						return ''
+					} else if (sourceType.isString) {
+						return '''try { java.text.NumberFormat.getInstance().parse(«sourceValue»); } catch (java.text.ParseException pe) { org.junit.Assert.fail(«quotedErrorMessage»); }'''
+					} else {
+						throw new RuntimeException(coercionErrorMessage)
+					}
+				case targetType.isBigDecimal:
+					if (sourceType.isInt || sourceType.isLong || sourceType.isNumber || sourceType.isBigDecimal) {
+						return ''
+					} else if (sourceType.isJson) {
+						return '''org.junit.Assert.assertTrue(«quotedErrorMessage», «sourceValue».getAsJsonPrimitive().isNumber());'''
+					} else if (sourceType.isString) {
+						return '''try { new BigDecimal(«sourceValue»); } catch (NumberFormatException nfe) { org.junit.Assert.fail(«quotedErrorMessage»); }'''
+					} else {
+						throw new RuntimeException(coercionErrorMessage)
+					}
 				default: throw new RuntimeException('''Unknown target type = '«targetType?.qualifiedName»'.''')
 			}		
 		} else {
@@ -104,10 +129,10 @@ class TclCoercionComputer {
 				case targetType.isNumber:
 					if (sourceType.isJson) {
 						return '''«sourceValue»«generateJsonElementAccess(targetType)»'''
-					} else if (sourceType.isANumber) {
+					} else if (sourceType.isInt || sourceType.isLong || sourceType.isBigDecimal || sourceType.isNumber || sourceType.isANumber) {
 						return sourceValue
 					} else if (sourceType.isString) {
-						return '''NumberFormat.instance.parse(«sourceValue»)'''
+						return '''java.text.NumberFormat.getInstance().parse(«sourceValue»)'''
 					} else {
 						throw new RuntimeException(coercionErrorMessage)
 					}
@@ -130,6 +155,10 @@ class TclCoercionComputer {
 						return '''Integer.parseInt(«sourceValue»)'''
 					} else if (sourceType.isLong) {
 						return '''java.lang.Math.toIntExact(«sourceValue»)'''
+					} else if (sourceType.isNumber) {
+						return sourceValue
+					} else if (sourceType.isBigDecimal) {
+						return '''«sourceValue».intValue()'''
 					} else if (sourceType.isInt) {
 						return sourceValue
 					} else if (sourceType.isJson) {
@@ -140,8 +169,12 @@ class TclCoercionComputer {
 				case targetType.isLong:
 					if (sourceType.isString) {
 						return '''Long.parseLong(«sourceValue»)'''
-					} else if (sourceType.isLong || sourceType.isInt) {
+					} else if (sourceType.isNumber) {
 						return sourceValue
+					} else if (sourceType.isLong || sourceType.isInt || sourceType.isNumber) {
+						return sourceValue
+					} else if (sourceType.isBigDecimal) {
+						return '''«sourceValue».longValue()'''
 					} else if (sourceType.isJson) {
 						return '''«sourceValue»«generateJsonElementAccess(targetType)»'''
 					} else {
@@ -166,8 +199,22 @@ class TclCoercionComputer {
 						return '''Long.toString(«sourceValue»)'''
 					} else if (sourceType.isBoolean) {
 						return '''Boolean.toString(«sourceValue»)'''
+					} else if (sourceType.isBigDecimal) {
+						return '''«sourceValue.toString()»'''
+					} else if (sourceType.isNumber) {
+						return '''"«sourceValue»"'''
 					} else if (sourceType.isJson) {
 						return '''«sourceValue»«generateJsonElementAccess(targetType)»'''
+					} else {
+						throw new RuntimeException(coercionErrorMessage)
+					}
+				case targetType.isBigDecimal:
+					if (sourceType.isBigDecimal) {
+						return sourceValue
+					} else if (sourceType.isJson) {
+						return '''«sourceValue»«generateJsonElementAccess(targetType)»'''
+					} else if (sourceType.isInt || sourceType.isLong || sourceType.isString || sourceType.isNumber) {
+						return '''new java.math.BigDecimal(«sourceValue»)'''
 					} else {
 						throw new RuntimeException(coercionErrorMessage)
 					}
@@ -182,16 +229,22 @@ class TclCoercionComputer {
 	// naive implementation	of check whether the given types can be coerced to something that can be ordered (currently long only)
 	def boolean coercableToCommonOrderable(JvmTypeReference typeReferenceA, JvmTypeReference typeReferenceB) {
 		// currently only numericals are allowed
-		return isCoercionPossible(longObjectJvmTypeReference, typeReferenceA) &&
-			isCoercionPossible(longObjectJvmTypeReference, typeReferenceB)
+		return isCoercionPossible(numberJvmTypeReference, typeReferenceA) &&
+			isCoercionPossible(numberJvmTypeReference, typeReferenceB)
 	}
 	
 	def coercedCommonOrderableType(JvmTypeReference typeReferenceA, JvmTypeReference typeReferenceB) {
 		if (coercableToCommonOrderable(typeReferenceA, typeReferenceB)) {
-			return longObjectJvmTypeReference
-		} else {
-			throw new RuntimeException('''No coercible common orderable type found for typerefA='«typeReferenceA?.qualifiedName»' and typerefB='«typeReferenceB?.qualifiedName»'.''')
+			// return numberJvmTypeReference
+			if (typeReferenceA.isBigDecimal || typeReferenceB.isBigDecimal || typeReferenceA.isJson || typeReferenceB.isJson) {
+				return bigDecimalJvmTypeReference
+			} else if (typeReferenceA.isLong || typeReferenceB.isLong) {
+				return longObjectJvmTypeReference
+			} else if (typeReferenceA.isInt || typeReferenceB.isInt) {
+				return intObjectJvmTypeReference
+			}
 		}
+		throw new RuntimeException('''No coercible common orderable type found for typerefA='«typeReferenceA?.qualifiedName»' and typerefB='«typeReferenceB?.qualifiedName»'.''')
 	}
 	
 	def JvmTypeReference coercedCommonComparableType(JvmTypeReference typeReferenceA, JvmTypeReference typeReferenceB) {
@@ -216,7 +269,7 @@ class TclCoercionComputer {
 		if (isCoercionPossible(typeReferenceB, typeReferenceA)) {
 			return typeReferenceB
 		}
-		throw new RuntimeException('''No coercible common compareable type found for typerefA='«typeReferenceA?.qualifiedName»' and typerefB='«typeReferenceB?.qualifiedName»'.''')		
+		throw new RuntimeException('''No coercible common compareable type found for typerefA='«typeReferenceA?.qualifiedName»' and typerefB='«typeReferenceB?.qualifiedName»'.''')
 	}
 	
 	// naive implementation of possible coercions or comparable types

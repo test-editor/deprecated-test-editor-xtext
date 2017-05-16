@@ -61,6 +61,7 @@ class TclCallParameterTest extends AbstractTclGeneratorIntegrationTest {
 		val amlModel = amlTestModels.dummyComponent(resourceSet)
 		amlModel.addToResourceSet
 		val dummyComponent = amlModel.components.head
+		jvmModelInferrer.initWith(resourceSet)
 		
 		val tclModel = tclModel => [
 			test = testCase("Test") => [

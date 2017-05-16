@@ -127,7 +127,8 @@ class TclExpressionTypeComputer {
 		switch variable {
 			AssignmentVariable : return typeComputer.determineType(variable)
 			EnvironmentVariable : return typeReferenceUtil.stringJvmTypeReference
-			TemplateVariable: return typeComputer.getVariablesWithTypes(EcoreUtil2.getContainerOfType(variable, TemplateContainer)).get(variable).get 			default: throw new RuntimeException("Variable of type'"+variable.class.canonicalName+"' is unknown")
+			TemplateVariable: return typeComputer.getVariablesWithTypes(EcoreUtil2.getContainerOfType(variable, TemplateContainer)).get(variable).get
+			default: throw new RuntimeException("Variable of type'"+variable.class.canonicalName+"' is unknown")
 		}
 	}
 	

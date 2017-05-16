@@ -5,12 +5,29 @@ import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.junit.Before
 import org.junit.Test
+import org.eclipse.xtext.util.Pair
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
+import org.eclipse.xtext.util.Tuples
 
 class TclCoercionComputerTest extends AbstractTclTest {
 	
 	@Inject TclCoercionComputer coercionComputer // class under test
 	@Inject extension TclJvmTypeReferenceUtil typeReferenceUtil
+	
+	def allKnownTypes() {
+		return #[
+			booleanPrimitiveJvmTypeReference,
+			booleanObjectJvmTypeReference,
+			intPrimitiveJvmTypeReference,
+			intObjectJvmTypeReference,
+			longPrimitiveJvmTypeReference,
+			longObjectJvmTypeReference,
+			bigDecimalJvmTypeReference,
+			numberJvmTypeReference,
+			stringJvmTypeReference,
+			jsonObjectJvmTypeReference
+		]
+	}
 
 	// cannot use junit parameters since they have to be static which collides with injection
 	def coercionIllegalData() {
@@ -100,7 +117,7 @@ class TclCoercionComputerTest extends AbstractTclTest {
 
 	@Before
 	def void initCoercionComputer() {
-		coercionComputer.initWith(null as ResourceSet) // null is allowable for tests
+		coercionComputer.initWith(null as ResourceSet) // null is allowable for tests but has some restrictions (assignable does not work as it should)
 		typeReferenceUtil.initWith(null as ResourceSet)
 	}
 	
@@ -184,4 +201,51 @@ class TclCoercionComputerTest extends AbstractTclTest {
 			assertEquals(guard, expectedGuard, '''Generated guard failed for coercion of targetType = '«target?.qualifiedName»' and sourceType = '«source?.qualifiedName»'. ''')
 		]
 	}
+	
+	@Test
+	def testThatAllCombinationsAreCoercibleOrNonCoercible() {
+		// ------------- given
+		allPossibleTypePairs.forEach[pair|
+			val typeA = pair.first
+			val typeB = pair.second
+			
+			// ------------- when 
+			val coercible = coercionComputer.isCoercionPossible(typeA, typeB)
+			if (coercible) {
+				try {
+					// ------------- then 
+					val coercion = coercionComputer.generateCoercion(typeA, typeB, 'some')
+					val guard = coercionComputer.generateCoercionGuard(typeA, typeB, 'some', 'other')
+					coercion.assertNotNull
+					guard.assertNotNull
+				} catch (Exception e) {
+					fail('''Exception during coercion of a combination which was regarded possible (from='«typeB.qualifiedName»', to='«typeA.qualifiedName»').''')
+				}
+			} else {
+				try {
+					// ------------- else 
+					coercionComputer.generateCoercion(typeA, typeB, 'some')
+					fail('''Should run into an exception since coercion from = '«typeB.qualifiedName»' to '«typeA.qualifiedName»' is deemed impossible.'''.toString)
+				} catch(Exception e) {
+					// ignore, since this is ok
+				}
+				try {
+					// ------------- else 
+					coercionComputer.generateCoercionGuard(typeA, typeB, 'some', 'other')
+					fail('''Should run into an exception since coercion guard from = '«typeB.qualifiedName»' to '«typeA.qualifiedName»' is deemed impossible.'''.toString)
+				} catch(Exception e) {
+					// ignore, since this is ok
+				}
+			}
+		]
+	}
+	
+	def Iterable<Pair<JvmTypeReference,JvmTypeReference>> getAllPossibleTypePairs() {
+		allKnownTypes.map[typeA |
+			allKnownTypes.map[ typeB |
+				Tuples.create(typeA,typeB)
+			]
+		].flatten
+	} 
+	
 }
