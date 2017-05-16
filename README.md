@@ -44,11 +44,11 @@ Alternatively, for building the full RCP product, add the Maven profile "`produc
 
 ### The downloaded application won't start
 
-The editor requires a JDK 1.8 in order to start. If your default system JVM is different, you can set the path to the JDK by opening the `eclipse.ini` file and placing the following at the end:
+The editor requires a JDK 1.8 in order to start. If your default system JVM is different, you can set the path to the JDK by opening the `testeditor.ini` file and placing the following **before** the `-vmargs` parameter:
  
     -vm
     <pathToYourJDK8>
     
 The path depends on your operating system as described [here](https://wiki.eclipse.org/index.php?title=Eclipse.ini&redirect=no#Specifying_the_JVM). For example (Windows):
 
-    C:\tools\jdk1.8.0_92\bin\javaw.exe
+    C:\tools\jdk1.8.0_131\bin\javaw.exe
