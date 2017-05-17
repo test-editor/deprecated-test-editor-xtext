@@ -273,7 +273,7 @@ class TclCoercionComputer {
 		if (isCoercionPossible(typeReferenceB, typeReferenceA)) {
 			return typeReferenceB
 		}
-		throw new RuntimeException('''No coercible common compareable type found for typerefA='«typeReferenceA?.qualifiedName»' and typerefB='«typeReferenceB?.qualifiedName»'.''')
+		throw new RuntimeException('''No coercible common comparable type found for typerefA='«typeReferenceA?.qualifiedName»' and typerefB='«typeReferenceB?.qualifiedName»'.''')
 	}
 	
 	// naive implementation of possible coercions or comparable types
