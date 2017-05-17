@@ -79,7 +79,7 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 				- assert ! mak."key with spaces"              // not null check with map dereferenced
 				- assert baz = mak.otherkey                   // assert equals with map dereferenced
 				- log = Read long from <bar>
-				- assert log < 42							  // parse 42 to long value and compare
+				- assert log < 42                             // parse 42 to long value and compare
 				- assert log != baz                           // parse baz to long value and compare
 				- assert baz != book                          // convert book to string and compare
 				- assert mak."key" < "42"                     // parse dereferenced map and 42 to bigDecimal and compare

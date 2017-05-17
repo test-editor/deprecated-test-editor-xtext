@@ -14,15 +14,14 @@ class TclCoercionComputerTest extends AbstractTclTest {
 	@Inject TclCoercionComputer coercionComputer // class under test
 	@Inject extension TclJvmTypeReferenceUtil typeReferenceUtil
 	
-	
-	def booleanTypes() {
+	private def Iterable<JvmTypeReference> booleanTypes() {
 		return #[
 			booleanPrimitiveJvmTypeReference, 
 			booleanObjectJvmTypeReference
 		]
 	}
 	
-	def numericTypes() {
+	private def Iterable<JvmTypeReference> numericTypes() {
 		return #[
 			intPrimitiveJvmTypeReference,
 			intObjectJvmTypeReference,
@@ -33,20 +32,19 @@ class TclCoercionComputerTest extends AbstractTclTest {
 		]
 	}
 	
-	def allKnownTypes() {
+	private def Iterable<JvmTypeReference> allKnownTypes() {
 		return #[
 			stringJvmTypeReference,
 			jsonElementJvmTypeReference // as a representative of all json object types
 		] + booleanTypes + numericTypes
 	}
 
-	// cannot use junit parameters since they have to be static which collides with injection
-	def illegalCoercionTypePairs() {
+	private def Iterable<Pair<JvmTypeReference, JvmTypeReference>> illegalCoercionTypePairs() {
 		// illegal coercion is boolean <-> numeric type in any permutation 
 		return getAllPairs(booleanTypes, numericTypes) + getAllPairs(numericTypes, booleanTypes)
 	}
 	
-	def legalCoercionData() {
+	private def Iterable<Iterable<Object>> legalCoercionData() {
 		return #[
 			// targetType                        sourceType                        coercion ('data' is chosen arbitrarily, see tests)                  coercion guard
 			// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -156,7 +154,8 @@ class TclCoercionComputerTest extends AbstractTclTest {
 	}
 	
 	@Test
-	def testIllegalCoercionImpossible() {
+	def void testIllegalCoercionImpossible() {
+		// not using junit parameters, since I need access on non static injected objects
 		illegalCoercionTypePairs.forEach [
 			// given
 			val target = first 
@@ -171,7 +170,8 @@ class TclCoercionComputerTest extends AbstractTclTest {
 	}
 	
 	@Test
-	def testIllegalCoercion() {
+	def void testIllegalCoercion() {
+		// not using junit parameters, since I need access on non static injected objects
 		illegalCoercionTypePairs.forEach [
 			// given
 			val target = first
@@ -190,7 +190,8 @@ class TclCoercionComputerTest extends AbstractTclTest {
 	}
 	
 	@Test
-	def testLegalCoercionIsPossible() {
+	def void testLegalCoercionIsPossible() {
+		// not using junit parameters, since I need access on non static injected objects
 		legalCoercionData.forEach [
 			// given
 			val target = get(0) as JvmTypeReference
@@ -205,7 +206,8 @@ class TclCoercionComputerTest extends AbstractTclTest {
 	}
 
 	@Test
-	def testCoercion() {
+	def void testCoercion() {
+		// not using junit parameters, since I need access on non static injected objects
 		legalCoercionData.forEach [
 			// given
 			val target = get(0) as JvmTypeReference
@@ -221,7 +223,8 @@ class TclCoercionComputerTest extends AbstractTclTest {
 	}
 	
 	@Test
-	def testCoercionGuard() {
+	def void testCoercionGuard() {
+		// not using junit parameters, since I need access on non static injected objects
 		legalCoercionData.forEach [
 			// given
 			val target = get(0) as JvmTypeReference
@@ -242,7 +245,7 @@ class TclCoercionComputerTest extends AbstractTclTest {
 	}
 	
 	@Test
-	def ensureThatAllPossibleCombinationsAreHeededWithinTestData() {
+	def void testThatAllPossibleCombinationsAreHeededWithinTestData() {
 		// given
 		getAllPairs(allKnownTypes, allKnownTypes).forEach [ pair |
 
@@ -257,7 +260,7 @@ class TclCoercionComputerTest extends AbstractTclTest {
 	}
 	
 	@Test
-	def testThatAllCombinationsAreEitherCoercibleOrNonCoercible() {
+	def void testThatAllCombinationsAreEitherCoercibleOrNonCoercible() {
 		// ------------- given
 		getAllPairs(allKnownTypes, allKnownTypes).forEach [ pair |
 			val typeA = pair.first
@@ -308,9 +311,9 @@ class TclCoercionComputerTest extends AbstractTclTest {
 	 * of listB as first element in the pair (and likewise, no Pairs are generated that have elements of listB
 	 * as second element in the pair).
 	 */
-	def <T, U> Iterable<Pair<T, U>> getAllPairs(Iterable<T> listA, Iterable<U> listB) {
-		listA.map [ a |
-			listB.map [ b |
+	private def <T, U> Iterable<Pair<T, U>> getAllPairs(Iterable<T> iterableA, Iterable<U> iterableB) {
+		return iterableA.map [ a |
+			iterableB.map [ b |
 				Tuples.create(a, b)
 			]
 		].flatten
