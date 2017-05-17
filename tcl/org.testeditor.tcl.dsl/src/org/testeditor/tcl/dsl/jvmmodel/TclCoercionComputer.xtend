@@ -64,17 +64,19 @@ class TclCoercionComputer {
 					} else if (sourceType.isString) {
 						return '''try { Integer.parseInt(«sourceValue»); } catch (NumberFormatException nfe) { org.junit.Assert.fail(«quotedErrorMessage»); }'''
 					} else if (sourceType.isBigDecimal) {
-						return ''
+						return '''try { «sourceValue».intValueExact(); } catch (ArithmeticException ae) { org.junit.Assert.fail(«quotedErrorMessage»); }'''
 					} else {
 						throw new RuntimeException(coercionErrorMessage)
 					}
 				case targetType.isLong:
-					if (sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isNumber) {
+					if (sourceType.isLong || sourceType.isInt || sourceType.isNumber) {
 						return ''
 					} else if (sourceType.isJson) {
 						return '''org.junit.Assert.assertTrue(«quotedErrorMessage», «sourceValue».getAsJsonPrimitive().isNumber());'''
 					} else if (sourceType.isString) {
 						return '''try { Long.parseLong(«sourceValue»); } catch (NumberFormatException nfe) { org.junit.Assert.fail(«quotedErrorMessage»); }'''
+					} else if (sourceType.isBigDecimal) {
+						return '''try { «sourceValue».longValueExact(); } catch (ArithmeticException ae) { org.junit.Assert.fail(«quotedErrorMessage»); }'''
 					} else {
 						throw new RuntimeException(coercionErrorMessage)
 					}
@@ -111,7 +113,7 @@ class TclCoercionComputer {
 					} else if (sourceType.isJson) {
 						return '''org.junit.Assert.assertTrue(«quotedErrorMessage», «sourceValue».getAsJsonPrimitive().isNumber());'''
 					} else if (sourceType.isString) {
-						return '''try { new BigDecimal(«sourceValue»); } catch (NumberFormatException nfe) { org.junit.Assert.fail(«quotedErrorMessage»); }'''
+						return '''try { new java.math.BigDecimal(«sourceValue»); } catch (NumberFormatException nfe) { org.junit.Assert.fail(«quotedErrorMessage»); }'''
 					} else {
 						throw new RuntimeException(coercionErrorMessage)
 					}
@@ -147,6 +149,8 @@ class TclCoercionComputer {
 						return jsonParseInstruction('''Boolean.toString(«sourceValue»)''')
 					} else if (sourceType.isJson) {
 						return sourceValue
+					} else if (sourceType.isNumber) {
+						return jsonParseInstruction('''«sourceValue»''')
 					} else {
 						return jsonParseInstruction('''«sourceValue».toString()''')
 					}
@@ -158,7 +162,7 @@ class TclCoercionComputer {
 					} else if (sourceType.isNumber) {
 						return sourceValue
 					} else if (sourceType.isBigDecimal) {
-						return '''«sourceValue».intValue()'''
+						return '''«sourceValue».intValueExact()'''
 					} else if (sourceType.isInt) {
 						return sourceValue
 					} else if (sourceType.isJson) {
@@ -171,10 +175,10 @@ class TclCoercionComputer {
 						return '''Long.parseLong(«sourceValue»)'''
 					} else if (sourceType.isNumber) {
 						return sourceValue
-					} else if (sourceType.isLong || sourceType.isInt || sourceType.isNumber) {
+					} else if (sourceType.isLong || sourceType.isInt || sourceType.isANumber) {
 						return sourceValue
 					} else if (sourceType.isBigDecimal) {
-						return '''«sourceValue».longValue()'''
+						return '''«sourceValue».longValueExact()'''
 					} else if (sourceType.isJson) {
 						return '''«sourceValue»«generateJsonElementAccess(targetType)»'''
 					} else {
@@ -200,9 +204,9 @@ class TclCoercionComputer {
 					} else if (sourceType.isBoolean) {
 						return '''Boolean.toString(«sourceValue»)'''
 					} else if (sourceType.isBigDecimal) {
-						return '''«sourceValue.toString()»'''
+						return '''«sourceValue».toString()'''
 					} else if (sourceType.isNumber) {
-						return '''"«sourceValue»"'''
+						return '''String.valueOf(«sourceValue»)'''
 					} else if (sourceType.isJson) {
 						return '''«sourceValue»«generateJsonElementAccess(targetType)»'''
 					} else {
