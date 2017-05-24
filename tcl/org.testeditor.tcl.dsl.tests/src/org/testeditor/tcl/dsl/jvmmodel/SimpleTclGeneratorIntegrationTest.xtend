@@ -79,11 +79,13 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 				- assert ! mak."key with spaces"              // not null check with map dereferenced
 				- assert baz = mak.otherkey                   // assert equals with map dereferenced
 				- log = Read long from <bar>
-				- assert log < "42"							  // parse 42 to long value and compare
+				- assert log < 42                             // parse 42 to long value and compare
 				- assert log != baz                           // parse baz to long value and compare
 				- assert baz != book                          // convert book to string and compare
-				- assert mak."key" < "42"                     // parse dereferenced map and 42 to long and compare
+				- assert mak."key" < "42"                     // parse dereferenced map and 42 to bigDecimal and compare
+				- assert mak."key" < 42                       // parse dereferenced map and 42 to bigDecimal and compare
 				- assert mak."key" = "42"                     // no parse, compare stringwise (since map access expects a string)
+				- assert mak."key" = 42                       // compare values
 		'''
 
 		// when
@@ -130,16 +132,20 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			  org.junit.Assert.assertEquals("SimpleTest.tcl:21: baz = mak.otherkey", mak.getAsJsonObject().get("otherkey").getAsJsonPrimitive().getAsString(), baz);
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "long log = Read long from <bar>");
 			  long log = dummyFixture.getLong("label.greet");
-			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert log < \"42\"");
-			  org.junit.Assert.assertTrue("SimpleTest.tcl:23: log < \"42\"", log < Long.parseLong("42"));
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert log < 42");
+			  org.junit.Assert.assertTrue("SimpleTest.tcl:23: log < 42", log < 42);
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert log != baz");
 			  org.junit.Assert.assertNotEquals("SimpleTest.tcl:24: log != baz", Long.parseLong(baz), log);
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert baz != book");
 			  org.junit.Assert.assertNotEquals("SimpleTest.tcl:25: baz != book", Boolean.toString(book), baz);
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert mak.\"key\" < \"42\"");
-			  org.junit.Assert.assertTrue("SimpleTest.tcl:26: mak.\"key\" < \"42\"", mak.getAsJsonObject().get("key").getAsJsonPrimitive().getAsLong() < Long.parseLong("42"));
+			  org.junit.Assert.assertTrue("SimpleTest.tcl:26: mak.\"key\" < \"42\"", mak.getAsJsonObject().get("key").getAsJsonPrimitive().getAsBigDecimal().compareTo(new java.math.BigDecimal("42")) < 0);
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert mak.\"key\" < 42");
+			  org.junit.Assert.assertTrue("SimpleTest.tcl:27: mak.\"key\" < 42", mak.getAsJsonObject().get("key").getAsJsonPrimitive().getAsBigDecimal().compareTo(new java.math.BigDecimal(42)) < 0);
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert mak.\"key\" = \"42\"");
-			  org.junit.Assert.assertEquals("SimpleTest.tcl:27: mak.\"key\" = \"42\"", "42", mak.getAsJsonObject().get("key").getAsJsonPrimitive().getAsString());
+			  org.junit.Assert.assertEquals("SimpleTest.tcl:28: mak.\"key\" = \"42\"", "42", mak.getAsJsonObject().get("key").getAsJsonPrimitive().getAsString());
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert mak.\"key\" = 42");
+			  org.junit.Assert.assertEquals("SimpleTest.tcl:29: mak.\"key\" = 42", 42, mak.getAsJsonObject().get("key").getAsJsonPrimitive().getAsNumber());
 			}
 		'''.indent(1))
 	}

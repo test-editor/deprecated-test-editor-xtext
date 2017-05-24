@@ -118,7 +118,7 @@ class TclJvmTypeReferenceUtil {
 	}
 
 	def boolean isOrderable(JvmTypeReference typeReference) {
-		return typeReference.isLong || typeReference.isInt || typeReference.isBigDecimal
+		return typeReference.isANumber
 	}
 	
 	// use xbase to check for assignablility
