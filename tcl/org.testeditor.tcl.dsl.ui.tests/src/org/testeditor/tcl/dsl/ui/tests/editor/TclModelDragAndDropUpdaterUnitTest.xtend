@@ -15,6 +15,7 @@ package org.testeditor.tcl.dsl.ui.tests.editor
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 import org.eclipse.xtext.EcoreUtil2
+import org.eclipse.xtext.naming.IQualifiedNameConverter
 import org.junit.Before
 import org.junit.Test
 import org.testeditor.aml.Component
@@ -29,6 +30,7 @@ import org.testeditor.tcl.dsl.ui.editor.TclModelDragAndDropUpdater
 class TclModelDragAndDropUpdaterUnitTest extends AbstractTclModelDragAndDropUpdaterTest {
 
 	@Inject TclModelDragAndDropUpdater classUnderTest
+	@Inject IQualifiedNameConverter qnameConverter	
 	@Inject extension TclModelGenerator
 
 	var Component greetingApplication
@@ -81,7 +83,7 @@ class TclModelDragAndDropUpdaterUnitTest extends AbstractTclModelDragAndDropUpda
 
 		// when
 		// dropping the same type again
-		classUnderTest.updateImports(tclModel, dropTarget, greetingApplication, "com.example.GreetingApplication")
+		classUnderTest.updateImports(tclModel, dropTarget, greetingApplication, qnameConverter.toQualifiedName("com.example.GreetingApplication"))
 
 		// then
 		// nothing changes
@@ -97,7 +99,7 @@ class TclModelDragAndDropUpdaterUnitTest extends AbstractTclModelDragAndDropUpda
 
 		// when
 		// another component is dropped, whose simple name collides with another import
-		classUnderTest.updateImports(tclModel, dropTarget,greetingApplication, "org.elsewhere.GreetingApplication")
+		classUnderTest.updateImports(tclModel, dropTarget,greetingApplication, qnameConverter.toQualifiedName("org.elsewhere.GreetingApplication"))
 
 		// then
 		// both must be removed (resulting in fully qualified generation of references)
@@ -111,7 +113,7 @@ class TclModelDragAndDropUpdaterUnitTest extends AbstractTclModelDragAndDropUpda
 		val dropTarget = tclModel.getTestStep("GreetingApplication", 0)
 		// when
 		// dropping a component, whose simple name matches one (implicitly) imported by wildcard
-		classUnderTest.updateImports(tclModel,dropTarget,greetingApplication, "org.elsewhere.GreetingApplication")
+		classUnderTest.updateImports(tclModel,dropTarget,greetingApplication, qnameConverter.toQualifiedName("org.elsewhere.GreetingApplication"))
 
 		// then
 		// wildcard import must be removed (resulting in fully qualified generation of references)
@@ -125,7 +127,7 @@ class TclModelDragAndDropUpdaterUnitTest extends AbstractTclModelDragAndDropUpda
 		val dropTarget = tclModel.getTestStep("GreetingApplication", 0)
 		// when
 		// wildcard import allows import of dropped element, too
-		classUnderTest.updateImports(tclModel,dropTarget, greetingApplication2, "com.example.GreetingApplication2")
+		classUnderTest.updateImports(tclModel,dropTarget, greetingApplication2, qnameConverter.toQualifiedName("com.example.GreetingApplication2"))
 
 		// then
 		// no modification needs to be done
@@ -138,7 +140,7 @@ class TclModelDragAndDropUpdaterUnitTest extends AbstractTclModelDragAndDropUpda
 		val tclModel = tclModelWithImportedNamespaces("com.example.*") // imports GreetingApplication and GreetingApplication2
 		// when
 		// wildcard import allows import of dropped element, too, but would result in different full qualified name
-		classUnderTest.updateImports(tclModel,null, greetingApplication2, "org.other.GreetingApplication2")
+		classUnderTest.updateImports(tclModel,null, greetingApplication2, qnameConverter.toQualifiedName("org.other.GreetingApplication2"))
 
 		// then
 		// wildcard must be removed
@@ -152,7 +154,7 @@ class TclModelDragAndDropUpdaterUnitTest extends AbstractTclModelDragAndDropUpda
 		val dropTarget = tclModel.getTestStep("GreetingApplication", 0)
 
 		// when
-		classUnderTest.updateImports(tclModel,dropTarget, greetingApplication2, "org.other.GreetingApplication2")
+		classUnderTest.updateImports(tclModel,dropTarget, greetingApplication2, qnameConverter.toQualifiedName("org.other.GreetingApplication2"))
 
 		// then
 		val imports = tclModel.importSection.importDeclarations.assertSize(2)
@@ -169,7 +171,7 @@ class TclModelDragAndDropUpdaterUnitTest extends AbstractTclModelDragAndDropUpda
 
 		// when
 		// dropped element collides with already imported one
-		classUnderTest.updateImports(tclModel,dropTarget, greetingApplication2, "org.other.GreetingApplication2")
+		classUnderTest.updateImports(tclModel,dropTarget, greetingApplication2, qnameConverter.toQualifiedName("org.other.GreetingApplication2"))
 
 		// then
 		// non colliding import remains
@@ -185,7 +187,7 @@ class TclModelDragAndDropUpdaterUnitTest extends AbstractTclModelDragAndDropUpda
 
 		// when
 		// first element dropped
-		classUnderTest.updateImports(tclModel, dropTarget,greetingApplication, "com.example.GreetingApplication2")
+		classUnderTest.updateImports(tclModel, dropTarget,greetingApplication, qnameConverter.toQualifiedName("com.example.GreetingApplication2"))
 
 		// then
 		// then this one is imported with fully qualified name
@@ -201,10 +203,10 @@ class TclModelDragAndDropUpdaterUnitTest extends AbstractTclModelDragAndDropUpda
 
 		// when
 		// first element dropped
-		classUnderTest.updateImports(tclModel, dropTarget,greetingApplication, "com.example.GreetingApplication")
+		classUnderTest.updateImports(tclModel, dropTarget, greetingApplication, qnameConverter.toQualifiedName("com.example.GreetingApplication"))
 
 		// then
-		// then this one is imported with fully qualified name
+		// then this one is not imported, since dropped object and drop target are of the same component
 		tclModel.importSection.assertNull
 	}
 	@Test
@@ -215,10 +217,10 @@ class TclModelDragAndDropUpdaterUnitTest extends AbstractTclModelDragAndDropUpda
 
 		// when
 		// first element dropped
-		classUnderTest.updateImports(tclModel, dropTarget,greetingApplication, "com")
+		classUnderTest.updateImports(tclModel, dropTarget, greetingApplication, qnameConverter.toQualifiedName("com.WhatEverILike"))
 
 		// then
-		// then this one is imported with fully qualified name
+		// then this one is not imported, since test case and dropped object share the same namespace
 		tclModel.importSection.assertNull
 	}
 	// -----------------------------------------------------------------------------------------------

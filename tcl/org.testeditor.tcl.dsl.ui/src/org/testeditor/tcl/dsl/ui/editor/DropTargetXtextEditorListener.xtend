@@ -62,7 +62,7 @@ class DropTargetXtextEditorListener extends DropTargetAdapter {
 	private def void updateImports(TclModel tclModel, EObject dropTarget) {
 		val droppedObject = dropUtils.getDroppedObjectAs(Component)
 		updateTestModelByDropTarget.updateImports(tclModel, dropTarget, droppedObject,
-			qualifiedNameProvider.getFullyQualifiedName(droppedObject).toString)
+			qualifiedNameProvider.getFullyQualifiedName(droppedObject))
 	}
 
 	private def void updateModel(TclModel tclModel, EObject dropTarget, List<String> eObjectPathsToFormat,

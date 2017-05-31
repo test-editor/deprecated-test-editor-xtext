@@ -23,6 +23,7 @@ import org.eclipse.emf.ecore.util.EcoreUtil
 import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.common.types.JvmType
 import org.eclipse.xtext.common.types.util.TypeReferences
+import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.resource.XtextResource
 import org.eclipse.xtext.xbase.imports.RewritableImportSection
 import org.eclipse.xtext.xtype.XImportDeclaration
@@ -35,7 +36,9 @@ import org.testeditor.tcl.StepContainer
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TclPackage
 import org.testeditor.tcl.TestStepContext
-import org.eclipse.xtext.naming.IQualifiedNameProvider
+import org.testeditor.tcl.TestCase
+import org.testeditor.dsl.common.util.CollectionUtils
+import org.eclipse.xtext.naming.QualifiedName
 
 class TclModelDragAndDropUpdater {
 
@@ -44,6 +47,8 @@ class TclModelDragAndDropUpdater {
 	@Inject TypeReferences references
 	@Inject XtypeFactory xtypeFactory
 	@Inject IQualifiedNameProvider qualifiedNameProvider
+	
+	@Inject extension CollectionUtils
 
 	def void updateModel(TclModel tclModel, EObject dropTarget, ComponentTestStepContext droppedTestStepContext,
 		List<String> eObjectPathsToFormat, AtomicReference<String> insertedTestStepPath) {
@@ -185,38 +190,41 @@ class TclModelDragAndDropUpdater {
 	 * test step component.
 	 */
 	public def void updateImports(TclModel tclModel, EObject dropTarget, Component droppedObject,
-		String qualifiedNameOfDroppedObject) {
-		val dropTargetAsTestStepContext = dropUtils.searchTargetTestStepContext(tclModel, dropTarget)
-		if (dropTargetAsTestStepContext instanceof ComponentTestStepContext) {
-			updateImportsForTestStepContext(tclModel, dropTargetAsTestStepContext, droppedObject,qualifiedNameOfDroppedObject)
+		QualifiedName qualifiedNameOfDroppedObject) {
+		val targetTestStepContext = dropUtils.searchTargetTestStepContext(tclModel, dropTarget)
+		if (targetTestStepContext instanceof ComponentTestStepContext) {
+			updateImportsForTestStepContext(tclModel, targetTestStepContext, droppedObject, qualifiedNameOfDroppedObject)
 		}else {
-			throw new IllegalArgumentException("Drag and Drop not yet implemented for drop target " + dropTargetAsTestStepContext.class.name)
+			throw new IllegalArgumentException("Drag and Drop not yet implemented for drop target " + targetTestStepContext.class.name)
 		}
 	}
 	
-	def updateImportsForTestStepContext(TclModel tclModel,ComponentTestStepContext dropTargetAsTestStepContext, Component droppedObject, String qualifiedNameOfDroppedObject) {
+	def void updateImportsForTestStepContext(TclModel tclModel, ComponentTestStepContext dropTargetTestStepContext,
+		Component droppedObject, QualifiedName qualifiedNameOfDroppedObject) {
 		val simpleName = droppedObject.name
+		val packageOfDroppedObject = qualifiedNameOfDroppedObject.segments.butLast.join('.')
 	
 		// handle suspicious wildcard imports before actually using the rewritable import section utils, since they do not handle wildcard imports
-		val wildcardRemovalTookPlace = tclModel.removeSuspiciousWildcardImports(simpleName, qualifiedNameOfDroppedObject)
+		val wildcardRemovalTookPlace = tclModel.removeSuspiciousWildcardImports(simpleName, qualifiedNameOfDroppedObject.toString)
 	
 		val importSection = rewritableImportSectionFactory.parse(tclModel.eResource as XtextResource)
 		val clashingImportedTypes = importSection.getImportedTypes(simpleName)?.filter [
-			it.qualifiedName != qualifiedNameOfDroppedObject // simple name is the same, but qualified name differs
+			it.qualifiedName != qualifiedNameOfDroppedObject.toString // simple name is the same, but qualified name differs
 		]
 		val droppedAlreadyImportedViaWildcard = tclModel.wildcardImports.exists [
-			resolveType(tclModel, simpleName)?.qualifiedName == qualifiedNameOfDroppedObject
+			resolveType(tclModel, simpleName)?.qualifiedName == qualifiedNameOfDroppedObject.toString
 		]
-		val droppedAlreadyImportedByCurrentComponent = qualifiedNameOfDroppedObject.equals(
-			qualifiedNameProvider.getFullyQualifiedName(dropTargetAsTestStepContext.component).toString())
-		val droppedAlreadyImportedByTestCase = qualifiedNameOfDroppedObject.equals(
-			qualifiedNameProvider.getFullyQualifiedName(dropTargetAsTestStepContext.eContainer.eContainer.eContainer).toString())
+		val droppedEqualsDroppedOntoComponent = qualifiedNameOfDroppedObject.equals(
+			qualifiedNameProvider.getFullyQualifiedName(dropTargetTestStepContext.component))
+		val dropTargetTestCase = EcoreUtil2.getContainerOfType(dropTargetTestStepContext, TestCase)
+		val droppedObjectFromSamePackageAsTestCase = packageOfDroppedObject.equals(
+			qualifiedNameProvider.getFullyQualifiedName(dropTargetTestCase).segments.butLast.join('.'))
 		val importWanted = clashingImportedTypes.nullOrEmpty && !wildcardRemovalTookPlace &&
-			!droppedAlreadyImportedViaWildcard && !droppedAlreadyImportedByCurrentComponent &&
-			!droppedAlreadyImportedByTestCase
+			!droppedAlreadyImportedViaWildcard && !droppedEqualsDroppedOntoComponent &&
+			!droppedObjectFromSamePackageAsTestCase
 
 		if (importWanted) {
-			val added = importSection.addImport(qualifiedNameOfDroppedObject)
+			val added = importSection.addImport(qualifiedNameOfDroppedObject.toString)
 			if (!added) { // e.g. this import already exists
 				return // no further rewrite of import section necessary
 			}
@@ -227,7 +235,7 @@ class TclModelDragAndDropUpdater {
 		markComponentContextsForQualifiedNameUpdate(tclModel, simpleName)
 	}
 
-		/**
+	/**
 	 * make a safe update of the import section of this tcl model and ensure that 
 	 * the tclModel.importSection is null, if no imports remain 
 	 */
@@ -248,8 +256,7 @@ class TclModelDragAndDropUpdater {
 	 * if necessary after the modification of the import section 
 	 */
 	private def void markComponentContextsForQualifiedNameUpdate(TclModel tclModel, String simpleName) {
-		val contexts = tclModel.test?.steps?.map[contexts] ?: #[] + tclModel.macroCollection?.macros?.map[contexts] ?:
-			#[]
+		val contexts = tclModel.test?.steps?.map[contexts]?:#[] + tclModel.macroCollection?.macros?.map[contexts]?:#[]
 		val clashingContexts = contexts.filterNull.flatten.filter(ComponentTestStepContext).filter [
 			component.name == simpleName
 		]
