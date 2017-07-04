@@ -12,10 +12,6 @@
 	<artifactId>org.testeditor.tsl.dsl.web</artifactId>
 	<packaging>jar</packaging>
 
-	<properties>
-		<deploy.skip>true</deploy.skip>
-	</properties>
-
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<resources>
