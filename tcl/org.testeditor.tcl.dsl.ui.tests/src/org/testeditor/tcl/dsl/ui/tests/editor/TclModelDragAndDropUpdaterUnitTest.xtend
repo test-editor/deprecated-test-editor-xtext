@@ -15,6 +15,7 @@ package org.testeditor.tcl.dsl.ui.tests.editor
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 import org.eclipse.xtext.EcoreUtil2
+import org.eclipse.xtext.naming.IQualifiedNameConverter
 import org.junit.Before
 import org.junit.Test
 import org.testeditor.aml.Component
@@ -24,12 +25,12 @@ import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
-import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 import org.testeditor.tcl.dsl.ui.editor.TclModelDragAndDropUpdater
 
-class TclModelDragAndDropUpdaterUnitTest extends AbstractParserTest {
+class TclModelDragAndDropUpdaterUnitTest extends AbstractTclModelDragAndDropUpdaterTest {
 
 	@Inject TclModelDragAndDropUpdater classUnderTest
+	@Inject IQualifiedNameConverter qnameConverter	
 	@Inject extension TclModelGenerator
 
 	var Component greetingApplication
@@ -78,10 +79,11 @@ class TclModelDragAndDropUpdaterUnitTest extends AbstractParserTest {
 	def void testUpdateImportsWithExistingImportUnchanged() {
 		// given
 		val tclModel = tclModelWithImportedNamespaces("com.example.GreetingApplication")
+		val dropTarget = tclModel.getTestStep("GreetingApplication", 0)
 
 		// when
 		// dropping the same type again
-		classUnderTest.updateImports(tclModel, greetingApplication, "com.example.GreetingApplication")
+		classUnderTest.updateImports(tclModel, dropTarget, greetingApplication, qnameConverter.toQualifiedName("com.example.GreetingApplication"))
 
 		// then
 		// nothing changes
@@ -93,10 +95,11 @@ class TclModelDragAndDropUpdaterUnitTest extends AbstractParserTest {
 	def void testUpdateImportsWithAdditionalImport() {
 		// given
 		val tclModel = tclModelWithImportedNamespaces("com.example.GreetingApplication")
+		val dropTarget = tclModel.getTestStep("GreetingApplication", 0)
 
 		// when
 		// another component is dropped, whose simple name collides with another import
-		classUnderTest.updateImports(tclModel, greetingApplication, "org.elsewhere.GreetingApplication")
+		classUnderTest.updateImports(tclModel, dropTarget,greetingApplication, qnameConverter.toQualifiedName("org.elsewhere.GreetingApplication"))
 
 		// then
 		// both must be removed (resulting in fully qualified generation of references)
@@ -107,9 +110,10 @@ class TclModelDragAndDropUpdaterUnitTest extends AbstractParserTest {
 	def void testUpdateImportsWithWildcardImport() {
 		// given
 		val tclModel = tclModelWithImportedNamespaces("com.example.*") // imports GreetingApplication and GreetingApplication2
+		val dropTarget = tclModel.getTestStep("GreetingApplication", 0)
 		// when
 		// dropping a component, whose simple name matches one (implicitly) imported by wildcard
-		classUnderTest.updateImports(tclModel, greetingApplication, "org.elsewhere.GreetingApplication")
+		classUnderTest.updateImports(tclModel,dropTarget,greetingApplication, qnameConverter.toQualifiedName("org.elsewhere.GreetingApplication"))
 
 		// then
 		// wildcard import must be removed (resulting in fully qualified generation of references)
@@ -120,9 +124,10 @@ class TclModelDragAndDropUpdaterUnitTest extends AbstractParserTest {
 	def void testUpdateImportsWithWildcardImportThatCanBeKept() {
 		// given
 		val tclModel = tclModelWithImportedNamespaces("com.example.*") // imports GreetingApplication and GreetingApplication2
+		val dropTarget = tclModel.getTestStep("GreetingApplication", 0)
 		// when
 		// wildcard import allows import of dropped element, too
-		classUnderTest.updateImports(tclModel, greetingApplication2, "com.example.GreetingApplication2")
+		classUnderTest.updateImports(tclModel,dropTarget, greetingApplication2, qnameConverter.toQualifiedName("com.example.GreetingApplication2"))
 
 		// then
 		// no modification needs to be done
@@ -135,7 +140,7 @@ class TclModelDragAndDropUpdaterUnitTest extends AbstractParserTest {
 		val tclModel = tclModelWithImportedNamespaces("com.example.*") // imports GreetingApplication and GreetingApplication2
 		// when
 		// wildcard import allows import of dropped element, too, but would result in different full qualified name
-		classUnderTest.updateImports(tclModel, greetingApplication2, "org.other.GreetingApplication2")
+		classUnderTest.updateImports(tclModel,null, greetingApplication2, qnameConverter.toQualifiedName("org.other.GreetingApplication2"))
 
 		// then
 		// wildcard must be removed
@@ -146,9 +151,10 @@ class TclModelDragAndDropUpdaterUnitTest extends AbstractParserTest {
 	def void testUpdateImportsWithImportAddingNewNonCollidingOne() {
 		// given
 		val tclModel = tclModelWithImportedNamespaces("com.example.GreetingApplication")
+		val dropTarget = tclModel.getTestStep("GreetingApplication", 0)
 
 		// when
-		classUnderTest.updateImports(tclModel, greetingApplication2, "org.other.GreetingApplication2")
+		classUnderTest.updateImports(tclModel,dropTarget, greetingApplication2, qnameConverter.toQualifiedName("org.other.GreetingApplication2"))
 
 		// then
 		val imports = tclModel.importSection.importDeclarations.assertSize(2)
@@ -161,10 +167,11 @@ class TclModelDragAndDropUpdaterUnitTest extends AbstractParserTest {
 		// given
 		val tclModel = tclModelWithImportedNamespaces("com.example.GreetingApplication", //
 		"com.example.GreetingApplication2")
+		val dropTarget = tclModel.getTestStep("GreetingApplication", 0)
 
 		// when
 		// dropped element collides with already imported one
-		classUnderTest.updateImports(tclModel, greetingApplication2, "org.other.GreetingApplication2")
+		classUnderTest.updateImports(tclModel,dropTarget, greetingApplication2, qnameConverter.toQualifiedName("org.other.GreetingApplication2"))
 
 		// then
 		// non colliding import remains
@@ -176,17 +183,46 @@ class TclModelDragAndDropUpdaterUnitTest extends AbstractParserTest {
 	def void testWithNoImport() {
 		// given
 		val tclModel = tclModelWithImportedNamespaces(#[])
+		val dropTarget = tclModel.getTestStep("GreetingApplication", 0)
 
 		// when
 		// first element dropped
-		classUnderTest.updateImports(tclModel, greetingApplication, "com.example.GreetingApplication")
+		classUnderTest.updateImports(tclModel, dropTarget,greetingApplication, qnameConverter.toQualifiedName("com.example.GreetingApplication2"))
 
 		// then
 		// then this one is imported with fully qualified name
 		tclModel.importSection.importDeclarations.assertSingleElement.importedNamespace.assertEquals(
-			"com.example.GreetingApplication")
+			"com.example.GreetingApplication2")
 	}
 
+	@Test
+	def void testNoImportedNeededIfNewClassIsQualifiedNameOfCurrentmask() {
+		// given
+		val tclModel = tclModelWithImportedNamespaces(#[])
+		val dropTarget = tclModel.getTestStep("GreetingApplication", 0)
+
+		// when
+		// first element dropped
+		classUnderTest.updateImports(tclModel, dropTarget, greetingApplication, qnameConverter.toQualifiedName("com.example.GreetingApplication"))
+
+		// then
+		// then this one is not imported, since dropped object and drop target are of the same component
+		tclModel.importSection.assertNull
+	}
+	@Test
+	def void testNoImportedNeededIfNewClassIsInCurrentPackage() {
+		// given
+		val tclModel = tclModelWithImportedNamespaces(#[])
+		val dropTarget = tclModel.getTestStep("GreetingApplication", 0)
+
+		// when
+		// first element dropped
+		classUnderTest.updateImports(tclModel, dropTarget, greetingApplication, qnameConverter.toQualifiedName("com.WhatEverILike"))
+
+		// then
+		// then this one is not imported, since test case and dropped object share the same namespace
+		tclModel.importSection.assertNull
+	}
 	// -----------------------------------------------------------------------------------------------
 	/** 
 	 * create a test with one test step based on the component 'greetingApplication'
@@ -195,7 +231,7 @@ class TclModelDragAndDropUpdaterUnitTest extends AbstractParserTest {
 	def private TclModel tclModelWithImportedNamespaces(String... namespaces) {
 		val tclModel = tclModel => [
 			package = "com"
-			test = testCase("my-test") => [
+			test = testCase("mytest") => [
 				steps += specificationStep("spec") => [
 					contexts += componentTestStepContext(greetingApplication) => [ // <-- dropTargetContext
 						steps += testStep("Start", "application").withParameter("/usr/bin/browser") // <-- dropTarget

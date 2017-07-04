@@ -5,16 +5,12 @@
 	<parent>
 		<groupId>org.testeditor</groupId>
 		<artifactId>org.testeditor.releng.parent</artifactId>
-		<version>1.6.0</version>
+		<version>1.7.0-SNAPSHOT</version>
 		<relativePath>../../releng/org.testeditor.releng.parent</relativePath>
 	</parent>
 
 	<artifactId>org.testeditor.tsl.dsl.web</artifactId>
 	<packaging>jar</packaging>
-
-	<properties>
-		<deploy.skip>true</deploy.skip>
-	</properties>
 
 	<build>
 		<sourceDirectory>src</sourceDirectory>

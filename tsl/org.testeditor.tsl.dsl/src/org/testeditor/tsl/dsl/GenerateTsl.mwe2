@@ -46,7 +46,7 @@ Workflow {
 				}
 				web = {
 					enabled = true
-					assets = "${rootPath}/${projectName}.web/webapp"
+					assets = "${rootPath}/${projectName}.web/resources/webapp"
 					overwriteSrc = false
 				}
 				createEclipseMetaData = true

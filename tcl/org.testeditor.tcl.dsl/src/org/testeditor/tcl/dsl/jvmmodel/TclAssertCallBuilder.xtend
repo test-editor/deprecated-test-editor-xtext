@@ -138,11 +138,22 @@ class TclAssertCallBuilder {
 		val wantedType = expressionTypeComputer.coercedTypeOfComparison(comparison, null)
 		val builtRightExpression=expressionBuilder.buildReadExpression(comparison.right, wantedType)
 		val builtLeftExpression=expressionBuilder.buildReadExpression(comparison.left, wantedType)
+		typeReferenceUtil.initWith(comparison.eResource)
 		switch (comparison.comparator) {
-			ComparatorEquals: '''«builtRightExpression», «builtLeftExpression»'''
-			ComparatorGreaterThan: '''«builtLeftExpression» «if(comparison.comparator.negated){'<='}else{'>'}» «builtRightExpression»'''
-			ComparatorLessThan: '''«builtLeftExpression» «if(comparison.comparator.negated){'>='}else{'<'}» «builtRightExpression»'''
-			ComparatorMatches: '''«builtLeftExpression».toString().matches(«builtRightExpression».toString())'''
+			ComparatorEquals: return '''«builtRightExpression», «builtLeftExpression»'''
+			ComparatorGreaterThan:
+				if (typeReferenceUtil.isBigDecimal(wantedType)) {
+					return '''«builtLeftExpression».compareTo(«builtRightExpression») «if(comparison.comparator.negated){'<='}else{'>'}» 0'''
+				}else{
+					return '''«builtLeftExpression» «if(comparison.comparator.negated){'<='}else{'>'}» «builtRightExpression»'''
+				}
+			ComparatorLessThan:
+				if (typeReferenceUtil.isBigDecimal(wantedType)) {
+					return '''«builtLeftExpression».compareTo(«builtRightExpression») «if(comparison.comparator.negated){'>='}else{'<'}» 0'''
+				} else {
+					return '''«builtLeftExpression» «if(comparison.comparator.negated){'>='}else{'<'}» «builtRightExpression»'''
+				}
+			ComparatorMatches: return '''«builtLeftExpression».toString().matches(«builtRightExpression».toString())'''
 			default:
 				throw new RuntimeException('''no builder found for comparator «comparison.comparator.class»''')
 		}
