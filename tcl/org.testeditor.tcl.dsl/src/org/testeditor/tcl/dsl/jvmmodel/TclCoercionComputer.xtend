@@ -175,7 +175,7 @@ class TclCoercionComputer {
 						return '''Long.parseLong(«sourceValue»)'''
 					} else if (sourceType.isNumber) {
 						return sourceValue
-					} else if (sourceType.isLong || sourceType.isInt || sourceType.isANumber) {
+					} else if (sourceType.isLong || sourceType.isInt) {
 						return sourceValue
 					} else if (sourceType.isBigDecimal) {
 						return '''«sourceValue».longValueExact()'''
