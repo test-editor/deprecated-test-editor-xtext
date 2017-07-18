@@ -18,6 +18,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import java.math.BigDecimal
 import javax.inject.Inject
+import javax.inject.Singleton
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.xtend.lib.annotations.Accessors
@@ -35,6 +36,7 @@ import org.eclipse.xtext.xbase.typesystem.util.CommonTypeComputationServices
  * that 'initWith' is called with the current resouce or resouceSet to allow classpath resolution
  * of all relevant types.
  */
+@Singleton
 class TclJvmTypeReferenceUtil {
 
 	@Accessors(PUBLIC_GETTER)
@@ -52,7 +54,7 @@ class TclJvmTypeReferenceUtil {
 		// cache a valid typeReferenceBuilder ?
 		if (resourceSet === null) {
 			typeReferenceBuilder = typeReferenceBuilderFactory.create(this.resourceSet) // useful for testing with models without resources
-		} else {
+		} else if (this.resourceSet.allContents.empty) {
 			typeReferenceBuilder = typeReferenceBuilderFactory.create(resourceSet)
 			this.resourceSet = resourceSet // overwrite injected one (which was injected for test purposes only)
 		}
