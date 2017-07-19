@@ -760,7 +760,7 @@ class ProjectContentGenerator {
 		<Configuration status="INFO">
 			<Appenders>
 				<Console name="Console" target="SYSTEM_OUT">
-					<PatternLayout pattern="%d{HH:mm:ss} %-5level [%t] %X{context} [%X{TestName}] %c{1} %msg%n" />
+					<PatternLayout charset="UTF-8" pattern="%d{HH:mm:ss} %-5level [%t] %X{context} [%X{TestName}] %c{1} %msg%n" />
 				</Console>
 			</Appenders>
 			<Loggers>

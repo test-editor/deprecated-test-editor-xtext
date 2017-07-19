@@ -16,6 +16,7 @@ import java.io.File
 import java.nio.file.Files
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import java.util.List
 import javax.inject.Inject
 import javax.xml.parsers.DocumentBuilderFactory
@@ -110,9 +111,14 @@ class TestExecutionManager {
 	}
 
 	def private String getTestExecutionLogName(String teLogFileName) {
-		logger.debug("Parsing log name from {}", teLogFileName)
-		val date = fileDateFormat.parse(teLogFileName.substring(8))
-		return uiDateFormat.format(date)
+		logger.debug("Parsing log name from '{}'.", teLogFileName)
+		try {
+			val date = fileDateFormat.parse(teLogFileName.substring(8))
+			return uiDateFormat.format(date)
+		} catch (DateTimeParseException e) {
+			logger.warn("Parsing log name failed, using '{}' instead.", teLogFileName)
+			return teLogFileName
+		}
 	}
 
 	def delete(String fileName) {
