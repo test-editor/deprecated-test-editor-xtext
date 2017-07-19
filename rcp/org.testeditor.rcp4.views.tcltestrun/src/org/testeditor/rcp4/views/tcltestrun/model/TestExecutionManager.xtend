@@ -13,7 +13,6 @@
 package org.testeditor.rcp4.views.tcltestrun.model
 
 import java.io.File
-import java.nio.file.Files
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
@@ -68,7 +67,7 @@ class TestExecutionManager {
 		val log = location.list.findFirst[matches(fileName)]
 		if (log !== null) {
 			val result = log.createTestExecutionLog
-			result.content = Files.readAllLines(result.logDir.toPath).join
+			result.content = org.testeditor.dsl.common.ide.util.FileUtils.readAllLines(result.logDir).join
 			return result
 		}
 		return null
