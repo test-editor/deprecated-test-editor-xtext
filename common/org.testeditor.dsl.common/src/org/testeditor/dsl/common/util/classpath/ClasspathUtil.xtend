@@ -97,17 +97,20 @@ class ClasspathUtil {
 	def IPath getBuildToolClasspathEntry(IPath path) {
 		logger.info("Searching classpath for {}.", path)
 		val baseDir = path.getBuildProjectBaseDir
-		switch (baseDir) {
-			case baseDir.isMavenProjectBaseDir: return mavenClasspathUtil.getMavenClasspathEntries(baseDir).findFirst[
-				logger.debug("Checking maven classpath='{}'.", it.toOSString)
-				it.isPrefixOf(path)
-			]
-			case baseDir.isGradleProjectBaseDir: return gradleClasspathUtil.getGradleSourceSetPaths(baseDir).findFirst[
-				logger.debug("Checking gradle classpath='{}'.", it.toOSString)
-				it.isPrefixOf(path)
-			]
-			default: throw new RuntimeException('''Unknown project type in project base dir='«baseDir»'.''')
+		if (baseDir !== null) {
+			switch (baseDir) {
+				case baseDir.isMavenProjectBaseDir: return mavenClasspathUtil.getMavenClasspathEntries(baseDir).findFirst[
+					logger.debug("Checking maven classpath='{}'.", it.toOSString)
+					it.isPrefixOf(path)
+				]
+				case baseDir.isGradleProjectBaseDir: return gradleClasspathUtil.getGradleSourceSetPaths(baseDir).findFirst[
+					logger.debug("Checking gradle classpath='{}'.", it.toOSString)
+					it.isPrefixOf(path)
+				]
+				default: throw new RuntimeException('''Unknown project type in project base dir='«baseDir»'.''')
+			}
 		}
+		return null
 	}
 
 	def IPath getEclipseClasspathEntry(IPath path) {
