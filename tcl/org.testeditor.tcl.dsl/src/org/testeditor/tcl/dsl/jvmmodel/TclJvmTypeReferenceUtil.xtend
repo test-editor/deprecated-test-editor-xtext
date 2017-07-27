@@ -57,7 +57,7 @@ class TclJvmTypeReferenceUtil {
 		if (resourceSet === null) {
 			log.debug('''type reference builder initialized with injected resource set.''')
 			typeReferenceBuilder = typeReferenceBuilderFactory.create(this.resourceSet) // useful for testing with models without resources
-		} else if (resourceSet !== this.resourceSet) {
+		} else if (resourceSet !== this.resourceSet || typeReferenceBuilder === null) {
 			log.debug('''type reference build (re)initialized with different resource set.''')
 			typeReferenceBuilder = typeReferenceBuilderFactory.create(resourceSet)
 			this.resourceSet = resourceSet // overwrite injected one (which was injected for test purposes only)
