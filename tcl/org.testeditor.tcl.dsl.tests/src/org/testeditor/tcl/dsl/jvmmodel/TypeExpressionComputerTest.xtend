@@ -22,6 +22,7 @@ import org.testeditor.tcl.dsl.tests.AbstractTclTest
 import org.testeditor.tsl.impl.TslFactoryImpl
 
 import static org.mockito.Mockito.*
+import java.util.Optional
 
 class TypeExpressionComputerTest extends AbstractTclTest{
 	
@@ -50,7 +51,7 @@ class TypeExpressionComputerTest extends AbstractTclTest{
 		when(innerTypeReferenceUtil.isANumber(expectedType)).thenReturn(true)
 		
 		// when
-		val result = expressionTypeComputer.determineType(content, expectedType)
+		val result = expressionTypeComputer.determineType(content, Optional.of(expectedType))
 		
 		// then
 		typeReferenceUtil.isLong(result).assertTrue		
@@ -64,7 +65,7 @@ class TypeExpressionComputerTest extends AbstractTclTest{
 		when(innerTypeReferenceUtil.isANumber(expectedType)).thenReturn(true)
 		
 		// when
-		val result = expressionTypeComputer.determineType(content, expectedType)
+		val result = expressionTypeComputer.determineType(content, Optional.of(expectedType))
 		
 		// then
 		typeReferenceUtil.isInt(result).assertTrue		
@@ -78,7 +79,7 @@ class TypeExpressionComputerTest extends AbstractTclTest{
 		when(innerTypeReferenceUtil.isString(expectedType)).thenReturn(true)
 		
 		// when
-		val result = expressionTypeComputer.determineType(content, expectedType)
+		val result = expressionTypeComputer.determineType(content, Optional.of(expectedType))
 		
 		// then
 		typeReferenceUtil.isString(result).assertTrue		
@@ -93,7 +94,7 @@ class TypeExpressionComputerTest extends AbstractTclTest{
 		when(innerTypeReferenceUtil.longObjectJvmTypeReference).thenReturn(typeReferenceUtil.longObjectJvmTypeReference)
 		
 		// when
-		val result = expressionTypeComputer.determineType(content, expectedType)
+		val result = expressionTypeComputer.determineType(content, Optional.of(expectedType))
 		
 		// then
 		typeReferenceUtil.isBoolean(result).assertFalse
@@ -108,7 +109,7 @@ class TypeExpressionComputerTest extends AbstractTclTest{
 		when(innerTypeReferenceUtil.isANumber(expectedType)).thenReturn(true)
 
 		// when
-		val result = expressionTypeComputer.determineType(content, expectedType)
+		val result = expressionTypeComputer.determineType(content, Optional.of(expectedType))
 
 		// then
 		typeReferenceUtil.isANumber(result).assertTrue

@@ -504,7 +504,7 @@ class TclValidator extends AbstractTclValidator {
 	private def void checkAgainstTypeExpectation(StepContent content, int contentIndex, JvmTypeReference expectedType) {
 		typeReferenceUtil.initWith(content.eResource)
 		coercionComputer.initWith(content.eResource)
-		val contentType = expressionTypeComputer.determineType(content, expectedType)
+		val contentType = expressionTypeComputer.determineType(content, Optional.of(expectedType))
 		val assignable = typeReferenceUtil.isAssignableFrom(expectedType, contentType)
 		// if content is a StepContentVariable, coercion is not option, since determineType already did check for bool/long/string
 		val coercible = !(content instanceof StepContentVariable) &&
