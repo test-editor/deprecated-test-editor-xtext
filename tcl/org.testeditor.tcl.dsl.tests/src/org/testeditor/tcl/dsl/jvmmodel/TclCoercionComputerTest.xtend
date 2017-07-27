@@ -43,7 +43,8 @@ class TclCoercionComputerTest extends AbstractTclTest {
 
 	private def Iterable<Pair<JvmTypeReference, JvmTypeReference>> illegalCoercionTypePairs() {
 		// illegal coercion is boolean <-> numeric type in any permutation 
-		return getAllPairs(booleanTypes, numericTypes) + getAllPairs(numericTypes, booleanTypes)
+		return getAllPairs(booleanTypes, numericTypes)
+		       + getAllPairs(numericTypes, booleanTypes)
 		       + getAllPairs(booleanTypes + numericTypes, #[enumJvmTypeReference])
 		       + getAllPairs(#[enumJvmTypeReference], booleanTypes + numericTypes)
 	}
@@ -51,33 +52,33 @@ class TclCoercionComputerTest extends AbstractTclTest {
 	private def Iterable<Iterable<Object>> validValueFromStringCoercion() {
 		return
 		#[
-			#[ intPrimitiveJvmTypeReference, "123" ],
-			#[ intObjectJvmTypeReference, "123" ],
-			#[ longPrimitiveJvmTypeReference, "123" ],
-			#[ longObjectJvmTypeReference, "123" ],
-			#[ booleanPrimitiveJvmTypeReference, "true" ],
-			#[ booleanObjectJvmTypeReference, "false" ],
-			#[ numberJvmTypeReference,  "123" ],
-			#[ stringJvmTypeReference,  "some string" ],
-			#[ jsonElementJvmTypeReference, '''{ "key": 123 }'''.toString ],
-			#[ bigDecimalJvmTypeReference,  "12323948573945867543985794328579438575845" ],
-			#[ typeReferenceUtil.buildFrom(DayOfWeek),  "MONDAY"  ]
+			#[ intPrimitiveJvmTypeReference,           "123" ],
+			#[ intObjectJvmTypeReference,              "123" ],
+			#[ longPrimitiveJvmTypeReference,          "123" ],
+			#[ longObjectJvmTypeReference,             "123" ],
+			#[ booleanPrimitiveJvmTypeReference,       "true" ],
+			#[ booleanObjectJvmTypeReference,          "false" ],
+			#[ numberJvmTypeReference,                 "123" ],
+			#[ stringJvmTypeReference,                 "some string" ],
+			#[ jsonElementJvmTypeReference,            '''{ "key": 123 }'''.toString ],
+			#[ bigDecimalJvmTypeReference,             "12323948573945867543985794328579438575845" ],
+			#[ typeReferenceUtil.buildFrom(DayOfWeek), "MONDAY" ]
 		]
 	}
 	
 	private def Iterable<Iterable<Object>> invalidValueFromStringCoercion() {
 		return
 		#[
-			#[ intPrimitiveJvmTypeReference, "123e5" ],
-			#[ intObjectJvmTypeReference, "A00" ],
-			#[ longPrimitiveJvmTypeReference, "HEX" ],
-			#[ longObjectJvmTypeReference, "123e7" ],
-			#[ booleanPrimitiveJvmTypeReference, "truthy" ],
-			#[ booleanObjectJvmTypeReference, "falsy" ],
-			#[ numberJvmTypeReference,  "a123xy10" ],
-			#[ jsonElementJvmTypeReference, "no json" ],
-			#[ bigDecimalJvmTypeReference,  "aha" ],
-			#[ typeReferenceUtil.buildFrom(DayOfWeek),  "MONDAX"  ] // with capital A is not a valid enum value
+			#[ intPrimitiveJvmTypeReference,           "123e5" ],
+			#[ intObjectJvmTypeReference,              "A00" ],
+			#[ longPrimitiveJvmTypeReference,          "HEX" ],
+			#[ longObjectJvmTypeReference,             "123e7" ],
+			#[ booleanPrimitiveJvmTypeReference,       "truthy" ],
+			#[ booleanObjectJvmTypeReference,          "falsy" ],
+			#[ numberJvmTypeReference,                 "a123xy10" ],
+			#[ jsonElementJvmTypeReference,            "no json" ],
+			#[ bigDecimalJvmTypeReference,             "aha" ],
+			#[ typeReferenceUtil.buildFrom(DayOfWeek), "MONDAX" ]
 		]
 	}
 	

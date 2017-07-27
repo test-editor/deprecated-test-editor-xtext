@@ -14,14 +14,15 @@ package org.testeditor.tcl.dsl.jvmmodel
 
 import com.google.gson.JsonParser
 import java.math.BigDecimal
+import java.text.NumberFormat
 import javax.inject.Inject
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.ResourceSet
+import org.eclipse.xtext.common.types.JvmEnumerationType
 import org.eclipse.xtext.common.types.JvmTypeReference
+import org.slf4j.LoggerFactory
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentVariable
-import org.slf4j.LoggerFactory
-import org.eclipse.xtext.common.types.JvmEnumerationType
 
 /** 
  * compute whether and how coercion should be generated
@@ -63,7 +64,7 @@ class TclCoercionComputer {
 					return true
 				}
 				case targetType.isNumber: {
-					java.text.NumberFormat.getInstance().parse(value) // exception caught by enclosing try
+					NumberFormat.instance.parse(value) // exception caught by enclosing try
 					return true
 				}
 				case targetType.isBigDecimal: {
@@ -76,7 +77,7 @@ class TclCoercionComputer {
 				}
 			}
 		} catch (Exception e) {
-			logger.trace('''Exception while coercing of value = '«value»' to enum type = '«targetType.qualifiedName»'.''', e)
+			logger.trace('''Exception while coercing value = '«value»' to enum type = '«targetType.qualifiedName»'.''', e)
 			return false
 		}
 		return false
