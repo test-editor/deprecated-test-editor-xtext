@@ -12,15 +12,23 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
+import com.google.gson.JsonParser
+import java.math.BigDecimal
 import javax.inject.Inject
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.xtext.common.types.JvmTypeReference
+import org.testeditor.tsl.StepContent
+import org.testeditor.tsl.StepContentVariable
+import org.slf4j.LoggerFactory
+import org.eclipse.xtext.common.types.JvmEnumerationType
 
 /** 
  * compute whether and how coercion should be generated
  */
 class TclCoercionComputer {
+	
+	private val logger = LoggerFactory.getLogger(TclCoercionComputer)
 	
 	@Inject extension TclJvmTypeReferenceUtil typeReferenceUtil
 	@Inject extension TclJsonUtil
@@ -35,15 +43,65 @@ class TclCoercionComputer {
 		typeReferenceUtil.initWith(resourceSet)
 	}
 
+	def boolean isCoercionPossible(JvmTypeReference targetType, JvmTypeReference sourceType, String value) {
+		try {
+			switch (targetType) {
+				case targetType.isString:
+					return true
+				case targetType.isLong: {
+					Long.valueOf(value) // exception caught by enclosing try
+					return true
+				}
+				case targetType.isBoolean:
+					return Boolean.TRUE.toString.equals(value) || Boolean.FALSE.toString.equals(value)
+				case targetType.isInt: {
+					Integer.valueOf(value) // exception caught by enclosing try
+					return true
+				}
+				case targetType.isJson: {
+					new JsonParser().parse(value) // exception caught by enclosing try
+					return true
+				}
+				case targetType.isNumber: {
+					java.text.NumberFormat.getInstance().parse(value) // exception caught by enclosing try
+					return true
+				}
+				case targetType.isBigDecimal: {
+					new BigDecimal(value) // exception caught by enclosing try
+					return true
+				}
+				case targetType.isEnum: {
+					val enumType = (targetType.type as JvmEnumerationType)
+					return enumType.literals.exists[simpleName == value]
+				}
+			}
+		} catch (Exception e) {
+			logger.trace('''Exception while coercing of value = '«value»' to enum type = '«targetType.qualifiedName»'.''', e)
+			return false
+		}
+		return false
+	}
+	
+	def boolean isCoercionPossible(JvmTypeReference targetType, JvmTypeReference sourceType, StepContent content) {
+		val typesAreCoercible = isCoercionPossible(targetType, sourceType)
+		if (typesAreCoercible && content instanceof StepContentVariable) {
+			val value = (content as StepContentVariable).value
+			return isCoercionPossible(targetType, sourceType, value)
+		} else {
+			return typesAreCoercible
+		}
+	}
+	
 	def boolean isCoercionPossible(JvmTypeReference targetType, JvmTypeReference sourceType) {
 		switch targetType {
-			case targetType.isString : return sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber || sourceType.isBoolean || sourceType.isJson || sourceType.isString
+			case targetType.isString : return sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber || sourceType.isBoolean || sourceType.isJson || sourceType.isString || sourceType.isEnum
 			case targetType.isLong: return sourceType.isString || sourceType.isJson || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber
 			case targetType.isBoolean: return sourceType.isString || sourceType.isJson || sourceType.isBoolean
 			case targetType.isInt: return sourceType.isString || sourceType.isJson || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber
-			case targetType.isJson: return sourceType.isString || sourceType.isBoolean || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber || sourceType.isJson
+			case targetType.isJson: return sourceType.isString || sourceType.isBoolean || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber || sourceType.isJson || sourceType.isEnum
 			case targetType.isNumber: return sourceType.isString || sourceType.isJson || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber
 			case targetType.isBigDecimal: return sourceType.isString || sourceType.isJson || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber
+			case targetType.isEnum: return sourceType.isString || sourceType.isJson || sourceType.isEnum
 		}
 		return false
 	}
@@ -117,6 +175,16 @@ class TclCoercionComputer {
 					} else {
 						throw new RuntimeException(coercionErrorMessage)
 					}
+				case targetType.isEnum:
+					if (sourceType.isString) {
+						return '''try { «targetType.qualifiedName».valueOf(«sourceValue»); } catch (IllegalArgumentException ia) { org.junit.Assert.fail(«quotedErrorMessage»); }'''
+					} else if (sourceType.isJson) {
+						return '''try { «targetType.qualifiedName».valueOf(«sourceValue»«generateJsonElementAccess(stringJvmTypeReference)»); } catch (IllegalArgumentException ia) { org.junit.Assert.fail(«quotedErrorMessage»); }'''
+					} else if ((sourceType.isEnum) && isAssignableFrom(targetType, sourceType)) {
+						return ''
+					} else {
+						throw new RuntimeException(coercionErrorMessage)
+					}
 				default: throw new RuntimeException('''Unknown target type = '«targetType?.qualifiedName»'.''')
 			}		
 		} else {
@@ -151,6 +219,8 @@ class TclCoercionComputer {
 						return sourceValue
 					} else if (sourceType.isNumber) {
 						return jsonParseInstruction('''«sourceValue»''')
+					} else if (sourceType.isEnum) {
+						return jsonParseInstruction('''"\""+«sourceValue».toString()+"\""''')
 					} else {
 						return jsonParseInstruction('''«sourceValue».toString()''')
 					}
@@ -209,6 +279,8 @@ class TclCoercionComputer {
 						return '''String.valueOf(«sourceValue»)'''
 					} else if (sourceType.isJson) {
 						return '''«sourceValue»«generateJsonElementAccess(targetType)»'''
+					} else if (sourceType.isEnum) {
+						return '''«sourceValue».toString()'''
 					} else {
 						throw new RuntimeException(coercionErrorMessage)
 					}
@@ -219,6 +291,16 @@ class TclCoercionComputer {
 						return '''«sourceValue»«generateJsonElementAccess(targetType)»'''
 					} else if (sourceType.isInt || sourceType.isLong || sourceType.isString || sourceType.isNumber) {
 						return '''new java.math.BigDecimal(«sourceValue»)'''
+					} else {
+						throw new RuntimeException(coercionErrorMessage)
+					}
+				case targetType.isEnum:
+					if (sourceType.isString) {
+						return '''«targetType.qualifiedName».valueOf(«sourceValue»)'''
+					} else if (sourceType.isJson) {
+						return '''«targetType.qualifiedName».valueOf(«sourceValue»«generateJsonElementAccess(stringJvmTypeReference)»)'''
+					} else if ((sourceType.isEnum) && isAssignableFrom(targetType, sourceType)) {
+						return '''«sourceValue»'''
 					} else {
 						throw new RuntimeException(coercionErrorMessage)
 					}

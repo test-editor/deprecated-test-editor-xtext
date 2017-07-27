@@ -12,13 +12,24 @@ class TclJvmTypeReferenceUtilTest extends AbstractTclGeneratorIntegrationTest{
 	@Inject TclJvmTypeReferenceUtil utilForTypeGenerationComparison
 	
 	val standardTestFlags = new TypeConformanceComputationArgument(false, false, false, false, false, true)
-	
-	@Before 
+
+	enum TestEnum { a, b, c }
+
+	@Before
 	def void initClassUnderTest() {
 		typeReferenceUtil.initWith(this.resourceSet)
 		utilForTypeGenerationComparison.initWith(this.resourceSet)
 	}
-	
+
+	@Test
+	def void testTestEnumIsEnum() {
+		// given+when
+		val isAssignable = typeReferenceUtil.isAssignableFrom(typeReferenceUtil.enumJvmTypeReference, typeReferenceUtil.buildFrom(TestEnum), standardTestFlags)
+
+		// then
+		isAssignable.assertTrue
+	}
+
 	@Test
 	def void testBooleanToBooleanObjectAssignmentWithoutBoxing() {
 		// given + when				

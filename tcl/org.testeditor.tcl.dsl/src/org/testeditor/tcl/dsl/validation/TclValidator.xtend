@@ -507,8 +507,7 @@ class TclValidator extends AbstractTclValidator {
 		val contentType = expressionTypeComputer.determineType(content, Optional.of(expectedType))
 		val assignable = typeReferenceUtil.isAssignableFrom(expectedType, contentType)
 		// if content is a StepContentVariable, coercion is not option, since determineType already did check for bool/long/string
-		val coercible = !(content instanceof StepContentVariable) &&
-			coercionComputer.isCoercionPossible(expectedType, contentType)
+		val coercible = coercionComputer.isCoercionPossible(expectedType, contentType, content)
 		if (!assignable && !coercible) {
 			error('''Type mismatch. Expected '«expectedType.qualifiedName»' got '«contentType.qualifiedName»' that cannot assigned nor coerced.''',
 				content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)

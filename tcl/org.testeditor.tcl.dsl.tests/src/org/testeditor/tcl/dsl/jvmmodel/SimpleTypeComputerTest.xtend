@@ -16,6 +16,7 @@ import javax.inject.Inject
 import org.junit.Before
 import org.junit.Test
 import org.testeditor.aml.AmlModel
+import org.testeditor.dsl.common.testing.DummyEnum
 import org.testeditor.dsl.common.testing.DummyFixture
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.StepContentElement
@@ -243,7 +244,7 @@ class SimpleTypeComputerTest extends AbstractParserTest {
 	}
 
 	@Test
-	def void testStepVariableFixtureParameterTypePairs() {
+	def void testJavaEnumFixtureParameter() {
 		// given
 		parseAml(DummyFixture.amlModel)
 		
@@ -251,7 +252,39 @@ class SimpleTypeComputerTest extends AbstractParserTest {
 			package com.example
 			
 			# MyTest
+			
+			* some fixture usage
+			Component: GreetingApplication
+			- Set enum of <Input> to "enum_a"
+		''')
 
+		// when
+		val testStep = tclModel.test.steps.head.contexts.head.steps.filter(TestStep).last
+		val stepContentTypePairs = typeComputer.getStepVariableFixtureParameterTypePairs(testStep)
+
+		// then
+		stepContentTypePairs.assertSize(2) => [
+			get(0) => [
+				key.assertInstanceOf(StepContentElement)
+			    value.get.qualifiedName.assertEquals(String.name)
+		    ]
+			get(1) => [
+				key.assertInstanceOf(StepContentValue)
+				value.get.qualifiedName.assertEquals(DummyEnum.name)
+			]
+		]
+	}
+
+	@Test
+	def void testStepVariableFixtureParameterTypePairs() {
+		// given
+		parseAml(DummyFixture.amlModel)
+
+		val tclModel = parseTcl('''
+			package com.example
+			
+			# MyTest
+			
 			* some fixture usage
 			Component: GreetingApplication
 			- TypeLong "42" into <Input>  // maps to: DummyFixture.typeInto(String element, Enum locatorStrategy, long value)
