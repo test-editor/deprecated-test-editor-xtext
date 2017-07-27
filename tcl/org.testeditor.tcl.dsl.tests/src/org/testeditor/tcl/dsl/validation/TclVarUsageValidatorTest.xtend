@@ -99,7 +99,7 @@ class TclVarUsageValidatorTest extends AbstractParserTestWithDummyComponent {
 		tclModel.addToResourceSet('Test.tcl')
 		
 		// then
-		// assignment to a map dereferenced with a key is allowed (results in a put)
+		// assignment to a json dereferenced with a key is allowed (results in a put)
 		tclModel.assertNoErrors
 	}
 	

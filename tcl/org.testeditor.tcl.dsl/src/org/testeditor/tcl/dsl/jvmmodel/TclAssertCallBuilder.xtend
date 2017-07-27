@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
+import java.util.Optional
 import javax.inject.Inject
 import org.apache.commons.lang3.StringEscapeUtils
 import org.eclipse.xtext.common.types.JvmTypeReference
@@ -135,7 +136,7 @@ class TclAssertCallBuilder {
 		if (comparison.comparator == null) {
 			return expressionBuilder.buildReadExpression(comparison.left)
 		}
-		val wantedType = expressionTypeComputer.coercedTypeOfComparison(comparison, null)
+		val wantedType = expressionTypeComputer.coercedTypeOfComparison(comparison, Optional.empty)
 		val builtRightExpression=expressionBuilder.buildReadExpression(comparison.right, wantedType)
 		val builtLeftExpression=expressionBuilder.buildReadExpression(comparison.left, wantedType)
 		typeReferenceUtil.initWith(comparison.eResource)

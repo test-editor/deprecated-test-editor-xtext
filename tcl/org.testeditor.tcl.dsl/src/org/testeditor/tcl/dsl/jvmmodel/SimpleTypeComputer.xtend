@@ -104,8 +104,8 @@ class SimpleTypeComputer {
 		val parameterTypeMap = getVariablesWithTypes(templateContainer)
 		val templateParameter = getTemplateParameterForCallingStepContent(stepContent)
 		val expectedType = parameterTypeMap.get(templateParameter)
-		if (expectedType === null || !expectedType.present) {
-			throw new RuntimeException("Unknown type")
+		if (expectedType === null) {
+			return Optional.empty
 		}
 		return expectedType
 	}
