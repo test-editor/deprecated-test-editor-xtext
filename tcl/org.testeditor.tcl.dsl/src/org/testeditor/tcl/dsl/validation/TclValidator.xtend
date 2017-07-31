@@ -433,7 +433,7 @@ class TclValidator extends AbstractTclValidator {
 			VariableReference: {
 				val illegalTypeUsages = typeUsageSet.filter[present].filter [
 					!typeReferenceUtil.isAssignableFrom(get, typeDeclared) &&
-						!coercionComputer.isCoercionPossible(get, typeDeclared)
+						!coercionComputer.isTypeCoercionPossible(get, typeDeclared)
 				]
 				if (!illegalTypeUsages.empty) {
 					error('''Variable='«variableReference.variable.name»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in context(s) expecting type(s)='«typeUsageSet.filter[present].map[get.qualifiedName].join(", ")»' of which the types = '«illegalTypeUsages.filter[present].map[get.qualifiedName].join(", ")»' are problematic (non assignable nor coercible). Please make sure that no conflicting type usages remain.''',
@@ -507,10 +507,9 @@ class TclValidator extends AbstractTclValidator {
 		val contentType = expressionTypeComputer.determineType(content, Optional.of(expectedType))
 		val assignable = typeReferenceUtil.isAssignableFrom(expectedType, contentType)
 		// if content is a StepContentVariable, coercion is not option, since determineType already did check for bool/long/string
-		val coercible = !(content instanceof StepContentVariable) &&
-			coercionComputer.isCoercionPossible(expectedType, contentType)
+		val coercible = coercionComputer.isCoercionPossible(expectedType, contentType, content)
 		if (!assignable && !coercible) {
-			error('''Type mismatch. Expected '«expectedType.qualifiedName»' got '«contentType.qualifiedName»' that cannot assigned nor coerced.''',
+			error('''Type mismatch. Expected '«expectedType.qualifiedName»' got '«contentType.qualifiedName»' that cannot be assigned nor coerced.''',
 				content.eContainer, content.eContainingFeature, contentIndex, INVALID_PARAMETER_TYPE)
 		}
 	}

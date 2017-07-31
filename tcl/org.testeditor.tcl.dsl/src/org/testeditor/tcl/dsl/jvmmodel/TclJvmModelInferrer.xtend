@@ -450,7 +450,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 					step.contents.filter(VariableReference).forEach [
 						val expectedType = typeComputer.getExpectedType(it, interaction)
 						val variableType = expressionTypeComputer.determineType(variable, expectedType)
-						if (coercionComputer.isCoercionPossible(expectedType.get, variableType)) {
+						if (coercionComputer.isTypeCoercionPossible(expectedType.get, variableType)) {
 							val coercionCheck = generateCoercionCheck(interaction, expectedType)
 							if (!coercionCheck.nullOrEmpty) {
 								output.append(coercionCheck).newLine
@@ -513,7 +513,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			step.contents.filter(VariableReference).forEach [
 				val expectedType = typeComputer.getExpectedType(it, macro)
 				val variableType = expressionTypeComputer.determineType(variable, expectedType)
-				if (coercionComputer.isCoercionPossible(expectedType.get, variableType)) { 
+				if (coercionComputer.isTypeCoercionPossible(expectedType.get, variableType)) { 
 					val coercionCheck = generateCoercionCheck(macro, expectedType)
 					if (!coercionCheck.nullOrEmpty) {
 						output.append(coercionCheck).newLine
@@ -568,7 +568,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		// val expectedType = typeComputer.getExpectedType(stepContent, templateContainer)
 		if (expectedType.present) {
 			val stepContentType = expressionTypeComputer.determineType(stepContent, expectedType)
-			val coercionPossible = coercionComputer.isCoercionPossible(expectedType.get, stepContentType)
+			val coercionPossible = coercionComputer.isTypeCoercionPossible(expectedType.get, stepContentType)
 			if (withCoercion && coercionPossible) {
 				return #[coercionComputer.generateCoercion(expectedType.get, stepContentType, parameterString)]
 			}

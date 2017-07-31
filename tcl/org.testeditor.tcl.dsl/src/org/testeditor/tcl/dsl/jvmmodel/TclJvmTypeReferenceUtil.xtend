@@ -22,12 +22,13 @@ import javax.inject.Singleton
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.xtend.lib.annotations.Accessors
+import org.eclipse.xtext.common.types.JvmEnumerationType
 import org.eclipse.xtext.common.types.JvmTypeReference
-import org.eclipse.xtext.common.types.JvmUnknownTypeReference
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypeReferenceBuilder
 import org.eclipse.xtext.xbase.typesystem.conformance.TypeConformanceComputationArgument
 import org.eclipse.xtext.xbase.typesystem.references.StandardTypeReferenceOwner
 import org.eclipse.xtext.xbase.typesystem.util.CommonTypeComputationServices
+import org.slf4j.LoggerFactory
 
 /**
  * provide basic utility functions for JvmTypeReference(s)
@@ -38,6 +39,8 @@ import org.eclipse.xtext.xbase.typesystem.util.CommonTypeComputationServices
  */
 @Singleton
 class TclJvmTypeReferenceUtil {
+	
+	private static val log = LoggerFactory.getLogger(TclJvmTypeReferenceUtil)
 
 	@Accessors(PUBLIC_GETTER)
 	val checkWithoutBoxing = new TypeConformanceComputationArgument(false, false, false, false, false, true)
@@ -47,16 +50,21 @@ class TclJvmTypeReferenceUtil {
 	var StandardTypeReferenceOwner typeReferenceOwner
 	var JvmTypeReferenceBuilder typeReferenceBuilder
 	
-	@Inject ResourceSet resourceSet // useful for testing with models without actual resource set
+	@Inject ResourceSet resourceSet // injection useful for testing with models without actual resource set
 	@Inject JvmTypeReferenceBuilder.Factory typeReferenceBuilderFactory
 	
 	def void initWith(ResourceSet resourceSet) {
 		// cache a valid typeReferenceBuilder ?
 		if (resourceSet === null) {
+			log.debug('''type reference builder initialized with injected resource set.''')
 			typeReferenceBuilder = typeReferenceBuilderFactory.create(this.resourceSet) // useful for testing with models without resources
-		} else if (this.resourceSet.allContents.empty) {
+		} else if (resourceSet !== this.resourceSet || typeReferenceBuilder === null) {
+			log.debug('''type reference build (re)initialized with different resource set.''')
 			typeReferenceBuilder = typeReferenceBuilderFactory.create(resourceSet)
 			this.resourceSet = resourceSet // overwrite injected one (which was injected for test purposes only)
+			this.typeReferenceOwner = null // failure to do this will result in different instances of type references, failing in object identity comparisons within the rcp
+		} else {
+			log.trace('''reusing cached type reference builder.''')
 		}
 	}
 	
@@ -74,19 +82,13 @@ class TclJvmTypeReferenceUtil {
 		}
 	}
 	
-	def JvmTypeReference buildFrom(Class<?> clazz, JvmTypeReference ... typeArgs) { // allow varargs (which is not supported by create methods, or so it seems)
+	def JvmTypeReference buildFrom(Class<?> clazz, JvmTypeReference ... typeArgs) {
 		ensureTypeReferenceBuilderInitialized
-		return _buildFrom(clazz, typeArgs)
-	}
-
-	private def JvmTypeReference create typeReferenceBuilder.typeRef(clazz, typeArgs) _buildFrom(Class<?> clazz, JvmTypeReference[] typeArgs) {
-		if (it instanceof JvmUnknownTypeReference) {
-			throw new RuntimeException('''Cannot create reference for type '«clazz.name»', initWith was probably called with wrong resourceset.''')
-		} 
+		return typeReferenceBuilder.typeRef(clazz, typeArgs) // type reference build is already caching
 	}
 
 	def boolean isJsonArray(JvmTypeReference typeReference) {
-		jsonArrayJvmTypeReference.qualifiedName == typeReference?.qualifiedName // let's see if this works
+		jsonArrayJvmTypeReference.qualifiedName == typeReference?.qualifiedName
 	}
 
 	def boolean isJsonObject(JvmTypeReference typeReference) {
@@ -128,9 +130,6 @@ class TclJvmTypeReferenceUtil {
 		TypeConformanceComputationArgument argument) {
 		if (typeReferenceOwner === null) {
 			typeReferenceOwner = new StandardTypeReferenceOwner(services, resourceSet)
-		}
-		if (target.qualifiedName == source.qualifiedName) { // TODO: recheck! workaround for a bug, where two types that boil down to java.lang.String were deemed NOT assignable
-			return true
 		}
 		val lleft = typeReferenceOwner.toLightweightTypeReference(target)
 		var lright = typeReferenceOwner.toLightweightTypeReference(source)
@@ -200,8 +199,16 @@ class TclJvmTypeReferenceUtil {
 		return BigDecimal.buildFrom
 	}
 	
+	def JvmTypeReference enumJvmTypeReference() {
+		return Enum.buildFrom
+	}
+	
 	def JvmTypeReference numberJvmTypeReference() {
 		return Number.buildFrom
+	}
+	
+	def boolean isEnum(JvmTypeReference reference) {
+		return enumJvmTypeReference.isAssignableFrom(reference)
 	}
 
 	def boolean isNumber(JvmTypeReference reference) {
@@ -211,6 +218,11 @@ class TclJvmTypeReferenceUtil {
 	
 	def boolean isANumber(JvmTypeReference reference) {
 		return numberJvmTypeReference.isAssignableFrom(reference) // including boxing
+	}
+	
+	def Iterable<String> getEnumValues(JvmTypeReference reference) {
+		val enumType = reference.type as JvmEnumerationType
+		return enumType.literals.map[simpleName]
 	}
 
 }

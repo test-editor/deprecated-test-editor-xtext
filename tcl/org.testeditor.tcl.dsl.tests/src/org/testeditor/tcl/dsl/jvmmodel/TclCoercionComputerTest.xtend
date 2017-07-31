@@ -1,5 +1,6 @@
 package org.testeditor.tcl.dsl.jvmmodel
 
+import java.time.DayOfWeek
 import javax.inject.Inject
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.xtext.common.types.JvmTypeReference
@@ -35,13 +36,50 @@ class TclCoercionComputerTest extends AbstractTclTest {
 	private def Iterable<JvmTypeReference> allKnownTypes() {
 		return #[
 			stringJvmTypeReference,
-			jsonElementJvmTypeReference // as a representative of all json object types
+			jsonElementJvmTypeReference, // as a representative of all json object types
+			enumJvmTypeReference
 		] + booleanTypes + numericTypes
 	}
 
 	private def Iterable<Pair<JvmTypeReference, JvmTypeReference>> illegalCoercionTypePairs() {
 		// illegal coercion is boolean <-> numeric type in any permutation 
-		return getAllPairs(booleanTypes, numericTypes) + getAllPairs(numericTypes, booleanTypes)
+		return getAllPairs(booleanTypes, numericTypes)
+		       + getAllPairs(numericTypes, booleanTypes)
+		       + getAllPairs(booleanTypes + numericTypes, #[enumJvmTypeReference])
+		       + getAllPairs(#[enumJvmTypeReference], booleanTypes + numericTypes)
+	}
+	
+	private def Iterable<Iterable<Object>> validValueFromStringCoercion() {
+		return
+		#[
+			#[ intPrimitiveJvmTypeReference,           "123" ],
+			#[ intObjectJvmTypeReference,              "123" ],
+			#[ longPrimitiveJvmTypeReference,          "123" ],
+			#[ longObjectJvmTypeReference,             "123" ],
+			#[ booleanPrimitiveJvmTypeReference,       "true" ],
+			#[ booleanObjectJvmTypeReference,          "false" ],
+			#[ numberJvmTypeReference,                 "123" ],
+			#[ stringJvmTypeReference,                 "some string" ],
+			#[ jsonElementJvmTypeReference,            '''{ "key": 123 }'''.toString ],
+			#[ bigDecimalJvmTypeReference,             "12323948573945867543985794328579438575845" ],
+			#[ typeReferenceUtil.buildFrom(DayOfWeek), "MONDAY" ]
+		]
+	}
+	
+	private def Iterable<Iterable<Object>> invalidValueFromStringCoercion() {
+		return
+		#[
+			#[ intPrimitiveJvmTypeReference,           "123e5" ],
+			#[ intObjectJvmTypeReference,              "A00" ],
+			#[ longPrimitiveJvmTypeReference,          "HEX" ],
+			#[ longObjectJvmTypeReference,             "123e7" ],
+			#[ booleanPrimitiveJvmTypeReference,       "truthy" ],
+			#[ booleanObjectJvmTypeReference,          "falsy" ],
+			#[ numberJvmTypeReference,                 "a123xy10" ],
+			#[ jsonElementJvmTypeReference,            "no json" ],
+			#[ bigDecimalJvmTypeReference,             "aha" ],
+			#[ typeReferenceUtil.buildFrom(DayOfWeek), "MONDAX" ]
+		]
 	}
 	
 	private def Iterable<Iterable<Object>> legalCoercionData() {
@@ -69,6 +107,8 @@ class TclCoercionComputerTest extends AbstractTclTest {
 			#[ jsonElementJvmTypeReference,      jsonElementJvmTypeReference,      'data',                                                             ''],
 			#[ bigDecimalJvmTypeReference,       bigDecimalJvmTypeReference,       'data',                                                             ''],
 			
+			#[ enumJvmTypeReference,             enumJvmTypeReference,             'data',                                                             ''],
+			
 			// coercion from json (always true, access is done through expected type)
 			#[ booleanObjectJvmTypeReference,    jsonElementJvmTypeReference,      'data.getAsJsonPrimitive().getAsBoolean()',                         'org.junit.Assert.assertTrue("msg", data.getAsJsonPrimitive().isBoolean());'],
 			#[ booleanPrimitiveJvmTypeReference, jsonElementJvmTypeReference,      'data.getAsJsonPrimitive().getAsBoolean()',                         'org.junit.Assert.assertTrue("msg", data.getAsJsonPrimitive().isBoolean());'],
@@ -79,6 +119,7 @@ class TclCoercionComputerTest extends AbstractTclTest {
 			#[ bigDecimalJvmTypeReference,       jsonElementJvmTypeReference,      'data.getAsJsonPrimitive().getAsBigDecimal()',                      'org.junit.Assert.assertTrue("msg", data.getAsJsonPrimitive().isNumber());'],
 			#[ numberJvmTypeReference,           jsonElementJvmTypeReference,      'data.getAsJsonPrimitive().getAsNumber()',                          'org.junit.Assert.assertTrue("msg", data.getAsJsonPrimitive().isNumber());'],
 			#[ stringJvmTypeReference,           jsonElementJvmTypeReference,      'data.getAsJsonPrimitive().getAsString()',                          'org.junit.Assert.assertTrue("msg", data.getAsJsonPrimitive().isString());'],
+			#[ enumJvmTypeReference,             jsonElementJvmTypeReference,      'java.lang.Enum.valueOf(data.getAsJsonPrimitive().getAsString())',  'try { java.lang.Enum.valueOf(data.getAsJsonPrimitive().getAsString()); } catch (IllegalArgumentException ia) { org.junit.Assert.fail("msg"); }' ],
 			
 			// coercion to string (always true)
 			#[ stringJvmTypeReference,           booleanObjectJvmTypeReference,    'Boolean.toString(data)',                                           ''],
@@ -89,6 +130,7 @@ class TclCoercionComputerTest extends AbstractTclTest {
 			#[ stringJvmTypeReference,           intPrimitiveJvmTypeReference,     'Integer.toString(data)',                                           ''],
 			#[ stringJvmTypeReference,           bigDecimalJvmTypeReference,       'data.toString()',                                                  ''],
 			#[ stringJvmTypeReference,           numberJvmTypeReference,           'String.valueOf(data)',                                             ''],
+			#[ stringJvmTypeReference,           enumJvmTypeReference,             'data.toString()',                                                  ''],
 
 			// coercion to json (needs parsing)
 			#[ jsonElementJvmTypeReference,      booleanObjectJvmTypeReference,    'new com.google.gson.JsonParser().parse(Boolean.toString(data))',   ''],
@@ -100,6 +142,7 @@ class TclCoercionComputerTest extends AbstractTclTest {
 			#[ jsonElementJvmTypeReference,      numberJvmTypeReference,           'new com.google.gson.JsonParser().parse(data)',                     ''],
 			#[ jsonElementJvmTypeReference,      stringJvmTypeReference,           'new com.google.gson.JsonParser().parse("\\""+data+"\\"")',         ''],
 			#[ jsonElementJvmTypeReference,      bigDecimalJvmTypeReference,       'new com.google.gson.JsonParser().parse(data.toString())',          ''],
+			#[ jsonElementJvmTypeReference,      enumJvmTypeReference,             'new com.google.gson.JsonParser().parse("\\""+data.toString()+"\\"")', ''],
 			
 			// coercion from string (always true, needs parsing though)
 			#[ booleanObjectJvmTypeReference,    stringJvmTypeReference,           'Boolean.valueOf(data)',                                            'org.junit.Assert.assertTrue("msg", Boolean.TRUE.toString().equals(data) || Boolean.FALSE.toString().equals(data));'],
@@ -110,6 +153,7 @@ class TclCoercionComputerTest extends AbstractTclTest {
 			#[ longPrimitiveJvmTypeReference,    stringJvmTypeReference,           'Long.parseLong(data)',                                             'try { Long.parseLong(data); } catch (NumberFormatException nfe) { org.junit.Assert.fail("msg"); }'],
 			#[ bigDecimalJvmTypeReference,       stringJvmTypeReference,           'new java.math.BigDecimal(data)',                                   'try { new java.math.BigDecimal(data); } catch (NumberFormatException nfe) { org.junit.Assert.fail("msg"); }'],
 			#[ numberJvmTypeReference,           stringJvmTypeReference,           'java.text.NumberFormat.getInstance().parse(data)',                 'try { java.text.NumberFormat.getInstance().parse(data); } catch (java.text.ParseException pe) { org.junit.Assert.fail("msg"); }'],
+			#[ enumJvmTypeReference,             stringJvmTypeReference,           'java.lang.Enum.valueOf(data)',                                     'try { java.lang.Enum.valueOf(data); } catch (IllegalArgumentException ia) { org.junit.Assert.fail("msg"); }'],
 			
 			// coercion int <- numeric type
 			#[ intObjectJvmTypeReference,        longObjectJvmTypeReference,       'java.lang.Math.toIntExact(data)',                                  'try { java.lang.Math.toIntExact(data); } catch (ArithmeticException ae) { org.junit.Assert.fail("msg"); }'],
@@ -162,7 +206,7 @@ class TclCoercionComputerTest extends AbstractTclTest {
 			val source = second
 
 			// when
-			val result = coercionComputer.isCoercionPossible(target, source)
+			val result = coercionComputer.isTypeCoercionPossible(target, source)
 
 			// then
 			assertFalse(result, '''Coercible should be impossible for targetType = '«target?.qualifiedName»' and sourceType = '«source?.qualifiedName»'. ''')
@@ -198,7 +242,7 @@ class TclCoercionComputerTest extends AbstractTclTest {
 			val source = get(1) as JvmTypeReference
 
 			// when
-			val result = coercionComputer.isCoercionPossible(target, source)
+			val result = coercionComputer.isTypeCoercionPossible(target, source)
 
 			// then
 			assertTrue(result, '''Coercion must be possible for targetType = '«target?.qualifiedName»' and sourceType = '«source?.qualifiedName»'. ''')
@@ -260,6 +304,57 @@ class TclCoercionComputerTest extends AbstractTclTest {
 	}
 	
 	@Test
+	def void testThatValueCoercionsAreExecuted() {
+		validValueFromStringCoercion.forEach [ testEntry |
+			// given
+			val value = testEntry.get(1) as String
+			val targetType = testEntry.get(0) as JvmTypeReference
+
+			// when
+			val coercible = coercionComputer.isValueCoercionPossible(targetType, stringJvmTypeReference, value)
+
+			// then
+			coercible.assertTrue('''failing to coerce value = '«value»' to targetType = '«targetType.qualifiedName»'  ''')
+		]
+	}
+
+	@Test
+	def void testThatInvalidValueCoercionsAreRejected() {
+		invalidValueFromStringCoercion.forEach [ testEntry |
+			// given
+			val value = testEntry.get(1) as String
+			val targetType = testEntry.get(0) as JvmTypeReference
+
+			// when
+			val coercible = coercionComputer.isValueCoercionPossible(targetType, stringJvmTypeReference, value)
+
+			// then
+			coercible.assertFalse('''Coercion must fail from value = '«value»' to targetType = '«targetType.qualifiedName»'  ''')
+		]
+	}
+
+	@Test
+	def void validateThatAllKnownTypesAreCheckedForValueCoercion() {
+		allKnownTypes.forEach[ typeRef |
+			// enum is checked via DummyEnum and can thus not be checked by type name equality
+			val found = validValueFromStringCoercion.map[get(0)].filter(JvmTypeReference).exists[typeNameEquals(typeRef) || (typeRef.isEnum && isEnum)]
+
+			found.assertTrue('''known type = '«typeRef.qualifiedName»' was not found in validValueFromStringCoercion tests.''')
+		]
+	}
+	
+	@Test
+	def void validateThatAllKnownTypesAreCheckedForInvalidValueCoercion() {
+		allKnownTypes.forEach[ typeRef |
+			// string itself is not tested to have a invalid coercion, since it is not coerced
+			// enum is checked via DummyEnum and can thus not be checked by type name equality
+			val found = invalidValueFromStringCoercion.map[get(0)].filter(JvmTypeReference).exists[typeNameEquals(typeRef) || (typeRef.isEnum && isEnum)]|| typeRef.isString
+
+			found.assertTrue('''known type = '«typeRef.qualifiedName»' was not found in invalidValueFromStringCoercion tests.''')
+		]
+	}
+	
+	@Test
 	def void testThatAllCombinationsAreEitherCoercibleOrNonCoercible() {
 		// ------------- given
 		getAllPairs(allKnownTypes, allKnownTypes).forEach [ pair |
@@ -267,7 +362,7 @@ class TclCoercionComputerTest extends AbstractTclTest {
 			val typeB = pair.second
 			
 			// ------------- when 
-			val coercible = coercionComputer.isCoercionPossible(typeA, typeB)
+			val coercible = coercionComputer.isTypeCoercionPossible(typeA, typeB)
 			if (coercible) {
 				try {
 					// ------------- then coercion must be possible 
