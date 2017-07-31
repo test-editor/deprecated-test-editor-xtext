@@ -14,8 +14,6 @@ package org.testeditor.rcp4.tcltestrun
 
 import java.io.File
 import java.io.OutputStream
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
 import java.util.List
 import java.util.Map
 import javax.inject.Inject
@@ -24,6 +22,7 @@ import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.IStatus
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.slf4j.LoggerFactory
+import org.testeditor.dsl.common.ide.util.FileUtils
 import org.testeditor.dsl.common.ui.utils.ProjectUtils
 import org.testeditor.dsl.common.util.MavenExecutor
 import org.testeditor.dsl.common.util.MavenExecutor.MavenVersionValidity
@@ -75,7 +74,7 @@ public class TclMavenLauncher implements TclLauncher {
 		mavenExecutor.executeInNewJvm("help:all-profiles", project.location.toOSString, '''output=«PROFILE_TXT_PATH»''',
 			new NullProgressMonitor, System.out)
 		val file = new File('''«project.location.toOSString»/«PROFILE_TXT_PATH»''')
-		val profileOutput = Files.readAllLines(file.toPath, StandardCharsets.UTF_8)
+		val profileOutput = FileUtils.readAllLines(file)
 		return profileOutput.filter[contains("Profile Id:")].map [
 			substring(indexOf("Id:") + 3, indexOf("(")).trim
 		].toSet
@@ -84,5 +83,5 @@ public class TclMavenLauncher implements TclLauncher {
 	def MavenVersionValidity getMavenVersionValidity(){
 		return mavenExecutor.mavenVersionValidity
 	}
-
+	
 }

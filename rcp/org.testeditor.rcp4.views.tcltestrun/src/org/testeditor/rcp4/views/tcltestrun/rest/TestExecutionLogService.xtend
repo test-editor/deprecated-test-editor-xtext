@@ -14,7 +14,7 @@ package org.testeditor.rcp4.views.tcltestrun.rest
 
 import com.google.gson.Gson
 import java.io.FileInputStream
-import java.nio.file.Files
+import javax.inject.Inject
 import javax.ws.rs.DELETE
 import javax.ws.rs.GET
 import javax.ws.rs.Path
@@ -23,6 +23,7 @@ import javax.ws.rs.Produces
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 import org.eclipse.xtend.lib.annotations.Accessors
+import org.testeditor.dsl.common.ide.util.FileUtils
 import org.testeditor.rcp4.views.tcltestrun.model.Link
 import org.testeditor.rcp4.views.tcltestrun.model.TestExecutionManager
 import org.testeditor.rcp4.views.tcltestrun.model.TestLogGroupBuilder
@@ -71,7 +72,7 @@ class TestExecutionLogService {
 	def Response getTestLogExecutionTestStepTree(@PathParam("filename") String filename) {
 		val entries = testExecutionManager.testExecutionLogs.entries
 		val log = entries.findFirst[logDir.parentFile.name == filename]
-		log.logGroups = new TestLogGroupBuilder().build(Files.readAllLines(log.logDir.toPath))
+		log.logGroups = new TestLogGroupBuilder().build(FileUtils.readAllLines(log.logDir).toList)
 		log.links = createLinks(filename)
 		val gson = new Gson
 		return Response.ok(gson.toJson(log)).build
