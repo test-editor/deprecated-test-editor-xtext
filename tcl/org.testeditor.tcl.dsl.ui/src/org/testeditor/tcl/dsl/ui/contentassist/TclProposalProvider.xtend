@@ -21,13 +21,19 @@ import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.dsl.ui.contentassist.AmlProposalProvider
 import org.testeditor.tcl.TestStep
+import org.testeditor.tcl.dsl.jvmmodel.SimpleTypeComputer
+import org.testeditor.tcl.dsl.jvmmodel.TclJvmTypeReferenceUtil
 import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.tsl.StepContentText
+import org.testeditor.tsl.StepContentVariable
 
 class TclProposalProvider extends AbstractTclProposalProvider {
 
 	@Inject extension TclModelUtil
 	@Inject extension ModelUtil
 	@Inject AmlProposalProvider amlProposalProvider
+	@Inject TclJvmTypeReferenceUtil typeUtil
+	@Inject SimpleTypeComputer typeComputer
 
 	override completeTestCase_Steps(EObject model, Assignment assignment, ContentAssistContext context,
 		ICompletionProposalAcceptor acceptor) {
@@ -76,6 +82,28 @@ class TclProposalProvider extends AbstractTclProposalProvider {
 					val proposal = '''<«name»«IF includeClosingBracket»>«ENDIF»'''
 					acceptor.accept(createCompletionProposal(proposal, displayString, image, context))
 				]
+			}
+		}
+	}
+	
+	override completeStepContentText_Value(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		super.completeStepContentText_Value(model, assignment, context, acceptor)
+		if (model instanceof TestStep) {
+			val interaction = model.interaction
+			if (interaction !== null && context.previousModel instanceof StepContentText && context.prefix == '"') {
+				// get position of this variable
+				typeUtil.initWith(assignment.eResource) // init before usage!
+				val stepContentVariable = model.contents.dropWhile[it!==context.previousModel].drop(1).head
+                if (stepContentVariable instanceof StepContentVariable) {
+					val expectedType = typeComputer.getExpectedType(stepContentVariable, interaction)
+					if (expectedType.present && typeUtil.isEnum(expectedType.get)) {
+						typeUtil.getEnumValues(expectedType.get).forEach[
+							val displayString = '''«it» (type: «expectedType.get.qualifiedName»)'''
+							val proposal = '''"«it»'''
+							acceptor.accept(createCompletionProposal(proposal, displayString, null, context))
+						]
+					}
+				}
 			}
 		}
 	}

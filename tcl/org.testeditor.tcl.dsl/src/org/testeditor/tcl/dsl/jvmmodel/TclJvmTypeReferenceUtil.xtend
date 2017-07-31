@@ -22,6 +22,7 @@ import javax.inject.Singleton
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.xtend.lib.annotations.Accessors
+import org.eclipse.xtext.common.types.JvmEnumerationType
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypeReferenceBuilder
 import org.eclipse.xtext.xbase.typesystem.conformance.TypeConformanceComputationArgument
@@ -217,6 +218,11 @@ class TclJvmTypeReferenceUtil {
 	
 	def boolean isANumber(JvmTypeReference reference) {
 		return numberJvmTypeReference.isAssignableFrom(reference) // including boxing
+	}
+	
+	def Iterable<String> getEnumValues(JvmTypeReference reference) {
+		val enumType = reference.type as JvmEnumerationType
+		return enumType.literals.map[simpleName]
 	}
 
 }
