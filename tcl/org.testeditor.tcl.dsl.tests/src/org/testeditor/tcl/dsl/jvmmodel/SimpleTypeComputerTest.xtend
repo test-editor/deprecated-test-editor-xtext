@@ -266,8 +266,8 @@ class SimpleTypeComputerTest extends AbstractParserTest {
 		stepContentTypePairs.assertSize(2) => [
 			get(0) => [
 				key.assertInstanceOf(StepContentElement)
-			    value.get.qualifiedName.assertEquals(String.name)
-		    ]
+				value.get.qualifiedName.assertEquals(String.name)
+			]
 			get(1) => [
 				key.assertInstanceOf(StepContentValue)
 				value.get.qualifiedName.assertEquals(DummyEnum.name)

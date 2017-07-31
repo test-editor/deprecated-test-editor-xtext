@@ -136,7 +136,7 @@ class TclExpressionTypeComputer {
 	def boolean coercibleTo(Expression expression, JvmTypeReference wantedType) {
 		coercionComputer.initWith(expression.eResource)
 		val expressionType = determineType(expression, Optional.of(wantedType))
-		return coercionComputer.isCoercionPossible(wantedType, expressionType)
+		return coercionComputer.isTypeCoercionPossible(wantedType, expressionType)
 	}
 	
 	def JvmTypeReference moreSpecificType(JvmTypeReference left, JvmTypeReference right) {

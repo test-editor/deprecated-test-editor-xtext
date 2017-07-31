@@ -23,6 +23,7 @@ import org.eclipse.xtext.common.types.JvmTypeReference
 import org.slf4j.LoggerFactory
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentVariable
+import com.google.common.annotations.VisibleForTesting
 
 /** 
  * compute whether and how coercion should be generated
@@ -44,56 +45,69 @@ class TclCoercionComputer {
 		typeReferenceUtil.initWith(resourceSet)
 	}
 
-	def boolean isCoercionPossible(JvmTypeReference targetType, JvmTypeReference sourceType, String value) {
+	/**
+	 * is the coercion of sourceValue (in string representation) of sourceType into targetType possible?
+	 */
+	@VisibleForTesting 
+	def boolean isValueCoercionPossible(JvmTypeReference targetType, JvmTypeReference sourceType, String sourceValue) {
 		try {
 			switch (targetType) {
 				case targetType.isString:
 					return true
 				case targetType.isLong: {
-					Long.valueOf(value) // exception caught by enclosing try
+					Long.valueOf(sourceValue) // exception caught by enclosing try
 					return true
 				}
 				case targetType.isBoolean:
-					return Boolean.TRUE.toString.equals(value) || Boolean.FALSE.toString.equals(value)
+					return Boolean.TRUE.toString.equals(sourceValue) || Boolean.FALSE.toString.equals(sourceValue)
 				case targetType.isInt: {
-					Integer.valueOf(value) // exception caught by enclosing try
+					Integer.valueOf(sourceValue) // exception caught by enclosing try
 					return true
 				}
 				case targetType.isJson: {
-					new JsonParser().parse(value) // exception caught by enclosing try
+					new JsonParser().parse(sourceValue) // exception caught by enclosing try
 					return true
 				}
 				case targetType.isNumber: {
-					NumberFormat.instance.parse(value) // exception caught by enclosing try
+					NumberFormat.instance.parse(sourceValue) // exception caught by enclosing try
 					return true
 				}
 				case targetType.isBigDecimal: {
-					new BigDecimal(value) // exception caught by enclosing try
+					new BigDecimal(sourceValue) // exception caught by enclosing try
 					return true
 				}
 				case targetType.isEnum: {
 					val enumType = (targetType.type as JvmEnumerationType)
-					return enumType.literals.exists[simpleName == value]
+					return enumType.literals.exists[simpleName == sourceValue]
 				}
 			}
 		} catch (Exception e) {
-			logger.trace('''Exception while coercing value = '«value»' to enum type = '«targetType.qualifiedName»'.''', e)
+			logger.trace('''Exception while coercing value = '«sourceValue»' to enum type = '«targetType.qualifiedName»'.''', e)
 			return false
 		}
 		return false
 	}
 	
+	/** 
+	 * is coercion possible as far as information is available?
+	 * 
+	 * StepContentVariables, which pass constants to the fixture can be checked for their value,
+	 * whereas all other StepContents can only be checked for basic type coercion capabilities.
+	 */
 	def boolean isCoercionPossible(JvmTypeReference targetType, JvmTypeReference sourceType, StepContent content) {
-		val typesAreCoercible = isCoercionPossible(targetType, sourceType)
+		val typesAreCoercible = isTypeCoercionPossible(targetType, sourceType)
 		if (typesAreCoercible && content instanceof StepContentVariable) {
 			val value = (content as StepContentVariable).value
-			return isCoercionPossible(targetType, sourceType, value)
+			return isValueCoercionPossible(targetType, sourceType, value)
 		} else {
 			return typesAreCoercible
 		}
 	}
 	
-	def boolean isCoercionPossible(JvmTypeReference targetType, JvmTypeReference sourceType) {
+	/**
+	 * is the coercion of sourceType into targetType basically possible (only if the  (yet unknown) value can be interpreted within the target type)?
+	 */
+	def boolean isTypeCoercionPossible(JvmTypeReference targetType, JvmTypeReference sourceType) {
 		switch targetType {
 			case targetType.isString : return sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber || sourceType.isBoolean || sourceType.isJson || sourceType.isString || sourceType.isEnum
 			case targetType.isLong: return sourceType.isString || sourceType.isJson || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber
@@ -107,9 +121,13 @@ class TclCoercionComputer {
 		return false
 	}
 	
+	/**
+	 * generate guard code that will check whether dynamic values can actually be coerced intot he target type 
+	 * (for which static decisions cannot be made)
+	 */
 	def String generateCoercionGuard(JvmTypeReference targetType, JvmTypeReference sourceType, String sourceValue, String quotedErrorMessage) {
 		val coercionErrorMessage = '''Coercion not possible from sourceType = '«sourceType?.qualifiedName»' to targetType= '«targetType?.qualifiedName»'.'''
-		if (isCoercionPossible(targetType, sourceType)) {
+		if (isTypeCoercionPossible(targetType, sourceType)) {
 			switch targetType {
 				case targetType.isInt:
 					if (sourceType.isInt) {
@@ -181,7 +199,7 @@ class TclCoercionComputer {
 						return '''try { «targetType.qualifiedName».valueOf(«sourceValue»); } catch (IllegalArgumentException ia) { org.junit.Assert.fail(«quotedErrorMessage»); }'''
 					} else if (sourceType.isJson) {
 						return '''try { «targetType.qualifiedName».valueOf(«sourceValue»«generateJsonElementAccess(stringJvmTypeReference)»); } catch (IllegalArgumentException ia) { org.junit.Assert.fail(«quotedErrorMessage»); }'''
-					} else if ((sourceType.isEnum) && isAssignableFrom(targetType, sourceType)) {
+					} else if (sourceType.isEnum && isAssignableFrom(targetType, sourceType)) {
 						return ''
 					} else {
 						throw new RuntimeException(coercionErrorMessage)
@@ -193,115 +211,116 @@ class TclCoercionComputer {
 		}
 	}
 	
-	def String generateCoercion(JvmTypeReference targetType, JvmTypeReference sourceType, String sourceValue) {
+	/** generate coercion code for dynamically retrieved values for which static decisions cannot be made */
+	def String generateCoercion(JvmTypeReference targetType, JvmTypeReference sourceType, String sourceValueAccess) {
 		val coercionErrorMessage = '''Coercion not possible from sourceType = '«sourceType?.qualifiedName»' to targetType= '«targetType?.qualifiedName»'.'''
-		if (isCoercionPossible(targetType, sourceType)) {
+		if (isTypeCoercionPossible(targetType, sourceType)) {
 			switch (targetType) {
 				case targetType.isNumber:
 					if (sourceType.isJson) {
-						return '''«sourceValue»«generateJsonElementAccess(targetType)»'''
+						return '''«sourceValueAccess»«generateJsonElementAccess(targetType)»'''
 					} else if (sourceType.isInt || sourceType.isLong || sourceType.isBigDecimal || sourceType.isNumber || sourceType.isANumber) {
-						return sourceValue
+						return sourceValueAccess
 					} else if (sourceType.isString) {
-						return '''java.text.NumberFormat.getInstance().parse(«sourceValue»)'''
+						return '''java.text.NumberFormat.getInstance().parse(«sourceValueAccess»)'''
 					} else {
 						throw new RuntimeException(coercionErrorMessage)
 					}
 				case targetType.isJson:
 					if (sourceType.isString) {
-						return jsonParseInstruction('''"\""+«sourceValue»+"\""''')
+						return jsonParseInstruction('''"\""+«sourceValueAccess»+"\""''')
 					} else if (sourceType.isInt) {
-						return jsonParseInstruction('''Integer.toString(«sourceValue»)''')
+						return jsonParseInstruction('''Integer.toString(«sourceValueAccess»)''')
 					} else if (sourceType.isLong) {
-						return jsonParseInstruction('''Long.toString(«sourceValue»)''')
+						return jsonParseInstruction('''Long.toString(«sourceValueAccess»)''')
 					} else if (sourceType.isBoolean) {
-						return jsonParseInstruction('''Boolean.toString(«sourceValue»)''')
+						return jsonParseInstruction('''Boolean.toString(«sourceValueAccess»)''')
 					} else if (sourceType.isJson) {
-						return sourceValue
+						return sourceValueAccess
 					} else if (sourceType.isNumber) {
-						return jsonParseInstruction('''«sourceValue»''')
+						return jsonParseInstruction('''«sourceValueAccess»''')
 					} else if (sourceType.isEnum) {
-						return jsonParseInstruction('''"\""+«sourceValue».toString()+"\""''')
+						return jsonParseInstruction('''"\""+«sourceValueAccess».toString()+"\""''')
 					} else {
-						return jsonParseInstruction('''«sourceValue».toString()''')
+						return jsonParseInstruction('''«sourceValueAccess».toString()''')
 					}
 				case targetType.isInt:
 					if (sourceType.isString) {
-						return '''Integer.parseInt(«sourceValue»)'''
+						return '''Integer.parseInt(«sourceValueAccess»)'''
 					} else if (sourceType.isLong) {
-						return '''java.lang.Math.toIntExact(«sourceValue»)'''
+						return '''java.lang.Math.toIntExact(«sourceValueAccess»)'''
 					} else if (sourceType.isNumber) {
-						return sourceValue
+						return sourceValueAccess
 					} else if (sourceType.isBigDecimal) {
-						return '''«sourceValue».intValueExact()'''
+						return '''«sourceValueAccess».intValueExact()'''
 					} else if (sourceType.isInt) {
-						return sourceValue
+						return sourceValueAccess
 					} else if (sourceType.isJson) {
-						return '''«sourceValue»«generateJsonElementAccess(targetType)»'''
+						return '''«sourceValueAccess»«generateJsonElementAccess(targetType)»'''
 					} else {
 						throw new RuntimeException(coercionErrorMessage)
 					}
 				case targetType.isLong:
 					if (sourceType.isString) {
-						return '''Long.parseLong(«sourceValue»)'''
+						return '''Long.parseLong(«sourceValueAccess»)'''
 					} else if (sourceType.isNumber) {
-						return sourceValue
+						return sourceValueAccess
 					} else if (sourceType.isLong || sourceType.isInt) {
-						return sourceValue
+						return sourceValueAccess
 					} else if (sourceType.isBigDecimal) {
-						return '''«sourceValue».longValueExact()'''
+						return '''«sourceValueAccess».longValueExact()'''
 					} else if (sourceType.isJson) {
-						return '''«sourceValue»«generateJsonElementAccess(targetType)»'''
+						return '''«sourceValueAccess»«generateJsonElementAccess(targetType)»'''
 					} else {
 						throw new RuntimeException(coercionErrorMessage)
 					}
 				case targetType.isBoolean:
 					if (sourceType.isString) {
-						return '''Boolean.valueOf(«sourceValue»)'''
+						return '''Boolean.valueOf(«sourceValueAccess»)'''
 					} else if (sourceType.isBoolean) {
-						return sourceValue
+						return sourceValueAccess
 					} else if (sourceType.isJson) {
-						return '''«sourceValue»«generateJsonElementAccess(targetType)»'''
+						return '''«sourceValueAccess»«generateJsonElementAccess(targetType)»'''
 					} else {
 						throw new RuntimeException(coercionErrorMessage)
 					}
 				case targetType.isString:
 					if (sourceType.isString) {
-						return sourceValue
+						return sourceValueAccess
 					} else if (sourceType.isInt) {
-						return '''Integer.toString(«sourceValue»)'''
+						return '''Integer.toString(«sourceValueAccess»)'''
 					} else if (sourceType.isLong) {
-						return '''Long.toString(«sourceValue»)'''
+						return '''Long.toString(«sourceValueAccess»)'''
 					} else if (sourceType.isBoolean) {
-						return '''Boolean.toString(«sourceValue»)'''
+						return '''Boolean.toString(«sourceValueAccess»)'''
 					} else if (sourceType.isBigDecimal) {
-						return '''«sourceValue».toString()'''
+						return '''«sourceValueAccess».toString()'''
 					} else if (sourceType.isNumber) {
-						return '''String.valueOf(«sourceValue»)'''
+						return '''String.valueOf(«sourceValueAccess»)'''
 					} else if (sourceType.isJson) {
-						return '''«sourceValue»«generateJsonElementAccess(targetType)»'''
+						return '''«sourceValueAccess»«generateJsonElementAccess(targetType)»'''
 					} else if (sourceType.isEnum) {
-						return '''«sourceValue».toString()'''
+						return '''«sourceValueAccess».toString()'''
 					} else {
 						throw new RuntimeException(coercionErrorMessage)
 					}
 				case targetType.isBigDecimal:
 					if (sourceType.isBigDecimal) {
-						return sourceValue
+						return sourceValueAccess
 					} else if (sourceType.isJson) {
-						return '''«sourceValue»«generateJsonElementAccess(targetType)»'''
+						return '''«sourceValueAccess»«generateJsonElementAccess(targetType)»'''
 					} else if (sourceType.isInt || sourceType.isLong || sourceType.isString || sourceType.isNumber) {
-						return '''new java.math.BigDecimal(«sourceValue»)'''
+						return '''new java.math.BigDecimal(«sourceValueAccess»)'''
 					} else {
 						throw new RuntimeException(coercionErrorMessage)
 					}
 				case targetType.isEnum:
 					if (sourceType.isString) {
-						return '''«targetType.qualifiedName».valueOf(«sourceValue»)'''
+						return '''«targetType.qualifiedName».valueOf(«sourceValueAccess»)'''
 					} else if (sourceType.isJson) {
-						return '''«targetType.qualifiedName».valueOf(«sourceValue»«generateJsonElementAccess(stringJvmTypeReference)»)'''
+						return '''«targetType.qualifiedName».valueOf(«sourceValueAccess»«generateJsonElementAccess(stringJvmTypeReference)»)'''
 					} else if ((sourceType.isEnum) && isAssignableFrom(targetType, sourceType)) {
-						return '''«sourceValue»'''
+						return '''«sourceValueAccess»'''
 					} else {
 						throw new RuntimeException(coercionErrorMessage)
 					}
@@ -316,8 +335,8 @@ class TclCoercionComputer {
 	// naive implementation	of check whether the given types can be coerced to something that can be ordered (currently long only)
 	def boolean coercableToCommonOrderable(JvmTypeReference typeReferenceA, JvmTypeReference typeReferenceB) {
 		// currently only numericals are allowed
-		return isCoercionPossible(numberJvmTypeReference, typeReferenceA) &&
-			isCoercionPossible(numberJvmTypeReference, typeReferenceB)
+		return isTypeCoercionPossible(numberJvmTypeReference, typeReferenceA) &&
+			isTypeCoercionPossible(numberJvmTypeReference, typeReferenceB)
 	}
 	
 	def coercedCommonOrderableType(JvmTypeReference typeReferenceA, JvmTypeReference typeReferenceB) {
@@ -350,10 +369,10 @@ class TclCoercionComputer {
 		if (isAssignableFrom(typeReferenceB, typeReferenceA)) { // if assignable, then it is comparable, too
 			return typeReferenceB
 		}
-		if (isCoercionPossible(typeReferenceA, typeReferenceB)) {
+		if (isTypeCoercionPossible(typeReferenceA, typeReferenceB)) {
 			return typeReferenceA
 		}
-		if (isCoercionPossible(typeReferenceB, typeReferenceA)) {
+		if (isTypeCoercionPossible(typeReferenceB, typeReferenceA)) {
 			return typeReferenceB
 		}
 		throw new RuntimeException('''No coercible common comparable type found for typerefA='«typeReferenceA?.qualifiedName»' and typerefB='«typeReferenceB?.qualifiedName»'.''')
@@ -365,8 +384,8 @@ class TclCoercionComputer {
 			(isJsonType(typeReferenceA)) || (isJsonType(typeReferenceB)) ||
 			(isAssignableFrom(typeReferenceA, typeReferenceB)) ||
 			(isAssignableFrom(typeReferenceB, typeReferenceA)) ||
-			(isCoercionPossible(typeReferenceA, typeReferenceB)) ||
-			(isCoercionPossible(typeReferenceB, typeReferenceA)))
+			(isTypeCoercionPossible(typeReferenceA, typeReferenceB)) ||
+			(isTypeCoercionPossible(typeReferenceB, typeReferenceA)))
 	}
 	
 }

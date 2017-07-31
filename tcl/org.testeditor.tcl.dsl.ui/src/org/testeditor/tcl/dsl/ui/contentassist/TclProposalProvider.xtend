@@ -12,12 +12,15 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.ui.contentassist
 
+import java.util.Optional
 import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.Assignment
 import org.eclipse.xtext.RuleCall
+import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
+import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.dsl.ui.contentassist.AmlProposalProvider
 import org.testeditor.tcl.TestStep
@@ -86,26 +89,55 @@ class TclProposalProvider extends AbstractTclProposalProvider {
 		}
 	}
 	
-	override completeStepContentText_Value(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+	/**
+	 * provide content completion for value parameters that will be passed to fixtures expecting enums
+	 */
+	override completeStepContentText_Value(EObject model, Assignment assignment, ContentAssistContext context,
+		ICompletionProposalAcceptor acceptor) {
 		super.completeStepContentText_Value(model, assignment, context, acceptor)
 		if (model instanceof TestStep) {
-			val interaction = model.interaction
-			if (interaction !== null && context.previousModel instanceof StepContentText && context.prefix == '"') {
-				// get position of this variable
-				typeUtil.initWith(assignment.eResource) // init before usage!
-				val stepContentVariable = model.contents.dropWhile[it!==context.previousModel].drop(1).head
-                if (stepContentVariable instanceof StepContentVariable) {
-					val expectedType = typeComputer.getExpectedType(stepContentVariable, interaction)
-					if (expectedType.present && typeUtil.isEnum(expectedType.get)) {
-						typeUtil.getEnumValues(expectedType.get).forEach[
-							val displayString = '''«it» (type: «expectedType.get.qualifiedName»)'''
-							val proposal = '''"«it»'''
-							acceptor.accept(createCompletionProposal(proposal, displayString, null, context))
-						]
-					}
-				}
+			val stepContentVariable = locateStepContentVariableOfValueParameterUnderCursor(model, context)
+			val parameterType = stepContentVariable.expectedType(model.interaction)
+			if (stepContentVariable.present && parameterType.present) {
+				typeUtil.getEnumValues(parameterType.get).forEach [
+					val displayString = '''«it» (type: «parameterType.get.qualifiedName»)'''
+					val proposal = '''"«it»'''
+					acceptor.accept(createCompletionProposal(proposal, displayString, null, context))
+				]
 			}
 		}
+	}
+
+	/**
+	 * Locate the step content variable that is under the cursor when using a value to pass.
+	 * If not found, the optional is empty.
+	 * 
+	 * Example: Set port to "|8080", where | denotes the cursor position,
+	 *          will yield the step content variable defining the number parameter, that is used to pass 8080 to the fixture
+	 */
+	private def Optional<StepContentVariable> locateStepContentVariableOfValueParameterUnderCursor(TestStep model,
+		ContentAssistContext context) {
+		val interaction = Optional.ofNullable(model.interaction)
+		val previousElementIsText = context.previousModel instanceof StepContentText
+		val cursorBehindDoubleQuote = context.prefix == '"'
+		if (interaction.present && previousElementIsText && cursorBehindDoubleQuote) {
+			val stepContent = model.contents.dropWhile[it !== context.previousModel].drop(1).head
+			if (stepContent instanceof StepContentVariable) {
+				return Optional.of(stepContent)
+			}
+		}
+		return Optional.empty
+	}
+
+	/**
+	 * get the expected type of the step content variable
+	 */
+	private def Optional<JvmTypeReference> expectedType(Optional<StepContentVariable> stepContentVariable,
+		InteractionType interactionType) {
+		if (stepContentVariable.present) {
+			return typeComputer.getExpectedType(stepContentVariable.get, interactionType)
+		}
+		return Optional.empty
 	}
 	
 	/** Proposals for macro templates => should be same as in AML */

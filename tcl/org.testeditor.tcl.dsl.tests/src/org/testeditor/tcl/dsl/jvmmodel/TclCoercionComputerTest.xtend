@@ -206,7 +206,7 @@ class TclCoercionComputerTest extends AbstractTclTest {
 			val source = second
 
 			// when
-			val result = coercionComputer.isCoercionPossible(target, source)
+			val result = coercionComputer.isTypeCoercionPossible(target, source)
 
 			// then
 			assertFalse(result, '''Coercible should be impossible for targetType = '«target?.qualifiedName»' and sourceType = '«source?.qualifiedName»'. ''')
@@ -242,7 +242,7 @@ class TclCoercionComputerTest extends AbstractTclTest {
 			val source = get(1) as JvmTypeReference
 
 			// when
-			val result = coercionComputer.isCoercionPossible(target, source)
+			val result = coercionComputer.isTypeCoercionPossible(target, source)
 
 			// then
 			assertTrue(result, '''Coercion must be possible for targetType = '«target?.qualifiedName»' and sourceType = '«source?.qualifiedName»'. ''')
@@ -311,7 +311,7 @@ class TclCoercionComputerTest extends AbstractTclTest {
 			val targetType = testEntry.get(0) as JvmTypeReference
 
 			// when
-			val coercible = coercionComputer.isCoercionPossible(targetType, stringJvmTypeReference, value)
+			val coercible = coercionComputer.isValueCoercionPossible(targetType, stringJvmTypeReference, value)
 
 			// then
 			coercible.assertTrue('''failing to coerce value = '«value»' to targetType = '«targetType.qualifiedName»'  ''')
@@ -326,7 +326,7 @@ class TclCoercionComputerTest extends AbstractTclTest {
 			val targetType = testEntry.get(0) as JvmTypeReference
 
 			// when
-			val coercible = coercionComputer.isCoercionPossible(targetType, stringJvmTypeReference, value)
+			val coercible = coercionComputer.isValueCoercionPossible(targetType, stringJvmTypeReference, value)
 
 			// then
 			coercible.assertFalse('''Coercion must fail from value = '«value»' to targetType = '«targetType.qualifiedName»'  ''')
@@ -362,7 +362,7 @@ class TclCoercionComputerTest extends AbstractTclTest {
 			val typeB = pair.second
 			
 			// ------------- when 
-			val coercible = coercionComputer.isCoercionPossible(typeA, typeB)
+			val coercible = coercionComputer.isTypeCoercionPossible(typeA, typeB)
 			if (coercible) {
 				try {
 					// ------------- then coercion must be possible 
