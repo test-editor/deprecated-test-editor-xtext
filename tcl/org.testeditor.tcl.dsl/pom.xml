@@ -23,17 +23,6 @@
 			<version>3.1.0</version>
 		</dependency>
 	</dependencies>
-
-	<repositories>
-		<repository>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<id>bintray-test-editor-Fixtures</id>
-			<name>bintray</name>
-			<url>http://dl.bintray.com/test-editor/maven</url>
-		</repository>
-	</repositories>
 	
 	<build>
 		<pluginManagement>
