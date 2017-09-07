@@ -137,8 +137,11 @@ class TclLauncherUi implements Launcher {
 					collectTestResultFiles(result.expectedFileRoot, testResultDir)
 				}
 				monitor.done
+				// don't jump to the test exection result view any longer or make this configurable (someday)
+				/*
 				partHelper.showView(TEST_EXECUTION_RESULT_VIEW)
 				Display.^default.syncExec[testExecutionLogViewPart?.showLog(execLog)]
+				*/
 				return Status.OK_STATUS
 			}
 
