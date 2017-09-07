@@ -29,6 +29,7 @@
 	<modules>
 		<module>org.testeditor.rcp4.platform.feature</module>
 		<module>org.testeditor.rcp4.updatesite</module>
+		<module>org.testeditor.plugin.feature</module>
 		<module>org.testeditor.rcp4.feature</module>
 		<module>org.testeditor.rcp4.bootstrap</module>
 		<module>org.testeditor.rcp4.tcltestrun</module>
