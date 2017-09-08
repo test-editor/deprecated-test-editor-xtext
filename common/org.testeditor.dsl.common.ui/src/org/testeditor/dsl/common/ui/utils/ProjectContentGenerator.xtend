@@ -563,6 +563,14 @@ class ProjectContentGenerator {
 					<snapshots>
 						<enabled>false</enabled>
 					</snapshots>
+					<id>central</id>
+					<name>bintray</name>
+					<url>http://jcenter.bintray.com</url>
+				</pluginRepository>
+				<pluginRepository>
+					<snapshots>
+						<enabled>false</enabled>
+					</snapshots>
 					<id>test-editor-maven</id>
 					<name>bintray-plugins</name>
 					<url>http://dl.bintray.com/test-editor/maven</url>

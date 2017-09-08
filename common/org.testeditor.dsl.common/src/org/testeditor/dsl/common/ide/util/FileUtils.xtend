@@ -143,7 +143,7 @@ final class FileUtils {
 				var OutputStream outputStream
 				try {
 					inputStream = zipFile.getInputStream(zipEntry)
-					outputStream = com.google.common.io.Files.newOutputStreamSupplier(targetFile).output
+					outputStream = com.google.common.io.Files.asByteSink(targetFile).openBufferedStream
 					ByteStreams.copy(inputStream, outputStream)
 				} finally {
 					inputStream?.close

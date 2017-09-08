@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.testeditor.tcl.sdk"
-      label="Tcl SDK Feature "
+      id="org.testeditor.plugin.feature"
+      label="Additional testeditor plugins"
       version="1.8.0.qualifier">
 
    <description url="https://github.com/test-editor/test-editor-xtext">
-      Test Case Language feature set
+      This feature provides several additional plugins:
+* Test step selector view
+* Test execution of tcl files
    </description>
 
    <copyright>
-      Copyright (c) 2012 - 2015 Signal Iduna Corporation and others.
+      Copyright (c) 2012 - 2016 Signal Iduna Corporation and others.
 All rights reserved. This program and the accompanying materials
 are made available under the terms of the Eclipse Public License
 v1.0
@@ -26,49 +28,21 @@ itemis AG
    </license>
 
    <plugin
-         id="org.testeditor.tcl.dsl"
+         id="org.testeditor.rcp4.tcltestrun"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.testeditor.tcl.dsl.ui"
+         id="org.testeditor.rcp4.views.teststepselector"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.testeditor.tcl.model"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.testeditor.tcl.dsl.ide"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.testeditor.dsl.common"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.testeditor.logging"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.testeditor.dsl.common.model"
+         id="org.testeditor.rcp4.views.testview"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -80,5 +54,11 @@ itemis AG
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
+   <plugin
+         id="org.testeditor.rcp4.views.tcltestrun"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
 </feature>

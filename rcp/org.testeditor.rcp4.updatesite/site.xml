@@ -12,6 +12,9 @@
    <feature url="features/org.testeditor.rcp4.platform.feature_1.8.0.qualifier.jar" id="org.testeditor.rcp4.platform.feature" version="1.8.0.qualifier">
       <category name="platform"/>
    </feature>
+   <feature url="features/org.testeditor.plugin.feature_1.8.0.qualifier.jar" id="org.testeditor.plugin.feature" version="1.8.0.qualifier">
+      <category name="Testeditor"/>
+   </feature>
    <category-def name="Testeditor" label="Testeditor"/>
-   <category-def name="platform" label="Platform"/>
+   <category-def name="Platform" label="Platform"/>
 </site>

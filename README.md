@@ -2,18 +2,16 @@ test-editor-xtext
 =================
 
 [![License](http://img.shields.io/badge/license-EPL-blue.svg?style=flat)](https://www.eclipse.org/legal/epl-v10.html)
-[![Build Status](https://ci.testeditor.org/buildStatus/icon?job=test-editor/test-editor-xtext/develop)](https://ci.testeditor.org/view/Test-Editor%202/job/test-editor/job/test-editor-xtext/job/develop/)
 
 An Xtext based editor to specify domain-driven acceptance tests.
 
 ## Users
 
-The latest released version of the RCP can be found on the [Test-Editor CI](https://ci.testeditor.org/view/Test-Editor%202/job/test-editor/job/test-editor-xtext/job/master/lastStableBuild/artifact/rcp/org.testeditor.rcp4.product/target/products/)
-
 The latest released version of the plugins can be found on [bintray](https://bintray.com/test-editor/maven/test-editor).
 
-The latest (experimental) development version of the RCP can be downloaded from the [Test-Editor CI](https://ci.testeditor.org/job/test-editor/job/test-editor-xtext/job/develop/lastStableBuild/artifact/rcp/org.testeditor.rcp4.product/target/products/).
+## Plugin-Users
 
+When installing additional testeditor plugins, please provide an additional update site [Eclipse Source](http://hstaudacher.github.io/osgi-jax-rs-connector). This will allow additional dependencies to be resolved.
 
 ## Developers
 
@@ -52,3 +50,7 @@ The editor requires a JDK 1.8 in order to start. If your default system JVM is d
 The path depends on your operating system as described [here](https://wiki.eclipse.org/index.php?title=Eclipse.ini&redirect=no#Specifying_the_JVM). For example (Windows):
 
     C:\tools\jdk1.8.0_131\bin\javaw.exe
+
+### Tests cannot be started from the RCP / IDE, complaining about missing environment variable TE_MAVEN_HOME
+
+When using maven as test project build/run tool, please make sure to have the environment variable `TE_MAVEN_HOME` set to maven home.
