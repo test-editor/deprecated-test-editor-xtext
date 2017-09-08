@@ -1,17 +1,16 @@
 plugins {
-	id 'com.moowork.node' version '0.13'
+	id 'com.moowork.node' version '1.2.0'
+	id 'com.jfrog.bintray' version '1.7.3'
 }
 
 node {
-	version = '6.9.1'
-	npmVersion = '3.10.8'
+	version = '6.11.2'
+	npmVersion = '3.10.10'
 	workDir file("rcp/org.testeditor.web.testexecutionlogview/node")
 	download = true
 }
 
 def targetPlatform = "$projectDir/target-platform"
-
-def rrdAntlr4 = "rrd-antlr4-0.1.2.jar"
 
 task npmInstallDep(type: NpmTask, dependsOn: npmSetup){
 	group 'Node'
@@ -68,6 +67,38 @@ task buildProduct(type: MavenExec) {
     workingDir projectDir
     args 'package' , '-Pproduct', '-DskipTests', '-Dtycho.localArtifacts=ignore'
 }
+
+artifacts {
+    updatesite file('rcp/org.testeditor.rcp4.updatesite/target/site')
+}
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+    configurations = ['updatesite'] 
+    publish = true
+    pkg {
+        githubRepo = 'test-editor/test-editor-xtext'
+        githubReleaseNotesFile = 'README.md'
+        repo = 'p2'
+        name = 'updates'
+        userOrg = 'test-editor'
+        licenses = ['EPL-1.0']
+        websiteUrl = "https://github.com/${githubRepo}"
+        issueTrackerUrl = "https://github.com/${githubRepo}/issues"
+        vcsUrl = "${websiteUrl}.git"
+        version {
+            name = project.version
+            vcsTag = "v$project.version"
+        }
+    }
+}
+
+/**
+ * Rail-road diagram stuff below.
+ */
+
+def rrdAntlr4 = "rrd-antlr4-0.1.2.jar"
 
 def String buildNestedParenthesisRegex(int level) {
     def preParen = "(?<!')\\(" // opening braces ( must not be preceeded by a ' to avoid string constant matching
