@@ -1,6 +1,5 @@
 plugins {
 	id 'com.moowork.node' version '1.2.0'
-	id 'com.jfrog.bintray' version '1.7.3'
 }
 
 node {
@@ -66,32 +65,6 @@ task deploy(type: MavenExec) {
 task buildProduct(type: MavenExec) {
     workingDir projectDir
     args 'package' , '-Pproduct', '-DskipTests', '-Dtycho.localArtifacts=ignore'
-}
-
-artifacts {
-    updatesite file('rcp/org.testeditor.rcp4.updatesite/target/site')
-}
-
-bintray {
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_KEY')
-    configurations = ['updatesite'] 
-    publish = true
-    pkg {
-        githubRepo = 'test-editor/test-editor-xtext'
-        githubReleaseNotesFile = 'README.md'
-        repo = 'p2'
-        name = 'updates'
-        userOrg = 'test-editor'
-        licenses = ['EPL-1.0']
-        websiteUrl = "https://github.com/${githubRepo}"
-        issueTrackerUrl = "https://github.com/${githubRepo}/issues"
-        vcsUrl = "${websiteUrl}.git"
-        version {
-            name = project.version
-            vcsTag = "v$project.version"
-        }
-    }
 }
 
 /**
