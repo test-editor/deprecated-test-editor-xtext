@@ -1,5 +1,5 @@
+sudo: required # run on old container infrastructure for more memory
 language: java
-sudo: false
 jdk:
   - oraclejdk8
 cache:
