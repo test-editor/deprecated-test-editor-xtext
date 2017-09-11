@@ -2,7 +2,7 @@
 <feature
       id="org.testeditor.plugin.feature"
       label="Additional testeditor plugins"
-      version="1.8.0.qualifier">
+      version="1.8.0">
 
    <description url="https://github.com/test-editor/test-editor-xtext">
       This feature provides several additional plugins:

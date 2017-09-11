@@ -3,7 +3,7 @@
           xmlns='http://maven.apache.org/SETTINGS/1.0.0' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
     <servers>
         <server>
-            <id>bintray-test-editor-maven</id>
+            <id>bintray</id>
             <username>${env.BINTRAY_USER}</username>
             <password>${env.BINTRAY_KEY}</password>
         </server>
