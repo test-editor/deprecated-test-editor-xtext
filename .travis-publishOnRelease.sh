@@ -5,6 +5,11 @@ if [[ -n "$TRAVIS_TAG" && "$TRAVIS_TAG" == v* ]]; then
     version="${TRAVIS_TAG//v}"
     echo "Publishing version: $version"
 
+    # Deploy Maven artifacts
+    cp .travis.settings.xml $HOME/.m2/settings.xml
+    ./gradlew deploy
+
+    # Deploy P2 update site
     # Manually upload the p2 update site as the Gradle plugin simply does not work
     # see https://github.com/bintray/gradle-bintray-plugin/issues/87
     owner=test-editor

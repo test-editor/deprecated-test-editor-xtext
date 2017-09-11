@@ -1,5 +1,6 @@
 plugins {
 	id 'com.moowork.node' version '1.2.0'
+	id 'net.researchgate.release' version '2.4.0'
 }
 
 node {
@@ -65,6 +66,30 @@ task deploy(type: MavenExec) {
 task buildProduct(type: MavenExec) {
     workingDir projectDir
     args 'package' , '-Pproduct', '-DskipTests', '-Dtycho.localArtifacts=ignore'
+}
+
+task updateTargetVersion(type: MavenExec) {
+    workingDir targetPlatform
+    args 'org.eclipse.tycho:tycho-versions-plugin:set-version',
+        '-Dtycho.mode=maven', '-Dartifacts=org.testeditor.releng.target.parent',
+        "-DnewVersion=$project.version"
+}
+
+task updateMvnVersion(type: MavenExec) {
+    workingDir projectDir
+    args 'org.eclipse.tycho:tycho-versions-plugin:set-version',
+        '-Dtycho.mode=maven', '-Dartifacts=org.testeditor.releng.parent',
+        "-DnewVersion=$project.version"
+}
+
+beforeReleaseBuild.dependsOn(updateTargetVersion, updateMvnVersion)
+
+release {
+    preTagCommitMessage = '[release]'
+    tagCommitMessage = '[release]'
+    newVersionCommitMessage = '[release] new version'
+    tagTemplate = 'v${version}'
+    buildTasks = []
 }
 
 /**
