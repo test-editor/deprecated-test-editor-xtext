@@ -161,6 +161,7 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 				- longvar = Read long from <bar>
 				- stringvar = Read value from <bar>
 				- boolvar = Read bool from <bar>
+				- enumvar = Read enum from <bar>
 				
 				// usage of several types in map assignment
 				- jsonvar.key = jsonvar."some value"
@@ -174,6 +175,9 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 				- TypeLong @stringvar into <Input> // converion && check from String to long
 				- Type boolean @jsonvar.key5 into <Input> // conversion && check from String to boolean
 				- TypeLong @jsonvar.key6 into <Input> // converion && check from String to long
+				- Set enum of <Input> to @enumvar
+				- Set enum of <Input> to @stringvar
+				- Set enum of <Input> to "enum_a"
 			
 				Macro: GreetingApplicationMacro
 				// usage of several types in macro calls
@@ -196,6 +200,8 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			java.lang.String stringvar = dummyFixture.getValue("label.greet");
 			reporter.enter(TestRunReporter.SemanticUnit.STEP, "boolean boolvar = Read bool from <bar>");
 			boolean boolvar = dummyFixture.getBool("label.greet");
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "org.testeditor.dsl.common.testing.DummyEnum enumvar = Read enum from <bar>");
+			org.testeditor.dsl.common.testing.DummyEnum enumvar = dummyFixture.getEnum("label.greet");
 			reporter.enter(TestRunReporter.SemanticUnit.STEP, "@jsonvar.\"key\" = jsonvar.\"some value\"");
 			jsonvar.getAsJsonObject().add("key", jsonvar.getAsJsonObject().get("some value"));
 			reporter.enter(TestRunReporter.SemanticUnit.STEP, "@jsonvar.\"other key\" = \"value\"");
@@ -218,6 +224,13 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			reporter.enter(TestRunReporter.SemanticUnit.STEP, "TypeLong @jsonvar.\"key6\" into <Input>");
 			org.junit.Assert.assertTrue("Parameter is expected to be of type = 'long' but a non coercible value = '"+jsonvar.getAsJsonObject().get("key6").toString()+"' was passed through variable reference = 'jsonvar'.", jsonvar.getAsJsonObject().get("key6").getAsJsonPrimitive().isNumber());
 			dummyFixture.typeLongInto("text.input", org.testeditor.dsl.common.testing.DummyLocatorStrategy.ID, jsonvar.getAsJsonObject().get("key6").getAsJsonPrimitive().getAsLong());
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "Set enum of <Input> to @enumvar");
+			dummyFixture.setEnum("text.input", enumvar);
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "Set enum of <Input> to @stringvar");
+			try { org.testeditor.dsl.common.testing.DummyEnum.valueOf(stringvar); } catch (IllegalArgumentException ia) { org.junit.Assert.fail("Parameter is expected to be of type = 'org.testeditor.dsl.common.testing.DummyEnum' but a non coercible value = '"+stringvar.toString()+"' was passed through variable reference = 'stringvar'."); }
+			dummyFixture.setEnum("text.input", org.testeditor.dsl.common.testing.DummyEnum.valueOf(stringvar));
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "Set enum of <Input> to \"enum_a\"");
+			dummyFixture.setEnum("text.input", org.testeditor.dsl.common.testing.DummyEnum.valueOf("enum_a"));
 			// Macro: GreetingApplicationMacro
 			// - TypeBoolean @jsonvar."key" into input field
 			org.junit.Assert.assertTrue("Parameter is expected to be of type = 'boolean' but a non coercible value = '"+jsonvar.getAsJsonObject().get("key").toString()+"' was passed through variable reference = 'jsonvar'.", jsonvar.getAsJsonObject().get("key").getAsJsonPrimitive().isBoolean());

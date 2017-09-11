@@ -1,17 +1,16 @@
 plugins {
-	id 'com.moowork.node' version '0.13'
+	id 'com.moowork.node' version '1.2.0'
+	id 'net.researchgate.release' version '2.4.0'
 }
 
 node {
-	version = '6.9.1'
-	npmVersion = '3.10.8'
+	version = '6.11.2'
+	npmVersion = '3.10.10'
 	workDir file("rcp/org.testeditor.web.testexecutionlogview/node")
 	download = true
 }
 
 def targetPlatform = "$projectDir/target-platform"
-
-def rrdAntlr4 = "rrd-antlr4-0.1.2.jar"
 
 task npmInstallDep(type: NpmTask, dependsOn: npmSetup){
 	group 'Node'
@@ -68,6 +67,36 @@ task buildProduct(type: MavenExec) {
     workingDir projectDir
     args 'package' , '-Pproduct', '-DskipTests', '-Dtycho.localArtifacts=ignore'
 }
+
+task updateTargetVersion(type: MavenExec) {
+    workingDir targetPlatform
+    args 'org.eclipse.tycho:tycho-versions-plugin:set-version',
+        '-Dtycho.mode=maven', '-Dartifacts=org.testeditor.releng.target.parent',
+        "-DnewVersion=$project.version"
+}
+
+task updateMvnVersion(type: MavenExec) {
+    workingDir projectDir
+    args 'org.eclipse.tycho:tycho-versions-plugin:set-version',
+        '-Dtycho.mode=maven', '-Dartifacts=org.testeditor.releng.parent',
+        "-DnewVersion=$project.version"
+}
+
+beforeReleaseBuild.dependsOn(updateTargetVersion, updateMvnVersion)
+
+release {
+    preTagCommitMessage = '[release]'
+    tagCommitMessage = '[release]'
+    newVersionCommitMessage = '[release] new version'
+    tagTemplate = 'v${version}'
+    buildTasks = []
+}
+
+/**
+ * Rail-road diagram stuff below.
+ */
+
+def rrdAntlr4 = "rrd-antlr4-0.1.2.jar"
 
 def String buildNestedParenthesisRegex(int level) {
     def preParen = "(?<!')\\(" // opening braces ( must not be preceeded by a ' to avoid string constant matching

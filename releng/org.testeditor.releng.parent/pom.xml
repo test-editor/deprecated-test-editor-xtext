@@ -5,7 +5,7 @@
 
 	<groupId>org.testeditor</groupId>
 	<artifactId>org.testeditor.releng.parent</artifactId>
-	<version>1.7.0</version>
+	<version>1.8.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<properties>
@@ -30,7 +30,7 @@
 
 		<!-- other properties -->
 		<deploy.skip>false</deploy.skip>
-		<tycho-surefire-argline>-Xms40m -Xmx1G -Dorg.testeditor.ignoreConnectionState=true</tycho-surefire-argline>
+		<tycho-surefire-argline>-Xms40m -Xmx256m -Dorg.testeditor.ignoreConnectionState=true</tycho-surefire-argline>
 		<os-jvm-flags></os-jvm-flags>
 		<argLine>${tycho-surefire-argline} ${os-jvm-flags}</argLine>
 	</properties>
@@ -57,7 +57,42 @@
 			<url>${xtext-target}</url>
 			<layout>p2</layout>
 		</repository>
+		<repository>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>central</id>
+			<name>bintray</name>
+			<url>http://jcenter.bintray.com</url>
+		</repository>
+		<repository>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>bintray-test-editor-Fixtures</id>
+			<name>bintray</name>
+			<url>http://dl.bintray.com/test-editor/maven</url>
+		</repository>
 	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>central</id>
+			<name>bintray</name>
+			<url>http://jcenter.bintray.com</url>
+		</pluginRepository>
+		<pluginRepository>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>bintray-test-editor-Fixtures</id>
+			<name>bintray</name>
+			<url>http://dl.bintray.com/test-editor/maven</url>
+		</pluginRepository>
+	</pluginRepositories>
 
 	<scm>
 		<developerConnection>scm:git:https://github.com/test-editor/test-editor-xtext.git</developerConnection>

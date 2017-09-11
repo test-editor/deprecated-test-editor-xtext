@@ -40,6 +40,14 @@ public class DummyFixture {
 	@FixtureMethod
 	def void setValue(String locator, String value) {
 	}
+	
+	@FixtureMethod
+	def DummyEnum getEnum(String locator) {
+	}
+	
+	@FixtureMethod
+	def void setEnum(String locator, DummyEnum value) {
+	}
 
 	@FixtureMethod
 	def String getValue(String locator) {
@@ -117,6 +125,16 @@ public class DummyFixture {
 			method = «dummyFixture».waitSeconds(seconds)
 		}
 		
+		interaction type getEnum {
+			template = "Read enum from" ${element}
+			method = «dummyFixture».getEnum(element)
+		}
+		
+		interaction type setEnum {
+			template = "Set enum of" ${element} "to" ${enum}
+			method = «dummyFixture».setEnum(element, enum)
+		}
+		
 		interaction type setValue {
 			template = "Set value of" ${element} "to" ${value}
 			method = «dummyFixture».setValue(element, value)
@@ -187,7 +205,7 @@ public class DummyFixture {
 		}
 		
 		element type Text {
-			interactions = getValue, isVisible, setValue, setValueReversed, typeInto, getLong, typeLongInto, typeIntoAndWait, typeBoolInto, getJsonObject
+			interactions = getValue, isVisible, setValue, setValueReversed, typeInto, getLong, typeLongInto, typeIntoAndWait, typeBoolInto, getJsonObject, setEnum, getEnum
 		}
 
 		element type Button {

@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
+import java.util.Optional
 import javax.inject.Inject
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.junit.Before
@@ -43,8 +44,8 @@ class TclExpressionBuilderTest extends AbstractTclTest {
 	@Before
 	def void prepareMocks() {
 		when(stringTypeReference.qualifiedName).thenReturn(String.name)
-		when(typeComputer.determineType(any(Expression),any(JvmTypeReference))).thenReturn(stringTypeReference)
-		when(typeComputer.determineType(any(Variable),any(JvmTypeReference))).thenReturn(stringTypeReference)
+		when(typeComputer.determineType(any(Expression),any(Optional))).thenReturn(stringTypeReference)
+		when(typeComputer.determineType(any(Variable),any(Optional))).thenReturn(stringTypeReference)
 		when(typeComputer.coercedTypeOfComparison(any, any)).thenReturn(stringTypeReference)
 		when(tclJsonUtil.jsonPathReadAccessToString(any(KeyPathElement))).thenReturn('''.getJsonObject().get("«someKey»")''')
 		when(tclCoercionComputer.generateCoercion(stringTypeReference, stringTypeReference, '"test"')).

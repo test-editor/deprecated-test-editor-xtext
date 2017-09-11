@@ -14,6 +14,7 @@ package org.testeditor.tcl.dsl.jvmmodel
 
 import java.text.NumberFormat
 import java.text.ParseException
+import java.util.Optional
 import java.util.regex.Pattern
 import javax.inject.Inject
 import org.eclipse.xtext.EcoreUtil2
@@ -61,25 +62,25 @@ class TclExpressionTypeComputer {
 		}
 	}
 	
-	def dispatch JvmTypeReference determineType(StepContent stepContent, JvmTypeReference expectedType) {
+	def dispatch JvmTypeReference determineType(StepContent stepContent, Optional<JvmTypeReference> expectedType) {
 		typeReferenceUtil.initWith(stepContent.eResource)
 		val nonFractionalNumberPattern = Pattern.compile("(\\+|\\-)?[0-9]+")
 		val fractionalNumberPattern = Pattern.compile("(\\+|\\-)?[0-9]+(\\.[0-9]+)?")
 		val booleanPattern = Pattern.compile("true|false", Pattern.CASE_INSENSITIVE)
-		switch stepContent {			
+		switch stepContent {
 			StepContentVariable: {
-				if(expectedType !== null) {
-					if (typeReferenceUtil.isString(expectedType)) {
-						return expectedType
+				if(expectedType.present) {
+					if (typeReferenceUtil.isString(expectedType.get)) {
+						return expectedType.get
 					}
-					if (typeReferenceUtil.isBoolean(expectedType) && booleanPattern.matcher(stepContent.value).matches) {
-						return expectedType
+					if (typeReferenceUtil.isBoolean(expectedType.get) && booleanPattern.matcher(stepContent.value).matches) {
+						return expectedType.get
 					}
 					val NumberFormat nf = NumberFormat.instance
 					try {
 						nf.parse(stepContent.value)
-						if (typeReferenceUtil.isANumber(expectedType)) {
-							return expectedType
+						if (typeReferenceUtil.isANumber(expectedType.get)) {
+							return expectedType.get
 						}
 					}catch(ParseException pe) {
 						// ignore and try to find type by matching (see fallback below)
@@ -93,7 +94,7 @@ class TclExpressionTypeComputer {
 				} else if (fractionalNumberPattern.matcher(stepContent.value).matches) {
 					return typeReferenceUtil.bigDecimalJvmTypeReference
 				} else {
-					return typeReferenceUtil.stringJvmTypeReference
+					return typeReferenceUtil.stringJvmTypeReference // it is a string (as last resort)
 				}
 			}
 			VariableReference: return determineType(stepContent.variable, expectedType)
@@ -101,7 +102,7 @@ class TclExpressionTypeComputer {
 		}
 	}
 	
-	def dispatch JvmTypeReference determineType(Expression expression, JvmTypeReference expectedType) {
+	def dispatch JvmTypeReference determineType(Expression expression, Optional<JvmTypeReference> expectedType) {
 		typeReferenceUtil.initWith(expression.eResource)
 		switch expression {
 			VariableReferencePathAccess: return typeReferenceUtil.jsonElementJvmTypeReference
@@ -122,7 +123,7 @@ class TclExpressionTypeComputer {
 		}
 	}
 	
-	def dispatch JvmTypeReference determineType(Variable variable, JvmTypeReference expectedType) {
+	def dispatch JvmTypeReference determineType(Variable variable, Optional<JvmTypeReference> expectedType) {
 		typeReferenceUtil.initWith(variable.eResource)
 		switch variable {
 			AssignmentVariable : return typeComputer.determineType(variable)
@@ -134,8 +135,8 @@ class TclExpressionTypeComputer {
 	
 	def boolean coercibleTo(Expression expression, JvmTypeReference wantedType) {
 		coercionComputer.initWith(expression.eResource)
-		val expressionType = determineType(expression, wantedType)
-		return coercionComputer.isCoercionPossible(wantedType, expressionType)
+		val expressionType = determineType(expression, Optional.of(wantedType))
+		return coercionComputer.isTypeCoercionPossible(wantedType, expressionType)
 	}
 	
 	def JvmTypeReference moreSpecificType(JvmTypeReference left, JvmTypeReference right) {
@@ -147,7 +148,7 @@ class TclExpressionTypeComputer {
 	}
 	
 	/** find the most likely type for each of the comparison components (left and right) */
-	def JvmTypeReference coercedTypeOfComparison(Comparison comparison, JvmTypeReference wantedType) {
+	def JvmTypeReference coercedTypeOfComparison(Comparison comparison, Optional<JvmTypeReference> wantedType) {
 		typeReferenceUtil.initWith(comparison.eResource)
 		coercionComputer.initWith(comparison.eResource)
 		val leftType = comparison.left.determineType(wantedType)

@@ -1,7 +1,6 @@
 package org.testeditor.tcl.dsl.jvmmodel
 
 import javax.inject.Inject
-import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.xtext.xbase.typesystem.conformance.TypeConformanceComputationArgument
 import org.junit.Before
 import org.junit.Ignore
@@ -9,22 +8,33 @@ import org.junit.Test
 
 class TclJvmTypeReferenceUtilTest extends AbstractTclGeneratorIntegrationTest{
 
-	@Inject TclJvmTypeReferenceUtil classUnderTest
+	@Inject TclJvmTypeReferenceUtil typeReferenceUtil // class under test
 	@Inject TclJvmTypeReferenceUtil utilForTypeGenerationComparison
 	
 	val standardTestFlags = new TypeConformanceComputationArgument(false, false, false, false, false, true)
-	
-	@Before 
+
+	enum TestEnum { a, b, c }
+
+	@Before
 	def void initClassUnderTest() {
-		classUnderTest.initWith(null as ResourceSet)
-		utilForTypeGenerationComparison.initWith(null as ResourceSet)
+		typeReferenceUtil.initWith(this.resourceSet)
+		utilForTypeGenerationComparison.initWith(this.resourceSet)
 	}
-	
+
+	@Test
+	def void testTestEnumIsEnum() {
+		// given+when
+		val isAssignable = typeReferenceUtil.isAssignableFrom(typeReferenceUtil.enumJvmTypeReference, typeReferenceUtil.buildFrom(TestEnum), standardTestFlags)
+
+		// then
+		isAssignable.assertTrue
+	}
+
 	@Test
 	def void testBooleanToBooleanObjectAssignmentWithoutBoxing() {
 		// given + when				
-		val isAssignable = classUnderTest.isAssignableFrom(classUnderTest.booleanObjectJvmTypeReference,
-			classUnderTest.buildFrom(Boolean), standardTestFlags)
+		val isAssignable = typeReferenceUtil.isAssignableFrom(typeReferenceUtil.booleanObjectJvmTypeReference,
+			typeReferenceUtil.buildFrom(Boolean), standardTestFlags)
 
 		// then
 		isAssignable.assertTrue
@@ -33,8 +43,8 @@ class TclJvmTypeReferenceUtilTest extends AbstractTclGeneratorIntegrationTest{
 	@Test
 	def void testPrimitiveToBooleanObjectAssignmentWithoutBoxing() {
 		// given + when		
-		val isAssignable = classUnderTest.isAssignableFrom(classUnderTest.booleanObjectJvmTypeReference,
-			classUnderTest.booleanPrimitiveJvmTypeReference, standardTestFlags)
+		val isAssignable = typeReferenceUtil.isAssignableFrom(typeReferenceUtil.booleanObjectJvmTypeReference,
+			typeReferenceUtil.booleanPrimitiveJvmTypeReference, standardTestFlags)
 
 		// then
 		isAssignable.assertFalse
@@ -43,8 +53,8 @@ class TclJvmTypeReferenceUtilTest extends AbstractTclGeneratorIntegrationTest{
 	@Test
 	def void testJsonElementToBooleanObjectAssignmentWithoutBoxing() {
 		// given + when		
-		val isAssignable = classUnderTest.isAssignableFrom(classUnderTest.booleanObjectJvmTypeReference,
-			classUnderTest.jsonElementJvmTypeReference, standardTestFlags)
+		val isAssignable = typeReferenceUtil.isAssignableFrom(typeReferenceUtil.booleanObjectJvmTypeReference,
+			typeReferenceUtil.jsonElementJvmTypeReference, standardTestFlags)
 
 		// then
 		isAssignable.assertFalse
@@ -54,8 +64,8 @@ class TclJvmTypeReferenceUtilTest extends AbstractTclGeneratorIntegrationTest{
 	@Test
 	def void testPrimitiveToBooleanObjectAssignmentWithBoxing() {
 		// given + when		
-		val isAssignable = classUnderTest.isAssignableFrom(classUnderTest.booleanObjectJvmTypeReference,
-			classUnderTest.booleanPrimitiveJvmTypeReference)
+		val isAssignable = typeReferenceUtil.isAssignableFrom(typeReferenceUtil.booleanObjectJvmTypeReference,
+			typeReferenceUtil.booleanPrimitiveJvmTypeReference)
 
 		// then
 		isAssignable.assertTrue
@@ -64,12 +74,12 @@ class TclJvmTypeReferenceUtilTest extends AbstractTclGeneratorIntegrationTest{
 	@Test
 	def void testTypeEquality() {
 		// given
-		val jsonArray = classUnderTest.jsonArrayJvmTypeReference
+		val jsonArray = typeReferenceUtil.jsonArrayJvmTypeReference
 		val myJsonArray = utilForTypeGenerationComparison.jsonArrayJvmTypeReference
 		assertTrue(jsonArray !== myJsonArray) // be sure to use two different instances!
 		
 		// when
-		val result = classUnderTest.isJsonArray(myJsonArray)
+		val result = typeReferenceUtil.isJsonArray(myJsonArray)
 		
 		// then
 		result.assertTrue
@@ -78,47 +88,47 @@ class TclJvmTypeReferenceUtilTest extends AbstractTclGeneratorIntegrationTest{
 	@Test
 	def void testTypeRecognition() {
 		// given + when + then
-		classUnderTest.isBigDecimal(classUnderTest.bigDecimalJvmTypeReference).assertTrue
-		classUnderTest.isBigDecimal(classUnderTest.longObjectJvmTypeReference).assertFalse
+		typeReferenceUtil.isBigDecimal(typeReferenceUtil.bigDecimalJvmTypeReference).assertTrue
+		typeReferenceUtil.isBigDecimal(typeReferenceUtil.longObjectJvmTypeReference).assertFalse
 		
-		classUnderTest.isLong(classUnderTest.longObjectJvmTypeReference).assertTrue
-		classUnderTest.isLong(classUnderTest.longPrimitiveJvmTypeReference).assertTrue
-		classUnderTest.isLong(classUnderTest.bigDecimalJvmTypeReference).assertFalse
+		typeReferenceUtil.isLong(typeReferenceUtil.longObjectJvmTypeReference).assertTrue
+		typeReferenceUtil.isLong(typeReferenceUtil.longPrimitiveJvmTypeReference).assertTrue
+		typeReferenceUtil.isLong(typeReferenceUtil.bigDecimalJvmTypeReference).assertFalse
 		
-		classUnderTest.isInt(classUnderTest.intObjectJvmTypeReference).assertTrue
-		classUnderTest.isInt(classUnderTest.intPrimitiveJvmTypeReference).assertTrue
-		classUnderTest.isInt(classUnderTest.bigDecimalJvmTypeReference).assertFalse
+		typeReferenceUtil.isInt(typeReferenceUtil.intObjectJvmTypeReference).assertTrue
+		typeReferenceUtil.isInt(typeReferenceUtil.intPrimitiveJvmTypeReference).assertTrue
+		typeReferenceUtil.isInt(typeReferenceUtil.bigDecimalJvmTypeReference).assertFalse
 		
-		classUnderTest.isBoolean(classUnderTest.booleanObjectJvmTypeReference).assertTrue
-		classUnderTest.isBoolean(classUnderTest.booleanPrimitiveJvmTypeReference).assertTrue
-		classUnderTest.isBoolean(classUnderTest.stringJvmTypeReference).assertFalse
+		typeReferenceUtil.isBoolean(typeReferenceUtil.booleanObjectJvmTypeReference).assertTrue
+		typeReferenceUtil.isBoolean(typeReferenceUtil.booleanPrimitiveJvmTypeReference).assertTrue
+		typeReferenceUtil.isBoolean(typeReferenceUtil.stringJvmTypeReference).assertFalse
 		
-		classUnderTest.isString(classUnderTest.stringJvmTypeReference).assertTrue
-		classUnderTest.isString(classUnderTest.booleanObjectJvmTypeReference).assertFalse
+		typeReferenceUtil.isString(typeReferenceUtil.stringJvmTypeReference).assertTrue
+		typeReferenceUtil.isString(typeReferenceUtil.booleanObjectJvmTypeReference).assertFalse
 		
-		classUnderTest.isJson(classUnderTest.jsonArrayJvmTypeReference).assertTrue
-		classUnderTest.isJson(classUnderTest.stringJvmTypeReference).assertFalse
+		typeReferenceUtil.isJson(typeReferenceUtil.jsonArrayJvmTypeReference).assertTrue
+		typeReferenceUtil.isJson(typeReferenceUtil.stringJvmTypeReference).assertFalse
 		
-		classUnderTest.isJsonArray(classUnderTest.jsonArrayJvmTypeReference).assertTrue
-		classUnderTest.isJsonArray(classUnderTest.stringJvmTypeReference).assertFalse
-		classUnderTest.isJsonElement(classUnderTest.jsonElementJvmTypeReference).assertTrue
-		classUnderTest.isJsonElement(classUnderTest.stringJvmTypeReference).assertFalse
-		classUnderTest.isJsonObject(classUnderTest.jsonObjectJvmTypeReference).assertTrue
-		classUnderTest.isJsonObject(classUnderTest.stringJvmTypeReference).assertFalse
-		classUnderTest.isJsonPrimitive(classUnderTest.jsonPrimitiveJvmTypeReference).assertTrue
-		classUnderTest.isJsonPrimitive(classUnderTest.stringJvmTypeReference).assertFalse
+		typeReferenceUtil.isJsonArray(typeReferenceUtil.jsonArrayJvmTypeReference).assertTrue
+		typeReferenceUtil.isJsonArray(typeReferenceUtil.stringJvmTypeReference).assertFalse
+		typeReferenceUtil.isJsonElement(typeReferenceUtil.jsonElementJvmTypeReference).assertTrue
+		typeReferenceUtil.isJsonElement(typeReferenceUtil.stringJvmTypeReference).assertFalse
+		typeReferenceUtil.isJsonObject(typeReferenceUtil.jsonObjectJvmTypeReference).assertTrue
+		typeReferenceUtil.isJsonObject(typeReferenceUtil.stringJvmTypeReference).assertFalse
+		typeReferenceUtil.isJsonPrimitive(typeReferenceUtil.jsonPrimitiveJvmTypeReference).assertTrue
+		typeReferenceUtil.isJsonPrimitive(typeReferenceUtil.stringJvmTypeReference).assertFalse
 		
-		classUnderTest.isANumber(classUnderTest.intObjectJvmTypeReference).assertTrue
-		classUnderTest.isANumber(classUnderTest.longObjectJvmTypeReference).assertTrue
-		classUnderTest.isANumber(classUnderTest.bigDecimalJvmTypeReference).assertTrue
+		typeReferenceUtil.isANumber(typeReferenceUtil.intObjectJvmTypeReference).assertTrue
+		typeReferenceUtil.isANumber(typeReferenceUtil.longObjectJvmTypeReference).assertTrue
+		typeReferenceUtil.isANumber(typeReferenceUtil.bigDecimalJvmTypeReference).assertTrue
 		
-		classUnderTest.isNumber(classUnderTest.numberJvmTypeReference).assertTrue
-		classUnderTest.isNumber(classUnderTest.bigDecimalJvmTypeReference).assertFalse
+		typeReferenceUtil.isNumber(typeReferenceUtil.numberJvmTypeReference).assertTrue
+		typeReferenceUtil.isNumber(typeReferenceUtil.bigDecimalJvmTypeReference).assertFalse
 
-		classUnderTest.isOrderable(classUnderTest.bigDecimalJvmTypeReference).assertTrue
-		classUnderTest.isOrderable(classUnderTest.intPrimitiveJvmTypeReference).assertTrue
-		classUnderTest.isOrderable(classUnderTest.longPrimitiveJvmTypeReference).assertTrue
-		classUnderTest.isOrderable(classUnderTest.stringJvmTypeReference).assertFalse // strings are currently not orderable (<, <=, >, >=)
+		typeReferenceUtil.isOrderable(typeReferenceUtil.bigDecimalJvmTypeReference).assertTrue
+		typeReferenceUtil.isOrderable(typeReferenceUtil.intPrimitiveJvmTypeReference).assertTrue
+		typeReferenceUtil.isOrderable(typeReferenceUtil.longPrimitiveJvmTypeReference).assertTrue
+		typeReferenceUtil.isOrderable(typeReferenceUtil.stringJvmTypeReference).assertFalse // strings are currently not orderable (<, <=, >, >=)
 	}
 	
 }

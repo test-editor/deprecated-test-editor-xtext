@@ -163,17 +163,19 @@ class TestStepSelector {
 
 		var previouslyExpandedElements = viewer.expandedElements.map[toStringPath].toSet
 
-		viewer.input = editor.document.readOnly[getVisibleAMLModels]
-		if (currentProject === null) {
-			currentProject = projectName
-		}
-		if (currentProject != projectName) {
-			expandedElementsPerProject.put(currentProject, previouslyExpandedElements)
-			previouslyExpandedElements = expandedElementsPerProject.get(projectName)
-			currentProject = projectName
-		}
-		if (!previouslyExpandedElements.nullOrEmpty) {
-			viewer.expandedElements = elementsToExpand(previouslyExpandedElements, viewer.input as Iterable<AmlModel>)
+		if (editor.document !== null) {
+			viewer.input = editor.document.readOnly[getVisibleAMLModels]
+			if (currentProject === null) {
+				currentProject = projectName
+			}
+			if (currentProject != projectName) {
+				expandedElementsPerProject.put(currentProject, previouslyExpandedElements)
+				previouslyExpandedElements = expandedElementsPerProject.get(projectName)
+				currentProject = projectName
+			}
+			if (!previouslyExpandedElements.nullOrEmpty) {
+				viewer.expandedElements = elementsToExpand(previouslyExpandedElements, viewer.input as Iterable<AmlModel>)
+			}
 		}
 	}
 

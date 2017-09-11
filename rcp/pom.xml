@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.testeditor</groupId>
 		<artifactId>org.testeditor.releng.parent.dsl</artifactId>
-		<version>1.7.0</version>
+		<version>1.8.0-SNAPSHOT</version>
 		<relativePath>../releng/org.testeditor.releng.parent.dsl</relativePath>
 	</parent>
 
@@ -29,6 +29,7 @@
 	<modules>
 		<module>org.testeditor.rcp4.platform.feature</module>
 		<module>org.testeditor.rcp4.updatesite</module>
+		<module>org.testeditor.plugin.feature</module>
 		<module>org.testeditor.rcp4.feature</module>
 		<module>org.testeditor.rcp4.bootstrap</module>
 		<module>org.testeditor.rcp4.tcltestrun</module>

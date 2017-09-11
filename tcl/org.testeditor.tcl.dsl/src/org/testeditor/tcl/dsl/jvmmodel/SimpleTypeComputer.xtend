@@ -101,11 +101,18 @@ class SimpleTypeComputer {
 	 * get the type that this stepContent is expected to have in order to satisfy the parameter type of its transitively called fixture
 	 */
 	def Optional<JvmTypeReference> getExpectedType(StepContent stepContent, TemplateContainer templateContainer) {
-		val parameterTypeMap = getVariablesWithTypes(templateContainer)
 		val templateParameter = getTemplateParameterForCallingStepContent(stepContent)
+		return getExpectedType(templateParameter, templateContainer)
+	}
+	
+	/**
+	 * get the type that this template variable is expected to have in order to satisfy the parameter type of its transitively called fixture
+	 */
+	def Optional<JvmTypeReference> getExpectedType(TemplateVariable templateParameter, TemplateContainer templateContainer) {
+		val parameterTypeMap = getVariablesWithTypes(templateContainer)
 		val expectedType = parameterTypeMap.get(templateParameter)
-		if (!expectedType.present) {
-			throw new RuntimeException("Unknown type")
+		if (expectedType === null) {
+			return Optional.empty
 		}
 		return expectedType
 	}

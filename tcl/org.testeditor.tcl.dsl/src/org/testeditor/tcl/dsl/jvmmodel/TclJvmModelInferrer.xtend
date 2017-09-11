@@ -449,8 +449,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				output.trace(interaction.defaultMethod) => [
 					step.contents.filter(VariableReference).forEach [
 						val expectedType = typeComputer.getExpectedType(it, interaction)
-						val variableType = expressionTypeComputer.determineType(variable, expectedType.get)
-						if (coercionComputer.isCoercionPossible(expectedType.get, variableType)) {
+						val variableType = expressionTypeComputer.determineType(variable, expectedType)
+						if (coercionComputer.isTypeCoercionPossible(expectedType.get, variableType)) {
 							val coercionCheck = generateCoercionCheck(interaction, expectedType)
 							if (!coercionCheck.nullOrEmpty) {
 								output.append(coercionCheck).newLine
@@ -464,8 +464,10 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				output.append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
 			}
 		} else if (step.componentContext != null) {
+			logger.debug("interaction not found within context of component '{}' for test step='{}'.", step.componentContext.component.name, stepLog)
 			output.append('''org.junit.Assert.fail("Template '«StringEscapeUtils.escapeJava(stepLog)»' cannot be resolved with any known macro/fixture. Please check your «step.locationInfo»");''')
 		} else {
+			logger.debug("interaction not found in unknown context for test step='{}'.", stepLog)
 			output.append('''org.junit.Assert.fail("Template '«StringEscapeUtils.escapeJava(stepLog)»' cannot be resolved with any known macro/fixture. Please check your  Macro-, Config- or Testcase-File ");''')
 		}
 	}
@@ -473,16 +475,10 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	private def String generateCoercionCheck(VariableReference variableReference, TemplateContainer templateContainer,
 		Optional<JvmTypeReference> expectedType) {
 		val variableAccessCode = toParameterString(variableReference, expectedType, templateContainer, false).head
-		val varRefType = expressionTypeComputer.determineType(variableReference.variable, expectedType.get)
+		val varRefType = expressionTypeComputer.determineType(variableReference.variable, expectedType)
 		val quotedErrorMessage = '''"Parameter is expected to be of type = '«expectedType.get.qualifiedName»' but a non coercible value = '"+«variableAccessCode».toString()+"' was passed through variable reference = '«variableReference.variable.name»'."'''
 		return coercionComputer.generateCoercionGuard(expectedType.get, varRefType, variableAccessCode,
 			quotedErrorMessage)
-	}
-	
-	private def String generateCoercionAround(VariableReference variableReference, String variableAccessCode,
-		Optional<JvmTypeReference> expectedType) {
-		val variableType = expressionTypeComputer.determineType(variableReference.variable, expectedType.get)
-		return coercionComputer.generateCoercion(expectedType.get, variableType, variableAccessCode)
 	}
 	
 	private def String getLocationInfo(TestStep step) {
@@ -516,8 +512,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		if (macro !== null) {
 			step.contents.filter(VariableReference).forEach [
 				val expectedType = typeComputer.getExpectedType(it, macro)
-				val variableType = expressionTypeComputer.determineType(variable, expectedType.get)
-				if (coercionComputer.isCoercionPossible(expectedType.get, variableType)) { 
+				val variableType = expressionTypeComputer.determineType(variable, expectedType)
+				if (coercionComputer.isTypeCoercionPossible(expectedType.get, variableType)) { 
 					val coercionCheck = generateCoercionCheck(macro, expectedType)
 					if (!coercionCheck.nullOrEmpty) {
 						output.append(coercionCheck).newLine
@@ -557,36 +553,46 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	 * put it in quotes. If the type is not specified we assume a String to handle parameter passing gracefully.
 	 */
 	// TODO return type is only an iterable because of the locator strategy
-	private def Iterable<String> toParameterString(StepContent stepContent, Optional<JvmTypeReference> parameterType,
+	private def Iterable<String> toParameterString(StepContent stepContent, Optional<JvmTypeReference> expectedType,
 		TemplateContainer templateContainer, boolean withCoercion) {
-		// stepContent can be a reference to a variable or a value
-		if (stepContent instanceof VariableReference) {
-			// if variable reference forward the call to expressionBuilder
-			val parameterString = expressionBuilder.buildReadExpression(stepContent)
-			val expectedType = typeComputer.getExpectedType(stepContent, templateContainer)
-			val stepContentType = expressionTypeComputer.determineType(stepContent, expectedType.get)
-			val coercionPossible = coercionComputer.isCoercionPossible(expectedType.get, stepContentType)
-			if (withCoercion && coercionPossible) {
-				return #[generateCoercionAround(stepContent, parameterString, expectedType)]
-			}
-			return #[parameterString]
-		}
-		// Handle special case for locator + locator strategy
+			
+		// in case the parameter is an aml element, the locator + (optional) the locator strategy must be generated
 		if (templateContainer instanceof InteractionType) {
 			if (stepContent instanceof StepContentElement) {
 				return toLocatorParameterString(stepContent, templateContainer)
 			}
 		}
-		if (stepContent instanceof StepContentValue) {
-			// if value, check if type is String, if yes put it in quotes
-			val stepContentType = expressionTypeComputer.determineType(stepContent, null)
-			val contentIsLongOrBool = typeReferenceUtil.isLong(stepContentType) || typeReferenceUtil.isBoolean(stepContentType)
-			val isStringParameter = parameterType.present && typeReferenceUtil.isString(parameterType.get)
-			if (!isStringParameter && contentIsLongOrBool) {
-				return #[stepContent.value] // this may happen only, if the value is a boolean or a long
-			} else {
-				return #['''"«StringEscapeUtils.escapeJava(stepContent.value)»"''']
+
+		// in all other cases, check for necessary coercion
+		val parameterString = stepContent.contentToParameterString(expectedType, templateContainer)
+		// val expectedType = typeComputer.getExpectedType(stepContent, templateContainer)
+		if (expectedType.present) {
+			val stepContentType = expressionTypeComputer.determineType(stepContent, expectedType)
+			val coercionPossible = coercionComputer.isTypeCoercionPossible(expectedType.get, stepContentType)
+			if (withCoercion && coercionPossible) {
+				return #[coercionComputer.generateCoercion(expectedType.get, stepContentType, parameterString)]
 			}
+		}
+		return #[parameterString]
+	}
+	
+	private def dispatch String contentToParameterString(VariableReference variableReference, Optional<JvmTypeReference> parameterType,
+		TemplateContainer templateContainer) {
+		return expressionBuilder.buildReadExpression(variableReference)
+	}
+	
+	private def dispatch String contentToParameterString(StepContentValue stepContentValue, Optional<JvmTypeReference> parameterType,
+		TemplateContainer templateContainer) {
+		val stepContentType = expressionTypeComputer.determineType(stepContentValue, parameterType)
+		val contentIsANumberOrBool = typeReferenceUtil.isANumber(stepContentType) || typeReferenceUtil.isBoolean(stepContentType)
+		val fixtureParameterTypeIsKnownToBeString = parameterType.present && typeReferenceUtil.isString(parameterType.get)
+		if (fixtureParameterTypeIsKnownToBeString || !contentIsANumberOrBool) {
+			// if fixture parameter is a string this is easy, just quote the value
+			// if the content itself is not a number nor a boolean its probably a good idea to quote this value, too
+			return '''"«StringEscapeUtils.escapeJava(stepContentValue.value)»"'''
+		} else {
+			// if content is definitely a boolean or a number and this is also expected by the called fixture,
+			return stepContentValue.value
 		}
 	}
 	

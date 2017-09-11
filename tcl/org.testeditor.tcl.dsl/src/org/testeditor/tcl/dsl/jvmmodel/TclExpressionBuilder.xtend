@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
+import java.util.Optional
 import javax.inject.Inject
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.testeditor.aml.Variable
@@ -23,13 +24,13 @@ import org.testeditor.tcl.ComparatorMatches
 import org.testeditor.tcl.Comparison
 import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.Expression
+import org.testeditor.tcl.JsonBoolean
+import org.testeditor.tcl.JsonNull
 import org.testeditor.tcl.JsonNumber
 import org.testeditor.tcl.JsonString
+import org.testeditor.tcl.JsonValue
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferencePathAccess
-import org.testeditor.tcl.JsonBoolean
-import org.testeditor.tcl.JsonValue
-import org.testeditor.tcl.JsonNull
 
 /**
  * build a (textual) java expression based on a parsed (tcl) expression
@@ -90,7 +91,7 @@ class TclExpressionBuilder {
 
 	def String buildReadExpression(Expression compared, JvmTypeReference wantedType) {
 		coercionComputer.initWith(compared?.eResource)
-		val typeOfCompared = typeComputer.determineType(compared, wantedType)
+		val typeOfCompared = typeComputer.determineType(compared, Optional.of(wantedType))
 		val builtExpression = buildReadExpression(compared)
 		return coercionComputer.generateCoercion(wantedType, typeOfCompared, builtExpression)
 	}

@@ -11,10 +11,14 @@
 package org.testeditor.dsl.common.ide.util
 
 import com.google.common.io.ByteStreams
+import java.io.BufferedReader
 import java.io.File
+import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStream
+import java.io.InputStreamReader
 import java.io.OutputStream
+import java.nio.charset.StandardCharsets
 import java.nio.file.FileVisitResult
 import java.nio.file.FileVisitor
 import java.nio.file.Files
@@ -36,6 +40,31 @@ final class FileUtils {
 	static val logger = LoggerFactory.getLogger(FileUtils)
 
 	private new() {
+	}
+
+	/**
+	 * read all lines of a file with utf-8 encoding where possible, replace characters not understood.
+	 * 
+	 * this method does not fail, even if some character encodings are not understood by UTF-8 encoding.
+	 * java.nio.Files.readAllLines does fail if  an encoding does not match, which might not be wanted:
+	 *   java.nio.charset.MalformedInputException: Input length = 1
+	 * see here:  https://stackoverflow.com/questions/26268132/all-inclusive-charset-to-avoid-java-nio-charset-malformedinputexception-input
+	 *
+	 */
+	def static Iterable<String> readAllLines(File file) {
+		val reader = new BufferedReader(new InputStreamReader(new FileInputStream(file),StandardCharsets.UTF_8))
+		try {
+			val result = newArrayList
+			for (;;) {
+				val lineRead = reader.readLine
+				if (lineRead === null) {
+					return result
+				}
+				result.add(lineRead)
+			}
+		} finally {
+			reader.close
+		}		
 	}
 
 	/** 
@@ -114,7 +143,7 @@ final class FileUtils {
 				var OutputStream outputStream
 				try {
 					inputStream = zipFile.getInputStream(zipEntry)
-					outputStream = com.google.common.io.Files.newOutputStreamSupplier(targetFile).output
+					outputStream = com.google.common.io.Files.asByteSink(targetFile).openBufferedStream
 					ByteStreams.copy(inputStream, outputStream)
 				} finally {
 					inputStream?.close

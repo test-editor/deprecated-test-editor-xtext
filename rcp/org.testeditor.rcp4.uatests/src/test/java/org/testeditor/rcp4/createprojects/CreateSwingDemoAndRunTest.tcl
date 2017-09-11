@@ -39,14 +39,14 @@ config TestEditorConfig
 	
 * Run "GreetingTest"
 
-	Component: ProjectExplorer
-	- Select element "swingexecdemo/src/test/java/swingexecdemo/GreetingTest.tcl" in tree <ProjectTree>
-	- Execute menu item "Run test" in tree <ProjectTree>
-	- Wait for dialog "Test execution" to popup and then close after at most "5" respectively "120" seconds  
+ 	Component: ProjectExplorer
+ 	- Select element "swingexecdemo/src/test/java/swingexecdemo/GreetingTest.tcl" in tree <ProjectTree>
+ 	- Execute menu item "Run test" in tree <ProjectTree>
+ 	- Wait for dialog "Test execution" to popup and then close after at most "5" respectively "120" seconds
 
 // then
 * Verify test execution result
 
-	Component: MainWindow
-	- Is view <JUnitView> visible
-	// TODO verify the contents of the view (test should be green)
+ 	Component: MainWindow
+ 	- Is view <JUnitView> visible
+ 	// TODO verify the contents of the view (test should be green)
