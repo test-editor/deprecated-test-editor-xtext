@@ -395,7 +395,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 	
 	private def dispatch void toUnitTestCodeLine(AssignmentThroughPath step, ITreeAppendable output) {
-		val varType = expressionTypeComputer.determineType(step.variableReference.variable, null)
+		val varType = expressionTypeComputer.determineType(step.variableReference.variable, Optional.empty)
 		if (jsonUtil.isJsonType(varType)) {
 			toUnitTestCodeLineOfJsonAssignment(step, output)
 		} else {
@@ -420,7 +420,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			VariableReferencePathAccess,
 			VariableReference: {
 				val valueString = expressionBuilder.buildReadExpression(step.expression)
-				val variableType = expressionTypeComputer.determineType(expression, null)
+				val variableType = expressionTypeComputer.determineType(expression, Optional.empty)
 				if (jsonUtil.isJsonType(variableType)) {
 					val code = '''«expressionBuilder.buildWriteExpression(varRef, valueString)»;'''
 					output.append(code)

@@ -57,7 +57,7 @@ class TclExpressionTypeComputer {
 		switch expression {
 			JsonValue: return true // supertype of all (relevant) json types (e.g. JsonObject, JsonArray, JsonString ...)
 			VariableReferencePathAccess: return true // since this is only allowed for json types, the result is a json type, too
-			VariableReference: return jsonUtil.isJsonType(determineType(expression, null))
+			VariableReference: return jsonUtil.isJsonType(determineType(expression, Optional.empty))
 			default: return false
 		}
 	}
