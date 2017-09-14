@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * Signal Iduna Corporation - initial API and implementation
  * akquinet AG
@@ -23,6 +23,7 @@ import org.testeditor.aml.MethodReference
 import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.dsl.common.util.CollectionUtils
+import org.testeditor.tcl.AbstractTestStep
 import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.TestStep
@@ -51,11 +52,11 @@ class SimpleTypeComputer {
 	def dispatch Map<TemplateVariable, Optional<JvmTypeReference>> getVariablesWithTypes(Macro macro) {
 		val result = newLinkedHashMap
 
-		// Get variables and put them in the result without a type (null)
+		// Get macro parameter variables and put them in the result without a type (Optional.empty)
 		val variables = macro.template.contents.filter(TemplateVariable)
 		result.putAll(variables.toInvertedMap[empty])
 
-		// Get variable usages with their types, last usage wins (validation should make sure it's only used once)
+		// Get variable usages with their types, last usage wins (validation should make sure type usage is consistent)
 		for (context : macro.contexts) {
 			val stepsWithVariableReferences = context.steps.filter(TestStep).filter[!contents.filter(VariableReference).empty]
 			for (step : stepsWithVariableReferences) {
@@ -64,11 +65,11 @@ class SimpleTypeComputer {
 		}
 		return result
 	}
-	
+
 	/**
 	 * provide an iterable with all step content variables as key and their respective fixture parameter type as value
-	 * 
-	 * be aware of the fact that a call expecting two parameters, passing the same into both of them 
+	 *
+	 * be aware of the fact that a call expecting two parameters, passing the same into both of them
 	 * will result in a second pair within this list, with possible different type references!
 	 * e.g.
 	 *    given: template definition: template = "do something with" ${param1} "and" ${param2}
@@ -77,8 +78,8 @@ class SimpleTypeComputer {
 	 *           test step: - do something with \@envParam and \@envParam
 	 *    will result in the following iterable
 	 *      #[<EnvironmenVariableReference(envParam), String>, <EnvironmentVariableReference(envParam), long>]
-	 * 
-	 * this is important for validation purposes. 
+	 *
+	 * this is important for validation purposes.
 	 * the simple type computer does not heed the case that a variable or parameter may be used with two different types.
 	 */
 	def Iterable<Pair<StepContent, Optional<JvmTypeReference>>> getStepVariableFixtureParameterTypePairs(
@@ -96,7 +97,7 @@ class SimpleTypeComputer {
 		}
 		return result
 	}
-	
+
 	/**
 	 * get the type that this stepContent is expected to have in order to satisfy the parameter type of its transitively called fixture
 	 */
@@ -104,17 +105,14 @@ class SimpleTypeComputer {
 		val templateParameter = getTemplateParameterForCallingStepContent(stepContent)
 		return getExpectedType(templateParameter, templateContainer)
 	}
-	
+
 	/**
 	 * get the type that this template variable is expected to have in order to satisfy the parameter type of its transitively called fixture
 	 */
 	def Optional<JvmTypeReference> getExpectedType(TemplateVariable templateParameter, TemplateContainer templateContainer) {
 		val parameterTypeMap = getVariablesWithTypes(templateContainer)
 		val expectedType = parameterTypeMap.get(templateParameter)
-		if (expectedType === null) {
-			return Optional.empty
-		}
-		return expectedType
+		return expectedType?:empty
 	}
 
 	/**
@@ -138,10 +136,10 @@ class SimpleTypeComputer {
 			for (variable : variables) {
 				val variableReference = stepContentToTemplateVariable.keySet.filter(VariableReference).findFirst[it.variable == variable]
 				if (variableReference !== null) {
-					result.put(variable, templateVariableToType.get(stepContentToTemplateVariable.get(variableReference)))
+					val optionalType = templateVariableToType.get(stepContentToTemplateVariable.get(variableReference))
+					result.put(variable, optionalType?:empty)
 				} // else: no type found, will remain Object (either unused variable or nested interaction / macro was not found)
 			}
-
 		}
 		return result
 	}
