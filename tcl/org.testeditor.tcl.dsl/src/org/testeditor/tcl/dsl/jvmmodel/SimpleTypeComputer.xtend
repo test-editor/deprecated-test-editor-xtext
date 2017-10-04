@@ -23,7 +23,6 @@ import org.testeditor.aml.MethodReference
 import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.dsl.common.util.CollectionUtils
-import org.testeditor.tcl.AbstractTestStep
 import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.TestStep
@@ -100,6 +99,8 @@ class SimpleTypeComputer {
 
 	/**
 	 * get the type that this stepContent is expected to have in order to satisfy the parameter type of its transitively called fixture
+	 * 
+	 * ensures that non null is returned
 	 */
 	def Optional<JvmTypeReference> getExpectedType(StepContent stepContent, TemplateContainer templateContainer) {
 		val templateParameter = getTemplateParameterForCallingStepContent(stepContent)
@@ -107,7 +108,9 @@ class SimpleTypeComputer {
 	}
 
 	/**
-	 * get the type that this template variable is expected to have in order to satisfy the parameter type of its transitively called fixture
+	 * get the type that this template variable is expected to have in order to satisfy the parameter type of its transitively called fixture.
+	 * 
+	 * ensures that non null is returned
 	 */
 	def Optional<JvmTypeReference> getExpectedType(TemplateVariable templateParameter, TemplateContainer templateContainer) {
 		val parameterTypeMap = getVariablesWithTypes(templateContainer)
