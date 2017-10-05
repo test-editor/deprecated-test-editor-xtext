@@ -128,6 +128,9 @@ class TclJvmTypeReferenceUtil {
 	// use xbase to check for assignablility
 	def boolean isAssignableFrom(JvmTypeReference target, JvmTypeReference source,
 		TypeConformanceComputationArgument argument) {
+		if (target === null || source === null) {
+			throw new RuntimeException("For testing assignment source and target types must not be null")
+		}
 		if (typeReferenceOwner === null) {
 			typeReferenceOwner = new StandardTypeReferenceOwner(services, resourceSet)
 		}

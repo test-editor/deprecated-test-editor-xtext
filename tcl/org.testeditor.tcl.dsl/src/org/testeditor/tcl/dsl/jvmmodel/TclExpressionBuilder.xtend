@@ -57,7 +57,7 @@ class TclExpressionBuilder {
 			return buildReadExpression(comparison.left)
 		}
 		// check whether coercion of left or right is necessary		
-		val wantedTypeForComparison = typeComputer.coercedTypeOfComparison(comparison, null)
+		val wantedTypeForComparison = typeComputer.coercedTypeOfComparison(comparison, Optional.empty)
 		val validTypeBuiltRightExpression = buildReadExpression(comparison.right, wantedTypeForComparison)
 		val validTypeBuiltLeftExpression = buildReadExpression(comparison.left, wantedTypeForComparison)
 		
@@ -91,7 +91,7 @@ class TclExpressionBuilder {
 
 	def String buildReadExpression(Expression compared, JvmTypeReference wantedType) {
 		coercionComputer.initWith(compared?.eResource)
-		val typeOfCompared = typeComputer.determineType(compared, Optional.of(wantedType))
+		val typeOfCompared = typeComputer.determineType(compared, Optional.ofNullable(wantedType))
 		val builtExpression = buildReadExpression(compared)
 		return coercionComputer.generateCoercion(wantedType, typeOfCompared, builtExpression)
 	}

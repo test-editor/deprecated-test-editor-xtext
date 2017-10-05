@@ -395,7 +395,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 	
 	private def dispatch void toUnitTestCodeLine(AssignmentThroughPath step, ITreeAppendable output) {
-		val varType = expressionTypeComputer.determineType(step.variableReference.variable, null)
+		val varType = expressionTypeComputer.determineType(step.variableReference.variable, Optional.empty)
 		if (jsonUtil.isJsonType(varType)) {
 			toUnitTestCodeLineOfJsonAssignment(step, output)
 		} else {
@@ -420,7 +420,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			VariableReferencePathAccess,
 			VariableReference: {
 				val valueString = expressionBuilder.buildReadExpression(step.expression)
-				val variableType = expressionTypeComputer.determineType(expression, null)
+				val variableType = expressionTypeComputer.determineType(expression, Optional.empty)
 				if (jsonUtil.isJsonType(variableType)) {
 					val code = '''«expressionBuilder.buildWriteExpression(varRef, valueString)»;'''
 					output.append(code)
@@ -449,9 +449,9 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				output.trace(interaction.defaultMethod) => [
 					step.contents.filter(VariableReference).forEach [
 						val expectedType = typeComputer.getExpectedType(it, interaction)
-						val variableType = expressionTypeComputer.determineType(variable, expectedType)
+						val variableType = expressionTypeComputer.determineType(variable, expectedType?:Optional.empty)
 						if (coercionComputer.isTypeCoercionPossible(expectedType.get, variableType)) {
-							val coercionCheck = generateCoercionCheck(interaction, expectedType)
+							val coercionCheck = generateCoercionCheck(interaction, expectedType?:Optional.empty)
 							if (!coercionCheck.nullOrEmpty) {
 								output.append(coercionCheck).newLine
 							}
@@ -475,7 +475,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	private def String generateCoercionCheck(VariableReference variableReference, TemplateContainer templateContainer,
 		Optional<JvmTypeReference> expectedType) {
 		val variableAccessCode = toParameterString(variableReference, expectedType, templateContainer, false).head
-		val varRefType = expressionTypeComputer.determineType(variableReference.variable, expectedType)
+		val varRefType = expressionTypeComputer.determineType(variableReference.variable, expectedType?:Optional.empty)
 		val quotedErrorMessage = '''"Parameter is expected to be of type = '«expectedType.get.qualifiedName»' but a non coercible value = '"+«variableAccessCode».toString()+"' was passed through variable reference = '«variableReference.variable.name»'."'''
 		return coercionComputer.generateCoercionGuard(expectedType.get, varRefType, variableAccessCode,
 			quotedErrorMessage)
@@ -512,8 +512,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		if (macro !== null) {
 			step.contents.filter(VariableReference).forEach [
 				val expectedType = typeComputer.getExpectedType(it, macro)
-				val variableType = expressionTypeComputer.determineType(variable, expectedType)
-				if (coercionComputer.isTypeCoercionPossible(expectedType.get, variableType)) { 
+				val variableType = expressionTypeComputer.determineType(variable, expectedType?:Optional.empty)
+				if ((expectedType?:Optional.empty).present && coercionComputer.isTypeCoercionPossible(expectedType.get, variableType)) { 
 					val coercionCheck = generateCoercionCheck(macro, expectedType)
 					if (!coercionCheck.nullOrEmpty) {
 						output.append(coercionCheck).newLine
@@ -564,9 +564,9 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		}
 
 		// in all other cases, check for necessary coercion
-		val parameterString = stepContent.contentToParameterString(expectedType, templateContainer)
+		val parameterString = stepContent.contentToParameterString(expectedType?:Optional.empty, templateContainer)
 		// val expectedType = typeComputer.getExpectedType(stepContent, templateContainer)
-		if (expectedType.present) {
+		if ((expectedType?:Optional.empty).present) {
 			val stepContentType = expressionTypeComputer.determineType(stepContent, expectedType)
 			val coercionPossible = coercionComputer.isTypeCoercionPossible(expectedType.get, stepContentType)
 			if (withCoercion && coercionPossible) {
@@ -583,7 +583,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	
 	private def dispatch String contentToParameterString(StepContentValue stepContentValue, Optional<JvmTypeReference> parameterType,
 		TemplateContainer templateContainer) {
-		val stepContentType = expressionTypeComputer.determineType(stepContentValue, parameterType)
+		val stepContentType = expressionTypeComputer.determineType(stepContentValue, parameterType?:Optional.empty)
 		val contentIsANumberOrBool = typeReferenceUtil.isANumber(stepContentType) || typeReferenceUtil.isBoolean(stepContentType)
 		val fixtureParameterTypeIsKnownToBeString = parameterType.present && typeReferenceUtil.isString(parameterType.get)
 		if (fixtureParameterTypeIsKnownToBeString || !contentIsANumberOrBool) {

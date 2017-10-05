@@ -117,8 +117,9 @@ class TclCoercionComputer {
 			case targetType.isNumber: return sourceType.isString || sourceType.isJson || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber
 			case targetType.isBigDecimal: return sourceType.isString || sourceType.isJson || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber
 			case targetType.isEnum: return sourceType.isString || sourceType.isJson || sourceType.isEnum
+			default: // ignore, simply return that coercion is not possible
+				return false
 		}
-		return false
 	}
 	
 	/**
