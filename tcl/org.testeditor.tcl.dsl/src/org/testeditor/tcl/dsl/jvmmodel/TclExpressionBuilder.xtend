@@ -32,6 +32,8 @@ import org.testeditor.tcl.JsonValue
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferencePathAccess
 
+import static extension org.apache.commons.lang3.StringEscapeUtils.escapeJava
+
 /**
  * build a (textual) java expression based on a parsed (tcl) expression
  */
@@ -82,7 +84,7 @@ class TclExpressionBuilder {
 	def dispatch String buildReadExpression(JsonValue jsonValue) {
 		switch jsonValue {
 			JsonBoolean: return jsonValue.value.toString
-			JsonString: return '''"«jsonValue.value»"'''
+			JsonString: return '''"«jsonValue.value.escapeJava»"'''
 			JsonNull: return 'null'
 			JsonNumber: return jsonValue.value
 			default: throw new RuntimeException('''Cannot build read expression for json value of type = '«jsonValue?.class»'.''')

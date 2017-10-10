@@ -17,7 +17,6 @@ import java.util.List
 import java.util.Optional
 import java.util.Set
 import javax.inject.Inject
-import org.apache.commons.lang3.StringEscapeUtils
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.common.types.JvmConstructor
@@ -70,6 +69,8 @@ import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentValue
 
 import static org.testeditor.tcl.TclPackage.Literals.*
+
+import static extension org.apache.commons.lang3.StringEscapeUtils.escapeJava
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -413,7 +414,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		val expression = step.expression.actualMostSpecific
 		switch expression {
 			JsonValue: {
-				val parsedValue = jsonUtil.jsonParseInstruction('''"«StringEscapeUtils.escapeJava(serializer.serialize(expression).trim)»"''')
+				val parsedValue = jsonUtil.jsonParseInstruction('''"«serializer.serialize(expression).trim.escapeJava»"''')
 				val code = '''«expressionBuilder.buildWriteExpression(varRef, parsedValue)»;'''
 				output.append(code)
 			}
@@ -465,10 +466,10 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			}
 		} else if (step.componentContext != null) {
 			logger.debug("interaction not found within context of component '{}' for test step='{}'.", step.componentContext.component.name, stepLog)
-			output.append('''org.junit.Assert.fail("Template '«StringEscapeUtils.escapeJava(stepLog)»' cannot be resolved with any known macro/fixture. Please check your «step.locationInfo»");''')
+			output.append('''org.junit.Assert.fail("Template '«stepLog.escapeJava»' cannot be resolved with any known macro/fixture. Please check your «step.locationInfo»");''')
 		} else {
 			logger.debug("interaction not found in unknown context for test step='{}'.", stepLog)
-			output.append('''org.junit.Assert.fail("Template '«StringEscapeUtils.escapeJava(stepLog)»' cannot be resolved with any known macro/fixture. Please check your  Macro-, Config- or Testcase-File ");''')
+			output.append('''org.junit.Assert.fail("Template '«stepLog.escapeJava»' cannot be resolved with any known macro/fixture. Please check your  Macro-, Config- or Testcase-File ");''')
 		}
 	}
 
@@ -589,7 +590,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		if (fixtureParameterTypeIsKnownToBeString || !contentIsANumberOrBool) {
 			// if fixture parameter is a string this is easy, just quote the value
 			// if the content itself is not a number nor a boolean its probably a good idea to quote this value, too
-			return '''"«StringEscapeUtils.escapeJava(stepContentValue.value)»"'''
+			return '''"«stepContentValue.value.escapeJava»"'''
 		} else {
 			// if content is definitely a boolean or a number and this is also expected by the called fixture,
 			return stepContentValue.value
@@ -598,7 +599,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	
 	private def Iterable<String> toLocatorParameterString(StepContentElement stepContent, InteractionType interaction) {
 		val element = stepContent.componentElement
-		val locator = '''"«element.locator»"'''
+		val locator = '''"«element.locator.escapeJava»"'''
 		if (interaction.defaultMethod.locatorStrategyParameters.size > 0) {
 			// use element locator strategy if present, else use default of interaction
 			logger.debug("resolved interaction='{}' to expect locator strategy for parameter='{}'",
