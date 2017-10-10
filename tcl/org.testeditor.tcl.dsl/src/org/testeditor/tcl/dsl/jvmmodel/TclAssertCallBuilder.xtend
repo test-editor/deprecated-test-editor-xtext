@@ -14,7 +14,6 @@ package org.testeditor.tcl.dsl.jvmmodel
 
 import java.util.Optional
 import javax.inject.Inject
-import org.apache.commons.lang3.StringEscapeUtils
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.slf4j.LoggerFactory
@@ -31,6 +30,7 @@ import org.testeditor.tcl.NullOrBoolCheck
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.VariableReference
 
+import static extension org.apache.commons.lang3.StringEscapeUtils.escapeJava
 import static extension org.eclipse.xtext.EcoreUtil2.getContainerOfType
 
 /**
@@ -87,7 +87,7 @@ class TclAssertCallBuilder {
 				default: throw new RuntimeException('''Assertion expression of type='«expression.class.canonicalName»' cannot be built!''')
 			}
 			return '''
-				org.junit.Assert.«expression.assertionMethod»("«messagePrefix»: «StringEscapeUtils.escapeJava(expression.assertionText)»", «expressionBuilt»);'''
+				org.junit.Assert.«expression.assertionMethod»("«messagePrefix»: «expression.assertionText.escapeJava»", «expressionBuilt»);'''
 		}
 	}
 
