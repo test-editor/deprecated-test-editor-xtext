@@ -22,7 +22,6 @@ import org.eclipse.xtext.common.types.JvmTypeReference
 import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.Variable
-import org.testeditor.dsl.common.util.TclJvmTypeReferenceUtil
 import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.ComparatorEquals
 import org.testeditor.tcl.ComparatorGreaterThan
@@ -43,6 +42,7 @@ import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentVariable
+import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 
 /**
  * compute the resulting type (as JvmTypeReference) of tcl expressions as they would be/are generated
@@ -51,7 +51,7 @@ class TclExpressionTypeComputer {
 	
 	@Inject SimpleTypeComputer typeComputer
 	@Inject TclJsonUtil jsonUtil
-	@Inject TclJvmTypeReferenceUtil typeReferenceUtil
+	@Inject JvmTypeReferenceUtil typeReferenceUtil
 	@Inject TclCoercionComputer coercionComputer
 	
 	def boolean isJsonType(Expression expression) {

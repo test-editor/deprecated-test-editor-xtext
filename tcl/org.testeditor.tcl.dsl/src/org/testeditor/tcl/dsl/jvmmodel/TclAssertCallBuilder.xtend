@@ -18,7 +18,6 @@ import org.apache.commons.lang3.StringEscapeUtils
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.slf4j.LoggerFactory
-import org.testeditor.dsl.common.util.TclJvmTypeReferenceUtil
 import org.testeditor.tcl.Comparator
 import org.testeditor.tcl.ComparatorEquals
 import org.testeditor.tcl.ComparatorGreaterThan
@@ -33,6 +32,7 @@ import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.VariableReference
 
 import static extension org.eclipse.xtext.EcoreUtil2.getContainerOfType
+import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 
 /**
  * generate code used for assertion statements
@@ -43,7 +43,7 @@ class TclAssertCallBuilder {
 
 	@Inject extension VariableCollector	
 	@Inject TclExpressionBuilder expressionBuilder
-	@Inject TclJvmTypeReferenceUtil typeReferenceUtil
+	@Inject JvmTypeReferenceUtil typeReferenceUtil
 	@Inject TclExpressionTypeComputer expressionTypeComputer
 
 	/** assert method calls used, toString must yield the actual method name! */
