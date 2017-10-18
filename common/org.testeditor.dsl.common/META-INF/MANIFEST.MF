@@ -26,7 +26,7 @@ Require-Bundle: org.eclipse.xtend.lib.macro,
 Export-Package: org.testeditor.dsl.common.ide.util,
  org.testeditor.dsl.common.util,
  org.testeditor.dsl.common.util.classpath
-Import-Package: com.google.gson;version="2.2.4",
+Import-Package: com.google.gson,
  javax.inject;version="1.0.0"
 Eclipse-BundleShape: dir
 Bundle-ActivationPolicy: lazy

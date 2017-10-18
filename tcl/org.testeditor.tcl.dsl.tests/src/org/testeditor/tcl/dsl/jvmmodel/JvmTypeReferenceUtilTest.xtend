@@ -1,14 +1,19 @@
-package org.testeditor.dsl.common.util
+package org.testeditor.tcl.dsl.jvmmodel
 
 import javax.inject.Inject
-import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.xbase.typesystem.conformance.TypeConformanceComputationArgument
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
-import org.testeditor.dsl.common.testing.AbstractTest
+import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 
-class JvmTypeReferenceUtilTest extends AbstractTest {
+/**
+ * Jvm type reference util tests are implemented in the tcl package to 
+ * make sure that these tests are executed in the context of a xtext dsl
+ * with access to a non null resource set, which again is heavyly used
+ * by the class itself. 
+ */
+class JvmTypeReferenceUtilTest extends AbstractTclGeneratorIntegrationTest {
 
 	@Inject JvmTypeReferenceUtil typeReferenceUtil // class under test
 	@Inject JvmTypeReferenceUtil utilForTypeGenerationComparison
@@ -19,8 +24,8 @@ class JvmTypeReferenceUtilTest extends AbstractTest {
 	
 	@Before
 	def void setupTypeReferenceUtils() {
-		typeReferenceUtil.initWith(null as Resource)
-		utilForTypeGenerationComparison.initWith(null as Resource)
+		typeReferenceUtil.initWith(resourceSet)
+		utilForTypeGenerationComparison.initWith(resourceSet)
 	}
 
 	@Test
