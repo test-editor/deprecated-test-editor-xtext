@@ -12,17 +12,18 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
+import java.util.Optional
 import javax.inject.Inject
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.junit.Before
 import org.junit.Test
 import org.mockito.InjectMocks
 import org.mockito.Mock
+import org.testeditor.dsl.common.util.TclJvmTypeReferenceUtil
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
 import org.testeditor.tsl.impl.TslFactoryImpl
 
 import static org.mockito.Mockito.*
-import java.util.Optional
 
 class TypeExpressionComputerTest extends AbstractTclTest{
 	

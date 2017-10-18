@@ -40,6 +40,7 @@ import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateVariable
+import org.testeditor.dsl.common.util.TclJvmTypeReferenceUtil
 import org.testeditor.fixture.core.AbstractTestCase
 import org.testeditor.fixture.core.TestRunReportable
 import org.testeditor.fixture.core.TestRunReporter

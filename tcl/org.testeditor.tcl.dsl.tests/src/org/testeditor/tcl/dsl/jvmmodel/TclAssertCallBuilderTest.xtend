@@ -20,6 +20,7 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.InjectMocks
 import org.mockito.Mock
+import org.testeditor.dsl.common.util.TclJvmTypeReferenceUtil
 import org.testeditor.tcl.JsonString
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferencePathAccess
