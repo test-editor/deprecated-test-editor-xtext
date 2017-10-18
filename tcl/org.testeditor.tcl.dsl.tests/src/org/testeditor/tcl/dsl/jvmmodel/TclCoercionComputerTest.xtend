@@ -8,6 +8,7 @@ import org.eclipse.xtext.util.Pair
 import org.eclipse.xtext.util.Tuples
 import org.junit.Before
 import org.junit.Test
+import org.testeditor.dsl.common.util.TclJvmTypeReferenceUtil
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
 
 class TclCoercionComputerTest extends AbstractTclTest {

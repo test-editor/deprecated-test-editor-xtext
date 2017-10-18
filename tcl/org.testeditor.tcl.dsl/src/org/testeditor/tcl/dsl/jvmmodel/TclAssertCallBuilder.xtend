@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringEscapeUtils
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.slf4j.LoggerFactory
+import org.testeditor.dsl.common.util.TclJvmTypeReferenceUtil
 import org.testeditor.tcl.Comparator
 import org.testeditor.tcl.ComparatorEquals
 import org.testeditor.tcl.ComparatorGreaterThan

@@ -22,6 +22,7 @@ import org.eclipse.xtext.common.types.JvmTypeReference
 import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.Variable
+import org.testeditor.dsl.common.util.TclJvmTypeReferenceUtil
 import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.ComparatorEquals
 import org.testeditor.tcl.ComparatorGreaterThan

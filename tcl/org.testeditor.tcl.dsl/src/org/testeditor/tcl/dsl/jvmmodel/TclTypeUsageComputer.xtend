@@ -18,6 +18,7 @@ import javax.inject.Inject
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.dsl.common.util.CollectionUtils
+import org.testeditor.dsl.common.util.TclJvmTypeReferenceUtil
 import org.testeditor.tcl.AssignmentThroughPath
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.MacroTestStepContext

@@ -27,6 +27,7 @@ import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.dsl.validation.AmlValidator
 import org.testeditor.dsl.common.util.CollectionUtils
+import org.testeditor.dsl.common.util.TclJvmTypeReferenceUtil
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.AssignmentThroughPath
 import org.testeditor.tcl.ComparatorGreaterThan
@@ -47,7 +48,6 @@ import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tcl.dsl.jvmmodel.SimpleTypeComputer
 import org.testeditor.tcl.dsl.jvmmodel.TclCoercionComputer
 import org.testeditor.tcl.dsl.jvmmodel.TclExpressionTypeComputer
-import org.testeditor.tcl.dsl.jvmmodel.TclJvmTypeReferenceUtil
 import org.testeditor.tcl.dsl.jvmmodel.TclTypeUsageComputer
 import org.testeditor.tcl.dsl.jvmmodel.VariableCollector
 import org.testeditor.tcl.util.TclModelUtil
@@ -59,6 +59,7 @@ import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
 
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
+import org.testeditor.tcl.dsl.jvmmodel.TclJsonUtil
 
 class TclValidator extends AbstractTclValidator {
 
@@ -90,6 +91,7 @@ class TclValidator extends AbstractTclValidator {
 	@Inject TclTypeUsageComputer typeUsageComputer
 	@Inject TclJvmTypeReferenceUtil typeReferenceUtil
 	@Inject TclCoercionComputer coercionComputer
+	@Inject TclJsonUtil jsonUtil
 
 	private static val ERROR_MESSAGE_FOR_INVALID_VAR_REFERENCE = "Dereferenced variable must be a required environment variable or a previously assigned variable"
 	
@@ -425,7 +427,7 @@ class TclValidator extends AbstractTclValidator {
 		switch variableReference {
 			VariableReferencePathAccess:
 				// must be Json
-				if (!typeReferenceUtil.isJson(typeDeclared)) {
+				if (!jsonUtil.isJsonType(typeDeclared)) {
 					error('''Variable='«variableReference.variable.name»' is declared to be of type='«typeDeclared?.qualifiedName»' but is used in a position that expects a json type (e.g. «JsonObject.name»).''',
 						variableReference.eContainer, variableReference.eContainingFeature, errorReportingIndex,
 						INVALID_JSON_ACCESS)

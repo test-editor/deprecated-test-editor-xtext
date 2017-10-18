@@ -10,7 +10,7 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.tcl.dsl.jvmmodel
+package org.testeditor.dsl.common.util
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
@@ -45,7 +45,7 @@ class TclJvmTypeReferenceUtil {
 	@Accessors(PUBLIC_GETTER)
 	val checkWithoutBoxing = new TypeConformanceComputationArgument(false, false, false, false, false, true)
 
-	@Inject TclJsonUtil jsonUtil
+	// @Inject TclJsonUtil jsonUtil
 	@Inject CommonTypeComputationServices services
 	var StandardTypeReferenceOwner typeReferenceOwner
 	var JvmTypeReferenceBuilder typeReferenceBuilder
@@ -117,9 +117,9 @@ class TclJvmTypeReferenceUtil {
 		return (Long.name == qname || long.name == qname)
 	}
 
-	def boolean isJson(JvmTypeReference typeReference) {
-		return jsonUtil.isJsonType(typeReference)
-	}
+//	def boolean isJson(JvmTypeReference typeReference) {
+//		return jsonUtil.isJsonType(typeReference)
+//	}
 
 	def boolean isOrderable(JvmTypeReference typeReference) {
 		return typeReference.isANumber
