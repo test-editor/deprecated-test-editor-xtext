@@ -1,7 +1,9 @@
 package org.testeditor.dsl.common.util
 
 import javax.inject.Inject
+import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.xbase.typesystem.conformance.TypeConformanceComputationArgument
+import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import org.testeditor.dsl.common.testing.AbstractTest
@@ -14,6 +16,12 @@ class JvmTypeReferenceUtilTest extends AbstractTest {
 	val standardTestFlags = new TypeConformanceComputationArgument(false, false, false, false, false, true)
 
 	enum TestEnum { a, b, c }
+	
+	@Before
+	def void setupTypeReferenceUtils() {
+		typeReferenceUtil.initWith(null as Resource)
+		utilForTypeGenerationComparison.initWith(null as Resource)
+	}
 
 	@Test
 	def void testTestEnumIsEnum() {
