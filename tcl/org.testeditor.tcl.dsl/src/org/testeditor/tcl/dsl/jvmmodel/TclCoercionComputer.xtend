@@ -22,9 +22,9 @@ import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.xtext.common.types.JvmEnumerationType
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.slf4j.LoggerFactory
-import org.testeditor.dsl.common.util.TclJvmTypeReferenceUtil
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentVariable
+import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 
 /** 
  * compute whether and how coercion should be generated
@@ -33,7 +33,7 @@ class TclCoercionComputer {
 	
 	private val logger = LoggerFactory.getLogger(TclCoercionComputer)
 	
-	@Inject extension TclJvmTypeReferenceUtil typeReferenceUtil
+	@Inject extension JvmTypeReferenceUtil typeReferenceUtil
 	@Inject extension TclJsonUtil
 
 	def initWith(Resource resource) {

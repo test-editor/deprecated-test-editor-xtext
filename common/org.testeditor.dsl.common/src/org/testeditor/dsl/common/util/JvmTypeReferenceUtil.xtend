@@ -38,9 +38,9 @@ import org.slf4j.LoggerFactory
  * of all relevant types.
  */
 @Singleton
-class TclJvmTypeReferenceUtil {
+class JvmTypeReferenceUtil {
 	
-	private static val log = LoggerFactory.getLogger(TclJvmTypeReferenceUtil)
+	private static val log = LoggerFactory.getLogger(JvmTypeReferenceUtil)
 
 	@Accessors(PUBLIC_GETTER)
 	val checkWithoutBoxing = new TypeConformanceComputationArgument(false, false, false, false, false, true)

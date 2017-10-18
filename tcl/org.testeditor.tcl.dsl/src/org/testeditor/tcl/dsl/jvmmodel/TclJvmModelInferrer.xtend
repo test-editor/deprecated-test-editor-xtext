@@ -40,7 +40,6 @@ import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateVariable
-import org.testeditor.dsl.common.util.TclJvmTypeReferenceUtil
 import org.testeditor.fixture.core.AbstractTestCase
 import org.testeditor.fixture.core.TestRunReportable
 import org.testeditor.fixture.core.TestRunReporter
@@ -70,6 +69,7 @@ import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentValue
 
 import static org.testeditor.tcl.TclPackage.Literals.*
+import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 
 import static extension org.apache.commons.lang3.StringEscapeUtils.escapeJava
 
@@ -91,7 +91,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	@Inject ISerializer serializer 
 	@Inject TclJsonUtil jsonUtil
 	@Inject TclCoercionComputer coercionComputer
-	@Inject TclJvmTypeReferenceUtil typeReferenceUtil
+	@Inject JvmTypeReferenceUtil typeReferenceUtil
 		
 	def dispatch void infer(TclModel model, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		model.test?.infer(acceptor, isPreIndexingPhase)

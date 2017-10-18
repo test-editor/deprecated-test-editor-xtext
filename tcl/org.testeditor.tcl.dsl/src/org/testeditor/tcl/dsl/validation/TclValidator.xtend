@@ -27,7 +27,6 @@ import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.dsl.validation.AmlValidator
 import org.testeditor.dsl.common.util.CollectionUtils
-import org.testeditor.dsl.common.util.TclJvmTypeReferenceUtil
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.AssignmentThroughPath
 import org.testeditor.tcl.ComparatorGreaterThan
@@ -60,6 +59,7 @@ import org.testeditor.tsl.TslPackage
 
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
 import org.testeditor.tcl.dsl.jvmmodel.TclJsonUtil
+import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 
 class TclValidator extends AbstractTclValidator {
 
@@ -89,7 +89,7 @@ class TclValidator extends AbstractTclValidator {
 	@Inject TclExpressionTypeComputer expressionTypeComputer
 	@Inject VariableCollector variableCollector
 	@Inject TclTypeUsageComputer typeUsageComputer
-	@Inject TclJvmTypeReferenceUtil typeReferenceUtil
+	@Inject JvmTypeReferenceUtil typeReferenceUtil
 	@Inject TclCoercionComputer coercionComputer
 	@Inject TclJsonUtil jsonUtil
 

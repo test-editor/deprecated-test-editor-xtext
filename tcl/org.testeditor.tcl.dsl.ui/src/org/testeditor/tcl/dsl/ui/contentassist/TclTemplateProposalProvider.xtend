@@ -28,19 +28,19 @@ import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
-import org.testeditor.dsl.common.util.TclJvmTypeReferenceUtil
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.dsl.jvmmodel.SimpleTypeComputer
 import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 
 class TclTemplateProposalProvider extends DefaultTemplateProposalProvider {
 	@Inject extension ModelUtil
 	@Inject extension TclModelUtil
 	@Inject IQualifiedNameProvider nameProvider
-	@Inject TclJvmTypeReferenceUtil typeUtil
+	@Inject JvmTypeReferenceUtil typeUtil
 	@Inject SimpleTypeComputer typeComputer
 
 	@Inject
