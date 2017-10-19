@@ -14,9 +14,11 @@ package org.testeditor.tcl.dsl.jvmmodel
 
 import java.util.Optional
 import javax.inject.Inject
+import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.slf4j.LoggerFactory
+import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 import org.testeditor.tcl.Comparator
 import org.testeditor.tcl.ComparatorEquals
 import org.testeditor.tcl.ComparatorGreaterThan
@@ -32,7 +34,6 @@ import org.testeditor.tcl.VariableReference
 
 import static extension org.apache.commons.lang3.StringEscapeUtils.escapeJava
 import static extension org.eclipse.xtext.EcoreUtil2.getContainerOfType
-import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 
 /**
  * generate code used for assertion statements
@@ -73,6 +74,9 @@ class TclAssertCallBuilder {
 		}
 	}
 	
+	/**
+	 * Get the textual representation of the expression as is
+	 */
 	def String assertionText(Expression expression) {
 		return NodeModelUtils.getNode(expression)?.text?.trim ?: ""
 	}
