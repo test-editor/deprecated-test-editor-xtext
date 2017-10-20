@@ -22,6 +22,8 @@ import org.eclipse.xtext.common.types.JvmTypeReference
 import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.Variable
+import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
+import org.testeditor.fixture.core.MaskingString
 import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.ComparatorEquals
 import org.testeditor.tcl.ComparatorGreaterThan
@@ -42,7 +44,7 @@ import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentVariable
-import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
+import java.util.Map
 
 /**
  * compute the resulting type (as JvmTypeReference) of tcl expressions as they would be/are generated
@@ -128,7 +130,13 @@ class TclExpressionTypeComputer {
 		typeReferenceUtil.initWith(variable.eResource)
 		val result = switch variable {
 			AssignmentVariable: typeComputer.determineType(variable)
-			EnvironmentVariable: typeReferenceUtil.stringJvmTypeReference
+			EnvironmentVariable: {
+				if (variable.nonConfidential) {
+					typeReferenceUtil.stringJvmTypeReference
+				} else {
+					typeReferenceUtil.buildFrom(MaskingString)
+				}
+			}
 			TemplateVariable: typeComputer.getVariablesWithTypes(
 				EcoreUtil2.getContainerOfType(variable, TemplateContainer)).get(variable).get
 			default: throw new RuntimeException('''Variable of type='«variable.class.canonicalName»' is unknown''')
@@ -152,6 +160,19 @@ class TclExpressionTypeComputer {
 			return left
 		}
 	}
+
+	def Map<String, JvmTypeReference> getEnvironmentVariablesTypeMap(Iterable<EnvironmentVariable> envParams) {
+		val envParameterVariablesTypeMap = newHashMap
+		if (!envParams.empty) {
+			typeReferenceUtil.initWith(envParams.head.eResource)
+			val stringTypeReference = typeReferenceUtil.stringJvmTypeReference
+			val maskingStringTypeReference = typeReferenceUtil.buildFrom(MaskingString)  
+			envParams.forEach[
+				envParameterVariablesTypeMap.put(name, if (nonConfidential) { stringTypeReference } else { maskingStringTypeReference })
+			]
+		}
+		return envParameterVariablesTypeMap
+	}	
 	
 	/** find the most likely type for each of the comparison components (left and right) */
 	def JvmTypeReference coercedTypeOfComparison(Comparison comparison, Optional<JvmTypeReference> wantedType) {

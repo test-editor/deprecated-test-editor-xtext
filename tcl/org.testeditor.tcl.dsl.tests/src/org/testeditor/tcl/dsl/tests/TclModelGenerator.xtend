@@ -80,7 +80,13 @@ class TclModelGenerator {
 		]
 	}
 
-	def Iterable<EnvironmentVariable> environmentVariables(String ... names) {
+	def Iterable<EnvironmentVariable> environmentVariablesPublic(String ... names) {
+		return names.map [ varName |
+			tclFactory.createEnvironmentVariable => [name = varName nonConfidential = true]
+		]
+	}
+
+	def Iterable<EnvironmentVariable> environmentVariablesConfidential(String ... names) {
 		return names.map [ varName |
 			tclFactory.createEnvironmentVariable => [name = varName]
 		]

@@ -106,7 +106,7 @@ class TclExpressionBuilderTest extends AbstractTclTest {
 	@Test
 	def void testEnvironmentReference() {
 		// given
-		val envVar = variableReference => [variable = environmentVariables("variable").head]
+		val envVar = variableReference => [variable = environmentVariablesPublic("variable").head]
 
 		// when
 		val result = expressionBuilder.buildReadExpression(envVar)

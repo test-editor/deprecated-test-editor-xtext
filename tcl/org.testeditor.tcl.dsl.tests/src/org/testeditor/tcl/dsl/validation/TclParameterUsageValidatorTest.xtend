@@ -57,7 +57,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 		]
 		macroModel.addToResourceSet("test.tml")
 
-		val allEnvVars=environmentVariables("envVar", "myEnvString")
+		val allEnvVars=environmentVariablesPublic("envVar", "myEnvString")
 		val tclModel = tclModel => [
 			environmentVariables.addAll(allEnvVars)
 			val envVar = environmentVariables.head
@@ -212,6 +212,48 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 	}
 	
 	@Test
+	def void testConfidentialVarExpectingString() {
+		// given
+		val tclModel = tclModel => [
+			val confEnvVar = environmentVariablesConfidential("confEnvVar").head
+			
+			environmentVariables += confEnvVar
+			test = testCase("MyTest") => [
+				steps += specificationStep("test", "something") => [
+					contexts += componentTestStepContext(dummyComponent) => [
+						steps += testStep("start").withReferenceToVariable(confEnvVar)
+					]
+				]
+			]
+		]
+		tclModel.addToResourceSet('MyTest.tcl')
+		
+		// when then
+		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_TYPED_VAR_DEREF)
+	}
+	
+	@Test
+	def void testPublicEnvVarExpectingString() {
+		// given
+		val tclModel = tclModel => [
+			val publicEnvVar = environmentVariablesPublic("confEnvVar").head
+			
+			environmentVariables += publicEnvVar
+			test = testCase("MyTest") => [
+				steps += specificationStep("test", "something") => [
+					contexts += componentTestStepContext(dummyComponent) => [
+						steps += testStep("start").withReferenceToVariable(publicEnvVar)
+					]
+				]
+			]
+		]
+		tclModel.addToResourceSet('MyTest.tcl')
+		
+		// when then
+		validator.assertNoErrors(tclModel)
+	}
+	
+	@Test
 	def void testParameterTypingConstantStringExpectingLong() {
 		// given
 		val tclModel = tclModel => [
@@ -309,7 +351,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 	 * the parameter is used in positions that expect the passed types (simple names)
 	 */
 	private def TclModel tclCallingMyCallMacroWithOneEnvParam(String envVarString, TclModel tmlModel, Iterable<String> types) {
-		val envVar=environmentVariables(envVarString).head
+		val envVar=environmentVariablesPublic(envVarString).head
 		val tclModel = tclModel => [
 			environmentVariables += envVar
 			test = testCase("MyTest") => [

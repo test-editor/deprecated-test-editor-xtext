@@ -257,7 +257,7 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 		val tcl = '''
 			package com.example
 			
-			require myEnvVar
+			require public myEnvVar
 			
 			# SimpleTest
 			* step1

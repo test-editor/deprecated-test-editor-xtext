@@ -295,7 +295,7 @@ class TclValidator extends AbstractTclValidator {
 	 */
 	@Check
 	def void checkVariableUsageIsWellTyped(TestCase testCase) {
-		val knownVariablesTypeMap = testCase.model.envParams.environmentVariablesTypeMap
+		val knownVariablesTypeMap = expressionTypeComputer.getEnvironmentVariablesTypeMap(testCase.model.envParams)
 		testCase.steps.map[contexts].flatten => [
 			forEach[knownVariablesTypeMap.putAll(variableCollector.collectDeclaredVariablesTypeMap(it))]
 			forEach[checkAllReferencedVariablesAreUsedWellTyped(knownVariablesTypeMap)]

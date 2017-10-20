@@ -25,6 +25,10 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 				interactions = start, getJsonObject, getValue
 			}
 			component dummyComponent is dummyComponentType {
+				element Input is Text {
+					locator = "some"
+					locatorStrategy = DummyLocatorStrategy.ID
+				}
 				element dummyElement is Label {
 					locator = "dummyLocator"
 				}
@@ -37,6 +41,9 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 		val tclModel = parseTcl('''
 			package com.example
 			
+			require        confEnvVar,
+			        public nonConfEnvVar
+			
 			# MyTest
 			
 			* test something
@@ -46,6 +53,8 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 			- myVal = Read value from <dummyElement>
 			- Start application @myJsonObject."my key"
 			- Start application @myVal
+			- Type confidential @confEnvVar into <Input>
+			- Type @nonConfEnvVar into <Input>
 		''')
 		tclModel.addToResourceSet
 		
@@ -55,9 +64,11 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 		tclModelCode.assertEquals('''
 			package com.example;
 			
+			import org.junit.Before;
 			import org.junit.Test;
 			import org.testeditor.dsl.common.testing.DummyFixture;
 			import org.testeditor.fixture.core.AbstractTestCase;
+			import org.testeditor.fixture.core.MaskingString;
 			import org.testeditor.fixture.core.TestRunReporter;
 			
 			/**
@@ -66,6 +77,17 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 			@SuppressWarnings("all")
 			public class MyTest extends AbstractTestCase {
 			  private DummyFixture dummyFixture = new DummyFixture();
+			  
+			  private MaskingString env_confEnvVar = new MaskingString(System.getenv("confEnvVar"));
+			  
+			  private String env_nonConfEnvVar = System.getenv("nonConfEnvVar");
+			  
+			  @Before
+			  public void checkEnvironmentVariablesOnExistence() throws Exception {
+			    org.junit.Assert.assertNotNull("environment variable 'confEnvVar' must not be null", env_confEnvVar.get());
+			    org.junit.Assert.assertNotNull("environment variable 'nonConfEnvVar' must not be null", env_nonConfEnvVar);
+			    
+			  }
 			  
 			  @Test
 			  public void execute() throws Exception {
@@ -83,6 +105,10 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 			    dummyFixture.startApplication(myJsonObject.getAsJsonObject().get("my key").getAsJsonPrimitive().getAsString());
 			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Start application @myVal // myVal = '" + myVal + "'");
 			    dummyFixture.startApplication(myVal);
+			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Type confidential @confEnvVar into <Input> // confEnvVar = '" + env_confEnvVar + "'");
+			    dummyFixture.typeConfidentialInformationInto("some", org.testeditor.dsl.common.testing.DummyLocatorStrategy.ID, env_confEnvVar);
+			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Type @nonConfEnvVar into <Input> // nonConfEnvVar = '" + env_nonConfEnvVar + "'");
+			    dummyFixture.typeInto("some", org.testeditor.dsl.common.testing.DummyLocatorStrategy.ID, env_nonConfEnvVar);
 			  }
 			}
 		'''.toString)

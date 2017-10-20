@@ -72,6 +72,7 @@ import static org.testeditor.tcl.TclPackage.Literals.*
 import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 
 import static extension org.apache.commons.lang3.StringEscapeUtils.escapeJava
+import org.testeditor.fixture.core.MaskingString
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -217,9 +218,18 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		// create variables for required environment variables
 		val envParams = element.model.environmentVariables
 		result.members += envParams.map [ environmentVariable |
+			val actualType = if (environmentVariable.nonConfidential) {
+				String
+			} else {
+				MaskingString
+			}
 			environmentVariable.toField(expressionBuilder.variableToVarName(environmentVariable),
-				typeRef(String)) [
-				initializer = '''System.getenv("«environmentVariable.name»")'''
+				typeRef(actualType)) [
+				if (environmentVariable.nonConfidential) {
+					initializer = '''System.getenv("«environmentVariable.name»")'''
+				}else {
+					initializer = '''new MaskingString(System.getenv("«environmentVariable.name»"))'''
+				}
 			]
 		]
 		if (!envParams.empty) {
@@ -318,7 +328,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	private def void generateEnvironmentVariableAssertion(EnvironmentVariable environmentVariable,
 		ITreeAppendable output) {
 		val varName = expressionBuilder.variableToVarName(environmentVariable)
-		output.append('''org.junit.Assert.assertNotNull("environment variable '«environmentVariable.name»' must not be null", «varName»);''')
+		val confidentialAccessor = if (environmentVariable.nonConfidential) { '' } else { '.get()' }
+		output.append('''org.junit.Assert.assertNotNull("environment variable '«environmentVariable.name»' must not be null", «varName»«confidentialAccessor»);''')
 		output.newLine
 	}
 	
