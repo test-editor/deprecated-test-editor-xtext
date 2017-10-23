@@ -42,6 +42,7 @@ import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentVariable
+import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 
 /**
  * compute the resulting type (as JvmTypeReference) of tcl expressions as they would be/are generated
@@ -50,7 +51,7 @@ class TclExpressionTypeComputer {
 	
 	@Inject SimpleTypeComputer typeComputer
 	@Inject TclJsonUtil jsonUtil
-	@Inject TclJvmTypeReferenceUtil typeReferenceUtil
+	@Inject JvmTypeReferenceUtil typeReferenceUtil
 	@Inject TclCoercionComputer coercionComputer
 	
 	def boolean isJsonType(Expression expression) {

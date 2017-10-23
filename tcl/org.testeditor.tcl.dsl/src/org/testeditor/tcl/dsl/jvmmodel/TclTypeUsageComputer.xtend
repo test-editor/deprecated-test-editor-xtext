@@ -27,6 +27,7 @@ import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.StepContentText
+import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 
 /**
  * compute all type usages of certain model elements
@@ -34,7 +35,7 @@ import org.testeditor.tsl.StepContentText
 class TclTypeUsageComputer {
 
 	@Inject SimpleTypeComputer simpleTypeComputer
-	@Inject TclJvmTypeReferenceUtil typeReferenceUtil
+	@Inject JvmTypeReferenceUtil typeReferenceUtil
 	@Inject extension TclModelUtil  tclModelUtil
 	@Inject extension CollectionUtils 
 

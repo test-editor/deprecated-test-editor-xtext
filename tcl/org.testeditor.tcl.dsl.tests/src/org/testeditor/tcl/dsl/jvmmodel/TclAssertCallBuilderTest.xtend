@@ -29,6 +29,7 @@ import org.testeditor.tcl.util.TclModelUtil
 
 import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
+import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 
 class TclAssertCallBuilderTest extends AbstractTclTest {
 
@@ -39,7 +40,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 	@Mock SimpleTypeComputer simpleTypeComputer // injected into class under test
 	@Mock VariableCollector variableCollector // injected into class under test	
 	@Mock TclExpressionTypeComputer tclExpressionTypeComputer // injected into class under test
-	@Mock TclJvmTypeReferenceUtil tclJvmTypeReferenceUtil // injected into class under test
+	@Mock JvmTypeReferenceUtil tclJvmTypeReferenceUtil // injected into class under test
 	
 	@Inject extension TclModelGenerator
 	@Inject protected Provider<XtextResourceSet> resourceSetProvider

@@ -25,17 +25,17 @@ import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.dsl.ui.contentassist.AmlProposalProvider
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.dsl.jvmmodel.SimpleTypeComputer
-import org.testeditor.tcl.dsl.jvmmodel.TclJvmTypeReferenceUtil
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentVariable
+import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 
 class TclProposalProvider extends AbstractTclProposalProvider {
 
 	@Inject extension TclModelUtil
 	@Inject extension ModelUtil
 	@Inject AmlProposalProvider amlProposalProvider
-	@Inject TclJvmTypeReferenceUtil typeUtil
+	@Inject JvmTypeReferenceUtil typeUtil
 	@Inject SimpleTypeComputer typeComputer
 
 	override completeTestCase_Steps(EObject model, Assignment assignment, ContentAssistContext context,

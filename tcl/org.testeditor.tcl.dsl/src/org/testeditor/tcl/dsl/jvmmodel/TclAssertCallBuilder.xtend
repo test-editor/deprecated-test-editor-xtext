@@ -32,6 +32,7 @@ import org.testeditor.tcl.VariableReference
 
 import static extension org.apache.commons.lang3.StringEscapeUtils.escapeJava
 import static extension org.eclipse.xtext.EcoreUtil2.getContainerOfType
+import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 
 /**
  * generate code used for assertion statements
@@ -42,7 +43,7 @@ class TclAssertCallBuilder {
 
 	@Inject extension VariableCollector	
 	@Inject TclExpressionBuilder expressionBuilder
-	@Inject TclJvmTypeReferenceUtil typeReferenceUtil
+	@Inject JvmTypeReferenceUtil typeReferenceUtil
 	@Inject TclExpressionTypeComputer expressionTypeComputer
 
 	/** assert method calls used, toString must yield the actual method name! */
