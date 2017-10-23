@@ -14,7 +14,6 @@ package org.testeditor.tcl.dsl.jvmmodel
 
 import java.util.Optional
 import javax.inject.Inject
-import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.slf4j.LoggerFactory

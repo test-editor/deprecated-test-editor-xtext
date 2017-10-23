@@ -14,6 +14,7 @@ package org.testeditor.tcl.dsl.jvmmodel
 
 import java.text.NumberFormat
 import java.text.ParseException
+import java.util.Map
 import java.util.Optional
 import java.util.regex.Pattern
 import javax.inject.Inject
@@ -44,7 +45,6 @@ import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentVariable
-import java.util.Map
 
 /**
  * compute the resulting type (as JvmTypeReference) of tcl expressions as they would be/are generated

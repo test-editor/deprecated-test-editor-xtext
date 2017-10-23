@@ -45,7 +45,6 @@ class JvmTypeReferenceUtil {
 	@Accessors(PUBLIC_GETTER)
 	val checkWithoutBoxing = new TypeConformanceComputationArgument(false, false, false, false, false, true)
 
-	// @Inject TclJsonUtil jsonUtil
 	@Inject CommonTypeComputationServices services
 	var StandardTypeReferenceOwner typeReferenceOwner
 	var JvmTypeReferenceBuilder typeReferenceBuilder
@@ -116,10 +115,6 @@ class JvmTypeReferenceUtil {
 		val qname = typeReference.qualifiedName
 		return (Long.name == qname || long.name == qname)
 	}
-
-//	def boolean isJson(JvmTypeReference typeReference) {
-//		return jsonUtil.isJsonType(typeReference)
-//	}
 
 	def boolean isOrderable(JvmTypeReference typeReference) {
 		return typeReference.isANumber
