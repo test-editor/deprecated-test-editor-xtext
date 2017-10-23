@@ -8,6 +8,7 @@ import org.junit.Before
 import org.eclipse.emf.ecore.resource.Resource
 
 class TclJsonUtilTest  extends AbstractTclTest {
+
 	@Inject TclJsonUtil jsonUtil // class under test
 	
 	@Inject JvmTypeReferenceUtil typeReferenceUtil
@@ -16,7 +17,8 @@ class TclJsonUtilTest  extends AbstractTclTest {
 		typeReferenceUtil.initWith(null as Resource)
 	}
 	
-	@Test def void testJsonArrayTypeDetection() {
+	@Test 
+	def void testJsonArrayTypeDetection() {
 		// given
 		val jsonArrayType = typeReferenceUtil.jsonArrayJvmTypeReference
 		
@@ -27,7 +29,8 @@ class TclJsonUtilTest  extends AbstractTclTest {
 		isJsonType.assertTrue		
 	}
 
-	@Test def void testStringNotJsonTypeDetection() {
+	@Test 
+	def void testStringNotJsonTypeDetection() {
 		// given
 		val stringType = typeReferenceUtil.stringJvmTypeReference
 		
