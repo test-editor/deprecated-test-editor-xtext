@@ -636,8 +636,14 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	private def void appendReporterEnterCall(ITreeAppendable output, SemanticUnit unit, String message) {
-		testRunReporterGenerator.appendReporterEnterCall(output, _typeReferenceBuilder, unit, message,
-			reporterFieldName)
+		testRunReporterGenerator.buildReporterEnterCall(_typeReferenceBuilder?.typeRef(SemanticUnit)?.type, unit, message,
+			reporterFieldName).forEach[ 
+				switch(it) {
+					JvmType : output.append(it)
+					String : output.append(it)
+					default : throw new RuntimeException('''Cannot append class = '«it?.class»'. ''')
+				}
+			]
 	}
 	
 }
