@@ -57,7 +57,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 		]
 		macroModel.addToResourceSet("test.tml")
 
-		val allEnvVars=environmentVariables("envVar", "myEnvString")
+		val allEnvVars=environmentVariablesPublic("envVar", "myEnvString")
 		val tclModel = tclModel => [
 			environmentVariables.addAll(allEnvVars)
 			val envVar = environmentVariables.head
@@ -309,7 +309,7 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 	 * the parameter is used in positions that expect the passed types (simple names)
 	 */
 	private def TclModel tclCallingMyCallMacroWithOneEnvParam(String envVarString, TclModel tmlModel, Iterable<String> types) {
-		val envVar=environmentVariables(envVarString).head
+		val envVar=environmentVariablesPublic(envVarString).head
 		val tclModel = tclModel => [
 			environmentVariables += envVar
 			test = testCase("MyTest") => [
