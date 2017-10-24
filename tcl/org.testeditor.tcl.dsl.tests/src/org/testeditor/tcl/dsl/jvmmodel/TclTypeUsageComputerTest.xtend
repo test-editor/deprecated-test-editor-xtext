@@ -73,7 +73,7 @@ class TclTypeUsageComputerTest extends AbstractParserTest {
 	@Test
 	def void testGetAllTypeUsagesThroughMacroOfEnvVariable() {
 		// given
-		val envVar = environmentVariables("envVar").head // an environment var
+		val envVar = environmentVariablesPublic("envVar").head // an environment var
 		// given, when, then
 		// create calls from a test via a macro to the actual fixture and tests for correct
 		// collection of variable types
@@ -97,7 +97,7 @@ class TclTypeUsageComputerTest extends AbstractParserTest {
 	@Test
 	def void testGetAllTypeUsagesOfEnvVariable() {
 		// given
-		val envVar = environmentVariables("envVar").head
+		val envVar = environmentVariablesPublic("envVar").head
 
 		// given, when, then
 		// construct a simple test case that calls fixtures with the given var and check whether the types

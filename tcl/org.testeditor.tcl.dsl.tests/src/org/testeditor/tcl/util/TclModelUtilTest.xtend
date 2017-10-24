@@ -168,7 +168,7 @@ class TclModelUtilTest extends AbstractParserTest {
 	@Test
 	def void testMakesUseOfVariablesViaReference_EnvironmentVariableInStep() {
 		// given
-		val variable = environmentVariables("var").head // an environment var
+		val variable = environmentVariablesPublic("var").head // an environment var
 		val step = testStep("some").withReferenceToVariable(variable) // a test step using that var
 		// when, then
 		// create some complete model (test case, ....) around the test step and check that it is actually using this var!
@@ -178,7 +178,7 @@ class TclModelUtilTest extends AbstractParserTest {
 	@Test
 	def void testMakesUseOfVariablesViaReference_EnvironmentVariableInAssertion() {
 		// given
-		val variable = environmentVariables("var").head // an environment var
+		val variable = environmentVariablesPublic("var").head // an environment var
 		val step = assertionTestStep => [
 			// an assertion using this var
 			assertExpression = compareMatching(variableReference => [it.variable = variable], "compared-with")
