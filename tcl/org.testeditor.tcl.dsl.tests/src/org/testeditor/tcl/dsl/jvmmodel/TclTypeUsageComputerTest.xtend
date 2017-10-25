@@ -28,7 +28,6 @@ import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.dsl.services.TclGrammarAccess
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
-import org.testeditor.fixture.core.MaskingString
 
 class TclTypeUsageComputerTest extends AbstractParserTest {
 
