@@ -105,19 +105,19 @@ class TclModelGenerator {
 		]
 		return me
 	}
-	
-	def KeyPathElement keyPathElement() { 
+
+	def KeyPathElement keyPathElement() {
 		return tclFactory.createKeyPathElement
 	}
-	
+
 	def VariableReferencePathAccess variableReferencePathAccess() {
 		return tclFactory.createVariableReferencePathAccess
 	}
-	
-	def ArrayPathElement arrayPathElement() { 
+
+	def ArrayPathElement arrayPathElement() {
 		return tclFactory.createArrayPathElement
 	}
-	
+
 	def AssignmentThroughPath assignmentThroughPath(Variable variable, String ... path) {
 		return tclFactory.createAssignmentThroughPath => [
 			variableReference = tclFactory.createVariableReferencePathAccess => [
@@ -131,8 +131,8 @@ class TclModelGenerator {
 			]
 		]
 	}
-	
-	def JsonObject jsonObject() { 
+
+	def JsonObject jsonObject() {
 		return tclFactory.createJsonObject
 	}
 
@@ -140,19 +140,19 @@ class TclModelGenerator {
 		return tclFactory.createJsonArray
 	}
 
-	def JsonString jsonString() { 
+	def JsonString jsonString() {
 		return tclFactory.createJsonString
 	}
 
-	def JsonNull jsonNull() { 
+	def JsonNull jsonNull() {
 		return tclFactory.createJsonNull
 	}
 
-	def JsonNumber jsonNumber() { 
+	def JsonNumber jsonNumber() {
 		return tclFactory.createJsonNumber
 	}
 
-	def JsonBoolean jsonBoolean() { 
+	def JsonBoolean jsonBoolean() {
 		return tclFactory.createJsonBoolean
 	}
 
@@ -166,7 +166,7 @@ class TclModelGenerator {
 			]
 		]
 	}
-	
+
 	def SpecificationStepImplementation specificationStep(String ... texts) {
 		return tclFactory.createSpecificationStepImplementation => [
 			texts.forEach[text|contents.add(tslFactory.createStepContentText => [value = text])]
@@ -279,7 +279,7 @@ class TclModelGenerator {
 		]
 	}
 
-	// ===================================================================== extended 
+	// ===================================================================== extended
 	def Comparison compareNotMatching(VariableReference variableReference, String string) {
 		return comparison => [
 			left = variableReference
