@@ -13,14 +13,11 @@
 package org.testeditor.tcl.util
 
 import java.util.LinkedHashMap
-import java.util.Map
 import java.util.Set
 import javax.inject.Inject
 import javax.inject.Singleton
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.EcoreUtil2
-import org.eclipse.xtext.common.types.JvmTypeReference
-import org.eclipse.xtext.common.types.util.TypeReferences
 import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
@@ -61,7 +58,6 @@ class TclModelUtil extends TslModelUtil {
 
 	@Inject public extension ModelUtil amlModelUtil
 	@Inject extension CollectionUtils
-	@Inject TypeReferences typeReferences
 
 	/**
 	 * Gets the name of the included element. Order of this operation:
@@ -225,24 +221,6 @@ class TclModelUtil extends TslModelUtil {
 		return #{}
 	}
 	
-	def JvmTypeReference getJvmTypeReferenceForName(String typeName, EObject context) {
-		return typeReferences.getTypeForName(typeName, context)
-	}
-	
-	def JvmTypeReference getJvmTypeReferenceForClass(Class<?> clazz, EObject context) {
-		return typeReferences.getTypeForName(clazz, context)
-	}
-	
-	def Map<String, JvmTypeReference> getEnvironmentVariablesTypeMap(Iterable<EnvironmentVariable> envParams) {
-		val envParameterVariablesNames = envParams.map[name]
-		val envParameterVariablesTypeMap = newHashMap
-		if (!envParams.empty) {
-			val stringTypeReference = String.getJvmTypeReferenceForClass(envParams.head)
-			envParameterVariablesNames.forEach[envParameterVariablesTypeMap.put(it, stringTypeReference)]
-		}
-		return envParameterVariablesTypeMap
-	}
-
 	/** 
 	 * get all variables, variable references and elements that are used as parameters in this test step
 	 */

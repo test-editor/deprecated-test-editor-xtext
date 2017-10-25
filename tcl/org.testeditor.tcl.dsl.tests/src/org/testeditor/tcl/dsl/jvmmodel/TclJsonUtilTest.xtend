@@ -16,8 +16,8 @@ class TclJsonUtilTest  extends AbstractTclTest {
 	@Before def void setupTypeReferenceUtil() {
 		typeReferenceUtil.initWith(null as Resource)
 	}
-	
-	@Test 
+
+	@Test
 	def void testJsonArrayTypeDetection() {
 		// given
 		val jsonArrayType = typeReferenceUtil.jsonArrayJvmTypeReference
@@ -29,7 +29,7 @@ class TclJsonUtilTest  extends AbstractTclTest {
 		isJsonType.assertTrue		
 	}
 
-	@Test 
+	@Test
 	def void testStringNotJsonTypeDetection() {
 		// given
 		val stringType = typeReferenceUtil.stringJvmTypeReference

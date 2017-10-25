@@ -57,6 +57,7 @@ SpecificationStepImplementation:
 	contexts+=TestStepContext*;
 
 EnvironmentVariable:
+	(nonConfidential?='public')?
 	name=ID;
 
 MacroCollection:

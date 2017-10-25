@@ -72,6 +72,7 @@ import static org.testeditor.tcl.TclPackage.Literals.*
 import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 
 import static extension org.apache.commons.lang3.StringEscapeUtils.escapeJava
+import org.testeditor.fixture.core.MaskingString
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -217,9 +218,18 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		// create variables for required environment variables
 		val envParams = element.model.environmentVariables
 		result.members += envParams.map [ environmentVariable |
+			val actualType = if (environmentVariable.nonConfidential) {
+				String
+			} else {
+				MaskingString
+			}
 			environmentVariable.toField(expressionBuilder.variableToVarName(environmentVariable),
-				typeRef(String)) [
-				initializer = '''System.getenv("«environmentVariable.name»")'''
+				typeRef(actualType)) [
+				if (environmentVariable.nonConfidential) {
+					initializer = '''System.getenv("«environmentVariable.name»")'''
+				}else {
+					initializer = '''new MaskingString(System.getenv("«environmentVariable.name»"))'''
+				}
 			]
 		]
 		if (!envParams.empty) {
@@ -318,7 +328,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	private def void generateEnvironmentVariableAssertion(EnvironmentVariable environmentVariable,
 		ITreeAppendable output) {
 		val varName = expressionBuilder.variableToVarName(environmentVariable)
-		output.append('''org.junit.Assert.assertNotNull("environment variable '«environmentVariable.name»' must not be null", «varName»);''')
+		val confidentialAccessor = if (environmentVariable.nonConfidential) { '' } else { '.get()' }
+		output.append('''org.junit.Assert.assertNotNull("environment variable '«environmentVariable.name»' must not be null", «varName»«confidentialAccessor»);''')
 		output.newLine
 	}
 	
@@ -384,7 +395,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	private def dispatch void toUnitTestCodeLine(AssertionTestStep step, ITreeAppendable output) {
 		val locationString = '''«output.traceRegion.associatedSrcRelativePath.toString»:«output.traceRegion.associatedLocations.map[toReportableString].join(", ")»'''
 		logger.debug('''generating code line for assertion test step at «locationString».''')
-		output.appendReporterEnterCall(SemanticUnit.STEP, '''assert «assertCallBuilder.assertionText(step.assertExpression)»''')
+		val variables = EcoreUtil2.getAllContentsOfType(step.assertExpression, VariableReference)		
+		output.appendReporterEnterCall(SemanticUnit.STEP, '''assert «assertCallBuilder.assertionText(step.assertExpression)»''', variables)
 		output.append(assertCallBuilder.build(step.assertExpression, locationString))
 	}
 	
@@ -613,16 +625,17 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	private def void maybeCreateAssignment(TestStep step, JvmOperation operation, ITreeAppendable output, String stepLog) {
+		val variables = EcoreUtil2.getAllContentsOfType(step, VariableReference)
 		if (step instanceof TestStepWithAssignment) {
 			output.trace(step, TEST_STEP_WITH_ASSIGNMENT__VARIABLE, 0) => [
 				// TODO should we use output.declareVariable here?
 				// val variableName = output.declareVariable(step.variableName, step.variableName)
 				val partialCodeLine = '''«operation.returnType.identifier» «step.variable.name» = '''
-				output.appendReporterEnterCall(SemanticUnit.STEP, '''«partialCodeLine.trim» «stepLog.trim»''')
+				output.appendReporterEnterCall(SemanticUnit.STEP, '''«partialCodeLine.trim» «stepLog.trim»''', variables)
 				output.append(partialCodeLine) // please call with string, since tests checks against expected string which fails for passing ''' directly
 			]
 		} else {
-			output.appendReporterEnterCall(SemanticUnit.STEP, stepLog.trim)
+			output.appendReporterEnterCall(SemanticUnit.STEP, stepLog.trim, variables)
 		}
 	}
 
@@ -636,9 +649,9 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		return result
 	}
 
-	private def void appendReporterEnterCall(ITreeAppendable output, SemanticUnit unit, String message) {
+	private def void appendReporterEnterCall(ITreeAppendable output, SemanticUnit unit, String message, List<VariableReference> variables) {
 		testRunReporterGenerator.buildReporterEnterCall(_typeReferenceBuilder?.typeRef(SemanticUnit)?.type, unit, message,
-			reporterFieldName).forEach[ 
+			reporterFieldName, variables).forEach[ 
 				switch(it) {
 					JvmType : output.append(it)
 					String : output.append(it)
@@ -646,5 +659,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				}
 			]
 	}
-	
+
+	private def void appendReporterEnterCall(ITreeAppendable output, SemanticUnit unit, String message) {
+		appendReporterEnterCall(output, unit, message, null)
+	}
 }

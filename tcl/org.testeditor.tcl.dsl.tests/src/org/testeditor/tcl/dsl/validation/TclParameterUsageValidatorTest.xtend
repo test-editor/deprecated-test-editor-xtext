@@ -16,6 +16,7 @@ import javax.inject.Inject
 import org.eclipse.xtext.testing.validation.ValidationTestHelper
 import org.junit.Test
 import org.testeditor.aml.dsl.tests.AmlModelGenerator
+import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestStepContext
@@ -212,6 +213,31 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 	}
 	
 	@Test
+	def void testConfidentialVarExpectingString() {
+		// given
+		val confidentialEnvVar = environmentVariablesConfidential("confEnvVar").head
+		
+		// when
+		val tclModel = modelWithEnvVariableUsageInStringPosition(confidentialEnvVar)
+
+		// when then
+		// confidential information may not be passed into (non confidential, public) string parameter
+		validator.assertError(tclModel, TEST_STEP, TclValidator.INVALID_TYPED_VAR_DEREF)
+	}
+	
+	@Test
+	def void testPublicEnvVarExpectingString() {
+		// given
+		val publicEnvVar = environmentVariablesPublic("confEnvVar").head
+		
+		// when
+		val tclModel = modelWithEnvVariableUsageInStringPosition(publicEnvVar)
+		
+		// then
+		validator.assertNoErrors(tclModel)
+	}
+	
+	@Test
 	def void testParameterTypingConstantStringExpectingLong() {
 		// given
 		val tclModel = tclModel => [
@@ -334,4 +360,24 @@ class TclParameterUsageValidatorTest extends AbstractParserTestWithDummyComponen
 		types.forEach[assertTrue(typeSet.contains(it))]
 	}
 
+	/**
+     * create a tcl model with one environment variable that makes use of this environment variable 
+     * using a fixture call of 'dummyComponent' expecting string as parameter 	
+ 	 */
+	private def TclModel modelWithEnvVariableUsageInStringPosition(EnvironmentVariable environmentVariable) {
+		val tclModel = tclModel => [
+			environmentVariables += environmentVariable
+			test = testCase("MyTest") => [
+				steps += specificationStep("test", "something") => [
+					contexts += componentTestStepContext(dummyComponent) => [
+						steps += testStep("start").withReferenceToVariable(environmentVariable)
+					]
+				]
+			]
+		]
+		tclModel.addToResourceSet('MyTest.tcl')
+		
+		return tclModel
+	}
+	
 }

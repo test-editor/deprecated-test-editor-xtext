@@ -62,6 +62,7 @@ class SpecificationStepImplementation extends SpecificationStep, StepContainer {
 }
 
 class EnvironmentVariable extends Variable {
+	boolean nonConfidential = "false"
 }
 
 /*
