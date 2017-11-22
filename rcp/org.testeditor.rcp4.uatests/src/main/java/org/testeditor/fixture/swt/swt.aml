@@ -92,6 +92,16 @@ interaction type containsEditor {
 	method = SWTFixture.containsActiveTextEditorContent(searchString)
 }
 
+interaction type fillEditorWithResource {
+	template = "Fill editor with text from" ${resourceName}
+	method = SWTFixture.fillEditorWithResource(resourceName)
+}
+
+interaction type killContentCompletely {
+	template = "Kill content completely"
+	method = SWTFixture.killContentCompletely
+}
+
 interaction type typeTextIntoEditor {
 	template = "Type" ${text} "into active editor"
 	method = SWTFixture.typeTextIntoActiveEditor(text)
@@ -106,8 +116,14 @@ interaction type autocompletation {
 	template = "Use auto completion with" ${text} "and select" ${proposalText}
 	method = SWTFixture.activateAutocompletion(text,proposalText)
 }
+
+interaction type hasAutocompletionProposal {
+	template = "Has autocompletion proposal" ${expectedPropsal} "when entering" ${text}
+	method = SWTFixture.hasAutocompletionProposals(text, expectedPropsal)
+}
+
 component type TextEditor {
-	interactions = wait, removeLine, save, containsEditor, typeTextIntoEditor, goToLineIntoEditor, autocompletation
+	interactions = wait, removeLine, save, containsEditor, typeTextIntoEditor, goToLineIntoEditor, autocompletation, hasAutocompletionProposal, fillEditorWithResource, killContentCompletely
 }
 
 element type View {

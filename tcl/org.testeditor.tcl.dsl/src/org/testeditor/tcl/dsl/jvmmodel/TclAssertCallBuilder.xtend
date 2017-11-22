@@ -28,7 +28,7 @@ import org.testeditor.tcl.Expression
 import org.testeditor.tcl.JsonNumber
 import org.testeditor.tcl.JsonString
 import org.testeditor.tcl.NullOrBoolCheck
-import org.testeditor.tcl.TestStepContext
+import org.testeditor.tcl.StepContainer
 import org.testeditor.tcl.VariableReference
 
 import static extension org.apache.commons.lang3.StringEscapeUtils.escapeJava
@@ -96,7 +96,7 @@ class TclAssertCallBuilder {
 	}
 
 	private def AssertMethod assertionMethodForNullOrBoolCheck(NullOrBoolCheck expression) {
-		val variableTypeMap = expression.getContainerOfType(TestStepContext).collectDeclaredVariablesTypeMap
+		val variableTypeMap = expression.getContainerOfType(StepContainer).collectDeclaredVariablesTypeMap 
 		val returnTypeName = variableTypeMap.get(expression.variableReference.variable.name).qualifiedName
 		logger.trace(
 			"determines assertion method based on return type name='{}' for null or bool check of variable='{}'",
@@ -170,7 +170,7 @@ class TclAssertCallBuilder {
 	private def String buildNullOrBoolCheck(NullOrBoolCheck nullCheck) {
 		typeReferenceUtil.initWith(nullCheck.eResource)
 		val builtExpression = expressionBuilder.buildReadExpression(nullCheck.variableReference)
-		val variableTypeMap = nullCheck.getContainerOfType(TestStepContext).collectDeclaredVariablesTypeMap
+		val variableTypeMap = nullCheck.getContainerOfType(StepContainer).collectDeclaredVariablesTypeMap 
 		val returnType = variableTypeMap.get(nullCheck.variableReference.variable.name)
 		logger.trace("builds expression based on return type name='{}' for null or bool check of variable='{}'",
 			returnType.qualifiedName, nullCheck.variableReference.variable.name)

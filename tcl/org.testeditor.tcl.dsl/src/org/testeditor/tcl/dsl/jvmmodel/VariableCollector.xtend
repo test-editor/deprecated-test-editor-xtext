@@ -22,6 +22,7 @@ import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.tcl.StepContainer
 
 class VariableCollector {
 	
@@ -32,6 +33,10 @@ class VariableCollector {
 	 * collect all variables (and their types) declared (currently only through assignment).
 	 * the assignment fixes the type of the variable.
 	 */
+	def dispatch Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(StepContainer container) {
+		return container.contexts.map[collectDeclaredVariablesTypeMap].mergeOverwriting
+	}
+
 	def dispatch Map<String, JvmTypeReference> collectDeclaredVariablesTypeMap(TestStepContext context) {
 		return context.steps.map[collectDeclaredVariablesTypeMap].mergeOverwriting
 	}
