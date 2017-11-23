@@ -9,11 +9,12 @@ import org.eclipse.xtext.util.Tuples
 import org.junit.Before
 import org.junit.Test
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
+import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 
 class TclCoercionComputerTest extends AbstractTclTest {
 	
 	@Inject TclCoercionComputer coercionComputer // class under test
-	@Inject extension TclJvmTypeReferenceUtil typeReferenceUtil
+	@Inject extension JvmTypeReferenceUtil typeReferenceUtil
 	
 	private def Iterable<JvmTypeReference> booleanTypes() {
 		return #[

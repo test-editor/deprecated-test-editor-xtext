@@ -5,20 +5,27 @@ import org.eclipse.xtext.xbase.typesystem.conformance.TypeConformanceComputation
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
+import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 
-class TclJvmTypeReferenceUtilTest extends AbstractTclGeneratorIntegrationTest{
+/**
+ * Jvm type reference util tests are implemented in the tcl package to 
+ * make sure that these tests are executed in the context of a xtext dsl
+ * with access to a non null resource set, which again is heavyly used
+ * by the class itself. 
+ */
+class JvmTypeReferenceUtilTest extends AbstractTclGeneratorIntegrationTest {
 
-	@Inject TclJvmTypeReferenceUtil typeReferenceUtil // class under test
-	@Inject TclJvmTypeReferenceUtil utilForTypeGenerationComparison
+	@Inject JvmTypeReferenceUtil typeReferenceUtil // class under test
+	@Inject JvmTypeReferenceUtil utilForTypeGenerationComparison
 	
 	val standardTestFlags = new TypeConformanceComputationArgument(false, false, false, false, false, true)
 
 	enum TestEnum { a, b, c }
-
+	
 	@Before
-	def void initClassUnderTest() {
-		typeReferenceUtil.initWith(this.resourceSet)
-		utilForTypeGenerationComparison.initWith(this.resourceSet)
+	def void setupTypeReferenceUtils() {
+		typeReferenceUtil.initWith(resourceSet)
+		utilForTypeGenerationComparison.initWith(resourceSet)
 	}
 
 	@Test
@@ -105,9 +112,6 @@ class TclJvmTypeReferenceUtilTest extends AbstractTclGeneratorIntegrationTest{
 		
 		typeReferenceUtil.isString(typeReferenceUtil.stringJvmTypeReference).assertTrue
 		typeReferenceUtil.isString(typeReferenceUtil.booleanObjectJvmTypeReference).assertFalse
-		
-		typeReferenceUtil.isJson(typeReferenceUtil.jsonArrayJvmTypeReference).assertTrue
-		typeReferenceUtil.isJson(typeReferenceUtil.stringJvmTypeReference).assertFalse
 		
 		typeReferenceUtil.isJsonArray(typeReferenceUtil.jsonArrayJvmTypeReference).assertTrue
 		typeReferenceUtil.isJsonArray(typeReferenceUtil.stringJvmTypeReference).assertFalse

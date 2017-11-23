@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.testeditor.dsl.common;singleton:=true
-Bundle-Version: 1.8.0
+Bundle-Version: 1.9.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
 Bundle-Vendor: Signal Iduna Corporation
@@ -11,6 +11,9 @@ Require-Bundle: org.eclipse.xtend.lib.macro,
  org.testeditor.logging,
  org.eclipse.core.runtime;visibility:=reexport,
  org.eclipse.emf.ecore;visibility:=reexport,
+ org.eclipse.xtend.lib,
+ org.eclipse.xtext.common.types,
+ org.eclipse.xtext.xbase,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.emf.ecore.xcore.lib,
  org.eclipse.e4.core.contexts;bundle-version="1.5.0";visibility:=reexport,
@@ -23,6 +26,7 @@ Require-Bundle: org.eclipse.xtend.lib.macro,
 Export-Package: org.testeditor.dsl.common.ide.util,
  org.testeditor.dsl.common.util,
  org.testeditor.dsl.common.util.classpath
-Import-Package: javax.inject;version="1.0.0"
+Import-Package: com.google.gson,
+ javax.inject;version="1.0.0"
 Eclipse-BundleShape: dir
 Bundle-ActivationPolicy: lazy

@@ -18,6 +18,7 @@ import org.junit.Test
 import org.testeditor.aml.AmlModel
 import org.testeditor.dsl.common.testing.DummyEnum
 import org.testeditor.dsl.common.testing.DummyFixture
+import org.testeditor.fixture.core.MaskingString
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TestStep
@@ -128,6 +129,25 @@ class SimpleTypeComputerTest extends AbstractParserTest {
 		variablesWithTypes.entrySet.assertSingleElement => [
 			key.name.assertEquals("x")
 			value.get.qualifiedName.assertEquals('long')
+		]
+	}
+
+	@Test
+	def void macroWithConfidentialParameter() {
+		// given
+		val macro = parseMacro('''
+			template = "Process some confidential information" ${x} 
+			Component: GreetingApplication
+			- Type confidential @x into <Input>
+		''')
+
+		// when
+		val variablesWithTypes = typeComputer.getVariablesWithTypes(macro)
+
+		// then
+		variablesWithTypes.entrySet.assertSingleElement => [
+			key.name.assertEquals("x")
+			value.get.qualifiedName.assertEquals(MaskingString.name)
 		]
 	}
 

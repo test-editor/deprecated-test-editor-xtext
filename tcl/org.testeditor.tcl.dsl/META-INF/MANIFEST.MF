@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.testeditor.tcl.dsl
 Bundle-Vendor: Signal Iduna Corporation
-Bundle-Version: 1.8.0
+Bundle-Version: 1.9.0.qualifier
 Bundle-SymbolicName: org.testeditor.tcl.dsl; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtext,
@@ -40,4 +40,4 @@ Export-Package: org.testeditor.fixture.core,
  org.testeditor.tcl.dsl.serializer,
  org.testeditor.tcl.dsl.services,
  org.testeditor.tcl.dsl.validation
-Bundle-ClassPath: lib/core-fixture-3.1.0.jar,.
+Bundle-ClassPath: lib/core-fixture-3.2.1.jar,.

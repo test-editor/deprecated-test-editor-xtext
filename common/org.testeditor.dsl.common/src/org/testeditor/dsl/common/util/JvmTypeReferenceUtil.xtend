@@ -10,7 +10,7 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-package org.testeditor.tcl.dsl.jvmmodel
+package org.testeditor.dsl.common.util
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
@@ -38,14 +38,13 @@ import org.slf4j.LoggerFactory
  * of all relevant types.
  */
 @Singleton
-class TclJvmTypeReferenceUtil {
+class JvmTypeReferenceUtil {
 	
-	private static val log = LoggerFactory.getLogger(TclJvmTypeReferenceUtil)
+	private static val log = LoggerFactory.getLogger(JvmTypeReferenceUtil)
 
 	@Accessors(PUBLIC_GETTER)
 	val checkWithoutBoxing = new TypeConformanceComputationArgument(false, false, false, false, false, true)
 
-	@Inject TclJsonUtil jsonUtil
 	@Inject CommonTypeComputationServices services
 	var StandardTypeReferenceOwner typeReferenceOwner
 	var JvmTypeReferenceBuilder typeReferenceBuilder
@@ -117,10 +116,6 @@ class TclJvmTypeReferenceUtil {
 		return (Long.name == qname || long.name == qname)
 	}
 
-	def boolean isJson(JvmTypeReference typeReference) {
-		return jsonUtil.isJsonType(typeReference)
-	}
-
 	def boolean isOrderable(JvmTypeReference typeReference) {
 		return typeReference.isANumber
 	}
@@ -128,6 +123,9 @@ class TclJvmTypeReferenceUtil {
 	// use xbase to check for assignablility
 	def boolean isAssignableFrom(JvmTypeReference target, JvmTypeReference source,
 		TypeConformanceComputationArgument argument) {
+		if (target === null || source === null) {
+			throw new RuntimeException("For testing assignment source and target types must not be null")
+		}
 		if (typeReferenceOwner === null) {
 			typeReferenceOwner = new StandardTypeReferenceOwner(services, resourceSet)
 		}

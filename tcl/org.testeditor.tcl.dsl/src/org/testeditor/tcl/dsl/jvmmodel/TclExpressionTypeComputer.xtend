@@ -14,6 +14,7 @@ package org.testeditor.tcl.dsl.jvmmodel
 
 import java.text.NumberFormat
 import java.text.ParseException
+import java.util.Map
 import java.util.Optional
 import java.util.regex.Pattern
 import javax.inject.Inject
@@ -22,6 +23,8 @@ import org.eclipse.xtext.common.types.JvmTypeReference
 import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.Variable
+import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
+import org.testeditor.fixture.core.MaskingString
 import org.testeditor.tcl.AssignmentVariable
 import org.testeditor.tcl.ComparatorEquals
 import org.testeditor.tcl.ComparatorGreaterThan
@@ -50,14 +53,14 @@ class TclExpressionTypeComputer {
 	
 	@Inject SimpleTypeComputer typeComputer
 	@Inject TclJsonUtil jsonUtil
-	@Inject TclJvmTypeReferenceUtil typeReferenceUtil
+	@Inject JvmTypeReferenceUtil typeReferenceUtil
 	@Inject TclCoercionComputer coercionComputer
 	
 	def boolean isJsonType(Expression expression) {
 		switch expression {
 			JsonValue: return true // supertype of all (relevant) json types (e.g. JsonObject, JsonArray, JsonString ...)
 			VariableReferencePathAccess: return true // since this is only allowed for json types, the result is a json type, too
-			VariableReference: return jsonUtil.isJsonType(determineType(expression, null))
+			VariableReference: return jsonUtil.isJsonType(determineType(expression, Optional.empty))
 			default: return false
 		}
 	}
@@ -69,7 +72,7 @@ class TclExpressionTypeComputer {
 		val booleanPattern = Pattern.compile("true|false", Pattern.CASE_INSENSITIVE)
 		switch stepContent {
 			StepContentVariable: {
-				if(expectedType.present) {
+				if((expectedType?:Optional.empty).present) {
 					if (typeReferenceUtil.isString(expectedType.get)) {
 						return expectedType.get
 					}
@@ -97,7 +100,7 @@ class TclExpressionTypeComputer {
 					return typeReferenceUtil.stringJvmTypeReference // it is a string (as last resort)
 				}
 			}
-			VariableReference: return determineType(stepContent.variable, expectedType)
+			VariableReference: return determineType(stepContent.variable, expectedType?:Optional.empty)
 			default: throw new RuntimeException('''Unknown step content type = '«stepContent.class.name»' for type determination.''')
 		}
 	}
@@ -112,9 +115,9 @@ class TclExpressionTypeComputer {
 			JsonString: return typeReferenceUtil.stringJvmTypeReference
 			JsonBoolean: return typeReferenceUtil.booleanObjectJvmTypeReference
 			JsonNull: throw new RuntimeException("Not implemented yet")
-			VariableReference: return expression.variable.determineType(expectedType)
+			VariableReference: return expression.variable.determineType(expectedType?:Optional.empty)
 			Comparison: if(expression.comparator === null) {
-				expression.left.determineType(expectedType)
+				expression.left.determineType(expectedType?:Optional.empty)
 			} else {
 				return typeReferenceUtil.booleanPrimitiveJvmTypeReference
 			}
@@ -125,12 +128,23 @@ class TclExpressionTypeComputer {
 	
 	def dispatch JvmTypeReference determineType(Variable variable, Optional<JvmTypeReference> expectedType) {
 		typeReferenceUtil.initWith(variable.eResource)
-		switch variable {
-			AssignmentVariable : return typeComputer.determineType(variable)
-			EnvironmentVariable : return typeReferenceUtil.stringJvmTypeReference
-			TemplateVariable: return typeComputer.getVariablesWithTypes(EcoreUtil2.getContainerOfType(variable, TemplateContainer)).get(variable).get
-			default: throw new RuntimeException("Variable of type'"+variable.class.canonicalName+"' is unknown")
+		val result = switch variable {
+			AssignmentVariable: typeComputer.determineType(variable)
+			EnvironmentVariable: {
+				if (variable.nonConfidential) {
+					typeReferenceUtil.stringJvmTypeReference
+				} else {
+					typeReferenceUtil.buildFrom(MaskingString)
+				}
+			}
+			TemplateVariable: typeComputer.getVariablesWithTypes(
+				EcoreUtil2.getContainerOfType(variable, TemplateContainer)).get(variable).get
+			default: throw new RuntimeException('''Variable of type='«variable.class.canonicalName»' is unknown''')
 		}
+		if (result === null) {
+			throw new RuntimeException('''Type of variable='«variable.name»' could not be determined. Please check you classpath setup.''')
+		}
+		return result
 	}
 	
 	def boolean coercibleTo(Expression expression, JvmTypeReference wantedType) {
@@ -146,16 +160,29 @@ class TclExpressionTypeComputer {
 			return left
 		}
 	}
+
+	def Map<String, JvmTypeReference> getEnvironmentVariablesTypeMap(Iterable<EnvironmentVariable> envParams) {
+		val envParameterVariablesTypeMap = newHashMap
+		if (!envParams.empty) {
+			typeReferenceUtil.initWith(envParams.head.eResource)
+			val stringTypeReference = typeReferenceUtil.stringJvmTypeReference
+			val maskingStringTypeReference = typeReferenceUtil.buildFrom(MaskingString)  
+			envParams.forEach[
+				envParameterVariablesTypeMap.put(name, if (nonConfidential) { stringTypeReference } else { maskingStringTypeReference })
+			]
+		}
+		return envParameterVariablesTypeMap
+	}	
 	
 	/** find the most likely type for each of the comparison components (left and right) */
 	def JvmTypeReference coercedTypeOfComparison(Comparison comparison, Optional<JvmTypeReference> wantedType) {
 		typeReferenceUtil.initWith(comparison.eResource)
 		coercionComputer.initWith(comparison.eResource)
-		val leftType = comparison.left.determineType(wantedType)
+		val leftType = comparison.left.determineType(wantedType?:Optional.empty)
 		if (comparison.comparator === null) { // just a simple expression without the right component ?
 			return leftType
 		}
-		val rightType = comparison.right.determineType(wantedType)
+		val rightType = comparison.right.determineType(wantedType?:Optional.empty)
 		switch (comparison.comparator) {
 			ComparatorMatches:
 				return typeReferenceUtil.stringJvmTypeReference // when matching, both components must be strings

@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.testeditor</groupId>
 		<artifactId>org.testeditor.releng.parent</artifactId>
-		<version>1.8.0</version>
+		<version>1.9.0-SNAPSHOT</version>
 		<relativePath>../../releng/org.testeditor.releng.parent</relativePath>
 	</parent>
 
@@ -23,7 +23,7 @@
 		<dependency>
 			<groupId>org.testeditor.fixture</groupId>
 			<artifactId>core-fixture</artifactId>
-			<version>3.1.0</version>
+			<version>3.2.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.xtend</groupId>

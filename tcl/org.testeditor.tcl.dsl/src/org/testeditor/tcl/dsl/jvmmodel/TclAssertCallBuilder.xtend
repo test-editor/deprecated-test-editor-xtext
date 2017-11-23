@@ -14,10 +14,10 @@ package org.testeditor.tcl.dsl.jvmmodel
 
 import java.util.Optional
 import javax.inject.Inject
-import org.apache.commons.lang3.StringEscapeUtils
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.slf4j.LoggerFactory
+import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 import org.testeditor.tcl.Comparator
 import org.testeditor.tcl.ComparatorEquals
 import org.testeditor.tcl.ComparatorGreaterThan
@@ -28,9 +28,10 @@ import org.testeditor.tcl.Expression
 import org.testeditor.tcl.JsonNumber
 import org.testeditor.tcl.JsonString
 import org.testeditor.tcl.NullOrBoolCheck
-import org.testeditor.tcl.TestStepContext
+import org.testeditor.tcl.StepContainer
 import org.testeditor.tcl.VariableReference
 
+import static extension org.apache.commons.lang3.StringEscapeUtils.escapeJava
 import static extension org.eclipse.xtext.EcoreUtil2.getContainerOfType
 
 /**
@@ -42,7 +43,7 @@ class TclAssertCallBuilder {
 
 	@Inject extension VariableCollector	
 	@Inject TclExpressionBuilder expressionBuilder
-	@Inject TclJvmTypeReferenceUtil typeReferenceUtil
+	@Inject JvmTypeReferenceUtil typeReferenceUtil
 	@Inject TclExpressionTypeComputer expressionTypeComputer
 
 	/** assert method calls used, toString must yield the actual method name! */
@@ -72,6 +73,9 @@ class TclAssertCallBuilder {
 		}
 	}
 	
+	/**
+	 * Get the textual representation of the expression as is
+	 */
 	def String assertionText(Expression expression) {
 		return NodeModelUtils.getNode(expression)?.text?.trim ?: ""
 	}
@@ -87,12 +91,12 @@ class TclAssertCallBuilder {
 				default: throw new RuntimeException('''Assertion expression of type='«expression.class.canonicalName»' cannot be built!''')
 			}
 			return '''
-				org.junit.Assert.«expression.assertionMethod»("«messagePrefix»: «StringEscapeUtils.escapeJava(expression.assertionText)»", «expressionBuilt»);'''
+				org.junit.Assert.«expression.assertionMethod»("«messagePrefix»: «expression.assertionText.escapeJava»", «expressionBuilt»);'''
 		}
 	}
 
 	private def AssertMethod assertionMethodForNullOrBoolCheck(NullOrBoolCheck expression) {
-		val variableTypeMap = expression.getContainerOfType(TestStepContext).collectDeclaredVariablesTypeMap
+		val variableTypeMap = expression.getContainerOfType(StepContainer).collectDeclaredVariablesTypeMap 
 		val returnTypeName = variableTypeMap.get(expression.variableReference.variable.name).qualifiedName
 		logger.trace(
 			"determines assertion method based on return type name='{}' for null or bool check of variable='{}'",
@@ -166,7 +170,7 @@ class TclAssertCallBuilder {
 	private def String buildNullOrBoolCheck(NullOrBoolCheck nullCheck) {
 		typeReferenceUtil.initWith(nullCheck.eResource)
 		val builtExpression = expressionBuilder.buildReadExpression(nullCheck.variableReference)
-		val variableTypeMap = nullCheck.getContainerOfType(TestStepContext).collectDeclaredVariablesTypeMap
+		val variableTypeMap = nullCheck.getContainerOfType(StepContainer).collectDeclaredVariablesTypeMap 
 		val returnType = variableTypeMap.get(nullCheck.variableReference.variable.name)
 		logger.trace("builds expression based on return type name='{}' for null or bool check of variable='{}'",
 			returnType.qualifiedName, nullCheck.variableReference.variable.name)

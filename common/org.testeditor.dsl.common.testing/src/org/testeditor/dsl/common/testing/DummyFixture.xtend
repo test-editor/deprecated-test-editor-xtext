@@ -14,6 +14,7 @@ package org.testeditor.dsl.common.testing
 
 import com.google.gson.JsonObject
 import java.util.List
+import org.testeditor.fixture.core.MaskingString
 import org.testeditor.fixture.core.interaction.FixtureMethod
 
 public class DummyFixture {
@@ -97,6 +98,16 @@ public class DummyFixture {
 	@FixtureMethod
 	def long getLong(String locator){
 		return 0l
+	}
+	
+	@FixtureMethod
+	def MaskingString getConfidentialInformation(String locator) {
+		return new MaskingString("top secret")
+	}
+	
+	@FixtureMethod
+	def void typeConfidentialInformationInto(String locator, DummyLocatorStrategy locatorStrategy, MaskingString maskingString) {
+		// do nothing
 	}
 
 	static def String getAmlModel() '''
@@ -200,12 +211,22 @@ public class DummyFixture {
 			method = «dummyFixture».typeLongInto(element, locatorStrategy, value)
 		}
 		
+		interaction type typeConfidentialInformationInto {
+			template = "Type confidential" ${param} "into" ${element}
+			method = «dummyFixture».typeConfidentialInformationInto(element, locatorStrategy, param)
+		}
+		
+		interaction type getConfidentialInformation {
+			template = "Read confidential information from" ${element}
+			method = «dummyFixture».getConfidentialInformation(element)
+		}
+		
 		element type Label {
 			interactions = getList, getValue, getBool, isVisible
 		}
 		
 		element type Text {
-			interactions = getValue, isVisible, setValue, setValueReversed, typeInto, getLong, typeLongInto, typeIntoAndWait, typeBoolInto, getJsonObject, setEnum, getEnum
+			interactions = getValue, isVisible, setValue, setValueReversed, typeInto, getLong, typeLongInto, typeIntoAndWait, typeBoolInto, getJsonObject, setEnum, getEnum, getConfidentialInformation, typeConfidentialInformationInto
 		}
 
 		element type Button {
@@ -242,6 +263,11 @@ public class DummyFixture {
 		template = "TypeLong" ${longParameter} "into input field"
 		Component: GreetingApplication
 		- TypeLong @longParameter into <Input>
+		
+		## TypeConfidentialInformationIntoInputField
+		template = "TypeConfidential" ${param} "into input field"
+		Component: GreetingApplication
+		- Type confidential @param into <Input>
 	'''
 
 }

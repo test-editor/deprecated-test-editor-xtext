@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
+import com.google.common.annotations.VisibleForTesting
 import com.google.gson.JsonParser
 import java.math.BigDecimal
 import java.text.NumberFormat
@@ -23,7 +24,7 @@ import org.eclipse.xtext.common.types.JvmTypeReference
 import org.slf4j.LoggerFactory
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentVariable
-import com.google.common.annotations.VisibleForTesting
+import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 
 /** 
  * compute whether and how coercion should be generated
@@ -32,7 +33,7 @@ class TclCoercionComputer {
 	
 	private val logger = LoggerFactory.getLogger(TclCoercionComputer)
 	
-	@Inject extension TclJvmTypeReferenceUtil typeReferenceUtil
+	@Inject extension JvmTypeReferenceUtil typeReferenceUtil
 	@Inject extension TclJsonUtil
 
 	def initWith(Resource resource) {
@@ -64,7 +65,7 @@ class TclCoercionComputer {
 					Integer.valueOf(sourceValue) // exception caught by enclosing try
 					return true
 				}
-				case targetType.isJson: {
+				case targetType.isJsonType: {
 					new JsonParser().parse(sourceValue) // exception caught by enclosing try
 					return true
 				}
@@ -109,16 +110,17 @@ class TclCoercionComputer {
 	 */
 	def boolean isTypeCoercionPossible(JvmTypeReference targetType, JvmTypeReference sourceType) {
 		switch targetType {
-			case targetType.isString : return sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber || sourceType.isBoolean || sourceType.isJson || sourceType.isString || sourceType.isEnum
-			case targetType.isLong: return sourceType.isString || sourceType.isJson || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber
-			case targetType.isBoolean: return sourceType.isString || sourceType.isJson || sourceType.isBoolean
-			case targetType.isInt: return sourceType.isString || sourceType.isJson || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber
-			case targetType.isJson: return sourceType.isString || sourceType.isBoolean || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber || sourceType.isJson || sourceType.isEnum
-			case targetType.isNumber: return sourceType.isString || sourceType.isJson || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber
-			case targetType.isBigDecimal: return sourceType.isString || sourceType.isJson || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber
-			case targetType.isEnum: return sourceType.isString || sourceType.isJson || sourceType.isEnum
+			case targetType.isString : return sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber || sourceType.isBoolean || sourceType.isJsonType || sourceType.isString || sourceType.isEnum
+			case targetType.isLong: return sourceType.isString || sourceType.isJsonType || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber
+			case targetType.isBoolean: return sourceType.isString || sourceType.isJsonType || sourceType.isBoolean
+			case targetType.isInt: return sourceType.isString || sourceType.isJsonType || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber
+			case targetType.isJsonType: return sourceType.isString || sourceType.isBoolean || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber || sourceType.isJsonType || sourceType.isEnum
+			case targetType.isNumber: return sourceType.isString || sourceType.isJsonType || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber
+			case targetType.isBigDecimal: return sourceType.isString || sourceType.isJsonType || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber
+			case targetType.isEnum: return sourceType.isString || sourceType.isJsonType || sourceType.isEnum
+			default: // ignore, simply return that coercion is not possible
+				return false
 		}
-		return false
 	}
 	
 	/**
@@ -136,7 +138,7 @@ class TclCoercionComputer {
 						return '''try { java.lang.Math.toIntExact(«sourceValue»); } catch (ArithmeticException ae) { org.junit.Assert.fail(«quotedErrorMessage»); }'''
 					} else if (sourceType.isNumber) {
 						return ''
-					} else if (sourceType.isJson) {
+					} else if (sourceType.isJsonType) {
 						return '''org.junit.Assert.assertTrue(«quotedErrorMessage», «sourceValue».getAsJsonPrimitive().isNumber());'''
 					} else if (sourceType.isString) {
 						return '''try { Integer.parseInt(«sourceValue»); } catch (NumberFormatException nfe) { org.junit.Assert.fail(«quotedErrorMessage»); }'''
@@ -148,7 +150,7 @@ class TclCoercionComputer {
 				case targetType.isLong:
 					if (sourceType.isLong || sourceType.isInt || sourceType.isNumber) {
 						return ''
-					} else if (sourceType.isJson) {
+					} else if (sourceType.isJsonType) {
 						return '''org.junit.Assert.assertTrue(«quotedErrorMessage», «sourceValue».getAsJsonPrimitive().isNumber());'''
 					} else if (sourceType.isString) {
 						return '''try { Long.parseLong(«sourceValue»); } catch (NumberFormatException nfe) { org.junit.Assert.fail(«quotedErrorMessage»); }'''
@@ -160,7 +162,7 @@ class TclCoercionComputer {
 				case targetType.isBoolean:
 					if (sourceType.isBoolean) {
 						return ''
-					} else if (sourceType.isJson) {
+					} else if (sourceType.isJsonType) {
 						return '''org.junit.Assert.assertTrue(«quotedErrorMessage», «sourceValue».getAsJsonPrimitive().isBoolean());'''
 					} else if (sourceType.isString) {
 						return '''org.junit.Assert.assertTrue(«quotedErrorMessage», Boolean.TRUE.toString().equals(«sourceValue») || Boolean.FALSE.toString().equals(«sourceValue»));'''
@@ -168,14 +170,14 @@ class TclCoercionComputer {
 						throw new RuntimeException(coercionErrorMessage)
 					}
 				case targetType.isString:
-					if (sourceType.isJson) {
+					if (sourceType.isJsonType) {
 						return '''org.junit.Assert.assertTrue(«quotedErrorMessage», «sourceValue».getAsJsonPrimitive().isString());'''
 					} else { // long, bool etc. need no guard, since they can all be converted to string
 						return ''
 					}
-				case targetType.isJson: return '' // no guard for json, since that is parsed (and checked) by json library
+				case targetType.isJsonType: return '' // no guard for json, since that is parsed (and checked) by json library
 				case targetType.isNumber:
-					if (sourceType.isJson) {
+					if (sourceType.isJsonType) {
 						return '''org.junit.Assert.assertTrue(«quotedErrorMessage», «sourceValue».getAsJsonPrimitive().isNumber());'''
 					} else if (sourceType.isInt || sourceType.isLong || sourceType.isBigDecimal || sourceType.isNumber || sourceType.isANumber) {
 						return ''
@@ -187,7 +189,7 @@ class TclCoercionComputer {
 				case targetType.isBigDecimal:
 					if (sourceType.isInt || sourceType.isLong || sourceType.isNumber || sourceType.isBigDecimal) {
 						return ''
-					} else if (sourceType.isJson) {
+					} else if (sourceType.isJsonType) {
 						return '''org.junit.Assert.assertTrue(«quotedErrorMessage», «sourceValue».getAsJsonPrimitive().isNumber());'''
 					} else if (sourceType.isString) {
 						return '''try { new java.math.BigDecimal(«sourceValue»); } catch (NumberFormatException nfe) { org.junit.Assert.fail(«quotedErrorMessage»); }'''
@@ -197,7 +199,7 @@ class TclCoercionComputer {
 				case targetType.isEnum:
 					if (sourceType.isString) {
 						return '''try { «targetType.qualifiedName».valueOf(«sourceValue»); } catch (IllegalArgumentException ia) { org.junit.Assert.fail(«quotedErrorMessage»); }'''
-					} else if (sourceType.isJson) {
+					} else if (sourceType.isJsonType) {
 						return '''try { «targetType.qualifiedName».valueOf(«sourceValue»«generateJsonElementAccess(stringJvmTypeReference)»); } catch (IllegalArgumentException ia) { org.junit.Assert.fail(«quotedErrorMessage»); }'''
 					} else if (sourceType.isEnum && isAssignableFrom(targetType, sourceType)) {
 						return ''
@@ -217,7 +219,7 @@ class TclCoercionComputer {
 		if (isTypeCoercionPossible(targetType, sourceType)) {
 			switch (targetType) {
 				case targetType.isNumber:
-					if (sourceType.isJson) {
+					if (sourceType.isJsonType) {
 						return '''«sourceValueAccess»«generateJsonElementAccess(targetType)»'''
 					} else if (sourceType.isInt || sourceType.isLong || sourceType.isBigDecimal || sourceType.isNumber || sourceType.isANumber) {
 						return sourceValueAccess
@@ -226,7 +228,7 @@ class TclCoercionComputer {
 					} else {
 						throw new RuntimeException(coercionErrorMessage)
 					}
-				case targetType.isJson:
+				case targetType.isJsonType:
 					if (sourceType.isString) {
 						return jsonParseInstruction('''"\""+«sourceValueAccess»+"\""''')
 					} else if (sourceType.isInt) {
@@ -235,7 +237,7 @@ class TclCoercionComputer {
 						return jsonParseInstruction('''Long.toString(«sourceValueAccess»)''')
 					} else if (sourceType.isBoolean) {
 						return jsonParseInstruction('''Boolean.toString(«sourceValueAccess»)''')
-					} else if (sourceType.isJson) {
+					} else if (sourceType.isJsonType) {
 						return sourceValueAccess
 					} else if (sourceType.isNumber) {
 						return jsonParseInstruction('''«sourceValueAccess»''')
@@ -255,7 +257,7 @@ class TclCoercionComputer {
 						return '''«sourceValueAccess».intValueExact()'''
 					} else if (sourceType.isInt) {
 						return sourceValueAccess
-					} else if (sourceType.isJson) {
+					} else if (sourceType.isJsonType) {
 						return '''«sourceValueAccess»«generateJsonElementAccess(targetType)»'''
 					} else {
 						throw new RuntimeException(coercionErrorMessage)
@@ -269,7 +271,7 @@ class TclCoercionComputer {
 						return sourceValueAccess
 					} else if (sourceType.isBigDecimal) {
 						return '''«sourceValueAccess».longValueExact()'''
-					} else if (sourceType.isJson) {
+					} else if (sourceType.isJsonType) {
 						return '''«sourceValueAccess»«generateJsonElementAccess(targetType)»'''
 					} else {
 						throw new RuntimeException(coercionErrorMessage)
@@ -279,7 +281,7 @@ class TclCoercionComputer {
 						return '''Boolean.valueOf(«sourceValueAccess»)'''
 					} else if (sourceType.isBoolean) {
 						return sourceValueAccess
-					} else if (sourceType.isJson) {
+					} else if (sourceType.isJsonType) {
 						return '''«sourceValueAccess»«generateJsonElementAccess(targetType)»'''
 					} else {
 						throw new RuntimeException(coercionErrorMessage)
@@ -297,7 +299,7 @@ class TclCoercionComputer {
 						return '''«sourceValueAccess».toString()'''
 					} else if (sourceType.isNumber) {
 						return '''String.valueOf(«sourceValueAccess»)'''
-					} else if (sourceType.isJson) {
+					} else if (sourceType.isJsonType) {
 						return '''«sourceValueAccess»«generateJsonElementAccess(targetType)»'''
 					} else if (sourceType.isEnum) {
 						return '''«sourceValueAccess».toString()'''
@@ -307,7 +309,7 @@ class TclCoercionComputer {
 				case targetType.isBigDecimal:
 					if (sourceType.isBigDecimal) {
 						return sourceValueAccess
-					} else if (sourceType.isJson) {
+					} else if (sourceType.isJsonType) {
 						return '''«sourceValueAccess»«generateJsonElementAccess(targetType)»'''
 					} else if (sourceType.isInt || sourceType.isLong || sourceType.isString || sourceType.isNumber) {
 						return '''new java.math.BigDecimal(«sourceValueAccess»)'''
@@ -317,7 +319,7 @@ class TclCoercionComputer {
 				case targetType.isEnum:
 					if (sourceType.isString) {
 						return '''«targetType.qualifiedName».valueOf(«sourceValueAccess»)'''
-					} else if (sourceType.isJson) {
+					} else if (sourceType.isJsonType) {
 						return '''«targetType.qualifiedName».valueOf(«sourceValueAccess»«generateJsonElementAccess(stringJvmTypeReference)»)'''
 					} else if ((sourceType.isEnum) && isAssignableFrom(targetType, sourceType)) {
 						return '''«sourceValueAccess»'''
@@ -342,7 +344,7 @@ class TclCoercionComputer {
 	def coercedCommonOrderableType(JvmTypeReference typeReferenceA, JvmTypeReference typeReferenceB) {
 		if (coercableToCommonOrderable(typeReferenceA, typeReferenceB)) {
 			// return numberJvmTypeReference
-			if (typeReferenceA.isBigDecimal || typeReferenceB.isBigDecimal || typeReferenceA.isJson || typeReferenceB.isJson) {
+			if (typeReferenceA.isBigDecimal || typeReferenceB.isBigDecimal || typeReferenceA.isJsonType || typeReferenceB.isJsonType) {
 				return bigDecimalJvmTypeReference
 			} else if (typeReferenceA.isLong || typeReferenceB.isLong) {
 				return longObjectJvmTypeReference

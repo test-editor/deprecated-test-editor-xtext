@@ -12,11 +12,18 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
+import com.google.gson.JsonArray
+import com.google.gson.JsonElement
+import com.google.gson.JsonNull
+import com.google.gson.JsonObject
+import com.google.gson.JsonPrimitive
+import java.math.BigDecimal
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.testeditor.tcl.AccessPathElement
-import org.testeditor.tcl.KeyPathElement
 import org.testeditor.tcl.ArrayPathElement
-import java.math.BigDecimal
+import org.testeditor.tcl.KeyPathElement
+
+import static extension org.apache.commons.lang3.StringEscapeUtils.escapeJava
 
 /**
  * Provide a set of functions that hold all com.google.gson specific implementations that
@@ -25,11 +32,11 @@ import java.math.BigDecimal
 class TclJsonUtil {
 	
 	val jsonTypeNames = newHashSet(
-		com.google.gson.JsonElement.name, 
-		com.google.gson.JsonObject.name,
-		com.google.gson.JsonArray.name, 
-		com.google.gson.JsonNull.name, 
-		com.google.gson.JsonPrimitive.name
+		JsonElement.name, 
+		JsonObject.name,
+		JsonArray.name, 
+		JsonNull.name, 
+		JsonPrimitive.name
 	)
 	
 	def boolean isJsonType(JvmTypeReference typeReference) {
@@ -54,16 +61,16 @@ class TclJsonUtil {
 	
 	def String jsonPathReadAccessToString(AccessPathElement pathElement) {
 		switch (pathElement) {
-			KeyPathElement: return '''.getAsJsonObject().get("«pathElement.key»")'''
-			ArrayPathElement: return '''.getAsJsonArray().get(«pathElement.number»)'''
+			KeyPathElement: return '''.getAsJsonObject().get("«pathElement.key.escapeJava»")'''
+			ArrayPathElement: return '''.getAsJsonArray().get(«pathElement.number.escapeJava»)'''
 			default: throw new RuntimeException('''Unknown path element type = '«pathElement.class.name»'.''')
 		}
 	}
 	
 	def String jsonPathWriteAccessToString(AccessPathElement pathElement, String value) {
 		switch (pathElement) {
-			KeyPathElement: return '''.getAsJsonObject().add("«pathElement.key»", «value»)'''
-			ArrayPathElement: return '''.getAsJsonArray().set(«pathElement.number», «value»)'''
+			KeyPathElement: return '''.getAsJsonObject().add("«pathElement.key.escapeJava»", «value»)'''
+			ArrayPathElement: return '''.getAsJsonArray().set(«pathElement.number.escapeJava», «value»)'''
 			default: throw new RuntimeException('''Unknown path element type = '«pathElement.class.name»'.''')
 		}
 	}

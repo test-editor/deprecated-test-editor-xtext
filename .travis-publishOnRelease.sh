@@ -6,7 +6,7 @@ if [[ -n "$TRAVIS_TAG" && "$TRAVIS_TAG" == v* ]]; then
     echo "Publishing version: $version"
 
     # Deploy Maven artifacts
-    cp .travis.settings.xml ~/.m2/settings.xml
+    cp .travis.settings.xml $HOME/.m2/settings.xml
     ./gradlew deploy
 
     # Deploy P2 update site

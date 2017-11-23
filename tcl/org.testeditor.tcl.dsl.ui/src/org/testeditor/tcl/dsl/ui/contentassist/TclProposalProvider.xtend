@@ -23,9 +23,10 @@ import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
 import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.dsl.ui.contentassist.AmlProposalProvider
+import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
+import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.dsl.jvmmodel.SimpleTypeComputer
-import org.testeditor.tcl.dsl.jvmmodel.TclJvmTypeReferenceUtil
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.StepContentText
 import org.testeditor.tsl.StepContentVariable
@@ -35,7 +36,7 @@ class TclProposalProvider extends AbstractTclProposalProvider {
 	@Inject extension TclModelUtil
 	@Inject extension ModelUtil
 	@Inject AmlProposalProvider amlProposalProvider
-	@Inject TclJvmTypeReferenceUtil typeUtil
+	@Inject JvmTypeReferenceUtil typeUtil
 	@Inject SimpleTypeComputer typeComputer
 
 	override completeTestCase_Steps(EObject model, Assignment assignment, ContentAssistContext context,
@@ -56,6 +57,15 @@ class TclProposalProvider extends AbstractTclProposalProvider {
 	override complete_TestStep(EObject model, RuleCall ruleCall, ContentAssistContext context,
 		ICompletionProposalAcceptor acceptor) {
 		acceptor.accept(createCompletionProposal('- ', '- test step', null, context))
+		if (model instanceof ComponentTestStepContext) {
+			model.envParams.forEach [
+				acceptor.accept(
+					createCompletionProposal("@" + name, "@" + name + " // environment variable", null, context))
+			]
+			model.enclosingMacroParameters.forEach [
+				acceptor.accept(createCompletionProposal("@" + name, "@" + name + " // macro parameter", null, context))
+			]
+		}
 	}
 
 	override complete_StepContentElement(EObject model, RuleCall ruleCall, ContentAssistContext context,

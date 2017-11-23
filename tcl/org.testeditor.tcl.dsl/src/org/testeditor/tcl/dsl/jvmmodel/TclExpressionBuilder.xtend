@@ -32,6 +32,8 @@ import org.testeditor.tcl.JsonValue
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferencePathAccess
 
+import static extension org.apache.commons.lang3.StringEscapeUtils.escapeJava
+
 /**
  * build a (textual) java expression based on a parsed (tcl) expression
  */
@@ -57,7 +59,7 @@ class TclExpressionBuilder {
 			return buildReadExpression(comparison.left)
 		}
 		// check whether coercion of left or right is necessary		
-		val wantedTypeForComparison = typeComputer.coercedTypeOfComparison(comparison, null)
+		val wantedTypeForComparison = typeComputer.coercedTypeOfComparison(comparison, Optional.empty)
 		val validTypeBuiltRightExpression = buildReadExpression(comparison.right, wantedTypeForComparison)
 		val validTypeBuiltLeftExpression = buildReadExpression(comparison.left, wantedTypeForComparison)
 		
@@ -82,7 +84,7 @@ class TclExpressionBuilder {
 	def dispatch String buildReadExpression(JsonValue jsonValue) {
 		switch jsonValue {
 			JsonBoolean: return jsonValue.value.toString
-			JsonString: return '''"«jsonValue.value»"'''
+			JsonString: return '''"«jsonValue.value.escapeJava»"'''
 			JsonNull: return 'null'
 			JsonNumber: return jsonValue.value
 			default: throw new RuntimeException('''Cannot build read expression for json value of type = '«jsonValue?.class»'.''')
@@ -91,7 +93,7 @@ class TclExpressionBuilder {
 
 	def String buildReadExpression(Expression compared, JvmTypeReference wantedType) {
 		coercionComputer.initWith(compared?.eResource)
-		val typeOfCompared = typeComputer.determineType(compared, Optional.of(wantedType))
+		val typeOfCompared = typeComputer.determineType(compared, Optional.ofNullable(wantedType))
 		val builtExpression = buildReadExpression(compared)
 		return coercionComputer.generateCoercion(wantedType, typeOfCompared, builtExpression)
 	}

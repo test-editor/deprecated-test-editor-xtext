@@ -173,7 +173,7 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 				  
 				  reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
 				  
-				  reporter.enter(TestRunReporter.SemanticUnit.STEP, "Wait for @x seconds");
+				  reporter.enter(TestRunReporter.SemanticUnit.STEP, "Wait for @x seconds // x = '" + x + "'");
 				  dummyFixture.waitSeconds(x);
 				}
 			'''.indent(1))
@@ -257,7 +257,7 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 		val tcl = '''
 			package com.example
 			
-			require myEnvVar
+			require public myEnvVar
 			
 			# SimpleTest
 			* step1

@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.jvmmodel
 
+import java.util.Optional
 import javax.inject.Inject
 import org.eclipse.emf.ecore.resource.ResourceSet
 import org.junit.Before
@@ -22,7 +23,7 @@ import org.testeditor.tcl.dsl.tests.AbstractTclTest
 import org.testeditor.tsl.impl.TslFactoryImpl
 
 import static org.mockito.Mockito.*
-import java.util.Optional
+import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 
 class TypeExpressionComputerTest extends AbstractTclTest{
 	
@@ -33,9 +34,9 @@ class TypeExpressionComputerTest extends AbstractTclTest{
 	// that was initialized with the eResource of the eObject used, which will
 	// result in "unusual" behaviour up to exceptions for dynamically created eObjects
 	// without actual resource
-	@Mock TclJvmTypeReferenceUtil innerTypeReferenceUtil // injected into expressionTypeComputer
+	@Mock JvmTypeReferenceUtil innerTypeReferenceUtil // injected into expressionTypeComputer
 	
-	@Inject TclJvmTypeReferenceUtil typeReferenceUtil // used for construction of jvm type references for which the mock is not useful	
+	@Inject JvmTypeReferenceUtil typeReferenceUtil // used for construction of jvm type references for which the mock is not useful	
 	@Inject TslFactoryImpl tslFactory
 	
 	@Before

@@ -18,6 +18,7 @@ import org.eclipse.xtext.EcoreUtil2
 import org.junit.Before
 import org.junit.Test
 import org.testeditor.dsl.common.testing.DummyFixture
+import org.testeditor.fixture.core.MaskingString
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 
@@ -46,6 +47,7 @@ class VariableCollectorTest extends AbstractParserTest {
 				- Is <bar> visible?                 // no assignment test step
 				- Read value from <bar>             // no assignment of value
 				- stringVar = Read value from <bar>
+				- confidentialVar = Read confidential information from <bar>
 		'''
 		val tclModel = tcl.parseTcl('MyTest.tcl')
 		tclModel.assertNoErrors
@@ -55,11 +57,12 @@ class VariableCollectorTest extends AbstractParserTest {
 		val declaredVariables = variableCollector.collectDeclaredVariablesTypeMap(context)
 
 		// then
-		declaredVariables.keySet.assertSize(4)
+		declaredVariables.keySet.assertSize(5)
 		declaredVariables.get("longVar").qualifiedName.assertEquals(long.name)
 		declaredVariables.get("boolVar").qualifiedName.assertEquals(boolean.name)
 		declaredVariables.get("jsonVar").qualifiedName.assertEquals(JsonObject.name)
 		declaredVariables.get("stringVar").qualifiedName.assertEquals(String.name)
+		declaredVariables.get("confidentialVar").qualifiedName.assertEquals(MaskingString.name)
 	}
 
 }
