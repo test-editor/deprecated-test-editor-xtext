@@ -16,7 +16,12 @@ import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.widget
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
+import com.google.common.io.Files;
+
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -627,6 +632,26 @@ public class SWTFixture implements TestRunListener, TestRunReportable {
 		logger.info("Save editor {}", activeEditor.getTitle());
 		activeEditor.toTextEditor().save();
 	}
+	
+	@FixtureMethod
+	public void killContentCompletely() {
+		SWTBotEditor activeEditor = bot.activeEditor();
+		logger.info("kill editor {} content completety", activeEditor.getTitle());
+		activeEditor.toTextEditor().setText("");
+	}
+	
+	@FixtureMethod
+	public void fillEditorWithResource(String resourceName) {
+		SWTBotEditor activeEditor = bot.activeEditor();
+		logger.info("fill editor {} with text from resource {}", activeEditor.getTitle(), resourceName);
+		try {
+			File file = new File(resourceName);
+			logger.debug("fetching file from absolute path {}", file.getAbsolutePath());
+			activeEditor.toTextEditor().insertText(Files.toString(file, StandardCharsets.UTF_8));
+		} catch (IOException e) {
+			logger.error("failed to fill editor", e);
+		}
+	}
 
 	@FixtureMethod
 	public void typeTextIntoActiveEditor(String text) {
@@ -647,6 +672,14 @@ public class SWTFixture implements TestRunListener, TestRunReportable {
 		SWTBotEditor activeEditor = bot.activeEditor();
 		logger.info("Activate autocompletion on editor {}", activeEditor.getTitle());
 		activeEditor.toTextEditor().autoCompleteProposal(text, selectedProposal);
+	}
+	
+	@FixtureMethod
+	public boolean hasAutocompletionProposals(String insertedText, String expectedProposal) {
+		SWTBotEditor activeEditor = bot.activeEditor();
+		logger.info("Activate autocompletion on editor {}", activeEditor.getTitle());
+		List<String> proposals = activeEditor.toTextEditor().getAutoCompleteProposals(insertedText);
+		return proposals.contains(expectedProposal);
 	}
 
 }

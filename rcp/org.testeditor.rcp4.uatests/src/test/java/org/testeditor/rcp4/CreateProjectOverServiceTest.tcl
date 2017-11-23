@@ -1,3 +1,4 @@
+// deactivated because workspace cleanup does not work (yet)
 package org.testeditor.rcp4
 
 import org.testeditor.fixture.swt.*
