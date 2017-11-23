@@ -22,6 +22,11 @@ interaction type something {
 	method = WebDriverFixture.waitSeconds(count)
 }
 
+interaction type returnSomething {
+	template = "doreturn something" ${element}
+	method = WebDriverFixture.checkEnabled(element, locatorStrategy)
+}
+
 interaction type doWithElement {
 	template = "with right" ${element}
 	method = WebDriverFixture.clear(element, locatorStrategy)
@@ -33,11 +38,11 @@ interaction type doWithOtherElement {
 }
 
 element type myElementType {
-	interactions = doWithElement
+	interactions = doWithElement, returnSomething
 }
 
 component type myAppType {
-	interactions = doSomething, doSomethingDifferent, doDifferently, something
+	interactions = doSomething, doSomethingDifferent, doDifferently, something, returnSomething
 }
 
 component myApp is myAppType {

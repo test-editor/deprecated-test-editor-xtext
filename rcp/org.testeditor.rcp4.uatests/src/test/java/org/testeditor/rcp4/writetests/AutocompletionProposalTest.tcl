@@ -84,6 +84,18 @@ config TestEditorConfig
 	- assert hasDoSomeDiffEvenWithPrefixedSpace
 	- assert !shoudlNotHaveDoSomeAnymore
 
+* Given an assignment _ make sure only templates that actually ^return something are available
+
+	Component: ActiveEditor
+	// given
+	- Type "\n\n- somevar = " into active editor
+	// when
+	- hasDoReturn = Has autocompletion proposal "doreturn something <element> - test step" when entering ""
+	- shouldNotHaveSomething = Has autocompletion proposal "do something \"count: long\" - test step" when entering ""
+	// then
+	- assert hasDoReturn
+	- assert !shouldNotHaveSomething
+	
 Setup:
 
 	// test editor project
