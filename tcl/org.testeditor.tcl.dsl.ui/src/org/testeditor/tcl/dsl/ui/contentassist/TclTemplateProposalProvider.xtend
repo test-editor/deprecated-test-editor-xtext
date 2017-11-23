@@ -16,7 +16,9 @@ import java.util.Optional
 import javax.inject.Inject
 import org.eclipse.jface.text.templates.ContextTypeRegistry
 import org.eclipse.jface.text.templates.TemplateContext
+import org.eclipse.jface.text.templates.TemplateProposal
 import org.eclipse.jface.text.templates.persistence.TemplateStore
+import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.Keyword
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.nodemodel.INode
@@ -33,7 +35,6 @@ import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 import org.testeditor.tcl.ComponentTestStepContext
-import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.dsl.jvmmodel.SimpleTypeComputer
@@ -62,13 +63,16 @@ class TclTemplateProposalProvider extends DefaultTemplateProposalProvider {
 		if (model instanceof ComponentTestStepContext) {
 			model?.proposeAvailableInteractions(templateContext, context, acceptor)
 		}
+		if (model instanceof MacroTestStepContext) {
+			model?.proposeAvailableInteractions(templateContext, context, acceptor)
+		}
 		if (model instanceof TestStep) {
 			if (model.hasComponentContext) {
 				val componentContext = model.componentContext
 				componentContext?.proposeAvailableInteractions(templateContext, context, acceptor)
-			}else if (model.hasMacroContext){
+			} else if (model.hasMacroContext) {
 				val macro = model.macroContext
-				macro?.proposeAvailableInteractions(model, templateContext, context, acceptor)
+				macro?.proposeAvailableInteractions(templateContext, context, acceptor)
 			}
 		}
 	}
@@ -96,6 +100,11 @@ class TclTemplateProposalProvider extends DefaultTemplateProposalProvider {
 		return lastCompleteKeyword !== null && lastCompleteKeyword.value == '-'
 	}
 
+	private def boolean isRightBehindAssignment(ContentAssistContext context) {
+		val lastCompleteKeyword = context.lastCompleteNode.getNodeAsGrammarElement(Keyword)
+		return lastCompleteKeyword !== null && lastCompleteKeyword.value == '='
+	}
+
 	private def boolean rightBehindSpace(ContentAssistContext context) {
 		val peekedString = context.peekBehindContexCursor(1)
 		return peekedString == ' '
@@ -117,7 +126,8 @@ class TclTemplateProposalProvider extends DefaultTemplateProposalProvider {
 		// it will however support empty prefixes right after line breaks 
 		// => cut off all before '-' and line breaks
 		val lastLineFeedOffset = Math.max(peekedString.lastIndexOf('\r'), peekedString.lastIndexOf('\n'))
-		val relevantPeekedString = peekedString.substring(Math.max(lastDashOffset + 1, lastLineFeedOffset + 1))
+		val lastAssignmentOffset = peekedString.lastIndexOf('=')
+		val relevantPeekedString = peekedString.substring(#[lastDashOffset + 1, lastLineFeedOffset + 1, lastAssignmentOffset + 1].max)
 		return relevantPeekedString
 	}
 	
@@ -126,7 +136,7 @@ class TclTemplateProposalProvider extends DefaultTemplateProposalProvider {
 	}
 
 	private def String mandatoryPrefixForTemplate(ContentAssistContext context) {
-		val peekedString = context.peekBehindSuchThatPrefixForTemplateIsFullyCaptured 
+		val peekedString = context.peekBehindSuchThatPrefixForTemplateIsFullyCaptured
 		val relevantPeekedString = peekedString.reduceStringToTemplatePrefixRelevantPart
 		val normalizedRelevantPeekedString = relevantPeekedString.normalizeTemplatePrefix
 		return normalizedRelevantPeekedString
@@ -135,7 +145,7 @@ class TclTemplateProposalProvider extends DefaultTemplateProposalProvider {
 	private def String addSpaceIfNotEmptyAnd(String original, boolean addSpace) {
 		if (original.isNullOrEmpty || !addSpace) {
 			return original
-		}else{
+		} else {
 			return '''«original» '''
 		}
 	}
@@ -151,32 +161,44 @@ class TclTemplateProposalProvider extends DefaultTemplateProposalProvider {
 			]
 		]
 	}
-	
-	private def Iterable<InteractionType> filterWithMatchingTemplatePrefix(Iterable<InteractionType> originalList,
-		String prefix) {
+
+	private def Iterable<Template> filterWithMatchingTemplatePrefix(Iterable<Template> originalList, String prefix) {
 		return originalList.filter [
-			val restoredString = template.restoreString(false, it)
+			val restoredString = restoreString(false)
 			restoredString.startsWith(prefix)
 		]
 	}
 	
-	def void proposeAvailableInteractions(ComponentTestStepContext testStepContext, TemplateContext templateContext,
-		ContentAssistContext context, ITemplateAcceptor acceptor) {
-		val mandatoryPrefix = context.mandatoryPrefixForTemplate
-		val rightBehindSpace = context.rightBehindSpace
+	private def Iterable<InteractionType> filterReturningInteractionsIf(Iterable<InteractionType> originalList, boolean usedInAssignment) {
+		if (!usedInAssignment) {
+			return originalList
+		}else {
+			originalList.filter[
+				it.defaultMethod.operation.returnType.identifier != 'void'
+			]
+		}
+	}
+	
+
+	def void proposeAvailableInteractions(ComponentTestStepContext testStepContext, TemplateContext uiTemplateContext,
+		ContentAssistContext assistContext, ITemplateAcceptor acceptor) {
+		val mandatoryPrefix = assistContext.mandatoryPrefixForTemplate
+		val rightBehindSpace = assistContext.rightBehindSpace
 		// if a mandatory prefix is given, context replaceRegion must be present in order to not have duplicate proposals
 		// if behind a space, replace region may be empty and prefix may be empty and but proposals may still exist 
-		val contextIsRelevantForProposal = (context.replaceRegion.length > 0 || mandatoryPrefix.isNullOrEmpty || rightBehindSpace)
+		val contextIsRelevantForProposal = (assistContext.replaceRegion.length > 0 || mandatoryPrefix.isNullOrEmpty ||
+			rightBehindSpace)
 		if (contextIsRelevantForProposal) {
-			val interactionTypes = testStepContext.component.allInteractionTypes
-			val interactionTypesMatchingPrefix = interactionTypes.filterWithMatchingTemplatePrefix(mandatoryPrefix.addSpaceIfNotEmptyAnd(rightBehindSpace))
-			val interactionsThatAreApplicableInThisComponent = interactionTypesMatchingPrefix.filterNotApplicableToUnknownElements(testStepContext)
-			interactionsThatAreApplicableInThisComponent.forEach [
-				val behindDash = context.isRightBehindDash
-				val template = createTemplate(testStepContext, mandatoryPrefix, context.prefix, !behindDash)
-				val relevance = 500
-				// create proposal without validation, since validation fails on correct proposals because of misconceptions of replacement region and pasted text
-				val proposal = doCreateProposal(template, templateContext, context, getImage(template), relevance) 
+			val interactions = testStepContext.component.allInteractionTypes
+			val interactionsUsableInContext = interactions.filterReturningInteractionsIf(assistContext.rightBehindAssignment)
+			val interactionsThatAreApplicableInThisComponent = interactionsUsableInContext.
+				filterNotApplicableToUnknownElements(testStepContext)
+			val templatesMatchingPrefix = interactionsThatAreApplicableInThisComponent.map[template].
+				filterWithMatchingTemplatePrefix(mandatoryPrefix.addSpaceIfNotEmptyAnd(rightBehindSpace))
+			templatesMatchingPrefix.forEach [
+				val interaction = EcoreUtil2.getContainerOfType(it, InteractionType)
+				val templateId = nameProvider.getFullyQualifiedName(interaction).toString
+				val proposal = createUiProposal(assistContext, uiTemplateContext, templateId, mandatoryPrefix)
 				acceptor.accept(proposal)
 			]
 		}
@@ -185,56 +207,69 @@ class TclTemplateProposalProvider extends DefaultTemplateProposalProvider {
 	/**
 	 * Provide dynamic templates for all available interaction types.
 	 */
-	def void proposeAvailableInteractions(MacroTestStepContext testStepContext, TestStep step, TemplateContext templateContext,
-		ContentAssistContext context, ITemplateAcceptor acceptor) {
-		val macros = testStepContext.macroCollection.macros
-		macros.forEach [
-			val template = createTemplate(testStepContext)
-			val relevance = 500
-			val proposal = createProposal(template, templateContext, context, getImage(template), relevance)
-			acceptor.accept(proposal)
-		]
+	def void proposeAvailableInteractions(MacroTestStepContext testStepContext, TemplateContext uiTemplateContext,
+		ContentAssistContext assistContext, ITemplateAcceptor acceptor) {
+		val mandatoryPrefix = assistContext.mandatoryPrefixForTemplate
+		val rightBehindSpace = assistContext.rightBehindSpace
+		// if a mandatory prefix is given, context replaceRegion must be present in order to not have duplicate proposals
+		// if behind a space, replace region may be empty and prefix may be empty and but proposals may still exist
+		val contextIsRelevantForProposal = (assistContext.replaceRegion.length > 0 || mandatoryPrefix.isNullOrEmpty ||
+			rightBehindSpace)
+		if (contextIsRelevantForProposal) {
+			val macros = testStepContext.macroCollection.macros
+			// since macros cannot return values, assignments are impossible here
+			val templatesMatchingPrefix = macros.map[template].filterWithMatchingTemplatePrefix(
+				mandatoryPrefix.addSpaceIfNotEmptyAnd(rightBehindSpace))
+			templatesMatchingPrefix.forEach [
+				val templateId = nameProvider.getFullyQualifiedName(testStepContext.macroCollection)?.toString + "." +
+					restoreString(false)
+				val proposal = createUiProposal(assistContext, uiTemplateContext, templateId, mandatoryPrefix)
+				acceptor.accept(proposal)
+			]
+		}
 	}
 
 	/**
-	 * Create a dynamic template for {@link InteractionType}.
+	 * create a completion proposal based on this template,
+	 * using the given content assist context, the template context
+	 * and templateId and the template prefix actually in use
 	 */
-	private def org.eclipse.jface.text.templates.Template createTemplate(InteractionType interactionType,
-		ComponentTestStepContext context, String mandatoryPrefix, String contextPrefix, boolean withDash) {
-		val proposalDescription = interactionType.template.restoreString(false, interactionType)
-		val optionalDashPrefix = if (withDash && mandatoryPrefix.isNullOrEmpty) {
+	private def TemplateProposal createUiProposal(Template template, ContentAssistContext assistContext,
+		TemplateContext uiTemplateContext, String templateId, String existingPrefix) {
+		val behindDash = assistContext.isRightBehindDash
+		val behindAssignment = assistContext.isRightBehindAssignment
+		val proposalDescription = template.restoreString(false)
+		val optionalDashPrefix = if (!behindDash && !behindAssignment && existingPrefix.isNullOrEmpty) {
 				'- '
 			} else {
 				''
 			}
-		val proposalTemplate = optionalDashPrefix + contextPrefix +
-			interactionType.template.restoreString(true, interactionType).substring(mandatoryPrefix.length)
-		val templateId = nameProvider.getFullyQualifiedName(interactionType).toString
-		return new org.eclipse.jface.text.templates.Template(proposalDescription, 'test step', templateId,
-			proposalTemplate.trim, false)
+		val proposalTemplate = optionalDashPrefix + assistContext.prefix +
+			template.restoreString(true).substring(existingPrefix.length)
+		val uiTemplate = new org.eclipse.jface.text.templates.Template(proposalDescription, 'test step', templateId,
+			proposalTemplate, false)
+
+		val relevance = 500
+		// create proposal without validation, since validation fails on correct proposals because of misconceptions of replacement region and pasted text
+		val proposal = doCreateProposal(uiTemplate, uiTemplateContext, assistContext, getImage(uiTemplate), relevance)
+		return proposal
 	}
 
-	private def org.eclipse.jface.text.templates.Template createTemplate(Macro macro, MacroTestStepContext context) {
-		val proposalDescription = macro.template.restoreString(false, macro)
-		val proposalTemplate = macro.template.restoreString(true, macro)
-		val templateId = nameProvider.getFullyQualifiedName(context.macroCollection)?.toString+"."+proposalDescription
-		return new org.eclipse.jface.text.templates.Template(proposalDescription, 'test step', templateId, proposalTemplate, false)
-	}
-
-	private def String restoreString(Template template, boolean asTemplate, TemplateContainer templateContainer) {
+	private def String restoreString(Template template, boolean asTemplate) {
 		return template.contents.map [
 			switch (it) {
 				TemplateVariable case name == ModelUtil.TEMPLATE_VARIABLE_ELEMENT:
 					if (asTemplate) '''<${«name»}>''' else '''<«name»>'''
 				TemplateVariable:
-					typedProposalString(templateContainer, asTemplate)
+					typedProposalString(EcoreUtil2.getContainerOfType(template, TemplateContainer), asTemplate)
 				TemplateText:
 					value
 			}
 		].join(' ')
 	}
-	
-	private def String typedProposalString(TemplateVariable templateVariable, TemplateContainer templateContainer, boolean asTemplate) {
+
+	private def String typedProposalString(TemplateVariable templateVariable, TemplateContainer templateContainer,
+		boolean asTemplate) {
 		val expectedType = typeComputer.getExpectedType(templateVariable, templateContainer)
 		if (expectedType.present) {
 			typeUtil.initWith(templateVariable.eResource)
@@ -243,6 +278,9 @@ class TclTemplateProposalProvider extends DefaultTemplateProposalProvider {
 			} else if (typeUtil.isEnum(expectedType.get)) {
 				val value = typeUtil.getEnumValues(expectedType.get).head
 				return templateVariable.proposalStringValue(value, Optional.of(expectedType.get.simpleName), asTemplate)
+			} else if (typeUtil.isBoolean(expectedType.get)) {
+				return templateVariable.proposalStringValue("true", Optional.of(expectedType.get.simpleName),
+					asTemplate)
 			}
 		}
 		
@@ -250,13 +288,14 @@ class TclTemplateProposalProvider extends DefaultTemplateProposalProvider {
 		return templateVariable.proposalStringValue(templateVariable.name, Optional.empty, asTemplate)
 	}
 
-	private def String proposalStringValue(TemplateVariable templateVariable, String value, Optional<String> typeInfo, boolean asTemplate) {
+	private def String proposalStringValue(TemplateVariable templateVariable, String value, Optional<String> typeInfo,
+		boolean asTemplate) {
 		val name = templateVariable.name
 		if (asTemplate) {
 			return '''"${«value»}"'''
 		} else if (typeInfo.present) {
 			return '''"«name»: «typeInfo.get»"'''
-		} else{
+		} else {
 			return '''"«value»"'''
 		}
 	}
