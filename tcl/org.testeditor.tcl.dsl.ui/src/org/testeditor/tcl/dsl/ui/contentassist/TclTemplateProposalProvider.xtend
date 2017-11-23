@@ -78,7 +78,7 @@ class TclTemplateProposalProvider extends DefaultTemplateProposalProvider {
 	}
 	
 	/**
-	 * give this' node grammarElement as 'clazz'
+	 * return grammarElement of given node as 'clazz'
 	 * <pre>
 	 * iff: the node is a leaf node (thus not null)
 	 *      the grammarElement is of the requested type
@@ -95,17 +95,17 @@ class TclTemplateProposalProvider extends DefaultTemplateProposalProvider {
 		return null
 	}
 	
-	private def boolean isRightBehindDash(ContentAssistContext context) {
+	private def boolean isRightBehindDashToken(ContentAssistContext context) {
 		val lastCompleteKeyword = context.lastCompleteNode.getNodeAsGrammarElement(Keyword)
 		return lastCompleteKeyword !== null && lastCompleteKeyword.value == '-'
 	}
 
-	private def boolean isRightBehindAssignment(ContentAssistContext context) {
+	private def boolean isRightBehindAssignmentToken(ContentAssistContext context) {
 		val lastCompleteKeyword = context.lastCompleteNode.getNodeAsGrammarElement(Keyword)
 		return lastCompleteKeyword !== null && lastCompleteKeyword.value == '='
 	}
 
-	private def boolean rightBehindSpace(ContentAssistContext context) {
+	private def boolean isRightBehindSpace(ContentAssistContext context) {
 		val peekedString = context.peekBehindContexCursor(1)
 		return peekedString == ' '
 	}
@@ -150,6 +150,11 @@ class TclTemplateProposalProvider extends DefaultTemplateProposalProvider {
 		}
 	}
 	
+	/**
+	 * if a component knows about a fixture method that requires a parameter of type 'element'
+	 * then at least one element within this component must exist that allows this interaction (and thus the fixture)
+	 * to be used with this element. 
+	 */
 	private def Iterable<InteractionType> filterNotApplicableToUnknownElements(Iterable<InteractionType> originalList,
 		ComponentTestStepContext testStepContext) {
 		return originalList.filter [ interactionType |
@@ -173,13 +178,41 @@ class TclTemplateProposalProvider extends DefaultTemplateProposalProvider {
 		if (!usedInAssignment) {
 			return originalList
 		}else {
-			originalList.filter[
-				it.defaultMethod.operation.returnType.identifier != 'void'
+			return originalList.filter[
+				defaultMethod.operation.returnType.identifier != void.simpleName
 			]
 		}
 	}
 	
 
+	/**
+	 * find proposals for templates or rather fixture calls within the tcl
+	 *
+	 * <br/>The given examples show a couple of cases that are relevant. Cursor position is marked by vertical bar.<br/> 
+	 * mandatory prefix = "" => all templates are relevant, rightBehindSpace = false, 
+	 * <pre>
+	 * Component: Application
+	 * |
+	 * </pre>
+	 * 
+	 * mandatory prefix = "" => all templates are relevant, rightBehindSpace = true, rightBehindDashToken = true
+	 * <pre>
+	 * Component: Application
+	 * - |
+	 * </pre>
+	 * 
+	 * mandatory prefix = "Read value " => only templates with this prefix are relevant, rightBehindSpace = true, rightBehindDashToken = false
+	 * <pre>
+	 * Component: Application
+	 * - Read value |
+	 * </pre>
+	 * 
+	 * mandatory prefix = "" => all templates are relevant, rightBehindSpace = true, rightBehindDashToken = false, rightBehindAssignmentToken = true
+	 * <pre>
+	 * Component: Application
+	 * - variable = |
+	 * </pre>
+	 */
 	def void proposeAvailableInteractions(ComponentTestStepContext testStepContext, TemplateContext uiTemplateContext,
 		ContentAssistContext assistContext, ITemplateAcceptor acceptor) {
 		val mandatoryPrefix = assistContext.mandatoryPrefixForTemplate
@@ -190,7 +223,7 @@ class TclTemplateProposalProvider extends DefaultTemplateProposalProvider {
 			rightBehindSpace)
 		if (contextIsRelevantForProposal) {
 			val interactions = testStepContext.component.allInteractionTypes
-			val interactionsUsableInContext = interactions.filterReturningInteractionsIf(assistContext.rightBehindAssignment)
+			val interactionsUsableInContext = interactions.filterReturningInteractionsIf(assistContext.rightBehindAssignmentToken)
 			val interactionsThatAreApplicableInThisComponent = interactionsUsableInContext.
 				filterNotApplicableToUnknownElements(testStepContext)
 			val templatesMatchingPrefix = interactionsThatAreApplicableInThisComponent.map[template].
@@ -236,8 +269,8 @@ class TclTemplateProposalProvider extends DefaultTemplateProposalProvider {
 	 */
 	private def TemplateProposal createUiProposal(Template template, ContentAssistContext assistContext,
 		TemplateContext uiTemplateContext, String templateId, String existingPrefix) {
-		val behindDash = assistContext.isRightBehindDash
-		val behindAssignment = assistContext.isRightBehindAssignment
+		val behindDash = assistContext.rightBehindDashToken
+		val behindAssignment = assistContext.rightBehindAssignmentToken
 		val proposalDescription = template.restoreString(false)
 		val optionalDashPrefix = if (!behindDash && !behindAssignment && existingPrefix.isNullOrEmpty) {
 				'- '

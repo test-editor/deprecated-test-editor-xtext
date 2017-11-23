@@ -18,7 +18,7 @@ before_install:
 install:
   - mvn clean install -f "target-platform/pom.xml"
 script:
-  - mvn clean install -Dsurefire.useFile=false -Dtycho.localArtifacts=ignore
+  - mvn clean install -Dmaven.test.failure.ignore -Dsurefire.useFile=false -Dtycho.localArtifacts=ignore
 after_success:
   - bash <(curl -s https://codecov.io/bash)
   - ./.travis-publishOnRelease.sh

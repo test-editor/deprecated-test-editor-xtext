@@ -47,7 +47,7 @@ config TestEditorConfig
 	- singleDashedInteraction = Contains editor "\n- do something \"1\""
 	- assert singleDashedInteraction
 
-* Given a prefixed of "- do some" _ assist provides only the ones limited to the ones matching that prefix
+* Given a prefix of "- do some" _ assist provides only the ones limited to the ones matching that prefix
 
 	Component: ActiveEditor
 	// given
