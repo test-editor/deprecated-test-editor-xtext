@@ -22,6 +22,7 @@
 		<module>org.testeditor.tcl.dsl</module>
 		<module>org.testeditor.tcl.dsl.tests</module>
 		<module>org.testeditor.tcl.dsl.ide</module>
+		<module>org.testeditor.tcl.dsl.ide.tests</module>
 		<module>org.testeditor.tcl.dsl.ui</module>
 		<module>org.testeditor.tcl.dsl.ui.tests</module>
 		<module>org.testeditor.tcl.sdk</module>
