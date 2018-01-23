@@ -20,7 +20,7 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 	
 	@Before
 	def void parseMacroModel() {
-		parseTcl(DummyFixture.getMacroModel("GreetingApplicationMacro"), "GreetingApplicationMacro.tml")
+		parseTcl(DummyFixture.getMacroModel("GreetingApplicationMacro"))
 	}
 
 	@Before
