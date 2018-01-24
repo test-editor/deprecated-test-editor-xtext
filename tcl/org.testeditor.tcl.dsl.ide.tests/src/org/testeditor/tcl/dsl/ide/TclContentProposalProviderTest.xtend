@@ -13,6 +13,59 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 	}
 
 	@Test
+	def void testComponentTemplateProposalWithoutDash() {
+		// given
+		var tclSnippet = '''
+			# Some
+			
+			* some step
+			Component: GreetingApplication
+			|
+		'''.withPackage
+
+		// when
+		val proposals = tclSnippet.proposals
+
+		// then
+		proposals => [
+			expect('- Stop application')
+			expect('- Start application "path"')
+			expect('- Is <element> visible?')
+			expect('- Type "value" into <element> and wait "1"')
+			expect('- Wait for "1" seconds')
+			reject('Stop application') // proposals must include '-'
+			reject('com.example.start.path') // crossreference to template variable must not show
+		]
+	}
+	
+	@Test
+	def void testComponentSecondTemplateProposalWithoutDash() {
+		// given
+		var tclSnippet = '''
+			# Some
+			
+			* some step
+			Component: GreetingApplication
+			- Stop application
+			|
+		'''.withPackage
+
+		// when
+		val proposals = tclSnippet.proposals
+
+		// then
+		proposals => [
+			expect('- Stop application')
+			expect('- Start application "path"')
+			expect('- Is <element> visible?')
+			expect('- Type "value" into <element> and wait "1"')
+			expect('- Wait for "1" seconds')
+			reject('Stop application') // proposal must include '-'
+			reject('com.example.start.path') // crossreference to template variable must not show
+		]
+	}
+	
+	@Test
 	def void testComponentTemplateProposal() {
 		// given
 		var tclSnippet = '''
@@ -33,6 +86,8 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 			expect('Is <element> visible?')
 			expect('Type "value" into <element> and wait "1"')
 			expect('Wait for "1" seconds')
+			reject('- Stop application') // proposal must NOT include '-'
+			reject('com.example.start.path') // crossreference to template variable must not show
 		]
 	}
 	
@@ -55,6 +110,7 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 			expect('Stop application').prefix.assertEquals('St')
 			expect('Start application "path"').prefix.assertEquals('St')
 			reject('Wait for "1" seconds')
+			reject('- Stop application') // proposal must NOT include '-'
 		]
 	}
 
@@ -74,8 +130,8 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 
 		// then
 		proposals => [
-			expect('Start application "path"').prefix.assertEquals('Start ')
-			reject('Stop application')
+			expect('application "path"').prefix.assertEquals('')
+			reject('Stop application') // proposal must NOT include templates with different prefix
 		]
 	}
 
@@ -96,11 +152,11 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 
 		// then
 		proposals => [
-			expect('Type boolean "true" into <element>').prefix.assertEquals('Type ')
-			expect('Type "value" into <element> and wait "1"').prefix.assertEquals('Type ')
-			expect('Type "value" into <element>').prefix.assertEquals('Type ')
-			expect('Type confidential "param" into <element>').prefix.assertEquals('Type ')
-			reject('Stop application')
+			expect('boolean "true" into <element>').prefix.assertEquals('')
+			expect('"value" into <element> and wait "1"').prefix.assertEquals('')
+			expect('"value" into <element>').prefix.assertEquals('')
+			expect('confidential "param" into <element>').prefix.assertEquals('')
+			reject('Stop application') // proposal must NOT include templates with different prefix
 		]
 	}
 
@@ -120,8 +176,8 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 
 		// then
 		proposals => [
-			expect('Start application "path"').prefix.assertEquals('Start app')
-			reject('Stop application')
+			expect('application "path"').prefix.assertEquals('app')
+			reject('Stop application') // proposal must NOT include templates with different prefix
 		]
 	}
 
@@ -135,17 +191,13 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 			Component: GreetingApplication
 			      - 	Start   	 app|
 		'''.withPackage
-
+	
 		// when
 		val proposals = tclSnippet.proposals
 
 		// then
 		proposals => [
-			// TODO: find out the way, how the replacement region of the text can be formulated such that the editor works as expected
-			expect('Start application "path"')=> [
-				prefix.assertEquals('Start app')
-				// textReplacements.head.text == '	Start   	 app'
-			]
+			expect('application "path"').prefix.assertEquals('app')
 			reject('Stop application')
 		]
 	}
@@ -166,9 +218,9 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 
 		// then
 		proposals => [
-			expect('<Input').prefix.assertEquals('<')
-			expect('<bar').prefix.assertEquals('<')
-			reject('<Ok') // buttons have no 'Read value from' - fixture
+			expect('Input').prefix.assertEquals('<')
+			expect('bar').prefix.assertEquals('<')
+			reject('Ok') // buttons have no 'Read value from' - fixture
 		]
 	}
 
@@ -188,9 +240,53 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 
 		// then
 		proposals => [
-			expect('<Input>').prefix.assertEquals('<')
-			expect('<bar>').prefix.assertEquals('<')
-			reject('<Ok>') // buttons have no 'Read value from' - fixture
+			expect('Input>').prefix.assertEquals('<')
+			expect('bar>').prefix.assertEquals('<')
+			reject('Ok>') // buttons have no 'Read value from' - fixture
+		]
+	}
+
+	@Test
+	def void testIncompleteElementProposal() {
+		// given
+		var tclSnippet = '''
+			# Some
+			
+			* some step
+			Component: GreetingApplication
+			- Read value from <b|>
+		'''.withPackage
+
+		// when
+		val proposals = tclSnippet.proposals
+
+		// then
+		proposals => [
+			reject('Input')
+			expect('bar').prefix.assertEquals('b')
+			reject('Ok') 
+		]
+	}
+
+	@Test
+	def void testTrailingElementProposal() {
+		// given
+		var tclSnippet = '''
+			# Some
+			
+			* some step
+			Component: GreetingApplication
+			- Read value from <Input> |
+		'''.withPackage
+
+		// when
+		val proposals = tclSnippet.proposals
+
+		// then
+		proposals => [
+			reject('Input>')
+			reject('bar>')
+			reject('Ok>') 
 		]
 	}
 

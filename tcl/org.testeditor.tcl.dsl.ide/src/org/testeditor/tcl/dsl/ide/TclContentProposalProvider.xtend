@@ -1,68 +1,160 @@
 package org.testeditor.tcl.dsl.ide
 
+import com.google.common.base.Predicate
 import javax.inject.Inject
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.xtext.CrossReference
 import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.xtext.RuleCall
 import org.eclipse.xtext.ide.editor.contentassist.ContentAssistContext
 import org.eclipse.xtext.ide.editor.contentassist.IIdeContentProposalAcceptor
 import org.eclipse.xtext.ide.editor.contentassist.IdeContentProposalProvider
+import org.eclipse.xtext.resource.IEObjectDescription
+import org.eclipse.xtext.xtext.CurrentTypeFinder
+import org.slf4j.LoggerFactory
 import org.testeditor.aml.Component
+import org.testeditor.aml.ComponentElement
+import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateText
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
+import org.testeditor.tcl.ComponentTestStepContext
+import org.testeditor.tcl.EnvironmentVariable
 import org.testeditor.tcl.MacroCollection
+import org.testeditor.tcl.MacroTestStepContext
+import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TestStep
+import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tcl.dsl.jvmmodel.SimpleTypeComputer
 import org.testeditor.tcl.dsl.services.TclGrammarAccess
 import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.tsl.StepContent
 
 class TclContentProposalProvider extends IdeContentProposalProvider {
 
-	// static val logger = LoggerFactory.getLogger(TclContentProposalProvider)
+	static val logger = LoggerFactory.getLogger(TclContentProposalProvider)
+	
 	@Inject JvmTypeReferenceUtil typeUtil
 	@Inject SimpleTypeComputer typeComputer
-	@Inject extension TclGrammarAccess grammarAccess
+	@Inject extension TclGrammarAccess
 	@Inject extension TclModelUtil
 	@Inject extension ModelUtil
+	@Inject CurrentTypeFinder currentTypeFinder
 
-	private def makeEnvParamsProposal(TestStep model, ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
-		model.envParams.forEach [
-			val proposal = proposalCreator.createProposal("@" + name, context)
-			if (proposal !== null) {
-				acceptor.accept(proposal, proposalPriorities.getCrossRefPriority(null, proposal))
-			}
-		]
+	/**
+	 * hook into proposal construction and identify relevant cases
+	 */
+	override protected _createProposals(RuleCall ruleCall, ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
+		switch (ruleCall.rule) {
+			case testStepRule:
+				makeTestStepProposals(context, acceptor)
+			case stepContentElementRule:
+				makeStepContentElementProposals(context, acceptor)
+			case IDRule:
+				makeIDProposals(context, acceptor)
+			default: {
+			} // ignore
+		}
 	}
 
-	private def makeMacroParameterProposal(TestStep model, ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
-		model.enclosingMacroParameters.forEach [
-			val proposal = proposalCreator.createProposal("@" + name, context)
-			if (proposal !== null) {
-				acceptor.accept(proposal, proposalPriorities.getCrossRefPriority(null, proposal))
+	/**
+	 * filter all proposals for cross references such that TemplateVariables my not be used in VariableReferencePath location!
+	 */
+	override protected def Predicate<IEObjectDescription> getCrossrefFilter(CrossReference reference, ContentAssistContext context) {
+		val type = currentTypeFinder.findCurrentTypeAfter(reference)
+		if (type.instanceClass == VariableReferencePathAccess) {
+			return [ eObjectDescription |
+				val eObject = eObjectDescription.EObjectOrProxy
+				return !(eObject instanceof TemplateVariable)
+			]
+		} else {
+			return super.getCrossrefFilter(reference, context)
+		}
+	}
+
+	private def makeTestStepProposals(ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
+		val entry = proposalCreator.createProposal('- ', context)
+		val prio = proposalPriorities.getDefaultPriority(entry)
+		acceptor.accept(entry, prio)
+		val model = context.currentModel
+		if (context.isLocatedWithinComponentUsage && context.isOutsidePreviousTestStep) {
+			(model as ComponentTestStepContext).component?.allInteractionTypes.forEach [
+				val proposal = '''- «template.restoreString»''' // NOTE THAT - IS EXPLICITLY INCLUDED HERE
+				val templateEntry = proposalCreator.createProposal(proposal, context)
+				if (templateEntry !== null) {
+					acceptor.accept(templateEntry, proposalPriorities.getCrossRefPriority(null, entry))
+				}
+			]
+
+		} else if (model instanceof MacroTestStepContext) {
+			model.macroCollection.makeMacroTemplateProposal(context, acceptor)
+		}
+	}
+
+	private def boolean isLocatedWithinComponentUsage(ContentAssistContext context) {
+		return (context.currentModel instanceof ComponentTestStepContext && !(context.previousModel instanceof TestStep))
+	}
+
+	private def boolean isOutsidePreviousTestStep(ContentAssistContext context) {
+		return !(context.previousModel instanceof StepContent && context.previousModel.isIncompleteTestStep)
+	}
+
+	private def void makeStepContentElementProposals(ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
+		val model = context.currentModel
+		if (model instanceof TestStep) {
+			model.envParams.forEach[makeEnvParamProposal(context, acceptor)]
+			model.enclosingMacroParameters.forEach[makeMacroParameterProposal(context, acceptor)]
+			if (model.componentContext !== null) { // since the macro context does not allow for element parameter, yet, only component contexts are relevant here
+				model.makeElementParamsProposal('', context, acceptor)
 			}
-		]
+			if (context.previousModel.isIncompleteTestStep) {
+				model.componentContext?.component?.makeComponentTemplateProposal(model, context, acceptor)
+				model.macroContext?.macroCollection?.makeMacroTemplateProposal(context, acceptor)
+			}
+			return
+		} else if (model instanceof StepContentElement) {
+			model.makeElementParamsProposal(context, acceptor)
+			return
+		}
+	}
+
+	/**
+	 * actually the last parsed element is tested whether it is part of a complete test step, thus allowing for now further step contents, 
+	 * whereas the parser does not know that and might propose additional step contents
+	 */
+	private def boolean isIncompleteTestStep(EObject previousModel) {
+		EcoreUtil2.getContainerOfType(previousModel, TestStep).interaction === null
+	}
+
+	private def void makeIDProposals(ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
+		val model = context.currentModel
+		if (model instanceof StepContentElement) {
+			model.makeElementParamsProposal(context, acceptor)
+		}
+	}
+
+	private def makeEnvParamProposal(EnvironmentVariable environmentVariable, ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
+		val envName = environmentVariable.name
+		val proposal = proposalCreator.createProposal("@" + envName, context)
+		if (proposal !== null) {
+			acceptor.accept(proposal => [
+				label = envName
+				description = 'ENV_PARAM'
+			], proposalPriorities.getCrossRefPriority(null, proposal))
+		}
+	}
+
+	private def makeMacroParameterProposal(TemplateVariable templateVariable, ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
+		val proposal = proposalCreator.createProposal("@" + templateVariable.name, context)
+		if (proposal !== null) {
+			acceptor.accept(proposal, proposalPriorities.getCrossRefPriority(null, proposal))
+		}
 	}
 
 	private def makeComponentTemplateProposal(Component component, TestStep model, ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
-		val interaction = model.interaction
-		val possibleElements = component.elements.filter [
-			val interactionTypes = componentElementInteractionTypes
-			return interactionTypes.contains(interaction)
-		]
-		// need to consider whether the completion should contain the '>' as well
-		val currentNode = context.currentNode
-		val includeClosingBracket = !currentNode.text.contains('>') && (currentNode.nextSibling === null || !currentNode.nextSibling.text.contains('>'))
-		possibleElements.forEach [
-			val element = '''<«name»«IF includeClosingBracket»>«ENDIF»'''
-			val proposal = proposalCreator.createProposal(element, context)
-			if (proposal !== null) {
-				acceptor.accept(proposal, proposalPriorities.getCrossRefPriority(null, proposal))
-			}
-		]
-
 		val interactions = component.allInteractionTypes
 		interactions.map[template].makeTemplateProposals(context, acceptor)
 	}
@@ -73,43 +165,68 @@ class TclContentProposalProvider extends IdeContentProposalProvider {
 	}
 
 	private def makeTemplateProposals(Iterable<Template> templates, ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
-		val mandatoryPrefix = context.mandatoryPrefixForTemplate
-		val rightBehindSpace = context.rightBehindSpace
+		val mandatoryPrefix = context.mandatoryPrefixForTemplate(true)
 		templates.forEach [
-			makeTemplateProposal(mandatoryPrefix, rightBehindSpace, context, acceptor)
+			makeTemplateProposal(mandatoryPrefix, context, acceptor)
 		]
 	}
 
-	private def makeTemplateProposal(Template template, String mandatoryPrefix, boolean rightBehindSpace, ContentAssistContext context,
-		IIdeContentProposalAcceptor acceptor) {
+	private def makeTemplateProposal(Template template, String mandatoryPrefix, ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
 		val element = template.restoreString
 		if (element.startsWith(mandatoryPrefix)) {
-			val prefixedContext = context.copy.setPrefix(mandatoryPrefix.addSpaceIfNotEmptyAnd(rightBehindSpace)).toContext
-			val proposal = proposalCreator.createProposal(element, prefixedContext)
+			val actualElement = context.prefix + element.substring(mandatoryPrefix.length).trim
+			val proposal = proposalCreator.createProposal(actualElement, context)
 			if (proposal !== null) {
-				acceptor.accept(proposal, proposalPriorities.getCrossRefPriority(null, proposal))
+				acceptor.accept(proposal => [
+					label = element
+					description = 'STEP'
+				], proposalPriorities.getCrossRefPriority(null, proposal))
 			}
 		}
 	}
 
-	override protected _createProposals(RuleCall ruleCall, ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
-		if (ruleCall.rule === grammarAccess.testStepRule) {
-			val entry = proposalCreator.createProposal('- ', context)
-			val prio = proposalPriorities.getKeywordPriority(null, entry)
-			if (entry !== null) {
-				acceptor.accept(entry, prio)
-			}
-		} else if (ruleCall.rule === grammarAccess.stepContentElementRule) {
-			val model = context.currentModel
-			if (model instanceof TestStep) {
-				model.makeEnvParamsProposal(context, acceptor)
-				model.makeMacroParameterProposal(context, acceptor)
-				model.componentContext?.component?.makeComponentTemplateProposal(model, context, acceptor)
-				model.macroContext?.macroCollection?.makeMacroTemplateProposal(context, acceptor)
-			}
+	private def makeElementParamsProposal(StepContentElement element, ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
+		val model = EcoreUtil2.getContainerOfType(element, TestStep)
+		model.makeElementParamsProposal(element.value, context, acceptor)
+	}
 
+	/**
+	 * return elements that are available for the given interaction and have the given prefix
+	 */
+	private def Iterable<ComponentElement> filterElementsApplicable(Iterable<ComponentElement> elements, InteractionType interaction, String prefix) {
+		return elements.filter [
+			val interactionTypes = componentElementInteractionTypes
+			val validCandidate = interactionTypes.contains(interaction) && name.startsWith(prefix)
+			if (logger.traceEnabled) {
+				logger.trace('''Element-Parameter validForProposal='«validCandidate»' name='«name»'.''')
+			}
+			return validCandidate
+		]
+	}
+
+	private def makeElementParamsProposal(TestStep model, String prefix, ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
+		if (!context.prefix.isNullOrEmpty) {
+			val componentContext = EcoreUtil2.getContainerOfType(model, ComponentTestStepContext)
+			val component = componentContext.component
+			val interaction = model.interaction
+			val applicableElements = component.elements.filterElementsApplicable(interaction, prefix)
+			val currentNode = context.currentNode
+			val includeClosingBracket = !currentNode.text.contains('>') && (currentNode.nextSibling === null || !currentNode.nextSibling.text.contains('>'))
+			applicableElements.forEach [ el |
+				val entry = '''«IF prefix.isNullOrEmpty»<«ENDIF»«el.name»«IF includeClosingBracket»>«ENDIF»'''
+				if (logger.traceEnabled) {
+					logger.trace('''Element-Parameter-Proposal name='«el.name»', context.prefix='«context.prefix»', proposal entry='«entry»'.''')
+				}
+				val proposal = proposalCreator.createProposal(entry, context)
+				if (proposal !== null) {
+					acceptor.accept(proposal => [
+						proposal = '''«el.name»«IF includeClosingBracket»>«ENDIF»'''
+						label = el.name
+						description = 'ELEMENT'
+					], proposalPriorities.getCrossRefPriority(null, proposal))
+				}
+			]
 		}
-		super._createProposals(ruleCall, context, acceptor)
 	}
 
 	private def String restoreString(Template template) {
@@ -141,40 +258,6 @@ class TclContentProposalProvider extends IdeContentProposalProvider {
 		return '''"«templateVariable.name»"'''
 	}
 
-	/**
-	 * return grammarElement of given node as 'clazz'
-	 * <pre>
-	 * iff: the node is a leaf node (thus not null)
-	 *      the grammarElement is of the requested type
-	 * else: null
-	 * </pre>
-	 */
-	/*
-	 * private def <T> getNodeAsGrammarElement(INode node, Class<T> clazz) {
-	 * 	if ((node !== null) && (node instanceof LeafNode)) {
-	 * 		val grammarElement = (node as LeafNode).grammarElement
-	 * 		if (clazz.isAssignableFrom(grammarElement.class)) {
-	 * 			return grammarElement as T
-	 * 		}
-	 * 	} 
-	 * 	return null
-	 * }
-	 * 
-	 * private def boolean isRightBehindDashToken(ContentAssistContext context) {
-	 * 	val lastCompleteKeyword = context.lastCompleteNode.getNodeAsGrammarElement(Keyword)
-	 * 	return lastCompleteKeyword !== null && lastCompleteKeyword.value == '-'
-	 * }
-
-	 * private def boolean isRightBehindAssignmentToken(ContentAssistContext context) {
-	 * 	val lastCompleteKeyword = context.lastCompleteNode.getNodeAsGrammarElement(Keyword)
-	 * 	return lastCompleteKeyword !== null && lastCompleteKeyword.value == '='
-	 * }
-	 */
-	private def boolean isRightBehindSpace(ContentAssistContext context) {
-		val peekedString = context.peekBehindContexCursor(1)
-		return peekedString == ' '
-	}
-
 	private def String peekBehindContexCursor(ContentAssistContext context, int length) {
 		val peekOffset = Math.max(0, context.offset - length)
 		val peekedString = context.rootNode.text.substring(peekOffset, context.offset)
@@ -200,18 +283,13 @@ class TclContentProposalProvider extends IdeContentProposalProvider {
 		return denormalizedPrefix.replaceAll('\t', ' ').replaceAll(' +', ' ').trim
 	}
 
-	private def String mandatoryPrefixForTemplate(ContentAssistContext context) {
+	private def String mandatoryPrefixForTemplate(ContentAssistContext context, boolean normalize) {
 		val peekedString = context.peekBehindSuchThatPrefixForTemplateIsFullyCaptured
 		val relevantPeekedString = peekedString.reduceStringToTemplatePrefixRelevantPart
-		val normalizedRelevantPeekedString = relevantPeekedString.normalizeTemplatePrefix
-		return normalizedRelevantPeekedString
-	}
-
-	private def String addSpaceIfNotEmptyAnd(String original, boolean addSpace) {
-		if (original.isNullOrEmpty || !addSpace) {
-			return original
+		if (normalize) {
+			return relevantPeekedString.normalizeTemplatePrefix
 		} else {
-			return '''«original» '''
+			return relevantPeekedString
 		}
 	}
 
