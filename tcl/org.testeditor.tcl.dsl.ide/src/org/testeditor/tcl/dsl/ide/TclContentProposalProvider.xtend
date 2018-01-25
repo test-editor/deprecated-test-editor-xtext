@@ -56,12 +56,13 @@ class TclContentProposalProvider extends IdeContentProposalProvider {
 			case IDRule:
 				makeIDProposals(context, acceptor)
 			default: {
-			} // ignore
+				// no proposals for other rules (yet), standard proposals (derived by the grammar) are added nonetheless
+			} 
 		}
 	}
 
 	/**
-	 * filter all proposals for cross references such that TemplateVariables my not be used in VariableReferencePath location!
+	 * filter all proposals for cross references such that TemplateVariables may not be used in VariableReferencePath location!
 	 */
 	override protected def Predicate<IEObjectDescription> getCrossrefFilter(CrossReference reference, ContentAssistContext context) {
 		val type = currentTypeFinder.findCurrentTypeAfter(reference)
@@ -114,16 +115,16 @@ class TclContentProposalProvider extends IdeContentProposalProvider {
 				model.componentContext?.component?.makeComponentTemplateProposal(model, context, acceptor)
 				model.macroContext?.macroCollection?.makeMacroTemplateProposal(context, acceptor)
 			}
-			return
 		} else if (model instanceof StepContentElement) {
 			model.makeElementParamsProposal(context, acceptor)
-			return
 		}
 	}
 
 	/**
-	 * actually the last parsed element is tested whether it is part of a complete test step, thus allowing for now further step contents, 
-	 * whereas the parser does not know that and might propose additional step contents
+	 * if a test step is a complete reference to a fixture, it is probably safe to asume that nothing additional should
+	 * be added to this very teststep. 
+	 * 
+	 * actually the last parsed element (previousModel) is tested whether it is part of a fully parsed test step
 	 */
 	private def boolean isIncompleteTestStep(EObject previousModel) {
 		EcoreUtil2.getContainerOfType(previousModel, TestStep).interaction === null
@@ -149,9 +150,7 @@ class TclContentProposalProvider extends IdeContentProposalProvider {
 
 	private def makeMacroParameterProposal(TemplateVariable templateVariable, ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
 		val proposal = proposalCreator.createProposal("@" + templateVariable.name, context)
-		if (proposal !== null) {
-			acceptor.accept(proposal, proposalPriorities.getCrossRefPriority(null, proposal))
-		}
+		acceptor.accept(proposal, proposalPriorities.getCrossRefPriority(null, proposal))
 	}
 
 	private def makeComponentTemplateProposal(Component component, TestStep model, ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
@@ -258,14 +257,14 @@ class TclContentProposalProvider extends IdeContentProposalProvider {
 		return '''"«templateVariable.name»"'''
 	}
 
-	private def String peekBehindContexCursor(ContentAssistContext context, int length) {
+	private def String peekBehindContextCursor(ContentAssistContext context, int length) {
 		val peekOffset = Math.max(0, context.offset - length)
 		val peekedString = context.rootNode.text.substring(peekOffset, context.offset)
 		return peekedString
 	}
 
 	private def String peekBehindSuchThatPrefixForTemplateIsFullyCaptured(ContentAssistContext context) {
-		return context.peekBehindContexCursor(200) // longer fixture templates should not exist 
+		return context.peekBehindContextCursor(200) // longer fixture templates should not exist 
 	}
 
 	private def String reduceStringToTemplatePrefixRelevantPart(String peekedString) {
@@ -280,7 +279,8 @@ class TclContentProposalProvider extends IdeContentProposalProvider {
 	}
 
 	private def String normalizeTemplatePrefix(String denormalizedPrefix) {
-		return denormalizedPrefix.replaceAll('\t', ' ').replaceAll(' +', ' ').trim
+		val spacedPrefix = denormalizedPrefix.replaceAll('\t', ' ')
+		return spacedPrefix.replaceAll(' +', ' ').replaceAll('^ ','')
 	}
 
 	private def String mandatoryPrefixForTemplate(ContentAssistContext context, boolean normalize) {

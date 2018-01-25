@@ -1,7 +1,6 @@
 package org.testeditor.tcl.dsl.ide
 
 import com.google.inject.Module
-import com.google.inject.name.Names
 import java.util.HashSet
 import java.util.List
 import java.util.Set
@@ -9,13 +8,10 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import javax.inject.Inject
 import javax.inject.Provider
-import org.antlr.runtime.Lexer
-import org.eclipse.xtext.ide.LexerIdeBindings
 import org.eclipse.xtext.ide.editor.contentassist.ContentAssistContext
 import org.eclipse.xtext.ide.editor.contentassist.ContentAssistEntry
 import org.eclipse.xtext.ide.editor.contentassist.IIdeContentProposalAcceptor
 import org.eclipse.xtext.ide.editor.contentassist.antlr.ContentAssistContextFactory
-import org.eclipse.xtext.ide.editor.contentassist.antlr.IContentAssistParser
 import org.eclipse.xtext.resource.XtextResource
 import org.eclipse.xtext.testing.util.ParseHelper
 import org.eclipse.xtext.util.ITextRegion
@@ -24,8 +20,6 @@ import org.junit.AfterClass
 import org.junit.Assert
 import org.junit.BeforeClass
 import org.testeditor.tcl.TclModel
-import org.testeditor.tcl.dsl.ide.contentassist.antlr.TclParser
-import org.testeditor.tcl.dsl.ide.contentassist.antlr.internal.InternalTclLexer
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 
 /**
@@ -35,31 +29,25 @@ class AbstractContentAssistTest extends AbstractParserTest {
 
 	static val CARET_CHAR = '|'
 
-	static ExecutorService executorService
+	static ExecutorService contextFactoryExecutorService
 
 	@Inject Provider<ContentAssistContextFactory> contextFactoryProvider
 	@Inject TclContentProposalProvider proposalProvider
-	@Inject protected ParseHelper<TclModel> tclParseHelper // make sure to use this parse helper, not the
+	@Inject protected ParseHelper<TclModel> tclParseHelper // make sure to use this parse helper, not the one that is provided by DslParseHelper
 
 	@BeforeClass
-	static def void initExecutorService() {
-		executorService = Executors.newCachedThreadPool
+	static def void initContextFactoryExecutorService() {
+		contextFactoryExecutorService = Executors.newCachedThreadPool
 	}
 
 	@AfterClass
-	static def void disposeExecutorService() {
-		executorService.shutdown()		
+	static def void disposeContextFactoryExecutorService() {
+		contextFactoryExecutorService.shutdown()
 	}
-	
+
 	override protected collectModules(List<Module> modules) {
 		super.collectModules(modules)
 		modules += new TclIdeModule as Module
-		// binding lexer and parser might become necessary
-		// TODO: check when more complex tests are available
-		modules += [ binder |
-			binder.bind(Lexer).annotatedWith(Names.named(LexerIdeBindings.CONTENT_ASSIST)).to(InternalTclLexer)
-			binder.bind(IContentAssistParser).to(TclParser)
-		]
 	}
 
 	/**
@@ -76,8 +64,8 @@ class AbstractContentAssistTest extends AbstractParserTest {
 		val textToParse = text.replaceAll('\\' + caretChar, '')
 		// make sure to use the injected parse helper instead of the one provided by DslParseHelper
 		// using the the DslParseHelper here will result in Rules injected by different injectors which fails upon building the contexts
-		var TclModel model = tclParseHelper.parse(textToParse, resourceSet) 
-		
+		var TclModel model = tclParseHelper.parse(textToParse, resourceSet)
+
 		val resource = model.eResource as XtextResource
 
 		val contexts = resource.getContexts(selection, cursor)
@@ -101,11 +89,11 @@ class AbstractContentAssistTest extends AbstractParserTest {
 	}
 
 	def List<ContentAssistEntry> getProposals(String text) {
-		return text.getProposalsWithPriority(CARET_CHAR).map[value].toList
+		return getProposals(text, CARET_CHAR)
 	}
 
 	def List<ContentAssistEntry> getProposals(String text, String caretChar) {
-		return text.getProposalsWithPriority(caretChar).map[value].toList
+		return getProposalsWithPriority(text, caretChar).map[value].toList
 	}
 
 	def void reject(Iterable<ContentAssistEntry> proposals, String unexpectedProposal) {
@@ -115,7 +103,18 @@ class AbstractContentAssistTest extends AbstractParserTest {
 				Expected NO proposal with text="«unexpectedProposal»", but got:
 					«entry»
 			''')
-		}		
+		}
+	}
+
+	def void expectOnly(Iterable<ContentAssistEntry> proposals, Iterable<String> expectedProposals) {
+		val unfoundExpectedProposals = expectedProposals.filter[expectedProposal|proposals.filterNull.forall[proposal != expectedProposal]].filterNull
+		val unexpectedProposals = proposals.filter[proposal|expectedProposals.forall[proposal?.proposal != it]].filterNull
+		if (!unfoundExpectedProposals.isEmpty || !unexpectedProposals.isEmpty) {
+			Assert.fail('''
+				«IF !unfoundExpectedProposals.isEmpty»Unfound expected proposals with texts=«unfoundExpectedProposals.map['''"«it»"'''].join(', ')»«System.lineSeparator»«ENDIF»Got unexpected:
+					«unexpectedProposals.join(System.lineSeparator)»
+			''')
+		}
 	}
 
 	def ContentAssistEntry expect(Iterable<ContentAssistEntry> proposals, String expectedProposal) {
@@ -134,7 +133,7 @@ class AbstractContentAssistTest extends AbstractParserTest {
 		if (caretOffset > text.length) {
 			return #[]
 		}
-		val contextFactory = contextFactoryProvider.get() => [pool = executorService]
+		val contextFactory = contextFactoryProvider.get() => [pool = contextFactoryExecutorService]
 		return contextFactory.create(text, selection, caretOffset, resource)
 	}
 

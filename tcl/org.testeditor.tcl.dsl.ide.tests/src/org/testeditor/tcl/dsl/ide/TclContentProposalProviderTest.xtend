@@ -6,6 +6,62 @@ import org.testeditor.dsl.common.testing.DummyFixture
 
 class TclContentProposalProviderTest extends AbstractContentAssistTest {
 
+	val star = #['*']
+	val dashes = #[
+		'-',
+		'- '
+	]
+	val stepValueOrPunctuation = #[
+		'"value"',
+		'@',
+		'?',
+		'.'
+	]
+	val elementPunctuation = #[
+		'<',
+		'<>'
+	]
+	val expressionPrefix = #[
+		'=',
+		'['
+	]
+	val commandOrVariable = #[
+		'assert',
+		'name'
+	]
+	val value = #['value']
+	val keywords = #[
+		'Component',
+		'Macro',
+		'Mask'
+	]
+	val testSurroundKeywords = #[
+		'Cleanup',
+		'Setup'
+	]
+	val allTemplates = #[
+		'Click on <element>',
+		'Is <element> visible?',
+		'Read bool from <element>',
+		'Read confidential information from <element>',
+		'Read enum from <element>',
+		'Read jsonObject from <element>',
+		'Read list from <element>',
+		'Read long from <element>',
+		'Read value from <element>',
+		'Set enum of <element> to enum_a',
+		'Set value of <element> to "value"',
+		'Set value "value" to <element>',
+		'Start application "path"',
+		'Stop application',
+		'TypeLong "1" into <element>',
+		'Type boolean "true" into <element>',
+		'Type confidential "param" into <element>',
+		'Type "value" into <element>',
+		'Type "value" into <element> and wait "1"',
+		'Wait for "1" seconds'
+	]
+
 	@Before
 	def void parseAmlModel() {
 		parseAml(DummyFixture.amlModel)
@@ -27,17 +83,9 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals => [
-			expect('- Stop application')
-			expect('- Start application "path"')
-			expect('- Is <element> visible?')
-			expect('- Type "value" into <element> and wait "1"')
-			expect('- Wait for "1" seconds')
-			reject('Stop application') // proposals must include '-'
-			reject('com.example.start.path') // crossreference to template variable must not show
-		]
+		proposals.expectOnly(dashes + allTemplates.prefixWithDash + keywords + testSurroundKeywords + star)
 	}
-	
+
 	@Test
 	def void testComponentSecondTemplateProposalWithoutDash() {
 		// given
@@ -54,17 +102,9 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals => [
-			expect('- Stop application')
-			expect('- Start application "path"')
-			expect('- Is <element> visible?')
-			expect('- Type "value" into <element> and wait "1"')
-			expect('- Wait for "1" seconds')
-			reject('Stop application') // proposal must include '-'
-			reject('com.example.start.path') // crossreference to template variable must not show
-		]
+		proposals.expectOnly(dashes + allTemplates.prefixWithDash + keywords + stepValueOrPunctuation + elementPunctuation + value + star + testSurroundKeywords)
 	}
-	
+
 	@Test
 	def void testComponentTemplateProposal() {
 		// given
@@ -80,17 +120,9 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals => [
-			expect('Stop application')
-			expect('Start application "path"')
-			expect('Is <element> visible?')
-			expect('Type "value" into <element> and wait "1"')
-			expect('Wait for "1" seconds')
-			reject('- Stop application') // proposal must NOT include '-'
-			reject('com.example.start.path') // crossreference to template variable must not show
-		]
+		proposals.expectOnly(dashes + allTemplates + keywords + stepValueOrPunctuation + commandOrVariable + elementPunctuation + value + star + testSurroundKeywords)
 	}
-	
+
 	@Test
 	def void testComponentIncompleteTemplateProposal() {
 		// given
@@ -106,12 +138,7 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals => [
-			expect('Stop application').prefix.assertEquals('St')
-			expect('Start application "path"').prefix.assertEquals('St')
-			reject('Wait for "1" seconds')
-			reject('- Stop application') // proposal must NOT include '-'
-		]
+		proposals.expectOnly(#['Start application "path"', 'Stop application'] + dashes + expressionPrefix + stepValueOrPunctuation + elementPunctuation + star)
 	}
 
 	@Test
@@ -129,12 +156,9 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals => [
-			expect('application "path"').prefix.assertEquals('')
-			reject('Stop application') // proposal must NOT include templates with different prefix
-		]
+		proposals.expectOnly(#['application "path"'] + dashes + expressionPrefix + stepValueOrPunctuation + value + keywords + elementPunctuation + star +
+			testSurroundKeywords)
 	}
-
 
 	@Test
 	def void testComponentIncompleteMultipartMultiTemplateProposal() {
@@ -151,13 +175,13 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals => [
-			expect('boolean "true" into <element>').prefix.assertEquals('')
-			expect('"value" into <element> and wait "1"').prefix.assertEquals('')
-			expect('"value" into <element>').prefix.assertEquals('')
-			expect('confidential "param" into <element>').prefix.assertEquals('')
-			reject('Stop application') // proposal must NOT include templates with different prefix
-		]
+		proposals.expectOnly(#[
+			'boolean "true" into <element>',
+			'confidential "param" into <element>',
+			'"value" into <element>',
+			'"value" into <element> and wait "1"'
+		] + dashes + expressionPrefix + stepValueOrPunctuation + value + keywords + elementPunctuation + star + testSurroundKeywords)
+		proposals.expect('"value" into <element>').prefix.assertEquals('')
 	}
 
 	@Test
@@ -175,10 +199,8 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals => [
-			expect('application "path"').prefix.assertEquals('app')
-			reject('Stop application') // proposal must NOT include templates with different prefix
-		]
+		proposals.expectOnly(#['application "path"'] + dashes + stepValueOrPunctuation + elementPunctuation + star)
+		proposals.expect('application "path"').prefix.assertEquals('app')
 	}
 
 	@Test
@@ -191,15 +213,13 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 			Component: GreetingApplication
 			      - 	Start   	 app|
 		'''.withPackage
-	
+
 		// when
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals => [
-			expect('application "path"').prefix.assertEquals('app')
-			reject('Stop application')
-		]
+		proposals.expectOnly(#['application "path"'] + dashes + stepValueOrPunctuation + elementPunctuation + star)
+		proposals.expect('application "path"').prefix.assertEquals('app')
 	}
 
 	@Test
@@ -217,11 +237,7 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals => [
-			expect('Input').prefix.assertEquals('<')
-			expect('bar').prefix.assertEquals('<')
-			reject('Ok') // buttons have no 'Read value from' - fixture
-		]
+		proposals.expectOnly(#['Input', 'bar'] + value + elementPunctuation)
 	}
 
 	@Test
@@ -239,11 +255,8 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals => [
-			expect('Input>').prefix.assertEquals('<')
-			expect('bar>').prefix.assertEquals('<')
-			reject('Ok>') // buttons have no 'Read value from' - fixture
-		]
+		proposals.expectOnly(#['Input>', 'bar>'] + value + elementPunctuation)
+		proposals.expect('Input>').prefix.assertEquals('<')
 	}
 
 	@Test
@@ -261,11 +274,8 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals => [
-			reject('Input')
-			expect('bar').prefix.assertEquals('b')
-			reject('Ok') 
-		]
+		proposals.expectOnly(#['bar', '>'])
+		proposals.expect('bar').prefix.assertEquals('b')
 	}
 
 	@Test
@@ -283,11 +293,7 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals => [
-			reject('Input>')
-			reject('bar>')
-			reject('Ok>') 
-		]
+		proposals.expectOnly(dashes + allTemplates.prefixWithDash + keywords + stepValueOrPunctuation + elementPunctuation + value + star + testSurroundKeywords)
 	}
 
 	@Test
@@ -299,19 +305,19 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 			* some step
 			Macro: MacroLibrary
 			- |
-		'''.withPackage		
+		'''.withPackage
 
 		// when
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals => [
-			expect('TypeBoolean "true" into input field')
-			expect('TypeLong "1" into input field')
-			expect('TypeConfidential "param" into input field')
-		]
+		proposals.expectOnly(#[
+			'TypeBoolean "true" into input field',
+			'TypeLong "1" into input field',
+			'TypeConfidential "param" into input field'
+		] + dashes + keywords + stepValueOrPunctuation + value + elementPunctuation + star + testSurroundKeywords)
 	}
-	
+
 	@Test
 	def void testMacroParameterProposal() {
 		// given
@@ -322,17 +328,21 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 			template = "TypeBoolean" ${boolParameter} "into input field"
 			Component: GreetingApplication
 			- |
-		'''.withPackage		
+		'''.withPackage
 
 		// when
 		val proposals = tclSnippet.proposals
 
 		// then
+		proposals.expectOnly(#[
+			'@boolParameter',
+			'##'
+		] + value + dashes + allTemplates + keywords + stepValueOrPunctuation + commandOrVariable + elementPunctuation)
 		proposals => [
 			expect('@boolParameter')
 		]
 	}
-	
+
 	@Test
 	def void testEnvironmentParameter() {
 		// given
@@ -350,12 +360,17 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals => [
-			expect('@envVar')
-			expect('@secretEnvVar')
-		]
+		proposals.expectOnly(#[
+			'@envVar',
+			'@secretEnvVar',
+			'envVar',
+			'com.example.envVar',
+			'secretEnvVar',
+			'com.example.secretEnvVar'
+		] + value + dashes + allTemplates + keywords + stepValueOrPunctuation + commandOrVariable + elementPunctuation + star + testSurroundKeywords)
+		proposals => []
 	}
-	
+
 	/**
 	 * put 'package com.example' before the actual source code
 	 */
@@ -366,5 +381,9 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 			«source»
 		'''
 	}
-	
+
+	private def Iterable<String> prefixWithDash(Iterable<String> originalStrings) {
+		return originalStrings.map['''- «it»''']
+	}
+
 }
