@@ -18,14 +18,14 @@
 	</properties>
 
 	<profiles>
-        <profile>
-          <id>rcp</id>
-          <modules>
-		    <module>org.testeditor.tsl.dsl.ui</module>
-		    <module>org.testeditor.tsl.sdk</module>
-          </modules>
-        </profile>
-    </profiles>
+		<profile>
+			<id>rcp</id>
+			<modules>
+				<module>org.testeditor.tsl.dsl.ui</module>
+				<module>org.testeditor.tsl.sdk</module>
+			</modules>
+		</profile>
+	</profiles>
 
 	<modules>
 		<module>org.testeditor.tsl.model</module>
