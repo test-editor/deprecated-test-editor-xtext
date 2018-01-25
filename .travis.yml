@@ -16,19 +16,20 @@ before_install:
   - export TE_MAVEN_HOME="$(dirname $(which mvn))/.."
   - export MAVEN_OPTS="-Xms256m -Xmx512m"
 stages:
-  - compileTargetPlatform
   - name: compileFeature
-    if: branch != develop AND branch != master AND branch !~ rcp$
+    if: (NOT (branch IN (master, develop)))
   - name: compileRcp
-    if: branch = develop OR branch = master
+    if: branch IN (master, develop)
 jobs:
   include:
-    - stage: compileTargetPlatform
-      script: mvn clean install -f "target-platform/pom.xml"
     - stage: compileFeature
-      script: mvn clean install -Dmaven.test.failure.ignore -Dsurefire.useFile=false -Dtycho.localArtifacts=ignore
+      script:
+      - mvn clean install -f "target-platform/pom.xml"
+      - mvn clean install -Dmaven.test.failure.ignore -Dsurefire.useFile=false -Dtycho.localArtifacts=ignore
     - stage: compileRcp
-      script: mvn clean install -Dmaven.test.failure.ignore -Dsurefire.useFile=false -Dtycho.localArtifacts=ignore -Prcp
+      script:
+      - mvn clean install -f "target-platform/pom.xml"
+      - mvn clean install -Dmaven.test.failure.ignore -Dsurefire.useFile=false -Dtycho.localArtifacts=ignore -Prcp
 after_success:
   - bash <(curl -s https://codecov.io/bash)
   - ./.travis-publishOnRelease.sh
