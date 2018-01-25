@@ -51,6 +51,9 @@ task cleanTarget(type: MavenExec) {
     args 'clean'
 }
 
+task assemble() {
+}
+
 // TODO define inputs and outputs
 task build(type: MavenExec, dependsOn: buildTarget) {
     // depending on branch, build rcp too (develop or master)
