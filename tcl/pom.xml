@@ -17,13 +17,21 @@
 		<deploy.skip>true</deploy.skip>
 	</properties>
 
+	<profiles>
+        <profile>
+          <id>rcp</id>
+          <modules>
+		    <module>org.testeditor.tcl.dsl.ui</module>
+		    <module>org.testeditor.tcl.dsl.ui.tests</module>
+          </modules>
+        </profile>
+    </profiles>
+
 	<modules>
 		<module>org.testeditor.tcl.model</module>
 		<module>org.testeditor.tcl.dsl</module>
 		<module>org.testeditor.tcl.dsl.tests</module>
 		<module>org.testeditor.tcl.dsl.ide</module>
-		<module>org.testeditor.tcl.dsl.ui</module>
-		<module>org.testeditor.tcl.dsl.ui.tests</module>
 		<module>org.testeditor.tcl.sdk</module>
 	</modules>
 

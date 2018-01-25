@@ -53,6 +53,7 @@ task cleanTarget(type: MavenExec) {
 
 // TODO define inputs and outputs
 task build(type: MavenExec, dependsOn: buildTarget) {
+    // depending on branch, build rcp too (develop or master)
     workingDir projectDir
     args 'clean', 'install', '-Dmaven.test.failure.ignore', '-Dsurefire.useFile=false', '-Dtycho.localArtifacts=ignore'
 }
@@ -65,7 +66,7 @@ task deploy(type: MavenExec) {
 // TODO should be dependent on build (but build needs to be incremental for that)
 task buildProduct(type: MavenExec) {
     workingDir projectDir
-    args 'package' , '-Pproduct', '-DskipTests', '-Dtycho.localArtifacts=ignore'
+    args 'package' , '-Pproduct,rcp', '-DskipTests', '-Dtycho.localArtifacts=ignore'
 }
 
 task updateTargetVersion(type: MavenExec) {
