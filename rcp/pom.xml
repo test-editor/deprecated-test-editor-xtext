@@ -19,6 +19,28 @@
 
 	<profiles>
 		<profile>
+			<id>rcp</id>
+			<modules>
+				<module>org.testeditor.rcp4.platform.feature</module>
+				<module>org.testeditor.rcp4.updatesite</module>
+				<module>org.testeditor.plugin.feature</module>
+				<module>org.testeditor.rcp4.feature</module>
+				<module>org.testeditor.rcp4.bootstrap</module>
+				<module>org.testeditor.rcp4.tcltestrun</module>
+				<module>org.testeditor.rcp4.views.tcltestrun</module>
+				<module>org.testeditor.rcp4.tcltestrun.tests</module>
+				<module>org.testeditor.rcp4.views.tcltestrun.tests</module>
+				<module>org.testeditor.rcp4.views.teststepselection</module>
+				<module>org.testeditor.rcp4.views.teststepselection.tests</module>
+				<module>org.testeditor.rcp4.views.testview</module>
+				<module>org.testeditor.rcp4.views.projectexplorer</module>
+				<module>org.testeditor.rcp4.views.projectexplorer.tests</module>
+				<module>org.testeditor.rcp4</module>
+				<module>org.testeditor.rcp4.tests</module>
+				<module>org.testeditor.rcp4.uatests</module>
+			</modules>
+		</profile>
+		<profile>
 			<id>product</id>
 			<modules>
 				<module>org.testeditor.rcp4.product</module>
@@ -27,23 +49,6 @@
 	</profiles>
 
 	<modules>
-		<module>org.testeditor.rcp4.platform.feature</module>
-		<module>org.testeditor.rcp4.updatesite</module>
-		<module>org.testeditor.plugin.feature</module>
-		<module>org.testeditor.rcp4.feature</module>
-		<module>org.testeditor.rcp4.bootstrap</module>
-		<module>org.testeditor.rcp4.tcltestrun</module>
-		<module>org.testeditor.rcp4.views.tcltestrun</module>
-		<module>org.testeditor.rcp4.tcltestrun.tests</module>
-		<module>org.testeditor.rcp4.views.tcltestrun.tests</module>
-		<module>org.testeditor.rcp4.views.teststepselection</module>
-		<module>org.testeditor.rcp4.views.teststepselection.tests</module>
-		<module>org.testeditor.rcp4.views.testview</module>
-		<module>org.testeditor.rcp4.views.projectexplorer</module>
-		<module>org.testeditor.rcp4.views.projectexplorer.tests</module>
-		<module>org.testeditor.rcp4</module>
-		<module>org.testeditor.rcp4.tests</module>
-		<module>org.testeditor.rcp4.uatests</module>
 	</modules>
 
 </project>
