@@ -7,9 +7,11 @@ Import-Package: javax.inject;version="1.0.0",
  org.testeditor.tcl.dsl.services
 Export-Package: org.testeditor.tcl.dsl.ide.contentassist.antlr,
  org.testeditor.tcl.dsl.ide.contentassist.antlr.internal,
- org.testeditor.tcl.dsl.ide.highlighting
+ org.testeditor.tcl.dsl.ide.highlighting,
+ org.testeditor.tcl.dsl.ide
 Require-Bundle: org.testeditor.dsl.common,
  org.testeditor.tcl.dsl,
  org.eclipse.xtext.ide,
  org.antlr.runtime,
- org.eclipse.xtext.xbase.ide
+ org.eclipse.xtext.xbase.ide,
+ org.testeditor.logging

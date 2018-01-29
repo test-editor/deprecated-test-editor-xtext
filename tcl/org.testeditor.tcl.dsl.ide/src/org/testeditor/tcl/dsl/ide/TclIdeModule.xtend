@@ -12,9 +12,15 @@
 *******************************************************************************/
 package org.testeditor.tcl.dsl.ide
 
+import org.eclipse.xtext.ide.editor.contentassist.IdeContentProposalProvider
 
 /**
  * Use this class to register ide components.
  */
-class TclIdeModule extends AbstractTclIdeModule {
+public class TclIdeModule extends AbstractTclIdeModule {
+
+	override Class<? extends IdeContentProposalProvider> bindIdeContentProposalProvider() {
+		TclContentProposalProvider
+	}
+
 }
