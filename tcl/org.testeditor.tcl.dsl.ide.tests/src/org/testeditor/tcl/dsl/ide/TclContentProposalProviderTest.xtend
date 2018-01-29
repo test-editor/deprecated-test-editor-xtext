@@ -83,7 +83,8 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals.expectOnly(dashes + allTemplates.prefixWithDash + keywords + testSurroundKeywords + star)
+		proposals.expectOnly(allTemplates.prefixWithDash + dashes + keywords + testSurroundKeywords + star)
+		proposals.expectNoneOf(allTemplates) // without dashes !
 	}
 
 	@Test
@@ -102,7 +103,8 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals.expectOnly(dashes + allTemplates.prefixWithDash + keywords + stepValueOrPunctuation + elementPunctuation + value + star + testSurroundKeywords)
+		proposals.expectOnly(allTemplates.prefixWithDash + dashes + keywords + stepValueOrPunctuation + elementPunctuation + value + star + testSurroundKeywords)
+		proposals.expectNoneOf(allTemplates) // without dashes !
 	}
 
 	@Test
@@ -120,7 +122,8 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals.expectOnly(dashes + allTemplates + keywords + stepValueOrPunctuation + commandOrVariable + elementPunctuation + value + star + testSurroundKeywords)
+		proposals.expectOnly(allTemplates + dashes + keywords + stepValueOrPunctuation + commandOrVariable + elementPunctuation + value + star + testSurroundKeywords)
+		proposals.expectNoneOf(allTemplates.prefixWithDash) // proposals must be without dashes! 
 	}
 
 	@Test
@@ -133,12 +136,14 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 			Component: GreetingApplication
 			- St|
 		'''.withPackage
+		val expectedTemplates = #['Start application "path"', 'Stop application']
 
 		// when
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals.expectOnly(#['Start application "path"', 'Stop application'] + dashes + expressionPrefix + stepValueOrPunctuation + elementPunctuation + star)
+		proposals.expectOnly(expectedTemplates + dashes + expressionPrefix + stepValueOrPunctuation + elementPunctuation + star)
+		proposals.expectNoneOf(allTemplates.without(expectedTemplates))
 	}
 
 	@Test
@@ -158,6 +163,7 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		// then
 		proposals.expectOnly(#['application "path"'] + dashes + expressionPrefix + stepValueOrPunctuation + value + keywords + elementPunctuation + star +
 			testSurroundKeywords)
+		proposals.expect('application "path"').prefix.assertEquals('') 
 	}
 
 	@Test
@@ -294,6 +300,7 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 
 		// then
 		proposals.expectOnly(dashes + allTemplates.prefixWithDash + keywords + stepValueOrPunctuation + elementPunctuation + value + star + testSurroundKeywords)
+		proposals.expectNoneOf(#[ 'Input', 'bar' ]) // 
 	}
 
 	@Test
@@ -338,9 +345,6 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 			'@boolParameter',
 			'##'
 		] + value + dashes + allTemplates + keywords + stepValueOrPunctuation + commandOrVariable + elementPunctuation)
-		proposals => [
-			expect('@boolParameter')
-		]
 	}
 
 	@Test
@@ -384,6 +388,10 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 
 	private def Iterable<String> prefixWithDash(Iterable<String> originalStrings) {
 		return originalStrings.map['''- «it»''']
+	}
+	
+	private def Iterable<String> without(Iterable<String> originalStrings, Iterable<String> unwantedStrings) {
+		originalStrings.filter[original|!unwantedStrings.exists[original == it]]
 	}
 
 }

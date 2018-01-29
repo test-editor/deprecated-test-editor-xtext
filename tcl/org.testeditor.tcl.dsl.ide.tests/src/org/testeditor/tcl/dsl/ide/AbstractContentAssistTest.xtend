@@ -105,6 +105,13 @@ class AbstractContentAssistTest extends AbstractParserTest {
 			''')
 		}
 	}
+	
+	def void expectNoneOf(Iterable<ContentAssistEntry> proposals, Iterable<String> unexpectedProposals) {
+		val foundUnexpectedProposals = proposals.filterNull.filter[proposal|unexpectedProposals.exists[proposal.proposal == it]]
+		if (!foundUnexpectedProposals.isEmpty) {
+			Assert.fail('''Found unexpected proposals with texts=«foundUnexpectedProposals.map['''"«it»"'''].join(', ')»''')
+		}
+	}
 
 	def void expectOnly(Iterable<ContentAssistEntry> proposals, Iterable<String> expectedProposals) {
 		val unfoundExpectedProposals = expectedProposals.filter[expectedProposal|proposals.filterNull.forall[proposal != expectedProposal]].filterNull
