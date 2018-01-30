@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2012 - 2017 Signal Iduna Corporation and others.
+* Copyright (c) 2012 - 2018 Signal Iduna Corporation and others.
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -12,9 +12,15 @@
 *******************************************************************************/
 package org.testeditor.tcl.dsl.ide
 
+import org.eclipse.xtext.ide.editor.contentassist.IdeContentProposalProvider
 
 /**
  * Use this class to register ide components.
  */
-class TclIdeModule extends AbstractTclIdeModule {
+public class TclIdeModule extends AbstractTclIdeModule {
+
+	override Class<? extends IdeContentProposalProvider> bindIdeContentProposalProvider() {
+		TclContentProposalProvider
+	}
+
 }
