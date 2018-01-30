@@ -2,7 +2,7 @@
 <feature
       id="org.testeditor.tcl.sdk"
       label="Tcl SDK Feature "
-      version="1.10.0.qualifier">
+      version="1.10.0">
 
    <description url="https://github.com/test-editor/test-editor-xtext">
       Test Case Language feature set

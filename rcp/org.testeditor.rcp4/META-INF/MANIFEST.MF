@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Product
 Bundle-SymbolicName: org.testeditor.rcp4;singleton:=true
-Bundle-Version: 1.10.0.qualifier
+Bundle-Version: 1.10.0
 Bundle-Vendor: Signal Iduna Corporation
 Export-Package: org.testeditor.rcp4,
  org.testeditor.rcp4.handlers
