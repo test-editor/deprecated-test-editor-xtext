@@ -76,23 +76,32 @@ class TclContentProposalProvider extends IdeContentProposalProvider {
 		}
 	}
 
-	private def makeTestStepProposals(ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
+	private def void makeTestStepProposals(ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
 		val entry = proposalCreator.createProposal('- ', context)
 		val prio = proposalPriorities.getDefaultPriority(entry)
 		acceptor.accept(entry, prio)
 		val model = context.currentModel
 		if (context.isLocatedWithinComponentUsage && context.isOutsidePreviousTestStep) {
 			(model as ComponentTestStepContext).component?.allInteractionTypes.forEach [
-				val proposal = '''- «template.restoreString»''' // NOTE THAT - IS EXPLICITLY INCLUDED HERE
-				val templateEntry = proposalCreator.createProposal(proposal, context)
-				if (templateEntry !== null) {
-					acceptor.accept(templateEntry, proposalPriorities.getCrossRefPriority(null, entry))
-				}
+				template.makeInitialTemplateProposalWithDash(context, acceptor)
 			]
-
-		} else if (model instanceof MacroTestStepContext) {
-			model.macroCollection.makeMacroTemplateProposal(context, acceptor)
+		} else if (context.isLocatedWithinMacroUsage && context.isOutsidePreviousTestStep) {
+			(model as MacroTestStepContext).macroCollection.macros.forEach[
+				template.makeInitialTemplateProposalWithDash(context, acceptor)
+			]
 		}
+	}
+	
+	private def void makeInitialTemplateProposalWithDash(Template template, ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
+		val proposal = '''- «template.restoreString»''' // NOTE THAT - IS EXPLICITLY INCLUDED HERE
+		val templateEntry = proposalCreator.createProposal(proposal, context)
+		if (templateEntry !== null) {
+			acceptor.accept(templateEntry, proposalPriorities.getCrossRefPriority(null, templateEntry))
+		}
+	}
+
+	private def boolean isLocatedWithinMacroUsage(ContentAssistContext context) {
+		return (context.currentModel instanceof MacroTestStepContext && !(context.previousModel instanceof TestStep))
 	}
 
 	private def boolean isLocatedWithinComponentUsage(ContentAssistContext context) {
@@ -127,7 +136,7 @@ class TclContentProposalProvider extends IdeContentProposalProvider {
 	 * actually the last parsed element (previousModel) is tested whether it is part of a fully parsed test step
 	 */
 	private def boolean isIncompleteTestStep(EObject previousModel) {
-		EcoreUtil2.getContainerOfType(previousModel, TestStep).interaction === null
+		EcoreUtil2.getContainerOfType(previousModel, TestStep).findInteractionOrMacro === null
 	}
 
 	private def void makeIDProposals(ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
