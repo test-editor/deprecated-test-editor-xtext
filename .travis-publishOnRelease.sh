@@ -37,7 +37,7 @@ if [[ -n "$TRAVIS_TAG" && "$TRAVIS_TAG" == v* ]]; then
     }
 
     function uploadTargetPlatform() {
-        cd rcp/org.testeditor.rcp4.updatesite/target/site
+        cd rcp/org.testeditor.rcp4.updatesite/target/site || exit 1
         find . -type f | 
             while read file; do 
                 bintrayUpload $file;
