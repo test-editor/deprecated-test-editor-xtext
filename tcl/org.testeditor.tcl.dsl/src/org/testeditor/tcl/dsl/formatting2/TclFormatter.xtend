@@ -114,6 +114,7 @@ class TclFormatter extends XbaseFormatter {
 	def dispatch void format(ComponentTestStepContext componentTestStepContext,
 		extension IFormattableDocument document) {
 		componentTestStepContext.regionFor.keywords("Component", "Mask").forEach[prepend[newLines = 2].append[noSpace]]
+		// componentTestStepContext.regionFor.keyword(":").prepend[noSpace].append[oneSpace]
 		componentTestStepContext.regionFor.feature(COMPONENT_TEST_STEP_CONTEXT__COMPONENT) //
 		.prepend[oneSpace] //
 		.append[newLine; priority = LOW_PRIORITY]

@@ -75,8 +75,7 @@ class TclModelParserTest extends AbstractTclTest {
 			package com.example
 			
 			# MyTest
-			* Start the famous
-			greetings application.
+			* Start the famous      greetings application.
 		'''
 		
 		// when
@@ -248,6 +247,25 @@ class TclModelParserTest extends AbstractTclTest {
 					]
 				]
 			]
+		]
+	}
+	
+	@Test
+	def void parseTslAllowedStepSyntax() {
+		// given
+		val input = '''
+			package com.example
+			
+			# Test
+			* Hier kann jetzt ÄÜÖ ß ä ü ö or any Unicode like µm fas alles, stehen, oder
+			'''
+
+		// when
+		val test = parseTcl(input).test
+
+		// then
+		test.steps.assertSingleElement => [
+			contents.restoreString.assertEquals('Hier kann jetzt Ä Ü Ö ß ä ü ö or any Unicode like µ m fas alles , stehen , oder')
 		]
 	}
 

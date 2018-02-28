@@ -9,8 +9,8 @@ class TestStepFormatterTest extends AbstractTclFormatterTest {
 	val prefix = '''
 		package com.example
 		
-		import a.b.c
-		import c.d.e
+		import org.testeditor
+		import java.lang
 		
 		require freq, breq
 		
@@ -32,18 +32,18 @@ class TestStepFormatterTest extends AbstractTclFormatterTest {
 			'''
 
 			toBeFormatted = prefix + '''
-				*
-				specification
+				* specification
 				Component
 				:
 				some
 				Mask
 				:
 				other
-				*
-				next
-				spec
+				* next spec
 			'''
+			useNodeModel = true
+			useSerializer = false
+			
 		]
 	}
 
