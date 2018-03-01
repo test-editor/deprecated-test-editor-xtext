@@ -13,8 +13,6 @@ class TestConfigurationFormatterTest extends AbstractTclFormatterTest {
 				config MyConfig
 			'''.trim
 			toBeFormatted = expectation.toSingleLine
-			useNodeModel = true
-			useSerializer = false
 		]
 
 	}
@@ -38,8 +36,6 @@ class TestConfigurationFormatterTest extends AbstractTclFormatterTest {
 					- some useful teardown
 			'''.trim
 			toBeFormatted = expectation.toSingleLine
-			useNodeModel = true
-			useSerializer = false
 		]
 	}
 

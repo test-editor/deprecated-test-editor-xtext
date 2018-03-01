@@ -61,8 +61,10 @@ class TestStepFormatterTest extends AbstractTclFormatterTest {
 			'''
 
 			toBeFormatted = prefix + '''
-				*   			specification				Component				:				some			
-				  Mask     :      other   *				next				spec
+				* specification
+								Component				:				some			
+				  Mask     :      other   
+				* next spec
 			'''
 		]
 	}
@@ -79,8 +81,7 @@ class TestStepFormatterTest extends AbstractTclFormatterTest {
 				'''
 
 			toBeFormatted = prefix + '''
-				*
-				spec
+				* spec
 				Component
 				:
 				dummyComponent
@@ -116,7 +117,8 @@ class TestStepFormatterTest extends AbstractTclFormatterTest {
 			'''
 
 			toBeFormatted = prefix + '''
-				   *      	spec      Component :    	component   - 
+				   * spec
+				   Component :    	component   - 
 				step    			withspaces		    	"string"				with				<ele>				and
 				@
 				some				.		"key"    .		-  next    step
@@ -127,7 +129,6 @@ class TestStepFormatterTest extends AbstractTclFormatterTest {
 	@Test
 	def void formatPunctuation() {
 		assertFormatted [
-			useNodeModel = false
 			expectation = prefix + '''
 				* spec
 

@@ -59,6 +59,7 @@ class TestConfiguration extends SetupAndCleanupProvider {
 
 class SpecificationStepImplementation extends SpecificationStep, StepContainer {
 	container derived TestCase test opposite steps
+	String nl
 }
 
 class EnvironmentVariable extends Variable {

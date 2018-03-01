@@ -62,7 +62,7 @@ terminal NL:
 
 SpecificationStepImplementation hidden(SPACES):
 	{SpecificationStepImplementation}
-	'*' contents+=tslStepContent* '.'? NL
+	'*' contents+=tslStepContent* '.'? nl=NL
 	contexts+=TestStepContext*;
 
 tslStepContent returns tsl::StepContent: 
@@ -72,25 +72,23 @@ tslStepContentText returns tsl::StepContentText:
 	value=Word;
 
 Word returns ecore::EString hidden():
-	ID | StepContentTextOperator | INT | OTHER | '*' | '@' | ',' | '?' | '|';
+	ID | StepContentTextOperator | INT | '*' | '@' | ',' | '|' | ANY_OTHER;
 
-terminal OTHER: .;
-
-EnvironmentVariable:
+EnvironmentVariable hidden(NL,SPACES,SL_COMMENT):
 	(nonConfidential?='public')?
 	name=ID;
 
-MacroCollection:
+MacroCollection hidden(NL,SPACES,SL_COMMENT):
 	'#' name=ID
 	macros+=Macro+;
 
-Macro:
+Macro hidden(NL,SPACES,SL_COMMENT):
 	'##' name=ID
 	'template' '=' template=Template
 	contexts+=TestStepContext*
 ;
 
-Template returns aml::Template:
+Template returns aml::Template hidden(NL,SPACES,SL_COMMENT):
 	contents+=TemplateText (contents+=TemplateVariable contents+=TemplateText?)*	
 ;
 
@@ -110,10 +108,10 @@ terminal TEMPLATE_VARIABLE_DEF:
 	'${' ID? '}'
 ;
 
-TestStepContext hidden (NL, SPACES):
+TestStepContext hidden (NL, SPACES, SL_COMMENT, ML_COMMENT):
 	(ComponentTestStepContext | MacroTestStepContext);
 
-ComponentTestStepContext returns TestStepContext hidden(NL, SPACES):
+ComponentTestStepContext returns TestStepContext hidden(NL, SPACES, SL_COMMENT, ML_COMMENT):
 	{ComponentTestStepContext}
 	('Mask' | 'Component') ':' component=[aml::Component|QualifiedName]
 	steps+=(TestStep | TestStepWithAssignment | AssertionTestStep | AssignmentThroughPath)*;
@@ -126,17 +124,17 @@ MacroTestStepContext returns TestStepContext:
 /**
  * keep in mind that an aml validator exists that will check templates to be parsable given the following rule
  */
-TestStep:
+TestStep hidden(SPACES, NL,SL_COMMENT):
 	{TestStep}
 	'-' contents+=StepContent* contents+=StepContentPunctuation?;
 
-AssertionTestStep:
+AssertionTestStep hidden(SPACES,NL,SL_COMMENT):
 	'-' 'assert' assertExpression=(NullOrBoolCheck | FullComparison) '.'?;
 
-TestStepWithAssignment:
+TestStepWithAssignment hidden(NL,SPACES,SL_COMMENT):
 	'-' variable=AssignmentVariable '=' contents+=StepContent* contents+=StepContentPunctuation?;
 
-AssignmentThroughPath:
+AssignmentThroughPath  hidden(NL,SPACES,SL_COMMENT):
 	'-' variableReference=VariableReferencePathAccess '=' expression=Expression '.'?;
 
 /** expression order: Comparison -> (Addition -> Multiplication ->) Value
@@ -145,18 +143,18 @@ AssignmentThroughPath:
  *  for binary expression: left is always referencing the rule with higher operator binding, 
  *  right is referencing the Expression 
  */
-Expression:
+Expression hidden(NL,SPACES,SL_COMMENT):
 	Comparison;
 
-NullOrBoolCheck:
+NullOrBoolCheck hidden(NL,SPACES,SL_COMMENT): 
 	(negated?='!')? variableReference=(VariableReference | VariableReferencePathAccess);
 
-FullComparison returns Comparison:
+FullComparison returns Comparison  hidden(NL,SPACES,SL_COMMENT):
 	left=Value
 	comparator=Comparator
 	right=Expression;
 
-Comparison:
+Comparison hidden(NL,SPACES,SL_COMMENT):
 	left=Value
 	(comparator=Comparator
 	right=Expression)?;
@@ -165,43 +163,43 @@ VariableReference:
 	variable=[aml::Variable];
 	
 	
-ArrayPathElement:
+ArrayPathElement hidden(NL,SPACES,SL_COMMENT):
 	'[' number=Number ']';
 
-KeyPathElement:
+KeyPathElement hidden(NL,SPACES,SL_COMMENT):
 	'.' ( key=ID | key=STRING );
 
-VariableReferencePathAccess:
+VariableReferencePathAccess hidden(NL,SPACES,SL_COMMENT):
 	variable=[aml::Variable] ( path+=KeyPathElement | path+=ArrayPathElement )+;
 
-AtomicValue returns Expression:
+AtomicValue returns Expression hidden(NL,SPACES,SL_COMMENT):
 	VariableReference | VariableReferencePathAccess | JsonValue ;
 	
-Value returns Expression:
+Value returns Expression hidden(NL,SPACES,SL_COMMENT):
 	AtomicValue | '(' Expression ')';
 
-Comparator:
+Comparator hidden(NL,SPACES,SL_COMMENT):
 	ComparatorEquals |
 	ComparatorMatches |
 	ComparatorLessThan |
 	ComparatorGreaterThan;
 
-ComparatorEquals:
+ComparatorEquals hidden(NL,SPACES,SL_COMMENT):
 	{ComparatorEquals} ('=' | '==' | negated?='!=' | negated?='<>' | 'is' (negated?='not')?);
 
-ComparatorMatches:
+ComparatorMatches hidden(NL,SPACES,SL_COMMENT):
 	{ComparatorMatches} ('matches' | negated?='does' 'not' 'match');
 
-ComparatorLessThan:
+ComparatorLessThan hidden(NL,SPACES,SL_COMMENT):
 	{ComparatorLessThan} ('<' | negated?='>=');
 
-ComparatorGreaterThan:
+ComparatorGreaterThan hidden(NL,SPACES,SL_COMMENT):
 	{ComparatorGreaterThan} ('>' | negated?='<=');
 
 AssignmentVariable:
 	name=ID;
 	
-StepContent returns tsl::StepContent://; hidden(WS):
+StepContent returns tsl::StepContent  hidden(NL,SPACES,SL_COMMENT)://; hidden(WS):
 	StepContentText | StepContentElement | StepContentVariable | '@' VariableReference | '@' VariableReferencePathAccess;
 
 StepContentText returns tsl::StepContentText:
@@ -220,21 +218,21 @@ StepContentElement hidden():
 	('<' value=ID '>') |
 	{StepContentElement} ('<>' | '<' (SPACES | NL ) '>'); 
 
-StepContentPunctuation:
+StepContentPunctuation hidden():
 	value=('.'|'?')
 ;
 
-JsonObject:
+JsonObject hidden(NL,SPACES,SL_COMMENT):
 	{JsonObject}
 	'{'
 		(members+=JsonMember)?
 		(',' members+=JsonMember)*
 	'}';
 
-JsonMember:
+JsonMember hidden(NL,SPACES,SL_COMMENT):
 	key=STRING ':' value=JsonValue;
 
-JsonValue:
+JsonValue hidden(NL,SPACES,SL_COMMENT):
 	JsonString | JsonNumber | JsonObject | JsonArray | JsonBoolean | JsonNull;
 
 JsonString:
@@ -247,7 +245,7 @@ JsonNull:
 	{JsonNull}
 	'null';
 
-JsonArray:
+JsonArray hidden(NL,SPACES,SL_COMMENT):
 	{JsonArray}
 	'['
 		(values+=JsonValue (',' values+=JsonValue)*)?
