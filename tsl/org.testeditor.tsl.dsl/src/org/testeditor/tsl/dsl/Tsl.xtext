@@ -26,7 +26,7 @@ TestSpecification:
 	(steps+=SpecificationStep NL*)*;
 
 SpecificationStep:
-	=> (NL '*') (contents+=StepContent)+ '.'?;
+	=> (NL '*') (contents+=StepContent)+;
 
 StepContent:
 	StepContentText | StepContentVariable;
@@ -38,7 +38,7 @@ StepContentVariable:
 	value=STRING;
 
 Word returns ecore::EString:
-	ID | INT | ANY_OTHER | '*'
+	ID | INT | ANY_OTHER | '*' | '.' | '#' | EQUOTE | EQUOTES
 ;
 
 Text returns ecore::EString hidden():
@@ -46,6 +46,14 @@ Text returns ecore::EString hidden():
 
 QualifiedName:
 	ID (=> '.' ID)*;
+	
+terminal EQUOTE:
+	"\\'"
+;
+
+terminal EQUOTES:
+	'\\"'
+;
 
 terminal NL:
 	'\r'? '\n';

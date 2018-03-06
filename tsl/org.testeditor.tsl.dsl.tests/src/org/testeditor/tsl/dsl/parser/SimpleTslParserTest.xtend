@@ -82,6 +82,33 @@ class SimpleTslParserTest extends AbstractParserTest {
 	}
 
 	@Test
+	def void parseUnicodeLine() {
+		// given
+		val tsl = '''
+			package testeditor.rest
+			
+			# JobCreation
+			
+			* Simple spec with a * in it
+			* တက်စတ တက်စတ. တက်စတ@öttö.de. တက်စတ
+			* !@#$%^&*()-_=+`~\|][}{;:''""<>,./? with ξεσκεπάζω την ξεσκεπάζω την Sævör grét áðan því úlpan var ónýt.
+			* he\'s not very cooperative 'param'
+			* he\"s not ccop. right? "param" and more
+		'''
+		// expect
+		tsl.parseTsl => [
+			assertNoSyntaxErrors
+			specification.steps.assertSize(5) => [
+				get(0).contents.restoreString.assertEquals('Simple spec with a * in it')
+				get(1).contents.restoreString.assertEquals('တ က ် စ တ တ က ် စ တ . တ က ် စ တ @ ö tt ö . de . တ က ် စ တ')
+				get(2).contents.restoreString.assertEquals('! @ # $ % ^ & * ( ) - _ = + ` ~ \\ | ] [ } { ; : "" "" < > , . / ? with ξ ε σ κ ε π ά ζ ω τ η ν ξ ε σ κ ε π ά ζ ω τ η ν S æ v ö r gr é t á ð an þ v í ú lpan var ó n ý t .')
+				get(3).contents.restoreString.assertEquals("he \\' s not very cooperative \"param\"")
+				get(4).contents.restoreString.assertEquals("he \\\" s not ccop . right ? \"param\" and more")
+			]
+		]
+	}
+
+	@Test
 	def void parseSpecificationStepWithStar() {
 		// given
 		val tsl = '''
@@ -98,7 +125,7 @@ class SimpleTslParserTest extends AbstractParserTest {
 			assertNoSyntaxErrors
 			specification.steps.assertSize(2) => [
 				get(0).contents.restoreString.assertEquals('Simple spec with a * in it')
-				get(1).contents.restoreString.assertEquals('The result of 5 * 3 is 15')
+				get(1).contents.restoreString.assertEquals('The result of 5 * 3 is 15 .')
 			]
 		]
 	}
@@ -154,7 +181,7 @@ class SimpleTslParserTest extends AbstractParserTest {
 				contents.filter(StepContentVariable).assertSingleElement => [
 					value.assertEquals('Hello World')
 				]
-				contents.restoreString.assertEquals('Send greetings "Hello World" to the world')
+				contents.restoreString.assertEquals('Send greetings "Hello World" to the world .')
 			]
 		]
 	}

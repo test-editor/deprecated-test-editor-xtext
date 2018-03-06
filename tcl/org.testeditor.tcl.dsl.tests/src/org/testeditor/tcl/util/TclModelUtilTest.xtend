@@ -55,10 +55,10 @@ class TclModelUtilTest extends AbstractParserTest {
 		val dotAndWhitespace = parse('- Hello World.', grammarAccess.testStepRule, TestStep)
 
 		// when, then
-		tclModelUtil.restoreString(questionMark.contents).assertEquals('Hello World?')
-		tclModelUtil.restoreString(questionMarkAndWhitespace.contents).assertEquals('Hello World?')
-		tclModelUtil.restoreString(dot.contents).assertEquals('Hello World.')
-		tclModelUtil.restoreString(dotAndWhitespace.contents).assertEquals('Hello World.')
+		tclModelUtil.restoreString(questionMark.contents).assertEquals('Hello World ?')
+		tclModelUtil.restoreString(questionMarkAndWhitespace.contents).assertEquals('Hello World ?')
+		tclModelUtil.restoreString(dot.contents).assertEquals('Hello World .')
+		tclModelUtil.restoreString(dotAndWhitespace.contents).assertEquals('Hello World .')
 	}
 
 	@Test

@@ -84,7 +84,7 @@ class TclModelParserTest extends AbstractTclTest {
 		// then
 		tcl.test.name.assertEquals('MyTest')
 		tcl.test.steps.assertSingleElement => [
-			contents.restoreString.assertEquals('Start the famous greetings application')
+			contents.restoreString.assertEquals('Start the famous greetings application .')
 		]
 	}
 	
@@ -103,7 +103,7 @@ class TclModelParserTest extends AbstractTclTest {
 		
 		// then
 		test.steps.assertSingleElement => [
-			contents.restoreString.assertEquals('send greetings "Hello World" to the world')
+			contents.restoreString.assertEquals('send greetings "Hello World" to the world .')
 			contents.get(2).assertInstanceOf(StepContentVariable) => [
 				value.assertEquals('Hello World')
 			]
@@ -183,13 +183,13 @@ class TclModelParserTest extends AbstractTclTest {
 		'''
 		
 		// when
-		val test = parseTcl(input).test
+		val test = parseTcl(input).assertNoSyntaxErrors.test
 		
 		// then
 		test.steps.assertSingleElement => [
 			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
 				steps.assertSingleElement.assertInstanceOf(TestStep) => [
-					contents.restoreString.assertEquals('Is Component visible?')
+					contents.restoreString.assertEquals('Is Component visible ?')
 				]
 			]
 		]
@@ -316,6 +316,7 @@ class TclModelParserTest extends AbstractTclTest {
 		'''
 
 		// when
+		parseTcl(input).assertNoSyntaxErrors
 		val test = parseTcl(input).test
 
 		// then

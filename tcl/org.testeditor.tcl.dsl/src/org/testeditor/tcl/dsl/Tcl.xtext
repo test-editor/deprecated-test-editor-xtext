@@ -62,7 +62,7 @@ terminal NL:
 
 SpecificationStepImplementation hidden(SPACES):
 	{SpecificationStepImplementation}
-	'*' contents+=tslStepContent* '.'? nl=NL
+	'*' contents+=tslStepContent* nl=NL
 	contexts+=TestStepContext*;
 
 tslStepContent returns tsl::StepContent: 
@@ -72,7 +72,10 @@ tslStepContentText returns tsl::StepContentText:
 	value=Word;
 
 Word returns ecore::EString hidden():
-	ID | StepContentTextOperator | INT | '*' | '@' | ',' | '|' | ANY_OTHER;
+	ID | StepContentTextOperator | INT | '*' | '@' | ',' | '|' | '.' | '?' | '!' | '#' | '##' | '${' | '%' | '&' | '(' | ')' | '-' | '=' | 
+	'+' | '`' | '~' | '\\' | ']' | '[' | '}' | '{' | ';' | ':' | '<' | '>' | '<>' | '/' | '==' | '!=' | '>=' | '<=' | 
+	'assert' | 'matches' | 'true' | "\\'" | '\\"' | '$' | '_' |
+	 ANY_OTHER;
 
 EnvironmentVariable hidden(NL,SPACES,SL_COMMENT):
 	(nonConfidential?='public')?
@@ -208,8 +211,9 @@ StepContentText returns tsl::StepContentText:
 /** hold all keywords that are allowed as step content text (to prevent parser to fail on keyword usage) */
 StepContentTextOperator returns ecore::EString:
 	// TODO generate this (all keywords minus assert - consider Xbase keywords as well)
-	'Cleanup' | 'Component' | 'Macro' | 'Mask' | 'Setup' | 'as' | 'config' | 'does' | 'implements' | 'is' |
-	'match' | 'matches' | 'not' | 'package' | 'require' | 'template' | 'for' | 'do' | 'if' | 'while';
+	'var' | 'public' | 'template' | 'package' | 'require' | 'config' | 'implements' | 'Setup' | 'Cleanup' | 
+	'Mask' | 'Component' | 'Macro' | 'does' | 'not' | 'match' | 'false' | 'null' | 	
+	'as' |  'is' | 'for' | 'do' | 'if' | 'while';
 
 StepContentVariable returns tsl::StepContentVariable:
 	value=STRING;
