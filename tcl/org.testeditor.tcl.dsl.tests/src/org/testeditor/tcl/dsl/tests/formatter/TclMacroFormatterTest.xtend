@@ -7,8 +7,8 @@ class TclMacroFormatterTest extends AbstractTclFormatterTest {
 	val prefix = '''
 		package com.example
 		
-		import org.testeditor
-		import com.examples.andmore
+		import a.b.c
+		import c.d.e
 		
 		# MacroCollection
 		

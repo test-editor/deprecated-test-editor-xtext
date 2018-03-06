@@ -9,8 +9,8 @@ class TestStepFormatterTest extends AbstractTclFormatterTest {
 	val prefix = '''
 		package com.example
 		
-		import org.testeditor
-		import java.lang
+		import a.b.c
+		import c.d.e
 		
 		require freq, breq
 		

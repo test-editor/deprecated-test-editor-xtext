@@ -10,8 +10,8 @@ class TclModelFormatterTest extends AbstractTclFormatterTest {
 			expectation = '''
 				package com.example
 				
-				import org.testeditor
-				import de.some
+				import a.b.c
+				import c.d.e
 				
 				require freq, breq
 				
@@ -19,8 +19,8 @@ class TclModelFormatterTest extends AbstractTclFormatterTest {
 			'''
 
 			toBeFormatted = '''
-				package com.example	import org.testeditor
-				import de.some
+				package com.example	import a.b.c
+				import c.d.e
 				require
 				freq
 				,
@@ -37,8 +37,8 @@ class TclModelFormatterTest extends AbstractTclFormatterTest {
 			expectation = '''
 				package com.example
 				
-				import org.testeditor
-				import de.some
+				import a.b.c
+				import c.d.e
 				
 				require freq, breq
 				
@@ -46,8 +46,8 @@ class TclModelFormatterTest extends AbstractTclFormatterTest {
 			'''
 
 			toBeFormatted = '''
-				package com.example	import org.testeditor
-				import de.some
+				package com.example	import a.b.c
+				import c.d.e
 				require
 				freq
 				,
@@ -84,8 +84,8 @@ class TclModelFormatterTest extends AbstractTclFormatterTest {
 			expectation = '''
 				package com.example
 				
-				import org.testeditor
-				import de.some
+				import a.b.c
+				import c.d.e
 				
 				require freq, breq
 				
@@ -93,8 +93,8 @@ class TclModelFormatterTest extends AbstractTclFormatterTest {
 			'''
 
 			toBeFormatted = '''
-				package com.example	import org.testeditor
-				import de.some 
+				package com.example	import a.b.c
+				import c.d.e 
 				         require            freq          ,            breq            #
 				testCase   	implements      SomeSpec
 			'''
@@ -107,15 +107,15 @@ class TclModelFormatterTest extends AbstractTclFormatterTest {
 			expectation = '''
 				package com.example
 				
-				import org.testeditor
-				import de.some
+				import a.b.c
+				import c.d.e
 				
 				# MacroCollection
 			'''
 
 			toBeFormatted = '''
-				package com.example	import org.testeditor
-				import de.some
+				package com.example	import a.b.c
+				import c.d.e
 				#
 				MacroCollection
 			'''
@@ -128,15 +128,15 @@ class TclModelFormatterTest extends AbstractTclFormatterTest {
 			expectation = '''
 				package com.example
 				
-				import org.testeditor
-				import de.some
+				import a.b.c
+				import c.d.e
 				
 				# MacroCollection
 			'''
 
 			toBeFormatted = '''
-				package com.example	import org.testeditor
-				import de.some
+				package com.example	import a.b.c
+				import c.d.e 
 				    #    MacroCollection
 			'''
 		]

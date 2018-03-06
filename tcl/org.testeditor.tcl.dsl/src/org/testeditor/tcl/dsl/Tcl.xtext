@@ -60,7 +60,7 @@ terminal NL:
 	(( ' ' | '\t' )* ('\r'? '\n'))+  ( ' ' | '\t' )*
 ;
 
-SpecificationStepImplementation hidden(SPACES):
+SpecificationStepImplementation hidden(SPACES,SL_COMMENT,ML_COMMENT):
 	{SpecificationStepImplementation}
 	'*' contents+=tslStepContent* nl=NL
 	contexts+=TestStepContext*;
