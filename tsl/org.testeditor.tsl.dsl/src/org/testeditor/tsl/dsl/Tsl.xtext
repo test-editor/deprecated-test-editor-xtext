@@ -10,7 +10,7 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-grammar org.testeditor.tsl.dsl.Tsl hidden(SPACES)
+grammar org.testeditor.tsl.dsl.Tsl hidden(SPACES,ML_COMMENT,SL_COMMENT)
 
 import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 import "http://www.testeditor.org/tsl"
@@ -38,7 +38,7 @@ StepContentVariable:
 	value=STRING;
 
 Word returns ecore::EString:
-	ID | INT | ANY_OTHER | '*' | '.' | '#' | EQUOTE | EQUOTES
+	ID | INT | ANY_OTHER | '*' | '.' | '#' | '\\"' | "\\'" 
 ;
 
 Text returns ecore::EString hidden():
@@ -47,14 +47,6 @@ Text returns ecore::EString hidden():
 QualifiedName:
 	ID (=> '.' ID)*;
 	
-terminal EQUOTE:
-	"\\'"
-;
-
-terminal EQUOTES:
-	'\\"'
-;
-
 terminal NL:
 	'\r'? '\n';
 
