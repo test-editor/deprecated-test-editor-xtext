@@ -202,7 +202,7 @@ ComparatorGreaterThan hidden(NL,SPACES,SL_COMMENT):
 AssignmentVariable:
 	name=ID;
 	
-StepContent returns tsl::StepContent  hidden(NL,SPACES,SL_COMMENT)://; hidden(WS):
+StepContent returns tsl::StepContent  hidden(NL,SPACES,SL_COMMENT):
 	StepContentText | StepContentElement | StepContentVariable | '@' VariableReference | '@' VariableReferencePathAccess;
 
 StepContentText returns tsl::StepContentText:
