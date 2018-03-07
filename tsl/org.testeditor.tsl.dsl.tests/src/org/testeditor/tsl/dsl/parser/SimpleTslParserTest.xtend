@@ -63,6 +63,26 @@ class SimpleTslParserTest extends AbstractParserTest {
 		]
 	}
 
+
+	@Test
+	def void parseUtf8Specname() {
+		// given
+		val tsl = '''
+			package com.example
+			
+			# ÖttoIsÜberμm
+		'''
+		
+		// when
+		val tslModel = tsl.parseTsl('ÖttoIsÜberμm.tsl')
+		
+		// then
+		tslModel => [
+			assertNoSyntaxErrors
+			specification.name.assertEquals('ÖttoIsÜberμm')
+		]
+	}
+
 	@Test
 	def void parseSimpleSpecificationStep() {
 		// given
@@ -95,13 +115,16 @@ class SimpleTslParserTest extends AbstractParserTest {
 			* he\'s not very cooperative 'param'
 			* he\"s not ccop. right? "param" and more
 		'''
-		// expect
-		tsl.parseTsl => [
+		// when
+		val tslModel = tsl.parseTsl 
+		
+		// then (unicode characters are parsed as single characters, use node model to get original formatting)
+		tslModel => [
 			assertNoSyntaxErrors
 			specification.steps.assertSize(5) => [
 				get(0).contents.restoreString.assertEquals('Simple spec with a * in it')
-				get(1).contents.restoreString.assertEquals('တ က ် စ တ တ က ် စ တ . တ က ် စ တ @ ö tt ö . de . တ က ် စ တ')
-				get(2).contents.restoreString.assertEquals('! @ # $ % ^ & * ( ) - _ = + ` ~ \\ | ] [ } { ; : "" "" < > , . / ? with ξ ε σ κ ε π ά ζ ω τ η ν ξ ε σ κ ε π ά ζ ω τ η ν S æ v ö r gr é t á ð an þ v í ú lpan var ó n ý t .')
+				get(1).contents.restoreString.assertEquals('တ က ် စ တ တ က ် စ တ . တ က ် စ တ @ öttö . de . တ က ် စ တ')
+				get(2).contents.restoreString.assertEquals('! @ # $ % ^ & * ( ) - _ = + ` ~ \\ | ] [ } { ; : "" "" < > , . / ? with ξεσκεπάζω την ξεσκεπάζω την Sævör grét áðan því úlpan var ónýt .')
 				get(3).contents.restoreString.assertEquals("he \\' s not very cooperative \"param\"")
 				get(4).contents.restoreString.assertEquals("he \\\" s not ccop . right ? \"param\" and more")
 			]

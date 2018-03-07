@@ -2,6 +2,7 @@ package org.testeditor.tcl.dsl.tests.parser
 
 import javax.inject.Inject
 import org.eclipse.xtext.resource.XtextResourceSet
+import org.junit.Before
 import org.junit.Test
 import org.testeditor.tcl.util.ExampleAmlModel
 import org.testeditor.tcl.util.TclModelUtil
@@ -12,16 +13,53 @@ class TclTslParserIntegrationTest extends AbstractParserTest {
 
 	@Inject extension TclModelUtil
 
+	@Before
+	def void setupResourceSet() {
+		resourceSet = amlModel.model.eResource.resourceSet as XtextResourceSet
+	}
+
+	@Test
+	def void testUnicodeInReferencedTslSpecId() {
+		// given
+		val tslId = 'ÖttoIsÜberμm'
+		val tclId = 'ÜbersichtDerVerträgeλ'
+		val tsl = '''
+			package com.example
+			
+			# «tslId»
+			
+			* Unicode Spec Step Ü (ω=25 °/s, 25 µm/s))
+		'''
+
+		val tcl = '''
+			package com.example
+			
+			# «tclId» implements «tslId»
+			
+			* Unicode Spec Step Ü (ω=25 °/s, 25 µm/s))
+		'''
+
+		// when
+		val tslModel = tsl.parseTsl(tslId + '.tsl')
+		val tclModel = tcl.parseTcl(tclId + '.tcl')
+
+		// then
+		tslModel.assertNoErrors
+		tclModel => [
+			assertNoErrors
+			test.specification.name.assertEquals(tslId)
+			test.name.assertEquals(tclId)
+		]
+	}
+
 	@Test
 	def void testUnicodeTslSpecStepsWithinTcl() {
-		resourceSet = amlModel.model.eResource.resourceSet as XtextResourceSet
 		// given	
 		val tcl = '''
 			package com.example
 			
 			/*
-				some multiline comment that is allowed
-		     */
+				some multiline comment that is allowed */
 			
 			# ExampleTest
 			
@@ -37,12 +75,17 @@ class TclTslParserIntegrationTest extends AbstractParserTest {
 			* he\"s not ccop. right? "param" and more
 		'''
 
-		tcl.parseTcl('ExampleTest.tcl') => [
+		// when
+		val tclModel = tcl.parseTcl('ExampleTest.tcl')
+
+		// then
+		tclModel => [
 			assertNoErrors
 			test.steps.assertSize(5) => [
 				get(0).contents.restoreString.assertEquals('Simple spec with a * in it')
-				get(1).contents.restoreString.assertEquals('တ က ် စ တ တ က ် စ တ . တ က ် စ တ @ ö tt ö . de . တ က ် စ တ')
-				get(2).contents.restoreString.assertEquals('! @ # $ % ^ & * ( ) - _ = + ` ~ \\ | ] [ } { ; : "" "" <> , . / ? with ξ ε σ κ ε π ά ζ ω τ η ν ξ ε σ κ ε π ά ζ ω τ η ν S æ v ö r gr é t á ð an þ v í ú lpan var ó n ý t .')
+				get(1).contents.restoreString.assertEquals('တ က ် စ တ တ က ် စ တ . တ က ် စ တ @ öttö . de . တ က ် စ တ')
+				get(2).contents.restoreString.assertEquals(
+					'! @ # $ % ^ & * ( ) - _ = + ` ~ \\ | ] [ } { ; : "" "" <> , . / ? with ξεσκεπάζω την ξεσκεπάζω την Sævör grét áðan því úlpan var ónýt .')
 				get(3).contents.restoreString.assertEquals("he \\' s not very cooperative \"param\"")
 				get(4).contents.restoreString.assertEquals("he \\\" s not ccop . right ? \"param\" and more")
 			]

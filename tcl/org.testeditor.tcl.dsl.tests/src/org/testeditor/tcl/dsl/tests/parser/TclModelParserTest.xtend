@@ -257,7 +257,7 @@ class TclModelParserTest extends AbstractTclTest {
 			package com.example
 			
 			# Test
-			* Hier kann jetzt ÄÜÖ ß ä ü ö or any Unicode like µm fas alles, stehen, oder
+			* Hier kann jetzt ÄÜÖ ß ä ü ö or any Unicode like µm fast alles, stehen, oder
 			'''
 
 		// when
@@ -265,7 +265,7 @@ class TclModelParserTest extends AbstractTclTest {
 
 		// then
 		test.steps.assertSingleElement => [
-			contents.restoreString.assertEquals('Hier kann jetzt Ä Ü Ö ß ä ü ö or any Unicode like µ m fas alles , stehen , oder')
+			contents.restoreString.assertEquals('Hier kann jetzt ÄÜÖ ß ä ü ö or any Unicode like µm fast alles , stehen , oder')
 		]
 	}
 

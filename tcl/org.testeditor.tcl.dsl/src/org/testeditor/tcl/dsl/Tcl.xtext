@@ -10,7 +10,7 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-grammar org.testeditor.tcl.dsl.Tcl with org.eclipse.xtext.xbase.Xbase
+grammar org.testeditor.tcl.dsl.Tcl with org.eclipse.xtext.xbase.Xbase hidden(SPACES, NL, SL_COMMENT, ML_COMMENT)
 
 import "http://www.testeditor.org/tcl"
 import "http://www.testeditor.org/tsl" as tsl
@@ -18,7 +18,7 @@ import "http://www.testeditor.org/aml" as aml
 import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 
 
-TclModel hidden(SPACES,NL,SL_COMMENT,ML_COMMENT):
+TclModel:
 	('package' package=QualifiedName)?
 	(importSection=XImportSection)?
 	// TODO move require to TestCase - this should not be part of a MacroCollection
@@ -52,15 +52,7 @@ TestCleanup:
 	contexts+=TestStepContext*
 ;
 
-terminal SPACES:
-	( ' ' | '\t')+
-;
-
-terminal NL:
-	(( ' ' | '\t' )* ('\r'? '\n'))+  ( ' ' | '\t' )*
-;
-
-SpecificationStepImplementation hidden(SPACES,SL_COMMENT,ML_COMMENT):
+SpecificationStepImplementation hidden(SPACES, SL_COMMENT, ML_COMMENT):
 	{SpecificationStepImplementation}
 	'*' contents+=tslStepContent* nl=NL
 	contexts+=TestStepContext*;
@@ -77,21 +69,21 @@ Word returns ecore::EString hidden():
 	'assert' | 'matches' | 'true' | "\\'" | '\\"' | '$' | '_' |
 	 ANY_OTHER;
 
-EnvironmentVariable hidden(NL,SPACES,SL_COMMENT):
+EnvironmentVariable:
 	(nonConfidential?='public')?
 	name=ID;
 
-MacroCollection hidden(NL,SPACES,SL_COMMENT):
+MacroCollection:
 	'#' name=ID
 	macros+=Macro+;
 
-Macro hidden(NL,SPACES,SL_COMMENT):
+Macro :
 	'##' name=ID
 	'template' '=' template=Template
 	contexts+=TestStepContext*
 ;
 
-Template returns aml::Template hidden(NL,SPACES,SL_COMMENT):
+Template returns aml::Template:
 	contents+=TemplateText (contents+=TemplateVariable contents+=TemplateText?)*	
 ;
 
@@ -103,18 +95,10 @@ TemplateVariable returns aml::TemplateVariable:
 	name=TEMPLATE_VARIABLE_DEF
 ;
 
-/* 
- * Using a separate terminal is required since we'd like to write ${element} and
- * this would otherwise be matched as the keyword 'element'.
- */
-terminal TEMPLATE_VARIABLE_DEF:
-	'${' ID? '}'
-;
-
-TestStepContext hidden (NL, SPACES, SL_COMMENT, ML_COMMENT):
+TestStepContext hidden(NL, SPACES, SL_COMMENT, ML_COMMENT):
 	(ComponentTestStepContext | MacroTestStepContext);
 
-ComponentTestStepContext returns TestStepContext hidden(NL, SPACES, SL_COMMENT, ML_COMMENT):
+ComponentTestStepContext returns TestStepContext:
 	{ComponentTestStepContext}
 	('Mask' | 'Component') ':' component=[aml::Component|QualifiedName]
 	steps+=(TestStep | TestStepWithAssignment | AssertionTestStep | AssignmentThroughPath)*;
@@ -127,17 +111,17 @@ MacroTestStepContext returns TestStepContext:
 /**
  * keep in mind that an aml validator exists that will check templates to be parsable given the following rule
  */
-TestStep hidden(SPACES, NL,SL_COMMENT):
+TestStep:
 	{TestStep}
 	'-' contents+=StepContent* contents+=StepContentPunctuation?;
 
-AssertionTestStep hidden(SPACES,NL,SL_COMMENT):
+AssertionTestStep:
 	'-' 'assert' assertExpression=(NullOrBoolCheck | FullComparison) '.'?;
 
-TestStepWithAssignment hidden(NL,SPACES,SL_COMMENT):
+TestStepWithAssignment:
 	'-' variable=AssignmentVariable '=' contents+=StepContent* contents+=StepContentPunctuation?;
 
-AssignmentThroughPath  hidden(NL,SPACES,SL_COMMENT):
+AssignmentThroughPath:
 	'-' variableReference=VariableReferencePathAccess '=' expression=Expression '.'?;
 
 /** expression order: Comparison -> (Addition -> Multiplication ->) Value
@@ -146,18 +130,18 @@ AssignmentThroughPath  hidden(NL,SPACES,SL_COMMENT):
  *  for binary expression: left is always referencing the rule with higher operator binding, 
  *  right is referencing the Expression 
  */
-Expression hidden(NL,SPACES,SL_COMMENT):
+Expression:
 	Comparison;
 
-NullOrBoolCheck hidden(NL,SPACES,SL_COMMENT): 
+NullOrBoolCheck: 
 	(negated?='!')? variableReference=(VariableReference | VariableReferencePathAccess);
 
-FullComparison returns Comparison  hidden(NL,SPACES,SL_COMMENT):
+FullComparison returns Comparison:
 	left=Value
 	comparator=Comparator
 	right=Expression;
 
-Comparison hidden(NL,SPACES,SL_COMMENT):
+Comparison:
 	left=Value
 	(comparator=Comparator
 	right=Expression)?;
@@ -166,43 +150,43 @@ VariableReference:
 	variable=[aml::Variable];
 	
 	
-ArrayPathElement hidden(NL,SPACES,SL_COMMENT):
+ArrayPathElement:
 	'[' number=Number ']';
 
-KeyPathElement hidden(NL,SPACES,SL_COMMENT):
+KeyPathElement:
 	'.' ( key=ID | key=STRING );
 
-VariableReferencePathAccess hidden(NL,SPACES,SL_COMMENT):
+VariableReferencePathAccess:
 	variable=[aml::Variable] ( path+=KeyPathElement | path+=ArrayPathElement )+;
 
-AtomicValue returns Expression hidden(NL,SPACES,SL_COMMENT):
+AtomicValue returns Expression:
 	VariableReference | VariableReferencePathAccess | JsonValue ;
 	
-Value returns Expression hidden(NL,SPACES,SL_COMMENT):
+Value returns Expression:
 	AtomicValue | '(' Expression ')';
 
-Comparator hidden(NL,SPACES,SL_COMMENT):
+Comparator:
 	ComparatorEquals |
 	ComparatorMatches |
 	ComparatorLessThan |
 	ComparatorGreaterThan;
 
-ComparatorEquals hidden(NL,SPACES,SL_COMMENT):
+ComparatorEquals:
 	{ComparatorEquals} ('=' | '==' | negated?='!=' | negated?='<>' | 'is' (negated?='not')?);
 
-ComparatorMatches hidden(NL,SPACES,SL_COMMENT):
+ComparatorMatches:
 	{ComparatorMatches} ('matches' | negated?='does' 'not' 'match');
 
-ComparatorLessThan hidden(NL,SPACES,SL_COMMENT):
+ComparatorLessThan:
 	{ComparatorLessThan} ('<' | negated?='>=');
 
-ComparatorGreaterThan hidden(NL,SPACES,SL_COMMENT):
+ComparatorGreaterThan:
 	{ComparatorGreaterThan} ('>' | negated?='<=');
 
 AssignmentVariable:
 	name=ID;
 	
-StepContent returns tsl::StepContent  hidden(NL,SPACES,SL_COMMENT):
+StepContent returns tsl::StepContent:
 	StepContentText | StepContentElement | StepContentVariable | '@' VariableReference | '@' VariableReferencePathAccess;
 
 StepContentText returns tsl::StepContentText:
@@ -226,17 +210,17 @@ StepContentPunctuation hidden():
 	value=('.'|'?')
 ;
 
-JsonObject hidden(NL,SPACES,SL_COMMENT):
+JsonObject:
 	{JsonObject}
 	'{'
 		(members+=JsonMember)?
 		(',' members+=JsonMember)*
 	'}';
 
-JsonMember hidden(NL,SPACES,SL_COMMENT):
+JsonMember:
 	key=STRING ':' value=JsonValue;
 
-JsonValue hidden(NL,SPACES,SL_COMMENT):
+JsonValue:
 	JsonString | JsonNumber | JsonObject | JsonArray | JsonBoolean | JsonNull;
 
 JsonString:
@@ -249,7 +233,7 @@ JsonNull:
 	{JsonNull}
 	'null';
 
-JsonArray hidden(NL,SPACES,SL_COMMENT):
+JsonArray:
 	{JsonArray}
 	'['
 		(values+=JsonValue (',' values+=JsonValue)*)?
@@ -263,3 +247,23 @@ Boolean returns ecore::EBoolean:
 
 JsonDecimal returns ecore::EString hidden():
 	'-'? Number;
+
+/* 
+ * Using a separate terminal is required since we'd like to write ${element} and
+ * this would otherwise be matched as the keyword 'element'.
+ */
+terminal TEMPLATE_VARIABLE_DEF:
+	'${' ID? '}';
+
+/* 
+ * override ID as provided by xbase to allow for (partial) unicode ids
+ */
+@Override 
+terminal ID:
+	'^'? ('a'..'z' | 'A'..'Z' | '_' |  'À'..'ɿ' | 'Α'..'ѯ' | 'µ') ('a'..'z' | 'A'..'Z' | '_' | '0'..'9' | 'À'..'ɿ' | 'Α'..'ѯ' | 'µ')*;
+
+terminal SPACES:
+	( ' ' | '\t')+;
+
+terminal NL:
+	(( ' ' | '\t' )* ('\r'? '\n'))+  ( ' ' | '\t' )*;
