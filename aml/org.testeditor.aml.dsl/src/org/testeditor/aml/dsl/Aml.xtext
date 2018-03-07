@@ -144,6 +144,10 @@ terminal TEMPLATE_VARIABLE_DEF:
 	'${' ID? '}'
 ;
 
+@Override
+terminal ID:
+	'^'? ('a'..'z' | 'A'..'Z' | '_' |  'À'..'ɿ' | 'Α'..'ѯ' | 'µ') ('a'..'z' | 'A'..'Z' | '_' | '0'..'9' | 'À'..'ɿ' | 'Α'..'ѯ' | 'µ')*;
+
 ValueSpaceAssignment: 
 	  ('restrict' variable=[TemplateVariable|QualifiedName] 'to' valueSpace=[ValueSpace|QualifiedName])
 	| (variable=[TemplateVariable|QualifiedName] 'restrict' 'to' valueSpace=[ValueSpace|QualifiedName])

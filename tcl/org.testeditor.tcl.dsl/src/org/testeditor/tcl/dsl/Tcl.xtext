@@ -241,3 +241,7 @@ Boolean returns ecore::EBoolean:
 
 JsonDecimal returns ecore::EString hidden():
 	'-'? Number;
+
+@Override
+terminal ID:
+	'^'? ('a'..'z' | 'A'..'Z' | '_' |  'À'..'ɿ' | 'Α'..'ѯ' | 'µ') ('a'..'z' | 'A'..'Z' | '_' | '0'..'9' | 'À'..'ɿ' | 'Α'..'ѯ' | 'µ')*;

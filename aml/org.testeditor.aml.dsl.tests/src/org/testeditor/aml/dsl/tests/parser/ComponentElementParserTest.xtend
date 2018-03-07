@@ -152,6 +152,24 @@ class ComponentElementParserTest extends AbstractParserTest {
 			locatorStrategy.simpleName.assertEquals("ID")
 		]		
 	}
+	
+	@Test
+	def void parseUnicodeInTemplates() {
+		// given
+		val input = '''
+			interaction type doSomething {
+				template = "do ÜbersichtDerVerträgeλ" ${somethingäWith}
+			}
+		'''
+		
+		// when
+		val amlModel = input.parseAml
+		
+		// then
+		amlModel => [
+			assertNoErrors
+		]
+	}
 
 	@Test
 	def void parseShortFormatWithValueSpace() {
