@@ -40,7 +40,9 @@ import org.testeditor.aml.InteractionType
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateVariable
+import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 import org.testeditor.fixture.core.AbstractTestCase
+import org.testeditor.fixture.core.MaskingString
 import org.testeditor.fixture.core.TestRunReportable
 import org.testeditor.fixture.core.TestRunReporter
 import org.testeditor.fixture.core.TestRunReporter.SemanticUnit
@@ -65,14 +67,13 @@ import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tcl.dsl.jvmmodel.macro.MacroHelper
 import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentValue
 
 import static org.testeditor.tcl.TclPackage.Literals.*
-import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 
 import static extension org.apache.commons.lang3.StringEscapeUtils.escapeJava
-import org.testeditor.fixture.core.MaskingString
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -333,8 +334,25 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		output.newLine
 	}
 	
+	private def String reportString(SpecificationStep step) {
+		val node = NodeModelUtils.getNode(step)
+		val contentsString = if (node !== null) {
+				val text = NodeModelUtils.getTokenText(node)
+				val contentsText = text.substring(text.indexOf('*') + 1, text.indexOf('\n'))
+				if (contentsText.endsWith('\r')) {
+					contentsText.substring(contentsText.length - 1)
+				} else {
+					contentsText
+				}
+			} else {
+				// if no node model is present do naiive restoration of model (spacing information is lost)
+				step.contents.restoreString
+			}.trim
+		return contentsString
+	}
+	
 	private def void generate(SpecificationStepImplementation step, ITreeAppendable output) {
-		output.appendReporterEnterCall(SemanticUnit.SPECIFICATION_STEP, step.contents.restoreString)
+		output.appendReporterEnterCall(SemanticUnit.SPECIFICATION_STEP, step.reportString) 
 		step.contexts.forEach[generateContext(output.trace(it))]
 	}
 

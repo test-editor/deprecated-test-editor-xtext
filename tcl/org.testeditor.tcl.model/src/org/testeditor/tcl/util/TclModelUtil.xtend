@@ -94,7 +94,7 @@ class TclModelUtil extends TslModelUtil {
 				StepContentValue: value
 				default: throw new IllegalArgumentException("Unhandled content: " + it)
 			}
-		].join(' ').removeWhitespaceBeforePunctuation
+		].join(' ')
 	}
 
 	def TemplateContainer findInteractionOrMacro(TestStep step) {
