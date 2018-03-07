@@ -316,8 +316,7 @@ class TclModelParserTest extends AbstractTclTest {
 		'''
 
 		// when
-		parseTcl(input).assertNoSyntaxErrors
-		val test = parseTcl(input).test
+		val test = parseTcl(input).assertNoSyntaxErrors.test
 
 		// then
 		test.steps.assertSingleElement => [
