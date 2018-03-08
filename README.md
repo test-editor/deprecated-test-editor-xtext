@@ -54,3 +54,16 @@ The path depends on your operating system as described [here](https://wiki.eclip
 ### Tests cannot be started from the RCP / IDE, complaining about missing environment variable TE_MAVEN_HOME
 
 When using maven as test project build/run tool, please make sure to have the environment variable `TE_MAVEN_HOME` set to maven home.
+
+## Release process
+
+* merge develop into the master (via pullrequest)
+* switch locally to the master branch
+* execute `./gradlew release` (allows to set the release version and the new developversion)
+  this will trigger the publishing process on travis (check [here][https://bintray.com/test-editor/maven/test-editor] whether publishing was really successful)
+* merge master into develop to get the new development version into develop again
+* execute maven to set all poms to the new versions
+  ```
+  mvn -f target-platform/pom.xml build-helper:parse-version org.eclipse.tycho:tycho-versions-plugin:set-version -Dartifacts=org.testeditor.releng.target.parent -DnewVersion=1.11.0-SNAPSHOT -Dtycho.mode=maven
+  mvn -f pom.xml build-helper:parse-version org.eclipse.tycho:tycho-versions-plugin:set-version -Dartifacts=org.testeditor.releng.parent -DnewVersion=1.11.0-SNAPSHOT -Dtycho.mode=maven -Prcp
+  ```
