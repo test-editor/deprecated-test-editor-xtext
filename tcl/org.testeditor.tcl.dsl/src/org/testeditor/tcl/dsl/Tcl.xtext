@@ -10,7 +10,7 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-grammar org.testeditor.tcl.dsl.Tcl with org.eclipse.xtext.xbase.Xbase
+grammar org.testeditor.tcl.dsl.Tcl with org.eclipse.xtext.xbase.Xbase hidden(SPACES, NL, SL_COMMENT, ML_COMMENT)
 
 import "http://www.testeditor.org/tcl"
 import "http://www.testeditor.org/tsl" as tsl
@@ -39,22 +39,34 @@ TestConfiguration:
 	(setup=TestSetup? & cleanup=TestCleanup?)
 ;
 
-TestSetup: 
+TestSetup:
 	{TestSetup}
 	'Setup' ':'
 	contexts+=TestStepContext*
 ;
 
-TestCleanup: 
+TestCleanup:
 	{TestCleanup}
 	'Cleanup' ':'
 	contexts+=TestStepContext*
 ;
 
-SpecificationStepImplementation:
+SpecificationStepImplementation hidden(SPACES, SL_COMMENT, ML_COMMENT):
 	{SpecificationStepImplementation}
-	'*' contents+=StepContent* '.'?
+	'*' contents+=tslStepContent* nl=NL
 	contexts+=TestStepContext*;
+
+tslStepContent returns tsl::StepContent:
+	tslStepContentText | StepContentVariable;
+
+tslStepContentText returns tsl::StepContentText:
+	value=Word;
+
+Word returns ecore::EString hidden():
+	ID | StepContentTextOperator | INT | '*' | '@' | ',' | '|' | '.' | '?' | '!' | '#' | '##' | '${' | '%' | '&' | '(' | ')' | '-' | '=' |
+	'+' | '`' | '~' | '\\' | ']' | '[' | '}' | '{' | ';' | ':' | '<' | '>' | '<>' | '/' | '==' | '!=' | '>=' | '<=' |
+	'assert' | 'matches' | 'true' | "\\'" | '\\"' | '$' | '_' |
+	 ANY_OTHER;
 
 EnvironmentVariable:
 	(nonConfidential?='public')?
@@ -71,26 +83,18 @@ Macro:
 ;
 
 Template returns aml::Template:
-	contents+=TemplateText (contents+=TemplateVariable contents+=TemplateText?)*	
+	contents+=TemplateText (contents+=TemplateVariable contents+=TemplateText?)*
 ;
 
-TemplateText returns aml::TemplateText: 
+TemplateText returns aml::TemplateText:
 	value=STRING
 ;
 
-TemplateVariable returns aml::TemplateVariable: 
+TemplateVariable returns aml::TemplateVariable:
 	name=TEMPLATE_VARIABLE_DEF
 ;
 
-/* 
- * Using a separate terminal is required since we'd like to write ${element} and
- * this would otherwise be matched as the keyword 'element'.
- */
-terminal TEMPLATE_VARIABLE_DEF:
-	'${' ID? '}'
-;
-
-TestStepContext:
+TestStepContext hidden(NL, SPACES, SL_COMMENT, ML_COMMENT):
 	(ComponentTestStepContext | MacroTestStepContext);
 
 ComponentTestStepContext returns TestStepContext:
@@ -121,9 +125,9 @@ AssignmentThroughPath:
 
 /** expression order: Comparison -> (Addition -> Multiplication ->) Value
  *  which is reflecting the order of operator binding.
- * 
- *  for binary expression: left is always referencing the rule with higher operator binding, 
- *  right is referencing the Expression 
+ *
+ *  for binary expression: left is always referencing the rule with higher operator binding,
+ *  right is referencing the Expression
  */
 Expression:
 	Comparison;
@@ -143,8 +147,8 @@ Comparison:
 
 VariableReference:
 	variable=[aml::Variable];
-	
-	
+
+
 ArrayPathElement:
 	'[' number=Number ']';
 
@@ -156,7 +160,7 @@ VariableReferencePathAccess:
 
 AtomicValue returns Expression:
 	VariableReference | VariableReferencePathAccess | JsonValue ;
-	
+
 Value returns Expression:
 	AtomicValue | '(' Expression ')';
 
@@ -180,7 +184,7 @@ ComparatorGreaterThan:
 
 AssignmentVariable:
 	name=ID;
-	
+
 StepContent returns tsl::StepContent:
 	StepContentText | StepContentElement | StepContentVariable | '@' VariableReference | '@' VariableReferencePathAccess;
 
@@ -190,17 +194,18 @@ StepContentText returns tsl::StepContentText:
 /** hold all keywords that are allowed as step content text (to prevent parser to fail on keyword usage) */
 StepContentTextOperator returns ecore::EString:
 	// TODO generate this (all keywords minus assert - consider Xbase keywords as well)
-	'Cleanup' | 'Component' | 'Macro' | 'Mask' | 'Setup' | 'as' | 'config' | 'does' | 'implements' | 'is' |
-	'match' | 'matches' | 'not' | 'package' | 'require' | 'template' | 'for' | 'do' | 'if' | 'while';
+	'var' | 'public' | 'template' | 'package' | 'require' | 'config' | 'implements' | 'Setup' | 'Cleanup' |
+	'Mask' | 'Component' | 'Macro' | 'does' | 'not' | 'match' | 'false' | 'null' |
+	'as' |  'is' | 'for' | 'do' | 'if' | 'while';
 
 StepContentVariable returns tsl::StepContentVariable:
 	value=STRING;
 
 StepContentElement hidden():
 	('<' value=ID '>') |
-	{StepContentElement} ('<>' | '<' WS+ '>');
+	{StepContentElement} ('<>' | '<' (SPACES | NL ) '>');
 
-StepContentPunctuation:
+StepContentPunctuation hidden():
 	value=('.'|'?')
 ;
 
@@ -241,3 +246,23 @@ Boolean returns ecore::EBoolean:
 
 JsonDecimal returns ecore::EString hidden():
 	'-'? Number;
+
+/*
+ * Using a separate terminal is required since we'd like to write ${element} and
+ * this would otherwise be matched as the keyword 'element'.
+ */
+terminal TEMPLATE_VARIABLE_DEF:
+	'${' ID? '}';
+
+/*
+ * override ID as provided by xbase to allow for (partial) unicode ids
+ */
+@Override
+terminal ID:
+	'^'? ('a'..'z' | 'A'..'Z' | '_' |  'À'..'ɿ' | 'Α'..'ѯ' | 'µ') ('a'..'z' | 'A'..'Z' | '_' | '0'..'9' | 'À'..'ɿ' | 'Α'..'ѯ' | 'µ')*;
+
+terminal SPACES:
+	( ' ' | '\t')+;
+
+terminal NL:
+	(( ' ' | '\t' )* ('\r'? '\n'))+  ( ' ' | '\t' )*;

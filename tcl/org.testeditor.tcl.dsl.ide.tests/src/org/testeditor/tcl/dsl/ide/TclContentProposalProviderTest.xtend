@@ -39,7 +39,7 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		'Cleanup',
 		'Setup'
 	]
-	val allTemplates = #[
+	val componentTemplates = #[
 		'Click on <element>',
 		'Is <element> visible?',
 		'Read bool from <element>',
@@ -60,6 +60,11 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		'Type "value" into <element>',
 		'Type "value" into <element> and wait "1"',
 		'Wait for "1" seconds'
+	]
+	val macroTemplates = #[
+		'TypeBoolean "true" into input field',
+		'TypeLong "1" into input field',
+		'TypeConfidential "param" into input field'
 	]
 
 	@Before
@@ -83,8 +88,8 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals.expectOnly(allTemplates.prefixWithDash + dashes + keywords + testSurroundKeywords + star)
-		proposals.expectNoneOf(allTemplates) // without dashes !
+		proposals.expectOnly(componentTemplates.prefixWithDash + dashes + keywords + testSurroundKeywords + star)
+		proposals.expectNoneOf(componentTemplates) // without dashes !
 	}
 
 	@Test
@@ -103,8 +108,8 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals.expectOnly(allTemplates.prefixWithDash + dashes + keywords + stepValueOrPunctuation + elementPunctuation + value + star + testSurroundKeywords)
-		proposals.expectNoneOf(allTemplates) // without dashes !
+		proposals.expectOnly(componentTemplates.prefixWithDash + dashes + keywords + stepValueOrPunctuation + elementPunctuation + value + star + testSurroundKeywords)
+		proposals.expectNoneOf(componentTemplates) // without dashes !
 	}
 
 	@Test
@@ -122,8 +127,8 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals.expectOnly(allTemplates + dashes + keywords + stepValueOrPunctuation + commandOrVariable + elementPunctuation + value + star + testSurroundKeywords)
-		proposals.expectNoneOf(allTemplates.prefixWithDash) // proposals must be without dashes! 
+		proposals.expectOnly(componentTemplates + dashes + keywords + stepValueOrPunctuation + commandOrVariable + elementPunctuation + value + star + testSurroundKeywords)
+		proposals.expectNoneOf(componentTemplates.prefixWithDash) // proposals must be without dashes! 
 	}
 
 	@Test
@@ -143,7 +148,7 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 
 		// then
 		proposals.expectOnly(expectedTemplates + dashes + expressionPrefix + stepValueOrPunctuation + elementPunctuation + star)
-		proposals.expectNoneOf(allTemplates.without(expectedTemplates))
+		proposals.expectNoneOf(componentTemplates.without(expectedTemplates))
 	}
 
 	@Test
@@ -299,7 +304,7 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals.expectOnly(dashes + allTemplates.prefixWithDash + keywords + stepValueOrPunctuation + elementPunctuation + value + star + testSurroundKeywords)
+		proposals.expectOnly(dashes + componentTemplates.prefixWithDash + keywords + stepValueOrPunctuation + elementPunctuation + value + star + testSurroundKeywords)
 		proposals.expectNoneOf(#[ 'Input', 'bar' ]) // 
 	}
 
@@ -318,11 +323,67 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals.expectOnly(#[
-			'TypeBoolean "true" into input field',
-			'TypeLong "1" into input field',
-			'TypeConfidential "param" into input field'
-		] + dashes + keywords + stepValueOrPunctuation + value + elementPunctuation + star + testSurroundKeywords)
+		proposals.expectOnly(macroTemplates + dashes + keywords + stepValueOrPunctuation + value + elementPunctuation + star + testSurroundKeywords)
+		proposals.expectNoneOf(macroTemplates.prefixWithDash)
+	}
+
+	@Test
+	def void testMacroSecondTemplateProposal() {
+		// given
+		var tclSnippet = '''
+			# Some
+			
+			* some step
+			Macro: MacroLibrary
+			- TypeBoolean "true" into input field
+			- |
+		'''.withPackage
+
+		// when
+		val proposals = tclSnippet.proposals
+
+		// then
+		proposals.expectOnly(macroTemplates + dashes + keywords + stepValueOrPunctuation + value + elementPunctuation + star + testSurroundKeywords)
+		proposals.expectNoneOf(macroTemplates.prefixWithDash)
+	}
+
+	@Test
+	def void testMacroTemplateProposalWithDash() {
+		// given
+		var tclSnippet = '''
+			# Some
+			
+			* some step
+			Macro: MacroLibrary
+			|
+		'''.withPackage
+
+		// when
+		val proposals = tclSnippet.proposals
+
+		// then
+		proposals.expectOnly(macroTemplates.prefixWithDash + dashes + keywords + star + testSurroundKeywords)
+		proposals.expectNoneOf(macroTemplates)
+	}
+
+	@Test
+	def void testMacroSecondTemplateProposalWithDash() {
+		// given
+		var tclSnippet = '''
+			# Some
+			
+			* some step
+			Macro: MacroLibrary
+			- TypeBoolean "true" into input field
+			|
+		'''.withPackage
+
+		// when
+		val proposals = tclSnippet.proposals
+
+		// then
+		proposals.expectOnly(macroTemplates.prefixWithDash + dashes + keywords + stepValueOrPunctuation + value + elementPunctuation + star + testSurroundKeywords)
+		proposals.expectNoneOf(macroTemplates)
 	}
 
 	@Test
@@ -344,7 +405,7 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		proposals.expectOnly(#[
 			'@boolParameter',
 			'##'
-		] + value + dashes + allTemplates + keywords + stepValueOrPunctuation + commandOrVariable + elementPunctuation)
+		] + value + dashes + componentTemplates + keywords + stepValueOrPunctuation + commandOrVariable + elementPunctuation)
 	}
 
 	@Test
@@ -371,7 +432,7 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 			'com.example.envVar',
 			'secretEnvVar',
 			'com.example.secretEnvVar'
-		] + value + dashes + allTemplates + keywords + stepValueOrPunctuation + commandOrVariable + elementPunctuation + star + testSurroundKeywords)
+		] + value + dashes + componentTemplates + keywords + stepValueOrPunctuation + commandOrVariable + elementPunctuation + star + testSurroundKeywords)
 		proposals => []
 	}
 

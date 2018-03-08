@@ -75,8 +75,7 @@ class TclModelParserTest extends AbstractTclTest {
 			package com.example
 			
 			# MyTest
-			* Start the famous
-			greetings application.
+			* Start the famous      greetings application.
 		'''
 		
 		// when
@@ -85,7 +84,7 @@ class TclModelParserTest extends AbstractTclTest {
 		// then
 		tcl.test.name.assertEquals('MyTest')
 		tcl.test.steps.assertSingleElement => [
-			contents.restoreString.assertEquals('Start the famous greetings application')
+			contents.restoreString.assertEquals('Start the famous greetings application .')
 		]
 	}
 	
@@ -104,7 +103,7 @@ class TclModelParserTest extends AbstractTclTest {
 		
 		// then
 		test.steps.assertSingleElement => [
-			contents.restoreString.assertEquals('send greetings "Hello World" to the world')
+			contents.restoreString.assertEquals('send greetings "Hello World" to the world .')
 			contents.get(2).assertInstanceOf(StepContentVariable) => [
 				value.assertEquals('Hello World')
 			]
@@ -184,13 +183,13 @@ class TclModelParserTest extends AbstractTclTest {
 		'''
 		
 		// when
-		val test = parseTcl(input).test
+		val test = parseTcl(input).assertNoSyntaxErrors.test
 		
 		// then
 		test.steps.assertSingleElement => [
 			contexts.assertSingleElement.assertInstanceOf(ComponentTestStepContext) => [
 				steps.assertSingleElement.assertInstanceOf(TestStep) => [
-					contents.restoreString.assertEquals('Is Component visible?')
+					contents.restoreString.assertEquals('Is Component visible ?')
 				]
 			]
 		]
@@ -250,6 +249,25 @@ class TclModelParserTest extends AbstractTclTest {
 			]
 		]
 	}
+	
+	@Test
+	def void parseTslAllowedStepSyntax() {
+		// given
+		val input = '''
+			package com.example
+			
+			# Test
+			* Hier kann jetzt ÄÜÖ ß ä ü ö or any Unicode like µm fast alles, stehen, oder
+			'''
+
+		// when
+		val test = parseTcl(input).test
+
+		// then
+		test.steps.assertSingleElement => [
+			contents.restoreString.assertEquals('Hier kann jetzt ÄÜÖ ß ä ü ö or any Unicode like µm fast alles , stehen , oder')
+		]
+	}
 
 	@Test
 	def void parseTestStepAssertion() {
@@ -298,7 +316,7 @@ class TclModelParserTest extends AbstractTclTest {
 		'''
 
 		// when
-		val test = parseTcl(input).test
+		val test = parseTcl(input).assertNoSyntaxErrors.test
 
 		// then
 		test.steps.assertSingleElement => [

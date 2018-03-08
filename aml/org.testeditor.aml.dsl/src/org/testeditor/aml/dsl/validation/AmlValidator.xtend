@@ -204,7 +204,7 @@ class AmlValidator extends AbstractAmlValidator {
 		]
 	}
 	
-	static val ID_REGEX='\\^?[a-zA-Z$_][a-zA-Z$_0-9]*' 
+	static val ID_REGEX='\\^?[a-zA-Z$_À-ɿΑ-ѯµ][a-zA-Z$_0-9À-ɿΑ-ѯµ]*'
 	static val VALID_TEMPLATE_WORDS = '''^[ \t]*(«ID_REGEX»[ \t]*)+$'''
 	static val VALID_LAST_TEMPLATE_WORDS = '''^[ \t]*(«ID_REGEX»[ \t]*)*([.?][ \t]*)?$'''
 	

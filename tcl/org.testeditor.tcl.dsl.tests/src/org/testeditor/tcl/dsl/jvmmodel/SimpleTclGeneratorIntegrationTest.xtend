@@ -298,7 +298,7 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 
 		// then
 		generatedCode.assertContains('''
-			reporter.enter(TestRunReporter.SemanticUnit.STEP, "Is <bar> visible?");
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "Is <bar> visible ?");
 			dummyFixture.isVisible("label.greet");
 		'''.indent(2))
 	}

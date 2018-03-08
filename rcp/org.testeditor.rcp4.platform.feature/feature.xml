@@ -2,7 +2,7 @@
 <feature
       id="org.testeditor.rcp4.platform.feature"
       label="Platform Feature"
-      version="1.10.0">
+      version="1.11.0.qualifier">
 
    <description url="https://github.com/test-editor/test-editor-xtext">
       Testeditor RC platform feature
