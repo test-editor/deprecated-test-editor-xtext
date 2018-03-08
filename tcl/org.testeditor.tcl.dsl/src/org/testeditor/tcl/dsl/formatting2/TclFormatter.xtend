@@ -13,16 +13,19 @@
 package org.testeditor.tcl.dsl.formatting2;
 
 import org.eclipse.xtext.formatting2.IFormattableDocument
+import org.eclipse.xtext.formatting2.ITextReplacerContext
+import org.eclipse.xtext.formatting2.internal.AbstractTextReplacer
 import org.eclipse.xtext.xbase.formatting2.XbaseFormatter
 import org.testeditor.aml.Template
 import org.testeditor.tcl.AbstractTestStep
+import org.testeditor.tcl.ArrayPathElement
 import org.testeditor.tcl.ComponentTestStepContext
+import org.testeditor.tcl.KeyPathElement
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
-import org.testeditor.tcl.StepContentPunctuation
 import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestCleanup
@@ -38,8 +41,6 @@ import org.testeditor.tsl.TslPackage
 import static org.eclipse.xtext.formatting2.IHiddenRegionFormatter.LOW_PRIORITY
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
 import static org.testeditor.tcl.TclPackage.Literals.*
-import org.testeditor.tcl.KeyPathElement
-import org.testeditor.tcl.ArrayPathElement
 
 class TclFormatter extends XbaseFormatter {
 	
@@ -88,10 +89,16 @@ class TclFormatter extends XbaseFormatter {
 
 	def dispatch void format(SpecificationStepImplementation step, extension IFormattableDocument document) {
 		step.regionFor.keyword("*").prepend[newLines = 2]
-		step.contents.forEach[format]
 		step.regionFor.keyword(".").prepend[noSpace]
-
-		step.regionFor.feature(SPECIFICATION_STEP_IMPLEMENTATION__TEST).append[newLine]
+		val nlregion=step.regionFor.feature(SPECIFICATION_STEP_IMPLEMENTATION__NL)
+		addReplacer(new AbstractTextReplacer(document,nlregion) {
+			
+			override createReplacements(ITextReplacerContext context) {
+				context.addReplacement(region.replaceWith(region.text.replaceAll('(\r?\n)+(\t| )+','')))
+				return context
+			}
+			
+		})
 		step.interior[indent] // configurable?
 		step.contexts.forEach[format]
 	}
@@ -134,16 +141,12 @@ class TclFormatter extends XbaseFormatter {
 		testStep.regionFor.keyword("-").prepend[setNewLines(1, 1, 2)]
 		if (testStep instanceof TestStep) {
 			testStep.contents.forEach[format]
-			testStep.regionFor.keyword(".").prepend[noSpace]
+			#[".","?"].forEach[testStep.regionFor.keyword(it).prepend[noSpace]]
 		}
 	}
 
 	def dispatch void format(StepContentText stepContentText, extension IFormattableDocument document) {
 		stepContentText.regionFor.feature(TslPackage.Literals.STEP_CONTENT_VALUE__VALUE).prepend[oneSpace]
-	}
-
-	def dispatch void format(StepContentPunctuation punctuation, extension IFormattableDocument document) {
-		punctuation.regionFor.feature(TslPackage.Literals.STEP_CONTENT_VALUE__VALUE).prepend[noSpace]
 	}
 
 	def dispatch void format(StepContentVariable stepContentVariable, extension IFormattableDocument document) {

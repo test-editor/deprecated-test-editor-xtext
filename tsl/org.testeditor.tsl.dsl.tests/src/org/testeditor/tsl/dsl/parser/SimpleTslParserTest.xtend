@@ -63,6 +63,26 @@ class SimpleTslParserTest extends AbstractParserTest {
 		]
 	}
 
+
+	@Test
+	def void parseUtf8Specname() {
+		// given
+		val tsl = '''
+			package com.example
+			
+			# ÖttoIsÜberμm
+		'''
+		
+		// when
+		val tslModel = tsl.parseTsl('ÖttoIsÜberμm.tsl')
+		
+		// then
+		tslModel => [
+			assertNoSyntaxErrors
+			specification.name.assertEquals('ÖttoIsÜberμm')
+		]
+	}
+
 	@Test
 	def void parseSimpleSpecificationStep() {
 		// given
@@ -77,6 +97,36 @@ class SimpleTslParserTest extends AbstractParserTest {
 		tsl.parseTsl => [
 			specification.steps.assertSingleElement => [
 				contents.restoreString.assertEquals('Simple spec')
+			]
+		]
+	}
+
+	@Test
+	def void parseUnicodeLine() {
+		// given
+		val tsl = '''
+			package testeditor.rest
+			
+			# JobCreation
+			
+			* Simple spec with a * in it
+			* တက်စတ တက်စတ. တက်စတ@öttö.de. တက်စတ
+			* !@#$%^&*()-_=+`~\|][}{;:''""<>,./? with ξεσκεπάζω την ξεσκεπάζω την Sævör grét áðan því úlpan var ónýt.
+			* he\'s not very cooperative 'param'
+			* he\"s not ccop. right? "param" and more
+		'''
+		// when
+		val tslModel = tsl.parseTsl 
+		
+		// then (unicode characters are parsed as single characters, use node model to get original formatting)
+		tslModel => [
+			assertNoSyntaxErrors
+			specification.steps.assertSize(5) => [
+				get(0).contents.restoreString.assertEquals('Simple spec with a * in it')
+				get(1).contents.restoreString.assertEquals('တ က ် စ တ တ က ် စ တ . တ က ် စ တ @ öttö . de . တ က ် စ တ')
+				get(2).contents.restoreString.assertEquals('! @ # $ % ^ & * ( ) - _ = + ` ~ \\ | ] [ } { ; : "" "" < > , . / ? with ξεσκεπάζω την ξεσκεπάζω την Sævör grét áðan því úlpan var ónýt .')
+				get(3).contents.restoreString.assertEquals("he \\' s not very cooperative \"param\"")
+				get(4).contents.restoreString.assertEquals("he \\\" s not ccop . right ? \"param\" and more")
 			]
 		]
 	}
@@ -98,7 +148,7 @@ class SimpleTslParserTest extends AbstractParserTest {
 			assertNoSyntaxErrors
 			specification.steps.assertSize(2) => [
 				get(0).contents.restoreString.assertEquals('Simple spec with a * in it')
-				get(1).contents.restoreString.assertEquals('The result of 5 * 3 is 15')
+				get(1).contents.restoreString.assertEquals('The result of 5 * 3 is 15 .')
 			]
 		]
 	}
@@ -154,7 +204,7 @@ class SimpleTslParserTest extends AbstractParserTest {
 				contents.filter(StepContentVariable).assertSingleElement => [
 					value.assertEquals('Hello World')
 				]
-				contents.restoreString.assertEquals('Send greetings "Hello World" to the world')
+				contents.restoreString.assertEquals('Send greetings "Hello World" to the world .')
 			]
 		]
 	}
