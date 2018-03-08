@@ -49,8 +49,10 @@ class TclAmlIntegrationTest extends AbstractParserTest {
 		tclModel => [
 			assertNoErrors
 			val testStep = test.steps.head.contexts.head.steps.head as TestStep
-			val interaction = testStep.interaction => [assertNotNull('Interaction not found, linking template to fixture method failed.')]
-			interaction.defaultMethod.operation.qualifiedName.assertEquals('''«DummyFixture.canonicalName».startApplication'''.toString)
+			testStep.interaction => [
+				assertNotNull('Interaction not found, linking template to fixture method failed.')
+				defaultMethod.operation.qualifiedName.assertEquals(DummyFixture.canonicalName+'.startApplication')
+			]
 		]
 	}
 
