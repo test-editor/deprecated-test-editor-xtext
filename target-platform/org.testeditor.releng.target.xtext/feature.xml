@@ -17,6 +17,10 @@ itemis AG
    </copyright>
 
    <includes
+         id="org.eclipse.lsp4j.sdk"
+         version="0.0.0"/>
+
+   <includes
          id="org.eclipse.emf.sdk"
          version="0.0.0"/>
 
