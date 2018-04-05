@@ -138,10 +138,11 @@ class TclFormatter extends XbaseFormatter {
 	}
 
 	def dispatch void format(AbstractTestStep testStep, extension IFormattableDocument document) {
-		testStep.regionFor.keyword("-").prepend[setNewLines(1, 1, 2)]
+		testStep.regionFor.keyword("-").prepend[setNewLines(1, 1, 2)].append[oneSpace]
 		if (testStep instanceof TestStep) {
 			testStep.contents.forEach[format]
 			#[".","?"].forEach[testStep.regionFor.keyword(it).prepend[noSpace]]
+			testStep.regionFor.keyword('=').prepend[oneSpace]
 		}
 	}
 
