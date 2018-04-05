@@ -14,4 +14,5 @@ Require-Bundle: org.testeditor.dsl.common,
  org.eclipse.xtext.ide,
  org.antlr.runtime,
  org.eclipse.xtext.xbase.ide,
+ org.eclipse.lsp4j,
  org.testeditor.logging
