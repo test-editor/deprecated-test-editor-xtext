@@ -36,8 +36,7 @@ class TclTslParserIntegrationTest extends AbstractParserTest {
 			
 			# «tclId» implements «tslId»
 			
-			* Unicode Spec Step Ü (ω=25 °/s, 25 µm/s))
-		'''
+			* Unicode Spec Step Ü (ω=25 °/s, 25 µm/s))'''
 
 		// when
 		val tslModel = tsl.parseTsl(tslId + '.tsl')
@@ -50,6 +49,29 @@ class TclTslParserIntegrationTest extends AbstractParserTest {
 			test.specification.name.assertEquals(tslId)
 			test.name.assertEquals(tclId)
 		]
+	}
+	
+	@Test
+	def void simpleTest() {
+		val tcl = '''
+			package com.example
+				   	
+			# SimpleTest
+			
+			* MyId another id 
+			  multiline
+			  Component: MyDialog
+			  - Enter month "10" and year "2000" into <Date>
+			* next
+			'''
+			
+		tcl.parseTcl('SimpleTest.tcl') => [
+			assertNoErrors 
+			test.steps.assertSize(2) => [
+				get(0).contents.restoreString.assertEquals('MyId another id multiline')
+				get(1).contents.restoreString.assertEquals('next')
+			]
+		]		
 	}
 
 	@Test
@@ -72,8 +94,7 @@ class TclTslParserIntegrationTest extends AbstractParserTest {
 			
 			* !@#$%^&*()-_=+`~\|][}{;:''""<>,./? with ξεσκεπάζω την ξεσκεπάζω την Sævör grét áðan því úlpan var ónýt.
 			* he\'s not very cooperative 'param'
-			* he\"s not ccop. right? "param" and more
-		'''
+			* he\"s not ccop. right? "param" and more'''
 
 		// when
 		val tclModel = tcl.parseTcl('ExampleTest.tcl')

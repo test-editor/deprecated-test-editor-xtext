@@ -111,7 +111,7 @@ class SimpleTslParserTest extends AbstractParserTest {
 			
 			* Simple spec with a * in it
 			* တက်စတ တက်စတ. တက်စတ@öttö.de. တက်စတ
-			* !@#$%^&*()-_=+`~\|][}{;:''""<>,./? with ξεσκεπάζω την ξεσκεπάζω την Sævör grét áðan því úlpan var ónýt.
+			* !@#$%*^&()-_=+`~\|][}{;:''""<>,./? with ξεσκεπάζω την ξεσκεπάζω την Sævör grét áðan því úlpan var ónýt.
 			* he\'s not very cooperative 'param'
 			* he\"s not ccop. right? "param" and more
 		'''
@@ -124,7 +124,7 @@ class SimpleTslParserTest extends AbstractParserTest {
 			specification.steps.assertSize(5) => [
 				get(0).contents.restoreString.assertEquals('Simple spec with a * in it')
 				get(1).contents.restoreString.assertEquals('တ က ် စ တ တ က ် စ တ . တ က ် စ တ @ öttö . de . တ က ် စ တ')
-				get(2).contents.restoreString.assertEquals('! @ # $ % ^ & * ( ) - _ = + ` ~ \\ | ] [ } { ; : "" "" < > , . / ? with ξεσκεπάζω την ξεσκεπάζω την Sævör grét áðan því úlpan var ónýt .')
+				get(2).contents.restoreString.assertEquals('! @ # $ % * ^ & ( ) - _ = + ` ~ \\ | ] [ } { ; : "" "" < > , . / ? with ξεσκεπάζω την ξεσκεπάζω την Sævör grét áðan því úlpan var ónýt .')
 				get(3).contents.restoreString.assertEquals("he \\' s not very cooperative \"param\"")
 				get(4).contents.restoreString.assertEquals("he \\\" s not ccop . right ? \"param\" and more")
 			]
@@ -263,8 +263,38 @@ class SimpleTslParserTest extends AbstractParserTest {
 		// given
 		val tsl = ""
 
-		// expect tsl paresd with default package (null)
+		// expect tsl parsed with default package (null)
 		tsl.parseTsl.package.assertNull
 	}
+	
+	@Test
+	def void multilineSpecifications() {
+		// given
+		val tsl = '''
+			package com.example
+			
+			# Test
+			
+			* One specification step including *
+			  that spans over multiple
+			  lines an includes £µ Ähnlich
+			  
+			  empty lines in between
+			
+			* and another simple spec step "with"
+			  : "variable" * and description
+			'''
 
+		// when 
+		tsl.parseTsl => [
+			
+			//  then
+			assertNoSyntaxErrors
+			specification.steps => [
+				assertSize(2)
+				get(0).contents.restoreString.assertEquals('One specification step including * that spans over multiple lines an includes £ µ Ähnlich empty lines in between')
+				get(1).contents.restoreString.assertEquals('and another simple spec step "with" : "variable" * and description')
+			]
+		]
+	}
 }
