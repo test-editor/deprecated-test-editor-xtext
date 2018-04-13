@@ -66,6 +66,13 @@ Workflow {
 			serializer = {
 				generateStub = true
 			}
+ 			parserGenerator = {
+ 				lookaheadThreshold = "50"
+ 				debugGrammar = true 		
+ 				options = {
+ 					backtrack = true 					
+ 				}		
+			}		
 		}
 	}
 }

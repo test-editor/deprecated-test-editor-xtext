@@ -10,59 +10,57 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-grammar org.testeditor.tcl.dsl.Tcl with org.eclipse.xtext.xbase.Xbase hidden(SPACES, NL, SL_COMMENT, ML_COMMENT)
+grammar org.testeditor.tcl.dsl.Tcl with org.eclipse.xtext.xbase.Xbase hidden(SPACES, ML_COMMENT)
 
 import "http://www.testeditor.org/tcl"
 import "http://www.testeditor.org/tsl" as tsl
 import "http://www.testeditor.org/aml" as aml
 import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 
-TclModel hidden(SPACES, NL, SL_COMMENT, ML_COMMENT):
+TclModel:
 	{TclModel}
-	('package' package=QualifiedName)?
-	(importSection=XImportSection)?
+	(NL? 'package' package=QualifiedName)?
+	(NL? importSection=XImportSection)?
 	// TODO move require to TestCase - this should not be part of a MacroCollection
-	('require' environmentVariables+=EnvironmentVariable (',' environmentVariables+=EnvironmentVariable)*)?
-	// ambiguity between macro collection and test case result in parser errors (which shouldn't occur)
-	(test=TestCase | macroCollection=MacroCollection | config=TestConfiguration)?;
+	(NL? 'require' environmentVariables+=EnvironmentVariable (',' NL? environmentVariables+=EnvironmentVariable)*)?
+	(NL)?
+	(macroCollection=MacroCollection | 
+		test=TestCase | config=TestConfiguration );
 
-TestCase hidden(SPACES, SL_COMMENT, ML_COMMENT):
+TestCase:
 	{TestCase}
-	'#' name=ID 
+	'#' name=ID
 	('implements' specification=[tsl::TestSpecification|QualifiedName])?
 	(NL 'config' config=[TestConfiguration])?
-	// ( // allow user to define setup and cleanup either at the beginning or end
-		(=>(NL 'Setup') setup=TestSetup)?
-	// &
-	 	 (=>(NL 'Cleanup') cleanup=TestCleanup)?
-	// &  
-	 	(NL '*' steps+=SpecificationStepImplementation)*
-	// )
-		(NL 'Setup' setup=TestSetup)?
-	// &
-	 	 (NL 'Cleanup' cleanup=TestCleanup)?
+	( // allow user to define setup and cleanup either at the beginning or end
+		(NL setup=TestSetup)?
+	&
+	 	(NL cleanup=TestCleanup)?
+	&  
+	 	(NL steps+=SpecificationStepImplementation)*
+	)
 	NL?;
 	
-TestConfiguration hidden (SPACES, SL_COMMENT, ML_COMMENT):
+TestConfiguration:
 	'config' name=ID
 	((NL setup=TestSetup)? & (NL cleanup=TestCleanup)?)
 ;
 
-TestSetup hidden(SPACES, SL_COMMENT, ML_COMMENT):
+TestSetup:
 	{TestSetup}
-	':'
+	'Setup' ':'
 	(NL contexts+=TestStepContext)*
 ;
 
-TestCleanup hidden(SPACES, SL_COMMENT, ML_COMMENT):
+TestCleanup:
 	{TestCleanup}
-	':'
+	'Cleanup' ':'
 	(NL contexts+=TestStepContext)*
 ;
 
-SpecificationStepImplementation hidden(SPACES, SL_COMMENT, ML_COMMENT):
+SpecificationStepImplementation:
 	{SpecificationStepImplementation}
-	contents+=tslInnerStepContent+
+	'*' contents+=tslInnerStepContent+
 	  (NL contents+=tslStepContent contents+=tslInnerStepContent* )* 
 	(NL contexts+=TestStepContext)*;
 
@@ -88,11 +86,11 @@ EnvironmentVariable:
 	(nonConfidential?='public')?
 	name=ID;
 
-MacroCollection hidden(SPACES, ML_COMMENT, SL_COMMENT):
+MacroCollection:
 	'#' name=ID
 	(NL macros+=Macro)+;
 
-Macro hidden(SPACES, ML_COMMENT, SL_COMMENT):
+Macro:
 	'##' name=ID
 	NL? 'template' '=' template=Template
 	(NL contexts+=TestStepContext)*
@@ -113,12 +111,12 @@ TemplateVariable returns aml::TemplateVariable:
 TestStepContext:
 	(ComponentTestStepContext | MacroTestStepContext);
 
-ComponentTestStepContext returns TestStepContext hidden(SPACES, SL_COMMENT, ML_COMMENT):
+ComponentTestStepContext returns TestStepContext:
 	{ComponentTestStepContext}
 	('Mask' | 'Component') ':' component=[aml::Component|QualifiedName]
 	(NL steps+=(TestStep | TestStepWithAssignment | AssertionTestStep | AssignmentThroughPath))*;
 
-MacroTestStepContext returns TestStepContext hidden(SPACES, SL_COMMENT, ML_COMMENT):
+MacroTestStepContext returns TestStepContext:
 	{MacroTestStepContext}
 	'Macro' ':' macroCollection=[MacroCollection|QualifiedName]
 	(NL steps+=TestStep)*; // currently macro calls can only be TestSteps!
@@ -126,7 +124,7 @@ MacroTestStepContext returns TestStepContext hidden(SPACES, SL_COMMENT, ML_COMME
 /**
  * keep in mind that an aml validator exists that will check templates to be parsable given the following rule
  */
-TestStep hidden(SPACES, SL_COMMENT, ML_COMMENT):
+TestStep:
 	{TestStep}
 	'-' contents+=InnerStepContent+
 		(NL contents+=StepContent contents+=InnerStepContent*)* 
@@ -135,7 +133,7 @@ TestStep hidden(SPACES, SL_COMMENT, ML_COMMENT):
 AssertionTestStep:
 	'-' 'assert' assertExpression=(NullOrBoolCheck | FullComparison) '.'?;
 
-TestStepWithAssignment hidden(SPACES, SL_COMMENT, ML_COMMENT):
+TestStepWithAssignment:
 	'-' variable=AssignmentVariable '='  
 		contents+=InnerStepContent+
 			(NL contents+=StepContent contents+=InnerStepContent*)* 
@@ -245,9 +243,10 @@ StepContentPunctuation hidden():
 
 JsonObject:
 	{JsonObject}
-	'{'
-		(members+=JsonMember)?
-		(',' members+=JsonMember)*
+	'{' NL?
+		(members+=JsonMember
+		(',' NL? members+=JsonMember)* 
+		NL?)?
 	'}';
 
 JsonMember:
@@ -268,8 +267,10 @@ JsonNull:
 
 JsonArray:
 	{JsonArray}
-	'['
-		(values+=JsonValue (',' values+=JsonValue)*)?
+	'[' NL?
+		(values+=JsonValue 
+			(',' NL? values+=JsonValue)*
+		NL?)?
 	']';
 
 JsonNumber:
@@ -299,4 +300,4 @@ terminal SPACES:
 	( ' ' | '\t')+;
 
 terminal NL:
-	(( ' ' | '\t' )* ('\r'? '\n'))+  ( ' ' | '\t' )*;
+	(( ' ' | '\t' )* ('/*' -> '*/')? ('//' !('\r'|'\n')*)? ('\r'? '\n'))+  ( ' ' | '\t' )*;
