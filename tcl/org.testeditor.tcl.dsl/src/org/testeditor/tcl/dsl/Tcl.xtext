@@ -10,7 +10,7 @@
  * akquinet AG
  * itemis AG
  *******************************************************************************/
-grammar org.testeditor.tcl.dsl.Tcl with org.eclipse.xtext.xbase.Xbase hidden(SPACES, ML_COMMENT)
+grammar org.testeditor.tcl.dsl.Tcl with org.eclipse.xtext.xbase.Xbase hidden(SPACES)
 
 import "http://www.testeditor.org/tcl"
 import "http://www.testeditor.org/tsl" as tsl
@@ -31,7 +31,7 @@ TestCase:
 	{TestCase}
 	'#' name=ID
 	('implements' specification=[tsl::TestSpecification|QualifiedName])?
-	(NL 'config' config=[TestConfiguration])?
+	(NL? 'config' config=[TestConfiguration])?
 	( // allow user to define setup and cleanup either at the beginning or end
 		(NL setup=TestSetup)?
 	&
@@ -88,7 +88,7 @@ EnvironmentVariable:
 
 MacroCollection:
 	'#' name=ID
-	(NL macros+=Macro)+;
+	(NL? macros+=Macro)+;
 
 Macro:
 	'##' name=ID
@@ -135,12 +135,12 @@ AssertionTestStep:
 
 TestStepWithAssignment:
 	'-' variable=AssignmentVariable '='  
-		contents+=InnerStepContent+
+		NL? contents+=InnerStepContent+
 			(NL contents+=StepContent contents+=InnerStepContent*)* 
 	contents+=StepContentPunctuation?;
 
 AssignmentThroughPath:
-	'-' variableReference=VariableReferencePathAccess '=' expression=Expression '.'?;
+	'-' variableReference=VariableReferencePathAccess '=' NL? expression=Expression '.'?;
 
 /** expression order: Comparison -> (Addition -> Multiplication ->) Value
  *  which is reflecting the order of operator binding.
@@ -297,7 +297,7 @@ terminal ID:
 	'^'? ('a'..'z' | 'A'..'Z' | '_' |  'À'..'ɿ' | 'Α'..'ѯ' | 'µ') ('a'..'z' | 'A'..'Z' | '_' | '0'..'9' | 'À'..'ɿ' | 'Α'..'ѯ' | 'µ')*;
 
 terminal SPACES:
-	( ' ' | '\t')+;
+	( ' ' | '\t' )+;
 
 terminal NL:
-	(( ' ' | '\t' )* ('/*' -> '*/')? ('//' !('\r'|'\n')*)? ('\r'? '\n'))+  ( ' ' | '\t' )*;
+	(( ' ' | '\t')* ('/*' -> '*/' ( ' ' | '\t')*)* ('//' !('\r'|'\n')*)? ('\r'? '\n'))+  ( ' ' | '\t' )*;
