@@ -94,8 +94,7 @@ class TclModelUtilTest extends AbstractParserTest {
 	def void testNormalizeTemplate() {
 		// given
 		val template = parse('''
-			"start with" ${somevar} "and more" ${othervar} "?"
-		''', grammarAccess.templateRule, Template)
+			"start with" ${somevar} "and more" ${othervar} "?"''', grammarAccess.templateRule, Template)
 
 		// when
 		val normalizedTemplate = modelUtil.normalize(template)
@@ -108,8 +107,7 @@ class TclModelUtilTest extends AbstractParserTest {
 	def void testNormalizeTestStep() {
 		// given
 		val testStep = parse('''
-			- start with "some" and more @other ?
-		''', grammarAccess.testStepRule, TestStep)
+			- start with "some" and more @other ?''', grammarAccess.testStepRule, TestStep)
 
 		// when
 		val normalizedTestStep = tclModelUtil.normalize(testStep)
@@ -122,11 +120,9 @@ class TclModelUtilTest extends AbstractParserTest {
 	def void testStepContentToTemplateVariablesMapping() {
 		// given
 		val testStep = parse('''
-			- start with "some" and more @other
-		''', grammarAccess.testStepRule, TestStep)
+			- start with "some" and more @other''', grammarAccess.testStepRule, TestStep)
 		val template = parse('''
-			"start with" ${somevar} "and more" ${othervar}
-		''', grammarAccess.templateRule, Template)
+			"start with" ${somevar} "and more" ${othervar}''', grammarAccess.templateRule, Template)
 		val someValue = testStep.contents.filter(StepContentVariable).head
 		val otherRef = testStep.contents.filter(VariableReference).head
 		val somevar = template.contents.get(1)
