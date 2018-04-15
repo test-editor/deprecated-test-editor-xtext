@@ -338,12 +338,9 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		val node = NodeModelUtils.getNode(step)
 		val contentsString = if (node !== null) {
 				val text = NodeModelUtils.getTokenText(node)
-				val contentsText = text.substring(text.indexOf('*') + 1, text.indexOf('\n'))
-				if (contentsText.endsWith('\r')) {
-					contentsText.substring(contentsText.length - 1)
-				} else {
-					contentsText
-				}
+				val relevantText = text.split('\n').map[trim].takeWhile[!startsWith("Component")&&!startsWith("Mask")&&!startsWith("Macro")].join(' ')
+				val contentsText = relevantText.substring(text.indexOf('*') + 1)
+				contentsText
 			} else {
 				// if no node model is present do naiive restoration of model (spacing information is lost)
 				step.contents.restoreString

@@ -49,11 +49,13 @@ TestCase:
 	( // allow user to define setup and cleanup either at the beginning or end
   	  // unordered groups don't compose with NL, so validation has to check
   	  // that (max) only one setup/cleanup is specfied (either before the steps, or after the steps)
-		(NL (->'Setup' setup=TestSetup))?
-	 	(NL (->'Cleanup' cleanup=TestCleanup))?
-	 	(NL steps+=SpecificationStepImplementation)*
-	 	(NL cleanup=TestCleanup)?
 		(NL setup=TestSetup)?
+	 	(NL cleanup=TestCleanup)?
+	 	(NL steps+=SpecificationStepImplementation
+	 		(NL steps+=SpecificationStepImplementation)*
+	 		(NL cleanup=TestCleanup)?
+			(NL setup=TestSetup)?	
+		)?
 	);
 	
 TestConfiguration:
