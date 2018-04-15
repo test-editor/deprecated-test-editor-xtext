@@ -16,35 +16,49 @@ import "http://www.testeditor.org/tcl"
 import "http://www.testeditor.org/tsl" as tsl
 import "http://www.testeditor.org/aml" as aml
 import "http://www.eclipse.org/emf/2002/Ecore" as ecore
+import "http://www.eclipse.org/xtext/xbase/Xtype" as xtype
+import "http://www.eclipse.org/xtext/common/JavaVMTypes"
+
+
 
 TclModel:
 	{TclModel}
-	(NL? 'package' package=QualifiedName)?
-	(NL? importSection=XImportSection)?
+	(NL? 'package' NL? package=QualifiedName)?
+	(NL? importSection=TclImportSection)?
 	// TODO move require to TestCase - this should not be part of a MacroCollection
-	(NL? 'require' environmentVariables+=EnvironmentVariable (',' NL? environmentVariables+=EnvironmentVariable)*)?
-	(NL)?
-	(macroCollection=MacroCollection | 
-		test=TestCase | config=TestConfiguration );
+	(NL? 'require' NL? environmentVariables+=EnvironmentVariable (',' NL? environmentVariables+=EnvironmentVariable)*)?
+	(NL? (macroCollection=MacroCollection | 
+		test=TestCase | config=TestConfiguration ))
+	NL?;
 
+TclImportSection returns xtype::XImportSection:
+	importDeclarations+=TclXImportDeclaration (NL? importDeclarations+=TclXImportDeclaration)*;
+			
+TclXImportDeclaration returns xtype::XImportDeclaration:
+	'import' (
+		(static?='static' extension?='extension'? importedType=[JvmDeclaredType|QualifiedNameInStaticImport] (wildcard?='*' | memberName=ValidID))
+		| importedType=[JvmDeclaredType|QualifiedName]
+		| importedNamespace=QualifiedNameWithWildcard) ';'?
+;
+	
 TestCase:
 	{TestCase}
 	'#' name=ID
-	('implements' specification=[tsl::TestSpecification|QualifiedName])?
-	(NL? 'config' config=[TestConfiguration])?
+	(NL? 'implements' NL? specification=[tsl::TestSpecification|QualifiedName])?
+	(NL? 'config' NL? config=[TestConfiguration])?
 	( // allow user to define setup and cleanup either at the beginning or end
-		(NL setup=TestSetup)?
-	&
-	 	(NL cleanup=TestCleanup)?
-	&  
+  	  // unordered groups don't compose with NL, so validation has to check
+  	  // that (max) only one setup/cleanup is specfied (either before the steps, or after the steps)
+		(NL (->'Setup' setup=TestSetup))?
+	 	(NL (->'Cleanup' cleanup=TestCleanup))?
 	 	(NL steps+=SpecificationStepImplementation)*
-	)
-	NL?;
+	 	(NL cleanup=TestCleanup)?
+		(NL setup=TestSetup)?
+	);
 	
 TestConfiguration:
 	'config' name=ID
-	((NL setup=TestSetup)? & (NL cleanup=TestCleanup)?)
-;
+	((NL setup=TestSetup)? & (NL cleanup=TestCleanup)?);
 
 TestSetup:
 	{TestSetup}
@@ -92,12 +106,12 @@ MacroCollection:
 
 Macro:
 	'##' name=ID
-	NL? 'template' '=' template=Template
+	NL? 'template' NL? '=' NL? template=Template
 	(NL contexts+=TestStepContext)*
 ;
 
 Template returns aml::Template:
-	contents+=TemplateText (contents+=TemplateVariable contents+=TemplateText?)*
+	contents+=TemplateText (NL? contents+=TemplateVariable (NL? contents+=TemplateText)?)*
 ;
 
 TemplateText returns aml::TemplateText:
@@ -128,19 +142,20 @@ TestStep:
 	{TestStep}
 	'-' contents+=InnerStepContent+
 		(NL contents+=StepContent contents+=InnerStepContent*)* 
-	contents+=StepContentPunctuation?;
+	(NL? contents+=StepContentPunctuation)?;
 
 AssertionTestStep:
 	'-' 'assert' assertExpression=(NullOrBoolCheck | FullComparison) '.'?;
 
 TestStepWithAssignment:
-	'-' variable=AssignmentVariable '='  
+	'-' variable=AssignmentVariable NL? '='  
 		NL? contents+=InnerStepContent+
 			(NL contents+=StepContent contents+=InnerStepContent*)* 
 	contents+=StepContentPunctuation?;
 
 AssignmentThroughPath:
-	'-' variableReference=VariableReferencePathAccess '=' NL? expression=Expression '.'?;
+	'-' variableReference=VariableReferencePathAccess NL? '=' 
+	    NL? expression=Expression '.'?;
 
 /** expression order: Comparison -> (Addition -> Multiplication ->) Value
  *  which is reflecting the order of operator binding.
@@ -156,13 +171,13 @@ NullOrBoolCheck:
 
 FullComparison returns Comparison:
 	left=Value
-	comparator=Comparator
-	right=Expression;
+	NL? comparator=Comparator
+	NL? right=Expression;
 
 Comparison:
 	left=Value
-	(comparator=Comparator
-	right=Expression)?;
+	(NL? comparator=Comparator
+	 NL? right=Expression)?;
 
 VariableReference:
 	variable=[aml::Variable];
@@ -175,7 +190,7 @@ KeyPathElement:
 	'.' ( key=ID | key=STRING );
 
 VariableReferencePathAccess:
-	variable=[aml::Variable] ( path+=KeyPathElement | path+=ArrayPathElement )+;
+	variable=[aml::Variable] ( NL? path+=KeyPathElement | NL? path+=ArrayPathElement )+;
 
 AtomicValue returns Expression:
 	VariableReference | VariableReferencePathAccess | JsonValue ;
@@ -222,7 +237,7 @@ StepContentText returns tsl::StepContentText:
 StepContentTextOperator returns ecore::EString:
 	// TODO generate this (all keywords minus assert - consider Xbase keywords as well)
 	'var' | 'public' | 'template' | 'package' | 'require' | 'config' | 'implements' | 
-	'does' | 'not' | 'match' | 'false' | 'null' |
+	'does' | 'not' | 'match' | 'false' | 'null' 
 	'as' |  'is' | 'for' | 'do' | 'if' | 'while';
 
 // includes Mask Component Macro Setup and Cleanup which may start a new section (if prefixed by NL)
@@ -250,7 +265,7 @@ JsonObject:
 	'}';
 
 JsonMember:
-	key=STRING ':' value=JsonValue;
+	key=STRING ':' NL? value=JsonValue;
 
 JsonValue:
 	JsonString | JsonNumber | JsonObject | JsonArray | JsonBoolean | JsonNull;

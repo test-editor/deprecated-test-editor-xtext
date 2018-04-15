@@ -67,11 +67,11 @@ Workflow {
 				generateStub = true
 			}
  			parserGenerator = {
- 				lookaheadThreshold = "50"
+ 				// lookaheadThreshold = "50"
  				debugGrammar = true 		
- 				options = {
- 					backtrack = true 					
- 				}		
+ 				// options = {
+ 				// 	backtrack = true 					
+ 				// }		
 			}		
 		}
 	}
