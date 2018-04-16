@@ -239,7 +239,7 @@ StepContentText returns tsl::StepContentText:
 StepContentTextOperator returns ecore::EString:
 	// TODO generate this (all keywords minus assert - consider Xbase keywords as well)
 	'var' | 'public' | 'template' | 'package' | 'require' | 'config' | 'implements' | 
-	'does' | 'not' | 'match' | 'false' | 'null' 
+	'does' | 'not' | 'match' | 'false' | 'null' |
 	'as' |  'is' | 'for' | 'do' | 'if' | 'while';
 
 // includes Mask Component Macro Setup and Cleanup which may start a new section (if prefixed by NL)
@@ -305,7 +305,7 @@ JsonDecimal returns ecore::EString hidden():
  */
 terminal TEMPLATE_VARIABLE_DEF:
 	'${' ID? '}';
-
+	
 /*
  * override ID as provided by xbase to allow for (partial) unicode ids
  */

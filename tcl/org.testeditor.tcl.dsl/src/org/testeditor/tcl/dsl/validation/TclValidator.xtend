@@ -422,6 +422,10 @@ class TclValidator extends AbstractTclValidator {
 			// but then these variables are either assignmentVariables or environmentVariables
 			return
 		}
+		if (typeDeclared === null) {
+			// if the declared type is not known, do not error check the usage, mistyped usage cannot be determined
+			return
+		}
 		typeReferenceUtil.initWith(variableReference.eResource)
 		coercionComputer.initWith(variableReference.eResource)
 		switch variableReference {
