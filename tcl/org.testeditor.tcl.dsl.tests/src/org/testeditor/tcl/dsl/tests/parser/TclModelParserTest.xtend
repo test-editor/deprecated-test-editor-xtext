@@ -323,7 +323,7 @@ class TclModelParserTest extends AbstractTclTest {
 			contexts.assertSingleElement.assertInstanceOf(MacroTestStepContext) => [
 				steps.assertSize(2)
 				steps.head.assertInstanceOf(TestStep) => [
-					contents.restoreString.assertMatches('template execute with "param" a and "param2"')
+					contents.restoreString.assertMatches('template as execute with "param" a and "param2"')
 				]
 				steps.last.assertInstanceOf(TestStep) => [
 					contents.restoreString.assertMatches('second template')
