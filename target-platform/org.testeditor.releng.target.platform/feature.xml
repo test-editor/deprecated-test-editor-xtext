@@ -80,4 +80,8 @@ itemis AG
          id="org.eclipse.pde.source"
          version="0.0.0"/>
 
+   <include
+         id="org.apache.lucene"
+         version="3.5.0.v20120725-1805"/>
+
 </feature>

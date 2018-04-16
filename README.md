@@ -26,17 +26,27 @@ After checking out the source code we first need to build the Eclipse target pla
     
 This will take some time for the first run but should be fast afterwards.
 
-The RCP contains some web based views, which are developed in a seperate cycle. They can be build with:
-
-    gradlew preBuildWeb
-
-Now the Test-Editor can simply be build with:
+Now the Test-Editor Languages can simply be build with:
 
     mvn clean install
+    
+THE RCP OF THE TESTEDITOR IS CURRENTLY DISCONTINUED AND THUS DEPRECATED. ERRORS THEREIN ARE NOT FIXED.
 
-Alternatively, for building the full RCP product, add the Maven profile "`product`":
+DEPRECATED: The RCP contains some web based views, which are developed in a seperate cycle. They can be build with:
 
-    mvn clean install -Pproduct
+    gradlew preBuildWeb
+    
+DEPRECATED: The RCP and the eclipse plugins can then be built with:
+
+    mvn clean install -Prcp
+
+DEPRECATED: For building the full RCP product, add the Maven profiles "`rcp,product`":
+
+    mvn clean install -Prcp,product
+    
+DEPRECATED: Executing the User Acceptance Tests for the rcp, add the Maven profile "`rcp,rcpuatest`":
+
+    mvn clean install -Prcp,rcpuatest
 
 ## Troubleshooting
 

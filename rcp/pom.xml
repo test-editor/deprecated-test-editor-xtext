@@ -37,9 +37,14 @@
 				<module>org.testeditor.rcp4.views.projectexplorer.tests</module>
 				<module>org.testeditor.rcp4</module>
 				<module>org.testeditor.rcp4.tests</module>
-				<module>org.testeditor.rcp4.uatests</module>
 			</modules>
 		</profile>
+        <profile>
+			<id>rcpuatest</id>
+			<modules>
+				<module>org.testeditor.rcp4.uatests</module>
+			</modules>
+        </profile>
 		<profile>
 			<id>product</id>
 			<modules>
