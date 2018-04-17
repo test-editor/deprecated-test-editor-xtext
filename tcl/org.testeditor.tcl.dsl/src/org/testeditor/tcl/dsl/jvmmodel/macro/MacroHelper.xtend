@@ -27,8 +27,8 @@ class MacroHelper {
 	 */
 	def Set<Macro> getAllTransitiveMacros(SetupAndCleanupProvider element) {
 		val result = newHashSet
-		element.setup?.collectUsedMacros(result)
-		element.cleanup?.collectUsedMacros(result)
+		element.setup.head?.collectUsedMacros(result)
+		element.cleanup.head?.collectUsedMacros(result)
 		if (element instanceof TestCase) {
 			element.steps.forEach[collectUsedMacros(result)]
 		}

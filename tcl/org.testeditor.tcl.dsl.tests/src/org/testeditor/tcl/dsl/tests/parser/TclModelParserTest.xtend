@@ -376,8 +376,7 @@ class TclModelParserTest extends AbstractTclTest {
 
 		// then
 		test.assertNoSyntaxErrors
-		test.setup.assertNotNull
-		test.setup.contexts.assertSingleElement
+		test.setup.assertSingleElement.contexts.assertSingleElement
 	}
 
 	@Test
@@ -397,8 +396,7 @@ class TclModelParserTest extends AbstractTclTest {
 
 		// then
 		test.assertNoSyntaxErrors
-		test.cleanup.assertNotNull
-		test.cleanup.contexts.assertSingleElement
+		test.cleanup.assertSingleElement.contexts.assertSingleElement
 	}
 
 	@Test
