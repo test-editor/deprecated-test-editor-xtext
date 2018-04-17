@@ -51,7 +51,6 @@ Word returns ecore::EString:
 
 Text returns ecore::EString hidden():
 	NonEmptyTextElement ( ( SPACES | NL )* NonEmptyTextElement )*;
-	// (SPACES | ID | INT | STRING | NL | ANY_OTHER | '.')+;
 	
 NonEmptyTextElement returns ecore::EString hidden():
 	ID | INT | STRING | ANY_OTHER | '.'
