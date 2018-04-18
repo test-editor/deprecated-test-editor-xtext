@@ -100,8 +100,8 @@ class TestConfigurationParserTest extends AbstractTclTest {
 		// then
 		model.assertNoSyntaxErrors
 		model.config => [
-			setup.contexts.assertSingleElement
-			cleanup.contexts.assertSingleElement
+			setup.assertSingleElement.contexts.assertSingleElement
+			cleanup.assertSingleElement.contexts.assertSingleElement
 		]
 	}
 

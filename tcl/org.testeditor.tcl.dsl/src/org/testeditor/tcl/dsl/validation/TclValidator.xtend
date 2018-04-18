@@ -60,6 +60,7 @@ import org.testeditor.tsl.TslPackage
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
 import org.testeditor.tcl.dsl.jvmmodel.TclJsonUtil
 import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
+import org.testeditor.tcl.SetupAndCleanupProvider
 
 class TclValidator extends AbstractTclValidator {
 
@@ -78,6 +79,9 @@ class TclValidator extends AbstractTclValidator {
 	public static val INVALID_MODEL_CONTENT = "invalidModelContent"
 	public static val INVALID_PARAMETER_TYPE = "invalidParameterType"
 	public static val INVALID_ORDER_TYPE = "invalidOrderType"
+	
+	public static val MULTIPLE_SETUP_SECTIONS = "multipleSetupSections"
+	public static val MULTIPLE_CLEANUP_SECTIONS = "multipleCleanupSections"
 
 	@Inject extension TclModelUtil
 	@Inject extension ModelUtil
@@ -105,6 +109,20 @@ class TclValidator extends AbstractTclValidator {
 
 	override checkImports(XImportSection importSection) {
 		// ignore for now
+	}
+	
+	@Check
+	def checkSetupCleanupSections(SetupAndCleanupProvider setupCleanupProvider) {
+		setupCleanupProvider.setup => [
+			if (length > 1) {
+				forEach[error('Only one setup section is allowed here.', eContainer, eContainingFeature, MULTIPLE_SETUP_SECTIONS)]
+			}
+		]
+		setupCleanupProvider.cleanup => [
+			if (length > 1) {
+				forEach[error('Only one cleanup section is allowed here.', eContainer, eContainingFeature, MULTIPLE_CLEANUP_SECTIONS)]
+			}
+		]
 	}
 
 	@Check
@@ -420,6 +438,10 @@ class TclValidator extends AbstractTclValidator {
 			// do not type check variables that are passed via parameters (are templateVariables),
 			// since they are typeless until actually used by a call, 
 			// but then these variables are either assignmentVariables or environmentVariables
+			return
+		}
+		if (typeDeclared === null) {
+			// if the declared type is not known, do not error check the usage, mistyped usage cannot be determined
 			return
 		}
 		typeReferenceUtil.initWith(variableReference.eResource)

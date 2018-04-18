@@ -40,10 +40,13 @@ class TclModel {
 /*
  * Super class for {@link TestCase} and {@link TestConfiguration} since both may
  * contain a setup and cleanup.
+ * setup and cleanup may actually hold 0..1, given the unordered group new-line lookahead
+ * problems, parsing them at multiple locations is allowed. A validator must then ensure
+ * that only one section per setup and cleanup is allowed!
  */
 abstract class SetupAndCleanupProvider extends NamedElement {
-	contains TestSetup setup
-	contains TestCleanup cleanup
+	contains TestSetup[0..*] setup
+	contains TestCleanup[0..*] cleanup
 }
 
 class TestCase extends SetupAndCleanupProvider {

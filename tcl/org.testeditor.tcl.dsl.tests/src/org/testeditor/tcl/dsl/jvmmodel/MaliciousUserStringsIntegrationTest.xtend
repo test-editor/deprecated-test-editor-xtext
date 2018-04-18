@@ -77,7 +77,7 @@ class MaliciousUserStringsIntegrationTest extends AbstractTclGeneratorIntegratio
 
 		// then
 		generatedCode.assertContains('''
-			json.getAsJsonObject().add("y", new com.google.gson.JsonParser().parse("{\"key\":'value\"));System.exit(0);'}"));
+			json.getAsJsonObject().add("y", new com.google.gson.JsonParser().parse("{\n\t\t\"key\":'value\"));System.exit(0);'\n\t}"));
 		''')
 	}
 

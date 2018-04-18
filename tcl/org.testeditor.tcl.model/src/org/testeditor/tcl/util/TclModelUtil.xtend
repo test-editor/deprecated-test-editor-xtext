@@ -200,6 +200,14 @@ class TclModelUtil extends TslModelUtil {
 	def boolean hasComponentContext(TestStep step) {
 		return step.componentContext != null
 	}
+	
+	def TestStepContext getTestStepContext(EObject eObject) {
+		return if (eObject instanceof TestStepContext) {
+			eObject
+		} else {
+			EcoreUtil2.getContainerOfType(eObject, TestStepContext)
+		}
+	}
 
 	def ComponentTestStepContext getComponentContext(TestStep step) {
 		return EcoreUtil2.getContainerOfType(step, ComponentTestStepContext)

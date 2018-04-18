@@ -3,12 +3,15 @@ package org.testeditor.tcl.dsl.ide
 import com.google.common.base.Predicate
 import javax.inject.Inject
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.xtext.Assignment
 import org.eclipse.xtext.CrossReference
 import org.eclipse.xtext.EcoreUtil2
+import org.eclipse.xtext.Keyword
 import org.eclipse.xtext.RuleCall
 import org.eclipse.xtext.ide.editor.contentassist.ContentAssistContext
 import org.eclipse.xtext.ide.editor.contentassist.IIdeContentProposalAcceptor
 import org.eclipse.xtext.ide.editor.contentassist.IdeContentProposalProvider
+import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.eclipse.xtext.resource.IEObjectDescription
 import org.eclipse.xtext.xtext.CurrentTypeFinder
 import org.slf4j.LoggerFactory
@@ -27,16 +30,16 @@ import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TestStep
+import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tcl.dsl.jvmmodel.SimpleTypeComputer
 import org.testeditor.tcl.dsl.services.TclGrammarAccess
 import org.testeditor.tcl.util.TclModelUtil
-import org.testeditor.tsl.StepContent
 
 class TclContentProposalProvider extends IdeContentProposalProvider {
 
 	static val logger = LoggerFactory.getLogger(TclContentProposalProvider)
-	
+
 	@Inject JvmTypeReferenceUtil typeUtil
 	@Inject SimpleTypeComputer typeComputer
 	@Inject extension TclGrammarAccess
@@ -48,17 +51,36 @@ class TclContentProposalProvider extends IdeContentProposalProvider {
 	 * hook into proposal construction and identify relevant cases
 	 */
 	override protected _createProposals(RuleCall ruleCall, ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
+		val contextTrimmedPrefix = context.copy => [
+			val lastCompletedNodeText = context.lastCompleteNode.text.trim
+			prefix = if (context.prefix.trim.isEmpty && lastCompletedNodeText == '-') {
+				''
+			} else {
+				context.prefix
+			}
+		]
 		switch (ruleCall.rule) {
 			case testStepRule:
-				makeTestStepProposals(context, acceptor)
+				makeTestStepProposals(contextTrimmedPrefix.toContext, acceptor)
+			case innerStepContentRule,
 			case stepContentElementRule:
-				makeStepContentElementProposals(context, acceptor)
+				makeStepContentElementProposals(contextTrimmedPrefix.toContext, acceptor)
 			case IDRule:
-				makeIDProposals(context, acceptor)
+				makeIDProposals(contextTrimmedPrefix.toContext, acceptor)
 			default: {
 				// no proposals for other rules (yet), standard proposals (derived by the grammar) are added nonetheless
-			} 
+			}
 		}
+	}
+
+	override protected _createProposals(Keyword keyword, ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
+		val contextTrimmedPrefix = context.copy => [prefix = context.prefix.trim]
+		super._createProposals(keyword, contextTrimmedPrefix.toContext, acceptor)
+	}
+
+	override protected _createProposals(Assignment assignment, ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
+		val contextTrimmedPrefix = context.copy => [prefix = context.prefix.trim]
+		super._createProposals(assignment, contextTrimmedPrefix.toContext, acceptor)
 	}
 
 	/**
@@ -80,18 +102,19 @@ class TclContentProposalProvider extends IdeContentProposalProvider {
 		val entry = proposalCreator.createProposal('- ', context)
 		val prio = proposalPriorities.getDefaultPriority(entry)
 		acceptor.accept(entry, prio)
-		val model = context.currentModel
-		if (context.isLocatedWithinComponentUsage && context.isOutsidePreviousTestStep) {
-			(model as ComponentTestStepContext).component?.allInteractionTypes.forEach [
-				template.makeInitialTemplateProposalWithDash(context, acceptor)
-			]
-		} else if (context.isLocatedWithinMacroUsage && context.isOutsidePreviousTestStep) {
-			(model as MacroTestStepContext).macroCollection.macros.forEach[
-				template.makeInitialTemplateProposalWithDash(context, acceptor)
-			]
+		if (context.lastCompleteNode.text.endsWith('\n')) {
+			val prevLeafNode = NodeModelUtils.findLeafNodeAtOffset(context.currentNode.previousSibling, context.lastCompleteNode.offset - 1)
+			var modelElement = NodeModelUtils.findActualSemanticObjectFor(prevLeafNode)
+			val testStepContext = modelElement.testStepContext
+			val templates = switch (testStepContext) {
+				ComponentTestStepContext: testStepContext.component?.allInteractionTypes.map[template]
+				MacroTestStepContext: testStepContext.macroCollection.macros.map[template]
+				default: #[]
+			}
+			templates.forEach[makeInitialTemplateProposalWithDash(context, acceptor)]
 		}
 	}
-	
+
 	private def void makeInitialTemplateProposalWithDash(Template template, ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
 		val proposal = '''- «template.restoreString»''' // NOTE THAT - IS EXPLICITLY INCLUDED HERE
 		val templateEntry = proposalCreator.createProposal(proposal, context)
@@ -100,28 +123,27 @@ class TclContentProposalProvider extends IdeContentProposalProvider {
 		}
 	}
 
-	private def boolean isLocatedWithinMacroUsage(ContentAssistContext context) {
-		return (context.currentModel instanceof MacroTestStepContext && !(context.previousModel instanceof TestStep))
-	}
-
-	private def boolean isLocatedWithinComponentUsage(ContentAssistContext context) {
-		return (context.currentModel instanceof ComponentTestStepContext && !(context.previousModel instanceof TestStep))
-	}
-
-	private def boolean isOutsidePreviousTestStep(ContentAssistContext context) {
-		return !(context.previousModel instanceof StepContent && context.previousModel.isIncompleteTestStep)
-	}
-
 	private def void makeStepContentElementProposals(ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
 		val model = context.currentModel
-		if (model instanceof TestStep) {
+		if (model instanceof TestStepContext) {
+			model.envParams.forEach[makeEnvParamProposal(context, acceptor)]
+			model.enclosingMacroParameters.forEach[makeMacroParameterProposal(context, acceptor)]
+			if (context.previousModel.isIncompleteTestStep) {
+				if (model instanceof ComponentTestStepContext) {
+					model.component?.makeComponentTemplateProposal(context, acceptor)
+				}
+				if (model instanceof MacroTestStepContext) {
+					model.macroCollection?.makeMacroTemplateProposal(context, acceptor)
+				}
+			}
+		} else if (model instanceof TestStep) {
 			model.envParams.forEach[makeEnvParamProposal(context, acceptor)]
 			model.enclosingMacroParameters.forEach[makeMacroParameterProposal(context, acceptor)]
 			if (model.componentContext !== null) { // since the macro context does not allow for element parameter, yet, only component contexts are relevant here
 				model.makeElementParamsProposal('', context, acceptor)
 			}
 			if (context.previousModel.isIncompleteTestStep) {
-				model.componentContext?.component?.makeComponentTemplateProposal(model, context, acceptor)
+				model.componentContext?.component?.makeComponentTemplateProposal(context, acceptor)
 				model.macroContext?.macroCollection?.makeMacroTemplateProposal(context, acceptor)
 			}
 		} else if (model instanceof StepContentElement) {
@@ -148,7 +170,7 @@ class TclContentProposalProvider extends IdeContentProposalProvider {
 
 	private def makeEnvParamProposal(EnvironmentVariable environmentVariable, ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
 		val envName = environmentVariable.name
-		val proposal = proposalCreator.createProposal("@" + envName, context)
+		val proposal = proposalCreator.createProposal(context.prefix + "@" + envName, context)
 		if (proposal !== null) {
 			acceptor.accept(proposal => [
 				label = envName
@@ -158,11 +180,11 @@ class TclContentProposalProvider extends IdeContentProposalProvider {
 	}
 
 	private def makeMacroParameterProposal(TemplateVariable templateVariable, ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
-		val proposal = proposalCreator.createProposal("@" + templateVariable.name, context)
+		val proposal = proposalCreator.createProposal(context.prefix + "@" + templateVariable.name, context)
 		acceptor.accept(proposal, proposalPriorities.getCrossRefPriority(null, proposal))
 	}
 
-	private def makeComponentTemplateProposal(Component component, TestStep model, ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
+	private def makeComponentTemplateProposal(Component component, ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
 		val interactions = component.allInteractionTypes
 		interactions.map[template].makeTemplateProposals(context, acceptor)
 	}
@@ -289,7 +311,7 @@ class TclContentProposalProvider extends IdeContentProposalProvider {
 
 	private def String normalizeTemplatePrefix(String denormalizedPrefix) {
 		val spacedPrefix = denormalizedPrefix.replaceAll('\t', ' ')
-		return spacedPrefix.replaceAll(' +', ' ').replaceAll('^ ','')
+		return spacedPrefix.replaceAll(' +', ' ').replaceAll('^ ', '')
 	}
 
 	private def String mandatoryPrefixForTemplate(ContentAssistContext context, boolean normalize) {

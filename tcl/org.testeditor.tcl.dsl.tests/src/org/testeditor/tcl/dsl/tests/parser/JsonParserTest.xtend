@@ -15,7 +15,7 @@ class JsonParserTest extends AbstractParserTest {
 	@Inject TclGrammarAccess grammarAccess
 
 	private def JsonObject parseJson(CharSequence input) {
-		return parserHelper.parse(input, grammarAccess.jsonObjectRule, JsonObject)
+		return parserHelper.parse(input.toString.trim, grammarAccess.jsonObjectRule, JsonObject)
 	}
 
 	@Test

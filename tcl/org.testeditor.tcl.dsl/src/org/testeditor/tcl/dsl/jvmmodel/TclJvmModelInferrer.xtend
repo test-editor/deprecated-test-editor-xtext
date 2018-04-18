@@ -143,11 +143,11 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				members += element.createConstructor(typesToInitWithReporter)
 			}
 			// Create @Before method if relevant
-			if (element.setup !== null) {
+			if (!element.setup.empty) {
 				members += element.createSetupMethod
 			}
 			// Create @After method if relevant
-			if (element.cleanup !== null) {
+			if (!element.cleanup.empty) {
 				members += element.createCleanupMethod
 			}
 
@@ -281,7 +281,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	private def JvmOperation createSetupMethod(SetupAndCleanupProvider container) {
-		val setup = container.setup
+		val setup = container.setup.head
 		return setup.toMethod(container.setupMethodName, typeRef(Void.TYPE)) [
 			exceptions += typeRef(Exception)
 			annotations += annotationRef('org.junit.Before')
@@ -293,7 +293,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	private def JvmOperation createCleanupMethod(SetupAndCleanupProvider container) {
-		val cleanup = container.cleanup
+		val cleanup = container.cleanup.head
 		return cleanup.toMethod(container.cleanupMethodName, typeRef(Void.TYPE)) [
 			exceptions += typeRef(Exception)
 			annotations += annotationRef('org.junit.After')
@@ -338,12 +338,9 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		val node = NodeModelUtils.getNode(step)
 		val contentsString = if (node !== null) {
 				val text = NodeModelUtils.getTokenText(node)
-				val contentsText = text.substring(text.indexOf('*') + 1, text.indexOf('\n'))
-				if (contentsText.endsWith('\r')) {
-					contentsText.substring(contentsText.length - 1)
-				} else {
-					contentsText
-				}
+				val relevantText = text.split('\n').map[trim].takeWhile[!startsWith("Component")&&!startsWith("Mask")&&!startsWith("Macro")].join(' ')
+				val contentsText = relevantText.substring(text.indexOf('*') + 1)
+				contentsText
 			} else {
 				// if no node model is present do naiive restoration of model (spacing information is lost)
 				step.contents.restoreString
@@ -380,11 +377,11 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		if (element instanceof TestCase) {
 			contexts += element.steps.map[it.contexts].flatten.filterNull
 		}
-		if (element.setup !== null) {
-			contexts += element.setup.contexts
+		if (!element.setup.empty) {
+			contexts += element.setup.head.contexts
 		}
-		if (element.cleanup !== null) {
-			contexts += element.cleanup.contexts
+		if (!element.cleanup.empty) {
+			contexts += element.cleanup.head.contexts
 		}
 		return contexts.map[testStepFixtureTypes].flatten.toSet
 	}
