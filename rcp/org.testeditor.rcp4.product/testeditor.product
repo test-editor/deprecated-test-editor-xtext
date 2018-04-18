@@ -21,7 +21,6 @@
    <launcher name="testeditor">
       <linux icon="icons/_TE_Icon_all.xpm"/>
       <macosx icon="icons/TE_Icon_all_mac.icns"/>
-      <solaris/>
       <win useIco="true">
          <ico path="icons/_TE_Icon_all.ico"/>
          <bmp/>

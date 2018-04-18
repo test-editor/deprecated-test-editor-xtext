@@ -27,7 +27,7 @@
 		<repository>
 			<id>oxygen-additional</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/eclipse/updates/4.7/R-4.7.3-201803010715/</url>
+			<url>http://download.eclipse.org/eclipse/updates/4.7/R-4.7.3a-201803300640</url>
 		</repository>
         <repository>
           <id>lsp4j</id>
