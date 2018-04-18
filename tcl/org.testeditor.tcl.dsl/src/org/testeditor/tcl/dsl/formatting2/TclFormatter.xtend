@@ -13,8 +13,6 @@
 package org.testeditor.tcl.dsl.formatting2;
 
 import org.eclipse.xtext.formatting2.IFormattableDocument
-import org.eclipse.xtext.formatting2.ITextReplacerContext
-import org.eclipse.xtext.formatting2.internal.AbstractTextReplacer
 import org.eclipse.xtext.xbase.formatting2.XbaseFormatter
 import org.testeditor.aml.Template
 import org.testeditor.tcl.AbstractTestStep
@@ -94,15 +92,6 @@ class TclFormatter extends XbaseFormatter {
 		val lines=prevHidden.lineCount
 		step.regionFor.keyword("*").prepend[newLines = 2-lines]
 		step.regionFor.keyword(".").prepend[noSpace]
-//		val nlregion=step.regionFor.feature(SPECIFICATION_STEP_IMPLEMENTATION__NL)
-//		addReplacer(new AbstractTextReplacer(document,nlregion) {
-//			
-//			override createReplacements(ITextReplacerContext context) {
-//				context.addReplacement(region.replaceWith(region.text.replaceAll('(\r?\n)+(\t| )+','')))
-//				return context
-//			}
-//			
-//		})
 		step.interior[indent] // configurable?
 		step.contexts.forEach[format]
 	}

@@ -54,7 +54,7 @@ class TclTslParserIntegrationTest extends AbstractParserTest {
 	}
 	
 	@Test
-	def void simpleTest() {
+	def void testMultilineTestSteps() {
 		val tcl = '''
 			package com.example
 				   	

@@ -324,7 +324,7 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals.expectOnly(macroTemplates + stepValueOrPunctuation + value + elementPunctuation)
+		proposals.expectOnly(macroTemplates + stepValue + value + elementPunctuation)
 		proposals.expectNoneOf(macroTemplates.prefixWith('- '))
 	}
 
@@ -344,7 +344,7 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals.expectOnly(macroTemplates + stepValueOrPunctuation + value + elementPunctuation)
+		proposals.expectOnly(macroTemplates + stepValue + value + elementPunctuation)
 		proposals.expectNoneOf(macroTemplates.prefixWith('- '))
 	}
 
