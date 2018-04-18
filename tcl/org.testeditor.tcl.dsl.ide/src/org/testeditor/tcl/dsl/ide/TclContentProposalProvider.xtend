@@ -103,24 +103,15 @@ class TclContentProposalProvider extends IdeContentProposalProvider {
 		val prio = proposalPriorities.getDefaultPriority(entry)
 		acceptor.accept(entry, prio)
 		if (context.lastCompleteNode.text.endsWith('\n')) {
-			context.offset
 			val prevLeafNode = NodeModelUtils.findLeafNodeAtOffset(context.currentNode.previousSibling, context.lastCompleteNode.offset - 1)
 			var modelElement = NodeModelUtils.findActualSemanticObjectFor(prevLeafNode)
-			val contextElement = if (modelElement instanceof TestStepContext) {
-					modelElement
-				} else {
-					EcoreUtil2.getContainerOfType(modelElement, TestStepContext)
-				}
-			if (contextElement instanceof ComponentTestStepContext) {
-				contextElement.component?.allInteractionTypes.forEach [
-					template.makeInitialTemplateProposalWithDash(context, acceptor)
-				]
-			} else if (contextElement instanceof MacroTestStepContext) {
-				contextElement.macroCollection.macros.forEach [
-					template.makeInitialTemplateProposalWithDash(context, acceptor)
-				]
+			val testStepContext = modelElement.testStepContext
+			val templates = switch (testStepContext) {
+				ComponentTestStepContext: testStepContext.component?.allInteractionTypes.map[template]
+				MacroTestStepContext: testStepContext.macroCollection.macros.map[template]
+				default: #[]
 			}
-
+			templates.forEach[makeInitialTemplateProposalWithDash(context, acceptor)]
 		}
 	}
 
@@ -155,30 +146,9 @@ class TclContentProposalProvider extends IdeContentProposalProvider {
 				model.componentContext?.component?.makeComponentTemplateProposal(context, acceptor)
 				model.macroContext?.macroCollection?.makeMacroTemplateProposal(context, acceptor)
 			}
-			makeStandardStepElementProposals(context, acceptor)
 		} else if (model instanceof StepContentElement) {
 			model.makeElementParamsProposal(context, acceptor)
 		}
-	}
-
-	private def void makeStandardStepElementProposals(ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {
-		val myContext = context.copy
-		myContext.prefix = context.prefix.trim
-		val proposalStepTexts = if (context.prefix == '\n') {
-				#['"value"', "@", "?", ".", "<", "<>"]
-			} else {
-				#['"value"', "@", "?", ".", "<", "<>", "value"]
-			}
-		proposalStepTexts.forEach [ stepText |
-			val proposal = proposalCreator.createProposal(stepText, myContext.toContext)
-			if (proposal !== null) {
-				acceptor.accept(proposal => [
-					label = stepText
-					description = 'StepElement'
-				], proposalPriorities.getCrossRefPriority(null, proposal))
-			}
-		]
-
 	}
 
 	/**

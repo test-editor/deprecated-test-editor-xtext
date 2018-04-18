@@ -3,7 +3,7 @@ package org.testeditor.tcl.dsl.tests.formatter
 import org.junit.Ignore
 import org.junit.Test
 
-@Ignore
+@Ignore("formatting is broken because of newline elements in the grammar. formatter is currently not in use (by the web frontend)!")
 class TestStepFormatterTest extends AbstractTclFormatterTest {
 
 	// TODO remove useNodeModel = false below once https://github.com/eclipse/xtext-core/issues/164 is resolved

@@ -23,16 +23,36 @@ import "http://www.eclipse.org/xtext/common/JavaVMTypes"
 
 TclModel:
 	{TclModel}
-	(NL? 'package' NL? package=QualifiedName)?
-	(NL? importSection=TclImportSection)?
+	(XL? 'package' XL? package=QualifiedName)?
+	(XL? importSection=TclImportSection)?
 	// TODO move require to TestCase - this should not be part of a MacroCollection
-	(NL? 'require' NL? environmentVariables+=EnvironmentVariable (',' NL? environmentVariables+=EnvironmentVariable)*)?
-	(NL? (macroCollection=MacroCollection | 
+	(XL? 'require' XL? environmentVariables+=EnvironmentVariable (',' XL? environmentVariables+=EnvironmentVariable)*)?
+	(XL? (macroCollection=MacroCollection | 
 		test=TestCase | config=TestConfiguration ))
-	NL?;
+	XL?;
 
+/*
+ * This terminal is used in addition to the whitespace token definitions of the base grammar xbase,
+ * which are WS, ML_COMMENT and SL_COMMENT. Since WS includes spaces and newlines and this grammar
+ * makes use of newlines to identify certain grammar elements, XL is introduced, which holds at least
+ * one newline and can be surrounded by white spaces (space, tabs) and be prefixed by any number of
+ * single line comments and or multiline comments.
+ * 
+ * The grammar itself treats SPACES (which are tabs and/or spaces) as hidden tokens whereas XL (and thus
+ * any newline) is treated explicitly within the grammar and must therefore be explicitly added to
+ * rules that allow new lines in certain places 
+ */
+terminal XL:
+	(( ' ' | '\t')* ('/*' -> '*/' ( ' ' | '\t')*)* ('//' !('\r'|'\n')*)? ('\r'? '\n'))+  ( ' ' | '\t' )*;
+
+/*
+ * ImportSection and XImportDeclaration were copied from xbase in order to prevent problems in the whitespace
+ * dependend lookahead of this grammar, related with the whitespace independent lookahead of these rules
+ * within the xbase grammar. Ambiguities are not reported, but parsing some examples result in errors, because
+ * the lookahead uses whitespaces a bit differently than the overall grammar might suggest. 
+ */
 TclImportSection returns xtype::XImportSection:
-	importDeclarations+=TclXImportDeclaration (NL? importDeclarations+=TclXImportDeclaration)*;
+	importDeclarations+=TclXImportDeclaration (XL? importDeclarations+=TclXImportDeclaration)*;
 			
 TclXImportDeclaration returns xtype::XImportDeclaration:
 	'import' (
@@ -44,45 +64,49 @@ TclXImportDeclaration returns xtype::XImportDeclaration:
 TestCase:
 	{TestCase}
 	'#' name=ID
-	(NL? 'implements' NL? specification=[tsl::TestSpecification|QualifiedName])?
-	(NL? 'config' NL? config=[TestConfiguration])?
+	(XL? 'implements' XL? specification=[tsl::TestSpecification|QualifiedName])?
+	(XL? 'config' XL? config=[TestConfiguration])?
 	( // allow user to define setup and cleanup either at the beginning or end
-  	  // unordered groups don't compose with NL, so validation has to check
+  	  // unordered groups don't compose with XL, so validation has to check
   	  // that (max) only one setup/cleanup is specfied (either before the steps, or after the steps)
-		(NL setup+=TestSetup)?
-	 	(NL cleanup+=TestCleanup)?
-	 	(NL steps+=SpecificationStepImplementation
-	 		(NL steps+=SpecificationStepImplementation)*
-	 		(NL cleanup+=TestCleanup)?
-			(NL setup+=TestSetup)?	
+		(XL setup+=TestSetup)?
+	 	(XL cleanup+=TestCleanup)?
+	 	(XL steps+=SpecificationStepImplementation
+	 		(XL steps+=SpecificationStepImplementation)*
+	 		(XL cleanup+=TestCleanup)?
+			(XL setup+=TestSetup)?	
 		)?
 	);
-	
+
 TestConfiguration:
 	'config' name=ID
-	((NL setup+=TestSetup)? & (NL cleanup+=TestCleanup)?);
+	((XL setup+=TestSetup)? & (XL cleanup+=TestCleanup)?);
 
 TestSetup:
 	{TestSetup}
 	'Setup' ':'
-	(NL contexts+=TestStepContext)*
+	(XL contexts+=TestStepContext)*
 ;
 
 TestCleanup:
 	{TestCleanup}
 	'Cleanup' ':'
-	(NL contexts+=TestStepContext)*
+	(XL contexts+=TestStepContext)*
 ;
 
 SpecificationStepImplementation:
 	{SpecificationStepImplementation}
 	'*' contents+=tslInnerStepContent+
-	  (NL contents+=tslStepContent contents+=tslInnerStepContent* )* 
-	(NL contexts+=TestStepContext)*;
+	  (XL contents+=tslStepContent contents+=tslInnerStepContent* )* 
+	(XL contexts+=TestStepContext)*;
 
+/*
+ * Inner step content text allows more tokens than step content (which might have a new line right before
+ * its token, which in turn might belong to a different semantical unit (e.g. 'Component')
+ */
 tslInnerStepContent returns tsl::StepContent:
 	tslInnerStepContentText | StepContentVariable;
-	
+
 tslInnerStepContentText returns tsl::StepContentText:
 	value=(Word | '*' | InnerStepContentTextOperator);
 
@@ -104,16 +128,16 @@ EnvironmentVariable:
 
 MacroCollection:
 	'#' name=ID
-	(NL? macros+=Macro)+;
+	(XL? macros+=Macro)+;
 
 Macro:
 	'##' name=ID
-	NL? 'template' NL? '=' NL? template=Template
-	(NL contexts+=TestStepContext)*
+	XL? 'template' XL? '=' XL? template=Template
+	(XL contexts+=TestStepContext)*
 ;
 
 Template returns aml::Template:
-	contents+=TemplateText (NL? contents+=TemplateVariable (NL? contents+=TemplateText)?)*
+	contents+=TemplateText (XL? contents+=TemplateVariable (XL? contents+=TemplateText)?)*
 ;
 
 TemplateText returns aml::TemplateText:
@@ -130,12 +154,12 @@ TestStepContext:
 ComponentTestStepContext returns TestStepContext:
 	{ComponentTestStepContext}
 	('Mask' | 'Component') ':' component=[aml::Component|QualifiedName]
-	(NL steps+=(TestStep | TestStepWithAssignment | AssertionTestStep | AssignmentThroughPath))*;
+	(XL steps+=(TestStep | TestStepWithAssignment | AssertionTestStep | AssignmentThroughPath))*;
 
 MacroTestStepContext returns TestStepContext:
 	{MacroTestStepContext}
 	'Macro' ':' macroCollection=[MacroCollection|QualifiedName]
-	(NL steps+=TestStep)*; // currently macro calls can only be TestSteps!
+	(XL steps+=TestStep)*; // currently macro calls can only be TestSteps!
 
 /**
  * keep in mind that an aml validator exists that will check templates to be parsable given the following rule
@@ -143,21 +167,21 @@ MacroTestStepContext returns TestStepContext:
 TestStep:
 	{TestStep}
 	'-' contents+=InnerStepContent+
-		(NL contents+=StepContent contents+=InnerStepContent*)* 
-	(NL? contents+=StepContentPunctuation)?;
+		(XL contents+=StepContent contents+=InnerStepContent*)* 
+	(XL? contents+=StepContentPunctuation)?;
 
 AssertionTestStep:
 	'-' 'assert' assertExpression=(NullOrBoolCheck | FullComparison) '.'?;
 
 TestStepWithAssignment:
-	'-' variable=AssignmentVariable NL? '='  
-		NL? contents+=InnerStepContent+
-			(NL contents+=StepContent contents+=InnerStepContent*)* 
+	'-' variable=AssignmentVariable XL? '='  
+		XL? contents+=InnerStepContent+
+			(XL contents+=StepContent contents+=InnerStepContent*)* 
 	contents+=StepContentPunctuation?;
 
 AssignmentThroughPath:
-	'-' variableReference=VariableReferencePathAccess NL? '=' 
-	    NL? expression=Expression '.'?;
+	'-' variableReference=VariableReferencePathAccess XL? '=' 
+	    XL? expression=Expression '.'?;
 
 /** expression order: Comparison -> (Addition -> Multiplication ->) Value
  *  which is reflecting the order of operator binding.
@@ -173,13 +197,13 @@ NullOrBoolCheck:
 
 FullComparison returns Comparison:
 	left=Value
-	NL? comparator=Comparator
-	NL? right=Expression;
+	XL? comparator=Comparator
+	XL? right=Expression;
 
 Comparison:
 	left=Value
-	(NL? comparator=Comparator
-	 NL? right=Expression)?;
+	(XL? comparator=Comparator
+	 XL? right=Expression)?;
 
 VariableReference:
 	variable=[aml::Variable];
@@ -192,7 +216,7 @@ KeyPathElement:
 	'.' ( key=ID | key=STRING );
 
 VariableReferencePathAccess:
-	variable=[aml::Variable] ( NL? path+=KeyPathElement | NL? path+=ArrayPathElement )+;
+	variable=[aml::Variable] ( XL? path+=KeyPathElement | XL? path+=ArrayPathElement )+;
 
 AtomicValue returns Expression:
 	VariableReference | VariableReferencePathAccess | JsonValue ;
@@ -235,14 +259,17 @@ InnerStepContentText returns tsl::StepContentText:
 StepContentText returns tsl::StepContentText:
 	value=ID | value=StepContentTextOperator;
 
-/** hold all keywords that are allowed as step content text (to prevent parser to fail on keyword usage) */
+/* 
+ * hold all keywords that are allowed as step content text (to prevent parser to fail on keyword usage)
+ * BUT excluding all keywords that may in combination with a newline be interpreted as an actual token (as Component) 
+ */
 StepContentTextOperator returns ecore::EString:
 	// TODO generate this (all keywords minus assert - consider Xbase keywords as well)
 	'var' | 'public' | 'template' | 'package' | 'require' | 'config' | 'implements' | 
 	'does' | 'not' | 'match' | 'false' | 'null' |
 	'as' |  'is' | 'for' | 'do' | 'if' | 'while';
 
-// includes Mask Component Macro Setup and Cleanup which may start a new section (if prefixed by NL)
+// includes the keywords which may start a new section (if prefixed by a new line!)
 InnerStepContentTextOperator returns ecore::EString:
 	StepContentTextOperator | 'Setup' | 'Cleanup' |
 	'Mask' | 'Component' | 'Macro' ;
@@ -252,7 +279,7 @@ StepContentVariable returns tsl::StepContentVariable:
 
 StepContentElement hidden():
 	('<' value=ID '>') |
-	{StepContentElement} ('<>' | '<' (SPACES | NL ) '>');
+	{StepContentElement} ('<>' | '<' (SPACES | XL ) '>');
 
 StepContentPunctuation hidden():
 	value=('.'|'?')
@@ -260,14 +287,14 @@ StepContentPunctuation hidden():
 
 JsonObject:
 	{JsonObject}
-	'{' NL?
+	'{' XL?
 		(members+=JsonMember
-		(',' NL? members+=JsonMember)* 
-		NL?)?
+		(',' XL? members+=JsonMember)* 
+		XL?)?
 	'}';
 
 JsonMember:
-	key=STRING ':' NL? value=JsonValue;
+	key=STRING ':' XL? value=JsonValue;
 
 JsonValue:
 	JsonString | JsonNumber | JsonObject | JsonArray | JsonBoolean | JsonNull;
@@ -284,10 +311,10 @@ JsonNull:
 
 JsonArray:
 	{JsonArray}
-	'[' NL?
+	'[' XL?
 		(values+=JsonValue 
-			(',' NL? values+=JsonValue)*
-		NL?)?
+			(',' XL? values+=JsonValue)*
+		XL?)?
 	']';
 
 JsonNumber:
@@ -305,7 +332,7 @@ JsonDecimal returns ecore::EString hidden():
  */
 terminal TEMPLATE_VARIABLE_DEF:
 	'${' ID? '}';
-	
+
 /*
  * override ID as provided by xbase to allow for (partial) unicode ids
  */
@@ -315,6 +342,3 @@ terminal ID:
 
 terminal SPACES:
 	( ' ' | '\t' )+;
-
-terminal NL:
-	(( ' ' | '\t')* ('/*' -> '*/' ( ' ' | '\t')*)* ('//' !('\r'|'\n')*)? ('\r'? '\n'))+  ( ' ' | '\t' )*;
