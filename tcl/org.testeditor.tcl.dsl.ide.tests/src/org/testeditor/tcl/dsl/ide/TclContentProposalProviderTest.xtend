@@ -11,12 +11,14 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		'-',
 		'- '
 	]
-	val stepValueOrPunctuation = #[
+	val stepValue = #[
 		'"value"',
-		'@',
+		'@'
+	]
+	val stepValueOrPunctuation = stepValue + #[
 		'?',
 		'.'
-	]
+	] 
 	val elementPunctuation = #[
 		'<',
 		'<>'
@@ -88,7 +90,7 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals.expectOnly(componentTemplates.prefixWithDash + dashes + keywords + testSurroundKeywords + star)
+		proposals.expectOnly(componentTemplates.prefixWith('- ') + dashes + keywords + testSurroundKeywords + star)
 		proposals.expectNoneOf(componentTemplates) // without dashes !
 	}
 
@@ -108,7 +110,7 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals.expectOnly(componentTemplates.prefixWithDash + dashes + keywords + stepValueOrPunctuation + elementPunctuation + value + star + testSurroundKeywords)
+		proposals.expectOnly(componentTemplates.prefixWith('- ') + dashes + keywords + stepValueOrPunctuation + elementPunctuation + value + star + testSurroundKeywords)
 		proposals.expectNoneOf(componentTemplates) // without dashes !
 	}
 
@@ -127,8 +129,8 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals.expectOnly(componentTemplates + dashes + keywords + stepValueOrPunctuation + commandOrVariable + elementPunctuation + value + star + testSurroundKeywords)
-		proposals.expectNoneOf(componentTemplates.prefixWithDash) // proposals must be without dashes! 
+		proposals.expectOnly(componentTemplates + stepValue + commandOrVariable + elementPunctuation + value)
+		proposals.expectNoneOf(componentTemplates.prefixWith('- ')) // proposals must be without dashes! 
 	}
 
 	@Test
@@ -147,7 +149,7 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals.expectOnly(expectedTemplates + dashes + expressionPrefix + stepValueOrPunctuation + elementPunctuation + star)
+		proposals.expectOnly(expectedTemplates + expressionPrefix + stepValueOrPunctuation + elementPunctuation)
 		proposals.expectNoneOf(componentTemplates.without(expectedTemplates))
 	}
 
@@ -166,9 +168,8 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals.expectOnly(#['application "path"'] + dashes + expressionPrefix + stepValueOrPunctuation + value + keywords + elementPunctuation + star +
-			testSurroundKeywords)
-		proposals.expect('application "path"').prefix.assertEquals('') 
+		proposals.expectOnly(#[' application "path"'] + expressionPrefix + stepValueOrPunctuation + elementPunctuation)
+		proposals.expect(' application "path"').prefix.assertEquals(' ') 
 	}
 
 	@Test
@@ -191,8 +192,8 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 			'confidential "param" into <element>',
 			'"value" into <element>',
 			'"value" into <element> and wait "1"'
-		] + dashes + expressionPrefix + stepValueOrPunctuation + value + keywords + elementPunctuation + star + testSurroundKeywords)
-		proposals.expect('"value" into <element>').prefix.assertEquals('')
+		].prefixWith(' ') + expressionPrefix + stepValueOrPunctuation + elementPunctuation) 
+		proposals.expect(' "value" into <element>').prefix.assertEquals(' ')
 	}
 
 	@Test
@@ -210,7 +211,7 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals.expectOnly(#['application "path"'] + dashes + stepValueOrPunctuation + elementPunctuation + star)
+		proposals.expectOnly(#['application "path"'] + stepValueOrPunctuation + elementPunctuation)
 		proposals.expect('application "path"').prefix.assertEquals('app')
 	}
 
@@ -229,7 +230,7 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals.expectOnly(#['application "path"'] + dashes + stepValueOrPunctuation + elementPunctuation + star)
+		proposals.expectOnly(#['application "path"'] + stepValueOrPunctuation + elementPunctuation)
 		proposals.expect('application "path"').prefix.assertEquals('app')
 	}
 
@@ -304,7 +305,7 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals.expectOnly(dashes + componentTemplates.prefixWithDash + keywords + stepValueOrPunctuation + elementPunctuation + value + star + testSurroundKeywords)
+		proposals.expectOnly(stepValueOrPunctuation + elementPunctuation + value)
 		proposals.expectNoneOf(#[ 'Input', 'bar' ]) // 
 	}
 
@@ -323,8 +324,8 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals.expectOnly(macroTemplates + dashes + keywords + stepValueOrPunctuation + value + elementPunctuation + star + testSurroundKeywords)
-		proposals.expectNoneOf(macroTemplates.prefixWithDash)
+		proposals.expectOnly(macroTemplates + stepValue + value + elementPunctuation)
+		proposals.expectNoneOf(macroTemplates.prefixWith('- '))
 	}
 
 	@Test
@@ -343,8 +344,8 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals.expectOnly(macroTemplates + dashes + keywords + stepValueOrPunctuation + value + elementPunctuation + star + testSurroundKeywords)
-		proposals.expectNoneOf(macroTemplates.prefixWithDash)
+		proposals.expectOnly(macroTemplates + stepValue + value + elementPunctuation)
+		proposals.expectNoneOf(macroTemplates.prefixWith('- '))
 	}
 
 	@Test
@@ -362,7 +363,7 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals.expectOnly(macroTemplates.prefixWithDash + dashes + keywords + star + testSurroundKeywords)
+		proposals.expectOnly(macroTemplates.prefixWith('- ') + dashes + keywords + star + testSurroundKeywords)
 		proposals.expectNoneOf(macroTemplates)
 	}
 
@@ -382,7 +383,7 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		val proposals = tclSnippet.proposals
 
 		// then
-		proposals.expectOnly(macroTemplates.prefixWithDash + dashes + keywords + stepValueOrPunctuation + value + elementPunctuation + star + testSurroundKeywords)
+		proposals.expectOnly(macroTemplates.prefixWith('- ') + dashes + keywords + stepValueOrPunctuation + value + elementPunctuation + star + testSurroundKeywords)
 		proposals.expectNoneOf(macroTemplates)
 	}
 
@@ -403,9 +404,8 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 
 		// then
 		proposals.expectOnly(#[
-			'@boolParameter',
-			'##'
-		] + value + dashes + componentTemplates + keywords + stepValueOrPunctuation + commandOrVariable + elementPunctuation)
+			'@boolParameter'
+		] + componentTemplates + stepValue + commandOrVariable + elementPunctuation + value)
 	}
 
 	@Test
@@ -432,8 +432,7 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 			'com.example.envVar',
 			'secretEnvVar',
 			'com.example.secretEnvVar'
-		] + value + dashes + componentTemplates + keywords + stepValueOrPunctuation + commandOrVariable + elementPunctuation + star + testSurroundKeywords)
-		proposals => []
+		] + value + componentTemplates + stepValue + commandOrVariable + elementPunctuation)
 	}
 
 	/**
@@ -447,8 +446,8 @@ class TclContentProposalProviderTest extends AbstractContentAssistTest {
 		'''
 	}
 
-	private def Iterable<String> prefixWithDash(Iterable<String> originalStrings) {
-		return originalStrings.map['''- «it»''']
+	private def Iterable<String> prefixWith(Iterable<String> originalStrings, String prefix) {
+		return originalStrings.map['''«prefix»«it»''']
 	}
 	
 	private def Iterable<String> without(Iterable<String> originalStrings, Iterable<String> unwantedStrings) {

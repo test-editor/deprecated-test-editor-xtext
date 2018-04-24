@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.testeditor.tcl.dsl.ide.tests
 Bundle-Vendor: Signal Iduna Corporation
-Bundle-Version: 1.11.0
+Bundle-Version: 1.12.0.qualifier
 Bundle-SymbolicName: org.testeditor.tcl.dsl.ide.tests;singleton:=true
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -19,7 +19,8 @@ Require-Bundle: org.eclipse.xtext,
  org.eclipse.xtext.builder.standalone,
  org.testeditor.logging;bundle-version="1.2.0",
  org.testeditor.tcl.dsl.ide,
- org.testeditor.tcl.dsl.tests
+ org.testeditor.tcl.dsl.tests,
+ org.eclipse.lsp4j.jsonrpc
 Import-Package: javax.inject;version="1.0.0",
  org.junit,
  org.junit.runner,

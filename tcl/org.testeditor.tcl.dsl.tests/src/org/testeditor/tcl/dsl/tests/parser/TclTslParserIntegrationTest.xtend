@@ -4,6 +4,8 @@ import javax.inject.Inject
 import org.eclipse.xtext.resource.XtextResourceSet
 import org.junit.Before
 import org.junit.Test
+import org.testeditor.tcl.ComponentTestStepContext
+import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.util.ExampleAmlModel
 import org.testeditor.tcl.util.TclModelUtil
 
@@ -36,8 +38,7 @@ class TclTslParserIntegrationTest extends AbstractParserTest {
 			
 			# «tclId» implements «tslId»
 			
-			* Unicode Spec Step Ü (ω=25 °/s, 25 µm/s))
-		'''
+			* Unicode Spec Step Ü (ω=25 °/s, 25 µm/s))'''
 
 		// when
 		val tslModel = tsl.parseTsl(tslId + '.tsl')
@@ -50,6 +51,34 @@ class TclTslParserIntegrationTest extends AbstractParserTest {
 			test.specification.name.assertEquals(tslId)
 			test.name.assertEquals(tclId)
 		]
+	}
+	
+	@Test
+	def void testMultilineTestSteps() {
+		val tcl = '''
+			package com.example
+				   	
+			# SimpleTest
+			
+			* MyId another id 
+			  multiline
+			  Component: MyDialog
+			  - Enter month "10" and year "2000" into <Date>
+			* next
+			'''
+			
+		tcl.parseTcl('SimpleTest.tcl') => [
+			assertNoErrors 
+			test.steps.assertSize(2) => [
+				get(0).contents.restoreString.assertEquals('MyId another id multiline')
+				(get(0).contexts.assertSize(1).head as ComponentTestStepContext) => [
+					component.name.assertEquals("MyDialog")
+					(steps.head as TestStep).contents.restoreString.assertEquals(
+						'Enter month "10" and year "2000" into <Date>')
+				]
+				get(1).contents.restoreString.assertEquals('next')
+			]
+		]		
 	}
 
 	@Test
@@ -72,8 +101,7 @@ class TclTslParserIntegrationTest extends AbstractParserTest {
 			
 			* !@#$%^&*()-_=+`~\|][}{;:''""<>,./? with ξεσκεπάζω την ξεσκεπάζω την Sævör grét áðan því úlpan var ónýt.
 			* he\'s not very cooperative 'param'
-			* he\"s not ccop. right? "param" and more
-		'''
+			* he\"s not ccop. right? "param" and more'''
 
 		// when
 		val tclModel = tcl.parseTcl('ExampleTest.tcl')
@@ -84,8 +112,7 @@ class TclTslParserIntegrationTest extends AbstractParserTest {
 			test.steps.assertSize(5) => [
 				get(0).contents.restoreString.assertEquals('Simple spec with a * in it')
 				get(1).contents.restoreString.assertEquals('တ က ် စ တ တ က ် စ တ . တ က ် စ တ @ öttö . de . တ က ် စ တ')
-				get(2).contents.restoreString.assertEquals(
-					'! @ # $ % ^ & * ( ) - _ = + ` ~ \\ | ] [ } { ; : "" "" <> , . / ? with ξεσκεπάζω την ξεσκεπάζω την Sævör grét áðan því úlpan var ónýt .')
+				get(2).contents.restoreString.assertEquals('! @ # $ % ^ & * ( ) - _ = + ` ~ \\ | ] [ } { ; : "" "" <> , . / ? with ξεσκεπάζω την ξεσκεπάζω την Sævör grét áðan því úlpan var ónýt .')
 				get(3).contents.restoreString.assertEquals("he \\' s not very cooperative \"param\"")
 				get(4).contents.restoreString.assertEquals("he \\\" s not ccop . right ? \"param\" and more")
 			]

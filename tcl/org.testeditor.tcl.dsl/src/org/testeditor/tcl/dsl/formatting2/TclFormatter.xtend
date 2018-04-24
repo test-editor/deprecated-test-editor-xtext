@@ -13,8 +13,6 @@
 package org.testeditor.tcl.dsl.formatting2;
 
 import org.eclipse.xtext.formatting2.IFormattableDocument
-import org.eclipse.xtext.formatting2.ITextReplacerContext
-import org.eclipse.xtext.formatting2.internal.AbstractTextReplacer
 import org.eclipse.xtext.xbase.formatting2.XbaseFormatter
 import org.testeditor.aml.Template
 import org.testeditor.tcl.AbstractTestStep
@@ -56,7 +54,9 @@ class TclFormatter extends XbaseFormatter {
 	}
 
 	def dispatch void format(TestCase testCase, extension IFormattableDocument document) {
-		testCase.regionFor.keyword("#").prepend[newLines = 2].append[oneSpace]
+		val prevHidden = testCase.regionFor.keyword("#").previousSemanticRegion
+		val lines=prevHidden.lineCount
+		testCase.regionFor.keyword("#").prepend[newLines = 3-lines].append[oneSpace]
 		testCase.regionFor.keyword("implements").prepend[oneSpace]
 		testCase.regionFor.feature(TEST_CASE__SPECIFICATION).prepend[oneSpace]
 		testCase.regionFor.keyword("config").prepend[newLines = 2]
@@ -88,17 +88,10 @@ class TclFormatter extends XbaseFormatter {
 	}
 
 	def dispatch void format(SpecificationStepImplementation step, extension IFormattableDocument document) {
-		step.regionFor.keyword("*").prepend[newLines = 2]
+		val prevHidden = step.regionFor.keyword("*").previousHiddenRegion
+		val lines=prevHidden.lineCount
+		step.regionFor.keyword("*").prepend[newLines = 2-lines]
 		step.regionFor.keyword(".").prepend[noSpace]
-		val nlregion=step.regionFor.feature(SPECIFICATION_STEP_IMPLEMENTATION__NL)
-		addReplacer(new AbstractTextReplacer(document,nlregion) {
-			
-			override createReplacements(ITextReplacerContext context) {
-				context.addReplacement(region.replaceWith(region.text.replaceAll('(\r?\n)+(\t| )+','')))
-				return context
-			}
-			
-		})
 		step.interior[indent] // configurable?
 		step.contexts.forEach[format]
 	}
@@ -138,10 +131,11 @@ class TclFormatter extends XbaseFormatter {
 	}
 
 	def dispatch void format(AbstractTestStep testStep, extension IFormattableDocument document) {
-		testStep.regionFor.keyword("-").prepend[setNewLines(1, 1, 2)]
+		testStep.regionFor.keyword("-").prepend[setNewLines(1, 1, 2)].append[oneSpace]
 		if (testStep instanceof TestStep) {
 			testStep.contents.forEach[format]
 			#[".","?"].forEach[testStep.regionFor.keyword(it).prepend[noSpace]]
+			testStep.regionFor.keyword('=').prepend[oneSpace]
 		}
 	}
 

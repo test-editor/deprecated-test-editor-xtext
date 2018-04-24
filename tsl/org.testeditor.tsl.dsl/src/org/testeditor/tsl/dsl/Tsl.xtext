@@ -17,19 +17,27 @@ import "http://www.testeditor.org/tsl"
 
 TslModel:
 	{TslModel}
-	('package' package=QualifiedName NL+)?
-	(specification=TestSpecification | NL*);
+	('package' package=QualifiedName )?
+	(NL+ specification=TestSpecification)?
+	NL*;
 
 TestSpecification:
 	'#' name=ID
-	(description=Text)?
-	(steps+=SpecificationStep NL*)*;
+	(NL+ description=Text)?
+	(=>(NL+ '*') steps+=SpecificationStep)*;
 
 SpecificationStep:
-	=> (NL '*') (contents+=StepContent)+;
+	contents+=InnerStepContent+
+	( (NL+ contents+=StepContent) contents+=InnerStepContent+ )*;
 
+InnerStepContent returns StepContent:
+	InnerStepContentText | StepContentVariable;
+	
 StepContent:
 	StepContentText | StepContentVariable;
+
+InnerStepContentText returns StepContentText:
+	value=(Word | '*');
 
 StepContentText:
 	value=Word;
@@ -38,11 +46,15 @@ StepContentVariable:
 	value=STRING;
 
 Word returns ecore::EString:
-	ID | INT | ANY_OTHER | '*' | '.' | '#' | '\\"' | "\\'" 
+	ID | INT | ANY_OTHER | '.' | '#' | '\\"' | "\\'"
 ;
 
 Text returns ecore::EString hidden():
-	(SPACES | ID | INT | STRING | NL | ANY_OTHER | '.')+;
+	NonEmptyTextElement ( ( SPACES | NL )* NonEmptyTextElement )*;
+	
+NonEmptyTextElement returns ecore::EString hidden():
+	ID | INT | STRING | ANY_OTHER | '.'
+;
 
 QualifiedName:
 	ID (=> '.' ID)*;

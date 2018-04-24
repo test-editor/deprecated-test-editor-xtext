@@ -311,7 +311,7 @@ class TclModelParserTest extends AbstractTclTest {
 			# Test
 			* Do some complex step
 			  Macro: MyMacroFile
-			  - template execute with "param" as a and "param2"
+			  - template as execute with "param" a and "param2"
 			  - second template
 		'''
 
@@ -323,7 +323,7 @@ class TclModelParserTest extends AbstractTclTest {
 			contexts.assertSingleElement.assertInstanceOf(MacroTestStepContext) => [
 				steps.assertSize(2)
 				steps.head.assertInstanceOf(TestStep) => [
-					contents.restoreString.assertMatches('template execute with "param" as a and "param2"')
+					contents.restoreString.assertMatches('template as execute with "param" a and "param2"')
 				]
 				steps.last.assertInstanceOf(TestStep) => [
 					contents.restoreString.assertMatches('second template')
@@ -376,8 +376,7 @@ class TclModelParserTest extends AbstractTclTest {
 
 		// then
 		test.assertNoSyntaxErrors
-		test.setup.assertNotNull
-		test.setup.contexts.assertSingleElement
+		test.setup.assertSingleElement.contexts.assertSingleElement
 	}
 
 	@Test
@@ -397,8 +396,7 @@ class TclModelParserTest extends AbstractTclTest {
 
 		// then
 		test.assertNoSyntaxErrors
-		test.cleanup.assertNotNull
-		test.cleanup.contexts.assertSingleElement
+		test.cleanup.assertSingleElement.contexts.assertSingleElement
 	}
 
 	@Test

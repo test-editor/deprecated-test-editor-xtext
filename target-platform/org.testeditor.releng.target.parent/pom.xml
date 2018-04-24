@@ -5,11 +5,11 @@
 
 	<groupId>org.testeditor</groupId>
 	<artifactId>org.testeditor.releng.target.parent</artifactId>
-	<version>1.11.0</version>
+	<version>1.12.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<properties>
-		<tycho-version>0.26.0</tycho-version>
+		<tycho-version>1.1.0</tycho-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<deploy.skip>true</deploy.skip>
 	</properties>
@@ -20,26 +20,31 @@
 
 		<!-- Platform -->
 		<repository>
-			<id>neon</id>
+			<id>oxygen</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/releases/neon/</url>
+			<url>http://download.eclipse.org/releases/oxygen/201803211000/</url>
 		</repository>
 		<repository>
-			<id>neon-additional</id>
+			<id>oxygen-additional</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/eclipse/updates/4.6/</url>
+			<url>http://download.eclipse.org/eclipse/updates/4.7/R-4.7.3a-201803300640</url>
 		</repository>
+        <repository>
+          <id>lsp4j</id>
+          <layout>p2</layout>
+          <url>http://download.eclipse.org/lsp4j/updates/releases/0.3.0/</url>
+        </repository>
 
 		<!-- Thirdparty -->
 		<repository>
-			<id>orbit-neon</id>
+			<id>orbit</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/tools/orbit/R-builds/R20170307180635/repository/</url>
+			<url>http://download.eclipse.org/tools/orbit/downloads/drops/R20180206163158/repository/</url>
 		</repository>
 		<repository>
 			<id>swtbot</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/technology/swtbot/releases/2.4.0/</url>
+			<url>http://download.eclipse.org/technology/swtbot/releases/2.6.0/</url>
 		</repository>
 		<repository>
 			<id>osgi-jax-rs</id>
@@ -51,29 +56,29 @@
 		<repository>
 			<id>xtext</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.11.0/</url>
+			<url>http://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.13.0/</url>
 		</repository>
 		<repository>
 			<id>emf</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/modeling/emf/emf/updates/2.12/</url>
+			<url>http://download.eclipse.org/modeling/emf/emf/updates/2.13/</url>
 		</repository>
 		<repository>
 			<id>mwe2</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/modeling/emft/mwe/updates/releases/2.9.0/</url>
+			<url>http://download.eclipse.org/modeling/emft/mwe/updates/releases/2.9.1/</url>
 		</repository>
 
 		<!-- Gradle / Maven -->
 		<repository>
 			<id>buildship</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/buildship/updates/e46/releases/1.0/1.0.19.v20160830-1454</url>
+			<url>http://download.eclipse.org/buildship/updates/e47/releases/2.x/2.2.1.v20180125-1441</url>
 		</repository>
 		<repository>
 			<id>m2e</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/technology/m2e/releases/1.7</url>
+			<url>http://download.eclipse.org/technology/m2e/releases/1.8/1.8.3.20180227-2137/</url>
 		</repository>
 	</repositories>
 

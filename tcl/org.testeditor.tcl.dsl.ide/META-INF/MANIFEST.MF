@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.testeditor.tcl.dsl.ide
-Bundle-Version: 1.11.0
+Bundle-Version: 1.12.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: javax.inject;version="1.0.0",
  org.testeditor.tcl.dsl.services
@@ -14,4 +14,5 @@ Require-Bundle: org.testeditor.dsl.common,
  org.eclipse.xtext.ide,
  org.antlr.runtime,
  org.eclipse.xtext.xbase.ide,
+ org.eclipse.lsp4j,
  org.testeditor.logging
