@@ -2,6 +2,7 @@ test-editor-xtext
 =================
 
 [![License](http://img.shields.io/badge/license-EPL-blue.svg?style=flat)](https://www.eclipse.org/legal/epl-v10.html)
+[ ![Download](https://api.bintray.com/packages/test-editor/maven/test-editor/images/download.svg) ](https://bintray.com/test-editor/maven/test-editor/_latestVersion)
 
 An Xtext based editor to specify domain-driven acceptance tests.
 
