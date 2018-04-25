@@ -25,7 +25,7 @@ jobs:
     - stage: compileFeature
       script:
       - mvn clean install -f "target-platform/pom.xml"
-      - mvn clean install -Dmaven.test.failure.ignore -Dsurefire.useFile=false -Dtycho.localArtifacts=ignore
+      - mvn clean install -Dsurefire.useFile=false -Dtycho.localArtifacts=ignore
     - stage: compileRcp
       script:
       - mvn clean install -f "target-platform/pom.xml"

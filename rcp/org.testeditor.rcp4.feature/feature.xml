@@ -2,7 +2,7 @@
 <feature
       id="org.testeditor.rcp4.feature"
       label="Feature"
-      version="1.12.0">
+      version="1.13.0.qualifier">
 
    <description url="https://github.com/test-editor/test-editor-xtext">
       Complete Testeditor RCP feature set.

@@ -56,9 +56,13 @@ task assemble() {
 
 // TODO define inputs and outputs
 task build(type: MavenExec, dependsOn: buildTarget) {
-    // depending on branch, build rcp too (develop or master)
+    def branch = getBranchName();
+    def profileParameter = '';
+    if (branch.startsWith('develop') || branch.startsWith('master')) {
+        profileParameter = '-Prcp,product'
+    }
     workingDir projectDir
-    args 'clean', 'install', '-Dmaven.test.failure.ignore', '-Dsurefire.useFile=false', '-Dtycho.localArtifacts=ignore'
+    args 'clean', 'install', '-Dsurefire.useFile=false', '-Dtycho.localArtifacts=ignore', profileParameter
 }
 
 task deploy(type: MavenExec) {
@@ -214,6 +218,15 @@ task createAllRRDs {
     dependsOn(createAmlRRD,createTslRRD,createTclRRD)
     description = "create rail road syntax diagrams for all languages (Aml, Tsl, Tcl)"
     group = "Documentation"
+}
+
+def String getBranchName() {
+    def branch = ""
+    def proc = "git rev-parse --abbrev-ref HEAD".execute()
+    proc.in.eachLine { line -> branch = line }
+    proc.err.eachLine { line -> println line }
+    proc.waitFor()
+    return branch
 }
 
 /**
