@@ -68,7 +68,8 @@ class ProjectContentGenerator {
 
 	private static val logger = LoggerFactory.getLogger(ProjectContentGenerator)
 
-	val String testEditorVersion // is filled by querying the plugin version
+	val String testEditorVersion // is filled by querying the plugin version of org.testeditor.dsl.common.ui
+	val String xtextVersion // is filled by querying the plugin version of org.eclipse.xtext
 
 	@Inject FileLocatorService fileLocatorService
 	@Inject MavenExecutor mavenExecutor
@@ -89,13 +90,23 @@ class ProjectContentGenerator {
 	}
 	
 	new() {
-		testEditorVersion = bundleVersion.mapTesteditorVersion
+		testEditorVersion = testeditorBundleVersion.mapTesteditorVersion
+		xtextVersion = getBundleVersion('org.eclipse.xtext').mapVersion
 	}
 
 	@VisibleForTesting
-	protected def Version getBundleVersion() {
-		val bundle = Platform.getBundle("org.testeditor.dsl.common.ui")
+	protected def Version getTesteditorBundleVersion() {
+		return getBundleVersion("org.testeditor.dsl.common.ui")
+	}
+	
+	@VisibleForTesting
+	protected def Version getBundleVersion(String pluginString) {
+		val bundle = Platform.getBundle(pluginString)
 		return bundle?.version ?: Version.valueOf("0.0.0")
+	}
+	
+	private def String mapVersion(Version version) {
+		return '''«version.major».«version.minor».«version.micro»'''
 	}
 	
 	@VisibleForTesting
@@ -459,6 +470,7 @@ class ProjectContentGenerator {
 		// Configure the testeditor plugin
 		testeditor {
 			version '«testEditorVersion»'
+			xtextVersion '«xtextVersion»'
 		}
 		
 		// configure logging within tests (see https://docs.gradle.org/current/dsl/org.gradle.api.tasks.testing.logging.TestLogging.html)
