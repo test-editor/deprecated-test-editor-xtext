@@ -156,6 +156,19 @@ class ProjectContentGeneratorTest extends AbstractTest {
 		gradleHelper.verify.runTasks(project, "eclipse")
 		project.verify.refreshLocal(IProject.DEPTH_INFINITE, monitor)
 	}
+	
+	@Test
+	def void testGetBundleVersion() {
+		// given (this is a plugin test)
+		isWithinOSGIContext.assumeTrue
+		
+		// when
+		val version = generator.getBundleVersion('org.eclipse.xtext')
+		
+		// then
+		version.assertNotNull
+		assertTrue(version.major > 0)
+	}
 
 	@Test
 	def void testGetVersion() {
@@ -163,7 +176,7 @@ class ProjectContentGeneratorTest extends AbstractTest {
 		isWithinOSGIContext.assumeTrue
 		
 		// when
-		val version = generator.bundleVersion
+		val version = generator.testeditorBundleVersion
 		
 		// then
 		version.assertNotNull
