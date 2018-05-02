@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.testeditor.aml.dsl
 Bundle-Vendor: Signal Iduna Corporation
-Bundle-Version: 1.12.0
+Bundle-Version: 1.13.0.qualifier
 Bundle-SymbolicName: org.testeditor.aml.dsl; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtext,
@@ -11,12 +11,12 @@ Require-Bundle: org.eclipse.xtext,
  org.testeditor.aml.model;visibility:=reexport,
  org.eclipse.osgi,
  org.eclipse.xtext.util,
- org.eclipse.xtext.xbase.lib,
+ org.eclipse.xtext.xbase.lib;bundle-version="2.13.0",
  org.antlr.runtime,
  org.eclipse.xtext.common.types,
  org.objectweb.asm;resolution:=optional,
  org.eclipse.xtext.xbase,
- org.eclipse.xtend.lib,
+ org.eclipse.xtend.lib;bundle-version="2.13.0",
  org.testeditor.dsl.common
 Import-Package: org.apache.log4j,
  javax.inject;version="1.0.0"
