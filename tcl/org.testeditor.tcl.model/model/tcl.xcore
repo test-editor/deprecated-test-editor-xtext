@@ -215,3 +215,25 @@ class JsonArray extends JsonValue {
 class JsonNumber extends JsonValue {
 	String value
 }
+
+
+/*
+ * expected tree structure
+ * (TestSuite)
+ *   TestCase
+ *     Setup // order of execution is: config setup followed by own setup steps
+ *       { ( Component | Macro )*
+ *           ( FixtureCall | MacroCall )* ... }
+ * 	   TestSpec*
+ *       { ( Component | Macro )*
+ *           ( FixtureCall | MacroCall )* ... } // macro call may recurse into other macro calls (or simply call component/fixture steps
+ *     Cleanup // order of execution is: own cleanup steps followed by config cleanup 
+ *       { ( Component | Macro )*
+ *           ( FixtureCall | MacroCall )* ... }
+ */
+
+// Tree that is used to model call trees as executed/expected by a testcase
+class CallTreeNode {
+	String displayname
+	contains CallTreeNode[0..*] children
+}
