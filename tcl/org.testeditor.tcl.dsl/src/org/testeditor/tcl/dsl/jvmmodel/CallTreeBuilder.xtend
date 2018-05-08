@@ -5,11 +5,8 @@ import javax.inject.Singleton
 import org.eclipse.emf.ecore.EObject
 import org.testeditor.tcl.AbstractTestStep
 import org.testeditor.tcl.CallTreeNode
-import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContainer
 import org.testeditor.tcl.TestCase
-import org.testeditor.tcl.TestCleanup
-import org.testeditor.tcl.TestSetup
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.dsl.messages.TclElementStringifier
@@ -28,14 +25,31 @@ class CallTreeBuilder {
 
 	def CallTreeNode buildCallTree(TestCase model) {
 		return model.namedCallTreeNode => [
-			children += model.setup.map[toCallTree]
+			val setups = (model.config?.setup ?: #[]) + model.setup
+			val cleanups = model.cleanup + (model.config?.cleanup ?: #[])
+
+			if (!setups.empty) {
+				children += callTreeNodeNamed(testSetupDisplayName) => [
+					children += setups.flatMap[toCallTreeChildren]
+				]
+			}
+
 			children += model.steps.map[toCallTree]
-			children += model.cleanup.map[toCallTree]
+
+			if (!cleanups.empty) {
+				children += callTreeNodeNamed(testCleanupDisplayName) => [
+					children += cleanups.flatMap[toCallTreeChildren]
+				]
+			}
 		]
 	}
 
+	def Iterable<CallTreeNode> toCallTreeChildren(StepContainer model) {
+		return model.contexts.map[toCallTree]
+	}
+
 	def dispatch CallTreeNode toCallTree(StepContainer model) {
-		return model.toNamedCallTreeNode => [
+		return model.namedCallTreeNode => [
 			children += model.contexts.map[toCallTree]
 		]
 	}
@@ -60,18 +74,6 @@ class CallTreeBuilder {
 
 	def dispatch CallTreeNode toCallTree(EObject model) {
 		return model.namedCallTreeNode
-	}
-
-	def dispatch CallTreeNode toNamedCallTreeNode(SpecificationStepImplementation model) {
-		return callTreeNodeNamed(model.contents.restoreString)
-	}
-
-	def dispatch CallTreeNode toNamedCallTreeNode(TestSetup model) {
-		return callTreeNodeNamed(testSetupDisplayName)
-	}
-
-	def dispatch CallTreeNode toNamedCallTreeNode(TestCleanup model) {
-		return callTreeNodeNamed(testCleanupDisplayName)
 	}
 
 	def namedCallTreeNode(EObject model) {
