@@ -631,8 +631,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			output.trace(step, TEST_STEP_WITH_ASSIGNMENT__VARIABLE, 0) => [
 				// TODO should we use output.declareVariable here?
 				// val variableName = output.declareVariable(step.variableName, step.variableName)
-				val partialCodeLine = step.leftHandSideAssignmentCodeLine
-				output.appendReporterEnterCall(SemanticUnit.STEP, '''«step.leftHandSideAssignmentCodeLine.trim» «step.stringifyTestStep»''', variables)
+				val partialCodeLine = '''«operation.returnType.identifier» «step.variable.name» = '''
+				output.appendReporterEnterCall(SemanticUnit.STEP, step.stringify, variables)
 				output.append(partialCodeLine) // please call with string, since tests checks against expected string which fails for passing ''' directly
 			]
 		} else {

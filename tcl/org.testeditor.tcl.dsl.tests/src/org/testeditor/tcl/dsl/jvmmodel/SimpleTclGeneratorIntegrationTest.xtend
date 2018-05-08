@@ -100,13 +100,13 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			  
 			  reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
 			  
-			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "java.util.List<? extends java.lang.Object> foo = Read list from <bar>");
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "foo = Read list from <bar> [java.util.List<? extends java.lang.Object>]");
 			  java.util.List<? extends java.lang.Object> foo = dummyFixture.getList("label.greet");
-			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "java.lang.String baz = Read value from <bar>");
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "baz = Read value from <bar> [java.lang.String]");
 			  java.lang.String baz = dummyFixture.getValue("label.greet");
-			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "boolean book = Read bool from <bar>");
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "book = Read bool from <bar> [boolean]");
 			  boolean book = dummyFixture.getBool("label.greet");
-			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "com.google.gson.JsonObject mak = Read jsonObject from <bar>");
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "mak = Read jsonObject from <bar> [com.google.gson.JsonObject]");
 			  com.google.gson.JsonObject mak = dummyFixture.getJsonObject("label.greet");
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert foo // foo = '" + foo + "'");
 			  org.junit.Assert.assertNotNull("SimpleTest.tcl:11: foo", foo);
@@ -130,7 +130,7 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			  org.junit.Assert.assertNull("SimpleTest.tcl:20: ! mak.\"key with spaces\"", mak.getAsJsonObject().get("key with spaces"));
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert baz = mak.otherkey // baz = '" + baz + "', mak = '" + mak + "'");
 			  org.junit.Assert.assertEquals("SimpleTest.tcl:21: baz = mak.otherkey", mak.getAsJsonObject().get("otherkey").getAsJsonPrimitive().getAsString(), baz);
-			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "long log = Read long from <bar>");
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "log = Read long from <bar> [long]");
 			  long log = dummyFixture.getLong("label.greet");
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert log < 42 // log = '" + log + "'");
 			  org.junit.Assert.assertTrue("SimpleTest.tcl:23: log < 42", log < 42);
@@ -192,15 +192,15 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 
 		// then
 		generatedCode.assertContains('''
-			reporter.enter(TestRunReporter.SemanticUnit.STEP, "com.google.gson.JsonObject jsonvar = Read jsonObject from <bar>");
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "jsonvar = Read jsonObject from <bar> [com.google.gson.JsonObject]");
 			com.google.gson.JsonObject jsonvar = dummyFixture.getJsonObject("label.greet");
-			reporter.enter(TestRunReporter.SemanticUnit.STEP, "long longvar = Read long from <bar>");
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "longvar = Read long from <bar> [long]");
 			long longvar = dummyFixture.getLong("label.greet");
-			reporter.enter(TestRunReporter.SemanticUnit.STEP, "java.lang.String stringvar = Read value from <bar>");
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "stringvar = Read value from <bar> [java.lang.String]");
 			java.lang.String stringvar = dummyFixture.getValue("label.greet");
-			reporter.enter(TestRunReporter.SemanticUnit.STEP, "boolean boolvar = Read bool from <bar>");
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "boolvar = Read bool from <bar> [boolean]");
 			boolean boolvar = dummyFixture.getBool("label.greet");
-			reporter.enter(TestRunReporter.SemanticUnit.STEP, "org.testeditor.dsl.common.testing.DummyEnum enumvar = Read enum from <bar>");
+			reporter.enter(TestRunReporter.SemanticUnit.STEP, "enumvar = Read enum from <bar> [org.testeditor.dsl.common.testing.DummyEnum]");
 			org.testeditor.dsl.common.testing.DummyEnum enumvar = dummyFixture.getEnum("label.greet");
 			reporter.enter(TestRunReporter.SemanticUnit.STEP, "@jsonvar.\"key\" = jsonvar.\"some value\"");
 			jsonvar.getAsJsonObject().add("key", jsonvar.getAsJsonObject().get("some value"));
@@ -274,7 +274,7 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			  
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "Start application \"org.testeditor.swing.exammple.Greetings\"");
 			  dummyFixture.startApplication("org.testeditor.swing.exammple.Greetings");
-			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "java.util.List<? extends java.lang.Object> foo = Read list from <bar>");
+			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "foo = Read list from <bar> [java.util.List<? extends java.lang.Object>]");
 			  java.util.List<? extends java.lang.Object> foo = dummyFixture.getList("label.greet");
 			  reporter.enter(TestRunReporter.SemanticUnit.STEP, "Stop application");
 			  dummyFixture.stopApplication();

@@ -96,9 +96,9 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 			    
 			    reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "dummyComponent");
 			    
-			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "com.google.gson.JsonObject myJsonObject = Read jsonObject from <dummyElement>");
+			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "myJsonObject = Read jsonObject from <dummyElement> [com.google.gson.JsonObject]");
 			    com.google.gson.JsonObject myJsonObject = dummyFixture.getJsonObject("dummyLocator");
-			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "java.lang.String myVal = Read value from <dummyElement>");
+			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "myVal = Read value from <dummyElement> [java.lang.String]");
 			    java.lang.String myVal = dummyFixture.getValue("dummyLocator");
 			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Start application @myJsonObject.\"my key\" // myJsonObject = '" + myJsonObject + "'");
 			    org.junit.Assert.assertTrue("Parameter is expected to be of type = 'java.lang.String' but a non coercible value = '"+myJsonObject.getAsJsonObject().get("my key").toString()+"' was passed through variable reference = 'myJsonObject'.", myJsonObject.getAsJsonObject().get("my key").getAsJsonPrimitive().isString());

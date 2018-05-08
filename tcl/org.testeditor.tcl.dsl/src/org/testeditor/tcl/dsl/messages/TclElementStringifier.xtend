@@ -49,7 +49,7 @@ class TclElementStringifier {
 	}
 
 	def dispatch String stringify(TestStepWithAssignment it) {
-		return '''«leftHandSideAssignmentCodeLine.trim» «stringifyTestStep»'''
+		return '''«variable.name» = «stringifyTestStep» «typeInfoSuffix»'''
 	}
 
 	def dispatch String stringify(AssertionTestStep it) {
@@ -72,18 +72,18 @@ class TclElementStringifier {
 		logger.warn('''Don't know how to stringify elements of type «it.class.name»; using simple class name.''')
 		return class.simpleName
 	}
-
-	def String leftHandSideAssignmentCodeLine(TestStepWithAssignment it) {
-		var leftHandSideAssignmentCodeLine = ''
+	
+	def String typeInfoSuffix(TestStepWithAssignment it) {
+		var typeInfoSuffix = ''
 		if (hasComponentContext) {
 			val operation = interaction.defaultMethod?.operation
 			if (operation !== null) {
-				leftHandSideAssignmentCodeLine = '''«operation.returnType.identifier» «variable.name» = '''
+				typeInfoSuffix = '''[«operation.returnType.identifier»]'''
 			} else {
 				logger.warn('''Interaction type '«interaction.name»' does not have a proper method reference.''')
 			}
 		}
-		return leftHandSideAssignmentCodeLine
+		return typeInfoSuffix
 	}
 
 	def stringifyTestStep(TestStep it) {

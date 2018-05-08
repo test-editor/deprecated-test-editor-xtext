@@ -194,7 +194,7 @@ class CallTreeBuilderTest extends AbstractTclTest {
 		// then
 		actualTree.children.head.children.head.children => [
 			assertSize(1)
-			head.displayname.assertEquals('com.google.gson.JsonObject myVar = Read jsonObject from <bar>')
+			head.displayname.assertEquals('myVar = Read jsonObject from <bar> [com.google.gson.JsonObject]')
 		]
 	}
 
@@ -280,7 +280,7 @@ class CallTreeBuilderTest extends AbstractTclTest {
 						displayname.assertEquals(amlComponentForTesting.name)
 						children => [
 							assertSize(1, 'there should be exactly one test step (component invocation)')
-							head.displayname.assertEquals('com.google.gson.JsonObject myVar = Read jsonObject from <bar>')
+							head.displayname.assertEquals('myVar = Read jsonObject from <bar> [com.google.gson.JsonObject]')
 						]
 					]
 				]
