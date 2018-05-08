@@ -66,8 +66,8 @@ import org.testeditor.tcl.TestStepWithAssignment
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tcl.dsl.jvmmodel.macro.MacroHelper
+import org.testeditor.tcl.dsl.messages.TclElementStringifier
 import org.testeditor.tcl.util.TclModelUtil
-import org.testeditor.tsl.SpecificationStep
 import org.testeditor.tsl.StepContent
 import org.testeditor.tsl.StepContentValue
 
@@ -82,6 +82,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	@Inject extension JvmTypesBuilder
 	@Inject extension ModelUtil
 	@Inject extension TclModelUtil
+	@Inject extension TclElementStringifier
 	@Inject TclAssertCallBuilder assertCallBuilder
 	@Inject IQualifiedNameProvider nameProvider
 	@Inject JvmModelHelper jvmModelHelper
@@ -334,22 +335,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		output.newLine
 	}
 	
-	private def String reportString(SpecificationStep step) {
-		val node = NodeModelUtils.getNode(step)
-		val contentsString = if (node !== null) {
-				val text = NodeModelUtils.getTokenText(node)
-				val relevantText = text.split('\n').map[trim].takeWhile[!startsWith("Component")&&!startsWith("Mask")&&!startsWith("Macro")].join(' ')
-				val contentsText = relevantText.substring(text.indexOf('*') + 1)
-				contentsText
-			} else {
-				// if no node model is present do naiive restoration of model (spacing information is lost)
-				step.contents.restoreString
-			}.trim
-		return contentsString
-	}
-	
 	private def void generate(SpecificationStepImplementation step, ITreeAppendable output) {
-		output.appendReporterEnterCall(SemanticUnit.SPECIFICATION_STEP, step.reportString) 
+		output.appendReporterEnterCall(SemanticUnit.SPECIFICATION_STEP, step.stringify) 
 		step.contexts.forEach[generateContext(output.trace(it))]
 	}
 
@@ -360,7 +347,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	private def dispatch void generateContext(ComponentTestStepContext context, ITreeAppendable output) {
-		output.appendReporterEnterCall(SemanticUnit.COMPONENT, context.component.name)
+		output.appendReporterEnterCall(SemanticUnit.COMPONENT, context.stringify)
 		context.steps.forEach[generate(output.trace(it))]
 	}
 
@@ -433,12 +420,11 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 	
 	private def void toUnitTestCodeLineOfJsonAssignment(AssignmentThroughPath step, ITreeAppendable output) {
-		val varRef = step.getVariableReference
-
-		val stepLog = '''«varRef?.restoreString» = «assertCallBuilder.assertionText(step.expression)»'''
+		val stepLog = step.stringify
 		logger.debug("generating code line for test step='{}'.", stepLog)
 		output.appendReporterEnterCall(SemanticUnit.STEP, '''«stepLog»''')
 
+		val varRef = step.getVariableReference
 		val expression = step.expression.actualMostSpecific
 		switch expression {
 			JsonValue: {
@@ -646,7 +632,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 				// TODO should we use output.declareVariable here?
 				// val variableName = output.declareVariable(step.variableName, step.variableName)
 				val partialCodeLine = '''«operation.returnType.identifier» «step.variable.name» = '''
-				output.appendReporterEnterCall(SemanticUnit.STEP, '''«partialCodeLine.trim» «stepLog.trim»''', variables)
+				output.appendReporterEnterCall(SemanticUnit.STEP, step.stringify, variables)
 				output.append(partialCodeLine) // please call with string, since tests checks against expected string which fails for passing ''' directly
 			]
 		} else {
