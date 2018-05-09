@@ -340,13 +340,13 @@ class CallTreeBuilderTest extends AbstractTclTest {
 				]
 			]
 			setup += createTestSetup => [
-					contexts += componentTestStepContext(amlComponentForTesting) => [
-						steps += testStep('Local', 'Setup')
-					]
+				contexts += componentTestStepContext(amlComponentForTesting) => [
+					steps += testStep('Local', 'Setup')
 				]
+			]
 			cleanup += createTestCleanup => [
-					contexts += componentTestStepContext(amlComponentForTesting) => [
-						steps += testStep('Local', 'Cleanup')
+				contexts += componentTestStepContext(amlComponentForTesting) => [
+					steps += testStep('Local', 'Cleanup')
 				]
 			]
 		]
@@ -363,18 +363,12 @@ class CallTreeBuilderTest extends AbstractTclTest {
 					assertSize(2)
 					head => [
 						displayname.assertEquals(amlComponentForTesting.name)
-						children => [
-							assertSize(1)
-							head.displayname.assertEquals('Global Setup')
-						]
+						children.assertSingleElement.displayname.assertEquals('Global Setup')
 					]
 					last => [
 						displayname.assertEquals(amlComponentForTesting.name)
-						children => [
-							assertSize(1)
-							head.displayname.assertEquals('Local Setup')
-						]
-					]					
+						children.assertSingleElement.displayname.assertEquals('Local Setup')
+					]
 				]
 			]
 			last => [
@@ -383,18 +377,12 @@ class CallTreeBuilderTest extends AbstractTclTest {
 					assertSize(2)
 					head => [
 						displayname.assertEquals(amlComponentForTesting.name)
-						children => [
-							assertSize(1)
-							head.displayname.assertEquals('Local Cleanup')
-						]
+						children.assertSingleElement.displayname.assertEquals('Local Cleanup')
 					]
 					last => [
 						displayname.assertEquals(amlComponentForTesting.name)
-						children => [
-							assertSize(1)
-							head.displayname.assertEquals('Global Cleanup')
-						]
-					]					
+						children.assertSingleElement.displayname.assertEquals('Global Cleanup')
+					]
 				]
 			]
 		]
