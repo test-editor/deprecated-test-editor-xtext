@@ -288,4 +288,104 @@ class CallTreeBuilderTest extends AbstractTclTest {
 		]
 	}
 
+	@Test
+	def void returnsProperCallTreeForTestCaseWithNonEmptyConfig() {
+		// given
+		val testCase = testCase('TheTestCase') => [
+			config = testConfig('myConfig') => [
+				setup += createTestSetup
+				cleanup += createTestCleanup
+			]
+		]
+
+		// when
+		val actualTree = builderUnderTest.buildCallTree(testCase)
+
+		// then
+		actualTree.children => [
+			assertSize(2)
+			head.displayname.assertEquals('Setup')
+			last.displayname.assertEquals('Cleanup')
+		]
+	}
+
+	@Test
+	def void ignoresEmptyTestConfiguration() {
+		// given
+		val testCase = testCase('TheTestCase') => [
+			config = testConfig('myConfig')
+		]
+
+		// when
+		val actualTree = builderUnderTest.buildCallTree(testCase)
+
+		// then
+		actualTree.children.assertEmpty
+	}
+
+	@Test
+	def void putsConfiguredAndLocalSetupAndCleanupInCorrectOrder() {
+		// given
+		val testCase = testCase('TheTestCase') => [
+			config = testConfig('myConfig') => [
+				setup += createTestSetup => [
+					contexts += componentTestStepContext(amlComponentForTesting) => [
+						steps += testStep('Global', 'Setup')
+					]
+				]
+				cleanup += createTestCleanup => [
+					contexts += componentTestStepContext(amlComponentForTesting) => [
+						steps += testStep('Global', 'Cleanup')
+					]
+				]
+			]
+			setup += createTestSetup => [
+				contexts += componentTestStepContext(amlComponentForTesting) => [
+					steps += testStep('Local', 'Setup')
+				]
+			]
+			cleanup += createTestCleanup => [
+				contexts += componentTestStepContext(amlComponentForTesting) => [
+					steps += testStep('Local', 'Cleanup')
+				]
+			]
+		]
+
+		// when
+		val actualTree = builderUnderTest.buildCallTree(testCase)
+
+		// then
+		actualTree.children => [
+			assertSize(2)
+			head => [
+				displayname.assertEquals('Setup')
+				children => [
+					assertSize(2)
+					head => [
+						displayname.assertEquals(amlComponentForTesting.name)
+						children.assertSingleElement.displayname.assertEquals('Global Setup')
+					]
+					last => [
+						displayname.assertEquals(amlComponentForTesting.name)
+						children.assertSingleElement.displayname.assertEquals('Local Setup')
+					]
+				]
+			]
+			last => [
+				displayname.assertEquals('Cleanup')
+				children => [
+					assertSize(2)
+					head => [
+						displayname.assertEquals(amlComponentForTesting.name)
+						children.assertSingleElement.displayname.assertEquals('Local Cleanup')
+					]
+					last => [
+						displayname.assertEquals(amlComponentForTesting.name)
+						children.assertSingleElement.displayname.assertEquals('Global Cleanup')
+					]
+				]
+			]
+		]
+	}
+
 }

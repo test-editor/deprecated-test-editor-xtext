@@ -398,7 +398,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		val locationString = '''«output.traceRegion.associatedSrcRelativePath.toString»:«output.traceRegion.associatedLocations.map[toReportableString].join(", ")»'''
 		logger.debug('''generating code line for assertion test step at «locationString».''')
 		val variables = EcoreUtil2.getAllContentsOfType(step.assertExpression, VariableReference)		
-		output.appendReporterEnterCall(SemanticUnit.STEP, '''assert «assertCallBuilder.assertionText(step.assertExpression)»''', variables)
+		output.appendReporterEnterCall(SemanticUnit.STEP, '''assert «assertionText(step.assertExpression)»''', variables)
 		output.append(assertCallBuilder.build(step.assertExpression, locationString))
 	}
 	

@@ -20,16 +20,17 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.InjectMocks
 import org.mockito.Mock
+import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 import org.testeditor.tcl.JsonString
 import org.testeditor.tcl.VariableReference
 import org.testeditor.tcl.VariableReferencePathAccess
+import org.testeditor.tcl.dsl.messages.TclElementStringifier
 import org.testeditor.tcl.dsl.tests.AbstractTclTest
 import org.testeditor.tcl.dsl.tests.TclModelGenerator
 import org.testeditor.tcl.util.TclModelUtil
 
 import static org.mockito.Matchers.*
 import static org.mockito.Mockito.*
-import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 
 class TclAssertCallBuilderTest extends AbstractTclTest {
 
@@ -41,6 +42,7 @@ class TclAssertCallBuilderTest extends AbstractTclTest {
 	@Mock VariableCollector variableCollector // injected into class under test	
 	@Mock TclExpressionTypeComputer tclExpressionTypeComputer // injected into class under test
 	@Mock JvmTypeReferenceUtil tclJvmTypeReferenceUtil // injected into class under test
+	@Mock TclElementStringifier elementStringifier // injected into class under test
 	
 	@Inject extension TclModelGenerator
 	@Inject protected Provider<XtextResourceSet> resourceSetProvider
