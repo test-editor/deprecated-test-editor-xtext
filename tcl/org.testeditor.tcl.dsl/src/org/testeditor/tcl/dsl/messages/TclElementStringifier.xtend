@@ -3,15 +3,16 @@ package org.testeditor.tcl.dsl.messages
 import javax.inject.Inject
 import javax.inject.Singleton
 import org.eclipse.emf.ecore.EObject
+import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.slf4j.LoggerFactory
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.AssignmentThroughPath
 import org.testeditor.tcl.ComponentTestStepContext
+import org.testeditor.tcl.Expression
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestStep
 import org.testeditor.tcl.TestStepWithAssignment
-import org.testeditor.tcl.dsl.jvmmodel.TclAssertCallBuilder
 import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tsl.SpecificationStep
 
@@ -24,10 +25,16 @@ class TclElementStringifier {
 	static val logger = LoggerFactory.getLogger(TclElementStringifier)
 
 	@Inject extension TclModelUtil
-	@Inject extension TclAssertCallBuilder
 
 	def dispatch String stringify(TestCase it) {
 		return name
+	}
+
+	/**
+	 * Get the textual representation of the expression as is
+	 */
+	def String assertionText(Expression expression) {
+		return NodeModelUtils.getNode(expression)?.text?.trim ?: ""
 	}
 
 	// SpecificationStep and TestStep each define 'contents' as a field of type EList<StepContent>
@@ -53,11 +60,11 @@ class TclElementStringifier {
 	}
 
 	def dispatch String stringify(AssertionTestStep it) {
-		return '''assert «assertExpression.assertionText»'''
+		return '''assert «assertionText(assertExpression)»'''
 	}
 
 	def dispatch String stringify(AssignmentThroughPath it) {
-		return '''«variableReference?.restoreString» = «expression.assertionText»'''
+		return '''«variableReference?.restoreString» = «assertionText(expression)»'''
 	}
 
 	def dispatch String stringify(ComponentTestStepContext it) {
