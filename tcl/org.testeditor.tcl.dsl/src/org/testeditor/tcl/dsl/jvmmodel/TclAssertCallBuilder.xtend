@@ -15,7 +15,6 @@ package org.testeditor.tcl.dsl.jvmmodel
 import java.util.Optional
 import javax.inject.Inject
 import org.eclipse.xtext.common.types.JvmTypeReference
-import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.slf4j.LoggerFactory
 import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 import org.testeditor.tcl.Comparator
@@ -30,6 +29,7 @@ import org.testeditor.tcl.JsonString
 import org.testeditor.tcl.NullOrBoolCheck
 import org.testeditor.tcl.StepContainer
 import org.testeditor.tcl.VariableReference
+import org.testeditor.tcl.dsl.messages.TclElementStringifier
 
 import static extension org.apache.commons.lang3.StringEscapeUtils.escapeJava
 import static extension org.eclipse.xtext.EcoreUtil2.getContainerOfType
@@ -45,6 +45,7 @@ class TclAssertCallBuilder {
 	@Inject TclExpressionBuilder expressionBuilder
 	@Inject JvmTypeReferenceUtil typeReferenceUtil
 	@Inject TclExpressionTypeComputer expressionTypeComputer
+	@Inject TclElementStringifier elementStringifier
 
 	/** assert method calls used, toString must yield the actual method name! */
 	enum AssertMethod {
@@ -73,13 +74,6 @@ class TclAssertCallBuilder {
 		}
 	}
 	
-	/**
-	 * Get the textual representation of the expression as is
-	 */
-	def String assertionText(Expression expression) {
-		return NodeModelUtils.getNode(expression)?.text?.trim ?: ""
-	}
-
 	def String build(Expression expression, String messagePrefix) {
 		val assertionMethod = assertionMethod(expression)
 		if (assertionMethod == null) {
@@ -91,7 +85,7 @@ class TclAssertCallBuilder {
 				default: throw new RuntimeException('''Assertion expression of type='«expression.class.canonicalName»' cannot be built!''')
 			}
 			return '''
-				org.junit.Assert.«expression.assertionMethod»("«messagePrefix»: «expression.assertionText.escapeJava»", «expressionBuilt»);'''
+				org.junit.Assert.«expression.assertionMethod»("«messagePrefix»: «elementStringifier.assertionText(expression).escapeJava»", «expressionBuilt»);'''
 		}
 	}
 

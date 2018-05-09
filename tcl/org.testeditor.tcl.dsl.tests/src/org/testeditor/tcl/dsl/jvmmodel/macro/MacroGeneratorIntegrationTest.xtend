@@ -143,7 +143,7 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 				  
 				  reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
 				  
-				  reporter.enter(TestRunReporter.SemanticUnit.STEP, "java.lang.String value = Read value from <bar>");
+				  reporter.enter(TestRunReporter.SemanticUnit.STEP, "value = Read value from <bar> [java.lang.String]");
 				  java.lang.String value = dummyFixture.getValue("label.greet");
 				}
 			'''.indent(1))
@@ -237,7 +237,7 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 				  
 				  reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
 				  
-				  reporter.enter(TestRunReporter.SemanticUnit.STEP, "java.lang.String value = Read value from <bar>");
+				  reporter.enter(TestRunReporter.SemanticUnit.STEP, "value = Read value from <bar> [java.lang.String]");
 				  java.lang.String value = dummyFixture.getValue("label.greet");
 				  // Macro: MyMacroCollection
 				  // - Set input to @value

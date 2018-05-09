@@ -297,4 +297,54 @@ class SimpleTslParserTest extends AbstractParserTest {
 			]
 		]
 	}
+	
+	@Test
+	def void multilineSpecWithComments() {
+		// given
+		val tsl = '''
+			package com.example
+			
+			  // some comment
+			  	/* and
+			  	   a
+			  	   multiline comment */
+			
+			# Test
+			
+			          Dies ist der erklaerende	http://some.site and Beschreibungs
+			Text 
+			// gehoert nicht mehr zur Beschreibung
+
+			* One specification step including *
+			  that spans over multiple and references
+			  lines an includes £µ Ähnlich
+			  
+			  empty lines in between
+			  
+				// between to specs
+				
+			/*
+			* commented spec step
+			*/
+				
+			* and another simple spec step "with"
+			  : "variable" * and description
+			  
+			  /* after a spec 
+			     */
+			'''
+
+		// when 
+		tsl.parseTsl => [
+			
+			//  then
+			assertNoSyntaxErrors
+			specification.description.assertEquals('Dies ist der erklaerende	http://some.site and Beschreibungs\nText')
+			specification.steps => [
+				assertSize(2)
+				get(0).contents.restoreString.assertEquals('One specification step including * that spans over multiple and references lines an includes £ µ Ähnlich empty lines in between')
+				get(1).contents.restoreString.assertEquals('and another simple spec step "with" : "variable" * and description')
+			]
+		]
+	}
 }
