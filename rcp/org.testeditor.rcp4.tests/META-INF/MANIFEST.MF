@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Integration Tests of the rcp4
 Bundle-SymbolicName: org.testeditor.rcp4.tests
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 1.13.0
 Fragment-Host: org.testeditor.rcp4;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.testeditor.dsl.common.testing;bundle-version="1.0.0",

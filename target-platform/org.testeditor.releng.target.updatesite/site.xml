@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/org.testeditor.releng.target.thirdparty_1.13.0.qualifier.qualifier.jar" id="org.testeditor.releng.target.thirdparty" version="1.13.0.qualifier"/>
-   <feature url="features/org.testeditor.releng.target.platform_1.13.0.qualifier.jar" id="org.testeditor.releng.target.platform" version="1.13.0.qualifier"/>
-   <feature url="features/org.testeditor.releng.target.xtext_1.13.0.qualifier.jar" id="org.testeditor.releng.target.xtext" version="1.13.0.qualifier"/>
+   <feature url="features/org.testeditor.releng.target.thirdparty_1.13.0.qualifier.jar" id="org.testeditor.releng.target.thirdparty" version="1.13.0"/>
+   <feature url="features/org.testeditor.releng.target.platform_1.13.0.jar" id="org.testeditor.releng.target.platform" version="1.13.0"/>
+   <feature url="features/org.testeditor.releng.target.xtext_1.13.0.jar" id="org.testeditor.releng.target.xtext" version="1.13.0"/>
 </site>
