@@ -56,26 +56,32 @@ class TclSetupAndCleanupGeneratorIntegrationTest extends AbstractTclGeneratorInt
 			  @Before
 			  public void setup() throws Exception {
 			    
-			    reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
-			    
-			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Start application \"org.testeditor.swing.exammple.Greetings\"");
+			    String IDvar0=getNewId(); reporter.enter(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "setup", IDvar0, "?", variables());
+			    String IDvar1=getNewId(); reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication", IDvar1, "?", variables());
+			    String IDvar2=getNewId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "Start application \"org.testeditor.swing.exammple.Greetings\"", IDvar2, "?", variables());
 			    dummyFixture.startApplication("org.testeditor.swing.exammple.Greetings");
+			    reporter.leave(TestRunReporter.SemanticUnit.STEP, "Start application \"org.testeditor.swing.exammple.Greetings\"", IDvar2, "OK", variables());
+			    reporter.leave(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication", IDvar1, "OK", variables());
+			    reporter.leave(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "setup", IDvar0, "OK", variables());
 			  }
 			  
 			  @After
 			  public void cleanup() throws Exception {
 			    
-			    reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
-			    
-			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Stop application");
+			    String IDvar3=getNewId(); reporter.enter(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "cleanup", IDvar3, "?", variables());
+			    String IDvar4=getNewId(); reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication", IDvar4, "?", variables());
+			    String IDvar5=getNewId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "Stop application", IDvar5, "?", variables());
 			    dummyFixture.stopApplication();
+			    reporter.leave(TestRunReporter.SemanticUnit.STEP, "Stop application", IDvar5, "OK", variables());
+			    reporter.leave(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication", IDvar4, "OK", variables());
+			    reporter.leave(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "cleanup", IDvar3, "OK", variables());
 			  }
 			  
 			  @Test
 			  public void execute() throws Exception {
 			    
-			    reporter.enter(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "Test Step");
-			    
+			    String IDvar6=getNewId(); reporter.enter(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "Test Step", IDvar6, "?", variables());
+			    reporter.leave(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "Test Step", IDvar6, "OK", variables());
 			  }
 			}
 		'''.toString)

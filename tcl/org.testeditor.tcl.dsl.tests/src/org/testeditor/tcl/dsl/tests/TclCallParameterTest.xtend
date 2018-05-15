@@ -46,6 +46,7 @@ class TclCallParameterTest extends AbstractTclGeneratorIntegrationTest {
 			]
 		]
 		tclModel.addToResourceSet
+		jvmModelInferrer.initWith(resourceSet)
 
 		// when
 		jvmModelInferrer.generateMethodBody(tclModel.test, outputStub)

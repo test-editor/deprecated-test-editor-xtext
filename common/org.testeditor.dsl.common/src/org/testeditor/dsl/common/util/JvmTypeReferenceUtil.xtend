@@ -205,6 +205,14 @@ class JvmTypeReferenceUtil {
 		return Number.buildFrom
 	}
 	
+	def JvmTypeReference objectJvmTypeReference() {
+		return Object.buildFrom
+	}
+	
+	def boolean isObject(JvmTypeReference reference) {
+		return objectJvmTypeReference.isAssignableFrom(reference)
+	}
+
 	def boolean isEnum(JvmTypeReference reference) {
 		return enumJvmTypeReference.isAssignableFrom(reference)
 	}

@@ -3,8 +3,11 @@ package org.testeditor.tcl.dsl.jvmmodel
 import java.util.List
 import javax.inject.Inject
 import org.apache.commons.lang3.StringEscapeUtils
+import org.apache.commons.lang3.StringUtils
 import org.eclipse.xtext.common.types.JvmType
+import org.eclipse.xtext.common.types.JvmTypeReference
 import org.slf4j.LoggerFactory
+import org.testeditor.fixture.core.TestRunReporter.Action
 import org.testeditor.fixture.core.TestRunReporter.SemanticUnit
 import org.testeditor.tcl.VariableReference
 
@@ -14,9 +17,18 @@ class TestRunReporterGenerator {
 
 	static val logger = LoggerFactory.getLogger(TestRunReporterGenerator)
 
-	public def List<Object> buildReporterEnterCall(JvmType type, SemanticUnit unit, String message,
-		String reporterInstanceVariableName, List<VariableReference> variables) {
-		val unescapedSplicingPostfix = variableSplicingText(variables)
+	public def List<Object> buildReporterCall(JvmType type, SemanticUnit unit, Action action, String message, String id, String status,
+		String reporterInstanceVariableName, List<VariableReference> variables, JvmTypeReference stringTypeReference) {
+		val variablesValuesList = if (variables !== null){
+			try {
+			variables.filterNull.map[
+				'''"«variable?.name»", «expressionBuilder.buildReadExpression(it, stringTypeReference)»''' //TODO: must yield variable access reference as defined in tcl! for json eg.
+			].filterNull.join(', ')			
+			}catch(RuntimeException e) {
+				logger.warn('error during generation of parameter passing for reporting', e)
+				''
+			}
+		} else { '' }
 			
 		val escapedMessage = StringEscapeUtils.escapeJava(message.trim)
 
@@ -27,34 +39,27 @@ class TestRunReporterGenerator {
 				'''.toString]
 		} else {
 			return #['''
-			«IF unit.shouldPrintNewLine»
-
-			«ENDIF»
-			«reporterInstanceVariableName».enter('''.toString, type, '''.«unit.name», "«escapedMessage»«unescapedSplicingPostfix?:''»");
-			'''.toString.replaceAll('" *\\+ *"', '') ];
+			
+			«generateCommentPrefix»«initIdVar(action, id)»«reporterInstanceVariableName».«action.toString.toLowerCase»('''.toString, type, '''.«unit.name», "«escapedMessage»", «id», "«status»", variables(«variablesValuesList»));'''.toString.replaceAll('" *\\+ *"', '') ];
 		}
 	}
 	
-	/**
-	 * Get a string suffix that will close a message string and append code to be
-	 * added to the generated reporting line, writing out the variables and their
-	 * content during runtime (that is during execution of the test).
-	 * 
-	 * @see org.testeditor.tcl.dsl.jvmmodel.TestRunReporterGeneratorTest#testUnsplicingOfVariablePostfixString() Unit-Test
-	 */
-	private def String variableSplicingText(List<VariableReference> variables) {
-		if (variables !== null && !variables.empty) {
-			val splicableStrings = variables.map [
-				'''"«variable.name» = '" + «expressionBuilder.variableToVarName(variable)» + "'«''»'''
-			].join('''" + ", " + ''')
-			return '''" + " // " + «splicableStrings»'''
-		} else {
-			return ''
-		}
+	private def String initIdVar(Action action, String idVar) {
+		if(Action.ENTER.equals(action)){
+			'''String «idVar»=getNewId(); '''
+		}	
 	}
-
-	private def boolean shouldPrintNewLine(SemanticUnit unit) {
-		return unit != SemanticUnit.STEP
+	
+	private def String generateCommentPrefix() {
+		val prefix = System.getenv('TE_REPORTER_CALL_COMMENT_PREFIX_CHAR')
+		val prefixCount = System.getenv('TE_REPORTER_CALL_COMMENT_PREFIX_COUNT')
+		if ((prefix != null) && (prefixCount != null)) {
+			try{
+				return '''/*«StringUtils.repeat(prefix, Integer.parseInt(prefixCount))»*/'''				
+			}catch(NumberFormatException nfe) {
+			}
+		}
+		return ''
 	}
 
 }

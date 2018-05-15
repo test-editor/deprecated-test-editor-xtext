@@ -303,6 +303,8 @@ class TclCoercionComputer {
 						return '''«sourceValueAccess»«generateJsonElementAccess(targetType)»'''
 					} else if (sourceType.isEnum) {
 						return '''«sourceValueAccess».toString()'''
+					} else if (sourceType.isObject) {
+						return '''«sourceValueAccess».toString()'''
 					} else {
 						throw new RuntimeException(coercionErrorMessage)
 					}

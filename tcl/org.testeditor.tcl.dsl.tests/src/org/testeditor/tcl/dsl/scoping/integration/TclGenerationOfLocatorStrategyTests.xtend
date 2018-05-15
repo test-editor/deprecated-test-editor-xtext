@@ -34,6 +34,7 @@ class TclGenerationOfLocatorStrategyTests extends AbstractTclGeneratorIntegratio
 		when(outputStub.append(any(CharSequence))).thenReturn(outputStub)
 		when(outputStub.append(any(JvmType))).thenReturn(outputStub)
 		when(outputStub.newLine).thenReturn(outputStub)
+		jvmModelInferrer.initWith(resourceSet)
 	}
 
 	def TclModel tclClickOnDummyButton(Component dummyComponent) {

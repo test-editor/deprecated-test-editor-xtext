@@ -69,22 +69,22 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 		val generatedCode = tcl.parseAndGenerate
 
 		// then
-		generatedCode => [
+		generatedCode.replaceAll('IDvar[0-9]*', 'IDvar') => [
 			assertContains('''
 				@Test
 				public void execute() throws Exception {
 				  
-				  reporter.enter(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "step1");
-				  
-				  // Macro: MyMacroCollection
-				  // - Do nothing
+				  String IDvar=getNewId(); reporter.enter(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "step1", IDvar, "?", variables());
+				  String IDvar=getNewId(); reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "MyMacroCollection", IDvar, "?", variables());
+				  String IDvar=getNewId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "Do nothing", IDvar, "?", variables());
 				  macro_MyMacroCollection_EmptyMacro();
-				}
 			'''.indent(1))
 
 			assertContains('''
 				private void macro_MyMacroCollection_EmptyMacro() throws Exception {
 				  
+				  String IDvar=getNewId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "MacroImpl", IDvar, "?", variables());
+				  reporter.leave(TestRunReporter.SemanticUnit.STEP, "MacroImpl", IDvar, "OK", variables());
 				}
 			'''.indent(1))
 		]
@@ -132,21 +132,19 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 		// then
 		generatedCode => [
 			assertContains('''
-				// Macro: MyMacroCollection
-				// - Read some values
 				macro_MyMacroCollection_ReadMacro();
-				// - Read some values
+				reporter.leave(TestRunReporter.SemanticUnit.STEP, "Read some values", IDvar2, "OK", variables());
+				String IDvar3=getNewId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "Read some values", IDvar3, "?", variables());
 				macro_MyMacroCollection_ReadMacro();
 			'''.indent(2))
 			assertContains('''
-				private void macro_MyMacroCollection_ReadMacro() throws Exception {
-				  
-				  reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
-				  
-				  reporter.enter(TestRunReporter.SemanticUnit.STEP, "value = Read value from <bar> [java.lang.String]");
-				  java.lang.String value = dummyFixture.getValue("label.greet");
-				}
-			'''.indent(1))
+				  private void macro_MyMacroCollection_ReadMacro() throws Exception {
+				    
+				    String IDvar4=getNewId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "MacroImpl", IDvar4, "?", variables());
+				    String IDvar5=getNewId(); reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication", IDvar5, "?", variables());
+				    String IDvar6=getNewId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "value = Read value from <bar> [java.lang.String]", IDvar6, "?", variables());
+				    java.lang.String value = dummyFixture.getValue("label.greet");
+				 '''.indent(1))
 		]
 	}
 
@@ -192,23 +190,16 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 		val generatedCode = tcl.parseAndGenerate
 
 		// then
-		generatedCode => [
+		generatedCode.replaceAll('IDvar[0-9]*', 'IDvar') => [
 			assertContains('''
-				// Macro: MyMacroCollection
-				// - Do nothing nested
 				macro_MyMacroCollection_EmptyNestedMacro();
 			'''.indent(2))
 			assertContains('''
-				private void macro_MyMacroCollection_EmptyNestedMacro() throws Exception {
-				  
-				  // Macro: MyMacroCollection
-				  // - Do nothing
-				  macro_MyMacroCollection_EmptyMacro();
-				}
+				macro_MyMacroCollection_EmptyMacro();
 			'''.indent(1))
 			assertContains('''
-				private void macro_MyMacroCollection_EmptyMacro() throws Exception {
-				  
+				  String IDvar=getNewId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "MacroImpl", IDvar, "?", variables());
+				  reporter.leave(TestRunReporter.SemanticUnit.STEP, "MacroImpl", IDvar, "OK", variables());
 				}
 			'''.indent(1))
 		]
