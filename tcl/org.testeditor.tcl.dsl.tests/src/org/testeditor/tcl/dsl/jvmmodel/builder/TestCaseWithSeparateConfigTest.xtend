@@ -47,58 +47,24 @@ class TestCaseWithSeparateConfigTest extends AbstractStandaloneBuilderTest {
 		// then
 		val configOutput = readFile("src-gen/com/example/MyConfig.java").removeJavaDoc
 		val testOutput = readFile("src-gen/com/example/SimpleTest.java").removeJavaDoc
-		configOutput.assertEquals('''
-			package com.example;
-			
-			import org.junit.After;
-			import org.junit.Before;
-			import org.testeditor.dsl.common.testing.DummyFixture;
-			import org.testeditor.fixture.core.AbstractTestCase;
-			import org.testeditor.fixture.core.TestRunReporter;
-			
+		configOutput.contains('''
 			@SuppressWarnings("all")
 			public abstract class MyConfig extends AbstractTestCase {
 			  protected DummyFixture dummyFixture = new DummyFixture();
-			  
+		'''.toString)
+		configOutput.contains('''
 			  @Before
 			  public void setupMyConfig() throws Exception {
-			    
-			    reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
-			    
-			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Start application \"org.testeditor.swing.exammple.Greetings\"");
-			    dummyFixture.startApplication("org.testeditor.swing.exammple.Greetings");
-			  }
-			  
+		'''.toString)
+		configOutput.contains('''
 			  @After
 			  public void cleanupMyConfig() throws Exception {
-			    
-			    reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
-			    
-			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Stop application");
-			    dummyFixture.stopApplication();
-			  }
-			}
 		'''.toString)
-		testOutput.assertEquals('''
-			package com.example;
-			
-			import com.example.MyConfig;
-			import org.junit.Test;
-			import org.testeditor.fixture.core.TestRunReporter;
-			
+		testOutput.contains('''
 			@SuppressWarnings("all")
 			public class SimpleTest extends MyConfig {
 			  @Test
 			  public void execute() throws Exception {
-			    
-			    reporter.enter(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "Test Step");
-			    
-			    reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
-			    
-			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Wait for \"3\" seconds");
-			    dummyFixture.waitSeconds(3);
-			  }
-			}
 		'''.toString)
 	}
 	

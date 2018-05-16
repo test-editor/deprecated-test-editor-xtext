@@ -73,7 +73,7 @@ class TclModelUtil extends TslModelUtil {
 	}
 
 	def String restoreString(VariableReferencePathAccess varPathAccess) {
-		return '''@«varPathAccess.variable.name»«varPathAccess.path.map[restoreString].join»'''
+		return '''«varPathAccess.variable.name»«varPathAccess.path.map[restoreString].join»'''
 	}
 	
 	def String restoreString(AccessPathElement pathElement) {
@@ -89,7 +89,7 @@ class TclModelUtil extends TslModelUtil {
 			switch (it) {
 				StepContentVariable: '''"«value»"'''
 				StepContentElement: '''<«value»>'''
-				VariableReferencePathAccess: restoreString
+				VariableReferencePathAccess: '''@«restoreString»'''
 				VariableReference: '''@«variable?.name»'''
 				StepContentValue: value
 				default: throw new IllegalArgumentException("Unhandled content: " + it)
