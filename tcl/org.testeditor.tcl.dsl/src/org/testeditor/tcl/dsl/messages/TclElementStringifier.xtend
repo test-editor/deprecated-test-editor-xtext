@@ -9,6 +9,7 @@ import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.AssignmentThroughPath
 import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.Expression
+import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.TestCase
 import org.testeditor.tcl.TestStep
@@ -73,6 +74,10 @@ class TclElementStringifier {
 
 	def dispatch String stringify(MacroTestStepContext it) {
 		return macroCollection.name
+	}
+	
+	def dispatch String stringify(Macro it) {
+		return name
 	}
 
 	def dispatch String stringify(EObject it) {
