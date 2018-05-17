@@ -82,6 +82,7 @@ class TclCallParameterTest extends AbstractTclGeneratorIntegrationTest {
 
 		// then
 		// expectation is string is escaped properly
+		
 		verify(outputStub).append('java.lang.String variable = ')
 		verify(outputStub).append('dummyFixture.getValue("dummyLocator");')
 		verify(outputStub).append('dummyFixture.startApplication(variable);')

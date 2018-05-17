@@ -119,9 +119,9 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			      String IDvar5=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "mak = Read jsonObject from <bar> [com.google.gson.JsonObject]", IDvar5, TestRunReporter.Status.STARTED, variables());
 			      com.google.gson.JsonObject mak = dummyFixture.getJsonObject("label.greet");
 			      reporter.leave(TestRunReporter.SemanticUnit.STEP, "mak = Read jsonObject from <bar> [com.google.gson.JsonObject]", IDvar5, TestRunReporter.Status.OK, variables());
-			      String IDvar6=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert foo", IDvar6, TestRunReporter.Status.STARTED, variables());
+			      String IDvar6=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert foo", IDvar6, TestRunReporter.Status.STARTED, variables("foo", foo.toString()));
 			      org.junit.Assert.assertNotNull("SimpleTest.tcl:11: foo", foo);
-			      reporter.leave(TestRunReporter.SemanticUnit.STEP, "assert foo", IDvar6, TestRunReporter.Status.OK, variables());
+			      reporter.leave(TestRunReporter.SemanticUnit.STEP, "assert foo", IDvar6, TestRunReporter.Status.OK, variables("foo", foo.toString()));
 			      String IDvar7=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert baz = \"fix\"", IDvar7, TestRunReporter.Status.STARTED, variables("baz", baz));
 			      org.junit.Assert.assertEquals("SimpleTest.tcl:12: baz = \"fix\"", "fix", baz);
 			      reporter.leave(TestRunReporter.SemanticUnit.STEP, "assert baz = \"fix\"", IDvar7, TestRunReporter.Status.OK, variables("baz", baz));
@@ -131,9 +131,9 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			      String IDvar9=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert mak.\"key with spaces\" = \"fox\"", IDvar9, TestRunReporter.Status.STARTED, variables("mak.\"key with spaces\"", mak.getAsJsonObject().get("key with spaces").getAsJsonPrimitive().getAsString()));
 			      org.junit.Assert.assertEquals("SimpleTest.tcl:14: mak.\"key with spaces\" = \"fox\"", "fox", mak.getAsJsonObject().get("key with spaces").getAsJsonPrimitive().getAsString());
 			      reporter.leave(TestRunReporter.SemanticUnit.STEP, "assert mak.\"key with spaces\" = \"fox\"", IDvar9, TestRunReporter.Status.OK, variables("mak.\"key with spaces\"", mak.getAsJsonObject().get("key with spaces").getAsJsonPrimitive().getAsString()));
-			      String IDvar10=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert ! foo", IDvar10, TestRunReporter.Status.STARTED, variables());
+			      String IDvar10=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert ! foo", IDvar10, TestRunReporter.Status.STARTED, variables("foo", foo.toString()));
 			      org.junit.Assert.assertNull("SimpleTest.tcl:15: ! foo", foo);
-			      reporter.leave(TestRunReporter.SemanticUnit.STEP, "assert ! foo", IDvar10, TestRunReporter.Status.OK, variables());
+			      reporter.leave(TestRunReporter.SemanticUnit.STEP, "assert ! foo", IDvar10, TestRunReporter.Status.OK, variables("foo", foo.toString()));
 			      String IDvar11=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "assert baz <> \"fix\"", IDvar11, TestRunReporter.Status.STARTED, variables("baz", baz));
 			      org.junit.Assert.assertNotEquals("SimpleTest.tcl:16: baz <> \"fix\"", "fix", baz);
 			      reporter.leave(TestRunReporter.SemanticUnit.STEP, "assert baz <> \"fix\"", IDvar11, TestRunReporter.Status.OK, variables("baz", baz));

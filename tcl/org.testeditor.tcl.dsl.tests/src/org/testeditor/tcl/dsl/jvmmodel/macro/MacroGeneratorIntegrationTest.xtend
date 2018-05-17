@@ -112,7 +112,7 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.STARTED, variables());
 				    reporter.leave(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.OK, variables());
 				  } catch (Exception e) {
-				    finishedTestWith(TestRunReporter.Status.ABORTED); // exception means unexpected abortion of the test
+				    finishedTestWith(TestRunReporter.Status.ABORTED);
 				    org.junit.Assert.fail(e.getMessage());
 				  }
 				}
@@ -182,7 +182,7 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 				    reporter.leave(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication", IDvar, TestRunReporter.Status.OK, variables());
 				    reporter.leave(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.OK, variables());
 				  } catch (Exception e) {
-				    finishedTestWith(TestRunReporter.Status.ABORTED); // exception means unexpected abortion of the test
+				    finishedTestWith(TestRunReporter.Status.ABORTED);
 				    org.junit.Assert.fail(e.getMessage());
 				  }
 				}
@@ -253,7 +253,7 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 				    reporter.leave(TestRunReporter.SemanticUnit.MACRO_LIB, "MyMacroCollection", IDvar, TestRunReporter.Status.OK, variables());
 				    reporter.leave(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.OK, variables());
 				  } catch (Exception e) {
-				    finishedTestWith(TestRunReporter.Status.ABORTED); // exception means unexpected abortion of the test
+				    finishedTestWith(TestRunReporter.Status.ABORTED);
 				    org.junit.Assert.fail(e.getMessage());
 				  }
 				}

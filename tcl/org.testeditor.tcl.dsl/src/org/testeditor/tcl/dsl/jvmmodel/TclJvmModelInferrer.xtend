@@ -82,7 +82,7 @@ import static extension org.apache.commons.lang3.StringEscapeUtils.escapeJava
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	static val logger = LoggerFactory.getLogger(TclJvmModelInferrer)
-	var int runningNumber = 0
+	var int variableIdRunningNumber = 0
 
 	@Inject extension JvmTypesBuilder
 	@Inject extension ModelUtil
@@ -92,21 +92,21 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	@Inject IQualifiedNameProvider nameProvider
 	@Inject JvmModelHelper jvmModelHelper
 	@Inject TclExpressionBuilder expressionBuilder
-	@Inject TestRunReporterGenerator testRunReporterGenerator 
+	@Inject TestRunReporterGenerator testRunReporterGenerator
 	@Inject MacroHelper macroHelper
 	@Inject SimpleTypeComputer typeComputer
 	@Inject TclExpressionTypeComputer expressionTypeComputer
-	@Inject ISerializer serializer 
+	@Inject ISerializer serializer
 	@Inject TclJsonUtil jsonUtil
 	@Inject TclCoercionComputer coercionComputer
 	@Inject JvmTypeReferenceUtil typeReferenceUtil
-		
+
 	def dispatch void infer(TclModel model, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
-		runningNumber = 0
+		variableIdRunningNumber = 0
 		model.test?.infer(acceptor, isPreIndexingPhase)
 		model.config?.infer(acceptor, isPreIndexingPhase)
 	}
-	
+
 	/**
 	 * Performs the minimal initialization to a class - its super type and
 	 * its variables.
@@ -124,7 +124,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			]
 		}
 	}
-	
+
 	@VisibleForTesting
 	def void initWith(ResourceSet resourceSet) {
 		coercionComputer.initWith(resourceSet)
@@ -141,7 +141,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		// Stuff that can be done in late initialization
 		acceptor.accept(generatedClass) [
 			initWith(element.eResource.resourceSet)
-			
+
 			documentation = '''Generated from «element.eResource.URI»'''
 
 			// Create constructor, if initialization of instantiated types with reporter is necessary
@@ -172,7 +172,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	private def boolean implementsInterface(JvmDeclaredType type, Class<?> ^interface) {
-		val interfaceName=^interface.canonicalName
+		val interfaceName = ^interface.canonicalName
 		return type.extendedInterfaces.map[qualifiedName].exists[equals(interfaceName)] //
 		|| { // lazy or -> recursion only if necessary
 			val parent = type.extendedClass?.type
@@ -184,47 +184,43 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		}
 	}
 
-	private def Iterable<JvmDeclaredType> getAllInstantiatedTypesImplementingTestRunReportable(
-		SetupAndCleanupProvider element, JvmDeclaredType generatedClass) {
+	private def Iterable<JvmDeclaredType> getAllInstantiatedTypesImplementingTestRunReportable(SetupAndCleanupProvider element, JvmDeclaredType generatedClass) {
 		return getAllTypesToInstantiate(element, generatedClass) //
 		.filter(JvmDeclaredType) //
 		.filter[implementsInterface(TestRunReportable)]
 	}
-	
-	def JvmConstructor createConstructor(SetupAndCleanupProvider element,
-			Iterable<JvmDeclaredType> typesToInitWithReporter) {
+
+	def JvmConstructor createConstructor(SetupAndCleanupProvider element, Iterable<JvmDeclaredType> typesToInitWithReporter) {
 		return toConstructor(element) [
 			body = [
 				typesToInitWithReporter.forEach [ fixtureType |
-					append('((').
-					append(typeRef(TestRunReportable).type).
-					append(''')«fixtureType.fixtureFieldName»).initWithReporter(«reporterFieldName»);''')
+					append('((').append(typeRef(TestRunReportable).type).append(''')«fixtureType.fixtureFieldName»).initWithReporter(«reporterFieldName»);''')
 				]
-				if (element	instanceof TestCase) {
-				append('''
-					try {
-						String yamlFileName = System.getenv("TE_CALL_TREE_YAML_FILE");
-						if (yamlFileName != null) {
-							java.io.File yamlFile = new java.io.File(yamlFileName);
-							
-							reporter.addListener(new org.testeditor.fixture.core.DefaultYamlCallTreeListener(new java.io.FileOutputStream(yamlFile), 
-								System.getenv("TE_CALL_TREE_YAML_TEST_CASE"),
-								System.getenv("TE_CALL_TREE_YAML_COMMIT_ID")
-							));
+				if (element instanceof TestCase) {
+					append('''
+						try {
+							String yamlFileName = System.getenv("TE_CALL_TREE_YAML_FILE");
+							if (yamlFileName != null) {
+								java.io.File yamlFile = new java.io.File(yamlFileName);
+								
+								reporter.addListener(new org.testeditor.fixture.core.DefaultYamlCallTreeListener(new java.io.FileOutputStream(yamlFile), 
+									System.getenv("TE_CALL_TREE_YAML_TEST_CASE"),
+									System.getenv("TE_CALL_TREE_YAML_COMMIT_ID")
+								));
+							}
+						} catch (Exception e) {
+							// fail silently if file cannot be created etc.
 						}
-					} catch (Exception e) {
-						// fail silently if file cannot be created etc.
-					}
-				''')
+					''')
 				}
-			]				
+			]
 		]
 	}
 
 	private def void addSuperType(JvmGenericType result, SetupAndCleanupProvider element) {
 		if (element instanceof TestConfiguration) {
 			result.superTypes += typeRef(AbstractTestCase)
-		}		
+		}
 		if (element instanceof TestCase) {
 			// Inherit from configuration, if set - need to be done before 
 			if (element.config !== null) {
@@ -244,15 +240,14 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		val envParams = element.model.environmentVariables
 		result.members += envParams.map [ environmentVariable |
 			val actualType = if (environmentVariable.nonConfidential) {
-				String
-			} else {
-				MaskingString
-			}
-			environmentVariable.toField(expressionBuilder.variableToVarName(environmentVariable),
-				typeRef(actualType)) [
+					String
+				} else {
+					MaskingString
+				}
+			environmentVariable.toField(expressionBuilder.variableToVarName(environmentVariable), typeRef(actualType)) [
 				if (environmentVariable.nonConfidential) {
 					initializer = '''System.getenv("«environmentVariable.name»")'''
-				}else {
+				} else {
 					initializer = '''new MaskingString(System.getenv("«environmentVariable.name»"))'''
 				}
 			]
@@ -315,18 +310,11 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			body = [
 				val output = trace(setup, true)
 				val id = generateNewIDVar
-				output.append('try {').increaseIndentation
-				output.appendReporterEnterCall(SemanticUnit.SETUP, 'setup', id, Status.STARTED)
-				setup.contexts.forEach[generateContext(output.trace(it))]
-				output.appendReporterLeaveCall(SemanticUnit.SETUP, 'setup', id, Status.OK)
-				output.decreaseIndentation
-				output.newLine
-				output.append('''
-					} catch (Exception e) {
-					  finishedTestWith(TestRunReporter.Status.ABORTED); // exception means unexpected abortion of the test
-					  org.junit.Assert.fail(e.getMessage());
-					}
-				''')
+				output.wrapWithAbortingExceptionHandler [
+					output.appendReporterEnterCall(SemanticUnit.SETUP, 'setup', id, Status.STARTED)
+					setup.contexts.forEach[generateContext(output.trace(it))]
+					output.appendReporterLeaveCall(SemanticUnit.SETUP, 'setup', id, Status.OK)
+				]
 			]
 		]
 	}
@@ -339,18 +327,11 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			body = [
 				val output = trace(cleanup, true)
 				val id = generateNewIDVar
-				output.append('try {').increaseIndentation
-				output.appendReporterEnterCall(SemanticUnit.CLEANUP, 'cleanup', id, Status.STARTED)
-				cleanup.contexts.forEach[generateContext(output.trace(it))]
-				output.appendReporterLeaveCall(SemanticUnit.CLEANUP, 'cleanup', id, Status.OK)
-				output.decreaseIndentation
-				output.newLine
-				output.append('''
-					} catch (Exception e) {
-					  finishedTestWith(TestRunReporter.Status.ABORTED); // exception means unexpected abortion of the test
-					  org.junit.Assert.fail(e.getMessage());
-					}
-				''')
+				output.wrapWithAbortingExceptionHandler [
+					output.appendReporterEnterCall(SemanticUnit.CLEANUP, 'cleanup', id, Status.STARTED)
+					cleanup.contexts.forEach[generateContext(output.trace(it))]
+					output.appendReporterLeaveCall(SemanticUnit.CLEANUP, 'cleanup', id, Status.OK)
+				]
 			]
 		]
 	}
@@ -370,8 +351,27 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	def void generateMethodBody(TestCase test, ITreeAppendable output) {
+		output.wrapTestWithExceptionHandler [
+			test.steps.forEach[generate(output.trace(it))]
+		]
+	}
+
+	private def String generateNewIDVar() {
+		// TODO should we use output.declareVariable here!		
+		return '''IDvar«variableIdRunningNumber++»'''
+	}
+
+	/**
+	 * wrap a complete test case test method body into coding that will record test status
+	 * - when regularly finishin the test
+	 * - when running into an assertion erro
+	 * - when aborting the test because of an unexpected exception
+	 */
+	private def void wrapTestWithExceptionHandler(ITreeAppendable output, Procedures.Procedure1<ITreeAppendable> strategy) {
 		output.append('try {').increaseIndentation
-		test.steps.forEach[generate(output.trace(it))]
+
+		strategy.apply(output)
+
 		output.decreaseIndentation
 		output.newLine
 		output.append('''
@@ -384,46 +384,59 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			  org.junit.Assert.fail(e.getMessage());
 			}
 		''')
+
 	}
-	
-	private def String generateNewIDVar() {
-		return '''IDvar«runningNumber++»'''
-	}
-	
-	def void generateMethodBody(Macro macro, ITreeAppendable output, EList<JvmFormalParameter> parameters) {
-		val id = generateNewIDVar
-		output.append('try {').increaseIndentation
-		output.appendReporterEnterCall(SemanticUnit.MACRO, macro.stringify, id, Status.STARTED) 
-		macro.contexts.forEach[generateContext(output.trace(it))]
-		output.appendReporterLeaveCall(SemanticUnit.MACRO, macro.stringify, id, Status.OK) 
+
+	/**
+	 * wrap code with an exception handler that records test ABORTED in case of an unexpected exception
+	 */
+	private def void wrapWithAbortingExceptionHandler(ITreeAppendable output, Procedures.Procedure1<ITreeAppendable> strategy) {
+		output.append('try {')
+		output.increaseIndentation
+
+		strategy.apply(output)
+
 		output.decreaseIndentation
 		output.newLine
 		output.append('''
-			} catch (Exception e) {
-			  finishedTestWith(TestRunReporter.Status.ABORTED); // exception means unexpected abortion of the test
-			  org.junit.Assert.fail(e.getMessage());
-			}''')
+		} catch (Exception e) {
+		  finishedTestWith(TestRunReporter.Status.ABORTED);
+		  org.junit.Assert.fail(e.getMessage());
+		}''')
 	}
 
-	private def void generateEnvironmentVariableAssertion(EnvironmentVariable environmentVariable,
-		ITreeAppendable output) {
-		val varName = expressionBuilder.variableToVarName(environmentVariable)
-		val confidentialAccessor = if (environmentVariable.nonConfidential) { '' } else { '.get()' }
-		output.newLine.append('''org.junit.Assert.assertNotNull("environment variable '«environmentVariable.name»' must not be null", «varName»«confidentialAccessor»);''')
+	def void generateMethodBody(Macro macro, ITreeAppendable output, EList<JvmFormalParameter> parameters) {
+		val id = generateNewIDVar
+		output.wrapWithAbortingExceptionHandler [
+			output.appendReporterEnterCall(SemanticUnit.MACRO, macro.stringify, id, Status.STARTED)
+			macro.contexts.forEach[generateContext(output.trace(it))]
+			output.appendReporterLeaveCall(SemanticUnit.MACRO, macro.stringify, id, Status.OK)
+		]
 	}
-	
+
+	private def void generateEnvironmentVariableAssertion(EnvironmentVariable environmentVariable, ITreeAppendable output) {
+		val varName = expressionBuilder.variableToVarName(environmentVariable)
+		val confidentialAccessor = if (environmentVariable.nonConfidential) {
+				''
+			} else {
+				'.get()'
+			}
+		output.newLine.
+			append('''org.junit.Assert.assertNotNull("environment variable '«environmentVariable.name»' must not be null", «varName»«confidentialAccessor»);''')
+	}
+
 	private def void generate(SpecificationStepImplementation step, ITreeAppendable output) {
 		val id = generateNewIDVar
-		output.appendReporterEnterCall(SemanticUnit.SPECIFICATION_STEP, step.stringify, id, Status.STARTED) 
+		output.appendReporterEnterCall(SemanticUnit.SPECIFICATION_STEP, step.stringify, id, Status.STARTED)
 		step.contexts.forEach[generateContext(output.trace(it))]
-		output.appendReporterLeaveCall(SemanticUnit.SPECIFICATION_STEP, step.stringify, id, Status.OK) 
+		output.appendReporterLeaveCall(SemanticUnit.SPECIFICATION_STEP, step.stringify, id, Status.OK)
 	}
 
 	private def dispatch void generateContext(MacroTestStepContext context, ITreeAppendable output) {
 		val id = generateNewIDVar
 		output.appendReporterEnterCall(SemanticUnit.MACRO_LIB, context.stringify, id, Status.STARTED)
 		context.steps.filter(TestStep).forEach[generateMacroCall(context, output.trace(it))]
-		output.appendReporterLeaveCall(SemanticUnit.MACRO_LIB, context.stringify, id, Status.OK) 
+		output.appendReporterLeaveCall(SemanticUnit.MACRO_LIB, context.stringify, id, Status.OK)
 	}
 
 	private def dispatch void generateContext(ComponentTestStepContext context, ITreeAppendable output) {
@@ -479,13 +492,13 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		val locationString = '''«output.traceRegion.associatedSrcRelativePath.toString»:«output.traceRegion.associatedLocations.map[toReportableString].join(", ")»'''
 		logger.debug('''generating code line for assertion test step at «locationString».''')
 		val variables = EcoreUtil2.getAllContentsOfType(step.assertExpression, VariableReference)
-		val id = generateNewIDVar		
+		val id = generateNewIDVar
 		output.appendReporterCall(SemanticUnit.STEP, Action.ENTER, '''assert «assertionText(step.assertExpression)»''', id, Status.STARTED, variables)
 		output.newLine
 		output.append(assertCallBuilder.build(step.assertExpression, locationString))
 		output.appendReporterCall(SemanticUnit.STEP, Action.LEAVE, '''assert «assertionText(step.assertExpression)»''', id, Status.OK, variables)
 	}
-	
+
 	private def String toReportableString(ILocationData locationData) {
 		if (locationData.lineNumber == locationData.endLineNumber) {
 			return Integer.toString(locationData.lineNumber + 1)
@@ -493,7 +506,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			return '''«locationData.lineNumber + 1»-«locationData.endLineNumber + 1»'''.toString
 		}
 	}
-	
+
 	private def dispatch void toUnitTestCodeLine(AssignmentThroughPath step, ITreeAppendable output) {
 		val varType = expressionTypeComputer.determineType(step.variableReference.variable, Optional.empty)
 		if (jsonUtil.isJsonType(varType)) {
@@ -502,7 +515,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			throw new RuntimeException('''Unknown variable type = '«varType?.qualifiedName»' for assignment with key path''')
 		}
 	}
-	
+
 	private def void toUnitTestCodeLineOfJsonAssignment(AssignmentThroughPath step, ITreeAppendable output) {
 		val stepLog = step.stringify
 		logger.debug("generating code line for test step='{}'.", stepLog)
@@ -530,80 +543,79 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 					output.append(code)
 				}
 			}
-			default: throw new RuntimeException('''Cannot generate code for expression of type='«step.expression»' within assignments to json variables.''')
+			default:
+				throw new RuntimeException('''Cannot generate code for expression of type='«step.expression»' within assignments to json variables.''')
 		}
-		
+
 		output.appendReporterLeaveCall(SemanticUnit.STEP, '''«stepLog»''', id, Status.OK)
 	}
-	
+
+	private def void addCoercionChecksWhereApplicable(ITreeAppendable output, TestStep step, InteractionType interaction) {
+		step.contents.filter(VariableReference).forEach [
+			val expectedType = typeComputer.getExpectedType(it, interaction)
+			val variableType = expressionTypeComputer.determineType(variable, expectedType ?: Optional.empty)
+			if (coercionComputer.isTypeCoercionPossible(expectedType.get, variableType)) {
+				val coercionCheck = generateCoercionCheck(interaction, expectedType ?: Optional.empty)
+				if (!coercionCheck.nullOrEmpty) {
+					output.newLine
+					output.append(coercionCheck)
+				}
+			}
+		]
+	}
+
 	private def dispatch void toUnitTestCodeLine(TestStep step, ITreeAppendable output) {
-		val stepLog = step.contents.restoreString
+		val stepLog = step.stringify
 		logger.debug("generating code line for test step='{}'.", stepLog)
 		val interaction = step.interaction
-   		
+
 		if (interaction !== null) {
-			logger.debug("derived interaction with method='{}' for test step='{}'.",
-				interaction.defaultMethod?.operation?.qualifiedName, stepLog)
+			logger.debug("derived interaction with method='{}' for test step='{}'.", interaction.defaultMethod?.operation?.qualifiedName, stepLog)
 			val fixtureField = interaction.defaultMethod?.typeReference?.type?.fixtureFieldName
 			val operation = interaction.defaultMethod?.operation
 			if (fixtureField !== null && operation !== null) {
-				val logMessage = if (step instanceof TestStepWithAssignment) {
-					step.stringify
-				} else {
-					stepLog
-				}
 				val variables = EcoreUtil2.getAllContentsOfType(step, VariableReference)
 				val id = generateNewIDVar
-				output.appendReporterCall(SemanticUnit.STEP, Action.ENTER, logMessage, id, Status.STARTED, variables)
+				output.appendReporterCall(SemanticUnit.STEP, Action.ENTER, stepLog, id, Status.STARTED, variables)
+
+				output.addCoercionChecksWhereApplicable(step, interaction)
 				output.newLine
 				if (step instanceof TestStepWithAssignment) {
 					output.trace(step, TEST_STEP_WITH_ASSIGNMENT__VARIABLE, 0) => [
-						// TODO should we use output.declareVariable here?
-						// val variableName = output.declareVariable(step.variableName, step.variableName)
 						val partialCodeLine = '''«operation.returnType.identifier» «step.variable.name» = '''
 						output.append(partialCodeLine) // please call with string, since tests checks against expected string which fails for passing ''' directly
 					]
 				}
 
 				output.trace(interaction.defaultMethod) => [
-					step.contents.filter(VariableReference).forEach [
-						val expectedType = typeComputer.getExpectedType(it, interaction)
-						val variableType = expressionTypeComputer.determineType(variable, expectedType?:Optional.empty)
-						if (coercionComputer.isTypeCoercionPossible(expectedType.get, variableType)) {
-							val coercionCheck = generateCoercionCheck(interaction, expectedType?:Optional.empty)
-							if (!coercionCheck.nullOrEmpty) {
-								output.append(coercionCheck).newLine
-							}
-						}
-					]
 					val codeLine = '''«fixtureField».«operation.simpleName»(«generateCallParameters(step, interaction)»);'''
 					output.append(codeLine) // please call with string, since tests checks against expected string which fails for passing ''' directly
 				]
-				output.appendReporterCall(SemanticUnit.STEP, Action.LEAVE, logMessage, id, Status.OK, variables)				
+				output.appendReporterCall(SemanticUnit.STEP, Action.LEAVE, stepLog, id, Status.OK, variables)
 			} else {
 				output.append('''// TODO interaction type '«interaction.name»' does not have a proper method reference''')
 			}
 		} else if (step.componentContext != null) {
 			logger.debug("interaction not found within context of component '{}' for test step='{}'.", step.componentContext.component.name, stepLog)
-			output.newLine.append('''org.junit.Assert.fail("Template '«stepLog.escapeJava»' cannot be resolved with any known macro/fixture. Please check your «step.locationInfo»");''')
+			output.newLine.
+				append('''org.junit.Assert.fail("Template '«stepLog.escapeJava»' cannot be resolved with any known macro/fixture. Please check your «step.locationInfo»");''')
 		} else {
 			logger.debug("interaction not found in unknown context for test step='{}'.", stepLog)
-			output.newLine.append('''org.junit.Assert.fail("Template '«stepLog.escapeJava»' cannot be resolved with any known macro/fixture. Please check your  Macro-, Config- or Testcase-File ");''')
+			output.newLine.
+				append('''org.junit.Assert.fail("Template '«stepLog.escapeJava»' cannot be resolved with any known macro/fixture. Please check your  Macro-, Config- or Testcase-File ");''')
 		}
 	}
 
-	private def String generateCoercionCheck(VariableReference variableReference, TemplateContainer templateContainer,
-		Optional<JvmTypeReference> expectedType) {
+	private def String generateCoercionCheck(VariableReference variableReference, TemplateContainer templateContainer, Optional<JvmTypeReference> expectedType) {
 		val variableAccessCode = toParameterString(variableReference, expectedType, templateContainer, false).head
-		val varRefType = expressionTypeComputer.determineType(variableReference.variable, expectedType?:Optional.empty)
+		val varRefType = expressionTypeComputer.determineType(variableReference.variable, expectedType ?: Optional.empty)
 		val quotedErrorMessage = '''"Parameter is expected to be of type = '«expectedType.get.qualifiedName»' but a non coercible value = '"+«variableAccessCode».toString()+"' was passed through variable reference = '«variableReference.variable.name»'."'''
-		return coercionComputer.generateCoercionGuard(expectedType.get, varRefType, variableAccessCode,
-			quotedErrorMessage)
+		return coercionComputer.generateCoercionGuard(expectedType.get, varRefType, variableAccessCode, quotedErrorMessage)
 	}
-	
+
 	private def String getLocationInfo(TestStep step) {
 		val lineNumber = NodeModelUtils.findActualNodeFor(step).startLine
-		
+
 		val testCase = EcoreUtil2.getContainerOfType(step, TestCase)
 		if (testCase !== null) {
 			return '''Testcase '«testCase.name»' in line «lineNumber».'''
@@ -611,21 +623,21 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 		val macroLib = EcoreUtil2.getContainerOfType(step, MacroCollection)
 		if (macroLib !== null) {
-			return '''Macro '«macroLib.name»' in line «lineNumber».''' 
+			return '''Macro '«macroLib.name»' in line «lineNumber».'''
 		}
 
 		val config = EcoreUtil2.getContainerOfType(step, TestConfiguration)
 		if (config !== null) {
-			return '''Configuration '«config.name»' in line «lineNumber».'''	
+			return '''Configuration '«config.name»' in line «lineNumber».'''
 		}
-		
+
 		throw new IllegalArgumentException;
-	} 
+	}
 
 	private def void generateMacroCall(TestStep step, MacroTestStepContext context, ITreeAppendable output) {
 		val stepLog = step.contents.restoreString
 		logger.debug("generating code line for macro test step='{}'.", stepLog)
-		
+
 		val id = generateNewIDVar
 		val macro = step.findMacroDefinition(context)
 		output.appendReporterCall(SemanticUnit.STEP, Action.ENTER, stepLog, id, Status.STARTED, null)
@@ -633,8 +645,8 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		if (macro !== null) {
 			step.contents.filter(VariableReference).forEach [
 				val expectedType = typeComputer.getExpectedType(it, macro)
-				val variableType = expressionTypeComputer.determineType(variable, expectedType?:Optional.empty)
-				if ((expectedType?:Optional.empty).present && coercionComputer.isTypeCoercionPossible(expectedType.get, variableType)) { 
+				val variableType = expressionTypeComputer.determineType(variable, expectedType ?: Optional.empty)
+				if ((expectedType ?: Optional.empty).present && coercionComputer.isTypeCoercionPossible(expectedType.get, variableType)) {
 					val coercionCheck = generateCoercionCheck(macro, expectedType)
 					if (!coercionCheck.nullOrEmpty) {
 						output.append(coercionCheck).newLine
@@ -675,9 +687,9 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	 * put it in quotes. If the type is not specified we assume a String to handle parameter passing gracefully.
 	 */
 	// TODO return type is only an iterable because of the locator strategy
-	private def Iterable<String> toParameterString(StepContent stepContent, Optional<JvmTypeReference> expectedType,
-		TemplateContainer templateContainer, boolean withCoercion) {
-			
+	private def Iterable<String> toParameterString(StepContent stepContent, Optional<JvmTypeReference> expectedType, TemplateContainer templateContainer,
+		boolean withCoercion) {
+
 		// in case the parameter is an aml element, the locator + (optional) the locator strategy must be generated
 		if (templateContainer instanceof InteractionType) {
 			if (stepContent instanceof StepContentElement) {
@@ -686,9 +698,9 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		}
 
 		// in all other cases, check for necessary coercion
-		val parameterString = stepContent.contentToParameterString(expectedType?:Optional.empty, templateContainer)
+		val parameterString = stepContent.contentToParameterString(expectedType ?: Optional.empty, templateContainer)
 		// val expectedType = typeComputer.getExpectedType(stepContent, templateContainer)
-		if ((expectedType?:Optional.empty).present) {
+		if ((expectedType ?: Optional.empty).present) {
 			val stepContentType = expressionTypeComputer.determineType(stepContent, expectedType)
 			val coercionPossible = coercionComputer.isTypeCoercionPossible(expectedType.get, stepContentType)
 			if (withCoercion && coercionPossible) {
@@ -697,15 +709,15 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		}
 		return #[parameterString]
 	}
-	
+
 	private def dispatch String contentToParameterString(VariableReference variableReference, Optional<JvmTypeReference> parameterType,
 		TemplateContainer templateContainer) {
 		return expressionBuilder.buildReadExpression(variableReference)
 	}
-	
+
 	private def dispatch String contentToParameterString(StepContentValue stepContentValue, Optional<JvmTypeReference> parameterType,
 		TemplateContainer templateContainer) {
-		val stepContentType = expressionTypeComputer.determineType(stepContentValue, parameterType?:Optional.empty)
+		val stepContentType = expressionTypeComputer.determineType(stepContentValue, parameterType ?: Optional.empty)
 		val contentIsANumberOrBool = typeReferenceUtil.isANumber(stepContentType) || typeReferenceUtil.isBoolean(stepContentType)
 		val fixtureParameterTypeIsKnownToBeString = parameterType.present && typeReferenceUtil.isString(parameterType.get)
 		if (fixtureParameterTypeIsKnownToBeString || !contentIsANumberOrBool) {
@@ -717,21 +729,20 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			return stepContentValue.value
 		}
 	}
-	
+
 	private def Iterable<String> toLocatorParameterString(StepContentElement stepContent, InteractionType interaction) {
 		val element = stepContent.componentElement
 		val locator = '''"«element.locator.escapeJava»"'''
 		if (interaction.defaultMethod.locatorStrategyParameters.size > 0) {
 			// use element locator strategy if present, else use default of interaction
-			logger.debug("resolved interaction='{}' to expect locator strategy for parameter='{}'",
-				interaction.defaultMethod.operation.qualifiedName, stepContent.value)
- 			val locatorStrategy = element.locatorStrategy ?: interaction.locatorStrategy
+			logger.debug("resolved interaction='{}' to expect locator strategy for parameter='{}'", interaction.defaultMethod.operation.qualifiedName, stepContent.value)
+			val locatorStrategy = element.locatorStrategy ?: interaction.locatorStrategy
 			return #[locator, locatorStrategy.qualifiedName] // locatorStrategy is the parameter right after locator (convention)
 		} else {
 			return #[locator]
 		}
 	}
-	
+
 	private def String reporterFieldName() {
 		val result = AbstractTestCase.declaredFields.findFirst[TestRunReporter.isAssignableFrom(type)]?.name
 
@@ -742,15 +753,16 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		return result
 	}
 
-	private def void appendReporterCall(ITreeAppendable output, SemanticUnit unit, Action action, String message, String id, Status status, List<VariableReference> variables) {
-		testRunReporterGenerator.buildReporterCall(_typeReferenceBuilder?.typeRef(SemanticUnit)?.type, unit, action, message, id, status,
-			reporterFieldName, variables, typeReferenceUtil.stringJvmTypeReference).forEach[ 
-				switch(it) {
-					JvmType : output.append(it)
-					String : output.append(it)
-					default : throw new RuntimeException('''Cannot append class = '«it?.class»'. ''')
-				}
-			]
+	private def void appendReporterCall(ITreeAppendable output, SemanticUnit unit, Action action, String message, String id, Status status,
+		List<VariableReference> variables) {
+		testRunReporterGenerator.buildReporterCall(_typeReferenceBuilder?.typeRef(SemanticUnit)?.type, unit, action, message, id, status, reporterFieldName, variables,
+			typeReferenceUtil.stringJvmTypeReference).forEach [
+			switch (it) {
+				JvmType: output.append(it)
+				String: output.append(it)
+				default: throw new RuntimeException('''Cannot append class = '«it?.class»'. ''')
+			}
+		]
 	}
 
 	private def void appendReporterEnterCall(ITreeAppendable output, SemanticUnit unit, String message, String id, Status status) {
@@ -760,4 +772,5 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	private def void appendReporterLeaveCall(ITreeAppendable output, SemanticUnit unit, String message, String id, Status status) {
 		appendReporterCall(output, unit, Action.LEAVE, message, id, status, null)
 	}
+
 }

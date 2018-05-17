@@ -11,12 +11,13 @@ import org.testeditor.fixture.core.TestRunReporter.Action
 import org.testeditor.fixture.core.TestRunReporter.SemanticUnit
 import org.testeditor.fixture.core.TestRunReporter.Status
 import org.testeditor.tcl.VariableReference
-import org.testeditor.tcl.util.TclModelUtil
 import org.testeditor.tcl.VariableReferencePathAccess
+import org.testeditor.tcl.util.TclModelUtil
 
 class TestRunReporterGenerator {
 
 	@Inject TclExpressionBuilder expressionBuilder
+	@Inject TclGeneratorConfig generatorConfig
 	@Inject extension TclModelUtil
 
 	static val logger = LoggerFactory.getLogger(TestRunReporterGenerator)
@@ -63,15 +64,12 @@ class TestRunReporterGenerator {
 	}
 
 	private def String generateCommentPrefix() {
-		val prefix = System.getenv('TE_REPORTER_CALL_COMMENT_PREFIX_CHAR')
-		val prefixCount = System.getenv('TE_REPORTER_CALL_COMMENT_PREFIX_COUNT')
-		if ((prefix != null) && (prefixCount != null)) {
-			try {
-				return '''/*«StringUtils.repeat(prefix, Integer.parseInt(prefixCount))»*/'''
-			} catch (NumberFormatException nfe) {
-			}
+		val prefix = generatorConfig.reporterCallCommentPrefixChar
+		if (prefix != null) {
+			return '''/*«StringUtils.repeat(prefix, generatorConfig.reporterCallCommentPrefixCount)»*/ '''
+		} else {
+			return ''
 		}
-		return ''
 	}
 
 }

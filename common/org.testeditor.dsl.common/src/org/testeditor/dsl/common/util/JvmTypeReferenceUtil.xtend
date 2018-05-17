@@ -28,6 +28,7 @@ import org.eclipse.xtext.xbase.jvmmodel.JvmTypeReferenceBuilder
 import org.eclipse.xtext.xbase.typesystem.conformance.TypeConformanceComputationArgument
 import org.eclipse.xtext.xbase.typesystem.references.StandardTypeReferenceOwner
 import org.eclipse.xtext.xbase.typesystem.util.CommonTypeComputationServices
+import org.testeditor.fixture.core.MaskingString
 import org.slf4j.LoggerFactory
 
 /**
@@ -201,6 +202,10 @@ class JvmTypeReferenceUtil {
 		return Enum.buildFrom
 	}
 	
+	def JvmTypeReference maskingStringJvmTypeReference() {
+		return MaskingString.buildFrom
+	}
+	
 	def JvmTypeReference numberJvmTypeReference() {
 		return Number.buildFrom
 	}
@@ -212,14 +217,17 @@ class JvmTypeReferenceUtil {
 	def boolean isObject(JvmTypeReference reference) {
 		return objectJvmTypeReference.isAssignableFrom(reference)
 	}
+	
+	def boolean isMaskingString(JvmTypeReference reference) {
+		return MaskingString.name.equals(reference?.qualifiedName)
+	}
 
 	def boolean isEnum(JvmTypeReference reference) {
 		return enumJvmTypeReference.isAssignableFrom(reference)
 	}
 
 	def boolean isNumber(JvmTypeReference reference) {
-		val qname = reference?.qualifiedName
-		return Number.name == qname
+		return Number.name.equals(reference?.qualifiedName)
 	}
 	
 	def boolean isANumber(JvmTypeReference reference) {

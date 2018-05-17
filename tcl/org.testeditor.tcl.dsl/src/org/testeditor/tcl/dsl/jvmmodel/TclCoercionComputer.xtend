@@ -110,7 +110,7 @@ class TclCoercionComputer {
 	 */
 	def boolean isTypeCoercionPossible(JvmTypeReference targetType, JvmTypeReference sourceType) {
 		switch targetType {
-			case targetType.isString : return sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber || sourceType.isBoolean || sourceType.isJsonType || sourceType.isString || sourceType.isEnum
+			case targetType.isString : return sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber || sourceType.isBoolean || sourceType.isJsonType || sourceType.isString || sourceType.isEnum || (sourceType.isObject && !sourceType.isMaskingString)
 			case targetType.isLong: return sourceType.isString || sourceType.isJsonType || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber
 			case targetType.isBoolean: return sourceType.isString || sourceType.isJsonType || sourceType.isBoolean
 			case targetType.isInt: return sourceType.isString || sourceType.isJsonType || sourceType.isLong || sourceType.isInt || sourceType.isBigDecimal || sourceType.isANumber

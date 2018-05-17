@@ -20,6 +20,26 @@ class TestRunReporterGeneratorTest extends AbstractTclTest {
 	@InjectMocks TestRunReporterGenerator testRunReporterGenerator // class under test
 	@Inject extension TclModelGenerator
 	@Mock TclExpressionBuilder expressionBuilder
+	@Mock TclGeneratorConfig generatorConfig
+	
+	@Test
+	def void testCommentPrefix() {
+		val someJvmType = mock(JvmType)
+		val jvmTypeReference = mock(JvmTypeReference)
+		when(generatorConfig.reporterCallCommentPrefixChar).thenReturn(' ')
+		when(generatorConfig.reporterCallCommentPrefixCount).thenReturn(10)
+
+		// when
+		val resultingList = testRunReporterGenerator.buildReporterCall(someJvmType, SemanticUnit.COMPONENT, Action.ENTER,
+			"message", "IDvar0", Status.STARTED, "reporter", #[], jvmTypeReference); 
+
+		// then
+		resultingList => [
+			get(0).assertEquals('''
+			
+			/*          */ String IDvar0=newVarId(); reporter.enter('''.toString)			
+		]
+	}
 
 	@Test
 	def void testBuildReporterCallToPassVariables() {
