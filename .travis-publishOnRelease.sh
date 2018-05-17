@@ -46,4 +46,10 @@ if [[ -n "$TRAVIS_TAG" && "$TRAVIS_TAG" == v* ]]; then
     }
 
     uploadTargetPlatform
+
+    ./gradlew updateTargetVersion updateMvnVersion
+
+    git commit -am "set pom versions"
+    git push origin master
+    
 fi
