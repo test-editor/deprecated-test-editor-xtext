@@ -91,6 +91,7 @@ task updateMvnVersion(type: MavenExec) {
 }
 
 beforeReleaseBuild.dependsOn(updateTargetVersion, updateMvnVersion)
+commitNewVersion.dependsOn(updateTargetVersion, updateMvnVersion)
 
 release {
     preTagCommitMessage = '[release]'

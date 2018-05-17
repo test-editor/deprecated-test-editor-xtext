@@ -37,6 +37,8 @@ if [[ -n "$TRAVIS_TAG" && "$TRAVIS_TAG" == v* ]]; then
     }
 
     function uploadTargetPlatform() {
+        pwd
+        ls -la
         cd rcp/org.testeditor.rcp4.updatesite/target/site || exit 1
         find . -type f | 
             while read file; do 
@@ -47,9 +49,4 @@ if [[ -n "$TRAVIS_TAG" && "$TRAVIS_TAG" == v* ]]; then
 
     uploadTargetPlatform
 
-    ./gradlew updateTargetVersion updateMvnVersion
-
-    git commit -am "set pom versions"
-    git push origin master
-    
 fi
