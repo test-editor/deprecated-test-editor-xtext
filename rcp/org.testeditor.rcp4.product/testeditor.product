@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="TestEditor" uid="testeditor_rcp" id="org.testeditor.rcp4.testeditor_rcp" application="org.testeditor.rcp4.application" version="1.13.0" useFeatures="false" includeLaunchers="true">
+<product name="TestEditor" uid="testeditor_rcp" id="org.testeditor.rcp4.testeditor_rcp" application="org.testeditor.rcp4.application" version="1.14.0.qualifier" useFeatures="false" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>
@@ -338,12 +338,12 @@
    </plugins>
 
    <features>
-      <feature id="org.testeditor.aml.legacy.feature" version="1.13.0"/>
-      <feature id="org.testeditor.aml.sdk" version="1.13.0"/>
-      <feature id="org.testeditor.tcl.sdk" version="1.13.0"/>
-      <feature id="org.testeditor.tsl.sdk" version="1.13.0"/>
-      <feature id="org.testeditor.rcp4.platform.feature" version="1.13.0"/>
-      <feature id="org.testeditor.rcp4.feature" version="1.13.0"/>
+      <feature id="org.testeditor.aml.legacy.feature" version="1.14.0.qualifier"/>
+      <feature id="org.testeditor.aml.sdk" version="1.14.0.qualifier"/>
+      <feature id="org.testeditor.tcl.sdk" version="1.14.0.qualifier"/>
+      <feature id="org.testeditor.tsl.sdk" version="1.14.0.qualifier"/>
+      <feature id="org.testeditor.rcp4.platform.feature" version="1.14.0.qualifier"/>
+      <feature id="org.testeditor.rcp4.feature" version="1.14.0.qualifier"/>
    </features>
 
    <configurations>
