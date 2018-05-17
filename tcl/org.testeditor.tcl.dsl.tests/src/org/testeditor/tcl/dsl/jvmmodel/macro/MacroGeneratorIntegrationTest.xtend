@@ -83,8 +83,8 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 			assertContains('''
 				private void macro_MyMacroCollection_EmptyMacro() throws Exception {
 				  try {
-				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.STARTED, variables());
-				    reporter.leave(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.OK, variables());
+				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.MACRO, "EmptyMacro", IDvar, TestRunReporter.Status.STARTED, variables());
+				    reporter.leave(TestRunReporter.SemanticUnit.MACRO, "EmptyMacro", IDvar, TestRunReporter.Status.OK, variables());
 			'''.indent(1))
 		]
 	}
@@ -109,8 +109,8 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 			assertContains('''
 				private void macro_MyMacroCollection_EmptyMacroWithUnusedParameter(final String unused) throws Exception {
 				  try {
-				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.STARTED, variables());
-				    reporter.leave(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.OK, variables());
+				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.MACRO, "EmptyMacroWithUnusedParameter", IDvar, TestRunReporter.Status.STARTED, variables());
+				    reporter.leave(TestRunReporter.SemanticUnit.MACRO, "EmptyMacroWithUnusedParameter", IDvar, TestRunReporter.Status.OK, variables());
 				  } catch (Exception e) {
 				    finishedTestWith(TestRunReporter.Status.ABORTED);
 				    org.junit.Assert.fail(e.getMessage());
@@ -143,7 +143,7 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 			assertContains('''
 			  private void macro_MyMacroCollection_ReadMacro() throws Exception {
 			    try {
-			      String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.STARTED, variables());
+			      String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.MACRO, "ReadMacro", IDvar, TestRunReporter.Status.STARTED, variables());
 			      String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication", IDvar, TestRunReporter.Status.STARTED, variables());
 			      String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "value = Read value from <bar> [java.lang.String]", IDvar, TestRunReporter.Status.STARTED, variables());
 			      java.lang.String value = dummyFixture.getValue("label.greet");
@@ -174,13 +174,13 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 			assertContains('''
 				private void macro_MyMacroCollection_SleepMacro(final long x) throws Exception {
 				  try {
-				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.STARTED, variables());
+				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.MACRO, "SleepMacro", IDvar, TestRunReporter.Status.STARTED, variables());
 				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication", IDvar, TestRunReporter.Status.STARTED, variables());
 				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "Wait for @x seconds", IDvar, TestRunReporter.Status.STARTED, variables("x", Long.toString(x)));
 				    dummyFixture.waitSeconds(x);
 				    reporter.leave(TestRunReporter.SemanticUnit.STEP, "Wait for @x seconds", IDvar, TestRunReporter.Status.OK, variables("x", Long.toString(x)));
 				    reporter.leave(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication", IDvar, TestRunReporter.Status.OK, variables());
-				    reporter.leave(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.OK, variables());
+				    reporter.leave(TestRunReporter.SemanticUnit.MACRO, "SleepMacro", IDvar, TestRunReporter.Status.OK, variables());
 				  } catch (Exception e) {
 				    finishedTestWith(TestRunReporter.Status.ABORTED);
 				    org.junit.Assert.fail(e.getMessage());
@@ -210,8 +210,8 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 				macro_MyMacroCollection_EmptyMacro();
 			'''.indent(1))
 			assertContains('''
-				String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.STARTED, variables());
-				reporter.leave(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.OK, variables());
+				String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.MACRO, "EmptyMacro", IDvar, TestRunReporter.Status.STARTED, variables());
+				reporter.leave(TestRunReporter.SemanticUnit.MACRO, "EmptyMacro", IDvar, TestRunReporter.Status.OK, variables());
  			'''.indent(3))
 		]
 	}
@@ -235,7 +235,7 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 			assertContains('''
 				private void macro_MyMacroCollection_SetValueAndWait(final long seconds) throws Exception {
 				  try {
-				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.STARTED, variables());
+				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.MACRO, "SetValueAndWait", IDvar, TestRunReporter.Status.STARTED, variables());
 				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication", IDvar, TestRunReporter.Status.STARTED, variables());
 				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "value = Read value from <bar> [java.lang.String]", IDvar, TestRunReporter.Status.STARTED, variables());
 				    java.lang.String value = dummyFixture.getValue("label.greet");
@@ -251,7 +251,7 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 				    macro_MyMacroCollection_SleepMacro(seconds);
 				    reporter.leave(TestRunReporter.SemanticUnit.STEP, "Sleep for @seconds seconds", IDvar, TestRunReporter.Status.OK, variables());
 				    reporter.leave(TestRunReporter.SemanticUnit.MACRO_LIB, "MyMacroCollection", IDvar, TestRunReporter.Status.OK, variables());
-				    reporter.leave(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.OK, variables());
+				    reporter.leave(TestRunReporter.SemanticUnit.MACRO, "SetValueAndWait", IDvar, TestRunReporter.Status.OK, variables());
 				  } catch (Exception e) {
 				    finishedTestWith(TestRunReporter.Status.ABORTED);
 				    org.junit.Assert.fail(e.getMessage());
