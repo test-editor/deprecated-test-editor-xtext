@@ -38,7 +38,9 @@ class TclCoercionComputerTest extends AbstractTclTest {
 		return #[
 			stringJvmTypeReference,
 			jsonElementJvmTypeReference, // as a representative of all json object types
-			enumJvmTypeReference
+			enumJvmTypeReference,
+			maskingStringJvmTypeReference, // may never be coerced into anything!!!
+			objectJvmTypeReference // needed for to string coercion during reporting etc.
 		] + booleanTypes + numericTypes
 	}
 
@@ -48,6 +50,13 @@ class TclCoercionComputerTest extends AbstractTclTest {
 		       + getAllPairs(numericTypes, booleanTypes)
 		       + getAllPairs(booleanTypes + numericTypes, #[enumJvmTypeReference])
 		       + getAllPairs(#[enumJvmTypeReference], booleanTypes + numericTypes)
+		       	// maskingString cannot be coerced into anything!
+		       + getAllPairs(#[maskingStringJvmTypeReference], allKnownTypes)
+		       + getAllPairs(allKnownTypes, #[maskingStringJvmTypeReference])
+		       	// nothing can be coerced into Object
+		       + getAllPairs(#[objectJvmTypeReference], allKnownTypes)
+		       	// Object can only be coerced into String, nothing else
+		       + getAllPairs(allKnownTypes.filter[!typeNameEquals(stringJvmTypeReference)], #[objectJvmTypeReference])
 	}
 	
 	private def Iterable<Iterable<Object>> validValueFromStringCoercion() {
@@ -63,6 +72,8 @@ class TclCoercionComputerTest extends AbstractTclTest {
 			#[ stringJvmTypeReference,                 "some string" ],
 			#[ jsonElementJvmTypeReference,            '''{ "key": 123 }'''.toString ],
 			#[ bigDecimalJvmTypeReference,             "12323948573945867543985794328579438575845" ],
+			// there is no valid string that can be coerced into Object => entry is missing here
+			// there is no valid string that can be coerced into MaskingString => entry missing here
 			#[ typeReferenceUtil.buildFrom(DayOfWeek), "MONDAY" ]
 		]
 	}
@@ -79,6 +90,8 @@ class TclCoercionComputerTest extends AbstractTclTest {
 			#[ numberJvmTypeReference,                 "a123xy10" ],
 			#[ jsonElementJvmTypeReference,            "no json" ],
 			#[ bigDecimalJvmTypeReference,             "aha" ],
+			#[ objectJvmTypeReference,                 "ANY"],
+			#[ maskingStringJvmTypeReference,          "OTHER"],
 			#[ typeReferenceUtil.buildFrom(DayOfWeek), "MONDAX" ]
 		]
 	}
@@ -132,6 +145,7 @@ class TclCoercionComputerTest extends AbstractTclTest {
 			#[ stringJvmTypeReference,           bigDecimalJvmTypeReference,       'data.toString()',                                                  ''],
 			#[ stringJvmTypeReference,           numberJvmTypeReference,           'String.valueOf(data)',                                             ''],
 			#[ stringJvmTypeReference,           enumJvmTypeReference,             'data.toString()',                                                  ''],
+			#[ stringJvmTypeReference,           objectJvmTypeReference,           'data.toString()',                                                  ''],
 
 			// coercion to json (needs parsing)
 			#[ jsonElementJvmTypeReference,      booleanObjectJvmTypeReference,    'new com.google.gson.JsonParser().parse(Boolean.toString(data))',   ''],
@@ -338,7 +352,13 @@ class TclCoercionComputerTest extends AbstractTclTest {
 	def void validateThatAllKnownTypesAreCheckedForValueCoercion() {
 		allKnownTypes.forEach[ typeRef |
 			// enum is checked via DummyEnum and can thus not be checked by type name equality
-			val found = validValueFromStringCoercion.map[get(0)].filter(JvmTypeReference).exists[typeNameEquals(typeRef) || (typeRef.isEnum && isEnum)]
+			// Object has no valid String that can be coerced into Object, thus this type is skipped here
+			val found = validValueFromStringCoercion.map[get(0)].filter(JvmTypeReference).exists[
+				typeNameEquals(typeRef) ||  // skip identicial type names (no coercion)
+				(typeRef.isEnum && isEnum) || // enum is checked via DummyEnum
+				(typeRef.typeNameEquals(maskingStringJvmTypeReference)) || // masking String cannot be coerced int anything
+				(typeRef.typeNameEquals(objectJvmTypeReference)) // skip object (no valid coercion from String possible)
+			]
 
 			found.assertTrue('''known type = '«typeRef.qualifiedName»' was not found in validValueFromStringCoercion tests.''')
 		]
@@ -349,7 +369,10 @@ class TclCoercionComputerTest extends AbstractTclTest {
 		allKnownTypes.forEach[ typeRef |
 			// string itself is not tested to have a invalid coercion, since it is not coerced
 			// enum is checked via DummyEnum and can thus not be checked by type name equality
-			val found = invalidValueFromStringCoercion.map[get(0)].filter(JvmTypeReference).exists[typeNameEquals(typeRef) || (typeRef.isEnum && isEnum)]|| typeRef.isString
+			val found = invalidValueFromStringCoercion.map[get(0)].filter(JvmTypeReference).exists[
+				typeNameEquals(typeRef) || // skip identicial type names (no coercion)
+				(typeRef.isEnum && isEnum) // skip enum (is checked via DummyEnum)
+			]|| typeRef.isString
 
 			found.assertTrue('''known type = '«typeRef.qualifiedName»' was not found in invalidValueFromStringCoercion tests.''')
 		]
@@ -358,13 +381,35 @@ class TclCoercionComputerTest extends AbstractTclTest {
 	@Test
 	def void testThatAllCombinationsAreEitherCoercibleOrNonCoercible() {
 		// ------------- given
-		getAllPairs(allKnownTypes, allKnownTypes).forEach [ pair |
+		getAllPairs(allKnownTypes, allKnownTypes).sortWith[A,B|
+			// make sure output is sorted in order to be readable 
+			val coercibleA = coercionComputer.isTypeCoercionPossible(A.first, A.second)
+			val coercibleB = coercionComputer.isTypeCoercionPossible(B.first, B.second)
+			if (coercibleA && coercibleB) {
+				if (A.first.typeNameEquals(B.first)) {
+					return A.second.qualifiedName.compareTo(B.second.qualifiedName)
+				} else {
+					return A.first.qualifiedName.compareTo(B.first.qualifiedName)
+				}	
+			} else if (!(coercibleA || coercibleB)) {
+				if (A.first.typeNameEquals(B.first)) {
+					return A.second.qualifiedName.compareTo(B.second.qualifiedName)
+				} else {
+					return A.first.qualifiedName.compareTo(B.first.qualifiedName)
+				}	
+			} else if (coercibleA) { 
+				return -1
+			} else {
+				return 1 
+			}
+		].forEach [ pair |
 			val typeA = pair.first
 			val typeB = pair.second
 			
 			// ------------- when 
 			val coercible = coercionComputer.isTypeCoercionPossible(typeA, typeB)
 			if (coercible) {
+				println('''Checking   valid coercion: «typeA.qualifiedName» <- «typeB.qualifiedName»''')
 				try {
 					// ------------- then coercion must be possible 
 					val coercion = coercionComputer.generateCoercion(typeA, typeB, 'some')
@@ -380,6 +425,7 @@ class TclCoercionComputerTest extends AbstractTclTest {
 					fail('''Exception during coercion guard generation of a combination which was regarded possible (from='«typeB.qualifiedName»', to='«typeA.qualifiedName»').''')
 				}
 			} else {
+				println('''Checking INVALID coercion: «typeA.qualifiedName» <- «typeB.qualifiedName»''')
 				try {
 					// ------------- else coercion must fail
 					coercionComputer.generateCoercion(typeA, typeB, 'some')

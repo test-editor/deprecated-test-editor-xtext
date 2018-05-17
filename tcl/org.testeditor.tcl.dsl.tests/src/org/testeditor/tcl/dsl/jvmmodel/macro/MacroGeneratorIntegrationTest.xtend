@@ -69,23 +69,22 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 		val generatedCode = tcl.parseAndGenerate
 
 		// then
-		generatedCode => [
+		generatedCode.replaceIDVarNumbering => [
 			assertContains('''
 				@Test
 				public void execute() throws Exception {
-				  
-				  reporter.enter(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "step1");
-				  
-				  // Macro: MyMacroCollection
-				  // - Do nothing
-				  macro_MyMacroCollection_EmptyMacro();
-				}
+				  try {
+				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "step1", IDvar, TestRunReporter.Status.STARTED, variables());
+				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.MACRO_LIB, "MyMacroCollection", IDvar, TestRunReporter.Status.STARTED, variables());
+				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "Do nothing", IDvar, TestRunReporter.Status.STARTED, variables());
+				    macro_MyMacroCollection_EmptyMacro();
 			'''.indent(1))
 
 			assertContains('''
 				private void macro_MyMacroCollection_EmptyMacro() throws Exception {
-				  
-				}
+				  try {
+				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.STARTED, variables());
+				    reporter.leave(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.OK, variables());
 			'''.indent(1))
 		]
 	}
@@ -102,18 +101,22 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 		val generatedCode = tcl.parseAndGenerate
 
 		// then
-		generatedCode => [
+		generatedCode.replaceIDVarNumbering => [
 			assertContains('''
-				// Macro: MyMacroCollection
-				// - Do nothing with "x"
 				macro_MyMacroCollection_EmptyMacroWithUnusedParameter("x");
 			'''.indent(2))
 
 			assertContains('''
 				private void macro_MyMacroCollection_EmptyMacroWithUnusedParameter(final String unused) throws Exception {
-				  
+				  try {
+				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.STARTED, variables());
+				    reporter.leave(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.OK, variables());
+				  } catch (Exception e) {
+				    finishedTestWith(TestRunReporter.Status.ABORTED);
+				    org.junit.Assert.fail(e.getMessage());
+				  }
 				}
-			'''.indent(1))
+  			'''.indent(1))
 		]
 	}
 
@@ -130,25 +133,27 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 		val generatedCode = tcl.parseAndGenerate
 
 		// then
-		generatedCode => [
+		generatedCode.replaceIDVarNumbering => [
 			assertContains('''
-				// Macro: MyMacroCollection
-				// - Read some values
 				macro_MyMacroCollection_ReadMacro();
-				// - Read some values
+				reporter.leave(TestRunReporter.SemanticUnit.STEP, "Read some values", IDvar, TestRunReporter.Status.OK, variables());
+				String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "Read some values", IDvar, TestRunReporter.Status.STARTED, variables());
 				macro_MyMacroCollection_ReadMacro();
-			'''.indent(2))
+			'''.indent(3))
 			assertContains('''
-				private void macro_MyMacroCollection_ReadMacro() throws Exception {
-				  
-				  reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
-				  
-				  reporter.enter(TestRunReporter.SemanticUnit.STEP, "value = Read value from <bar> [java.lang.String]");
-				  java.lang.String value = dummyFixture.getValue("label.greet");
-				}
+			  private void macro_MyMacroCollection_ReadMacro() throws Exception {
+			    try {
+			      String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.STARTED, variables());
+			      String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication", IDvar, TestRunReporter.Status.STARTED, variables());
+			      String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "value = Read value from <bar> [java.lang.String]", IDvar, TestRunReporter.Status.STARTED, variables());
+			      java.lang.String value = dummyFixture.getValue("label.greet");
 			'''.indent(1))
 		]
 	}
+	
+	def private String replaceIDVarNumbering(String codeblock) {
+		return codeblock.replaceAll('IDvar[0-9]*', 'IDvar')
+	} 
 
 	@Test
 	def void macroWithParameter() {
@@ -162,21 +167,26 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 		val generatedCode = tcl.parseAndGenerate
 
 		// then
-		generatedCode => [
+		generatedCode.replaceIDVarNumbering => [
 			assertContains('''
-				// Macro: MyMacroCollection
-				// - Sleep for "5" seconds
 				macro_MyMacroCollection_SleepMacro(5);
 			'''.indent(2))
 			assertContains('''
 				private void macro_MyMacroCollection_SleepMacro(final long x) throws Exception {
-				  
-				  reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
-				  
-				  reporter.enter(TestRunReporter.SemanticUnit.STEP, "Wait for @x seconds // x = '" + x + "'");
-				  dummyFixture.waitSeconds(x);
+				  try {
+				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.STARTED, variables());
+				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication", IDvar, TestRunReporter.Status.STARTED, variables());
+				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "Wait for @x seconds", IDvar, TestRunReporter.Status.STARTED, variables("x", Long.toString(x)));
+				    dummyFixture.waitSeconds(x);
+				    reporter.leave(TestRunReporter.SemanticUnit.STEP, "Wait for @x seconds", IDvar, TestRunReporter.Status.OK, variables("x", Long.toString(x)));
+				    reporter.leave(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication", IDvar, TestRunReporter.Status.OK, variables());
+				    reporter.leave(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.OK, variables());
+				  } catch (Exception e) {
+				    finishedTestWith(TestRunReporter.Status.ABORTED);
+				    org.junit.Assert.fail(e.getMessage());
+				  }
 				}
-			'''.indent(1))
+    			'''.indent(1))
 		]
 	}
 
@@ -192,25 +202,17 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 		val generatedCode = tcl.parseAndGenerate
 
 		// then
-		generatedCode => [
+		generatedCode.replaceIDVarNumbering => [
 			assertContains('''
-				// Macro: MyMacroCollection
-				// - Do nothing nested
 				macro_MyMacroCollection_EmptyNestedMacro();
 			'''.indent(2))
 			assertContains('''
-				private void macro_MyMacroCollection_EmptyNestedMacro() throws Exception {
-				  
-				  // Macro: MyMacroCollection
-				  // - Do nothing
-				  macro_MyMacroCollection_EmptyMacro();
-				}
+				macro_MyMacroCollection_EmptyMacro();
 			'''.indent(1))
 			assertContains('''
-				private void macro_MyMacroCollection_EmptyMacro() throws Exception {
-				  
-				}
-			'''.indent(1))
+				String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.STARTED, variables());
+				reporter.leave(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.OK, variables());
+ 			'''.indent(3))
 		]
 	}
 
@@ -226,25 +228,34 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 		val generatedCode = tcl.parseAndGenerate
 
 		// then
-		generatedCode => [
+		generatedCode.replaceIDVarNumbering => [
 			assertContains('''
-				// Macro: MyMacroCollection
-				// - Read and write value and wait "5" seconds
 				macro_MyMacroCollection_SetValueAndWait(5);
 			'''.indent(2))
 			assertContains('''
 				private void macro_MyMacroCollection_SetValueAndWait(final long seconds) throws Exception {
-				  
-				  reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
-				  
-				  reporter.enter(TestRunReporter.SemanticUnit.STEP, "value = Read value from <bar> [java.lang.String]");
-				  java.lang.String value = dummyFixture.getValue("label.greet");
-				  // Macro: MyMacroCollection
-				  // - Set input to @value
-				  macro_MyMacroCollection_WriteMacro(value);
-				  // Macro: MyMacroCollection
-				  // - Sleep for @seconds seconds
-				  macro_MyMacroCollection_SleepMacro(seconds);
+				  try {
+				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.STARTED, variables());
+				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication", IDvar, TestRunReporter.Status.STARTED, variables());
+				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "value = Read value from <bar> [java.lang.String]", IDvar, TestRunReporter.Status.STARTED, variables());
+				    java.lang.String value = dummyFixture.getValue("label.greet");
+				    reporter.leave(TestRunReporter.SemanticUnit.STEP, "value = Read value from <bar> [java.lang.String]", IDvar, TestRunReporter.Status.OK, variables());
+				    reporter.leave(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication", IDvar, TestRunReporter.Status.OK, variables());
+				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.MACRO_LIB, "MyMacroCollection", IDvar, TestRunReporter.Status.STARTED, variables());
+				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "Set input to @value", IDvar, TestRunReporter.Status.STARTED, variables());
+				    macro_MyMacroCollection_WriteMacro(value);
+				    reporter.leave(TestRunReporter.SemanticUnit.STEP, "Set input to @value", IDvar, TestRunReporter.Status.OK, variables());
+				    reporter.leave(TestRunReporter.SemanticUnit.MACRO_LIB, "MyMacroCollection", IDvar, TestRunReporter.Status.OK, variables());
+				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.MACRO_LIB, "MyMacroCollection", IDvar, TestRunReporter.Status.STARTED, variables());
+				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "Sleep for @seconds seconds", IDvar, TestRunReporter.Status.STARTED, variables());
+				    macro_MyMacroCollection_SleepMacro(seconds);
+				    reporter.leave(TestRunReporter.SemanticUnit.STEP, "Sleep for @seconds seconds", IDvar, TestRunReporter.Status.OK, variables());
+				    reporter.leave(TestRunReporter.SemanticUnit.MACRO_LIB, "MyMacroCollection", IDvar, TestRunReporter.Status.OK, variables());
+				    reporter.leave(TestRunReporter.SemanticUnit.MACRO, "MacroImpl", IDvar, TestRunReporter.Status.OK, variables());
+				  } catch (Exception e) {
+				    finishedTestWith(TestRunReporter.Status.ABORTED);
+				    org.junit.Assert.fail(e.getMessage());
+				  }
 				}
 			'''.indent(1))
 
@@ -272,11 +283,9 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 		// then
 		generatedCode => [
 			assertContains('''
-				// Macro: MyMacroCollection
-				// - Sleep for @myEnvVar seconds
 				try { Long.parseLong(env_myEnvVar); } catch (NumberFormatException nfe) { org.junit.Assert.fail("Parameter is expected to be of type = 'long' but a non coercible value = '"+env_myEnvVar.toString()+"' was passed through variable reference = 'myEnvVar'."); }
 				macro_MyMacroCollection_SleepMacro(Long.parseLong(env_myEnvVar));
-			'''.indent(2))
+			'''.indent(3))
 		]
 	}
 
@@ -299,19 +308,16 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 
 
 		// then
-		generatedCode => [
+		generatedCode.replaceIDVarNumbering => [
 			assertContains('''
-				// Macro: MyMacroCollection
-				// - stop this
 				macro_MyMacroCollection_MacroWithNotExistingFixture();
 			'''.indent(2))
 			assertContains('''
-				reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication");
-				
-				reporter.enter(TestRunReporter.SemanticUnit.STEP, "Stop application");
+				String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "Stop application", IDvar, TestRunReporter.Status.STARTED, variables());
 				dummyFixture.stopApplication();
+				reporter.leave(TestRunReporter.SemanticUnit.STEP, "Stop application", IDvar, TestRunReporter.Status.OK, variables());
 				org.junit.Assert.fail("Template 'do something' cannot be resolved with any known macro/fixture. Please check your Macro 'MyMacroCollection' in line 44.");
-				'''.indent(2))
+			'''.indent(3))
 		]
 	}
 

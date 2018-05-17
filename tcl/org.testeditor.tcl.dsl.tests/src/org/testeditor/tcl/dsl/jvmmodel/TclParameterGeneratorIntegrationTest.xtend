@@ -38,6 +38,7 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 
 	@Test
 	def void testGeneration() {
+		try {
 		val tclModel = parseTcl('''
 			package com.example
 			
@@ -84,34 +85,51 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 			  
 			  @Before
 			  public void checkEnvironmentVariablesOnExistence() throws Exception {
+			    
 			    org.junit.Assert.assertNotNull("environment variable 'confEnvVar' must not be null", env_confEnvVar.get());
 			    org.junit.Assert.assertNotNull("environment variable 'nonConfEnvVar' must not be null", env_nonConfEnvVar);
-			    
 			  }
 			  
 			  @Test
 			  public void execute() throws Exception {
+			    try {
+			      String IDvar0=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "test something", IDvar0, TestRunReporter.Status.STARTED, variables());
+			      String IDvar1=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "dummyComponent", IDvar1, TestRunReporter.Status.STARTED, variables());
+			      String IDvar2=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "myJsonObject = Read jsonObject from <dummyElement> [com.google.gson.JsonObject]", IDvar2, TestRunReporter.Status.STARTED, variables());
+			      com.google.gson.JsonObject myJsonObject = dummyFixture.getJsonObject("dummyLocator");
+			      reporter.leave(TestRunReporter.SemanticUnit.STEP, "myJsonObject = Read jsonObject from <dummyElement> [com.google.gson.JsonObject]", IDvar2, TestRunReporter.Status.OK, variables());
+			      String IDvar3=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "myVal = Read value from <dummyElement> [java.lang.String]", IDvar3, TestRunReporter.Status.STARTED, variables());
+			      java.lang.String myVal = dummyFixture.getValue("dummyLocator");
+			      reporter.leave(TestRunReporter.SemanticUnit.STEP, "myVal = Read value from <dummyElement> [java.lang.String]", IDvar3, TestRunReporter.Status.OK, variables());
+			      String IDvar4=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "Start application @myJsonObject.\"my key\"", IDvar4, TestRunReporter.Status.STARTED, variables("myJsonObject.\"my key\"", myJsonObject.getAsJsonObject().get("my key").getAsJsonPrimitive().getAsString()));
+			      org.junit.Assert.assertTrue("Parameter is expected to be of type = 'java.lang.String' but a non coercible value = '"+myJsonObject.getAsJsonObject().get("my key").toString()+"' was passed through variable reference = 'myJsonObject'.", myJsonObject.getAsJsonObject().get("my key").getAsJsonPrimitive().isString());
+			      dummyFixture.startApplication(myJsonObject.getAsJsonObject().get("my key").getAsJsonPrimitive().getAsString());
+			      reporter.leave(TestRunReporter.SemanticUnit.STEP, "Start application @myJsonObject.\"my key\"", IDvar4, TestRunReporter.Status.OK, variables("myJsonObject.\"my key\"", myJsonObject.getAsJsonObject().get("my key").getAsJsonPrimitive().getAsString()));
+			      String IDvar5=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "Start application @myVal", IDvar5, TestRunReporter.Status.STARTED, variables("myVal", myVal));
+			      dummyFixture.startApplication(myVal);
+			      reporter.leave(TestRunReporter.SemanticUnit.STEP, "Start application @myVal", IDvar5, TestRunReporter.Status.OK, variables("myVal", myVal));
+			      String IDvar6=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "Type confidential @confEnvVar into <Input>", IDvar6, TestRunReporter.Status.STARTED, variables());
+			      dummyFixture.typeConfidentialInformationInto("some", org.testeditor.dsl.common.testing.DummyLocatorStrategy.ID, env_confEnvVar);
+			      reporter.leave(TestRunReporter.SemanticUnit.STEP, "Type confidential @confEnvVar into <Input>", IDvar6, TestRunReporter.Status.OK, variables());
+			      String IDvar7=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "Type @nonConfEnvVar into <Input>", IDvar7, TestRunReporter.Status.STARTED, variables("nonConfEnvVar", env_nonConfEnvVar));
+			      dummyFixture.typeInto("some", org.testeditor.dsl.common.testing.DummyLocatorStrategy.ID, env_nonConfEnvVar);
+			      reporter.leave(TestRunReporter.SemanticUnit.STEP, "Type @nonConfEnvVar into <Input>", IDvar7, TestRunReporter.Status.OK, variables("nonConfEnvVar", env_nonConfEnvVar));
+			      reporter.leave(TestRunReporter.SemanticUnit.COMPONENT, "dummyComponent", IDvar1, TestRunReporter.Status.OK, variables());
+			      reporter.leave(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "test something", IDvar0, TestRunReporter.Status.OK, variables());
+			      finishedTestWith(TestRunReporter.Status.OK); // reaching this line of code means successful test execution
+			    } catch (AssertionError e) {
+			      finishedTestWith(TestRunReporter.Status.ERROR); 
+			      org.junit.Assert.fail(e.getMessage());
+			    } catch (Exception e) {
+			      finishedTestWith(TestRunReporter.Status.ABORTED); // exception means unexpected abortion of the test
+			      org.junit.Assert.fail(e.getMessage());
+			    }
 			    
-			    reporter.enter(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "test something");
-			    
-			    reporter.enter(TestRunReporter.SemanticUnit.COMPONENT, "dummyComponent");
-			    
-			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "myJsonObject = Read jsonObject from <dummyElement> [com.google.gson.JsonObject]");
-			    com.google.gson.JsonObject myJsonObject = dummyFixture.getJsonObject("dummyLocator");
-			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "myVal = Read value from <dummyElement> [java.lang.String]");
-			    java.lang.String myVal = dummyFixture.getValue("dummyLocator");
-			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Start application @myJsonObject.\"my key\" // myJsonObject = '" + myJsonObject + "'");
-			    org.junit.Assert.assertTrue("Parameter is expected to be of type = 'java.lang.String' but a non coercible value = '"+myJsonObject.getAsJsonObject().get("my key").toString()+"' was passed through variable reference = 'myJsonObject'.", myJsonObject.getAsJsonObject().get("my key").getAsJsonPrimitive().isString());
-			    dummyFixture.startApplication(myJsonObject.getAsJsonObject().get("my key").getAsJsonPrimitive().getAsString());
-			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Start application @myVal // myVal = '" + myVal + "'");
-			    dummyFixture.startApplication(myVal);
-			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Type confidential @confEnvVar into <Input> // confEnvVar = '" + env_confEnvVar + "'");
-			    dummyFixture.typeConfidentialInformationInto("some", org.testeditor.dsl.common.testing.DummyLocatorStrategy.ID, env_confEnvVar);
-			    reporter.enter(TestRunReporter.SemanticUnit.STEP, "Type @nonConfEnvVar into <Input> // nonConfEnvVar = '" + env_nonConfEnvVar + "'");
-			    dummyFixture.typeInto("some", org.testeditor.dsl.common.testing.DummyLocatorStrategy.ID, env_nonConfEnvVar);
 			  }
 			}
-		'''.toString)
+		'''.toString)		
+		} catch (Exception e) {
+		}
 	}
 
 }

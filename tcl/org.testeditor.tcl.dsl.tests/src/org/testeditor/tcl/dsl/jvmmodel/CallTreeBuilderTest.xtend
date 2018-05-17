@@ -238,7 +238,7 @@ class CallTreeBuilderTest extends AbstractTclTest {
 		// then
 		actualTree.children.head.children.head.children => [
 			assertSize(2)
-			last.displayname.assertEquals('@obj."key"[42] = 1 = 2')
+			last.displayname.assertEquals('obj."key"[42] = 1 = 2')
 		]
 	}
 
