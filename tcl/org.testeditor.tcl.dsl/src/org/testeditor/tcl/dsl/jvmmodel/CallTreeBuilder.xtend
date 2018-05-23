@@ -12,6 +12,7 @@ import org.testeditor.tcl.TestStepContext
 import org.testeditor.tcl.dsl.messages.TclElementStringifier
 import org.testeditor.tcl.impl.TclFactoryImpl
 import org.testeditor.tcl.util.TclModelUtil
+import org.testeditor.tcl.Macro
 
 @Singleton
 class CallTreeBuilder {
@@ -67,8 +68,14 @@ class CallTreeBuilder {
 	def dispatch CallTreeNode toCallTree(TestStep model) {
 		return model.namedCallTreeNode => [
 			if (model.hasMacroContext) {
-				children += model.findMacro.contexts.map[toCallTree]
+				children += model.findMacro.toCallTree
 			}
+		]
+	}
+	
+	def dispatch CallTreeNode toCallTree(Macro model) {
+		return model.namedCallTreeNode => [
+			children += model.contexts.map[toCallTree]
 		]
 	}
 

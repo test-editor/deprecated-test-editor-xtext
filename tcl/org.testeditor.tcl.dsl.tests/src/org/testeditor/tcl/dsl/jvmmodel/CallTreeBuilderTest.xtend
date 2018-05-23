@@ -270,19 +270,13 @@ class CallTreeBuilderTest extends AbstractTclTest {
 		val actualTree = builderUnderTest.buildCallTree(tclModel.test)
 
 		// then
-		actualTree.children.head.children.head.children => [
-			assertSize(1, 'there should exactly be one test step (macro invocation)')
-			head => [
-				displayname.assertEquals('read "bar"')
-				children => [
-					assertSize(1, 'there should be exactly one component context declaration')
-					head => [
-						displayname.assertEquals(amlComponentForTesting.name)
-						children => [
-							assertSize(1, 'there should be exactly one test step (component invocation)')
-							head.displayname.assertEquals('myVar = Read jsonObject from <bar> [com.google.gson.JsonObject]')
-						]
-					]
+		actualTree.children.head.children.head.children.assertSingleElement => [
+			displayname.assertEquals('read "bar"')
+			children.assertSingleElement => [
+				displayname.assertEquals(macros.macros.head.name)
+				children.assertSingleElement => [
+					displayname.assertEquals(amlComponentForTesting.name)
+					children.assertSingleElement.displayname.assertEquals('myVar = Read jsonObject from <bar> [com.google.gson.JsonObject]')
 				]
 			]
 		]
