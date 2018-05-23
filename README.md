@@ -75,6 +75,6 @@ When using maven as test project build/run tool, please make sure to have the en
 * merge master into develop to get the new development version into develop again
 * execute maven to set all poms to the new versions
   ```
-  mvn -f target-platform/pom.xml build-helper:parse-version org.eclipse.tycho:tycho-versions-plugin:set-version -Dartifacts=org.testeditor.releng.target.parent -DnewVersion=1.11.0-SNAPSHOT -Dtycho.mode=maven
-  mvn -f pom.xml build-helper:parse-version org.eclipse.tycho:tycho-versions-plugin:set-version -Dartifacts=org.testeditor.releng.parent -DnewVersion=1.11.0-SNAPSHOT -Dtycho.mode=maven -Prcp
+  mvn -f target-platform/pom.xml build-helper:parse-version org.eclipse.tycho:tycho-versions-plugin:set-version -Dartifacts=org.testeditor.releng.target.parent -DnewVersion=1.16.0-SNAPSHOT -Dtycho.mode=maven
+  mvn -f pom.xml build-helper:parse-version org.eclipse.tycho:tycho-versions-plugin:set-version -Dartifacts=org.testeditor.releng.parent -DnewVersion=1.16.0-SNAPSHOT -Dtycho.mode=maven -Prcp,rcpuatest,product
   ```
