@@ -19,7 +19,7 @@ stages:
   - name: compileFeature
     if: (NOT (branch IN (master, develop)))
   - name: compileRcp
-    if: branch IN (master, develop)
+    if: branch IN (master, develop) OR tag =~ ^v.*$
 jobs:
   include:
     - stage: compileFeature
