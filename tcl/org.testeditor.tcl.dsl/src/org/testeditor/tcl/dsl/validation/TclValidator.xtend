@@ -27,6 +27,7 @@ import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.aml.dsl.validation.AmlValidator
 import org.testeditor.dsl.common.util.CollectionUtils
+import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.AssignmentThroughPath
 import org.testeditor.tcl.ComparatorGreaterThan
@@ -36,6 +37,7 @@ import org.testeditor.tcl.ComponentTestStepContext
 import org.testeditor.tcl.Macro
 import org.testeditor.tcl.MacroCollection
 import org.testeditor.tcl.MacroTestStepContext
+import org.testeditor.tcl.SetupAndCleanupProvider
 import org.testeditor.tcl.SpecificationStepImplementation
 import org.testeditor.tcl.StepContentElement
 import org.testeditor.tcl.TclPackage
@@ -47,6 +49,7 @@ import org.testeditor.tcl.VariableReferencePathAccess
 import org.testeditor.tcl.dsl.jvmmodel.SimpleTypeComputer
 import org.testeditor.tcl.dsl.jvmmodel.TclCoercionComputer
 import org.testeditor.tcl.dsl.jvmmodel.TclExpressionTypeComputer
+import org.testeditor.tcl.dsl.jvmmodel.TclJsonUtil
 import org.testeditor.tcl.dsl.jvmmodel.TclTypeUsageComputer
 import org.testeditor.tcl.dsl.jvmmodel.VariableCollector
 import org.testeditor.tcl.util.TclModelUtil
@@ -58,9 +61,6 @@ import org.testeditor.tsl.StepContentVariable
 import org.testeditor.tsl.TslPackage
 
 import static org.testeditor.dsl.common.CommonPackage.Literals.*
-import org.testeditor.tcl.dsl.jvmmodel.TclJsonUtil
-import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
-import org.testeditor.tcl.SetupAndCleanupProvider
 
 class TclValidator extends AbstractTclValidator {
 
@@ -74,6 +74,7 @@ class TclValidator extends AbstractTclValidator {
 	public static val VARIABLE_ASSIGNED_MORE_THAN_ONCE = 'varAssignedMoreThanOnce'
 	public static val UNALLOWED_VALUE = 'unallowedValue'
 	public static val MISSING_FIXTURE = 'missingFixture'
+	public static val FIXTURE_MISSING_EXCEPTION = 'fixtureMissingException'
 	public static val MISSING_MACRO = 'missingMacro'
 	public static val INVALID_VAR_DEREF = "invalidVariableDereference"
 	public static val INVALID_MODEL_CONTENT = "invalidModelContent"
@@ -139,6 +140,8 @@ class TclValidator extends AbstractTclValidator {
 			val method = testStep.interaction?.defaultMethod
 			if ((method == null ) || (method.operation == null) || (method.typeReference?.type == null)) {
 				info("test step could not resolve fixture", TclPackage.Literals.TEST_STEP__CONTENTS, MISSING_FIXTURE)
+			} else if (!method.operation.exceptions.map[qualifiedName].exists[equals(org.testeditor.fixture.core.FixtureException.name)]) {
+				info("Fixture does not provide additional information on failures (FixtureException)", TclPackage.Literals.TEST_STEP__CONTENTS, FIXTURE_MISSING_EXCEPTION)
 			}
 		}
 	}

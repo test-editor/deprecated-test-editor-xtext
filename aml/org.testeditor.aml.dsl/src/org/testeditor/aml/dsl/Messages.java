@@ -25,6 +25,7 @@ public class Messages extends NLS {
 	public static String Validation_VariableReference_MissingName;
 	public static String Validation_ValueSpaceAssignment_NonUnique;
 	public static String Validation_MethodReference_InvalidParameterList;
+	public static String Validation_MethodReference_FixtureExceptionMissing;
 	public static String Validation_RegExValueSpace_InvalidRegEx;
 	public static String Validation_TemplateCode_NotUnique;
 	public static String Validation_InteractionType_Name_Dublicate;

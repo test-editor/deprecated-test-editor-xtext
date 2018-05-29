@@ -130,6 +130,20 @@ class AmlValidator extends AbstractAmlValidator {
 			}
 		}
 	}
+	
+	@Check
+	def void checkMethodReferenceToThrowFixtureException(MethodReference reference) {
+		val operation = reference.operation
+		if (operation !== null) {
+			if (!operation.exceptions.map[qualifiedName].exists[equals('org.testeditor.fixture.core.FixtureException')]) {
+				warning(
+					Validation_MethodReference_FixtureExceptionMissing,
+					reference,
+					METHOD_REFERENCE__OPERATION
+				)
+			}
+		}
+	}
 
 	/** 
 	 * Checks that the specified expression is a valid regular expression. 
