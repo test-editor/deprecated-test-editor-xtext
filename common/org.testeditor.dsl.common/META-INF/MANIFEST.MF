@@ -4,7 +4,7 @@ Bundle-Name: %pluginName
 Bundle-SymbolicName: org.testeditor.dsl.common;singleton:=true
 Bundle-Version: 1.16.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-ClassPath: lib/core-fixture-4.0.0.jar,.
+Bundle-ClassPath: lib/core-fixture-4.1.1.jar,.
 Bundle-Vendor: Signal Iduna Corporation
 Require-Bundle: org.eclipse.xtend.lib.macro,
  org.eclipse.xtext,
