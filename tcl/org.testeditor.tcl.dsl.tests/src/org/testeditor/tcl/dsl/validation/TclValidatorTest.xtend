@@ -13,6 +13,7 @@
 package org.testeditor.tcl.dsl.validation
 
 import javax.inject.Inject
+import org.eclipse.xtext.diagnostics.Severity
 import org.eclipse.xtext.testing.validation.ValidationTestHelper
 import org.junit.Test
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
@@ -36,7 +37,10 @@ class TclValidatorTest extends AbstractParserTest {
 		var modelError = parseTcl(tclError.toString, "Test2.tcl")
 
 		// then
-		validator.assertNoIssues(model)
+		validator.validate(model).assertSingleElement => [
+			code.assertEquals(TclValidator.FIXTURE_MISSING_EXCEPTION)
+			severity.assertEquals(Severity.INFO)
+		]
 		assertFalse(validator.validate(modelError).isEmpty)
 	}
 
@@ -54,7 +58,10 @@ class TclValidatorTest extends AbstractParserTest {
 		var modelError = parseTcl(tclError.toString, "Test2.tcl")
 
 		// then
-		validator.assertNoIssues(model)
+		validator.validate(model).assertSingleElement => [
+			code.assertEquals(TclValidator.FIXTURE_MISSING_EXCEPTION)
+			severity.assertEquals(Severity.INFO)
+		]
 		assertFalse(validator.validate(modelError).isEmpty)
 	}
 
@@ -72,7 +79,10 @@ class TclValidatorTest extends AbstractParserTest {
 		var modelError = parseTcl(tclError.toString, "Test2.tcl")
 
 		// then
-		validator.assertNoIssues(model)
+		validator.validate(model).assertSingleElement => [
+			code.assertEquals(TclValidator.FIXTURE_MISSING_EXCEPTION)
+			severity.assertEquals(Severity.INFO)
+		]
 		assertFalse(validator.validate(modelError).isEmpty)
 	}
 
@@ -90,7 +100,10 @@ class TclValidatorTest extends AbstractParserTest {
 		var modelError = parseTcl(tclError.toString, "Test2.tcl")
 
 		// then
-		validator.assertNoIssues(model)
+		validator.validate(model).assertSize(2).forEach [
+			code.assertEquals(TclValidator.FIXTURE_MISSING_EXCEPTION)
+			severity.assertEquals(Severity.INFO)
+		]
 		assertFalse(validator.validate(modelError).isEmpty)
 	}
 

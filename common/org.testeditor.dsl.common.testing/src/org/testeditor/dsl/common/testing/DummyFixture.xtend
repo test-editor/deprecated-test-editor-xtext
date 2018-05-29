@@ -14,13 +14,14 @@ package org.testeditor.dsl.common.testing
 
 import com.google.gson.JsonObject
 import java.util.List
+import org.testeditor.fixture.core.FixtureException
 import org.testeditor.fixture.core.MaskingString
 import org.testeditor.fixture.core.interaction.FixtureMethod
 
 public class DummyFixture {
 
 	@FixtureMethod
-	def void someFixtureMethod() {
+	def void someFixtureMethod() throws FixtureException {
 	}
 
 	def void someUnrelatedMethod() {

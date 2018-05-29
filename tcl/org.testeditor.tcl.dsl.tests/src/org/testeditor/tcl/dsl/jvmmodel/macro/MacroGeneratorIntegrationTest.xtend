@@ -111,7 +111,16 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 				  try {
 				    String IDvar=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.MACRO, "EmptyMacroWithUnusedParameter", IDvar, TestRunReporter.Status.STARTED, variables());
 				    reporter.leave(TestRunReporter.SemanticUnit.MACRO, "EmptyMacroWithUnusedParameter", IDvar, TestRunReporter.Status.OK, variables());
+				  } catch (AssertionError e) {
+				    reporter.reportAssertionExit(e);
+				    finishedTestWith(TestRunReporter.Status.ERROR);
+				    org.junit.Assert.fail(e.getMessage());
+				  } catch (org.testeditor.fixture.core.FixtureException e) {
+				    reporter.reportFixtureExit(e);
+				    finishedTestWith(TestRunReporter.Status.ABORTED);
+				    org.junit.Assert.fail(e.getMessage());
 				  } catch (Exception e) {
+				    reporter.reportExceptionExit(e);
 				    finishedTestWith(TestRunReporter.Status.ABORTED);
 				    org.junit.Assert.fail(e.getMessage());
 				  }
@@ -181,7 +190,16 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 				    reporter.leave(TestRunReporter.SemanticUnit.STEP, "Wait for @x seconds", IDvar, TestRunReporter.Status.OK, variables("x", Long.toString(x)));
 				    reporter.leave(TestRunReporter.SemanticUnit.COMPONENT, "GreetingApplication", IDvar, TestRunReporter.Status.OK, variables());
 				    reporter.leave(TestRunReporter.SemanticUnit.MACRO, "SleepMacro", IDvar, TestRunReporter.Status.OK, variables());
+				  } catch (AssertionError e) {
+				    reporter.reportAssertionExit(e);
+				    finishedTestWith(TestRunReporter.Status.ERROR);
+				    org.junit.Assert.fail(e.getMessage());
+				  } catch (org.testeditor.fixture.core.FixtureException e) {
+				    reporter.reportFixtureExit(e);
+				    finishedTestWith(TestRunReporter.Status.ABORTED);
+				    org.junit.Assert.fail(e.getMessage());
 				  } catch (Exception e) {
+				    reporter.reportExceptionExit(e);
 				    finishedTestWith(TestRunReporter.Status.ABORTED);
 				    org.junit.Assert.fail(e.getMessage());
 				  }
@@ -252,7 +270,16 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 				    reporter.leave(TestRunReporter.SemanticUnit.STEP, "Sleep for @seconds seconds", IDvar, TestRunReporter.Status.OK, variables());
 				    reporter.leave(TestRunReporter.SemanticUnit.MACRO_LIB, "MyMacroCollection", IDvar, TestRunReporter.Status.OK, variables());
 				    reporter.leave(TestRunReporter.SemanticUnit.MACRO, "SetValueAndWait", IDvar, TestRunReporter.Status.OK, variables());
+				  } catch (AssertionError e) {
+				    reporter.reportAssertionExit(e);
+				    finishedTestWith(TestRunReporter.Status.ERROR);
+				    org.junit.Assert.fail(e.getMessage());
+				  } catch (org.testeditor.fixture.core.FixtureException e) {
+				    reporter.reportFixtureExit(e);
+				    finishedTestWith(TestRunReporter.Status.ABORTED);
+				    org.junit.Assert.fail(e.getMessage());
 				  } catch (Exception e) {
+				    reporter.reportExceptionExit(e);
 				    finishedTestWith(TestRunReporter.Status.ABORTED);
 				    org.junit.Assert.fail(e.getMessage());
 				  }

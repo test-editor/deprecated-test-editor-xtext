@@ -31,6 +31,42 @@ import static org.testeditor.aml.dsl.validation.AmlValidator.*
 class ValidationTest extends AbstractParserTest {
 
 	@Inject extension AmlModelGenerator
+	
+	
+	@Test
+	def void validateNoMissingFixtureExceptionIfPresent() {
+		val amlModel = amlModel.withTypeImport(resourceSet, "org.testeditor.dsl.common.testing.DummyFixture") => [
+			interactionTypes += interactionType("someFix") => [
+				template = template("some")
+				// someFixtureMethod is defined to throw FixtureException (see DummyFixture)
+				defaultMethod = methodReference(resourceSet, DummyFixture, "someFixtureMethod")
+			]
+		]
+
+		// when
+		amlModel.addToResourceSet("Dummy.aml")
+
+		// then
+		amlModel.assertNoIssues
+	}
+	
+	@Test
+	def void validateMissingFixtureExceptionWarning() {
+		// given
+		val amlModel = amlModel.withTypeImport(resourceSet, "org.testeditor.dsl.common.testing.DummyFixture") => [
+			interactionTypes += interactionType("someFix") => [
+				template = template("some")
+				// someUnrelatedMethod is NOT defined to throw FixtureException (see DummyFixture)
+				defaultMethod = methodReference(resourceSet, DummyFixture, "someUnrelatedMethod")
+			]
+		]
+
+		// when
+		amlModel.addToResourceSet("Dummy.aml")
+
+		// then
+		amlModel.assertWarning(METHOD_REFERENCE, METHOD_REFERENCE__EXCEPTION_MISSING, Validation_MethodReference_FixtureExceptionMissing);
+	}
 
 	@Test
 	def void validateComponentType() {

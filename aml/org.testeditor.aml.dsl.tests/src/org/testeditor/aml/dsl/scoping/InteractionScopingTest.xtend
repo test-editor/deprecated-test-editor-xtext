@@ -17,6 +17,7 @@ import org.eclipse.xtext.diagnostics.Severity
 import org.junit.Test
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.TemplateVariable
+import org.testeditor.aml.dsl.validation.AmlValidator
 import org.testeditor.dsl.common.testing.DummyFixture
 
 /**
@@ -103,10 +104,15 @@ class InteractionScopingTest extends AbstractScopingTest {
 		val model = parseAml(file)
 
 		// Then
-		val issue = model.validate.assertSingleElement
-		issue => [
-			severity.assertEquals(Severity.ERROR)
-			message.assertEquals("someUnrelatedMethod cannot be resolved to an operation.")
+		model.validate.assertSize(2) => [
+			head => [
+				severity.assertEquals(Severity.ERROR)
+				message.assertEquals("someUnrelatedMethod cannot be resolved to an operation.")
+			]
+			last => [
+				severity.assertEquals(Severity.WARNING)
+				code.assertEquals(AmlValidator.METHOD_REFERENCE__EXCEPTION_MISSING)
+			]
 		]
 	}
 
