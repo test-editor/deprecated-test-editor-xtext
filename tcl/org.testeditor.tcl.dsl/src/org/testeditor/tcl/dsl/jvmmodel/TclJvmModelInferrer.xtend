@@ -44,12 +44,12 @@ import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.dsl.common.util.JvmTypeReferenceUtil
 import org.testeditor.fixture.core.AbstractTestCase
-import org.testeditor.fixture.core.TestRunReporter.Status
 import org.testeditor.fixture.core.MaskingString
 import org.testeditor.fixture.core.TestRunReportable
 import org.testeditor.fixture.core.TestRunReporter
 import org.testeditor.fixture.core.TestRunReporter.Action
 import org.testeditor.fixture.core.TestRunReporter.SemanticUnit
+import org.testeditor.fixture.core.TestRunReporter.Status
 import org.testeditor.tcl.AbstractTestStep
 import org.testeditor.tcl.AssertionTestStep
 import org.testeditor.tcl.AssignmentThroughPath
@@ -203,7 +203,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 							if (yamlFileName != null) {
 								java.io.File yamlFile = new java.io.File(yamlFileName);
 								
-								reporter.addListener(new org.testeditor.fixture.core.DefaultYamlCallTreeListener(new java.io.FileOutputStream(yamlFile), 
+								«reporterFieldName».addListener(new org.testeditor.fixture.core.DefaultYamlCallTreeListener(new java.io.FileOutputStream(yamlFile),
 									System.getenv("TE_CALL_TREE_YAML_TEST_CASE"),
 									System.getenv("TE_CALL_TREE_YAML_COMMIT_ID")
 								));
@@ -310,7 +310,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			body = [
 				val output = trace(setup, true)
 				val id = generateNewIDVar
-				output.wrapWithAbortingExceptionHandler [
+				output.wrapWithExceptionHandler [
 					output.appendReporterEnterCall(SemanticUnit.SETUP, 'setup', id, Status.STARTED)
 					setup.contexts.forEach[generateContext(output.trace(it))]
 					output.appendReporterLeaveCall(SemanticUnit.SETUP, 'setup', id, Status.OK)
@@ -327,7 +327,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			body = [
 				val output = trace(cleanup, true)
 				val id = generateNewIDVar
-				output.wrapWithAbortingExceptionHandler [
+				output.wrapWithExceptionHandler [
 					output.appendReporterEnterCall(SemanticUnit.CLEANUP, 'cleanup', id, Status.STARTED)
 					cleanup.contexts.forEach[generateContext(output.trace(it))]
 					output.appendReporterLeaveCall(SemanticUnit.CLEANUP, 'cleanup', id, Status.OK)
@@ -351,7 +351,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 	}
 
 	def void generateMethodBody(TestCase test, ITreeAppendable output) {
-		output.wrapTestWithExceptionHandler [
+		output.wrapTestWithAssertionErrorHandler [
 			test.steps.forEach[generate(output.trace(it))]
 		]
 	}
@@ -363,34 +363,36 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	/**
 	 * wrap a complete test case test method body into coding that will record test status
-	 * - when regularly finishin the test
-	 * - when running into an assertion erro
+	 * - when regularly finishing the test
+	 * - when running into an assertion error
 	 * - when aborting the test because of an unexpected exception
 	 */
-	private def void wrapTestWithExceptionHandler(ITreeAppendable output, Procedures.Procedure1<ITreeAppendable> strategy) {
-		output.append('try {').increaseIndentation
+	private def void wrapTestWithAssertionErrorHandler(ITreeAppendable output, Procedures.Procedure1<ITreeAppendable> strategy) {
+		output.wrapWithAssertionErrorHandler [
+			strategy.apply(output)
+			output.newLine
+			output.append('''finishedTestWith(TestRunReporter.Status.OK); // reaching this line of code means successful test execution''')
+		]
+	}
 
-		strategy.apply(output)
-
-		output.decreaseIndentation
-		output.newLine
-		output.append('''
-			  finishedTestWith(TestRunReporter.Status.OK); // reaching this line of code means successful test execution
+	private def void wrapWithAssertionErrorHandler(ITreeAppendable output, Procedures.Procedure1<ITreeAppendable> strategy) {
+		output.wrapWithExceptionHandler [
+			strategy.apply(output)
+			output.decreaseIndentation
+			output.newLine
+			output.append('''
 			} catch (AssertionError e) {
-			  finishedTestWith(TestRunReporter.Status.ERROR); 
-			  org.junit.Assert.fail(e.getMessage());
-			} catch (Exception e) {
-			  finishedTestWith(TestRunReporter.Status.ABORTED); // exception means unexpected abortion of the test
-			  org.junit.Assert.fail(e.getMessage());
-			}
-		''')
-
+			  «reporterFieldName».reportAssertionExit(e);
+			  finishedTestWith(TestRunReporter.Status.ERROR);
+			  org.junit.Assert.fail(e.getMessage());''')
+			output.increaseIndentation
+		]
 	}
 
 	/**
 	 * wrap code with an exception handler that records test ABORTED in case of an unexpected exception
 	 */
-	private def void wrapWithAbortingExceptionHandler(ITreeAppendable output, Procedures.Procedure1<ITreeAppendable> strategy) {
+	private def void wrapWithExceptionHandler(ITreeAppendable output, Procedures.Procedure1<ITreeAppendable> strategy) {
 		output.append('try {')
 		output.increaseIndentation
 
@@ -399,7 +401,12 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		output.decreaseIndentation
 		output.newLine
 		output.append('''
+		} catch (org.testeditor.fixture.core.FixtureException e) {
+		  «reporterFieldName».reportFixtureExit(e);
+		  finishedTestWith(TestRunReporter.Status.ABORTED);
+		  org.junit.Assert.fail(e.getMessage());
 		} catch (Exception e) {
+		  «reporterFieldName».reportExceptionExit(e);
 		  finishedTestWith(TestRunReporter.Status.ABORTED);
 		  org.junit.Assert.fail(e.getMessage());
 		}''')
@@ -407,7 +414,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 
 	def void generateMethodBody(Macro macro, ITreeAppendable output, EList<JvmFormalParameter> parameters) {
 		val id = generateNewIDVar
-		output.wrapWithAbortingExceptionHandler [
+		output.wrapWithAssertionErrorHandler [
 			output.appendReporterEnterCall(SemanticUnit.MACRO, macro.stringify, id, Status.STARTED)
 			macro.contexts.forEach[generateContext(output.trace(it))]
 			output.appendReporterLeaveCall(SemanticUnit.MACRO, macro.stringify, id, Status.OK)

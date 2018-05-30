@@ -45,7 +45,7 @@ class ProjectContentGenerator {
 
 	static public val TEST_EDITOR_MAVEN_PLUGIN_VERSION = "1.3"
 	static public val TEST_EDITOR_WEB_FIXTURE = "3.1.4"
-	static public val TEST_EDITOR_CORE_FIXTURE = "4.0.0"
+	static public val TEST_EDITOR_CORE_FIXTURE = "4.1.1"
 	static public val TEST_EDITOR_SWING_FIXTURE = "3.1.1"
 	static public val TEST_EDITOR_GRADLE_PLUGIN_VERSION = "0.8"
 	

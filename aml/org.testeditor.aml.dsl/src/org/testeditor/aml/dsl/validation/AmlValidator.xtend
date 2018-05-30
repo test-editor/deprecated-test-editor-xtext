@@ -13,7 +13,6 @@
 package org.testeditor.aml.dsl.validation
 
 import java.text.MessageFormat
-import java.util.Map
 import java.util.regex.Pattern
 import java.util.regex.PatternSyntaxException
 import javax.inject.Inject
@@ -23,7 +22,6 @@ import org.testeditor.aml.AmlModel
 import org.testeditor.aml.Component
 import org.testeditor.aml.ComponentElement
 import org.testeditor.aml.ElementTypeWithInteractions
-import org.testeditor.aml.InteractionType
 import org.testeditor.aml.MethodReference
 import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.RegExValueSpace
@@ -39,15 +37,17 @@ import static org.testeditor.dsl.common.CommonPackage.Literals.*
 
 class AmlValidator extends AbstractAmlValidator {
 
-	public static val COMPONENT__PARENTS__CYCLE = "component.parents.cycle"
+	public static val COMPONENT__PARENTS__CYCLE = 'component.parents.cycle'
 	public static val COMPONENT__TYPE__MISSING = 'component.type.missing'
 	public static val VARIABLE_REFERENCE_NAME__MISSING = 'variableReference.name.missing'
 	public static val VALUE_SPACE_ASSIGNMENT__VARIABLE__NON_UNIQUE = 'valueSpaceAssignment.variable.nonUnique'
-	public static val REG_EX_VALUE_SPACE__EXPRESSION__INVALID = "RegExValueSpace.expression.invalid"
-	public static val COMPONENT_ELEMENT__LOCATOR_STRATEGY__MISSING = "componentElement.locatorStrategy.missing"
-	public static val INTERACTION_NAME_DUPLICATION = "interactionType.name.duplication"
-	public static val TEMPLATE_CODE_NOT_UNIQUE = "templateCode.not.unique"
-	public static val INVALID_CHAR_IN_TEMPLATE = "template.string.invalidChar"
+	public static val REG_EX_VALUE_SPACE__EXPRESSION__INVALID = 'RegExValueSpace.expression.invalid'
+	public static val COMPONENT_ELEMENT__LOCATOR_STRATEGY__MISSING = 'componentElement.locatorStrategy.missing'
+	public static val METHOD_REFERENCE__EXCEPTION_MISSING ='methodReference.fixtureException.missing'
+	public static val METHOD_REFERENCE__UNEXPECTED_CHECKED_EXCEPTION = 'methodReference.unexpectedCheckedException'
+	public static val INTERACTION_NAME_DUPLICATION = 'interactionType.name.duplication'
+	public static val TEMPLATE_CODE_NOT_UNIQUE = 'templateCode.not.unique'
+	public static val INVALID_CHAR_IN_TEMPLATE = 'template.string.invalidChar'
 
 	@Inject
 	private extension ModelUtil
@@ -126,6 +126,29 @@ class AmlValidator extends AbstractAmlValidator {
 					Validation_MethodReference_InvalidParameterList,
 					reference,
 					METHOD_REFERENCE__OPERATION
+				)
+			}
+		}
+	}
+	
+	@Check
+	def void checkMethodReferenceToThrowFixtureException(MethodReference reference) {
+		val operation = reference.operation
+		if (operation !== null) {
+			if (operation.exceptions.empty) {
+				warning(
+					Validation_MethodReference_FixtureExceptionMissing,
+					reference,
+					METHOD_REFERENCE__OPERATION,
+					METHOD_REFERENCE__EXCEPTION_MISSING
+				)
+			}
+			if (operation.exceptions.map[qualifiedName].exists[!equals('org.testeditor.fixture.core.FixtureException')]) {
+				error(
+					Validation_MethodReference_UnexpectedCheckedException,
+					reference,
+					METHOD_REFERENCE__OPERATION,
+					METHOD_REFERENCE__UNEXPECTED_CHECKED_EXCEPTION
 				)
 			}
 		}

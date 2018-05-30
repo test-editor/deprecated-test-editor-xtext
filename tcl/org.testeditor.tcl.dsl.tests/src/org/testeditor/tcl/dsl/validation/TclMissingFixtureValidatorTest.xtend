@@ -12,9 +12,10 @@
  *******************************************************************************/
 package org.testeditor.tcl.dsl.validation
 
+import org.eclipse.emf.common.util.BasicEList
 import org.eclipse.xtext.common.types.JvmParameterizedTypeReference
 import org.eclipse.xtext.common.types.JvmType
-import org.eclipse.xtext.validation.ValidationMessageAcceptor
+import org.eclipse.xtext.common.types.JvmTypeReference
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
@@ -29,12 +30,11 @@ import static extension org.mockito.Mockito.*
 class TclMissingFixtureValidatorTest extends AbstractMockedTclValidatorTest {
 
 	@Mock JvmParameterizedTypeReference typeReferenceMock
-	@Mock ValidationMessageAcceptor messageAcceptor
+	val interactionTypeMock = InteractionType.mock(RETURNS_DEEP_STUBS)
 
 	@Before
 	def void initMocks() {
 		val jvmTypeMock = JvmType.mock
-		val interactionTypeMock = InteractionType.mock(RETURNS_DEEP_STUBS)
 
 		when(tclModelUtil.getInteraction(anyObject)).thenReturn(interactionTypeMock)
 		when(tclModelUtil.hasComponentContext(anyObject)).thenReturn(true)
@@ -45,7 +45,7 @@ class TclMissingFixtureValidatorTest extends AbstractMockedTclValidatorTest {
 	}
 
 	@Test
-	def void noInfoOnExistingFixture() {
+	def void noInfoOnExistingFixtureWithException() {
 		// given
 		val tclFix = parseTcl('''
 			package pa
@@ -55,14 +55,38 @@ class TclMissingFixtureValidatorTest extends AbstractMockedTclValidatorTest {
 			Component: some_fantasy_component
 			- test step that maps
 		''')
-		val testStepThatMaps = tclFix.test.steps.head.contexts.head.assertInstanceOf(ComponentTestStepContext).
-			steps.head.assertInstanceOf(TestStep)
+		val testStepThatMaps = tclFix.test.steps.head.contexts.head.assertInstanceOf(ComponentTestStepContext).steps.head.assertInstanceOf(TestStep)
+		val jvmTypeReferenceMock = JvmTypeReference.mock
+		when(interactionTypeMock.defaultMethod.operation.exceptions).thenReturn(new BasicEList(#[jvmTypeReferenceMock]))
+		when(jvmTypeReferenceMock.qualifiedName).thenReturn('org.testeditor.fixture.core.FixtureException')
 
 		// when
 		tclValidator.checkFixtureMethodForExistence(testStepThatMaps)
 
 		// then
 		messageAcceptor.verify(never).acceptInfo(anyString, anyObject, anyObject, anyInt, anyString)
+	}
+
+	@Test
+	def void justMissingExceptionInfoOnExistingFixture() {
+		// given
+		val tclFix = parseTcl('''
+			package pa
+			# Test
+			
+			* first
+			Component: some_fantasy_component
+			- test step that maps
+		''')
+		val testStepThatMaps = tclFix.test.steps.head.contexts.head.assertInstanceOf(ComponentTestStepContext).steps.head.assertInstanceOf(TestStep)
+
+		// when
+		tclValidator.checkFixtureMethodForExistence(testStepThatMaps)
+
+		// then
+		messageAcceptor.verify.acceptInfo(message.capture, anyObject, anyObject, anyInt, anyString)
+		assertMatches(message.value, ".*does not provide additional information on failures.*")
+		assertMatches(message.value, ".*FixtureException.*") 
 	}
 
 	@Test
@@ -76,8 +100,7 @@ class TclMissingFixtureValidatorTest extends AbstractMockedTclValidatorTest {
 			Component: some_fantasy_component
 			- test step that does not map
 		''')
-		val testStepThatDoesNotMap = tclFix.test.steps.head.contexts.head.assertInstanceOf(
-			ComponentTestStepContext).steps.head.assertInstanceOf(TestStep)
+		val testStepThatDoesNotMap = tclFix.test.steps.head.contexts.head.assertInstanceOf(ComponentTestStepContext).steps.head.assertInstanceOf(TestStep)
 		when(typeReferenceMock.type).thenReturn(null)
 
 		// when

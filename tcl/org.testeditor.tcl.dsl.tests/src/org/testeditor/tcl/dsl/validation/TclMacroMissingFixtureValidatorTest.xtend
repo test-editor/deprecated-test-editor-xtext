@@ -24,6 +24,8 @@ import org.testeditor.tcl.TestStep
 import static org.mockito.Matchers.*
 
 import static extension org.mockito.Mockito.*
+import org.eclipse.emf.common.util.BasicEList
+import org.eclipse.xtext.common.types.JvmTypeReference
 
 class TclMacroMissingFixtureValidatorTest extends AbstractMockedTclValidatorTest {
 
@@ -52,8 +54,14 @@ class TclMacroMissingFixtureValidatorTest extends AbstractMockedTclValidatorTest
 			Component: some_fantasy_component
 			- test step that maps
 		''')
-		val testStepThatMaps = tmlFix.macroCollection.macros.head.contexts.head.assertInstanceOf(
+		val macro = tmlFix.macroCollection.macros.head
+		val testStepThatMaps = macro.contexts.head.assertInstanceOf(
 			ComponentTestStepContext).steps.head.assertInstanceOf(TestStep)
+			
+		// make sure that exception is "there" as expected
+		val jvmTypeReferenceMock = JvmTypeReference.mock
+		when(tclModelUtil.getInteraction(testStepThatMaps).defaultMethod.operation.exceptions).thenReturn(new BasicEList(#[jvmTypeReferenceMock]))
+		when(jvmTypeReferenceMock.qualifiedName).thenReturn('org.testeditor.fixture.core.FixtureException')
 
 		// when
 		tclValidator.checkFixtureMethodForExistence(testStepThatMaps)
