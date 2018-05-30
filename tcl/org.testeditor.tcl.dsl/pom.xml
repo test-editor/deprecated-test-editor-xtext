@@ -20,7 +20,7 @@
 		<dependency>
 			<groupId>org.testeditor.fixture</groupId>
 			<artifactId>core-fixture</artifactId>
-			<version>4.1.1</version>
+			<version>4.1.2</version>
 		</dependency>
 	</dependencies>
 	
