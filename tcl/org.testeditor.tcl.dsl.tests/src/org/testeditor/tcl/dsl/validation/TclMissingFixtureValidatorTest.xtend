@@ -86,6 +86,7 @@ class TclMissingFixtureValidatorTest extends AbstractMockedTclValidatorTest {
 		// then
 		messageAcceptor.verify.acceptInfo(message.capture, anyObject, anyObject, anyInt, anyString)
 		assertMatches(message.value, ".*does not provide additional information on failures.*")
+		assertMatches(message.value, ".*FixtureException.*") 
 	}
 
 	@Test

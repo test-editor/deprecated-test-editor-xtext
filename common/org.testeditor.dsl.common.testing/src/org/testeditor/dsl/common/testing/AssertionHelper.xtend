@@ -13,6 +13,7 @@ import java.math.BigDecimal
 import java.util.Optional
 import java.util.regex.Pattern
 import javax.inject.Singleton
+import org.eclipse.xtext.xbase.lib.Functions.Function1
 import org.junit.Assert
 import org.junit.ComparisonFailure
 
@@ -373,6 +374,22 @@ class AssertionHelper {
 	/** Calls {@link #assertTrue(boolean, String)} */
 	def void assertTrue(boolean condition) {
 		condition.assertTrue(null)
+	}
+
+	def <T> void assertExists(Iterable<T> collection, Function1<T, Boolean> predicate, String message) {
+		collection.exists(predicate).assertTrue(message)
+	}
+
+	def <T> void assertExists(Iterable<T> collection, Function1<T, Boolean> predicate) {
+		assertExists(collection, predicate, "Predicate not matching on any of the given.")
+	}
+
+	def <T> void assertNotExists(Iterable<T> collection, Function1<T, Boolean> predicate, String message) {
+		collection.exists(predicate).assertFalse(message)
+	}
+
+	def <T> void assertNotExists(Iterable<T> collection, Function1<T, Boolean> predicate) {
+		assertNotExists(collection, predicate, "Found unexpected matching for predicate.")
 	}
 
 	/** Calls {@link Assert#assertFalse(String, boolean)} */

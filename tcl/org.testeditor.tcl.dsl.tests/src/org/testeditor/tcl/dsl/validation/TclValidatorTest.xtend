@@ -15,7 +15,10 @@ package org.testeditor.tcl.dsl.validation
 import javax.inject.Inject
 import org.eclipse.xtext.diagnostics.Severity
 import org.eclipse.xtext.testing.validation.ValidationTestHelper
+import org.eclipse.xtext.validation.Issue
+import org.eclipse.xtext.xbase.lib.Functions.Function1
 import org.junit.Test
+import org.testeditor.tcl.TclModel
 import org.testeditor.tcl.dsl.tests.parser.AbstractParserTest
 
 class TclValidatorTest extends AbstractParserTest {
@@ -26,85 +29,81 @@ class TclValidatorTest extends AbstractParserTest {
 	@Test
 	def void validateStringArray() {
 		// given
-		val aml = getAMLWithValueSpace('''#[ "New", "Open" ]''')
-		var tcl = getTCLWithValue("Test", "New")
+		val Function1<Issue, Boolean> warningPredicate = [
+			message.matches(".*Allowed values: '\\[New, Open\\]'.*") && severity == Severity.WARNING
+		]
+		getAMLWithValueSpace('''#[ "New", "Open" ]''').parseAml
 
-		parseAml(aml)
-		var tclError = getTCLWithValue("Test2", "Save")
+		var tcl = getTCLWithValue("Test", "New")
+		var tclExpectingWarning = getTCLWithValue("Test2", "Save")
 
 		// when
 		var model = parseTcl(tcl.toString, "Test.tcl")
-		var modelError = parseTcl(tclError.toString, "Test2.tcl")
+		var modelExpectingWarning = parseTcl(tclExpectingWarning.toString, "Test2.tcl")
 
 		// then
-		validator.validate(model).assertSingleElement => [
-			code.assertEquals(TclValidator.FIXTURE_MISSING_EXCEPTION)
-			severity.assertEquals(Severity.INFO)
-		]
-		assertFalse(validator.validate(modelError).isEmpty)
+		validator.validate(model).assertNotExists(warningPredicate, model.reportableValidations)
+		validator.validate(modelExpectingWarning).assertExists(warningPredicate, modelExpectingWarning.reportableValidations)
 	}
 
 	@Test
 	def void validateNumberRange() {
 		// given
-		val aml = getAMLWithValueSpace("2 ... 5")
-		var tcl = getTCLWithValue("Test", "4")
+		val Function1<Issue, Boolean> warningPredicate = [
+			message.matches(".*Allowed values: '2 <= x <= 5'.*") && severity == Severity.WARNING
+		]
+		getAMLWithValueSpace("2 ... 5").parseAml
 
-		parseAml(aml)
-		var tclError = getTCLWithValue("Test2", "1")
+		var tcl = getTCLWithValue("Test", "4")
+		var tclExpectingWarning = getTCLWithValue("Test2", "1")
 
 		// when
 		var model = parseTcl(tcl.toString, "Test.tcl")
-		var modelError = parseTcl(tclError.toString, "Test2.tcl")
+		var modelExpectingWarning = parseTcl(tclExpectingWarning.toString, "Test2.tcl")
 
 		// then
-		validator.validate(model).assertSingleElement => [
-			code.assertEquals(TclValidator.FIXTURE_MISSING_EXCEPTION)
-			severity.assertEquals(Severity.INFO)
-		]
-		assertFalse(validator.validate(modelError).isEmpty)
+		validator.validate(model).assertNotExists(warningPredicate, model.reportableValidations)
+		validator.validate(modelExpectingWarning).assertExists(warningPredicate, modelExpectingWarning.reportableValidations)
 	}
 
 	@Test
 	def void validateRegEx() {
 		// given
-		val aml = getAMLWithValueSpace('''"^[a-zA-Z_0-9]"''')
-		var tcl = getTCLWithValue("Test", "h")
+		val Function1<Issue, Boolean> warningPredicate = [
+			message.matches(".*Allowed values: 'Regular expression: \\^\\[a-zA-Z_0-9\\]'.*") && severity == Severity.WARNING
+		]
+		getAMLWithValueSpace('''"^[a-zA-Z_0-9]"''').parseAml
 
-		parseAml(aml)
-		var tclError = getTCLWithValue("Test2", "!!hello")
+		var tcl = getTCLWithValue("Test", "h")
+		var tclExpectingWarning = getTCLWithValue("Test2", "!!hello")
 
 		// when
 		var model = parseTcl(tcl.toString, "Test.tcl")
-		var modelError = parseTcl(tclError.toString, "Test2.tcl")
+		var modelExpectingWarning = parseTcl(tclExpectingWarning.toString, "Test2.tcl")
 
 		// then
-		validator.validate(model).assertSingleElement => [
-			code.assertEquals(TclValidator.FIXTURE_MISSING_EXCEPTION)
-			severity.assertEquals(Severity.INFO)
-		]
-		assertFalse(validator.validate(modelError).isEmpty)
+		validator.validate(model).assertNotExists(warningPredicate, model.reportableValidations)
+		validator.validate(modelExpectingWarning).assertExists(warningPredicate, modelExpectingWarning.reportableValidations)
 	}
 
 	@Test
 	def void testValidateFieldsWithManyValueSpaces() {
 		// given
-		val aml = getAMLWithValueSpace('''#["foo", "bar"]''')
-		var tcl = getTCLWithTwoValueSpaces("Test", "foo", "Mask")
-		parseAml(aml)
+		val Function1<Issue, Boolean> warningPredicate = [
+			message.matches(".*Allowed values: '\\[foo, bar\\]'.*") && severity == Severity.WARNING
+		]
+		getAMLWithValueSpace('''#["foo", "bar"]''').parseAml
 
-		var tclError = getTCLWithTwoValueSpaces("Test2", "fooHello", "Mask")
+		var tcl = getTCLWithTwoValueSpaces("Test", "foo", "Mask")
+		var tclExpectingWarning = getTCLWithTwoValueSpaces("Test2", "fooHello", "Mask")
 
 		// when
 		var model = parseTcl(tcl.toString, "Test.tcl")
-		var modelError = parseTcl(tclError.toString, "Test2.tcl")
+		var modelExpectingWarning = parseTcl(tclExpectingWarning.toString, "Test2.tcl")
 
 		// then
-		validator.validate(model).assertSize(2).forEach [
-			code.assertEquals(TclValidator.FIXTURE_MISSING_EXCEPTION)
-			severity.assertEquals(Severity.INFO)
-		]
-		assertFalse(validator.validate(modelError).isEmpty)
+		validator.validate(model).assertNotExists(warningPredicate, model.reportableValidations)
+		validator.validate(modelExpectingWarning).assertExists(warningPredicate, modelExpectingWarning.reportableValidations)
 	}
 
 	def getTCLWithTwoValueSpaces(String testName, String value1, String value2) {
@@ -131,7 +130,7 @@ class TclValidatorTest extends AbstractParserTest {
 			interaction type executeContextMenuEntry {
 				label = " execute context menu entry"
 				template = "execute menu item " ${item} " in tree" ${element} 
-				method = SWTFixture.executeContextMenuEntry(element,item)
+				method = AnyFixture.executeContextMenuEntry(element,item)
 			}
 			
 			element type TreeView {
@@ -158,6 +157,10 @@ class TclValidatorTest extends AbstractParserTest {
 				}
 			}
 		'''
+	}
+
+	private def String reportableValidations(TclModel model) {
+		return '''got: «validator.validate(model).map[toString].join('\n')»'''
 	}
 
 }
