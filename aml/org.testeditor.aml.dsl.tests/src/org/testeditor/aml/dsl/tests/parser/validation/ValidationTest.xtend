@@ -31,8 +31,24 @@ import static org.testeditor.aml.dsl.validation.AmlValidator.*
 class ValidationTest extends AbstractParserTest {
 
 	@Inject extension AmlModelGenerator
-	
-	
+
+	@Test
+	def void validateErrorOnUnexpectedCheckedExceptions() {
+		val amlModel = amlModel.withTypeImport(resourceSet, "org.testeditor.dsl.common.testing.DummyFixture") => [
+			interactionTypes += interactionType("someFix") => [
+				template = template("some")
+				// someFixtureMethod is defined to throw FixtureException (see DummyFixture)
+				defaultMethod = methodReference(resourceSet, DummyFixture, "fixtureMethodWithCheckedException")
+			]
+		]
+
+		// when
+		amlModel.addToResourceSet("Dummy.aml")
+
+		// then
+		amlModel.assertError(METHOD_REFERENCE, METHOD_REFERENCE__UNEXPECTED_CHECKED_EXCEPTION, Validation_MethodReference_UnexpectedCheckedException)
+	}
+
 	@Test
 	def void validateNoMissingFixtureExceptionIfPresent() {
 		val amlModel = amlModel.withTypeImport(resourceSet, "org.testeditor.dsl.common.testing.DummyFixture") => [
@@ -96,8 +112,8 @@ class ValidationTest extends AbstractParserTest {
 	@Test
 	def void testUsageOfDefaultLocatorStrategy() {
 		// given
-		val amlModel = amlModel.withTypeImport(resourceSet, "org.testeditor.dsl.common.testing.DummyLocatorStrategy").
-			withTypeImport(resourceSet, "org.testeditor.dsl.common.testing.DummyFixture") => [
+		val amlModel = amlModel.withTypeImport(resourceSet, "org.testeditor.dsl.common.testing.DummyLocatorStrategy").withTypeImport(resourceSet,
+			"org.testeditor.dsl.common.testing.DummyFixture") => [
 			interactionTypes += interactionType("click") => [
 				label = "Clickon"
 				defaultMethod = methodReference(resourceSet, DummyFixture, "clickOn", "element").withLocatorStrategy
@@ -110,15 +126,14 @@ class ValidationTest extends AbstractParserTest {
 
 		// expect
 		amlModel.assertNoErrors
-		interactionType.locatorStrategy.qualifiedName.assertEquals(
-			"org.testeditor.dsl.common.testing.DummyLocatorStrategy.SINGLE")
+		interactionType.locatorStrategy.qualifiedName.assertEquals("org.testeditor.dsl.common.testing.DummyLocatorStrategy.SINGLE")
 	}
 
 	@Test
 	def void testUsageOfElementOverDefaultLocatorStrategy() {
 		// given
-		val amlModel = amlModel.withTypeImport(resourceSet, "org.testeditor.dsl.common.testing.DummyLocatorStrategy").
-			withTypeImport(resourceSet, "org.testeditor.dsl.common.testing.DummyFixture") => [
+		val amlModel = amlModel.withTypeImport(resourceSet, "org.testeditor.dsl.common.testing.DummyLocatorStrategy").withTypeImport(resourceSet,
+			"org.testeditor.dsl.common.testing.DummyFixture") => [
 			val clickInteractionType = interactionType("click") => [
 				label = "Clickon"
 				defaultMethod = methodReference(resourceSet, DummyFixture, "clickOn", "element").withLocatorStrategy
@@ -146,15 +161,14 @@ class ValidationTest extends AbstractParserTest {
 
 		// expect
 		amlModel.assertNoErrors
-		elementNewButton.locatorStrategy.qualifiedName.assertEquals(
-			"org.testeditor.dsl.common.testing.DummyLocatorStrategy.ID")
+		elementNewButton.locatorStrategy.qualifiedName.assertEquals("org.testeditor.dsl.common.testing.DummyLocatorStrategy.ID")
 	}
 
 	@Test
 	def void testMissingLocatorStrategy() {
 		// given
-		val amlModel = amlModel.withTypeImport(resourceSet, "org.testeditor.dsl.common.testing.DummyLocatorStrategy").
-			withTypeImport(resourceSet, "org.testeditor.dsl.common.testing.DummyFixture") => [
+		val amlModel = amlModel.withTypeImport(resourceSet, "org.testeditor.dsl.common.testing.DummyLocatorStrategy").withTypeImport(resourceSet,
+			"org.testeditor.dsl.common.testing.DummyFixture") => [
 			val clickInteractionType = interactionType("click") => [
 				label = "Clickon"
 				defaultMethod = methodReference(resourceSet, DummyFixture, "clickOn", "element").withLocatorStrategy
@@ -187,8 +201,8 @@ class ValidationTest extends AbstractParserTest {
 	@Test
 	def void testMissingLocatorStrategyNotNeeded() {
 		// given
-		val amlModel = amlModel.withTypeImport(resourceSet, "org.testeditor.dsl.common.testing.DummyLocatorStrategy").
-			withTypeImport(resourceSet, "org.testeditor.dsl.common.testing.DummyFixture") => [
+		val amlModel = amlModel.withTypeImport(resourceSet, "org.testeditor.dsl.common.testing.DummyLocatorStrategy").withTypeImport(resourceSet,
+			"org.testeditor.dsl.common.testing.DummyFixture") => [
 			val getValueInteractionType = interactionType("getValue") => [
 				label = "StartApplication"
 				defaultMethod = methodReference(resourceSet, DummyFixture, "getValue", "element")
@@ -235,10 +249,8 @@ class ValidationTest extends AbstractParserTest {
 		// then
 		val message = MessageFormat.format(Validation_InteractionType_Name_Dublicate, "abc")
 
-		amlModel.assertError(INTERACTION_TYPE, INTERACTION_NAME_DUPLICATION, startOfFirstAbc, lengthOfinteractionType,
-			message)
-		amlModel.assertError(INTERACTION_TYPE, INTERACTION_NAME_DUPLICATION, startOfSecondAbc, lengthOfinteractionType,
-			message)
+		amlModel.assertError(INTERACTION_TYPE, INTERACTION_NAME_DUPLICATION, startOfFirstAbc, lengthOfinteractionType, message)
+		amlModel.assertError(INTERACTION_TYPE, INTERACTION_NAME_DUPLICATION, startOfSecondAbc, lengthOfinteractionType, message)
 
 	}
 
@@ -284,10 +296,8 @@ class ValidationTest extends AbstractParserTest {
 		// then
 		val message = Validation_TemplateCode_NotUnique
 
-		amlModel.assertError(INTERACTION_TYPE, TEMPLATE_CODE_NOT_UNIQUE, startOfInteraction3, lengthOfinteractionType,
-			message)
-		amlModel.assertError(INTERACTION_TYPE, TEMPLATE_CODE_NOT_UNIQUE, startOfInteraction1, lengthOfinteractionType,
-			message)
+		amlModel.assertError(INTERACTION_TYPE, TEMPLATE_CODE_NOT_UNIQUE, startOfInteraction3, lengthOfinteractionType, message)
+		amlModel.assertError(INTERACTION_TYPE, TEMPLATE_CODE_NOT_UNIQUE, startOfInteraction1, lengthOfinteractionType, message)
 		amlModel.assertError(COMPONENT_TYPE, TEMPLATE_CODE_NOT_UNIQUE, startOfComponent, lengthOfComponentType, message)
 
 	}

@@ -23,6 +23,10 @@ public class DummyFixture {
 	@FixtureMethod
 	def void someFixtureMethod() throws FixtureException {
 	}
+	
+	@FixtureMethod
+	def void fixtureMethodWithCheckedException() throws Exception {
+	}
 
 	def void someUnrelatedMethod() {
 	}
