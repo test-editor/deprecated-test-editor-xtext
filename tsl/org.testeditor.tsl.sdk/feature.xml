@@ -2,7 +2,7 @@
 <feature
       id="org.testeditor.tsl.sdk"
       label="Tsl SDK feature"
-      version="1.16.0.qualifier">
+      version="1.16.0">
 
    <description url="https://github.com/test-editor/test-editor-xtext">
       Test Specficiation Language feature set.
