@@ -104,6 +104,23 @@ task updateMvnVersionAfterVersionUpdate(type: MavenExec) {
         "-DnewVersion=$project.version"
 }
 
+task readProjectVersion {
+    doLast {
+        def props = new Properties()
+        new File("gradle.properties").withInputStream {
+            stream -> props.load(stream)
+        }
+        println("got new project version ${props.get('version')}")
+        project.version =  props.get('version')
+        println("project.version=$project.version")
+    }
+}
+
+readProjectVersion.shouldRunAfter(updateVersion)
+
+updateMvnVersionAfterVersionUpdate.dependsOn(readProjectVersion)
+updateTargetVersionAfterVersionUpdate.dependsOn(readProjectVersion)
+
 beforeReleaseBuild.dependsOn(updateTargetVersion, updateMvnVersion)
 commitNewVersion.dependsOn(updateTargetVersionAfterVersionUpdate, updateMvnVersionAfterVersionUpdate)
 
