@@ -17,7 +17,7 @@
 		<dependency>
 			<groupId>org.testeditor.fixture</groupId>
 			<artifactId>core-fixture</artifactId>
-			<version>4.1.2</version>
+			<version>4.1.3</version>
 		</dependency>
 	</dependencies>
 	
