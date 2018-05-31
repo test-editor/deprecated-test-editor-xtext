@@ -17,7 +17,7 @@ before_install:
   - export MAVEN_OPTS="-Xms256m -Xmx512m"
 stages:
   - name: compileFeature
-    if: (NOT (branch IN (master, develop)))
+    if: (NOT (branch IN (master, develop))) AND (NOT(tag =~ ^v.*$))
   - name: compileRcp
     if: branch IN (master, develop) OR tag =~ ^v.*$
 jobs:
