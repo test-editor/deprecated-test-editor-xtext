@@ -2,7 +2,7 @@
 <feature
       id="org.testeditor.aml.sdk"
       label="AML SDK Feature"
-      version="1.17.0">
+      version="1.17.0.qualifier">
 
    <description url="https://github.com/test-editor/test-editor-xtext">
       Application Modelling Language feature set.

@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.testeditor.aml.dsl.ide
-Bundle-Version: 1.17.0
+Bundle-Version: 1.17.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.testeditor.aml.dsl.ide.contentassist.antlr.internal,
  org.testeditor.aml.dsl.ide.contentassist.antlr
