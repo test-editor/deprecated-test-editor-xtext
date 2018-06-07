@@ -203,8 +203,9 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 							if (yamlFileName != null) {
 								java.io.File yamlFile = new java.io.File(yamlFileName);
 								
-								«reporterFieldName».addListener(new org.testeditor.fixture.core.DefaultYamlCallTreeListener(new java.io.FileOutputStream(yamlFile),
+								«reporterFieldName».addListener(new org.testeditor.fixture.core.DefaultYamlCallTreeListener(new java.io.FileOutputStream(yamlFile, true),
 									System.getenv("TE_CALL_TREE_YAML_TEST_CASE"),
+									System.getenv("TE_CALL_TREE_YAML_TEST_CASE_ID"),
 									System.getenv("TE_CALL_TREE_YAML_COMMIT_ID")
 								));
 							}
