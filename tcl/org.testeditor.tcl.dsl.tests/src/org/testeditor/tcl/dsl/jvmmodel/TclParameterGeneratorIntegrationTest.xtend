@@ -118,15 +118,15 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 			      reporter.leave(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "test something", IDvar0, TestRunReporter.Status.OK, variables());
 			      finishedTestWith(TestRunReporter.Status.OK); // reaching this line of code means successful test execution
 			    } catch (AssertionError e) {
-			      reporter.reportAssertionExit(e);
+			      reporter.assertionExit(e);
 			      finishedTestWith(TestRunReporter.Status.ERROR);
 			      org.junit.Assert.fail(e.getMessage());
 			    } catch (org.testeditor.fixture.core.FixtureException e) {
-			      reporter.reportFixtureExit(e);
+			      reporter.fixtureExit(e);
 			      finishedTestWith(TestRunReporter.Status.ABORTED);
 			      org.junit.Assert.fail(e.getMessage());
 			    } catch (Exception e) {
-			      reporter.reportExceptionExit(e);
+			      reporter.exceptionExit(e);
 			      finishedTestWith(TestRunReporter.Status.ABORTED);
 			      org.junit.Assert.fail(e.getMessage());
 			    }

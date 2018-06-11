@@ -78,6 +78,7 @@ import org.testeditor.tsl.StepContentValue
 import static org.testeditor.tcl.TclPackage.Literals.*
 
 import static extension org.apache.commons.lang3.StringEscapeUtils.escapeJava
+import org.testeditor.fixture.core.FixtureException
 
 class TclJvmModelInferrer extends AbstractModelInferrer {
 
@@ -372,9 +373,11 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			output.newLine
 			output.append('''
 			} catch (AssertionError e) {
-			  «reporterFieldName».reportAssertionExit(e);
+			  «reporterFieldName».assertionExit(e);
 			  finishedTestWith(TestRunReporter.Status.ERROR);
 			  org.junit.Assert.fail(e.getMessage());''')
+			  
+			
 			output.increaseIndentation
 		]
 	}
@@ -391,12 +394,12 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		output.decreaseIndentation
 		output.newLine
 		output.append('''
-		} catch (org.testeditor.fixture.core.FixtureException e) {
-		  «reporterFieldName».reportFixtureExit(e);
+		} catch («FixtureException.name» e) {
+		  «reporterFieldName».fixtureExit(e);
 		  finishedTestWith(TestRunReporter.Status.ABORTED);
 		  org.junit.Assert.fail(e.getMessage());
 		} catch (Exception e) {
-		  «reporterFieldName».reportExceptionExit(e);
+		  «reporterFieldName».exceptionExit(e);
 		  finishedTestWith(TestRunReporter.Status.ABORTED);
 		  org.junit.Assert.fail(e.getMessage());
 		}''')
