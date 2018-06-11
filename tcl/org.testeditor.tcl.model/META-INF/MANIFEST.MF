@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.testeditor.tcl.model
 Bundle-SymbolicName: org.testeditor.tcl.model;singleton:=true
-Bundle-Version: 1.17.1.qualifier
+Bundle-Version: 1.18.0.qualifier
 Bundle-ClassPath: lib/core-fixture-4.1.4.jar,
  .
 Bundle-Vendor: Signal Iduna Corporation
