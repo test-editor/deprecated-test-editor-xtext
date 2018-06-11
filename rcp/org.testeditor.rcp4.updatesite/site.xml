@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/org.testeditor.tcl.sdk_1.17.1.jar" id="org.testeditor.tcl.sdk" version="1.17.1">
+   <feature url="features/org.testeditor.tcl.sdk_1.17.1.qualifier.jar" id="org.testeditor.tcl.sdk" version="1.17.1.qualifier">
       <category name="Testeditor"/>
    </feature>
-   <feature url="features/org.testeditor.aml.sdk_1.17.1.jar" id="org.testeditor.aml.sdk" version="1.17.1">
+   <feature url="features/org.testeditor.aml.sdk_1.17.1.qualifier.jar" id="org.testeditor.aml.sdk" version="1.17.1.qualifier">
       <category name="Testeditor"/>
    </feature>
-   <feature url="features/org.testeditor.tsl.sdk_1.17.1.jar" id="org.testeditor.tsl.sdk" version="1.17.1">
+   <feature url="features/org.testeditor.tsl.sdk_1.17.1.qualifier.jar" id="org.testeditor.tsl.sdk" version="1.17.1.qualifier">
       <category name="Testeditor"/>
    </feature>
-   <feature url="features/org.testeditor.rcp4.platform.feature_1.17.1.jar" id="org.testeditor.rcp4.platform.feature" version="1.17.1">
+   <feature url="features/org.testeditor.rcp4.platform.feature_1.17.1.qualifier.jar" id="org.testeditor.rcp4.platform.feature" version="1.17.1.qualifier">
       <category name="platform"/>
    </feature>
-   <feature url="features/org.testeditor.plugin.feature_1.17.1.jar" id="org.testeditor.plugin.feature" version="1.17.1">
+   <feature url="features/org.testeditor.plugin.feature_1.17.1.qualifier.jar" id="org.testeditor.plugin.feature" version="1.17.1.qualifier">
       <category name="Testeditor"/>
    </feature>
    <category-def name="Testeditor" label="Testeditor"/>
