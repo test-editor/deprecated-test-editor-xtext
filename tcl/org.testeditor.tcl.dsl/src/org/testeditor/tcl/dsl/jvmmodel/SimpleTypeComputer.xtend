@@ -132,10 +132,10 @@ class SimpleTypeComputer {
 
 	private def Map<TemplateVariable, Optional<JvmTypeReference>> getVariablesWithTypes(TestStep step, Iterable<TemplateVariable> variables) {
 		val result = newLinkedHashMap
-		val interactionOrMacro = step.findInteractionOrMacro
-		if (interactionOrMacro !== null) {
-			val templateVariableToType = getVariablesWithTypes(interactionOrMacro)
-			val stepContentToTemplateVariable = getStepContentToTemplateVariablesMapping(step, interactionOrMacro.template)
+		val templateContainer = step.templateContainer
+		if (templateContainer !== null) {
+			val templateVariableToType = getVariablesWithTypes(templateContainer)
+			val stepContentToTemplateVariable = getStepContentToTemplateVariablesMapping(step, templateContainer.template)
 			for (variable : variables) {
 				val variableReference = stepContentToTemplateVariable.keySet.filter(VariableReference).findFirst[it.variable == variable]
 				if (variableReference !== null) {

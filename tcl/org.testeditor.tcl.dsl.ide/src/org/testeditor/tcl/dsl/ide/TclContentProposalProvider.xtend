@@ -158,7 +158,7 @@ class TclContentProposalProvider extends IdeContentProposalProvider {
 	 * actually the last parsed element (previousModel) is tested whether it is part of a fully parsed test step
 	 */
 	private def boolean isIncompleteTestStep(EObject previousModel) {
-		EcoreUtil2.getContainerOfType(previousModel, TestStep).findInteractionOrMacro === null
+		EcoreUtil2.getContainerOfType(previousModel, TestStep).templateContainer === null
 	}
 
 	private def void makeIDProposals(ContentAssistContext context, IIdeContentProposalAcceptor acceptor) {

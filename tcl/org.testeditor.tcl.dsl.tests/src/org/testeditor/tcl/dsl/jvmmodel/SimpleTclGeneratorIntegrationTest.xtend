@@ -54,15 +54,11 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			    try {
 			      finishedTestWith(TestRunReporter.Status.OK); // reaching this line of code means successful test execution
 			    } catch (AssertionError e) {
-			      reporter.reportAssertionExit(e);
+			      reporter.assertionExit(e);
 			      finishedTestWith(TestRunReporter.Status.ERROR);
 			      org.junit.Assert.fail(e.getMessage());
-			    } catch (org.testeditor.fixture.core.FixtureException e) {
-			      reporter.reportFixtureExit(e);
-			      finishedTestWith(TestRunReporter.Status.ABORTED);
-			      org.junit.Assert.fail(e.getMessage());
 			    } catch (Exception e) {
-			      reporter.reportExceptionExit(e);
+			      reporter.exceptionExit(e);
 			      finishedTestWith(TestRunReporter.Status.ABORTED);
 			      org.junit.Assert.fail(e.getMessage());
 			    }
@@ -185,15 +181,15 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			      reporter.leave(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "Test assertions in the famous greeting application", IDvar0, TestRunReporter.Status.OK, variables());
 			      finishedTestWith(TestRunReporter.Status.OK); // reaching this line of code means successful test execution
 			    } catch (AssertionError e) {
-			      reporter.reportAssertionExit(e);
+			      reporter.assertionExit(e);
 			      finishedTestWith(TestRunReporter.Status.ERROR);
 			      org.junit.Assert.fail(e.getMessage());
 			    } catch (org.testeditor.fixture.core.FixtureException e) {
-			      reporter.reportFixtureExit(e);
+			      reporter.fixtureExit(e);
 			      finishedTestWith(TestRunReporter.Status.ABORTED);
 			      org.junit.Assert.fail(e.getMessage());
 			    } catch (Exception e) {
-			      reporter.reportExceptionExit(e);
+			      reporter.exceptionExit(e);
 			      finishedTestWith(TestRunReporter.Status.ABORTED);
 			      org.junit.Assert.fail(e.getMessage());
 			    }
@@ -357,15 +353,15 @@ class SimpleTclGeneratorIntegrationTest extends AbstractTclGeneratorIntegrationT
 			    reporter.leave(TestRunReporter.SemanticUnit.SPECIFICATION_STEP, "Do something different", IDvar5, TestRunReporter.Status.OK, variables());
 			    finishedTestWith(TestRunReporter.Status.OK); // reaching this line of code means successful test execution
 			  } catch (AssertionError e) {
-			    reporter.reportAssertionExit(e);
+			    reporter.assertionExit(e);
 			    finishedTestWith(TestRunReporter.Status.ERROR);
 			    org.junit.Assert.fail(e.getMessage());
 			  } catch (org.testeditor.fixture.core.FixtureException e) {
-			    reporter.reportFixtureExit(e);
+			    reporter.fixtureExit(e);
 			    finishedTestWith(TestRunReporter.Status.ABORTED);
 			    org.junit.Assert.fail(e.getMessage());
 			  } catch (Exception e) {
-			    reporter.reportExceptionExit(e);
+			    reporter.exceptionExit(e);
 			    finishedTestWith(TestRunReporter.Status.ABORTED);
 			    org.junit.Assert.fail(e.getMessage());
 			  }

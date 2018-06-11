@@ -25,6 +25,7 @@ import org.testeditor.aml.Template
 import org.testeditor.aml.TemplateContainer
 import org.testeditor.aml.TemplateVariable
 import org.testeditor.dsl.common.util.CollectionUtils
+import org.testeditor.fixture.core.FixtureException
 import org.testeditor.tcl.AccessPathElement
 import org.testeditor.tcl.ArrayPathElement
 import org.testeditor.tcl.AssertionTestStep
@@ -91,14 +92,12 @@ class TclModelUtil extends TslModelUtil {
 				StepContentElement: '''<«value»>'''
 				VariableReferencePathAccess: '''@«restoreString»'''
 				VariableReference: '''@«variable?.name»'''
-				StepContentValue: value
-				default: throw new IllegalArgumentException("Unhandled content: " + it)
+				StepContentValue:
+					value
+				default:
+					throw new IllegalArgumentException("Unhandled content: " + it)
 			}
 		].join(' ')
-	}
-
-	def TemplateContainer findInteractionOrMacro(TestStep step) {
-		return step.getInteraction ?: step.findMacro
 	}
 
 	def Macro findMacro(TestStep step) {
@@ -233,7 +232,7 @@ class TclModelUtil extends TslModelUtil {
 	 * get all variables, variable references and elements that are used as parameters in this test step
 	 */
 	def Iterable<StepContent> getStepContentVariables(TestStep step) {
-		return step.contents.filter [!(it instanceof StepContentText)]
+		return step.contents.filter[!(it instanceof StepContentText)]
 	}
 
 	def SpecificationStep getSpecificationStep(SpecificationStepImplementation stepImplementation) {
@@ -321,11 +320,37 @@ class TclModelUtil extends TslModelUtil {
 		val templateContainer = testStep.templateContainer
 		val templateParameters = templateContainer?.template?.contents?.filter(TemplateVariable)
 		if (templateContainer !== null //
-			&& templateParameters !== null //
-			&& templateParameters.length > callParameterIndex) {
+		&& templateParameters !== null //
+		&& templateParameters.length > callParameterIndex) {
 			return templateParameters.drop(callParameterIndex).head
 		}
 		return null
 	}
-	
+
+	def dispatch boolean throwsFixtureException(Expression expression) {
+		// expressions may not throw FixtureExceptions, yet!
+		return false
+	}
+
+	def dispatch boolean throwsFixtureException(AssignmentThroughPath assignmentThroughPath) {
+		return assignmentThroughPath.expression.throwsFixtureException
+	}
+
+	def dispatch boolean throwsFixtureException(AssertionTestStep assertionTestStep) {
+		return assertionTestStep.assertExpression.throwsFixtureException
+	}
+
+	def dispatch boolean throwsFixtureException(TestStep testStep) {
+		val container = testStep.templateContainer
+		switch (container) {
+			InteractionType: return container.defaultMethod?.operation?.exceptions.exists[FixtureException.name.equals(qualifiedName)]
+			Macro: return container.contexts.throwsFixtureException
+			default: return false
+		}
+	}
+
+	def dispatch boolean throwsFixtureException(Iterable<TestStepContext> contexts) {
+		return contexts.exists[steps.exists[throwsFixtureException]]
+	}
+
 }

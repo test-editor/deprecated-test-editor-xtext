@@ -74,7 +74,7 @@ class ValueSpaceHelper {
 	}
 
 	private def TemplateVariable getTemplateVariable(TestStep testStep, StepContentVariable stepContent) {
-		val template = testStep.findInteractionOrMacro?.template
+		val template = testStep.templateContainer?.template
 		if (template !== null) {
 			val mapping = getStepContentToTemplateVariablesMapping(testStep, template)
 			return mapping.get(stepContent)
