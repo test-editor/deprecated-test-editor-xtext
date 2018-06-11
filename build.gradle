@@ -92,16 +92,20 @@ task updateMvnVersion(type: MavenExec) {
 
 task updateTargetVersionAfterVersionUpdate(type: MavenExec) {
     workingDir targetPlatform
-    args 'org.eclipse.tycho:tycho-versions-plugin:set-version',
-        '-Dtycho.mode=maven', '-Dartifacts=org.testeditor.releng.target.parent',
-        "-DnewVersion=$project.version"
+    doFirst {
+        args 'org.eclipse.tycho:tycho-versions-plugin:set-version',
+             '-Dtycho.mode=maven', '-Dartifacts=org.testeditor.releng.target.parent',
+             "-DnewVersion=$project.version"
+    }
 }
 
 task updateMvnVersionAfterVersionUpdate(type: MavenExec) {
     workingDir projectDir
-    args 'org.eclipse.tycho:tycho-versions-plugin:set-version',
-        '-Dtycho.mode=maven', '-Dartifacts=org.testeditor.releng.parent',
-        "-DnewVersion=$project.version"
+    doFirst {
+        args 'org.eclipse.tycho:tycho-versions-plugin:set-version',
+             '-Dtycho.mode=maven', '-Dartifacts=org.testeditor.releng.parent',
+             "-DnewVersion=$project.version"
+    }
 }
 
 task readProjectVersion {
