@@ -32,15 +32,15 @@ public class DummyFixture {
 	}
 
 	@FixtureMethod
-	def void startApplication(String name) {
+	def void startApplication(String name) throws FixtureException {
 	}
 
 	@FixtureMethod
-	def void stopApplication() {
+	def void stopApplication() throws FixtureException {
 	}
 
 	@FixtureMethod
-	def void waitSeconds(long secs) {
+	def void waitSeconds(long secs) throws FixtureException {
 	}
 
 	@FixtureMethod
@@ -66,7 +66,7 @@ public class DummyFixture {
 	}
 
 	@FixtureMethod
-	def JsonObject getJsonObject(String locator) {
+	def JsonObject getJsonObject(String locator) throws FixtureException {
 		return new JsonObject
 	}
 

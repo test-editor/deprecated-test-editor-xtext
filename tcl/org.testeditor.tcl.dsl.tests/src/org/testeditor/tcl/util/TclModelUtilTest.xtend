@@ -9,6 +9,7 @@ import org.testeditor.aml.ModelUtil
 import org.testeditor.aml.Template
 import org.testeditor.aml.dsl.AmlStandaloneSetup
 import org.testeditor.aml.dsl.tests.AmlModelGenerator
+import org.testeditor.dsl.common.testing.DummyFixture
 import org.testeditor.tcl.AbstractTestStep
 import org.testeditor.tcl.MacroTestStepContext
 import org.testeditor.tcl.TestStep
@@ -21,15 +22,14 @@ import org.testeditor.tsl.StepContentVariable
 class TclModelUtilTest extends AbstractParserTest {
 
 	@Inject var TclModelUtil tclModelUtil // class under test
-	
 	@Inject extension TclModelGenerator
 	@Inject extension AmlModelGenerator
 
-	@Inject ModelUtil modelUtil	
+	@Inject ModelUtil modelUtil
 	@Inject TclGrammarAccess grammarAccess
 
 	@Before
-	def void setup() {		
+	def void setup() {
 		(new AmlStandaloneSetup).createInjectorAndDoEMFRegistration
 	}
 
@@ -94,7 +94,7 @@ class TclModelUtilTest extends AbstractParserTest {
 	def void testNormalizeTemplate() {
 		// given
 		val template = parse('''
-			"start with" ${somevar} "and more" ${othervar} "?"''', grammarAccess.templateRule, Template)
+		"start with" ${somevar} "and more" ${othervar} "?"''', grammarAccess.templateRule, Template)
 
 		// when
 		val normalizedTemplate = modelUtil.normalize(template)
@@ -107,7 +107,7 @@ class TclModelUtilTest extends AbstractParserTest {
 	def void testNormalizeTestStep() {
 		// given
 		val testStep = parse('''
-			- start with "some" and more @other ?''', grammarAccess.testStepRule, TestStep)
+		- start with "some" and more @other ?''', grammarAccess.testStepRule, TestStep)
 
 		// when
 		val normalizedTestStep = tclModelUtil.normalize(testStep)
@@ -120,9 +120,9 @@ class TclModelUtilTest extends AbstractParserTest {
 	def void testStepContentToTemplateVariablesMapping() {
 		// given
 		val testStep = parse('''
-			- start with "some" and more @other''', grammarAccess.testStepRule, TestStep)
+		- start with "some" and more @other''', grammarAccess.testStepRule, TestStep)
 		val template = parse('''
-			"start with" ${somevar} "and more" ${othervar}''', grammarAccess.templateRule, Template)
+		"start with" ${somevar} "and more" ${othervar}''', grammarAccess.templateRule, Template)
 		val someValue = testStep.contents.filter(StepContentVariable).head
 		val otherRef = testStep.contents.filter(VariableReference).head
 		val somevar = template.contents.get(1)
@@ -185,6 +185,160 @@ class TclModelUtilTest extends AbstractParserTest {
 		testMakesUseOfVariablesViaReference_VariableInStep("var", step)
 	}
 
+	@Test
+	def void testDetectionOfOneStepTransitivelyThrowingTheException() {
+		// given
+		DummyFixture.amlModel.parseAml
+		val tclModel = '''
+			package com.example
+			
+			# Test
+			
+			* Some spec
+			Component: GreetingApplication
+			- Stop application
+		'''.toString.parseTcl('Test.tcl')
+		tclModel.assertNoErrors
+
+		// when
+		val result = tclModelUtil.throwsFixtureException(tclModel.test.steps.head.contexts)
+
+		// then
+		result.assertTrue
+	}
+
+	@Test
+	def void testDetectionOfNoStepTransitivelyThrowingTheException() {
+		// given
+		DummyFixture.amlModel.parseAml
+		val tclModel = '''
+			package com.example
+			
+			# Test
+			
+			* Some spec
+			Component: GreetingApplication
+			- Read value from <Input>
+			- boolVal = Read bool from <Input>
+			- Type boolean "true" input <Input>
+		'''.toString.parseTcl('Test.tcl')
+		tclModel.assertNoErrors
+
+		// when
+		val result = tclModelUtil.throwsFixtureException(tclModel.test.steps.head.contexts)
+
+		// then
+		result.assertFalse
+	}
+
+	@Test
+	def void testDetectionWithinMacrosThrowingFixtureException() {
+		// given
+		DummyFixture.amlModel.parseAml
+		'''
+			package com.example
+			
+				# Macros
+				
+				## testMacro
+				template = "testMacro"
+				Component: GreetingApplication
+				- Read value from <Input>
+				- boolVal = Read bool from <Input>
+				Macro: Macros
+				- innerMacro
+				
+				## innerMacro
+				template = "innerMacro"
+				Component: GreetingApplication
+				- Stop application
+				- Type boolean "true" input <Input>
+		'''.toString.parseTcl('Macros.tml')
+
+		val tclModel = '''
+			package com.example
+			
+			# Test
+			
+			* Some spec
+			Macro: Macros
+			- testMacro
+		'''.toString.parseTcl('Test.tcl')
+		tclModel.assertNoErrors
+
+		// when
+		val result = tclModelUtil.throwsFixtureException(tclModel.test.steps.head.contexts)
+
+		// then
+		result.assertTrue
+	}
+
+	@Test
+	def void testDetectionWithinMacrosThrowingNoFixtureException() {
+		// given
+		DummyFixture.amlModel.parseAml
+		'''
+			package com.example
+			
+				# Macros
+				
+				## testMacro
+				template = "testMacro"
+				Component: GreetingApplication
+				- Read value from <Input>
+				- boolVal = Read bool from <Input>
+				Macro: Macros
+				- innerMacro
+				
+				## innerMacro
+				template = "innerMacro"
+				Component: GreetingApplication
+				- Type boolean "true" input <Input>
+		'''.toString.parseTcl('Macros.tml')
+
+		val tclModel = '''
+			package com.example
+			
+			# Test
+			
+			* Some spec
+			Macro: Macros
+			- testMacro
+		'''.toString.parseTcl('Test.tcl')
+		tclModel.assertNoErrors
+
+		// when
+		val result = tclModelUtil.throwsFixtureException(tclModel.test.steps.head.contexts)
+
+		// then
+		result.assertFalse
+	}
+
+	@Test
+	def void testDetectForOneOfManyStepsTransitivelyThrowingFixtureException() {
+		// given
+		DummyFixture.amlModel.parseAml
+		val tclModel = '''
+			package com.example
+			
+			# Test
+			
+			* Some spec
+			Component: GreetingApplication
+			- Read value from <Input>
+			- boolVal = Read bool from <Input>
+			- Stop application
+			- Type boolean "true" input <Input>
+		'''.toString.parseTcl('Test.tcl')
+		tclModel.assertNoErrors
+
+		// when
+		val result = tclModelUtil.throwsFixtureException(tclModel.test.steps.head.contexts)
+
+		// then
+		result.assertTrue
+	}
+
 	/**
 	 * test that the step passed is identified correctly for using the variable.
 	 * test also that this step is not identified to be using variables that differ from the one passed. 
@@ -213,9 +367,8 @@ class TclModelUtilTest extends AbstractParserTest {
 
 	private def <K, V> void assertEquals(Map<K, V> actualMap, Map<K, V> expectedMap) {
 		assertEquals(actualMap.keySet, expectedMap.keySet, "key set differs")
-		actualMap.forEach [key, value|
-			assertEquals(expectedMap.get(key),
-				value, '''value of key='«key»' differ (expected='«expectedMap.get(key)»' != actual='«actualMap.get(key)»').''')
+		actualMap.forEach [ key, value |
+			assertEquals(expectedMap.get(key), value, '''value of key='«key»' differ (expected='«expectedMap.get(key)»' != actual='«actualMap.get(key)»').''')
 		]
 	}
 

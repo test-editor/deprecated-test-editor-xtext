@@ -115,10 +115,6 @@ class MacroGeneratorIntegrationTest extends org.testeditor.tcl.dsl.jvmmodel.Abst
 				    reporter.assertionExit(e);
 				    finishedTestWith(TestRunReporter.Status.ERROR);
 				    org.junit.Assert.fail(e.getMessage());
-				  } catch (org.testeditor.fixture.core.FixtureException e) {
-				    reporter.fixtureExit(e);
-				    finishedTestWith(TestRunReporter.Status.ABORTED);
-				    org.junit.Assert.fail(e.getMessage());
 				  } catch (Exception e) {
 				    reporter.exceptionExit(e);
 				    finishedTestWith(TestRunReporter.Status.ABORTED);
