@@ -100,10 +100,6 @@ class TclModelUtil extends TslModelUtil {
 		].join(' ')
 	}
 
-	def TemplateContainer findInteractionOrMacro(TestStep step) {
-		return step.getInteraction ?: step.findMacro
-	}
-
 	def Macro findMacro(TestStep step) {
 		val context = step.macroContext
 		if (context !== null && !context.eIsProxy) {
@@ -345,14 +341,11 @@ class TclModelUtil extends TslModelUtil {
 	}
 
 	def dispatch boolean throwsFixtureException(TestStep testStep) {
-		val interaction = testStep.interaction
-		val macro = testStep.findMacro
-		if (interaction !== null) {
-			return interaction.defaultMethod.operation.exceptions.exists[FixtureException.name.equals(qualifiedName)]
-		} else if (macro !== null) {
-			return macro.contexts.throwsFixtureException
-		} else {
-			return false
+		val container = testStep.templateContainer
+		switch (container) {
+			InteractionType: return container.defaultMethod?.operation?.exceptions.exists[FixtureException.name.equals(qualifiedName)]
+			Macro: return container.contexts.throwsFixtureException
+			default: return false
 		}
 	}
 
