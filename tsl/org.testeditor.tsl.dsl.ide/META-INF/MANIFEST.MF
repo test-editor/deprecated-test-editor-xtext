@@ -12,4 +12,4 @@ Require-Bundle: org.testeditor.tsl.dsl,
 Import-Package: javax.inject;version="1.0.0"
 Export-Package: org.testeditor.tsl.dsl.ide.contentassist.antlr,
  org.testeditor.tsl.dsl.ide.contentassist.antlr.internal
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-9

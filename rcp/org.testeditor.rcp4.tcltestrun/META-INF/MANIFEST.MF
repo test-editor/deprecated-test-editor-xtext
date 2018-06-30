@@ -13,7 +13,7 @@ Require-Bundle: org.eclipse.xtend.lib,
  org.eclipse.e4.core.di,
  org.testeditor.tcl.dsl.ui,
  org.testeditor.dsl.common
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-9
 Export-Package: org.testeditor.rcp4.tcltestrun
 Import-Package: javax.inject;version="1.0.0"
 Bundle-ActivationPolicy: lazy

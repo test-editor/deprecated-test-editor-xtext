@@ -20,4 +20,4 @@ Require-Bundle: org.eclipse.ui.navigator;bundle-version="3.6.0",
  org.testeditor.logging,
  org.eclipse.core.expressions;bundle-version="3.5.100"
 Import-Package: javax.inject;version="1.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-9

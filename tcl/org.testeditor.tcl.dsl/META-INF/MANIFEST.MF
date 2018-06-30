@@ -25,7 +25,7 @@ Import-Package: javax.inject;version="1.0.0",
  org.apache.commons.lang3,
  org.apache.log4j,
  com.google.gson
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-9
 Export-Package: org.testeditor.fixture.core,
  org.testeditor.tcl.dsl,
  org.testeditor.tcl.dsl.formatting2,

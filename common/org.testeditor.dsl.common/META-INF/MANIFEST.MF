@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.testeditor.dsl.common;singleton:=true
 Bundle-Version: 1.18.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-9
 Bundle-ClassPath: lib/core-fixture-4.1.4.jar,.
 Bundle-Vendor: Signal Iduna Corporation
 Require-Bundle: org.eclipse.xtend.lib.macro,

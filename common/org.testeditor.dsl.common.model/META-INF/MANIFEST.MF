@@ -7,7 +7,7 @@ Bundle-Version: 1.18.0.qualifier
 Bundle-ClassPath: .
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-9
 Export-Package: org.testeditor.dsl.common,
  org.testeditor.dsl.common.impl,
  org.testeditor.dsl.common.util

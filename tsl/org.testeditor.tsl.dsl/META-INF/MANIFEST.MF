@@ -12,7 +12,7 @@ Require-Bundle: org.testeditor.tsl.model;visibility:=reexport,
  org.eclipse.xtext
 Import-Package: javax.inject;version="1.0.0",
  org.apache.log4j
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-9
 Export-Package: org.testeditor.tsl.dsl,
  org.testeditor.tsl.dsl.formatting2,
  org.testeditor.tsl.dsl.parser.antlr,

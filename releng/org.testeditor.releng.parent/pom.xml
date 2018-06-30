@@ -10,12 +10,12 @@
 
 	<properties>
 		<!-- Version definitions below -->
-		<java.version>1.8</java.version>
+		<java.version>1.9</java.version>
 		<xtext.version>2.14.0</xtext.version>
 		<xtend.version>${xtext.version}</xtend.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<tycho-version>1.0.0</tycho-version>
+		<tycho-version>1.2.0</tycho-version>
 		<maven-clean-plugin.version>3.0.0</maven-clean-plugin.version>
 		<maven-resources-plugin.version>2.7</maven-resources-plugin.version>
 		<maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
@@ -30,7 +30,7 @@
 
 		<!-- other properties -->
 		<deploy.skip>false</deploy.skip>
-		<tycho-surefire-argline>-Xms40m -Xmx256m -Dorg.testeditor.ignoreConnectionState=true</tycho-surefire-argline>
+		<tycho-surefire-argline>-Xms40m -Xmx256m -Dorg.testeditor.ignoreConnectionState=true --add-modules ALL-SYSTEM</tycho-surefire-argline>
 		<os-jvm-flags></os-jvm-flags>
 		<argLine>${tycho-surefire-argline} ${os-jvm-flags}</argLine>
 	</properties>

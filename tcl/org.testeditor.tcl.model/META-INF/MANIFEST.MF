@@ -8,7 +8,7 @@ Bundle-ClassPath: lib/core-fixture-4.1.4.jar,
  .
 Bundle-Vendor: Signal Iduna Corporation
 Bundle-Localization: plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-9
 Import-Package: javax.inject;version="1.0.0"
 Export-Package: org.testeditor.tcl,
  org.testeditor.tcl.impl,
