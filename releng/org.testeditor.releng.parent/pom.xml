@@ -11,7 +11,7 @@
 	<properties>
 		<!-- Version definitions below -->
 		<java.version>1.8</java.version>
-		<xtext.version>2.13.0</xtext.version>
+		<xtext.version>2.14.0</xtext.version>
 		<xtend.version>${xtext.version}</xtend.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -138,23 +138,24 @@
 						</execution>
 					</executions>
 					<configuration>
-						<outputDirectory>xtend-gen</outputDirectory>
+						<outputDirectory>${basedir}/xtend-gen</outputDirectory>
+						<testOutputDirectory>${basedir}/xtend-gen</testOutputDirectory>
 					</configuration>
 					<!--
 						This fix is a necessary workaround for Photon - could be removed in the future
 						https://github.com/eclipse/xtext/issues/1231
 					 -->
                                         <dependencies>
-						<!-- dependency>
+						<dependency>
 						    <groupId>org.eclipse.jdt</groupId>
 						    <artifactId>org.eclipse.jdt.core</artifactId>
 						    <version>3.13.102</version>
-						</dependency -->
-						<dependency>
+						</dependency>
+						<!-- dependency>
 						    <groupId>org.eclipse.platform</groupId>
 						    <artifactId>org.eclipse.equinox.common</artifactId>
 						    <version>3.10.0</version>
-						</dependency>
+						</dependency -->
 					</dependencies>
 					<!--  END of FIX -->
 				</plugin>

@@ -35,5 +35,6 @@ Export-Package: org.testeditor.tcl.dsl.ui,
  org.testeditor.tcl.dsl.ui.internal,
  org.testeditor.tcl.dsl.ui.quickfix,
  org.testeditor.tcl.dsl.ui.testlaunch,
- org.testeditor.tcl.dsl.ui.util
+ org.testeditor.tcl.dsl.ui.util,
+ org.testeditor.tcl.dsl.ui.editor
 Bundle-Activator: org.testeditor.tcl.dsl.ui.internal.DslActivator
