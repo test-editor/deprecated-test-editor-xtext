@@ -5,10 +5,10 @@ Bundle-SymbolicName: org.testeditor.tsl.dsl; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.testeditor.tsl.model;visibility:=reexport,
  org.testeditor.dsl.common,
- org.eclipse.xtext.xbase.lib;bundle-version="2.13.0",
+ org.eclipse.xtext.xbase.lib,
  org.antlr.runtime,
  org.eclipse.xtext.util,
- org.eclipse.xtend.lib;bundle-version="2.13.0",
+ org.eclipse.xtend.lib,
  org.eclipse.xtext
 Import-Package: javax.inject;version="1.0.0",
  org.apache.log4j
