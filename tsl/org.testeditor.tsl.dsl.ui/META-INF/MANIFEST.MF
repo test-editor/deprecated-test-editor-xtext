@@ -18,7 +18,7 @@ Require-Bundle: org.testeditor.dsl.common,
  org.eclipse.ui,
  org.eclipse.ui.editors,
  org.eclipse.xtend.lib;resolution:=optional,
- org.eclipse.xtext.xbase.lib,
+ org.eclipse.xtext.xbase.lib
 Import-Package: javax.inject;version="1.0.0",
  org.apache.log4j
 Export-Package: org.testeditor.tsl.dsl.ui,

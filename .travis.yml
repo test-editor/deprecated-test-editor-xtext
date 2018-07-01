@@ -1,7 +1,7 @@
 sudo: required # run on old container infrastructure for more memory
 language: java
 jdk:
-  - oraclejdk8
+  - oraclejdk9
 cache:
   directories:
   - $HOME/.m2

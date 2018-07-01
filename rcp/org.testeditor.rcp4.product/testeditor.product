@@ -49,7 +49,8 @@
       <plugin id="org.apache.ant"/>
       <plugin id="org.apache.batik.css"/>
       <plugin id="org.apache.batik.util"/>
-      <plugin id="org.apache.batik.util.gui"/>
+      <plugin id="org.apache.batik.constants"/>
+      <plugin id="org.apache.batik.i18n"/>
       <plugin id="org.apache.commons.cli"/>
       <plugin id="org.apache.commons.io"/>
       <plugin id="org.apache.commons.jxpath"/>

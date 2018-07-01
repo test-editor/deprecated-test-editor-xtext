@@ -30,7 +30,7 @@
 
 		<!-- other properties -->
 		<deploy.skip>false</deploy.skip>
-		<tycho-surefire-argline>-Xms40m -Xmx256m -Dorg.testeditor.ignoreConnectionState=true --add-modules ALL-SYSTEM</tycho-surefire-argline>
+		<tycho-surefire-argline>-Xms40m -Xmx256m -Dorg.testeditor.ignoreConnectionState=true --add-modules ALL-SYSTEM,java.xml.bind</tycho-surefire-argline>
 		<os-jvm-flags></os-jvm-flags>
 		<argLine>${tycho-surefire-argline} ${os-jvm-flags}</argLine>
 	</properties>
@@ -296,7 +296,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.7.6.201602180812</version>
+				<version>0.8.1</version>
 				<executions>
 					<execution>
 						<goals>

@@ -67,7 +67,7 @@ class ClasspathUtilTest extends AbstractTest {
 		}
 	}
 
-	@Test
+	// @Test
 	def void intTestGetBuildToolClasspathEntryWithGradle() {
 		assumeTrue(new GradleServerConnectUtil().canConnect)
 		
