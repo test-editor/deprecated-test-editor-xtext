@@ -78,3 +78,24 @@ When using maven as test project build/run tool, please make sure to have the en
   mvn -f target-platform/pom.xml build-helper:parse-version org.eclipse.tycho:tycho-versions-plugin:set-version -Dartifacts=org.testeditor.releng.target.parent -DnewVersion=1.16.0-SNAPSHOT -Dtycho.mode=maven
   mvn -f pom.xml build-helper:parse-version org.eclipse.tycho:tycho-versions-plugin:set-version -Dartifacts=org.testeditor.releng.parent -DnewVersion=1.16.0-SNAPSHOT -Dtycho.mode=maven -Prcp,rcpuatest,product
   ```
+
+## (still incomplete) Upgrade from Eclipse Oxygen to Photon, java 8 -> 9
+
+* several command lines (e.g. tycho) had to be appended with `--add-modules=ALL-SYSTEM`
+* emf was upgraded such that the GenModel.genmodel included xml tags that are not understood by the current xtext - emf library, see (https://github.com/eclipse/xtext/issues/1233)
+  build runs through if the library is patched
+* the following dependency for javax.annotation had to be added to some projects (since java 9 jigsaw does no longer provide this out of the box, it could be added with `--add-modules` but even this is depcrecated and removed in java 11)
+  ```
+    <groupId>javax.annotation</groupId>
+    <artifactId>javax.annotation-api</artifactId>
+    <version>1.3.1</version>
+  ```
+  The artifact is downloadad vie maven dependency and is the copied into the lib folder,
+  finally it is added ti the build.properties
+* gradle had to be upgraded (now 4.7) in order to understand the java version string
+* a test keeps failing because the buildship version (gradle eclipse integration) keeps failing with the 'java version string not understood' error, even though it should be fixed by now
+
+* TODO: tcl.ui.tests do not start because of e4 injection problems
+* TODO: await a new emf xtext integration library to work with photon (unknown xml tags in genmodel)
+* TODO: publishing the product (via tycho) currently fails, reason unknown (root cause: array index 1 out of bounds exception)
+* OPEN: gradle integration test is currently deactivated because of 'java version parsing' problem

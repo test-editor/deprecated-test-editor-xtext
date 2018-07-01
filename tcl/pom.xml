@@ -22,8 +22,13 @@
 			<id>rcp</id>
 			<modules>
 				<module>org.testeditor.tcl.dsl.ui</module>
-				<module>org.testeditor.tcl.dsl.ui.tests</module>
 				<module>org.testeditor.tcl.sdk</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>uitest</id>
+			<modules>
+				<module>org.testeditor.tcl.dsl.ui.tests</module>
 			</modules>
 		</profile>
 	</profiles>
