@@ -356,7 +356,7 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 		output.wrapWithAssertionErrorHandler(contexts) [
 			strategy.apply(output)
 			output.newLine
-			output.append('''finishedTestWith(TestRunReporter.Status.OK); // reaching this line of code means successful test execution''')
+			output.append('finishedTestWith(').appendTestRunReporterType.append('.Status.OK); // reaching this line of code means successful test execution')
 		]
 	}
 
@@ -368,12 +368,15 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			output.append('''
 			} catch (AssertionError e) {
 			  «reporterFieldName».assertionExit(e);
-			  finishedTestWith(TestRunReporter.Status.ERROR);
-			  org.junit.Assert.fail(e.getMessage());''')
-			  
+			  finishedTestWith(''').appendTestRunReporterType.append('''.Status.ERROR);
+  org.junit.Assert.fail(e.getMessage());''')
 			
 			output.increaseIndentation
 		]
+	}
+	
+	private def appendTestRunReporterType(ITreeAppendable output) {
+		output.append(typeReferenceUtil.buildFrom(TestRunReporter).type) 
 	}
 
 	/**
@@ -391,16 +394,16 @@ class TclJvmModelInferrer extends AbstractModelInferrer {
 			output.append('''
 				} catch («FixtureException.name» e) {
 				  «reporterFieldName».fixtureExit(e);
-				  finishedTestWith(TestRunReporter.Status.ABORTED);
-				  org.junit.Assert.fail(e.getMessage());
+				  finishedTestWith(''').appendTestRunReporterType.append('''.Status.ABORTED);
+  org.junit.Assert.fail(e.getMessage());
 			''')
 		}
 		output.append('''
 		} catch (Exception e) {
 		  «reporterFieldName».exceptionExit(e);
-		  finishedTestWith(TestRunReporter.Status.ABORTED);
-		  org.junit.Assert.fail(e.getMessage());
-		}''')
+		  finishedTestWith(''').appendTestRunReporterType.append('''.Status.ABORTED);
+  org.junit.Assert.fail(e.getMessage());
+}''')
 	}
 
 	def void generateMethodBody(Macro macro, ITreeAppendable output, EList<JvmFormalParameter> parameters) {
