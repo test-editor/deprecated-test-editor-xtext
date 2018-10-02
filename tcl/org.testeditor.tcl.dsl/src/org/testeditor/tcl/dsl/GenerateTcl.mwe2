@@ -16,7 +16,6 @@ import org.eclipse.emf.mwe.utils.*
 import org.eclipse.xtext.xtext.generator.*
 import org.eclipse.xtext.xtext.generator.model.project.*
 import org.eclipse.xtext.generator.adapter.FragmentAdapter
-import org.eclipse.xtext.ui.generator.projectWizard.SimpleProjectWizardFragment
 
 var projectName = "org.testeditor.tcl.dsl"
 var rootPath = ".."
@@ -34,17 +33,16 @@ Workflow {
 		directory = "${runtimeProject}.ide/src-gen"
 	}
 	
-	component = DirectoryCleaner {
-		directory = "${runtimeProject}.ui/src-gen"
-	}
-	
 	component = XtextGenerator {
 		configuration = {
 			project = StandardProjectConfig {
 				baseName = projectName
 				rootPath = rootPath
-				eclipsePlugin = {
+				genericIde = {
 					enabled = true
+				}
+				eclipsePlugin = {
+					enabled = false
 				}
 				createEclipseMetaData = true
 			}

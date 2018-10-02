@@ -17,17 +17,6 @@
 		<deploy.skip>true</deploy.skip>
 	</properties>
 
-	<profiles>
-		<profile>
-			<id>rcp</id>
-			<modules>
-				<module>org.testeditor.aml.dsl.ui</module>
-				<module>org.testeditor.aml.dsl.ui.tests</module>
-				<module>org.testeditor.aml.sdk</module>
-			</modules>
-		</profile>
-	</profiles>
-
 	<modules>
 		<module>org.testeditor.aml.model</module>
 		<module>org.testeditor.aml.dsl</module>

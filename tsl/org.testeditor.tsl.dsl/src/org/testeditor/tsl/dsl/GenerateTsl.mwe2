@@ -32,17 +32,16 @@ Workflow {
 		directory = "${runtimeProject}.ide/src-gen"
 	}
 	
-	component = DirectoryCleaner {
-		directory = "${runtimeProject}.ui/src-gen"
-	}
-
 	component = XtextGenerator {
 		configuration = {
 			project = StandardProjectConfig {
 				baseName = "org.testeditor.tsl.dsl"
 				rootPath = rootPath
-				eclipsePlugin = {
+				genericIde = {
 					enabled = true
+				}
+				eclipsePlugin = {
+					enabled = false
 				}
 				web = {
 					enabled = true

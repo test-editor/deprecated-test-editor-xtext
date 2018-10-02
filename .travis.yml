@@ -17,21 +17,12 @@ before_install:
   - export MAVEN_OPTS="-Xms256m -Xmx512m"
 stages:
   - name: compileFeature
-    # just the language is built (te-web needs no more)
-    if: (NOT (branch IN (master, develop) OR tag =~ ^v.*$ OR type IN (pull_request)))
-  - name: compileRcp
-    # complete build (including eclipse plugins, rcp and product)
-    if: branch IN (master, develop) OR tag =~ ^v.*$ OR type IN (pull_request)
 jobs:
   include:
     - stage: compileFeature
       script:
       - mvn clean install -f "target-platform/pom.xml"
       - mvn clean install -Dsurefire.useFile=false -Dtycho.localArtifacts=ignore
-    - stage: compileRcp
-      script:
-      - mvn clean install -f "target-platform/pom.xml"
-      - mvn clean install -Dmaven.test.failure.ignore -Dsurefire.useFile=false -Dtycho.localArtifacts=ignore -Prcp,product
 after_success:
   - bash <(curl -s https://codecov.io/bash)
   - ./.travis-publishOnRelease.sh # publishes only if tagged with v.*

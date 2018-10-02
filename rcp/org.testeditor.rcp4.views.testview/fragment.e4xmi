@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="ASCII"?>
-<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmi:id="_RVbtsNvVEeW6NpBvRqtWQA">
-  <imports xsi:type="basic:TrimmedWindow" xmi:id="_HskiwNvlEeWUvPZnaDaWXg" elementId="org.testeditor.rcp4.views.testview.trimmedwindow.0"/>
-  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_R00YYNvVEeW6NpBvRqtWQA" featurename="children" parentElementId="stack.explorer">
-    <elements xsi:type="basic:Part" xmi:id="_9d4NENvXEeW6NpBvRqtWQA" elementId="org.eclipse.jdt.junit.ResultView" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityView" label="JUnit" iconURI="platform:/plugin/org.eclipse.jdt.junit/icons/full/eview16/junit.gif"/>
-  </fragments>
-</fragment:ModelFragments>

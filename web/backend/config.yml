@@ -1,9 +1,0 @@
-
-logging:
-  appenders:
-    - type: console
-      threshold: INFO
-      logFormat: "[%thread] %X{audit-identifier} %-5level %logger{36} - %msg%n"
-
-server:
-  rootPath: "/api/*"
