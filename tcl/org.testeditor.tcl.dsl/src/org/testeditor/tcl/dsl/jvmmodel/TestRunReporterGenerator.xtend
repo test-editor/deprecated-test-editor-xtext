@@ -1,12 +1,14 @@
 package org.testeditor.tcl.dsl.jvmmodel
 
 import java.util.List
+import java.util.Optional
 import javax.inject.Inject
 import org.apache.commons.lang3.StringEscapeUtils
 import org.apache.commons.lang3.StringUtils
 import org.eclipse.xtext.common.types.JvmType
 import org.eclipse.xtext.common.types.JvmTypeReference
 import org.slf4j.LoggerFactory
+import org.testeditor.fixture.core.MaskingString
 import org.testeditor.fixture.core.TestRunReporter.Action
 import org.testeditor.fixture.core.TestRunReporter.SemanticUnit
 import org.testeditor.fixture.core.TestRunReporter.Status
@@ -18,6 +20,7 @@ class TestRunReporterGenerator {
 
 	@Inject TclExpressionBuilder expressionBuilder
 	@Inject TclGeneratorConfig generatorConfig
+	@Inject TclExpressionTypeComputer typeComputer
 	@Inject extension TclModelUtil
 
 	static val logger = LoggerFactory.getLogger(TestRunReporterGenerator)
@@ -27,11 +30,18 @@ class TestRunReporterGenerator {
 		val variablesValuesList = if (variables !== null) {
 				try {
 					variables.filterNull.map [
+						val varType = typeComputer.determineType(variable, Optional.empty)?.qualifiedName
+						val maskingType = MaskingString.name
+						
 						'''"«if (it instanceof VariableReferencePathAccess) { 
 							StringEscapeUtils.escapeJava(restoreString)
 						}else{ 
 							variable.name
-						}»", «expressionBuilder.buildReadExpression(it, stringTypeReference)»'''
+						}»", «if (maskingType.equals(varType)) {
+							'"*****"'
+						} else {
+							expressionBuilder.buildReadExpression(it, stringTypeReference)
+						}»'''
 					].filterNull.join(', ')
 				} catch (RuntimeException e) {
 					logger.warn('error during generation of parameter passing for reporting', e)

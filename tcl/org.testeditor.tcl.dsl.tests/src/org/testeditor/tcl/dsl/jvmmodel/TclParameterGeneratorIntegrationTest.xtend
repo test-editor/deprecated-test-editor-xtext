@@ -108,9 +108,9 @@ class TclParameterGeneratorIntegrationTest extends AbstractTclGeneratorIntegrati
 			      String IDvar5=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "Start application @myVal", IDvar5, TestRunReporter.Status.STARTED, variables("myVal", myVal));
 			      dummyFixture.startApplication(myVal);
 			      reporter.leave(TestRunReporter.SemanticUnit.STEP, "Start application @myVal", IDvar5, TestRunReporter.Status.OK, variables("myVal", myVal));
-			      String IDvar6=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "Type confidential @confEnvVar into <Input>", IDvar6, TestRunReporter.Status.STARTED, variables());
+			      String IDvar6=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "Type confidential @confEnvVar into <Input>", IDvar6, TestRunReporter.Status.STARTED, variables("confEnvVar", "*****"));
 			      dummyFixture.typeConfidentialInformationInto("some", org.testeditor.dsl.common.testing.DummyLocatorStrategy.ID, env_confEnvVar);
-			      reporter.leave(TestRunReporter.SemanticUnit.STEP, "Type confidential @confEnvVar into <Input>", IDvar6, TestRunReporter.Status.OK, variables());
+			      reporter.leave(TestRunReporter.SemanticUnit.STEP, "Type confidential @confEnvVar into <Input>", IDvar6, TestRunReporter.Status.OK, variables("confEnvVar", "*****"));
 			      String IDvar7=newVarId(); reporter.enter(TestRunReporter.SemanticUnit.STEP, "Type @nonConfEnvVar into <Input>", IDvar7, TestRunReporter.Status.STARTED, variables("nonConfEnvVar", env_nonConfEnvVar));
 			      dummyFixture.typeInto("some", org.testeditor.dsl.common.testing.DummyLocatorStrategy.ID, env_nonConfEnvVar);
 			      reporter.leave(TestRunReporter.SemanticUnit.STEP, "Type @nonConfEnvVar into <Input>", IDvar7, TestRunReporter.Status.OK, variables("nonConfEnvVar", env_nonConfEnvVar));
