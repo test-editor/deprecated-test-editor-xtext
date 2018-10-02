@@ -1,0 +1,2 @@
+include 'org.testeditor.logging'
+include 'org.testeditor.dsl.common'

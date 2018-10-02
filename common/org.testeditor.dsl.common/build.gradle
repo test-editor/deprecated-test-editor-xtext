@@ -1,0 +1,21 @@
+configurations {
+    addToLib
+}
+
+dependencies {
+    compile "org.testeditor.fixture:core-fixture:4.1.+"
+    compile 'com.google.code.gson:gson:2.8.5'
+    compile 'org.eclipse.core:resources:3.3.0-v20070604'
+    compile 'org.eclipse.platform:org.eclipse.e4.core.contexts:1.7.100'
+    compile 'org.eclipse.jdt:org.eclipse.jdt.core:3.15.0'
+    addToLib "org.testeditor.fixture:core-fixture:4.1.+"
+	compile "org.eclipse.xtext:org.eclipse.xtext:${xtextVersion}"
+	compile "org.eclipse.xtext:org.eclipse.xtext.xbase:${xtextVersion}"
+}
+
+
+task copyRuntimeLibs(type: Copy) {
+    into "lib-test"
+    from configurations.addToLib
+    include "/**/core-fixture-*"
+}

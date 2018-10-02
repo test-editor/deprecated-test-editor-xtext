@@ -1,0 +1,8 @@
+dependencies {
+    compile "org.apache.logging.log4j:log4j-slf4j-impl:2.5"
+    compile "org.apache.logging.log4j:log4j-api:2.5"
+    compile "org.apache.logging.log4j:log4j-core:2.5"
+    compile "org.slf4j:slf4j-api:1.7.18"
+	compile "org.eclipse.xtext:org.eclipse.xtext:${xtextVersion}"
+	compile "org.eclipse.xtext:org.eclipse.xtext.xbase:${xtextVersion}"
+}

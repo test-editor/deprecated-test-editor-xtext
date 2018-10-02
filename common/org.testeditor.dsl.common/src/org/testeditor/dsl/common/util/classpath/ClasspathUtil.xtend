@@ -26,24 +26,22 @@ import org.eclipse.jdt.core.IJavaElement
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.xtext.EcoreUtil2
 import org.slf4j.LoggerFactory
-import org.testeditor.dsl.common.util.WorkspaceHelper
 
 class ClasspathUtil {
 
 	static val logger = LoggerFactory.getLogger(ClasspathUtil)
 
-	@Inject WorkspaceHelper workspaceHelper
 	@Inject MavenClasspathUtil mavenClasspathUtil
 	@Inject GradleClasspathUtil gradleClasspathUtil
 	
-	// called from within rcp
+	// called by AmlDelegateScopeProvider (for example) to derive package name
 	def String inferPackage(IJavaElement javaElement) {
 		val path = javaElement.resource.fullPath
 		val classpath = getClasspathEntryFor(path, true)
 		return packageForPath(path, classpath)
 	}
 
-	// called from rcp or during build (outside of rcp)
+	// called by AmlDelegateScopeProvider (for example) to derive package name
 	def String inferPackage(EObject element) {
 		val elementURI = EcoreUtil2.getPlatformResourceOrNormalizedURI(element)
 		val originPath = new Path(elementURI.trimFragment.path)
@@ -64,11 +62,7 @@ class ClasspathUtil {
 	}
 	
 	def private IPath getClasspathEntryFor(IPath path, boolean isEclipseLocal) {
-		if (isEclipseLocal) {
-			return path.getEclipseClasspathEntry
-		} else {
-			return path.getBuildToolClasspathEntry
-		}
+		return path.getBuildToolClasspathEntry
 	}
 
 	@VisibleForTesting
@@ -111,13 +105,6 @@ class ClasspathUtil {
 			}
 		}
 		return null
-	}
-
-	def IPath getEclipseClasspathEntry(IPath path) {
-		logger.info("Get classpath entries from workspaceHelper using path='{}'", path)
-		val classpathEntries = getSourceClasspathEntries(workspaceHelper.root.getFile(path).project)
-		logger.debug("Found eclipse classpath entries = '{}'", classpathEntries.join(', '))
-		return classpathEntries.findFirst[it.path.isPrefixOf(path)]?.path
 	}
 
 	def Iterable<IClasspathEntry> getSourceClasspathEntries(IProject project) {

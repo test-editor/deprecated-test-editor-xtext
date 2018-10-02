@@ -1,0 +1,82 @@
+buildscript {
+	repositories {
+		jcenter()
+		maven {
+			url "https://plugins.gradle.org/m2/"
+		}
+	}
+	dependencies {
+		classpath 'org.xtext:xtext-gradle-plugin:+' //' 1.0.21'
+	}
+}
+
+task printBuildScriptClasspath << {
+	println project.buildscript.configurations.classpath.asPath
+}
+
+subprojects {
+	ext.xtextVersion = '2.13.0'
+	ext.mwe2Version = '2.9.1.201705291010'
+	repositories {
+		jcenter()
+		mavenCentral()
+	}
+
+	apply plugin: 'java'
+	apply plugin: 'org.xtext.xtend'
+    apply plugin: 'maven'
+	apply plugin: 'eclipse'
+
+	group = 'org.testeditor.common'
+	version = '2.0.0-SNAPSHOT'
+
+	sourceCompatibility = '1.8'
+	targetCompatibility = '1.8'
+
+	configurations.all {
+		exclude group: 'asm'
+	}
+
+    sourceSets {
+	    main {
+		    java.srcDirs = ['src', 'xtext-gen']
+		    resources.srcDirs = ['resources', 'xtext-gen']
+		    xtendOutputDir = 'xtend-gen'
+	    }
+	    test {
+		    java.srcDirs = ['src', 'xtext-gen']
+		    resources.srcDirs = ['resources', 'xtext-gen']
+		    xtendOutputDir = 'xtend-gen'
+	    }
+    }
+
+    jar {
+	    from('model') {
+		    into('model')
+	    }
+	    from(sourceSets.main.allSource) {
+		    include '**/*.xtext'
+	    }
+	    manifest {
+		    attributes 'Bundle-SymbolicName': project.name
+	    }
+        from('lib') {
+            into('lib')
+        }
+    }
+
+    plugins.withId('war') {
+	    webAppDirName = "src/main/webapp"
+    }
+
+    //see https://docs.gradle.org/current/userguide/maven_plugin.html
+
+    uploadArchives {
+	    repositories {
+		    mavenDeployer {
+			    repository(url: "file://${buildDir}/localRepo")
+			    snapshotRepository(url: "file://${buildDir}/localRepo")
+		    }
+	    }
+    }
+}
