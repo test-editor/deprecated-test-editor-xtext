@@ -1,5 +1,11 @@
-test-editor-xtext
+DEPRECATED  test-editor-xtext
 =================
+
+:warning: **WARNING** This project is deprecated because the Test-Editor Team decided to cut off the RCP functionality  for the sake of the Test-Editor-Web in October 2018 :warning:
+
+The new test-editor-xtext-gradle repository for the project :star:Test-Editor-Web:star: can be found under [test-editor-xtext-gradle](https://github.com/test-editor/test-editor-xtext-gradle) 
+
+
 
 [![License](http://img.shields.io/badge/license-EPL-blue.svg?style=flat)](https://www.eclipse.org/legal/epl-v10.html)
 [ ![Download](https://api.bintray.com/packages/test-editor/maven/test-editor/images/download.svg) ](https://bintray.com/test-editor/maven/test-editor/_latestVersion)
